@@ -11,9 +11,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
+    /// <summary>Supplied body colors, omitted when every entry matches the calculated stock animation.</summary>
     private readonly ushort[][]? body;
+    /// <summary>Only bubble entries that differ from the calculated ramp, keyed by flattened frame/color index.</summary>
     private readonly Dictionary<int, ushort> bubble = [];
 
+    /// <summary>Stores non-calculated body rows and bubble samples that must retain their supplied values.</summary>
+    /// <param name="body">Validated RGB555 rows for the ten body frames.</param>
+    /// <param name="bubble">Validated RGB555 rows for the six bubble frames.</param>
     private CrystalFlashColorCatalog(ushort[][] body, ushort[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
@@ -32,6 +37,7 @@ public sealed class CrystalFlashColorCatalog
                 this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
     }
 
+    /// <summary>Strict camel-case JSON settings shared by Crystal Flash document reads and writes.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -162,6 +168,13 @@ public sealed class CrystalFlashColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates palette dimensions and RGB5 channels, then converts each color to an SNES word.</summary>
+    /// <param name="source">Nullable frame and color arrays decoded from the JSON document.</param>
+    /// <param name="frameCount">Required number of frames for this palette portion.</param>
+    /// <param name="colorCount">Required colors in every frame.</param>
+    /// <param name="name">Palette portion name included in validation errors.</param>
+    /// <returns>Compiled RGB555 words in the same frame and color order as the source.</returns>
+    /// <exception cref="InvalidDataException">A frame array, color array, or RGB5 channel has an invalid value or dimension.</exception>
     private static ushort[][] Compile(PaletteRgb5[][]? source, int frameCount,
         int colorCount, string name)
     {
@@ -188,6 +201,8 @@ public sealed class CrystalFlashColorCatalog
         return result;
     }
 
+    /// <summary>Rejects repeated property names throughout a decoded JSON value before schema deserialization.</summary>
+    /// <param name="value">Root JSON element whose object properties are checked recursively.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crystal Flash color property {name}."));

@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares the Yard direction and airborne instruction tables with cartridge data,
+    /// then exercises the production paths that consume their migrated definitions.
+    /// </summary>
+    /// <param name="rom">Address space containing the cartridge tables used as the reference.</param>
     private static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
     {
         const int directionAddress = 0xa3cd42;
@@ -151,6 +156,14 @@ internal static partial class Program
             "Yard direction definitions: 48 direction words and all 24 duplicated airborne-list words match ROM; every real initializer, turn, detach, contact-kick and shot-launch handoff passes with the fixed tables forbidden.");
     }
 
+    /// <summary>
+    /// Checks the slot and typed Yard state fields selected for one direction transition.
+    /// </summary>
+    /// <param name="slot">Enemy slot whose active instruction list and property bits are checked.</param>
+    /// <param name="state">Typed state holding the Yard hiding list, airborne facing, and movement function.</param>
+    /// <param name="expected">Definition whose direction-specific values should be installed.</param>
+    /// <param name="name">Context included in assertion messages to identify the transition under check.</param>
+    /// <param name="assertMovementFunction">Whether the transition is expected to install its movement function.</param>
     private static void AssertYardDirectionState(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -173,6 +186,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks that a detach or launch copied the facing-specific visible and hiding lists.
+    /// </summary>
+    /// <param name="slot">Enemy slot containing the active visible instruction list.</param>
+    /// <param name="state">Typed Yard state containing the selected hiding instruction list.</param>
+    /// <param name="expected">Airborne list pair selected by the launch facing.</param>
+    /// <param name="name">Context included in assertion messages to identify the handoff under check.</param>
     private static void AssertYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -185,11 +205,26 @@ internal static partial class Program
             $"{name} hiding list");
     }
 
+    /// <summary>
+    /// Forwards cartridge access while failing if gameplay tries to read the migrated Yard tables.
+    /// </summary>
+    /// <param name="source">Underlying address space used for accesses outside the guarded table ranges.</param>
     private sealed class YardDirectionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes an imported cartridge read through the same guard applied to normal bus reads.
+        /// </summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte at <paramref name="address"/> when it is outside the migrated tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from the migrated Yard direction and airborne-list tables.
+        /// </summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at <paramref name="address"/> when it is not in a guarded table.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a migrated Yard table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa3cd42 and < 0xa3cd82 or
                 >= 0xa3cdc2 and < 0xa3cde2 or
@@ -200,6 +235,11 @@ internal static partial class Program
                     $"Yard attempted migrated direction/list read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>
+        /// Preserves writes by forwarding them to the wrapped address space.
+        /// </summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

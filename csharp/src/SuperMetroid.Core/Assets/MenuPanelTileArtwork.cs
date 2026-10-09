@@ -5,10 +5,17 @@ namespace SuperMetroid.Core.Assets;
 /// and lower highlight8 bands directly; only independently supplied pixel edits remain.</summary>
 internal sealed class MenuPanelTileArtwork
 {
+    /// <summary>Number of menu-panel tiles represented by this artwork view.</summary>
     internal const int TileCount = 4;
+    /// <summary>Pixel overrides for cells that differ from the procedurally calculated panel basis.</summary>
     private readonly Dictionary<int, byte>? edits;
+    /// <summary>Checks whether a tile index belongs to the four-cell menu-panel strip.</summary>
+    /// <param name="tile">OBJ tile index to test.</param>
+    /// <returns><see langword="true"/> for tile indices 0x57 through 0x5A.</returns>
     internal static bool Contains(int tile) => tile is >= 0x57 and <= 0x5a;
 
+    /// <summary>Captures only source pixels that differ from the generated panel pattern.</summary>
+    /// <param name="image">Indexed artwork atlas containing the menu-panel tiles.</param>
     internal MenuPanelTileArtwork(IndexedPngImage image)
     {
         for (int tile = 0x57; tile <= 0x5a; tile++)
@@ -20,12 +27,23 @@ internal sealed class MenuPanelTileArtwork
         }
     }
 
+    /// <summary>Gets a panel pixel from its stored override or the generated basis pattern.</summary>
+    /// <param name="tile">OBJ tile index in the supported panel strip.</param>
+    /// <param name="x">Zero-based horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Zero-based vertical pixel coordinate within the tile.</param>
+    /// <returns>The indexed color at the requested tile pixel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is outside the panel strip or either pixel coordinate is outside the 8-by-8 tile.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates the shared corner-and-edge pattern used when no source pixel override exists.</summary>
+    /// <param name="tile">OBJ tile index in the panel strip.</param>
+    /// <param name="x">Zero-based horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Zero-based vertical pixel coordinate within the tile.</param>
+    /// <returns>The basis palette index for that pixel.</returns>
     private static byte Basis(int tile, int x, int y)
     {
         int row = y + (tile >= 0x59 ? 8 : 0);

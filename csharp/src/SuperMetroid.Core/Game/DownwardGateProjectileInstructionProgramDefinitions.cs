@@ -15,7 +15,10 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
     /// <summary>Initial closed-gate sleep instruction at $86:E566.</summary>
     internal const ushort ClosedSleep = 0xe566;
 
+    /// <summary>Number of instruction words whose operands control projectile behavior.</summary>
     public static int MechanicsWordCount => 28;
+
+    /// <summary>Number of spritemap pointer words left as live presentation data.</summary>
     public static int PresentationWordCount => 9;
 
     /// <summary>
@@ -48,6 +51,10 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Describes one pose or sleep operand in a four-stage gate movement sequence.</summary>
+    /// <param name="start">Address of the first pose instruction in the sequence.</param>
+    /// <param name="word">Zero-based mechanics-word offset within the sequence.</param>
+    /// <returns>The instruction address and the pose pointer or sleep opcode stored there.</returns>
     private static InstructionMechanicsWord MovementPoseWord(ushort start, int word)
     {
         bool sleep = (word & 1) != 0;
@@ -55,6 +62,9 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
             sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
     }
 
+    /// <summary>Maps a presentation-word index to its native spritemap operand address.</summary>
+    /// <param name="index">Zero-based index within the live presentation words.</param>
+    /// <returns>Address of the corresponding word in the moving or closed instruction list.</returns>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -62,10 +72,17 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         return (ushort)(index < 4 ? Moving + 10 + 6 * index
             : index == 4 ? Closed + 6 : Closed + 16 + 6 * (index - 5));
     }
+    /// <summary>Reports whether this compiled definition controls either downward-gate projectile variant.</summary>
+    /// <param name="kind">Projectile kind to test.</param>
+    /// <returns><see langword="true"/> for the moving or closed downward gate.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DownwardGateMoving or
         RoomEnemyProjectileKind.DownwardGateClosed;
 
+    /// <summary>Resolves the compiled behavioral operand stored at a native instruction address.</summary>
+    /// <param name="address">Instruction-list address to look up.</param>
+    /// <returns>The compiled mechanics word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

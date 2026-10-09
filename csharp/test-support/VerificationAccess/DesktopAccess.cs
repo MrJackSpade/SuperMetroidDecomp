@@ -8,8 +8,10 @@ using SuperMetroid.Desktop;
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess
 {
+    /// <summary>Provides verification-only reads of the private waveOut buffer state.</summary>
     extension(WaveOutAudioDevice device)
     {
+        /// <summary>Counts device slots whose PCM buffers have been prepared for submission.</summary>
         internal int PreparedBufferCountForVerification
         {
             get
@@ -19,6 +21,7 @@ internal static class DesktopAccess
             }
         }
 
+        /// <summary>Counts prepared buffers that waveOut has not yet marked complete.</summary>
         internal int NativeQueuedBufferCountForVerification
         {
             get
@@ -47,6 +50,7 @@ internal static class DesktopAccess
         }
     }
 
+    /// <summary>Provides verification-only access to the error reporter's queued work.</summary>
     extension(GitHubErrorReporter reporter)
     {
         /// <summary>Queues a flush marker behind every pending report and waits for the worker to reach it.</summary>
@@ -81,6 +85,10 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), gameOptions, replay, errorReporter, audioDirectory);
 
+    /// <summary>Opens or installs the game assets beside a ROM, or opens an explicitly supplied extracted-data directory.</summary>
+    /// <param name="romPath">Cartridge path used to locate or create its adjacent installation when no data directory is supplied.</param>
+    /// <param name="dataDirectory">Optional extracted-data directory that takes precedence over the ROM-adjacent installation.</param>
+    /// <returns>The installation containing the extracted game assets.</returns>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
         if (dataDirectory is not null)
@@ -91,6 +99,9 @@ internal static class DesktopAccess
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 
+    /// <summary>Enumerates the device's private native buffer-slot objects for verification projections.</summary>
+    /// <param name="device">WaveOut device whose slot array is inspected.</param>
+    /// <returns>The slot objects backing the device's submitted audio buffers.</returns>
     private static IEnumerable<object> Slots(WaveOutAudioDevice device) =>
         PrivateState.Field<Array>(device, "slots").Cast<object>();
 }
@@ -100,6 +111,9 @@ namespace SuperMetroid.Desktop
     /// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>
     internal static class ExtractedAudioAssetLocator
     {
+        /// <summary>Finds extracted audio by walking parent directories from the working and executable locations.</summary>
+        /// <returns>The first audio directory containing the extracted-audio manifest.</returns>
+        /// <exception cref="DirectoryNotFoundException">No supported extracted-audio directory is found.</exception>
         internal static string FindAudioDirectory()
         {
             foreach (string start in new[] { Environment.CurrentDirectory, AppContext.BaseDirectory })

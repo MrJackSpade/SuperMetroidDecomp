@@ -4,6 +4,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled HUD movement and posture policies against native handlers and their gameplay consumers.</summary>
+    /// <param name="rom">Cartridge address space supplying the movement-handler table and posture policy bytes.</param>
     private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -80,17 +82,33 @@ internal static partial class Program
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }
 
+    /// <summary>Prevents consumers from rereading compiled HUD policy tables while forwarding unrelated memory access.</summary>
+    /// <param name="source">Underlying mutable address space for reads and writes outside the guarded ROM ranges.</param>
     private sealed class HudPolicyReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge imports through the guard for compiled HUD policy reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The permitted byte from the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled HUD policy range.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Forwards a work-RAM read to the wrapped mutable memory.</summary>
+        /// <param name="address">Work-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the wrapped mutable memory.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects reads of the compiled movement-handler and posture-policy ROM ranges.</summary>
+        /// <param name="address">Address of the byte requested.</param>
+        /// <returns>The wrapped source byte when the address is outside both guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address targets a compiled HUD policy byte.</exception>
         public byte ReadByte(int address)
         {
             int postureStart = SamusHudRomData.TransitionFlags -
@@ -103,6 +121,9 @@ internal static partial class Program
                 throw new InvalidOperationException($"Compiled HUD policy read ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the wrapped mutable address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

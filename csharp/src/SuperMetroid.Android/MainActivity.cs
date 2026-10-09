@@ -16,10 +16,15 @@ namespace SuperMetroid.Android;
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
 public sealed partial class MainActivity : Activity
 {
+    /// <summary>The installed-game session whose input and worker lifetime are controlled by this activity.</summary>
     private AndroidGameSession? session;
+    /// <summary>Whether Android has delivered <see cref="OnResume"/> without a matching pause.</summary>
     private bool resumed;
+    /// <summary>Whether this activity currently owns window focus, one of the conditions for running gameplay.</summary>
     private bool focused;
+    /// <summary>Set during destruction so late asynchronous setup callbacks cannot update or restart this activity.</summary>
     private bool destroyed;
+    /// <summary>Cancellation source for installation repair and cartridge setup work that must stop when the activity is destroyed.</summary>
     private readonly CancellationTokenSource setupStopping = new();
 
     /// <summary>Initializes immersive display and host focus services, then starts cancellable installation repair or cartridge setup.</summary>
@@ -34,6 +39,8 @@ public sealed partial class MainActivity : Activity
         _ = PrepareAssets(status);
     }
 
+    /// <summary>Opens or repairs the private game installation asynchronously, then starts the installed game or presents cartridge setup.</summary>
+    /// <param name="status">The activity-owned status view updated with installation progress while the activity remains alive.</param>
     private async Task PrepareAssets(TextView status)
     {
         try

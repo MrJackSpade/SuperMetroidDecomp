@@ -24,6 +24,8 @@ internal static partial class Program
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
+    /// <summary>Compares native and compiled Ceres room-FX consumers while forbidding rereads of the compiled source records.</summary>
+    /// <param name="bus">Cartridge address space used for the native reference path and allowed non-record data.</param>
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
@@ -82,12 +84,22 @@ internal static partial class Program
             "Ceres compiled treadmill animation count");
     }
 
+    /// <summary>Wraps cartridge access and rejects reads from room-FX source-record bytes already represented by compiled definitions.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class RoomFxRecordReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Addresses of all bytes occupied by compiled room-FX records in the supported catalog.</summary>
         private static readonly HashSet<int> Forbidden = BuildForbidden();
 
+        /// <summary>Routes importer reads through the source-record read guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The requested byte when it is not part of a compiled room-FX record.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled room-FX records and delegates all other reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a room-FX record represented by compiled definitions.</exception>
         public byte ReadByte(int address)
         {
             if (Forbidden.Contains(address))
@@ -96,8 +108,13 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Builds the complete byte-address set covered by records in the generated room-FX catalog.</summary>
+        /// <returns>Addresses rejected by <see cref="ReadByte"/>.</returns>
         private static HashSet<int> BuildForbidden()
         {
             var result = new HashSet<int>();

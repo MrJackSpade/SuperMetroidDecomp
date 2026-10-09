@@ -8,8 +8,13 @@ using System.Runtime.CompilerServices;
 /// <summary>Verification access to <see cref="RenderFrameSnapshotCodec"/> members production does not use.</summary>
 internal static class RenderFrameSnapshotCodecAccess
 {
+    /// <summary>Exposes the bounded snapshot decoder to verification projects without widening the production API.</summary>
     extension(RenderFrameSnapshotCodec)
     {
+        /// <summary>Checks the packet-size limit before invoking the production snapshot decoder on the supplied bytes.</summary>
+        /// <param name="bytes">Serialized frame snapshot packet.</param>
+        /// <returns>The decoded render-frame snapshot.</returns>
+        /// <exception cref="InvalidDataException">The packet exceeds the maximum render-packet size.</exception>
         internal static RenderFrameSnapshot Deserialize(ReadOnlySpan<byte> bytes)
         {
             if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
@@ -22,6 +27,7 @@ internal static class RenderFrameSnapshotCodecAccess
 /// <summary>Verification access to <see cref="SnesBgTilemapRenderer"/> members production does not use.</summary>
 internal static class SnesBgTilemapRendererAccess
 {
+    /// <summary>Provides verification-only access to tilemap rendering overloads used to exercise BG formats and scrolling.</summary>
     extension(SnesBgTilemapRenderer)
     {
         /// <summary>
@@ -109,9 +115,13 @@ internal static class SnesGameplayFrameRendererAccess
             source.A);
     }
 
+    /// <summary>Expands a five-bit color component to eight bits by repeating its high bits into the low three bits.</summary>
+    /// <param name="value">Five-bit channel value in the low bits.</param>
+    /// <returns>The corresponding eight-bit channel value.</returns>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
+    /// <summary>Provides verification-only access to gameplay-frame composition helpers used by renderer contract checks.</summary>
     extension(SnesGameplayFrameRenderer)
     {
         /// <summary>
@@ -253,6 +263,7 @@ internal static class SnesGameplayFrameRendererAccess
 /// <summary>Verification access to <see cref="SnesMode7Renderer"/> members production does not use.</summary>
 internal static class SnesMode7RendererAccess
 {
+    /// <summary>Exposes Mode 7 viewport rendering with explicit matrix and outside-map policies to verification callers.</summary>
     extension(SnesMode7Renderer)
     {
         /// <summary>
@@ -310,6 +321,7 @@ internal static class SnesMode7RendererAccess
 /// <summary>Verification access to <see cref="SnesObjRenderer"/> members production does not use.</summary>
 internal static class SnesObjRendererAccess
 {
+    /// <summary>Exposes OBJ rendering and resolved-priority output to verification callers without changing production visibility.</summary>
     extension(SnesObjRenderer)
     {
         /// <summary>

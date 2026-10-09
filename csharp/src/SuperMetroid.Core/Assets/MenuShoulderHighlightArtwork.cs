@@ -7,10 +7,18 @@ namespace SuperMetroid.Core.Assets;
 /// the remaining frame. No original pixel data or generated contour cache is kept.</summary>
 internal sealed class MenuShoulderHighlightArtwork
 {
+    /// <summary>Number of authored tiles participating in the shoulder-button highlight composition.</summary>
     internal const int TileCount = 4;
+    /// <summary>Sparse pixel overrides where the editable PNG differs from the generated geometric basis.</summary>
     private readonly Dictionary<int, byte>? edits;
+
+    /// <summary>Checks whether a tile index is one of the four shoulder-highlight corner or body tiles.</summary>
+    /// <param name="tile">Tile index within the menu artwork atlas.</param>
+    /// <returns>True for the two corner tiles and their vertically mirrored body tiles.</returns>
     internal static bool Contains(int tile) => tile is 0x3c or 0x3d or 0x43 or 0x51;
 
+    /// <summary>Captures authored pixels that differ from the procedural highlight shape.</summary>
+    /// <param name="image">Indexed artwork image containing the four source tiles in the menu atlas layout.</param>
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)
     {
         for (int tile = 0x3c; tile <= 0x51; tile++)
@@ -25,12 +33,23 @@ internal sealed class MenuShoulderHighlightArtwork
         }
     }
 
+    /// <summary>Returns an authored pixel override or the generated basis pixel for a tile coordinate.</summary>
+    /// <param name="tile">One of the four supported shoulder-highlight tile indexes.</param>
+    /// <param name="x">Horizontal pixel coordinate within the 8-by-8 tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the 8-by-8 tile.</param>
+    /// <returns>The palette index selected for that pixel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is unsupported or either coordinate is outside the tile.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates the mirrored frame and quadratic cutout used when no authored pixel override is present.</summary>
+    /// <param name="tile">Supported source tile whose corner/body position determines the mirrored basis region.</param>
+    /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the tile.</param>
+    /// <returns>Palette index 6 for the highlight fill or 0 for the transparent cutout.</returns>
     private static byte Basis(int tile, int x, int y)
     {
         int row = y + (tile is 0x43 or 0x51 ? 8 : 0);

@@ -16,11 +16,20 @@ namespace SuperMetroid.Core.Assets;
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {
+    /// <summary>Maps a heat-palette word address to the first equivalent address in its repeated-row progression.</summary>
+    /// <param name="pointer">Bank-$8D address of a heat-palette color word.</param>
+    /// <param name="canonical">Receives the canonical word address when the pointer is in a supported palette row.</param>
+    /// <returns><see langword="true"/> when the address identifies a color in one of the three suit heat programs.</returns>
     internal static bool TryCanonicalPointer(ushort pointer, out ushort canonical)
         => TrySuit(pointer, PaletteFxHeatSuit.Power, out canonical) ||
            TrySuit(pointer, PaletteFxHeatSuit.Varia, out canonical) ||
            TrySuit(pointer, PaletteFxHeatSuit.Gravity, out canonical);
 
+    /// <summary>Resolves a suit's repeated heat-row address to its source row and matching color slot.</summary>
+    /// <param name="pointer">Candidate color-word address in a heat-palette program.</param>
+    /// <param name="suit">Power, Varia, or Gravity program whose row layout is being examined.</param>
+    /// <param name="canonical">Receives the corresponding source word address, or zero when the pointer is not a color word.</param>
+    /// <returns><see langword="true"/> when the pointer falls on an aligned color word in the suit's animated records.</returns>
     private static bool TrySuit(ushort pointer, PaletteFxHeatSuit suit, out ushort canonical)
     {
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2;
@@ -39,6 +48,11 @@ internal static class HeatPaletteColorDefinitions
         return true;
 
     }
+    /// <summary>Attempts each supported alias and interpolation rule to derive a heat-palette color.</summary>
+    /// <param name="pointer">Bank-$8D address of the candidate color word.</param>
+    /// <param name="colors">Installed color inputs and explicit overrides used by the calculation rules.</param>
+    /// <param name="value">Receives the calculated packed color when a rule recognizes the address.</param>
+    /// <returns><see langword="true"/> when a supported base-color, endpoint, or heat-ramp rule supplies the word.</returns>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
         TryBaseColor(pointer, colors, out value) || TryHighlightEndpoint(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
         TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
@@ -63,6 +77,11 @@ internal static class HeatPaletteColorDefinitions
         return true;
     }
 
+    /// <summary>Resolves a heat row-zero color through its matching normal suit-loading palette entry.</summary>
+    /// <param name="pointer">Heat-palette word address to resolve.</param>
+    /// <param name="colors">Installed palette words used by the loading-palette resolver.</param>
+    /// <param name="value">Receives the matching packed base color when the address has a known alias.</param>
+    /// <returns><see langword="true"/> when the word maps to an available normal loading color.</returns>
     private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
     {
         value = 0;
@@ -70,6 +89,11 @@ internal static class HeatPaletteColorDefinitions
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
     }
 
+    /// <summary>Gets an endpoint input from an explicit edit, its base-palette alias, or a derived highlight.</summary>
+    /// <param name="pointer">Heat-palette endpoint address whose color is needed by a calculation.</param>
+    /// <param name="colors">Installed color values, including any explicit endpoint edits.</param>
+    /// <param name="value">Receives the first matching explicit or derived endpoint color.</param>
+    /// <returns><see langword="true"/> when one of the supported sources provides the endpoint value.</returns>
     private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
         colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value) ||
         TryHighlightEndpoint(pointer, colors, out value);
@@ -119,6 +143,14 @@ internal static class HeatPaletteColorDefinitions
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
 
+    /// <summary>Calculates an interior red-ramp sample while retaining the starting color's green and blue channels.</summary>
+    /// <param name="pointer">Candidate address of an interior palette sample.</param>
+    /// <param name="colors">Installed endpoint values used to interpolate the red component.</param>
+    /// <param name="suit">Suit program containing the ramp's source color.</param>
+    /// <param name="colorIndex">Index of the ramp color within each timed palette record.</param>
+    /// <param name="roundingBias">Integer bias applied before dividing the weighted red sum by four.</param>
+    /// <param name="value">Receives the interpolated color when the address is one of the three interior samples.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a supported interior sample and both endpoints resolve.</returns>
     private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors,
         PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out ushort value)
     {

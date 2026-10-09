@@ -4,8 +4,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EndingFontAtlas
 {
     // Footprint positions, native cutouts and all other artwork remain required.
+    /// <summary>Atlas offsets of supplied foreground pixels used to derive standard alphabet fills and outlines.</summary>
     private readonly HashSet<int> glyphFootprint = new();
+    /// <summary>Supplied pixels retained because they differ from the calculated font rules or are outside the calculated glyph cells.</summary>
     private readonly Dictionary<int, byte> pixels = new();
+
+    /// <summary>Separates caller-supplied atlas pixels into the glyph footprint and pixels that must remain exact.</summary>
+    /// <param name="supplied">Indexed pixels for the complete ending-font atlas.</param>
     private EndingFontAtlas(byte[] supplied)
     {
         for (int pixel = 0; pixel < supplied.Length; pixel++)
@@ -21,6 +26,10 @@ public sealed class EndingFontAtlas
             .Select(Pixel).ToArray(),
         EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height, EndingFontAtlasFormat.BitsPerPixel);
 
+    /// <summary>Returns the supplied or rule-derived ink value for one atlas offset.</summary>
+    /// <param name="pixel">Linear pixel offset in the font atlas.</param>
+    /// <returns>The retained pixel value, or the calculated fill/outline value.</returns>
+    /// <exception cref="InvalidOperationException">The offset has neither a retained value nor a calculable font value.</exception>
     private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
         : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated) ? calculated
         : throw new InvalidOperationException("Required ending font pixel is absent.");
@@ -81,6 +90,10 @@ public static class EndingFontAtlasFormat
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED one-pixel eight-neighbor outline extent.</summary>
     private const int GlyphOutlineWidth = 1;
 
+    /// <summary>Identifies pixels belonging to the native small A–Z result-letter tiles.</summary>
+    /// <param name="pixel">Linear pixel offset in the font atlas.</param>
+    /// <returns><see langword="true"/> when the offset lies within a small alphabet tile.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The offset is outside the atlas.</exception>
     internal static bool IsSmallAlphabetPixel(int pixel)
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
@@ -144,6 +157,11 @@ public static class EndingFontAtlasFormat
             or (0x42, 7, 13) or (0x42, 1, 14) or (0x42, 6, 14)
             or (0x45, 6, 11) or (0x45, 2, 14);
     }
+    /// <summary>Calculates standard transparent, fill, and outline pixels while leaving native glyph exceptions for supplied artwork.</summary>
+    /// <param name="pixel">Linear pixel offset in the font atlas.</param>
+    /// <param name="requiredFootprint">Supplied foreground offsets from which standard glyph ink is derived.</param>
+    /// <param name="ink">Receives the calculated palette index; zero is returned when <paramref name="pixel"/> is an uncovered native exception.</param>
+    /// <returns><see langword="true"/> when the atlas rules define the pixel, including transparent space pixels.</returns>
     internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out byte ink)
     {
         ink = 0;

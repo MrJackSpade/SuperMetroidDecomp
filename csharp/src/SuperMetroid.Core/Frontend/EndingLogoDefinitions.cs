@@ -4,13 +4,25 @@ namespace SuperMetroid.Core.Frontend;
 internal static class EndingLogoDefinitions
 {
 
-    /// <summary>$8B:EF81: upper S, initialized by F18F, moved by F1E7, displaying list EE5D.</summary>
+    /// <summary>
+    /// Defines the moving upper half of the assembling S. F18F initializes it,
+    /// F1E7 advances it toward its landing point, and list EE5D draws it.
+    /// </summary>
     private static EndingLogoActorDefinition UpperS => new(0xf1e7, 0xee5d);
-    /// <summary>$8B:EF87: lower S, initialized by F1A8, moved by F227, displaying list EE65.</summary>
+    /// <summary>
+    /// Defines the moving lower half of the assembling S. F1A8 initializes it,
+    /// F227 advances it toward its landing point, and list EE65 draws it.
+    /// </summary>
     private static EndingLogoActorDefinition LowerS => new(0xf227, 0xee65);
-    /// <summary>$8B:EF8D: upper circle, initialized by F1C1, stationary with right-wrap list EE6D.</summary>
+    /// <summary>
+    /// Defines the stationary upper circle half; its EE6D instruction list wraps
+    /// to the right while the S halves move into place.
+    /// </summary>
     private static EndingLogoActorDefinition UpperCircle => new(EndingRewardActorDefinitions.SharedNoOp, 0xee6d);
-    /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary with left-wrap list EE87.</summary>
+    /// <summary>
+    /// Defines the stationary lower circle half; its EE87 instruction list wraps
+    /// to the left while the S halves move into place.
+    /// </summary>
     private static EndingLogoActorDefinition LowerCircle => new(EndingRewardActorDefinitions.SharedNoOp, 0xee87);
 
     /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
@@ -59,6 +71,8 @@ internal static class EndingLogoDefinitions
 }
 
 /// <summary>One native six-byte final-logo cinematic-object definition.</summary>
+/// <param name="PreInstruction">The native routine address called to update this actor before its instruction list advances.</param>
+/// <param name="InstructionList">The native instruction-list address that supplies this actor's animation and drawing commands.</param>
 internal readonly record struct EndingLogoActorDefinition(
     ushort PreInstruction,
     ushort InstructionList);

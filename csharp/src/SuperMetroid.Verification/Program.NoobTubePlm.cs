@@ -227,6 +227,7 @@ internal static partial class Program
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
 
+    /// <summary>Checks that the native Noob Tube actor records and all supported PLM operand fields match the compiled definitions.</summary>
     private static void VerifyNoobTubeProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -366,13 +367,21 @@ internal static partial class Program
             "already-broken n00b-tube branch never rereads program bytes");
     }
 
+    /// <summary>
+    /// Wraps the fixture memory and rejects reads from the compiled Noob Tube instruction
+    /// ranges, proving the production PLM path uses the port's decoded definitions.
+    /// </summary>
+    /// <param name="source">Underlying address space for permitted reads and all writes.</param>
     private sealed class NoobTubeProgramReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of reads rejected for targeting compiled Noob Tube program bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Applies the guarded memory-read policy to an import-cartridge byte request.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the native Noob Tube instruction lists and forwards other addresses to the source.</summary>
         public byte ReadByte(int address)
         {
             if ((address >= 0x84d4d4 && address <= 0x84d518) ||
@@ -385,6 +394,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
@@ -403,6 +413,12 @@ internal static partial class Program
         return roomFx;
     }
 
+    /// <summary>Advances the fixture's room PLM system by one frame at a fixed origin with the requested new controller input.</summary>
+    /// <param name="plms">PLM population whose instruction and pre-instruction handlers are advanced.</param>
+    /// <param name="bus">Address space used by the PLM update.</param>
+    /// <param name="level">Room collision data modified or consulted by the PLM.</param>
+    /// <param name="streamer">Background streamer passed through to draw and block updates.</param>
+    /// <param name="controllerNewInput">Button edges visible to the PLM for this update.</param>
     private static void StepNoobTube(
         RoomPlmSystem plms,
         ISnesAddressSpace bus,

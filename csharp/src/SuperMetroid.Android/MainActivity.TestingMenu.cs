@@ -5,7 +5,9 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Tracks whether a testing-tool dialog currently owns the activity's run gate.</summary>
     private bool menuOpen;
+    /// <summary>Debugger save-state slot selected for subsequent save and load commands.</summary>
     private int selectedSlot;
 
     /// <summary>
@@ -39,6 +41,7 @@ public sealed partial class MainActivity
             .Show();
     }
 
+    /// <summary>Displays the slot picker and reopens the testing menu after a selection.</summary>
     private void ChooseStateSlot()
     {
         menuOpen = true;
@@ -54,6 +57,8 @@ public sealed partial class MainActivity
             .SetOnCancelListener(new MenuCancelled(this))!.Show();
     }
 
+    /// <summary>Displays the outcome of a save-state operation, including its exception text if it fails.</summary>
+    /// <param name="operation">Asynchronous save or load operation whose result should be shown.</param>
     private async Task ShowStateResult(Task<string> operation)
     {
         menuOpen = true;
@@ -70,8 +75,12 @@ public sealed partial class MainActivity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Restores the owning activity's run gate when a testing menu is canceled.</summary>
+    /// <param name="owner">Activity whose testing-menu state and focus are restored on cancellation.</param>
     private sealed class MenuCancelled(MainActivity owner) : Java.Lang.Object, global::Android.Content.IDialogInterfaceOnCancelListener
     {
+        /// <summary>Closes the menu state and lets the activity resume when the dialog is canceled.</summary>
+        /// <param name="dialog">Canceled dialog, which may be <see langword="null"/>.</param>
         public void OnCancel(global::Android.Content.IDialogInterface? dialog)
         {
             owner.menuOpen = false;

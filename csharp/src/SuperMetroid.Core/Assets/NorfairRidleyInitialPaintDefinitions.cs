@@ -12,11 +12,21 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyInitialPaintDefinitions
 {
+    /// <summary>Resolves the initial armor material for the first fifteen color slots.</summary>
     private readonly CeresDoorEscapePaintDefinitions armor;
+
+    /// <summary>Resolves the initial Baby/container material for the final fifteen color slots.</summary>
     private readonly CeresBabyPaintDefinitions organ;
+
+    /// <summary>Stores the shared high color bits used to reconstruct the two copied clear-slot targets.</summary>
     private readonly int clearBlue;
+
+    /// <summary>Holds supplied clear-slot values that differ from the shared copied target.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds resolvers for the two initial materials and preserves supplied clear-slot overrides.</summary>
+    /// <param name="colors">The thirty-two initial palette values, split between armor, clear slots, and organ.</param>
+    /// <exception cref="ArgumentException">The span does not contain exactly thirty-two colors.</exception>
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 32) throw new ArgumentException("Norfair Ridley initial paint requires thirty-two colors.", nameof(colors));
@@ -27,6 +37,10 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
         organ = new(colors.Slice(17, 15));
     }
 
+    /// <summary>Resolves an initial palette value, including copied clear-slot targets and explicit overrides.</summary>
+    /// <param name="index">Zero-based slot in the thirty-two-color initial palette.</param>
+    /// <returns>The resolved color at the requested slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the initial palette.</exception>
     internal ushort ColorAt(int index)
     {
         if ((uint)index >= 32) throw new IndexOutOfRangeException();

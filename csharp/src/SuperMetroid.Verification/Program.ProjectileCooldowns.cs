@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native projectile cooldown selection and timing while forbidding runtime reads from compiled cooldown bytes.</summary>
     private static void VerifyProjectileCooldowns()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,18 +88,38 @@ internal static partial class Program
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
+    /// <summary>Wraps an address space to fail on projectile-cooldown ROM reads while preserving mutable-memory access.</summary>
+    /// <param name="source">Underlying retail memory used for permitted reads, WRAM/SRAM access, and writes.</param>
     private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Applies the cooldown-range guard to cartridge-import reads.</summary>
+        /// <param name="address">CPU address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the compiled cooldown table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        /// <summary>Reads work RAM from the wrapped mutable address space.</summary>
+        /// <param name="address">Work-RAM CPU address to read.</param>
+        /// <returns>The stored work-RAM byte.</returns>
         public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        /// <summary>Reads save RAM from the wrapped mutable address space.</summary>
+        /// <param name="address">Save-RAM CPU address to read.</param>
+        /// <returns>The stored save-RAM byte.</returns>
         public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects cartridge reads from the compiled cooldown table and forwards other address reads.</summary>
+        /// <param name="address">CPU address requested by the projectile system.</param>
+        /// <returns>The underlying byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the compiled cooldown range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c254 and < 0x90c28f)
                 throw new InvalidOperationException($"Compiled cooldown read ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged to the underlying address space.</summary>
+        /// <param name="address">CPU address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

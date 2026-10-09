@@ -9,9 +9,20 @@ namespace SuperMetroid.Core.Assets;
 /// Palette bits inherit the actor, as in the native generic spritemap loader.</summary>
 internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Zero-based cinematic pose index selecting the planet or lava tile grid.</summary>
     private readonly int pose;
+
+    /// <summary>Creates the four sprite parts for one pose in the compiled explosion sequence.</summary>
+    /// <param name="pose">Pose index from the ten-record explosion grid table.</param>
     private EndingExplosionGridParts(int pose) => this.pose = pose;
 
+    /// <summary>
+    /// Replaces the supplied composition with grid-backed parts when the pointer identifies one
+    /// of the compiled explosion poses.
+    /// </summary>
+    /// <param name="pointer">Native spritemap pointer being resolved.</param>
+    /// <param name="supplied">Composition to retain when the pointer is outside the grid table.</param>
+    /// <returns>The matching grid composition, or <paramref name="supplied"/> when no grid pose matches.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         int offset = pointer - EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.DamageFirst);
@@ -20,7 +31,12 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
         return supplied.CalculateIfMatching(new EndingExplosionGridParts(offset / recordBytes));
     }
 
+    /// <summary>Number of tile parts that make up each two-by-two grid pose.</summary>
     public int Count => 4;
+
+    /// <summary>Gets the tile part at the requested draw-order index.</summary>
+    /// <param name="index">Zero-based position in the pose's four-part traversal order.</param>
+    /// <returns>The sprite part containing that tile's position, atlas index, and flips.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -38,6 +54,8 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
                 unchecked((byte)((row - 1) * 16)), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
         }
     }
+    /// <summary>Enumerates the pose's four sprite parts in native traversal order.</summary>
+    /// <returns>An enumerator over the compiled tile parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

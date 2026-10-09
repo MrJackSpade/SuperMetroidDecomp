@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
+    /// <summary>Per-frame holds that differ from the native three-tick default (or the fifteen-tick loop-origin hold).</summary>
     private readonly Dictionary<int, byte> durationEdits = [];
+    /// <summary>Authored palette rows for the forward phases; matching reverse phases reuse these rows.</summary>
     private readonly ushort[][] colors;
+    /// <summary>Per-color overrides for reverse phases whose artwork differs from its matching forward phase.</summary>
     private readonly Dictionary<int, ushort> reverseColorEdits = [];
 
     /// <summary>
@@ -16,6 +19,9 @@ public sealed class MapPaletteCycle
     /// </summary>
     private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
+    /// <summary>Builds the compact runtime representation while retaining any authored timing or reverse-artwork deviations.</summary>
+    /// <param name="durations">Validated hold counts, in playback order, for every selected frame.</param>
+    /// <param name="suppliedColors">Validated sixteen-color BGR555 rows, in playback order, for every selected frame.</param>
     private MapPaletteCycle(byte[] durations, ushort[][] suppliedColors)
     {
         FrameCount = durations.Length;
@@ -34,8 +40,10 @@ public sealed class MapPaletteCycle
     /// <summary>Number of selected ordered color frames, one through 255; the animation owner, not this resource, advances and wraps the frame cursor.</summary>
     public int FrameCount { get; }
 
+    /// <summary>Maps a selected frame to its shared forward-artwork row for the fourteen-frame native palindrome.</summary>
     private int Phase(int frame) => FrameCount == 14 ? Math.Min(frame, 14 - frame) : frame;
 
+    /// <summary>Rejects a frame index outside the authored sequence instead of wrapping the playback cursor.</summary>
     private void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();

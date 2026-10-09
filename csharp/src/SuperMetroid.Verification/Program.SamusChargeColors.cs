@@ -6,6 +6,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies charge-color overrides through extraction, installation, and production palette updates.</summary>
+    /// <param name="stockDirectory">Directory containing the stock presentation files.</param>
+    /// <param name="overrideDirectory">Directory where the test override is written and loaded.</param>
+    /// <param name="original">Previously loaded catalog used to confirm that the override changes content identity.</param>
+    /// <param name="rom">Cartridge address space supplying the stock charge and Hyper-shot palette data.</param>
     private static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -138,6 +143,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks native charge and death palette data, catalog behavior, and production charge updates.</summary>
+    /// <param name="rom">Cartridge address space containing the palette tables used as reference data.</param>
+    /// <returns>Byte addresses read as source data so runtime palette updates can be checked against a read guard.</returns>
     private static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
@@ -588,12 +596,23 @@ internal static partial class Program
             return ReadVerificationWord(rom, address);
         }
     }
+    /// <summary>Wraps an address space to detect runtime reads from palette bytes already compiled into catalogs.</summary>
+    /// <param name="inner">Address space that serves permitted reads and receives writes.</param>
+    /// <param name="forbidden">Byte addresses whose runtime reads should be rejected and counted.</param>
     private sealed class ChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from an address in <c>forbidden</c>.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+        /// <summary>Routes an import-source read through the same address checks as other byte reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at the address when it is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted byte from the wrapped address space and counts then rejects guarded reads.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The wrapped address space's byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address is present in <c>forbidden</c>.</exception>
         public byte ReadByte(int address)
         {
             if (forbidden.Contains(address))
@@ -603,6 +622,9 @@ internal static partial class Program
             }
             return inner.ReadByte(address);
         }
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

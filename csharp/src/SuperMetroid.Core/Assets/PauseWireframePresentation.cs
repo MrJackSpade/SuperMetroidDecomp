@@ -6,7 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable wireframe artwork. It cannot change which equipment selects a visual.</summary>
 public sealed class PauseWireframePresentation
 {
+    /// <summary>Compiled visual variants indexed by <see cref="PauseWireframeKind"/>.</summary>
     private readonly Wireframe[] frames;
+
+    /// <summary>Creates a presentation from its complete set of compiled equipment wireframes.</summary>
+    /// <param name="frames">One compiled wireframe for each supported equipment appearance.</param>
     private PauseWireframePresentation(Wireframe[] frames) => this.frames = frames;
 
     /// <summary>Patches the selected eight-column, seventeen-row wireframe into the equipment page at tile (12, 7), matching native <c>EquipmentScreen_WriteSamusWireframeTilemap</c> at <c>$82:B20C</c>; leaves all other cells untouched and does not choose the inventory variant or queue VRAM.</summary>
@@ -49,9 +53,15 @@ public sealed class PauseWireframePresentation
     /// <summary>Calculated authored composition with independent supplied word overrides.</summary>
     private sealed class Wireframe
     {
+        /// <summary>Variant whose compiled stock words provide fallback tilemap cells.</summary>
         private readonly PauseWireframeKind kind;
+
+        /// <summary>Authored tilemap words that differ from this variant's calculated stock composition.</summary>
         private readonly Dictionary<int, ushort> edits = [];
 
+        /// <summary>Builds sparse authored overrides by comparing each compiled cell with its stock word.</summary>
+        /// <param name="kind">Equipment wireframe variant used to calculate unchanged cells.</param>
+        /// <param name="words">Little-endian compiled tilemap words in row-major cell order.</param>
         internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
         {
             this.kind = kind;
@@ -62,6 +72,9 @@ public sealed class PauseWireframePresentation
             }
         }
 
+        /// <summary>Resolves a cell from its authored override or the calculated stock wireframe.</summary>
+        /// <param name="cell">Zero-based row-major cell index.</param>
+        /// <returns>The supplied tilemap word when edited, otherwise the stock word for this variant.</returns>
         internal ushort Word(int cell) => edits.TryGetValue(cell, out ushort value)
             ? value : PauseWireframeDefinitions.StockWord(kind, cell);
     }

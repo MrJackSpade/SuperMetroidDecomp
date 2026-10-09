@@ -11,9 +11,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyHealthPaintDefinitions
 {
+    /// <summary>Base fade definitions that supply Ridley's body and eye material colors.</summary>
     private readonly CeresRidleyFadeColorDefinitions body, eyes;
+
+    /// <summary>Authored health-row words retained where the material fade calculation does not reproduce the data.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds compact health-palette rows from material fades plus any source-specific word overrides.</summary>
+    /// <param name="rows">Three supplied rows of fourteen packed colors, used to retain values not reproduced by the formula.</param>
+    /// <param name="body">Fade palette used for Ridley's body materials and the shared membrane target.</param>
+    /// <param name="eyes">Fade palette supplying the eye colors appended after the eleven body colors.</param>
     internal CeresRidleyHealthPaintDefinitions(ushort[][] rows,
         CeresRidleyFadeColorDefinitions body, CeresRidleyFadeColorDefinitions eyes)
     {
@@ -22,6 +29,11 @@ internal sealed class CeresRidleyHealthPaintDefinitions
             if (Calculate(row, color) != rows[row][color]) edits.Add(row * 14 + color, rows[row][color]);
     }
 
+    /// <summary>Gets a packed health-palette word, preferring an authored override over the derived material value.</summary>
+    /// <param name="row">Zero-based health band from zero through two.</param>
+    /// <param name="color">Zero-based color slot from zero through thirteen.</param>
+    /// <returns>The stored source word or the calculated color for that band and slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside the three-by-fourteen palette.</exception>
     internal ushort Resolve(int row, int color)
     {
         if ((uint)row >= 3) throw new ArgumentOutOfRangeException(nameof(row));
@@ -29,6 +41,10 @@ internal sealed class CeresRidleyHealthPaintDefinitions
         return edits.TryGetValue(row * 14 + color, out ushort edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Blends the selected body or eye color toward the membrane paint using the row's fixed strength.</summary>
+    /// <param name="row">Health band selecting the blend strength.</param>
+    /// <param name="color">Palette slot selecting a body material or eye color.</param>
+    /// <returns>The derived packed color before source-specific overrides are applied.</returns>
     private ushort Calculate(int row, int color)
     {
         ushort healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);

@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Assets;
 /// Stock glyph identities and native part order specify the selected missile drawings. Only this display design is retained; atlas/centering relationships calculate and supplied edits remain independent. Pixels, colors and timing are excluded.</summary>
 internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Rebuilds a recognized menu-missile composition from its native frame identity and selected atlas tiles.</summary>
+    /// <param name="name">Composition name identifying one of the four missile animation frames.</param>
+    /// <param name="supplied">Composition whose parts are replaced only when its name and two-part shape match.</param>
+    /// <returns>The calculated missile composition for a recognized two-part frame, or <paramref name="supplied"/> unchanged otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
         if (name is not ("Cursor.0" or "Cursor.1" or "Cursor.2" or "Cursor.3") || supplied.PartCount != 2)
@@ -20,6 +24,7 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     private const int FirstNativeSpritemap = 0x34;
     /// <summary>$82:CBCB: first missile pose left tileDF and right tileEF.</summary>
     private const int FirstLeftTile = SecondLeftTile + 1 - MapSpriteFormat.TileColumns;
+    /// <summary>$82:CBCB: right-hand tileEF paired with the first missile pose's left tile.</summary>
     private const int FirstRightTile = SecondLeftTile + 1;
     /// <summary>$82:CBD7: second missile pose left tileEE is the top-left of the EE/EF/FE/FF two-by-two atlas block.</summary>
     private const int SecondLeftTile = 0xee;
@@ -27,10 +32,17 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     private const int SharedRightTile = SecondLeftTile + MapSpriteFormat.TileColumns + 1;
     /// <summary>$82:CBE3: third missile pose left tileFE and right tileCC.</summary>
     private const int ThirdLeftTile = SecondLeftTile + MapSpriteFormat.TileColumns;
+    /// <summary>$82:CBE3: native right-hand tileCC paired with the third missile pose's left tile.</summary>
     private const int ThirdRightTile = 0xcc;
     /// <summary>$82:CBEF: final missile pose left tileC8; native part order is left then right.</summary>
     private const int FinalLeftTile = 0xc8;
+    /// <summary>Gets the two sprite parts that make up one missile cursor frame.</summary>
     public int Count => 2;
+
+    /// <summary>Gets the requested part, with index zero representing the first item in native draw order.</summary>
+    /// <param name="index">Zero-based part index; only zero and one are valid.</param>
+    /// <returns>The positioned and attributed sprite part for this frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the two-part frame.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -43,6 +55,8 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
                 SnesObjAttributeWord.Create(left ? leftTile : rightTile, 0, 3, SnesTileFlipFlags.None), true);
         }
     }
+    /// <summary>Enumerates the frame's parts in index order.</summary>
+    /// <returns>An enumerator yielding the two positioned sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

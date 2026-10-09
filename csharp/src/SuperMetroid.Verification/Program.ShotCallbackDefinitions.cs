@@ -5,6 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Inventories native enemy-header and hitbox callbacks, checks literal RTS identities
+    /// across bank-qualified address space, and exercises no-op combat admission without code reads.
+    /// </summary>
     private static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -86,6 +90,10 @@ internal static partial class Program
             "paths preserve fifteen touch/twelve shot RTL identities without executable reads.");
     }
 
+    /// <summary>
+    /// Confirms that callbacks whose first opcode is a literal RTS remain admitted by production
+    /// contact and projectile collision paths without probing their executable bytes.
+    /// </summary>
     private static void VerifyLiteralNoOpCombatAdmission(
         SuperMetroidAddressSpace rom,
         HashSet<int> touchNoOps,
@@ -169,14 +177,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Guards native callback addresses so combat classification cannot inspect executable callback bytes.</summary>
+    /// <param name="source">Address space used for reads outside the protected callback set and for all writes.</param>
+    /// <param name="forbidden">Bank-qualified callback addresses whose reads must be rejected.</param>
     private sealed class EnemyCallbackOpcodeReadGuard(
         ISnesAddressSpace source,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of rejected attempts to read a protected callback address.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Runs cartridge-byte requests through the same protected-address check as ordinary reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Throws for a protected callback address and forwards any other byte read to the wrapped source.</summary>
         public byte ReadByte(int address)
         {
             if (forbidden.Contains(address))
@@ -188,6 +202,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

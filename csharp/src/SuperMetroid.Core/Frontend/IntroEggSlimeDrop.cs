@@ -6,9 +6,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
 internal sealed class IntroEggSlimeDrop
 {
+    /// <summary>Discovery sprite actor whose timer carries this drop's trajectory and gravity state.</summary>
     private readonly IntroDiscoverySprite sprite;
+
+    /// <summary>Whether the actor should continue falling before its ground-impact animation.</summary>
     private bool motionEnabled = true;
 
+    /// <summary>Creates a slime drop at the confused baby's position with its indexed trajectory.</summary>
+    /// <param name="babyX">Horizontal starting coordinate copied from the baby actor.</param>
+    /// <param name="babyY">Vertical starting coordinate copied from the baby actor.</param>
+    /// <param name="index">Zero-based drop index selecting one of the available horizontal trajectories.</param>
     public IntroEggSlimeDrop(ushort babyX, ushort babyY, byte index)
     {
         if (index >= IntroEggEffectDefinitions.SlimeDropCount)
@@ -29,6 +36,8 @@ internal sealed class IntroEggSlimeDrop
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
+    /// <summary>Advances the drop's ballistic motion, switches it to the puddle sequence on impact, and steps its sprite instructions.</summary>
+    /// <param name="bus">Address space used by the active sprite instruction list.</param>
     public void Step(ISnesAddressSpace bus)
     {
         if (!sprite.IsActive)
@@ -66,10 +75,17 @@ internal sealed class IntroEggSlimeDrop
         sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
+    /// <summary>Draws the drop's current sprite state into the scene OAM buffer.</summary>
+    /// <param name="bus">Address space used to resolve sprite instruction data.</param>
+    /// <param name="oam">Object attribute buffer receiving the drop's visible tiles.</param>
+    /// <param name="installedArt">Optional installed sprite presentation used in place of cartridge artwork.</param>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
         sprite.Draw(bus, oam, installedArt: installedArt);
 
+    /// <summary>Adds one fixed-point velocity component to the actor's selected position.</summary>
+    /// <param name="horizontal"><see langword="true"/> to update X; otherwise updates Y.</param>
+    /// <param name="velocity">Whole-pixel and fractional parts of the velocity to accumulate.</param>
     private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {
         (ushort wholeVelocity, ushort fractionVelocity) = velocity;

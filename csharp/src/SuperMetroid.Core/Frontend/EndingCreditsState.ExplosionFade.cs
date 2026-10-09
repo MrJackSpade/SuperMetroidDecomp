@@ -2,11 +2,17 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Palette snapshot used as the source for each interpolated explosion-fade color.</summary>
     private ushort[] explosionFadeSource = [];
+
+    /// <summary>Current interpolation step shared by the background and two object palette regions.</summary>
     private int explosionFadeStep;
+
+    /// <summary>Indicates whether the ending is in either phase that performs the explosion palette crossfade.</summary>
     private bool ExplosionCrossfadeActive => Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
 
+    /// <summary>Captures the palette source and initializes the explosion crossfade at its first step.</summary>
     private void BeginExplosionCrossfade()
     {
         // Func115 clears the previous cloud palette programs before taking its source
@@ -19,6 +25,7 @@ internal sealed partial class EndingCreditsState
         phaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
+    /// <summary>Advances the explosion crossfade and starts flyaway uploads when its countdown expires.</summary>
     private void StepExplosionCrossfade()
     {
         mode7Zoom = unchecked((ushort)(mode7Zoom + EndingExplosionFadeDefinitions.ZoomStep));
@@ -38,6 +45,9 @@ internal sealed partial class EndingCreditsState
         }
     }
 
+    /// <summary>Writes one palette region scaled from the captured source by the requested fade factor.</summary>
+    /// <param name="start">First CGRAM color index in the region.</param>
+    /// <param name="factor">Numerator of the fade intensity, measured against the configured step count.</param>
     private void ApplyExplosionFade(int start, int factor)
     {
         for (int i = start; i < start + EndingExplosionFadeDefinitions.Colors; i++)

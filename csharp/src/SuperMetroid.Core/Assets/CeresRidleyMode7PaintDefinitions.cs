@@ -11,10 +11,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyMode7PaintDefinitions
 {
+    /// <summary>Reviewed Ridley body endpoint colors used for the first eleven entries in each zoom row.</summary>
     private readonly CeresRidleyBodyPaintDefinitions body;
+    /// <summary>Reviewed eye endpoint colors used for entries eleven through thirteen.</summary>
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
+    /// <summary>Sparse authored color words retained when a supplied zoom row differs from calculated endpoint scaling.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>
+    /// Builds the nine zoom rows from shared body and eye endpoints while preserving any supplied
+    /// color words that differ from the calculated composition.
+    /// </summary>
+    /// <param name="rows">Nine rows of fifteen BGR555 words, ordered from close view through retreat exposure.</param>
     internal CeresRidleyMode7PaintDefinitions(ushort[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
@@ -28,6 +36,10 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
     internal static ushort RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
 
+    /// <summary>Returns an authored zoom-row color when present, otherwise the color calculated from the shared endpoints.</summary>
+    /// <param name="row">Zoom exposure row, from zero through eight.</param>
+    /// <param name="color">Color slot within the row: body, eye, or neutral slot fifteen.</param>
+    /// <returns>The BGR555 paint word selected for that row and slot.</returns>
     internal ushort Resolve(int row, int color)
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
@@ -35,6 +47,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
         return edits.TryGetValue(row * 15 + color, out ushort edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Scales the appropriate body, eye, or neutral endpoint according to the native zoom-row exposure.</summary>
     private ushort Calculate(int row, int color)
     {
         ushort endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;

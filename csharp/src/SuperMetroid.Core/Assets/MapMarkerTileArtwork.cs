@@ -10,10 +10,18 @@ namespace SuperMetroid.Core.Assets;
 /// Calculate every original pixel directly; keep only supplied edits.</summary>
 internal sealed class MapMarkerTileArtwork
 {
+    /// <summary>Number of map-marker atlas tiles with generated base art.</summary>
     internal const int TileCount = 4;
+    /// <summary>Sparse supplied pixels that differ from the calculated tile patterns.</summary>
     private readonly Dictionary<int, byte>? edits;
+
+    /// <summary>Checks whether a tile ID is one of the map-marker atlas tiles represented by this artwork.</summary>
+    /// <param name="tile">Atlas tile ID to test.</param>
+    /// <returns><see langword="true"/> for tiles <c>$9D</c>, <c>$9E</c>, <c>$9F</c>, or <c>$AF</c>.</returns>
     internal static bool Contains(int tile) => tile is >= 0x9d and <= 0x9f or 0xaf;
 
+    /// <summary>Captures only supplied pixels that differ from the generated base patterns.</summary>
+    /// <param name="image">Indexed atlas image containing the marker tiles.</param>
     internal MapMarkerTileArtwork(IndexedPngImage image)
     {
         for (int tile = 0x9d; tile <= 0xaf; tile++)
@@ -28,12 +36,23 @@ internal sealed class MapMarkerTileArtwork
         }
     }
 
+    /// <summary>Resolves one atlas pixel, using a supplied edit when present and otherwise its generated pattern.</summary>
+    /// <param name="tile">Supported atlas tile ID.</param>
+    /// <param name="x">Horizontal pixel coordinate within the 8-by-8 tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the 8-by-8 tile.</param>
+    /// <returns>The palette index for that pixel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is unsupported or either coordinate is outside the tile.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates a tile's unedited pixel from the arrow, boss-corner, or pulse-corner pattern.</summary>
+    /// <param name="tile">Supported atlas tile ID.</param>
+    /// <param name="x">Horizontal coordinate within the 8-by-8 tile.</param>
+    /// <param name="y">Vertical coordinate within the 8-by-8 tile.</param>
+    /// <returns>The generated palette index at the requested location.</returns>
     private static byte Basis(int tile, int x, int y)
     {
         if (tile == 0xaf)

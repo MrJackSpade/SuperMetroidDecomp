@@ -35,8 +35,11 @@ internal sealed class DraygonMaterialPaintDefinitions
     /// </summary>
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
+    /// <summary>Only supplied palette entries that differ from their stock material paint, keyed by color index.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Captures the independently supplied Draygon material colors that override the compiled stock palette.</summary>
+    /// <param name="colors">The complete 16-word material palette in native color-slot order.</param>
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 16) throw new ArgumentException("Draygon material requires sixteen colors.", nameof(colors));
@@ -44,14 +47,22 @@ internal sealed class DraygonMaterialPaintDefinitions
             if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
     }
 
+    /// <summary>Returns the installed value for a material slot, using its sparse override or the compiled stock paint.</summary>
+    /// <param name="index">The zero-based color slot in the 16-entry palette.</param>
+    /// <returns>The supplied override when present; otherwise the slot's stock material color.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the 16-color palette.</exception>
     internal ushort Color(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out ushort edited) ? edited : StockColor(index);
     }
 
+    /// <summary>The copied clear-slot target word; it preserves the authored blue channel instead of inferring a transparent value.</summary>
     internal static ushort ClearTarget => Pack(0, 0, ClearBlue);
 
+    /// <summary>Calculates one stock palette word from the material slot's authored channel relationships.</summary>
+    /// <param name="color">The zero-based stock palette slot to resolve.</param>
+    /// <returns>The compiled stock RGB5 color word for the slot.</returns>
     private static ushort StockColor(int color)
     {
         if (color is >= 5 and <= 8)
@@ -75,5 +86,10 @@ internal sealed class DraygonMaterialPaintDefinitions
         };
     }
 
+    /// <summary>Packs three five-bit RGB channel values into the SNES palette word layout.</summary>
+    /// <param name="red">The red channel stored in bits 0 through 4.</param>
+    /// <param name="green">The green channel stored in bits 5 through 9.</param>
+    /// <param name="blue">The blue channel stored in bits 10 through 14.</param>
+    /// <returns>The packed 15-bit RGB5 color.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

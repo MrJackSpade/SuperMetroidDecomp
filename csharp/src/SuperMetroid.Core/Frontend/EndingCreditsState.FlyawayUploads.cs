@@ -4,7 +4,9 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Installed Mode 7 character stream split into the original scheduled upload chunks.</summary>
     private byte[] flyawayCharacters = [];
+    /// <summary>Installed Mode 7 tilemap stream, padded with the native blank tile to fill its upload lane.</summary>
     private byte[] flyawayMap = [];
 
     /// <summary>
@@ -25,6 +27,7 @@ internal sealed partial class EndingCreditsState
             UploadFlyawayChunk(index);
     }
 
+    /// <summary>Prepares the flyaway character/map streams and restores the explosion palette before scheduled DMA begins.</summary>
     private void PrepareFlyawayUploads()
     {
         PrepareFlyawayStreams();
@@ -33,6 +36,7 @@ internal sealed partial class EndingCreditsState
         LoadStaticPalette(EndingPaletteId.Explosion, 0, 128, 0);
     }
 
+    /// <summary>Copies installed flight artwork into upload buffers and fills the unused map tail with blank tiles.</summary>
     private void PrepareFlyawayStreams()
     {
         CeresFlightArtworkCatalog artwork = flightArtwork ?? throw new InvalidOperationException(
@@ -48,6 +52,8 @@ internal sealed partial class EndingCreditsState
             .Fill(EndingCreditsRomData.Rendering.FlyawayBlankTile);
     }
 
+    /// <summary>Uploads one scheduled chunk, mapping the first lane to Mode 7 characters and the second to the tilemap.</summary>
+    /// <param name="index">Zero-based chunk position in the two-lane upload sequence.</param>
     private void UploadFlyawayChunk(int index)
     {
         int chunksPerLane = EndingCreditsRomData.Rendering.Mode7Bytes / EndingCreditsRomData.Rendering.FlyawayUploadBytes;
@@ -58,6 +64,7 @@ internal sealed partial class EndingCreditsState
             vram.LoadMode7MapBytes(flyawayMap.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), (ushort)offset);
     }
 
+    /// <summary>Reports whether the escape background is enabled before flyaway uploads or again during fast planet escape.</summary>
     private bool EscapeBackgroundEnabled => Phase < EndingCreditsPhase.ZebesExplosionTileUpload
         || Phase >= EndingCreditsPhase.PlanetEscapeFast;
 }

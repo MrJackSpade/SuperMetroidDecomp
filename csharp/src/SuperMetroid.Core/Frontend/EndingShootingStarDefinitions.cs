@@ -28,6 +28,7 @@ internal static class EndingShootingStarDefinitions
         new(-12,-16,4,8), new(-8,-4,32,0), new(-3,-6,32,0), new(-7,-8,32,0),
         new(-2,-3,0x0f00,0), new(-4,-4,0x0f00,0), new(-8,-2,0x0f00,0), new(-8,-4,0x0f00,0)
     ];
+    /// <summary>Gets the forty star-motion records in their native slot order.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
     /// <summary>$8B:E9A7 / Handle_ShootingStars.tilemapValues: small OBJ tile/attribute words.</summary>
     internal static ReadOnlySpan<ushort> Attributes => [
@@ -37,4 +38,9 @@ internal static class EndingShootingStarDefinitions
     ];
 }
 
+/// <summary>Motion and timing parameters used to initialize and advance one post-credits shooting star.</summary>
+/// <param name="XAcceleration">Signed 8.8 horizontal velocity increment applied on each active update.</param>
+/// <param name="YAcceleration">Signed 8.8 vertical velocity increment applied on each active update.</param>
+/// <param name="Period">Update interval loaded after each animation-frame advance.</param>
+/// <param name="Delay">Initial launch delay; zero starts the star immediately.</param>
 internal readonly record struct EndingShootingStarDefinition(short XAcceleration, short YAcceleration, ushort Period, ushort Delay);

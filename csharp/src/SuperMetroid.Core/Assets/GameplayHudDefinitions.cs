@@ -103,6 +103,10 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int AutoFullPalette = 7, AutoEmptyPalette = 3;
 
+    /// <summary>Builds one of the six AUTO label/arrow words with the native full or empty palette style.</summary>
+    /// <param name="cell">Zero-based AUTO composition cell in left-to-right, top-to-bottom order.</param>
+    /// <param name="containsEnergy">Selects the filled reserve palette when true and the empty palette otherwise.</param>
+    /// <returns>The complete BG3 tile word, including palette, priority, and bottom-row reflection bits.</returns>
     internal static ushort AutoReserveWord(int cell, bool containsEnergy)
     {
         if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
@@ -119,8 +123,12 @@ public static class GameplayHudDefinitions
     /// shares the canonical blank's palette/priority; glyph pixels remain separate.
     /// </summary>
     private const int MinimapTopRightCapGlyph = 0x1c;
+    /// <summary>Number of minimap interior columns shown in the static top border, excluding its right cap.</summary>
     private const int MinimapVisibleColumns = 5;
 
+    /// <summary>Returns the native minimap-border or blank word for one column in the static top row.</summary>
+    /// <param name="column">Zero-based tile column across the 32-word BG3 row.</param>
+    /// <returns>A blank word before the border or the selected edge/cap glyph with native attributes.</returns>
     internal static ushort TopRowWord(int column)
     {
         if ((uint)column >= Width) throw new IndexOutOfRangeException();
@@ -145,6 +153,9 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
 
+    /// <summary>Calculates one tile word in the three mutable HUD rows, including the fixed initial minimap and labels.</summary>
+    /// <param name="index">Linear word index from zero through <see cref="CellCount"/> minus one.</param>
+    /// <returns>The native initial HUD tile word at that row-major position.</returns>
     internal static ushort TemplateWord(int index)
     {
         if ((uint)index >= CellCount) throw new IndexOutOfRangeException();
@@ -185,12 +196,19 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MissileShaftStartGlyph = 0x49, TwoColumnItemStartGlyph = 0x34;
 
+    /// <summary>Returns the number of horizontal cells used by the selected HUD item pictogram.</summary>
+    /// <param name="item">Zero-based item icon index in <see cref="IconNames"/> order.</param>
+    /// <returns>Three columns for the missile symbol, or two for the other item icons.</returns>
     internal static int IconWidth(int item)
     {
         _ = IconName(item);
         return item == 0 ? 3 : 2;
     }
 
+    /// <summary>Builds one tile word in a HUD item icon, including its deselected palette and right-half reflection.</summary>
+    /// <param name="item">Zero-based item icon index in <see cref="IconNames"/> order.</param>
+    /// <param name="cell">Row-major cell within the icon's two-row composition.</param>
+    /// <returns>The complete BG3 word for the requested pictogram cell.</returns>
     internal static ushort IconWord(int item, int cell)
     {
         int width = IconWidth(item);

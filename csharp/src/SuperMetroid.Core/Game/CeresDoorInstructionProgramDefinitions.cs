@@ -151,6 +151,10 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return WallLoopWord((ushort)(RidleyEscapeMode7LeftWall + 10 * (index / 4)), index % 4);
     }
 
+    /// <summary>Builds the four mechanics words shared by an intangible setup and one-tick wall loop.</summary>
+    /// <param name="start">Address of the wall program's one-time intangible instruction.</param>
+    /// <param name="index">Word position within the setup-and-loop sequence, from zero through three.</param>
+    /// <returns>The mechanics address/value pair for the requested sequence position.</returns>
     private static InstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
     {
         0 => new(start, CeresEnemyCodePointers.MakeCeresDoorIntangible),
@@ -159,6 +163,10 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         _ => new((ushort)(start + 8), (ushort)(start + 2)),
     };
 
+    /// <summary>Resolves one mechanics word from the normal door program, relocating its local targets for the selected facing.</summary>
+    /// <param name="index">Word position in the thirty-word normal-door sequence.</param>
+    /// <param name="facing">Facing selector: zero for right-facing and one for left-facing.</param>
+    /// <returns>The bank-$A6 instruction address and value at that position.</returns>
     private static InstructionMechanicsWord NormalDoorWord(int index, int facing)
     {
         int start = NormalFacingRight + facing * (NormalFacingLeft - NormalFacingRight);
@@ -194,6 +202,9 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Resolves one mechanics word in the right-facing door sequence used during the Ridley handoff.</summary>
+    /// <param name="index">Word position in the eighteen-word Ridley-room sequence.</param>
+    /// <returns>The bank-$A6 instruction address and value at that position.</returns>
     private static InstructionMechanicsWord RidleyWord(int index)
     {
         if (index is >= 5 and < 9)
@@ -226,7 +237,9 @@ internal abstract class CeresDoorInstructionProgramDefinitions
     /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
     private const ushort RightWallSpritemap = 0xfb2f;
 
+    /// <summary>Number of compiled instruction address/value pairs covering all seven door and wall mechanics programs.</summary>
     public static int MechanicsWordCount => 97;
+    /// <summary>Number of compiled visual selector operands across the door, overlay, and escape-wall programs.</summary>
     public static int PresentationWordCount => 33;
 
     /// <summary>
@@ -245,6 +258,10 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
     }
 
+    /// <summary>Returns the compiled address and spritemap selector for one ordered visual operand.</summary>
+    /// <param name="index">Zero-based position in the presentation-word table.</param>
+    /// <returns>The bank-$A6 operand address and corresponding authored spritemap selector.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation table.</exception>
     internal static (ushort Address, ushort Frame) PresentationWord(int index)
     {
         if ((uint)index >= PresentationWordCount)

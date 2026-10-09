@@ -16,9 +16,14 @@ public enum PowerBombFixedColorSequence
 /// <summary>Editable RGB5 colors for Power Bomb, Crystal Flash and Ceres explosions.</summary>
 public sealed class PowerBombFixedColorCatalog
 {
+    /// <summary>Supplied pre-explosion colors whose values differ from calculable stock colors.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
+    /// <summary>Supplied explosion colors whose values differ from calculable stock colors.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
 
+    /// <summary>Stores sparse authored overrides for the two radius-indexed fixed-color sequences.</summary>
+    /// <param name="preExplosion">Validated pre-explosion RGB5 entries that need explicit storage.</param>
+    /// <param name="explosion">Validated explosion RGB5 entries that need explicit storage.</param>
     private PowerBombFixedColorCatalog(
         Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion,
         Dictionary<int, (byte Red, byte Green, byte Blue)> explosion)
@@ -27,6 +32,7 @@ public sealed class PowerBombFixedColorCatalog
         this.explosion = explosion;
     }
 
+    /// <summary>Enforces the resource's camel-case property names, strict schema, and readable serialized layout.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -89,6 +95,13 @@ public sealed class PowerBombFixedColorCatalog
         throw new InvalidDataException("Power Bomb color has neither supplied content nor a calculated definition.");
     }
 
+    /// <summary>Validates a complete RGB5 sequence and stores only entries not covered by stock color rules.</summary>
+    /// <param name="source">Sequence from the deserialized resource; it must contain exactly <paramref name="count"/> colors.</param>
+    /// <param name="count">Required native sequence length.</param>
+    /// <param name="sequence">Domain used to select stock calculations for each entry.</param>
+    /// <param name="name">Sequence label used in validation errors.</param>
+    /// <returns>Sparse overrides for supplied colors that differ from the calculated stock values.</returns>
+    /// <exception cref="InvalidDataException">The sequence is missing, has the wrong length, contains null colors or out-of-range RGB5 channels.</exception>
     private static Dictionary<int, (byte Red, byte Green, byte Blue)> Compile(
         PaletteRgb5[]? source, int count, PowerBombFixedColorSequence sequence, string name)
     {
@@ -108,6 +121,9 @@ public sealed class PowerBombFixedColorCatalog
         return colors;
     }
 
+    /// <summary>Rejects repeated property names before JSON deserialization can collapse their values.</summary>
+    /// <param name="value">Parsed document root whose object properties are checked recursively.</param>
+    /// <exception cref="InvalidDataException">A duplicate property is present in the resource.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Power Bomb fixed-color property {name}."));

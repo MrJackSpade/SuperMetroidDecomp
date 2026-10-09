@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the compiled Hyper Beam palette against retail data and checks calculated color
+    /// ownership, editable inputs, bounds, and guarded runtime palette cycles.
+    /// </summary>
     private static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -385,6 +389,16 @@ internal static partial class Program
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
+    /// <summary>
+    /// Confirms an installed Hyper Beam color override reaches CGRAM at its selected frame and
+    /// removing it restores the stock presentation identity.
+    /// </summary>
+    /// <param name="stock">Directory containing the stock presentation documents.</param>
+    /// <param name="overrides">Directory where the temporary color override is written.</param>
+    /// <param name="baseline">Unmodified presentation used to verify identity restoration.</param>
+    /// <param name="rom">Cartridge address space used to initialize the verification runtime.</param>
+    /// <param name="initialPalettes">Gameplay base palettes required to initialize the runtime.</param>
+    /// <param name="fixtureAssets">Installed room assets bound to the runtime before initialization.</param>
     private static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,
@@ -439,11 +453,20 @@ internal static partial class Program
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
+    /// <summary>
+    /// Rejects runtime reads from native Hyper Beam pointer and palette tables while forwarding
+    /// unrelated cartridge accesses to the wrapped address space.
+    /// </summary>
+    /// <param name="inner">Address space that supplies reads outside the guarded Hyper Beam ranges and accepts writes.</param>
     private sealed class ForbiddenHyperBeamColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted runtime reads from a guarded Hyper Beam table.</summary>
         public int ForbiddenReads { get; private set; }
+
+        /// <summary>Routes cartridge importer reads through the guarded address-space path.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from native Hyper Beam tables and forwards all other reads.</summary>
         public byte ReadByte(int address)
         {
             int pointerStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers;
@@ -461,6 +484,7 @@ internal static partial class Program
             return inner.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without changing their address or value.</summary>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

@@ -9,12 +9,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
+    /// <summary>Compiled BGR555 samples indexed by the native bank-$8D color pointer expected by palette consumers.</summary>
     internal readonly Dictionary<ushort, ushort> colors;
 
+    /// <summary>Adapter for resolving Samus heat-palette samples from the compiled color table.</summary>
     private readonly HeatPaletteInputView heatInputs;
+    /// <summary>Adapter for resolving loading-palette samples from the compiled color table.</summary>
     private readonly LoadingPaletteInputView loadingInputs;
+    /// <summary>Adapter for resolving ending gunship samples from the compiled color table.</summary>
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
+    /// <summary>Creates specialized palette readers over one compiled set of native-pointer color samples.</summary>
+    /// <param name="colors">Validated BGR555 samples keyed by their native palette color pointers.</param>
     private RoomPaletteFxPresentation(Dictionary<ushort, ushort> colors)
     {
         this.colors = colors;
@@ -584,6 +590,15 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         json.Write(bytes);
     }
 
+    /// <summary>Checks a presentation palette family against its native frame geometry and adds its packed samples to the compiled lookup.</summary>
+    /// <param name="owner">Palette-family label included in validation errors to identify the invalid authored section.</param>
+    /// <param name="frames">Authored frame rows; each frame must contain exactly <paramref name="colorCount"/> RGB5 samples.</param>
+    /// <param name="frameCount">Exact number of frames required by the corresponding native palette program.</param>
+    /// <param name="colorCount">Exact number of emitted color samples required in each frame.</param>
+    /// <param name="colorPointer">Maps a frame and sample index to the native bank-$8D pointer where that color is consumed.</param>
+    /// <param name="destination">Compiled lookup that receives each sample packed as BGR555 under its native pointer.</param>
+    /// <exception cref="InvalidDataException">The rows do not match the required geometry or contain a missing or out-of-range RGB component.</exception>
+    /// <exception cref="ArgumentException">A sample's native pointer is already present in the compiled lookup.</exception>
     private static void ValidateAndCompile(
         string owner,
         PaletteRgb5[][]? frames,

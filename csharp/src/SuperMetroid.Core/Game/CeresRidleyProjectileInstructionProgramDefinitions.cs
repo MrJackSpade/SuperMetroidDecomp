@@ -70,6 +70,8 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
     /// pinned NTSC J/U v1.0 ROM. Its five spritemap operands stay live.
     /// </remarks>
     internal const ushort DirectionalAfterburn = 0x9606;
+
+    /// <summary>Number of interleaved presentation operands that select separately installed spritemap artwork.</summary>
     public static int PresentationWordCount => 26;
 
     /// <summary>Calculated locations of the interleaved bank-$86 spritemap operands.</summary>
@@ -85,6 +87,10 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         return (ushort)(SpawnProgram((index - 11) / 5) + 4 + frame * 4 + (frame == 0 ? 0 : 2));
     }
 
+    /// <summary>Selects the native instruction-list start for a center-spawn or directional afterburn program.</summary>
+    /// <param name="kind">Program selector: horizontal center, vertical center, or directional afterburn.</param>
+    /// <returns>The bank-$86 start address for the selected program.</returns>
+    /// <exception cref="IndexOutOfRangeException">The selector is not one of the three compiled program kinds.</exception>
     internal static ushort SpawnProgram(int kind) => kind switch
     {
         0 => HorizontalCenter,
@@ -92,6 +98,9 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         2 => DirectionalAfterburn,
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Tests whether the compiled Ridley projectile programs own the requested projectile kind.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns>True for the fireball and the horizontal or vertical afterburn variants.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresRidleyFireball or
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
@@ -101,6 +110,10 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown;
 
+    /// <summary>Reads a compiled control-flow or timing word by its bank-$86 address.</summary>
+    /// <param name="address">Address of the requested mechanics word.</param>
+    /// <returns>The instruction or operand value represented at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a compiled Ridley projectile mechanics stream.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -109,6 +122,10 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
             $"Ceres Ridley projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve an address in the bounded fireball, center-afterburn, or directional-afterburn control streams.</summary>
+    /// <param name="address">Bank-$86 address to look up.</param>
+    /// <param name="value">Receives the compiled mechanics word when the address is owned.</param>
+    /// <returns>True when the address identifies a compiled mechanics word; presentation operands are intentionally excluded.</returns>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - Fireball;
@@ -151,6 +168,12 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves a control word in an afterburn stream, accounting for its optional child-spawn instruction.</summary>
+    /// <param name="offset">Address relative to the selected afterburn list start.</param>
+    /// <param name="spawns">Whether the stream includes a spawn callback before its timed frames.</param>
+    /// <param name="callback">Compiled callback word used by the spawn instruction.</param>
+    /// <param name="value">Receives the mechanics word when the offset is part of the control stream.</param>
+    /// <returns>True when the offset is a control word; spritemap presentation addresses are not reported.</returns>
     private static bool TryAfterburn(int offset, bool spawns, ushort callback, out ushort value)
     {
         if (offset == 0)

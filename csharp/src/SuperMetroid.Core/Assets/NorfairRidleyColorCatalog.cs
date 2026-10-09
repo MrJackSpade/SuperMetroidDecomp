@@ -23,15 +23,21 @@ public sealed class NorfairRidleyColorCatalog
             content.AppendWordFrames("reveal", revealWords);
         });
 
+    /// <summary>Initial OBJ palette values used by <see cref="ApplyInitial"/>.</summary>
     private readonly NorfairRidleyInitialPaintDefinitions initial;
+    /// <summary>Fourteen-color rows applied to the arena background during the reveal.</summary>
     private readonly NorfairRidleyRevealPaintDefinitions reveal;
 
+    /// <summary>Creates a catalog from compiled initial palette words and ordered reveal rows.</summary>
+    /// <param name="initial">The 32 RGB5 colors installed in the OBJ palette region.</param>
+    /// <param name="reveal">The fifteen rows of fourteen RGB5 arena colors.</param>
     private NorfairRidleyColorCatalog(ushort[] initial, ushort[][] reveal)
     {
         this.initial = new(initial);
         this.reveal = new(reveal);
     }
 
+    /// <summary>Strict camel-case JSON settings shared by catalog loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,6 +112,11 @@ public sealed class NorfairRidleyColorCatalog
         return bytes;
     }
 
+    /// <summary>Converts one validated-shape palette row from RGB5 channel objects to packed SNES color words.</summary>
+    /// <param name="colors">Color objects to pack in their authored order.</param>
+    /// <param name="label">Palette portion or row name included in validation errors.</param>
+    /// <returns>Packed RGB555 words corresponding to the input entries.</returns>
+    /// <exception cref="InvalidDataException">An entry is null or any RGB5 channel exceeds five bits.</exception>
     private static ushort[] Compile(PaletteRgb5[] colors, string label)
     {
         var words = new ushort[colors.Length];
@@ -120,6 +131,8 @@ public sealed class NorfairRidleyColorCatalog
         return words;
     }
 
+    /// <summary>Rejects duplicate JSON property names before the document is deserialized.</summary>
+    /// <param name="value">Root JSON value whose objects are checked recursively.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Norfair Ridley color property."));

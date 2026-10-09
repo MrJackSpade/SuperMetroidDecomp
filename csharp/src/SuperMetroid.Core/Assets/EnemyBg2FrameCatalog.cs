@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One ordered visual BG2 write; native hitbox and timing data are absent.</summary>
+/// <param name="DestinationWord">Zero-based BG2 tilemap word offset where the run begins.</param>
+/// <param name="Tiles">Tilemap words written in order from the destination column.</param>
 internal readonly record struct EnemyBg2TilemapWrite(
     ushort DestinationWord, ReadOnlyMemory<ushort> Tiles);
 
@@ -28,11 +30,18 @@ internal sealed class EnemyBg2FrameCatalog
             }
         });
 
+    /// <summary>Validated visual writes indexed by the native pointer that identifies each frame.</summary>
     private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
 
+    /// <summary>Stores the validated frame writes under their native frame identities.</summary>
+    /// <param name="frames">Frame pointers mapped to their ordered BG2 tilemap writes.</param>
     private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>
         this.frames = frames;
 
+    /// <summary>Looks up visual writes for a frame selected by its native instruction pointer.</summary>
+    /// <param name="pointer">Native pointer identifying the requested frame.</param>
+    /// <param name="writes">Receives that frame's ordered BG2 writes when it is present.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a catalogued frame.</returns>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
     {
         if (frames.TryGetValue(pointer, out EnemyBg2TilemapWrite[]? found))
@@ -44,6 +53,14 @@ internal sealed class EnemyBg2FrameCatalog
         return false;
     }
 
+    /// <summary>Parses and validates all named BG2 frames, then indexes their writes by native frame pointer.</summary>
+    /// <param name="json">JSON stream containing the named frame definitions.</param>
+    /// <param name="definitions">Expected frame names and native pointers, in canonical sequence order.</param>
+    /// <param name="version">Schema version required in the document.</param>
+    /// <param name="family">Enemy-family label used in invalid-data diagnostics.</param>
+    /// <returns>A catalog containing validated ordered tile runs for every expected frame.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, required frames, or tile runs are invalid.</exception>
     internal static EnemyBg2FrameCatalog Load(Stream json,
         EnemyBg2FrameDefinitionSequence definitions, int version, string family)
     {

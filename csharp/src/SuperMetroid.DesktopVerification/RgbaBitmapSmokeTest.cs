@@ -11,6 +11,7 @@ public readonly record struct RgbaBitmapSmokeTestResult(int Width, int Height, C
 /// </summary>
 public static class RgbaBitmapSmokeTest
 {
+    /// <summary>Copies two 2-by-2 RGBA rasters into one persistent ARGB bitmap and checks channel order plus the replacement pixel without opening a window.</summary>
     public static RgbaBitmapSmokeTestResult Run()
     {
         Rgba32[] first =

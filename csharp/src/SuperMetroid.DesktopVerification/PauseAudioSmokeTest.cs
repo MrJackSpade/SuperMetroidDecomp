@@ -14,8 +14,12 @@ public readonly record struct PauseAudioSmokeTestResult(
     int MaximumAdjacentSampleDelta,
     int MaximumFrameBoundaryDelta);
 
+/// <summary>Headless saved-game pause/resume regression covering PCM continuity, sound-library cancellation order, and preservation of the resident SPC upload.</summary>
 public static class PauseAudioSmokeTest
 {
+    /// <summary>Seeds a Crateria save, enters gameplay through the frontend, and measures managed audio while pausing, switching pages, and resuming.</summary>
+    /// <param name="romPath">Retail cartridge used to construct the isolated game and seeded save.</param>
+    /// <returns>PCM continuity and command counts after all pause assertions pass; mismatches throw.</returns>
     public static PauseAudioSmokeTestResult Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

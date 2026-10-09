@@ -36,6 +36,11 @@ public static class AudioInputReplaySmokeTest
 {
     private const int NeutralTailFrames = 360;
 
+    /// <summary>Replays a ROM-validated journal through managed gameplay/audio until its first door completes, checking projectile firing and the power-beam acknowledgement.</summary>
+    /// <param name="recordingPath">Controller journal supplying initial SRAM, game options, and controller words.</param>
+    /// <param name="romPath">Retail cartridge whose SHA-256 must match the recording.</param>
+    /// <param name="captureDirectory">Optional directory for diagnostic source-room and completed-door PNGs; null or blank disables capture.</param>
+    /// <remarks>Allows up to 360 neutral-input updates after the journal ends to finish the door transition; this is not a complete-recording replay.</remarks>
     public static AudioInputReplaySmokeTestResult Run(
         string recordingPath,
         string romPath,

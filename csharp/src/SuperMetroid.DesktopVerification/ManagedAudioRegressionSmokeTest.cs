@@ -4,6 +4,14 @@ using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
 
+/// <summary>Aggregate corpus counts and verified PCM/acknowledgement digests for the installed managed-audio regression scenarios.</summary>
+/// <param name="Scenarios">Completed music, sound-effect, and lifecycle scenarios.</param>
+/// <param name="Frames">Total audio updates rendered across all scenarios.</param>
+/// <param name="PcmSamples">Number of signed 16-bit interleaved PCM values hashed, counting both stereo channels separately.</param>
+/// <param name="CanonicalSamples">Distinct canonical waveforms in the installed catalog.</param>
+/// <param name="SourceAliases">Installed source-number mappings across uploads.</param>
+/// <param name="PcmSha256">Uppercase SHA-256 of scenario names and the rendered PCM bytes in corpus order.</param>
+/// <param name="AcknowledgementSha256">Uppercase SHA-256 of scenario names and four-port acknowledgement bytes in corpus order.</param>
 public readonly record struct ManagedAudioRegressionSmokeTestResult(
     int Scenarios,
     int Frames,
@@ -33,6 +41,8 @@ public static class ManagedAudioRegressionSmokeTest
     private const int ExpectedCanonicalSampleCount = 112;
     private const int ExpectedSourceAliasCount = 935;
 
+    /// <summary>Loads installed audio assets, checks catalog dimensions, and compares the fixed music/SFX/lifecycle corpus against its pinned PCM and acknowledgement digests without a ROM or audio device.</summary>
+    /// <remarks>Music scenarios select shared track one, so passing this corpus does not establish bank-specific room-music correctness.</remarks>
     public static ManagedAudioRegressionSmokeTestResult Run()
     {
         ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(

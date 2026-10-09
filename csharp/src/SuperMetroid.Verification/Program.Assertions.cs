@@ -35,10 +35,17 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {
+    /// <summary>Explicitly written CPU-bus bytes; absent addresses resolve to zero.</summary>
     private readonly Dictionary<int, byte> _bytes = [];
 
+    /// <summary>Checks whether fixture setup explicitly initialized an address.</summary>
+    /// <param name="address">24-bit CPU bus address to check.</param>
+    /// <returns>Whether a value was written at that exact address.</returns>
     internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
 
+    /// <summary>Reads a sparse CPU-bus byte, returning zero for addresses not written by the fixture.</summary>
+    /// <param name="address">24-bit CPU bus address.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The address is outside the 24-bit bus.</exception>
     public byte ReadByte(int address)
     {
         if ((uint)address > 0x00ff_ffff)
@@ -47,6 +54,9 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         return _bytes.GetValueOrDefault(address);
     }
 
+    /// <summary>Reads a cartridge byte only from an upper LoROM window, excluding WRAM banks.</summary>
+    /// <param name="address">24-bit CPU bus address to validate and read.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The address is not in an upper LoROM window or belongs to bank $7E/$7F.</exception>
     public byte ReadCartridgeByte(int address)
     {
         SnesAddress source = SnesAddress.FromBusAddress(address);
@@ -59,10 +69,18 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     // This sparse fixture stores exactly the CPU addresses written by its test setup.
     // It deliberately does not synthesize bank mirrors; callers can assert that a
     // translated routine chooses the intended mutable alias itself.
+    /// <summary>Reads the exact sparse CPU address used for a work-RAM access without synthesizing bank mirrors.</summary>
+    /// <param name="address">CPU bus address selected by the caller.</param>
     public byte ReadWorkRamByte(int address) => ReadByte(address);
 
+    /// <summary>Reads the exact sparse CPU address used for a save-RAM access.</summary>
+    /// <param name="address">CPU bus address selected by the caller.</param>
     public byte ReadSaveRamByte(int address) => ReadByte(address);
 
+    /// <summary>Writes one byte at an explicit 24-bit CPU bus address.</summary>
+    /// <param name="address">CPU bus address receiving the byte.</param>
+    /// <param name="value">Value stored at that exact address.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The address is outside the 24-bit bus.</exception>
     public void WriteByte(int address, byte value)
     {
         if ((uint)address > 0x00ff_ffff)
@@ -71,16 +89,24 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         _bytes[address] = value;
     }
 
+    /// <summary>Writes a contiguous byte sequence through the same address validation as individual writes.</summary>
+    /// <param name="startAddress">CPU bus address for the first byte.</param>
+    /// <param name="values">Bytes written in ascending address order.</param>
     public void WriteBytes(int startAddress, ReadOnlySpan<byte> values)
     {
         for (int index = 0; index < values.Length; index++)
             WriteByte(startAddress + index, values[index]);
     }
 
+    /// <summary>Imports one enemy definition from this fixture's cartridge address space.</summary>
+    /// <param name="pointer">Native enemy-definition pointer to import.</param>
+    /// <returns>The decoded enemy definition.</returns>
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
 
-
+    /// <summary>Decodes one terminated falling-tube population record from its native bank layout.</summary>
+    /// <param name="pointer">Offset of the population data within its native bank.</param>
+    /// <returns>The eight-word population record read from the sparse bus.</returns>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
     {
         int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
@@ -91,6 +117,10 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
             Word(12), Word(14));
     }
 
+    /// <summary>Reads enemy population records through the terminator, preserving their native slot order.</summary>
+    /// <param name="pointer">Offset of the population table within the population bank.</param>
+    /// <returns>Decoded entries and the following population metadata byte.</returns>
+    /// <exception cref="InvalidDataException">The table exceeds the supported slot count without a terminator.</exception>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
@@ -113,6 +143,10 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
     }
 
+    /// <summary>Reads enemy graphics-set headers through their native terminator.</summary>
+    /// <param name="pointer">Offset of the graphics-set table within its native bank.</param>
+    /// <returns>The decoded headers in table order.</returns>
+    /// <exception cref="InvalidDataException">The table exceeds four entries without a terminator.</exception>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
@@ -131,6 +165,9 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
     }
 
+    /// <summary>Combines two consecutive fixture bytes into a little-endian word.</summary>
+    /// <param name="address">CPU bus address of the low byte.</param>
+    /// <returns>The unsigned word assembled from this address and the next one.</returns>
     private ushort ReadFixtureWord(int address) =>
         unchecked((ushort)(ReadByte(address) | ReadByte(address + 1) << 8));
 }
@@ -142,6 +179,9 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
 /// </summary>
 static partial class NativeConsoleProcess
 {
+    /// <summary>Sets Windows error-mode flags so process failures do not open interactive system dialogs.</summary>
+    /// <param name="errorMode">Bit mask of process error-mode flags.</param>
+    /// <returns>The previous process error-mode flags.</returns>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }
@@ -160,12 +200,20 @@ static partial class NativeConsoleProcess
 /// </remarks>
 internal static class VerificationAssert
 {
+    /// <summary>Fails verification when a required condition is false.</summary>
+    /// <param name="condition">Condition that must hold.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertTrue(bool condition, string context)
     {
         if (!condition)
             throw new InvalidOperationException($"Verification failed: {context}.");
     }
 
+    /// <summary>Compares values using the default equality comparer and reports their expected and actual values on mismatch.</summary>
+    /// <typeparam name="T">Compared value type.</typeparam>
+    /// <param name="expected">Required value.</param>
+    /// <param name="actual">Observed value.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual<T>(T expected, T actual, string context)
     {
         // EqualityComparer<T>.Default handles primitives, records, nullable values, and
@@ -177,21 +225,46 @@ internal static class VerificationAssert
         }
     }
 
+    /// <summary>Checks an integer expectation against a byte without allowing out-of-range narrowing.</summary>
+    /// <param name="expected">Expected byte value expressed as an integer.</param>
+    /// <param name="actual">Observed byte value.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual(int expected, byte actual, string context) =>
         AssertEqual<byte>(checked((byte)expected), actual, context);
 
+    /// <summary>Checks an integer expectation against a signed byte without allowing out-of-range narrowing.</summary>
+    /// <param name="expected">Expected signed-byte value expressed as an integer.</param>
+    /// <param name="actual">Observed signed-byte value.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual(int expected, sbyte actual, string context) =>
         AssertEqual<sbyte>(checked((sbyte)expected), actual, context);
 
+    /// <summary>Checks an integer expectation against an unsigned word without allowing out-of-range narrowing.</summary>
+    /// <param name="expected">Expected word value expressed as an integer.</param>
+    /// <param name="actual">Observed unsigned word.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual(int expected, ushort actual, string context) =>
         AssertEqual<ushort>(checked((ushort)expected), actual, context);
 
+    /// <summary>Checks an integer expectation against a signed word without allowing out-of-range narrowing.</summary>
+    /// <param name="expected">Expected signed-word value expressed as an integer.</param>
+    /// <param name="actual">Observed signed word.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual(int expected, short actual, string context) =>
         AssertEqual<short>(checked((short)expected), actual, context);
 
+    /// <summary>Checks an integer expectation against a nullable unsigned word while preserving null as a distinct result.</summary>
+    /// <param name="expected">Expected word value expressed as an integer.</param>
+    /// <param name="actual">Observed nullable unsigned word.</param>
+    /// <param name="context">Description included in the failure message.</param>
     internal static void AssertEqual(int expected, ushort? actual, string context) =>
         AssertEqual<ushort?>(checked((ushort)expected), actual, context);
 
+    /// <summary>Runs an action and returns the expected exception, failing if it completes normally or throws another type.</summary>
+    /// <typeparam name="TException">Required exception type.</typeparam>
+    /// <param name="action">Operation expected to throw.</param>
+    /// <param name="context">Description included if the expected exception is not observed.</param>
+    /// <returns>The caught expected exception.</returns>
     internal static TException AssertThrows<TException>(Action action, string context)
         where TException : Exception
     {

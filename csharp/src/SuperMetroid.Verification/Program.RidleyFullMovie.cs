@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks spin-response fireball admission against native RNG, roar, facing, and instruction-reset gates.</summary>
     private static void VerifyRidleySpinFireball()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -41,6 +42,7 @@ internal static partial class Program
         Console.WriteLine("Ridley spin-response fireball: native RNG threshold, roar/turn gates and instruction reset pass.");
     }
 
+    /// <summary>Verifies Ridley's damaging body contact is evaluated before movement, with the new overlap applied next pass.</summary>
     private static void VerifyRidleyContactOrdering()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -69,6 +71,7 @@ internal static partial class Program
         Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
     }
 
+    /// <summary>Confirms swoop subphases use their own countdown without consuming the general Ridley function timer.</summary>
     private static void VerifyRidleySwoopTimer()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -93,6 +96,7 @@ internal static partial class Program
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
 
+    /// <summary>Checks the terminal death handler publishes defeat, deletion, and drops once, then remains inert.</summary>
     private static void VerifyRidleyDeathFinish()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -115,6 +119,7 @@ internal static partial class Program
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
     }
 
+    /// <summary>Verifies a successful grab immediately enters carry motion with native velocities, countdown, and Samus control lock.</summary>
     private static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -188,6 +193,7 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    /// <summary>Checks Ridley arena map-cell exploration, HUD blanking, and defeated-boss door/reset initialization.</summary>
     private static void VerifyRidleyMapInitialization()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -219,6 +225,7 @@ internal static partial class Program
         Console.WriteLine("Ridley map: live initializer explores both arena cells and blanks all fifteen HUD cells; defeated gate and door reset pass.");
     }
 
+    /// <summary>Confirms jump, fall, Spring Ball, and grapple-release transitions preserve total horizontal speed when direction clears.</summary>
     private static void VerifyRetainedHorizontalSpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -256,6 +263,7 @@ internal static partial class Program
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
 
+    /// <summary>Checks pause-only dispatcher phases advance RNG once while gameplay fades do not introduce extra advances.</summary>
     private static void VerifyPauseDispatcherRandom()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -284,6 +292,7 @@ internal static partial class Program
         Console.WriteLine("Pause RNG: all five pause-only dispatchers advance once; gameplay fades avoid duplicate advances.");
     }
 
+    /// <summary>Verifies ordinary, Space Jump, and Screw Attack fallback poses preserve both-facing history and wall-probe eligibility.</summary>
     private static void VerifySpinFallbackHistory()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -315,6 +324,7 @@ internal static partial class Program
         Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
     }
 
+    /// <summary>Checks morph-camera checkpoint alignment, position fractions, one-time consumption, and subsequent unmorph behavior.</summary>
     private static void VerifyMorphCameraCheckpoint()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -350,6 +360,7 @@ internal static partial class Program
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
     }
 
+    /// <summary>Confirms landing from aim-up preserves the raised-gun frame and native animation delay in either facing.</summary>
     private static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -375,6 +386,7 @@ internal static partial class Program
         Console.WriteLine("Aim-up landing: both facing directions preserve raised-gun animation frame and native delay.");
     }
 
+    /// <summary>Compares Ridley fireball trajectory collision against retail square-slope quadrant occupancy.</summary>
     private static void VerifyRidleyFireballSquareSlope()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -405,6 +417,7 @@ internal static partial class Program
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
 
+    /// <summary>Checks fireball damage initialization across regions and boss variants, afterburn direction, and suit reduction.</summary>
     private static void VerifyRidleyFireballDamage()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -434,6 +447,7 @@ internal static partial class Program
         Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
     }
 
+    /// <summary>Verifies tail impact creates the native dust slot, position, instruction variant, and sound request.</summary>
     private static void VerifyRidleyTailImpact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -457,6 +471,7 @@ internal static partial class Program
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 
+    /// <summary>Checks Ridley's recorded screen-reentry gate, signed screen bounds, and independent timer ownership.</summary>
     private static void VerifyRidleyScreenGate()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -479,6 +494,7 @@ internal static partial class Program
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 
+    /// <summary>Confirms the Spring Ball release sequence's recorded displacement, pose transition, and immediate momentum reset.</summary>
     private static void VerifySpringBallRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -523,6 +539,7 @@ internal static partial class Program
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }
 
+    /// <summary>Checks tail-attack offset retention, clockwise byte arithmetic, signed movement multiplication, and predecessor gating.</summary>
     private static void VerifyRidleyTailOffsets()
     {
         var tick = typeof(RoomEnemySystem).GetMethod("TickRidleyTailSegment", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -580,6 +597,7 @@ internal static partial class Program
         Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
     }
 
+    /// <summary>Compares center-facing transitions against movie triggers on both sides, including mid-turn byte-boundary behavior.</summary>
     private static void VerifyRidleyCenterFacing()
     {
         var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
@@ -612,6 +630,7 @@ internal static partial class Program
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 
+    /// <summary>Verifies both pause-page directions retain the native 15-update fade-out, single load, and 30-update fade-in.</summary>
     private static void VerifyRidleyPausePageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -646,6 +665,7 @@ internal static partial class Program
         Console.WriteLine("Both pause-page directions preserve 15 fade-out, one load and 30 fade-in updates.");
     }
 
+    /// <summary>Checks selecting the HUD restores the full suit palette when no charge palette is active.</summary>
     private static void VerifyRidleyPaletteSelection()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -700,6 +720,7 @@ internal static partial class Program
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
     }
 
+    /// <summary>Replays the recorded Ridley door entry through source fade, room load, destination reveal, and enemy handoff.</summary>
     private static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -851,6 +872,8 @@ internal static partial class Program
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 
+    /// <summary>Replays the complete converted Ridley movie from one initial snapshot and compares port state with forward-only native checkpoints on every update.</summary>
+    /// <param name="directory">Directory containing the converted update manifest and compressed native boundary checkpoints.</param>
     private static void VerifyRidleyFullMovie(string directory)
     {
         byte[] movie = File.ReadAllBytes("csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv");

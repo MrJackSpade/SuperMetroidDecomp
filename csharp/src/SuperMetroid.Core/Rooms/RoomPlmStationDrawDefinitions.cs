@@ -35,7 +35,22 @@ internal static class RoomPlmStationDrawDefinitions
     /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
     private const ushort ResourceLeftExtended = 0x9fc7;
 
-    internal enum LayoutKind { Map, Energy, Missile, Save, MapAccess, ResourceAccess }
+    /// <summary>Native geometry and tile-packing rule used to materialize a station draw list.</summary>
+    internal enum LayoutKind
+    {
+        /// <summary>Two-cell map station frame whose second cell continues one tile to the left.</summary>
+        Map,
+        /// <summary>Two-cell energy station frame whose upper cell uses the preceding tile row.</summary>
+        Energy,
+        /// <summary>Two-cell missile station frame with the resource-station tile progression.</summary>
+        Missile,
+        /// <summary>Six-row save pod with paired floor/cap cells and a vertical shaft between them.</summary>
+        Save,
+        /// <summary>Retracted or extended map access panel, mirrored according to its side.</summary>
+        MapAccess,
+        /// <summary>Retracted or extended resource access panel, with its trigger replaced on extension.</summary>
+        ResourceAccess
+    }
 
     /// <summary>
     /// Native station runs are horizontal. Map displays write origin then left;
@@ -49,8 +64,14 @@ internal static class RoomPlmStationDrawDefinitions
     /// tile. Map access mirrors by side; resource access changes trigger to solid
     /// on extension. These rules cover only the twenty native owned draw pointers.
     /// </summary>
+    /// <param name="Pointer">Native draw-list pointer selecting this station layout.</param>
+    /// <param name="Kind">Physical layout rule used to generate its room words.</param>
+    /// <param name="Frame">Zero-based animation frame for map, energy, or missile stations.</param>
+    /// <param name="Left">True when an access layout is the left-facing variant.</param>
+    /// <param name="Extended">True when an access panel is in its extended state.</param>
     internal readonly record struct Draw(ushort Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
     {
+        /// <summary>Number of origin-relative draw runs, including each save pod row.</summary>
         internal int RunCount => Kind switch
         {
             LayoutKind.Save => 6,
@@ -58,11 +79,18 @@ internal static class RoomPlmStationDrawDefinitions
             LayoutKind.ResourceAccess => 1,
             _ => 2,
         };
+        /// <summary>Validates that a run index belongs to this layout.</summary>
+        /// <param name="run">Zero-based run index to check.</param>
+        /// <exception cref="IndexOutOfRangeException">The run is outside this layout's run count.</exception>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Returns the number of physical room words in a validated run.</summary>
+        /// <param name="run">Zero-based run index.</param>
         internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
+        /// <summary>Returns the X offset from the current run to the next run's origin.</summary>
+        /// <param name="run">Zero-based run index whose continuation offset is requested.</param>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
@@ -70,12 +98,18 @@ internal static class RoomPlmStationDrawDefinitions
             return Kind == LayoutKind.Map ? (sbyte)-1 : Kind == LayoutKind.MapAccess && !Extended
                 ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
         }
+        /// <summary>Returns the Y offset from the current run to the next run's origin.</summary>
+        /// <param name="run">Zero-based run index whose continuation offset is requested.</param>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
                 : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Builds one native level word from the layout's tile, flip, and collision rules.</summary>
+        /// <param name="run">Zero-based draw run containing the requested cell.</param>
+        /// <param name="cell">Zero-based word position within the run.</param>
+        /// <exception cref="IndexOutOfRangeException">The run or cell is outside this layout.</exception>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -104,6 +138,10 @@ internal static class RoomPlmStationDrawDefinitions
             return (ushort)(collision << 12 | flip | tile);
         }
     }
+    /// <summary>Maps a native station draw pointer to its compact physical layout description.</summary>
+    /// <param name="pointer">Bank-$84 draw-list address to resolve.</param>
+    /// <param name="draw">Receives the layout description when the pointer is recognized.</param>
+    /// <returns>True when the pointer belongs to one of the supported station draw lists.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -127,6 +165,7 @@ internal static class RoomPlmStationDrawDefinitions
         };
         return draw.Pointer != 0;
     }
+    /// <summary>Yields the twenty supported station draw pointers in stable native grouping order.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         for (int frame = 0; frame < 3; frame++)
@@ -147,6 +186,7 @@ internal static class RoomPlmStationDrawDefinitions
         yield return ResourceLeftRetracted;
         yield return ResourceLeftExtended;
     }
+    /// <summary>Enumerates complete physical draw lists for every supported station state.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -159,6 +199,10 @@ internal static class RoomPlmStationDrawDefinitions
         }
     }
     // Temporary artwork DTOs; runtime draws calculate cells directly.
+    /// <summary>Materializes the physical room-word runs for one recognized station draw pointer.</summary>
+    /// <param name="pointer">Bank-$84 draw-list address to resolve.</param>
+    /// <param name="list">Receives the generated runs on success, or the default value on failure.</param>
+    /// <returns>True when the pointer identifies a supported station list.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -204,6 +248,10 @@ internal static class RoomPlmStationDrawDefinitions
         };
     }
 
+    /// <summary>Finds a physical draw list by its stable artwork identifier.</summary>
+    /// <param name="id">Ordinal visual identifier returned by <see cref="VisualId"/>.</param>
+    /// <param name="list">Receives the matching draw list, or the default value if no identifier matches.</param>
+    /// <returns>True when a supported visual identifier is found.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

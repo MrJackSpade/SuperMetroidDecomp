@@ -23,10 +23,17 @@ public sealed class EnemyAuxiliaryColorCatalog
             }
         });
 
+    /// <summary>Compiled face-block glow palette rows.</summary>
     private readonly PaletteRows faceBlock;
+    /// <summary>Compiled Sidehopper drain and corpse palette rows.</summary>
     private readonly PaletteRows deadSidehopper;
+    /// <summary>Compiled Golden Torizo body health-gradient rows.</summary>
     private readonly PaletteRows torizoBody;
+    /// <summary>Compiled Golden Torizo rear-belly health-gradient rows.</summary>
     private readonly PaletteRows torizoBelly;
+
+    /// <summary>Builds the lookup tables for all validated auxiliary palettes.</summary>
+    /// <param name="frames">Owned RGB5 rows keyed by each required palette identity.</param>
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
@@ -35,6 +42,10 @@ public sealed class EnemyAuxiliaryColorCatalog
         torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true, rearTorizo: true);
     }
 
+    /// <summary>Selects the compiled row set associated with a supported auxiliary palette identity.</summary>
+    /// <param name="palette">Palette family requested by the caller.</param>
+    /// <returns>The compiled rows used to resolve colors for that family.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="palette"/> is not one of the four supported families.</exception>
     private PaletteRows RowsFor(EnemyAuxiliaryPalette palette) => palette switch
     {
         EnemyAuxiliaryPalette.FaceBlock => faceBlock,
@@ -67,16 +78,32 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// </summary>
     private sealed class PaletteRows
     {
+        /// <summary>First supplied row, used as the starting endpoint for calculated transitions.</summary>
         private readonly ushort[] first;
+        /// <summary>Final endpoint row for health gradients, glow cycles, and drain stages.</summary>
         private readonly ushort[] last;
+        /// <summary>Complete supplied rows retained when the calculated relationship would change an installed color.</summary>
         private readonly ushort[][]? supplied;
+        /// <summary>Selects the face-block's three-step glow cycle and special fourth-color accent handling.</summary>
         private readonly bool faceGlow;
+        /// <summary>Mode flags for canonical paint fast paths: Torizo and face glow select their matching stock catalogs; sidehopper selects its drain catalog, while rearTorizo chooses the belly variant.</summary>
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
+        /// <summary>Active face-block fourth-color endpoint, distinct from its resting color.</summary>
         private readonly ushort glowAccentStart;
+        /// <summary>Separate Sidehopper corpse-palette row, which is not part of the drain interpolation.</summary>
         private readonly ushort[]? corpse;
 
+        /// <summary>Number of supplied animation or health-band rows.</summary>
         internal int FrameCount { get; }
+        /// <summary>Number of packed RGB5 colors in each supplied row.</summary>
         internal int ColorCount { get; }
+
+        /// <summary>Compiles palette-specific transitions and keeps original rows whenever the native relationship is not exact.</summary>
+        /// <param name="rows">Validated packed RGB5 rows for one palette family.</param>
+        /// <param name="healthGradient">Enables Golden Torizo's per-health-band endpoint interpolation.</param>
+        /// <param name="faceGlow">Enables the face-block's mirrored glow cycle and accent endpoint.</param>
+        /// <param name="sidehopperDrain">Enables the Sidehopper drain progression with its separate corpse row.</param>
+        /// <param name="rearTorizo">Selects the belly variant when comparing against the stock Torizo palette.</param>
         internal PaletteRows(ushort[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
         {
             FrameCount = rows.Length;
@@ -104,7 +131,15 @@ public sealed class EnemyAuxiliaryColorCatalog
                     if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
 
         }
+        /// <summary>Returns an exact installed entry when needed, otherwise the corresponding calculated transition color.</summary>
+        /// <param name="frame">Row index in the palette's authored stage sequence.</param>
+        /// <param name="color">Color index in that row.</param>
         internal ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        /// <summary>Calculates a palette entry from stock data or the endpoints and progression mode selected at construction.</summary>
+        /// <param name="frame">Row index in the authored sequence.</param>
+        /// <param name="color">Color index within the palette row.</param>
+        /// <returns>The packed RGB5 value for that stage and color.</returns>
         private ushort Calculate(int frame, int color)
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
@@ -182,10 +217,13 @@ public sealed class EnemyAuxiliaryColorCatalog
         return data;
     }
 
+    /// <summary>Rejects repeated object properties before deserialization can collapse duplicate palette data.</summary>
+    /// <param name="value">Parsed JSON value whose object properties are checked recursively.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate auxiliary palette property {name}."));
 
+    /// <summary>JSON settings requiring camel-case names, named palette enums, and rejection of unknown properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -7,18 +7,30 @@ namespace SuperMetroid.Desktop;
 public sealed partial class PlayableGameControl
 {
     // Host identities deliberately live outside the debugger-state graph.
+    /// <summary>Monotonic identity assigned to each retained display snapshot.</summary>
     private long displaySequence;
+    /// <summary>Generation token used to reject display work captured before a restart or renderer transition.</summary>
     private long displayGeneration;
+    /// <summary>Latest immutable display packet awaiting publication to the selected renderer.</summary>
     private RenderFrameSnapshot? pendingDisplay;
+    /// <summary>Background Direct3D worker when hardware rendering is active.</summary>
     private D3D11RenderWorker? gpuWorker;
+    /// <summary>Records that renderer initialization has been attempted and cannot be repeated.</summary>
     private bool rendererStarted;
+    /// <summary>Signals that shutdown has begun so late startup and resize continuations stop publishing work.</summary>
     private bool rendererStopping;
+    /// <summary>Form whose resize event is observed while the GPU worker owns presentation.</summary>
     private Form? rendererHost;
+    /// <summary>Presented-frame count sampled by the last health-timer tick.</summary>
     private long previousPresentCount;
+    /// <summary>Timestamp paired with <see cref="previousPresentCount"/> for the displayed GPU rate.</summary>
     private long previousPresentTimestamp;
+    /// <summary>GPU presentation rate calculated from consecutive health-timer samples.</summary>
     private double gpuFramesPerSecond;
+    /// <summary>Formatted timing distributions and upload/recovery counters shown by renderer diagnostics.</summary>
     private string rendererTimingDetail = string.Empty;
 
+    /// <summary>Refreshes the diagnostic text from the worker's retained CPU/GPU timing distributions and counters.</summary>
     private void RefreshRendererTimingDetail()
     {
         if (gpuWorker is not { } worker) { rendererTimingDetail = string.Empty; return; }
@@ -35,12 +47,15 @@ public sealed partial class PlayableGameControl
             Format("GPU composition + display (excludes CPU Present wait)", timings.GpuCompositionAndDisplay),
             $"GPU samples skipped {worker.SkippedGpuTimingSamples}, invalid {worker.InvalidGpuTimingSamples}; recoveries {worker.DeviceRecoveries}");
     }
+    /// <summary>Timer that samples renderer health and presentation rate on the UI message pump.</summary>
     private readonly System.Windows.Forms.Timer rendererHealthTimer = new() { Interval = 250 };
 
+    /// <summary>Compact GPU status suffix showing measured presentation rate and replaced mailbox packets.</summary>
     private string GpuTimingText => gpuWorker is { } worker
         ? $" | GPU {gpuFramesPerSecond:F1} fps / replaced {worker.MailboxMetrics.Replaced}"
         : string.Empty;
 
+    /// <summary>Advances the display epoch and discards any snapshot belonging to the prior epoch.</summary>
     private void BeginDisplayGeneration()
     {
         displayGeneration = checked(displayGeneration + 1);
@@ -48,6 +63,8 @@ public sealed partial class PlayableGameControl
         pendingDisplay = null;
     }
 
+    /// <summary>Waits for the GPU worker to cross into a new display epoch before accepting new snapshots.</summary>
+    /// <returns>False when the worker rejects the barrier or shutdown/disposal prevents installing the epoch.</returns>
     private async Task<bool> BeginDisplayGenerationAsync()
     {
         long next = checked(displayGeneration + 1);
@@ -58,6 +75,7 @@ public sealed partial class PlayableGameControl
         return true;
     }
 
+    /// <summary>Stops playback, invalidates old display work, restarts game state, then restores the prior play mode.</summary>
     private async Task RestartAsync()
     {
         bool resume = playbackTimer.Enabled;
@@ -127,6 +145,9 @@ public sealed partial class PlayableGameControl
         Console.WriteLine($"Renderer: Direct3D11 on {adapter}");
     }
 
+    /// <summary>Resizes GPU presentation to the canvas client area, suspending it while the owning form is minimized.</summary>
+    /// <param name="sender">Event source for a canvas or host-form resize.</param>
+    /// <param name="e">Resize event data.</param>
     private void ResizeGpu(object? sender, EventArgs e)
     {
         if (rendererStopping) return;
@@ -136,6 +157,9 @@ public sealed partial class PlayableGameControl
         gpuWorker?.Resize(minimized ? 0 : canvas.ClientSize.Width, minimized ? 0 : canvas.ClientSize.Height);
     }
 
+    /// <summary>Surfaces worker faults and updates the displayed presentation rate from successive present counts.</summary>
+    /// <param name="sender">Health timer that triggered the sample.</param>
+    /// <param name="e">Timer event data.</param>
     private void CheckRendererHealth(object? sender, EventArgs e)
     {
         if (gpuWorker?.Completion.IsFaulted == true)
@@ -155,6 +179,7 @@ public sealed partial class PlayableGameControl
         }
     }
 
+    /// <summary>Publishes the pending captured scene to the GPU worker when hardware rendering is active.</summary>
     private void PublishGpuDisplay()
     {
         if (gpuWorker is not { } worker || rendererStopping) return;
@@ -163,6 +188,8 @@ public sealed partial class PlayableGameControl
         worker.Publish(packet);
     }
 
+    /// <summary>Updates the software canvas from the retained scene packet or the legacy frame pixel buffer.</summary>
+    /// <param name="frame">Current frontend frame used only when no captured display packet is available.</param>
     private void RefreshDisplay(FrontendFrame frame)
     {
         if (gpuWorker is not null) return;
@@ -184,6 +211,7 @@ public sealed partial class PlayableGameControl
         if (gpuWorker is { } worker) await worker.StopAsync();
     }
 
+    /// <summary>Releases the health timer after GPU shutdown has completed and rejects premature window teardown.</summary>
     private void DisposeRendererHost()
     {
         if (gpuWorker is { Completion.IsCompleted: false })

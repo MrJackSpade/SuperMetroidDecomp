@@ -15,9 +15,13 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
+    /// <summary>Live sound owner consulted when the cancelled charge would queue its one-shot effect.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    /// <summary>Live projectile owner used to remove charge-flare data and manage released echo slots.</summary>
     [NonSerialized] private SamusProjectileSystem? _projectiles;
+    /// <summary>Pending library-one sound edge produced when windup cancels a sufficiently long charge.</summary>
     [NonSerialized] private bool _chargeCancellationSoundRequested;
+    /// <summary>Power Bomb producer-time guard captured with the pending charge-cancellation sound edge.</summary>
     [NonSerialized] private bool _chargeCancellationSoundSuppressed;
 
     /// <summary>
@@ -261,6 +265,8 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(bus, samus, targetPose);
     }
 
+    /// <summary>Consumes the stored shine and installs the 30-update directional-selection windup state.</summary>
+    /// <param name="samus">Samus state whose charge, pose, movement, and palette words are synchronized with the handler.</param>
     private void InitializeWindup(SamusState samus)
     {
         // Projectile_Func7_Shinespark checks $0CD0 before clearing it. A charge that has
@@ -532,6 +538,9 @@ false);
         return true;
     }
 
+    /// <summary>Stops translational boost, initializes the paired crash echoes, and transfers movement ownership to crash handling.</summary>
+    /// <param name="bus">Address space used to determine Samus's facing for the initial orbit directions.</param>
+    /// <param name="samus">Samus state whose velocities, boost, pose-related counters, and crash state are updated.</param>
     private void BeginCrash(ISnesAddressSpace bus, SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
@@ -737,6 +746,14 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
+    /// <summary>Advances one radial echo around Samus and clears its drawing state when it leaves the viewport.</summary>
+    /// <param name="samus">Current center point used to recompute the echo's position each update.</param>
+    /// <param name="layer1X">Horizontal camera position used for viewport rejection.</param>
+    /// <param name="layer1Y">Vertical camera position used for viewport rejection.</param>
+    /// <param name="nativeSlot">Fixed projectile slot associated with this echo for native-state identification.</param>
+    /// <param name="slot">Independent angle, radius, position, and drawing-enable words for the echo.</param>
+    /// <param name="projectileOwnsSlot"><see langword="true"/> permits stepping from the live projectile owner even if the debugger drawing flag is clear.</param>
+    /// <returns><see langword="true"/> while the updated point remains in the viewport; otherwise clears the echo and returns <see langword="false"/>.</returns>
     private bool StepReleasedCrashEcho(
         SamusState samus,
         ushort layer1X,
@@ -790,6 +807,10 @@ false,             CrashSequenceFinished: true);
         return (x, y);
     }
 
+    /// <summary>Looks up one signed sine displacement using the cartridge's positive-wave multiplication and truncation.</summary>
+    /// <param name="angle">Byte-angle table index for this component.</param>
+    /// <param name="radius">Unsigned radial distance multiplied by the table magnitude.</param>
+    /// <returns>Wrapped 16-bit signed component as its native word representation.</returns>
     private static ushort LookupSignedComponent(
         SnesAngle angle,
         byte radius)
@@ -829,6 +850,12 @@ false,             CrashSequenceFinished: true);
             samus.WritePreviousYPosition(unchecked((ushort)(samus.YPosition + 0x0e)));
     }
 
+    /// <summary>Applies one horizontal shinespark update, including acceleration, the 15-pixel speed cap, and bomb-block collision.</summary>
+    /// <param name="bus">Address space used to read Samus's facing and perform collision movement.</param>
+    /// <param name="level">Room geometry used by the horizontal block mover.</param>
+    /// <param name="samus">Samus state whose horizontal boost and position are advanced.</param>
+    /// <param name="plms">Optional room PLM system notified when a breakable block is hit.</param>
+    /// <returns>The room mover's collision and displacement result for this update.</returns>
     private BlockMoveResult MoveX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -860,6 +887,13 @@ false,             CrashSequenceFinished: true);
             collisionMovementDirection: displacement.CollisionDirection);
     }
 
+    /// <summary>Applies one upward shinespark update with accumulated vertical acceleration and native solid-enemy/block collision handling.</summary>
+    /// <param name="bus">Address space used by room collision and pose-related queries.</param>
+    /// <param name="level">Room geometry used by the vertical block mover.</param>
+    /// <param name="samus">Samus state whose vertical speed, acceleration, and position are advanced.</param>
+    /// <param name="nmiFrameCounter">Frame counter selecting the alternating block scan direction.</param>
+    /// <param name="plms">Optional room PLM system notified when a breakable block is hit.</param>
+    /// <returns>The collision result; solid-enemy contact reports collision without moving to the enemy boundary.</returns>
     private BlockMoveResult MoveY(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -925,6 +959,10 @@ false,             CrashSequenceFinished: true);
             plms: plms);
     }
 
+    /// <summary>Combines native high and low words into an unsigned 16.16 fixed-point value.</summary>
+    /// <param name="high">Whole-word portion.</param>
+    /// <param name="low">Fractional-word portion.</param>
+    /// <returns>The two words packed without changing their bit patterns.</returns>
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     /// <summary>
@@ -933,19 +971,30 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private sealed class ReleasedEchoSlot
     {
+        /// <summary>Whether the host should draw this echo; it does not indicate live projectile-slot ownership.</summary>
         public bool Active { get; private set; }
+        /// <summary>Byte-angle direction used to project this echo around Samus.</summary>
         public SnesAngle Angle { get; set; }
+        /// <summary>Unsigned radial distance, incremented by eight each update and truncated to a byte for lookup.</summary>
         public ushort Radius { get; set; }
+        /// <summary>Whole-pixel room X coordinate of the latest in-viewport point.</summary>
         public ushort XPosition { get; set; }
+        /// <summary>Whole-pixel room Y coordinate of the latest in-viewport point.</summary>
         public ushort YPosition { get; set; }
 
+        /// <summary>Captures the draw-enable flag and last position without exposing mutable projectile state.</summary>
         public ShinesparkReleasedEcho Snapshot => new(
             Active, XPosition, YPosition);
 
         // Crash entry changes only the drawing enable. It does not clear coordinates,
         // projectile ownership, or the aliased angular-travel word.
+        /// <summary>Hides the current echo while retaining its angle, radius, and coordinates for native alias behavior.</summary>
         public void DisableDrawing() => Active = false;
 
+        /// <summary>Starts drawing a newly released echo at Samus's current location with zero radial distance.</summary>
+        /// <param name="angle">Fixed orbital direction for this projectile slot.</param>
+        /// <param name="xPosition">Initial whole-pixel room X coordinate.</param>
+        /// <param name="yPosition">Initial whole-pixel room Y coordinate.</param>
         public void Initialize(SnesAngle angle, ushort xPosition, ushort yPosition)
         {
             Active = true;
@@ -957,6 +1006,7 @@ false,             CrashSequenceFinished: true);
             YPosition = yPosition;
         }
 
+        /// <summary>Disables and zeroes all stored words after the echo leaves the viewport.</summary>
         public void Clear()
         {
             Active = false;

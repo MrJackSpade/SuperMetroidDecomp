@@ -3,6 +3,7 @@
 
 namespace SuperMetroid.Core.Audio
 {
+    /// <summary>Verification-only audio track selectors used with the retail music-bank upload.</summary>
     internal static class AudioRomDataMusicTracks
     {
         /// <summary>Title-screen track command for the music bank uploaded from <see cref="AudioUploadAddresses.TitleSequence"/>.</summary>
@@ -15,6 +16,7 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoSetDef record at bank $91.</summary>
     internal static class AttractDemoRomDataEquipmentFields
     {
+        /// <summary>Byte offsets in each eight-word DemoSetDef equipment record: Items 0, Missiles 2, SuperMissiles 4, PowerBombs 6, Health 8, CollectedBeams 10, EquippedBeams 12, and InputObject 14.</summary>
         public const int Items = 0, Missiles = 2, SuperMissiles = 4, PowerBombs = 6,
             Health = 8, CollectedBeams = 10, EquippedBeams = 12, InputObject = 14;
     }
@@ -31,6 +33,7 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoRoomData record at bank $82.</summary>
     internal static class AttractDemoRomDataRoomFields
     {
+        /// <summary>Byte offsets in each bank-$82 DemoRoomData record: Room 0, Door 2, DoorSlot 4, CameraX 6, CameraY 8, SamusYFromTop 10, SamusXFromCenter 12, Duration 14, and Setup 16.</summary>
         public const int Room = 0, Door = 2, DoorSlot = 4, CameraX = 6, CameraY = 8,
             SamusYFromTop = 10, SamusXFromCenter = 12, Duration = 14, Setup = 16;
     }
@@ -38,6 +41,7 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Named bank-$8C indirect-data records compared by cinematic draw code.</summary>
     internal static class CinematicCodePointersIndirectData
     {
+        /// <summary>Bank-$8C offset $D67D for the intro's text-space indirect-data record used by cinematic draw comparisons.</summary>
         public const ushort IntroTextSpace = 0xd67d;
     }
 }
@@ -200,10 +204,14 @@ namespace SuperMetroid.Core.Game
 
 namespace SuperMetroid.Core.Input
 {
+    /// <summary>Retail bank-$91 object and record pointers for the Mother Brain intro demo-input sequence.</summary>
     internal static class DemoInputRomDataIntroMotherBrain
     {
+        /// <summary>Bank-$91 definition offset for the demo-input object initialized by the intro.</summary>
         public const ushort Object = 0x8784;
+        /// <summary>Bank-$91 offset of the input-record list loaded by that object.</summary>
         public const ushort InputList = 0x8694;
+        /// <summary>Bank-$91 offset of the next record selected after the captured intro input sequence.</summary>
         public const ushort NextRecord = 0x86b8;
     }
 }

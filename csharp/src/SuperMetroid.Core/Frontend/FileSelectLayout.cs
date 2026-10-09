@@ -63,6 +63,13 @@ internal static class FileSelectLayout
     public static int DataSlotDestination(int slot, FileSelectSlotField field) =>
         SlotDestination(slot, field, dataPage: true);
 
+    /// <summary>Maps one save-slot text field to its byte offset in the main or copy/clear BG1 tilemap.</summary>
+    /// <param name="slot">Zero-based save slot, constrained to the three visible records.</param>
+    /// <param name="field">Which label or statistic within the slot panel is being placed.</param>
+    /// <param name="dataPage"><see langword="true"/> selects the copy/clear panel geometry; otherwise use the main page.</param>
+    /// <returns>The destination byte offset in the 32-column tilemap.</returns>
+    /// <exception cref="IndexOutOfRangeException">The slot index is outside the three save slots.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The field is not part of a slot panel.</exception>
     private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
     {
         if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
@@ -94,37 +101,58 @@ internal static class FileSelectLayout
 
     /// <summary>BG1 byte destinations for the main file-select labels and fields.</summary>
     public const int SamusDataDestination = 0x056;
+    /// <summary>Tilemap destination for the main-page Copy command.</summary>
     public const int DataCopyDestination = 0x508;
+    /// <summary>Tilemap destination for the main-page Clear command.</summary>
     public const int DataClearDestination = 0x5c8;
+    /// <summary>Tilemap destination for the main-page Exit command.</summary>
     public const int ExitDestination = 0x688;
 
     /// <summary>BG1 byte destinations used by Copy and Clear prompts.</summary>
     public const int DataModeCopyDestination = 0x52;
+    /// <summary>Tilemap destination for the Copy/Clear mode's Clear label.</summary>
     public const int DataModeClearDestination = 0x50;
+    /// <summary>Tilemap destination for the prompt asking which source save to copy.</summary>
     public const int CopySourcePromptDestination = 0x150;
+    /// <summary>Tilemap destination for the prompt asking which slot receives the copy.</summary>
     public const int CopyDestinationPromptDestination = 0x148;
+    /// <summary>Tilemap destination for the confirmation question before overwriting a save.</summary>
     public const int CopyConfirmationPromptDestination = 0x144;
+    /// <summary>Tilemap destination for the prompt asking which save to clear.</summary>
     public const int ClearPromptDestination = 0x140;
+    /// <summary>Tilemap destination for the displayed source-slot letter during copy selection.</summary>
     public const int CopyDestinationSourceLetterDestination = 0x160;
+    /// <summary>Tilemap destination for the source-slot letter in the copy confirmation.</summary>
     public const int CopyConfirmationSourceLetterDestination = 0x15c;
+    /// <summary>Tilemap destination for the destination-slot letter in the copy confirmation.</summary>
     public const int CopyConfirmationDestinationLetterDestination = 0x176;
+    /// <summary>Tilemap destination for the slot letter in the clear confirmation.</summary>
     public const int ClearConfirmationSourceLetterDestination = 0x16a;
+    /// <summary>Base tile identifier used to render slot letters by adding their alphabet offset.</summary>
     public const ushort SamusLetterTileBase = 0x206a;
+    /// <summary>Tilemap destination for the message shown after a save copy succeeds.</summary>
     public const int CopyCompletedDestination = 0x510;
+    /// <summary>Tilemap destination for the message shown after save data is cleared.</summary>
     public const int DataClearedDestination = 0x500;
 
     /// <summary>BG1 byte destinations for the copy/clear confirmation choices.</summary>
     public const int ConfirmationQuestionDestination = 0x514;
+    /// <summary>Tilemap destination of the Yes choice in a copy or clear confirmation.</summary>
     public const int ConfirmationYesDestination = 0x59c;
+    /// <summary>Tilemap destination of the No choice in a copy or clear confirmation.</summary>
     public const int ConfirmationNoDestination = 0x65c;
 }
 
 /// <summary>Distinct fields in each native file-select save-slot panel.</summary>
 internal enum FileSelectSlotField
 {
+    /// <summary>Save-slot letter or label at the start of the panel.</summary>
     Label,
+    /// <summary>Energy total displayed for the saved run.</summary>
     Energy,
+    /// <summary>Elapsed play time value, placed on the row below its label.</summary>
     TimeValue,
+    /// <summary>Text label identifying the elapsed-time field.</summary>
     TimeLabel,
 }
 

@@ -10,20 +10,30 @@ public sealed partial class RoomEnemySystem
     /// <summary>Bank-$A0 enemy definition $ED3F for the Tourian Torizo corpse, initialized by $A9:D308 and required to own native enemy slot zero.</summary>
     public const ushort DeadTorizoDefinition = 0xed3f;
 
+    /// <summary>Bank-$A9 dispatcher word for the intact corpse waiting for contact.</summary>
     private const ushort DeadTorizoWaitFunction = 0xd3ad;
+    /// <summary>Bank-$A9 dispatcher word for the sixteen-call delay before rot begins.</summary>
     private const ushort DeadTorizoPreRotFunction = 0xd3c8;
+    /// <summary>Bank-$A9 dispatcher word for active corpse and sand progression.</summary>
     private const ushort DeadTorizoRottingFunction = 0xd3e6;
+    /// <summary>Bank-$A9 dispatcher word selected after the final corpse row finishes.</summary>
     private const ushort DeadTorizoNoOperationFunction = 0xd3c7;
+    /// <summary>WRAM base of the 4 KiB mutable corpse pixel-row workspace.</summary>
     private const int DeadTorizoWorkBufferAddress = 0x7e2000;
+    /// <summary>Byte size cleared when the corpse initializes its mutable graphics workspace.</summary>
     private const int DeadTorizoWorkBufferSize = 0x1000;
+    /// <summary>WRAM base of the live sand-heap tile rows updated by the rotting effect.</summary>
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
 
+    /// <summary>Frame-local VRAM writes accumulated from the corpse and sand transfer schedule.</summary>
     private readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
+    /// <summary>Extended state for the single initialized Dead Torizo slot, absent outside its room lifecycle.</summary>
     private DeadTorizoEnemyState? _deadTorizo;
 
     /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
     public ushort? LastDeadTorizoSoundEffect { get; private set; }
 
+    /// <summary>Discards corpse state and queued graphics writes when the room-owned enemy system is reset.</summary>
     private void ResetDeadTorizoRoomState()
     {
         _deadTorizo = null;
@@ -125,6 +135,9 @@ public sealed partial class RoomEnemySystem
         BuildDeadTorizoVramTransfers(state);
     }
 
+    /// <summary>Advances sand cadence, enemy movement, and one scheduled corpse-row operation until the rot table completes.</summary>
+    /// <param name="slot">Native enemy slot zero whose velocity and function word track the corpse lifecycle.</param>
+    /// <param name="state">Rot table progress, sand counters, and diagnostic state for this corpse.</param>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.SandFrameCounter = unchecked((ushort)(state.SandFrameCounter + 1));
@@ -171,6 +184,10 @@ public sealed partial class RoomEnemySystem
             TriggerDeadTorizoRotting(slot);
     }
 
+    /// <summary>Tests Samus against the corpse's asymmetric touch shapes and publishes the native minimum horizontal push on overlap.</summary>
+    /// <param name="slot">The corpse slot providing the hitbox origin.</param>
+    /// <param name="samus">Samus kinematics used for overlap and displacement output.</param>
+    /// <returns><see langword="true"/> after a hitbox overlaps and collision displacement is written; otherwise <see langword="false"/>.</returns>
     private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
@@ -224,6 +241,8 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Seeds the mutable corpse workspace from installed planar artwork using the native row-copy layout.</summary>
+    /// <exception cref="InvalidDataException">Installed Dead Torizo artwork is missing or has an invalid size.</exception>
     private void InitializeDeadTorizoGraphics()
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -259,6 +278,10 @@ public sealed partial class RoomEnemySystem
         return tiles.Span;
     }
 
+    /// <summary>Copies eligible corpse bitplane words two pixels downward, optionally clearing each source row.</summary>
+    /// <param name="state">Rotation and wrap offsets controlling the row's source and destination addresses.</param>
+    /// <param name="yOffset">Pixel-row offset within the corpse graphics surface.</param>
+    /// <param name="move"><see langword="true"/> clears the source words after transfer; otherwise the source remains intact.</param>
     private void CopyOrMoveDeadTorizoPixelRow(
         DeadTorizoEnemyState state,
         ushort yOffset,
@@ -291,6 +314,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Runs the completion side effects for one rot-table entry: dust, counters, and periodic sound.</summary>
+    /// <param name="state">Diagnostic counters and completion metadata to update.</param>
+    /// <param name="entryIndex">Zero-based table entry that has just reached its terminal row position.</param>
     private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state, ushort entryIndex)
     {
         state.FinishedEntryCount++;
@@ -305,6 +331,8 @@ public sealed partial class RoomEnemySystem
             LastDeadTorizoSoundEffect = 0x0010;
     }
 
+    /// <summary>Copies the selected first bitplane word from each tile row into the live sand heap in WRAM.</summary>
+    /// <param name="lineIndex">Descending nonzero heap-row selector used to resolve native source and destination offsets.</param>
     private void CopyDeadTorizoSandLine(ushort lineIndex)
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -344,6 +372,8 @@ public sealed partial class RoomEnemySystem
             slot.YPosition + unchecked((sbyte)(slot.VariableC >> 8)) + (yCarry >> 8)));
     }
 
+    /// <summary>Appends the transfer descriptors scheduled for the next frame's current corpse-animation phase.</summary>
+    /// <param name="state">The wrapping phase counter advanced before selecting descriptors.</param>
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
@@ -354,6 +384,8 @@ public sealed partial class RoomEnemySystem
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
+    /// <summary>Submits all accumulated corpse and sand writes to the frame queue when one is available.</summary>
+    /// <param name="queue">Destination queue; <see langword="null"/> leaves the pending list untouched.</param>
     private void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
     {
         if (queue is null)
@@ -386,6 +418,10 @@ public sealed partial class RoomEnemySystem
             0);
     }
 
+    /// <summary>Returns the initialized corpse extension state after verifying that the dispatcher received its owning slot.</summary>
+    /// <param name="slot">Slot passed by the current enemy dispatch.</param>
+    /// <returns>The extended state bound to that slot.</returns>
+    /// <exception cref="InvalidDataException">The corpse is uninitialized or another enemy slot entered its dispatcher.</exception>
     private DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)
     {
         DeadTorizoEnemyState state = _deadTorizo ??
@@ -395,15 +431,28 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Reads one little-endian word from the corpse's WRAM workspace.</summary>
+    /// <param name="wordOffset">Zero-based word offset from the workspace base.</param>
+    /// <returns>The 16-bit workspace value.</returns>
     private ushort ReadWorkWord(int wordOffset) =>
         SnesWorkRam.ReadWord(EnemyWorkMemory, DeadTorizoWorkBufferAddress + wordOffset * 2);
 
+    /// <summary>Writes one word to the corpse's WRAM workspace.</summary>
+    /// <param name="wordOffset">Zero-based word offset from the workspace base.</param>
+    /// <param name="value">The 16-bit value to store.</param>
     private void WriteWorkWord(int wordOffset, ushort value) =>
         WriteWord(_bus!, DeadTorizoWorkBufferAddress + wordOffset * 2, value);
 
+    /// <summary>Computes the 16-bit two's-complement magnitude used by the native collision routine.</summary>
+    /// <param name="value">Signed value represented in an unsigned word.</param>
+    /// <returns>The wrapped absolute magnitude as a 16-bit word.</returns>
     private static ushort NativeAbsolute(ushort value) =>
         (value & 0x8000) == 0 ? value : unchecked((ushort)(~value + 1));
 
+    /// <summary>Stores a word in little-endian order through the bus's byte-write interface.</summary>
+    /// <param name="bus">Address space receiving both bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <param name="value">Word to split into low and high bytes.</param>
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {
         bus.WriteByte(address, unchecked((byte)value));
@@ -415,6 +464,18 @@ public sealed partial class RoomEnemySystem
 /// <summary>Typed projection of Dead Torizo's bank-$A9 extended WRAM fields.</summary>
 public sealed class DeadTorizoEnemyState
 {
+    /// <summary>Creates the typed projection of Dead Torizo's slot and native rot-table configuration.</summary>
+    /// <param name="slot">The physical enemy slot that owns this extended state.</param>
+    /// <param name="tablePointer">WRAM-relative address of the mutable corpse rot table.</param>
+    /// <param name="vramTablePointer">Native generic transfer-table pointer retained for state inspection.</param>
+    /// <param name="copyFunction">Native row-copy callback word from the corpse definition.</param>
+    /// <param name="moveFunction">Native destructive row-move callback word from the corpse definition.</param>
+    /// <param name="rotationTablePointer">Bank-$A9 row-offset table used to address corpse tiles.</param>
+    /// <param name="finishFunction">Native completion callback word for each finished rot-table entry.</param>
+    /// <param name="entryCount">Number of staggered pixel-row entries in the corpse animation.</param>
+    /// <param name="yLimit">Native terminal Y boundary for a row entry.</param>
+    /// <param name="lateMoveEntryIndex">Entry index at which the final destructive-move rules begin.</param>
+    /// <param name="wrapOffset">Byte adjustment applied when downward movement crosses a tile-row boundary.</param>
     internal DeadTorizoEnemyState(
         RoomEnemySlot slot,
         ushort tablePointer,

@@ -7,6 +7,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares Alcoon presentation operands with compiled frame selectors and rejects adjacent nonvisual data.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for instruction words.</param>
+    /// <param name="stock">Installed artwork catalog passed to the related instruction-program verification.</param>
     private static void VerifyInstalledAlcoonInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -27,6 +30,9 @@ internal static partial class Program
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Beetom visual operands against compiled selectors and ensures adjacent hop data is not treated as a frame.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for instruction words.</param>
+    /// <param name="stock">Installed artwork catalog passed to the related instruction-program verification.</param>
     private static void VerifyInstalledBeetomInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -47,6 +53,9 @@ internal static partial class Program
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Verifies the shared Hopper-family frame mapping against native selectors and rejects adjacent physics words.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for animation words.</param>
+    /// <param name="stock">Installed artwork catalog passed to Hopper animation verification.</param>
     private static void VerifyInstalledHopperInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -80,6 +89,9 @@ internal static partial class Program
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Choot's compiled presentation operands against the cartridge and excludes adjacent path data.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for instruction words.</param>
+    /// <param name="stock">Installed artwork catalog passed to the related instruction-program verification.</param>
     private static void VerifyInstalledChootInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -100,6 +112,10 @@ internal static partial class Program
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Bull frame selectors and runs its normal and immune-shot programs with presentation reads guarded.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for instruction words.</param>
+    /// <param name="stock">Installed artwork catalog used to initialize the guarded Bull actor.</param>
+    /// <param name="flags">Reflection flags for accessing private room-enemy initialization and dispatch members.</param>
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -154,6 +170,10 @@ internal static partial class Program
             "installed Bull programs retain compiled timing and control words");
     }
 
+    /// <summary>Checks Puyo frame selectors and executes its grounded and airborne programs without native presentation reads.</summary>
+    /// <param name="rom">Pinned cartridge address space used as the reference for instruction words.</param>
+    /// <param name="stock">Installed artwork catalog used to initialize the guarded Puyo actor.</param>
+    /// <param name="flags">Reflection flags for accessing private room-enemy initialization and dispatch members.</param>
     private static void VerifyInstalledPuyoInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
         BindingFlags flags)
@@ -203,6 +223,10 @@ internal static partial class Program
             "installed Puyo programs retain compiled timing and control words");
     }
 
+    /// <summary>Verifies the installed enemy spritemap catalog, compiled selectors, and native OAM compositions.</summary>
+    /// <param name="rom">Pinned cartridge address space used to compare native presentation data.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock artwork assets.</param>
+    /// <param name="stock">Loaded artwork catalog under verification.</param>
     private static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -3677,6 +3701,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares Mother Brain's private installed-art draw hook with native OAM for each authored frame.</summary>
+    /// <param name="rom">Pinned cartridge address space providing the native OAM reference.</param>
+    /// <param name="stock">Installed spritemap catalog used by the private draw hook.</param>
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -3699,6 +3726,13 @@ internal static partial class Program
             "Mother Brain private draw still culls a head above the viewport");
     }
 
+    /// <summary>Invokes Mother Brain's private world-spritemap hook under a guard against native artwork reads.</summary>
+    /// <param name="art">Installed artwork catalog supplied to the enemy system.</param>
+    /// <param name="rom">Cartridge address space wrapped by the artwork read guard.</param>
+    /// <param name="pointer">Compiled spritemap pointer to draw.</param>
+    /// <param name="worldX">World-space X coordinate passed to the draw hook.</param>
+    /// <param name="worldY">World-space Y coordinate passed to the draw hook.</param>
+    /// <returns>The OAM entries emitted by Mother Brain's private draw hook.</returns>
     private static OamBuffer DrawInstalledMotherBrainFrame(
         EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
         ushort worldX, ushort worldY)
@@ -3715,6 +3749,11 @@ internal static partial class Program
         return oam;
     }
 
+    /// <summary>Spawns and renders one room sprite object using installed artwork, returning its composed OAM.</summary>
+    /// <param name="art">Installed artwork catalog used by the room enemy system.</param>
+    /// <param name="bus">Address space supplied to the room enemy system.</param>
+    /// <param name="kind">Room sprite-object family to allocate.</param>
+    /// <returns>The OAM buffer produced by the object's draw pass.</returns>
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, RoomSpriteObjectKind kind)
     {
@@ -3734,23 +3773,46 @@ internal static partial class Program
         return oam;
     }
 
+    /// <summary>Address-space proxy that rejects bank-$B4 cartridge reads while forwarding other bus access.</summary>
+    /// <param name="source">Wrapped address space that supplies permitted reads and receives writes.</param>
     private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guarded bus-byte operation.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the wrapped address space when the bank is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The request targets bank $B4.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from bank $B4 and forwards every other bus read.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The request targets bank $B4.</exception>
         public byte ReadByte(int address) => (address >> 16) == 0xb4
             ? throw new InvalidOperationException(
                 $"Installed room sprite object reread bank-$B4 byte ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a write without restricting its address bank.</summary>
+        /// <param name="address">SNES bus address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space proxy that rejects cartridge reads of Mother Brain's native frame graphics ranges.</summary>
+    /// <param name="source">Wrapped address space that supplies permitted reads and receives writes.</param>
     private sealed class MotherBrainFrameReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guarded bus-byte operation.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the wrapped address space when it is outside guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The request targets native Mother Brain artwork.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from Mother Brain's guarded native graphics ranges and forwards other bus reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The request targets a guarded Mother Brain graphics range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa9a586 and < 0xa9a7c2 or
                 >= 0xa9ad3e and < 0xa9aee4
@@ -3758,14 +3820,28 @@ internal static partial class Program
                     $"Mother Brain draw reread native artwork byte ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write without restricting its address.</summary>
+        /// <param name="address">SNES bus address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space proxy that rejects reads from cartridge intervals containing compiled enemy frame art.</summary>
+    /// <param name="source">Wrapped address space that supplies permitted reads and receives writes.</param>
+    /// <param name="frameName">Optional frame label included in a rejected-read diagnostic.</param>
     private sealed class FrameReadGuard(ISnesAddressSpace source,
         string? frameName = null) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the frame-art guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the wrapped address space when outside guarded intervals.</returns>
+        /// <exception cref="InvalidOperationException">The request targets a native visual interval.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects known native visual intervals and forwards other bus reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The request targets a guarded frame-art interval.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0xa288da and < 0xa2890b or
@@ -3810,6 +3886,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write without restricting its address.</summary>
+        /// <param name="address">SNES bus address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

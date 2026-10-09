@@ -6,6 +6,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Dead Torizo corpse artwork against cartridge copies, including edited-art propagation and reload.</summary>
+    /// <param name="directory">Asset directory containing the stock PNG and where temporary override files are written.</param>
+    /// <param name="stock">Installed artwork catalog used to initialize the runtime implementation.</param>
     private static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -81,6 +84,8 @@ internal static partial class Program
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
     }
 
+    /// <summary>Verifies the compiled stationary spritemap selector and its installed OAM against the native cartridge map.</summary>
+    /// <param name="stock">Artwork catalog supplying the editable stationary spritemap parts.</param>
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
     {
@@ -114,6 +119,8 @@ internal static partial class Program
         Console.WriteLine("  Dead Torizo stationary visual: compiled selector, editable 25-part OAM, and native composition parity pass.");
     }
 
+    /// <summary>Compares both compiled corpse-transfer phases and runtime queues with the fourteen native descriptors.</summary>
+    /// <param name="stock">Artwork catalog used to build the guarded runtime transfer queues.</param>
     private static void VerifyDeadTorizoVramTransferDefinitions(
         EnemyTileArtworkCatalog stock)
     {
@@ -182,6 +189,8 @@ internal static partial class Program
 
     // Independent transcription of Torizo_CorpseRottingInitFunc ($A9:DE18)
     // from the pinned sm_a9.c. Do not derive expected copies from runtime definitions.
+    /// <summary>Copies the independently transcribed native corpse-sheet regions into the WRAM staging area.</summary>
+    /// <param name="bus">Cartridge address space used as both ROM source and WRAM destination.</param>
     private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus)
     {
         for (int offset = 0; offset < 0x1000; offset++)
@@ -202,6 +211,9 @@ internal static partial class Program
     }
 
     // $A9:D5EA copies eighteen words selected by the two cartridge offset tables.
+    /// <summary>Copies one native eighteen-word sand row using the cartridge's destination and source offset tables.</summary>
+    /// <param name="bus">Cartridge address space containing the tables and WRAM output.</param>
+    /// <param name="line">Zero-based sand-line index used to select the two table offsets.</param>
     private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, ushort line)
     {
         int destination = ReadWord(0xa9d67c + line * 2);
@@ -215,6 +227,10 @@ internal static partial class Program
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Creates an enemy system bound to guarded cartridge reads and invokes Dead Torizo initialization.</summary>
+    /// <param name="bus">Address space used by initialization; reads from the artwork ROM interval are rejected.</param>
+    /// <param name="artwork">Installed tile artwork used in place of live ROM artwork reads.</param>
+    /// <returns>The initialized room enemy system containing Dead Torizo state.</returns>
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
@@ -227,6 +243,9 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Invokes the room enemy system's private sand-line copier for a selected native row.</summary>
+    /// <param name="enemies">Initialized system whose WRAM sand staging area receives the row.</param>
+    /// <param name="line">Zero-based sand-line index passed to the production copier.</param>
     private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -234,6 +253,12 @@ internal static partial class Program
             .CreateDelegate<Action<ushort>>(enemies)(line);
     }
 
+    /// <summary>Runs the private corpse draw hook while rejecting reads of its cartridge OAM source range.</summary>
+    /// <param name="artwork">Installed artwork catalog used for the corpse graphics.</param>
+    /// <param name="bus">Address space used by the enemy system under the OAM read guard.</param>
+    /// <param name="cameraX">Layer-one camera X supplied to the draw hook.</param>
+    /// <param name="cameraY">Layer-one camera Y supplied to the draw hook.</param>
+    /// <returns>The OAM entries emitted by the corpse hook.</returns>
     private static OamBuffer DrawDeadTorizoCorpseFrame(
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         ushort cameraX, ushort cameraY)
@@ -249,6 +274,12 @@ internal static partial class Program
         return oam;
     }
 
+    /// <summary>Asserts byte-for-byte parity between an expected memory range and its installed-art counterpart.</summary>
+    /// <param name="expected">Reference address space containing the cartridge result.</param>
+    /// <param name="actual">Address space updated through the installed artwork path.</param>
+    /// <param name="address">Starting address of the compared range.</param>
+    /// <param name="length">Number of bytes compared.</param>
+    /// <param name="description">Assertion context identifying the parity expectation.</param>
     private static void AssertDeadTorizoBufferParity(
         ISnesAddressSpace expected, ISnesAddressSpace actual, int address, int length,
         string description)
@@ -258,15 +289,25 @@ internal static partial class Program
                 description);
     }
 
+    /// <summary>Address-space proxy that allows WRAM/SRAM access but rejects ROM reads of the Dead Torizo artwork interval.</summary>
+    /// <param name="source">Underlying address space forwarded for permitted reads and writes.</param>
     private sealed class DeadTorizoArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Reads a byte unless the address falls inside the guarded artwork ROM range.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address attempts to read Dead Torizo artwork from ROM.</exception>
         public byte ReadByte(int address)
         {
             RejectArtworkRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge-byte read after enforcing the artwork ROM guard.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the wrapped cartridge source.</returns>
+        /// <exception cref="InvalidOperationException">The address is guarded or the source lacks cartridge-import access.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectArtworkRead(address);
@@ -275,18 +316,32 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Dead Torizo artwork guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Dead Torizo artwork guard requires SRAM."))
             .ReadSaveRamByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">SNES bus address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Throws when a read targets the cartridge region that contains Dead Torizo artwork.</summary>
+        /// <param name="address">SNES bus address checked against the guarded interval.</param>
+        /// <exception cref="InvalidOperationException">The address falls within the guarded artwork range.</exception>
         private static void RejectArtworkRead(int address)
         {
             if (address is >= 0xb7a800 and < 0xb7c000)
@@ -295,15 +350,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space proxy that rejects cartridge reads of the Dead Torizo corpse spritemap's native OAM words.</summary>
+    /// <param name="source">Underlying address space forwarded for permitted reads and writes.</param>
     private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Reads a byte unless the address falls inside the guarded corpse OAM ROM range.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address attempts to read corpse OAM from ROM.</exception>
         public byte ReadByte(int address)
         {
             RejectOamRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge-byte read after enforcing the corpse OAM guard.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the wrapped cartridge source.</returns>
+        /// <exception cref="InvalidOperationException">The address is guarded or the source lacks cartridge-import access.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectOamRead(address);
@@ -312,18 +377,32 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Dead Torizo OAM guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the wrapped mutable address space.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Dead Torizo OAM guard requires SRAM."))
             .ReadSaveRamByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">SNES bus address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Throws when a read targets the cartridge region that contains the corpse spritemap's native OAM words.</summary>
+        /// <param name="address">SNES bus address checked against the guarded interval.</param>
+        /// <exception cref="InvalidOperationException">The address falls within the guarded OAM range.</exception>
         private static void RejectOamRead(int address)
         {
             if (address is >= 0xa9d761 and < 0xa9d77c)

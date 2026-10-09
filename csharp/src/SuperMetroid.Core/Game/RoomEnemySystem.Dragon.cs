@@ -32,11 +32,20 @@ public enum DragonEnemyFunction : ushort
 /// </summary>
 public sealed class DragonEnemyState
 {
+    /// <summary>Physical body or wing record whose native variables back this state view.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot extended words tracking the instruction list requested by Dragon logic.</summary>
     private readonly ushort[] _requestedInstructionLists;
+    /// <summary>Per-slot extended words tracking the instruction list already installed in the enemy record.</summary>
     private readonly ushort[] _installedInstructionLists;
+    /// <summary>Per-slot flags set when a body attack animation reaches its completion opcode.</summary>
     private readonly ushort[] _animationFinishedFlags;
 
+    /// <summary>Creates a typed view over one Dragon actor and its extended per-slot animation state.</summary>
+    /// <param name="slot">Physical Dragon body or wing record.</param>
+    /// <param name="requestedInstructionLists">Shared storage for requested animation-list indexes.</param>
+    /// <param name="installedInstructionLists">Shared storage for installed animation-list indexes.</param>
+    /// <param name="animationFinishedFlags">Shared storage for attack-animation completion flags.</param>
     internal DragonEnemyState(
         RoomEnemySlot slot,
         ushort[] requestedInstructionLists,
@@ -110,25 +119,39 @@ public sealed class DragonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition word identifying the Dragon body and its cosmetic wing record.</summary>
     internal const ushort DragonDefinition = 0xd4bf;
+    /// <summary>Native contact callback identity assigned to the Dragon body.</summary>
     internal const ushort DragonTouchAi = EnemyAiCodePointers.BankA2.DragonTouch;
+    /// <summary>Native shot callback identity assigned to the Dragon body.</summary>
     internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
+    /// <summary>Native power-bomb callback identity assigned to the Dragon body.</summary>
     internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;
 
+    /// <summary>Updates spent in the Dragon's vertical rise or sink traversal.</summary>
     private const ushort DragonRiseOrSinkFrames = 0x0030;
+    /// <summary>Fireballs emitted in one Dragon attack volley.</summary>
     private const ushort DragonShotCount = 3;
+    /// <summary>Updates the exposed Dragon waits before sinking after its volley.</summary>
     private const ushort DragonWaitBeforeSinkFrames = 0x0060;
+    /// <summary>Initial hidden wait before the Dragon begins rising again.</summary>
     private const ushort DragonWaitBeforeRiseFrames = 0x0080;
+    /// <summary>Library-two sound request emitted for each fireball in the volley.</summary>
     private const ushort DragonFireballSound = 0x0061;
 
+    /// <summary>Per-slot requested instruction-list indexes for Dragon bodies and wings.</summary>
     private readonly ushort[] _dragonRequestedInstructionLists = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot installed instruction-list indexes used to detect list changes.</summary>
     private readonly ushort[] _dragonInstalledInstructionLists = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot attack-animation completion flags set by the native finish opcode.</summary>
     private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Typed Dragon state views indexed by physical enemy slot.</summary>
     private readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by a Dragon volley during the current frame.</summary>
     public ushort? LastDragonSoundEffect { get; private set; }
 
+    /// <summary>Clears per-slot Dragon animation state and the sound request when a room is initialized.</summary>
     private void ResetDragonRoomState()
     {
         Array.Clear(_dragonRequestedInstructionLists);
@@ -349,6 +372,9 @@ public sealed partial class RoomEnemySystem
         following.AiHandlerBits = actor.AiHandlerBits;
     }
 
+    /// <summary>Installs a changed animation-list selection and resets the slot's interpreter timers.</summary>
+    /// <param name="slot">Body or wing enemy record receiving the instruction pointer.</param>
+    /// <param name="state">Typed state containing requested and currently installed list indexes.</param>
     private static void InstallDragonInstructionList(
         RoomEnemySlot slot,
         DragonEnemyState state)
@@ -362,6 +388,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Resolves and validates the physical wing record immediately following a Dragon body.</summary>
+    /// <param name="body">Dragon body whose paired wing slot is required.</param>
+    /// <returns>The adjacent cosmetic wing actor.</returns>
+    /// <exception cref="InvalidDataException">The body has no following slot or the next record is not its wing.</exception>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
         if (body.SlotIndex >= MaximumEnemyCount - 1)
@@ -377,6 +407,9 @@ public sealed partial class RoomEnemySystem
         return wing;
     }
 
+    /// <summary>Creates and registers the per-slot typed view used by Dragon AI and animation updates.</summary>
+    /// <param name="slot">Initialized physical body or wing record.</param>
+    /// <returns>The registered state view for that actor.</returns>
     private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
         var state = new DragonEnemyState(
@@ -388,6 +421,9 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Returns the state view previously registered when a Dragon slot was initialized.</summary>
+    /// <param name="slot">Dragon body or wing slot whose state is needed.</param>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Dragon state.</exception>
     private DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
         _dragonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");

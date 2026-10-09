@@ -3,9 +3,18 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned component offset and bank-$A7 hitbox-list identity.</summary>
+/// <param name="X">Horizontal offset from the Phantoon actor origin to this component.</param>
+/// <param name="Y">Vertical offset from the Phantoon actor origin to this component.</param>
+/// <param name="HitboxPointer">Bank-$A7 hitbox list associated with the rendered frame.</param>
 internal readonly record struct PhantoonCollisionComponent(short X, short Y, ushort HitboxPointer);
 
 /// <summary>Engine-owned rectangle and touch/shot callbacks for Phantoon.</summary>
+/// <param name="Left">Inclusive horizontal rectangle edge relative to the actor origin.</param>
+/// <param name="Top">Inclusive vertical rectangle edge relative to the actor origin.</param>
+/// <param name="Right">Inclusive horizontal rectangle edge relative to the actor origin.</param>
+/// <param name="Bottom">Inclusive vertical rectangle edge relative to the actor origin.</param>
+/// <param name="TouchAi">Native callback pointer used when Samus touches this rectangle.</param>
+/// <param name="ShotAi">Native callback pointer used when a projectile hits this rectangle.</param>
 internal readonly record struct PhantoonCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
@@ -30,11 +39,17 @@ internal static class PhantoonCollisionDefinitions
     // Authored silhouette inputs, retained for #1165: half widths, tentacle near/far extents and
     // the vertical bounds are fitted to the drawing. Pixel-centered reflection supplies every
     // opposite X edge, so only these extents are stored.
+    /// <summary>Half-width used to construct Phantoon's main body rectangle around its pixel-centered origin.</summary>
     private const short BodyHalfWidth = 33;
+    /// <summary>Half-width of the eye rectangle shared by the full-body and eye-only hitbox lists.</summary>
     private const short EyeHalfWidth = 9;
+    /// <summary>Half-width of the centered rectangle covering the central tentacle.</summary>
     private const short CenterTentacleHalfWidth = 12;
+    /// <summary>Near horizontal extent of each side-tentacle rectangle, measured inward from the actor origin.</summary>
     private const short SideTentacleInnerExtent = 16;
+    /// <summary>Far horizontal extent of each side-tentacle rectangle, measured outward from the actor origin.</summary>
     private const short SideTentacleOuterExtent = 23;
+    /// <summary>Top and bottom inclusive vertical bounds for the body, eye, two side tentacles, and center tentacle.</summary>
     private static readonly (short Top, short Bottom)[] RequiredVerticalBounds =
         [(-40, 56), (22, 39), (52, 71), (53, 70), (53, 69)];
 
@@ -59,6 +74,10 @@ internal static class PhantoonCollisionDefinitions
 
         static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
     }
+    /// <summary>Maps an authored BG2 frame to its native component hitbox list and component count.</summary>
+    /// <param name="pointer">Bank-$A7 frame root whose collision identity is compiled in the frame catalog.</param>
+    /// <returns>Actor-origin components referencing the appropriate full, eye-only, or inert point list.</returns>
+    /// <exception cref="InvalidDataException">The pointer is not a compiled Phantoon frame.</exception>
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
@@ -74,6 +93,10 @@ internal static class PhantoonCollisionDefinitions
         };
     }
 
+    /// <summary>Resolves a native Phantoon collision-list pointer to its compiled rectangle sequence.</summary>
+    /// <param name="pointer">Bank-$A7 hitbox-list address selected by the frame's components.</param>
+    /// <returns>The rectangles and callbacks represented by that list.</returns>
+    /// <exception cref="InvalidDataException">The pointer is not one of Phantoon's compiled hitbox lists.</exception>
     internal static HitboxSequence HitboxesAt(ushort pointer) => pointer switch
     {
         PointList or FullBodyList or EyeOnlyList => new(pointer),
@@ -81,11 +104,21 @@ internal static class PhantoonCollisionDefinitions
     };
 
     /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
+    /// <param name="list">Native hitbox-list pointer shared by every component in the sequence.</param>
+    /// <param name="count">Number of component entries exposed for the selected frame.</param>
     internal readonly struct ComponentSequence(ushort list, int count) : IReadOnlyList<PhantoonCollisionComponent>
     {
+        /// <summary>Number of actor-origin components in the frame's native component table.</summary>
         public int Count => count;
+
+        /// <summary>Gets a component by ordinal; every entry shares the selected list and has zero actor offset.</summary>
+        /// <param name="index">Zero-based component index.</param>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside this sequence.</exception>
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
             ? new(0, 0, list) : throw new IndexOutOfRangeException();
+
+        /// <summary>Enumerates the frame's components in native order.</summary>
+        /// <returns>An iterator over the actor-origin component entries.</returns>
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -94,9 +127,15 @@ internal static class PhantoonCollisionDefinitions
     }
 
     /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
+    /// <param name="list">Native hitbox-list pointer selecting full body, eye-only, or inert point behavior.</param>
     internal readonly struct HitboxSequence(ushort list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
+        /// <summary>Number of rectangles in the selected list: five for the full body and one otherwise.</summary>
         public int Count => list == FullBodyList ? RequiredVerticalBounds.Length : 1;
+
+        /// <summary>Gets a hitbox rectangle and its touch/shot callbacks by native list order.</summary>
+        /// <param name="index">Zero-based rectangle index.</param>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside this sequence.</exception>
         public PhantoonCollisionHitbox this[int index]
         {
             get
@@ -106,6 +145,9 @@ internal static class PhantoonCollisionDefinitions
                 return BodyHitbox(list == EyeOnlyList ? 1 : index);
             }
         }
+
+        /// <summary>Enumerates hitboxes in the order consumed by the collision system.</summary>
+        /// <returns>An iterator over the selected list's rectangles.</returns>
         public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

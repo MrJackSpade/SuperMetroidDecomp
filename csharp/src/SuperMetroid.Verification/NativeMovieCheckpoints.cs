@@ -3,7 +3,18 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-/// <summary>One converted gameplay update from <c>tools/convert-smv-updates.py</c>.</summary>
+/// <summary>One retained gameplay update and its mapping to source-movie timing and a native WRAM checkpoint.</summary>
+/// <param name="Update">One-based port update number represented by this record.</param>
+/// <param name="SourceFrame">Source SMV frame whose controller input is consumed by this update.</param>
+/// <param name="Input">Controller word supplied at the converted update boundary.</param>
+/// <param name="Kind">Converter classification for the update's source-frame behavior.</param>
+/// <param name="TimingClass">Timing category used to explain how source frames map to this gameplay update.</param>
+/// <param name="ExpectedRecord">Index of the native checkpoint expected after this update.</param>
+/// <param name="ExcludedNmiAfter">Count of source NMI frames excluded after this update as normalized hardware wait.</param>
+/// <param name="HardwareWaitLatch">Optional native latch value identifying a hardware-wait interval.</param>
+/// <param name="DoorLoaderCompletedEnemySlots">Optional count of enemy slots completed by the door loader as timing evidence.</param>
+/// <param name="MessageBoxStartFrame">Optional source frame at which a message-box routine begins.</param>
+/// <param name="MessageBoxEndFrame">Optional source frame at which the message-box routine returns.</param>
 internal readonly record struct ConvertedMovieUpdate(
     int Update, int SourceFrame, ushort Input, string Kind, string TimingClass,
     int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots,
@@ -16,14 +27,24 @@ internal readonly record struct ConvertedMovieUpdate(
 /// </summary>
 internal sealed class NativeMovieCheckpoints : IDisposable
 {
+    /// <summary>Number of bytes in a complete native WRAM snapshot.</summary>
     public const int WorkRamByteCount = 0x20000;
+    /// <summary>Bytes preceding each checkpoint's WRAM payload: little-endian frame number and program counter.</summary>
     private const int RecordHeaderBytes = 8;
 
+    /// <summary>Compressed checkpoint archive opened from the replay directory.</summary>
     private readonly FileStream file;
+    /// <summary>Forward-only decompressor for native checkpoint records.</summary>
     private readonly GZipStream trace;
+    /// <summary>Reusable buffer holding one record header and WRAM payload.</summary>
     private readonly byte[] record = new byte[RecordHeaderBytes + WorkRamByteCount];
+    /// <summary>Index of the most recently consumed record, or minus one before the first read.</summary>
     private int lastRecord = -1;
 
+    /// <summary>Creates a checkpoint reader after the manifest identity has been validated.</summary>
+    /// <param name="directory">Directory containing the update manifest and compressed checkpoint stream.</param>
+    /// <param name="root">Cloned manifest object whose metadata remains available after its document is disposed.</param>
+    /// <param name="updates">Converted update mapping used to select and validate checkpoint records.</param>
     private NativeMovieCheckpoints(string directory, JsonElement root, ConvertedMovieUpdate[] updates)
     {
         Updates = updates;
@@ -38,8 +59,11 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         trace = new GZipStream(file, CompressionMode.Decompress);
     }
 
+    /// <summary>Ordered source-frame and input mapping for every retained port update.</summary>
     public IReadOnlyList<ConvertedMovieUpdate> Updates { get; }
+    /// <summary>Source movie's terminal frame number used to validate the final checkpoint.</summary>
     public int SourceFrameCount { get; }
+    /// <summary>Controller word applied once before the first converted gameplay update.</summary>
     public ushort InitialInput { get; }
     /// <summary>Record preceding the first port update; nonzero after a folded power-on prelude.</summary>
     public int InitialRecord { get; }
@@ -109,6 +133,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             throw new InvalidDataException("Native checkpoint stream continues after the movie's terminal state.");
     }
 
+    /// <summary>Closes the decompression stream and its underlying checkpoint archive.</summary>
     public void Dispose()
     {
         trace.Dispose();

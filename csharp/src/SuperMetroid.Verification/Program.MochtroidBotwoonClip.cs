@@ -7,6 +7,26 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>One native checkpoint row describing the input timing and expected Samus/Mochtroid states for a pipe-clip replay.</summary>
+    /// <param name="Case">Label distinguishing the successful passage from the one-pixel failure case.</param>
+    /// <param name="EnemyNativeIndex">Retail enemy-slot index occupied by the frozen Mochtroid used as the landing surface.</param>
+    /// <param name="SamusX">Initial room-pixel X coordinate for Samus.</param>
+    /// <param name="SamusY">Initial room-pixel Y coordinate for Samus.</param>
+    /// <param name="EnemyX">Room-pixel X coordinate assigned to the Mochtroid.</param>
+    /// <param name="EnemyY">Room-pixel Y coordinate assigned to the Mochtroid; the two cases differ by one pixel.</param>
+    /// <param name="FirstDownFrame">Zero-based replay frame on which Down is pressed to enter the first crouch.</param>
+    /// <param name="StandFrame">Zero-based frame on which Up is pressed and the standing transition is checked.</param>
+    /// <param name="FinalJumpFrame">Zero-based frame beginning the second twelve-frame jump input.</param>
+    /// <param name="LandingFrame">Frame whose native solid-enemy collision and landing coordinate are asserted.</param>
+    /// <param name="LandingY">Expected Samus center Y on the recorded landing frame.</param>
+    /// <param name="Frame30Pose">Expected pose at the stand-input checkpoint.</param>
+    /// <param name="Frame30Radius">Expected live collision radius at the stand-input checkpoint.</param>
+    /// <param name="Frame30Y">Expected Samus center Y at the stand-input checkpoint.</param>
+    /// <param name="Frame31Radius">Expected Y radius on the update after the stand-input checkpoint commits.</param>
+    /// <param name="Frame40Pose">Expected pose at the final-jump checkpoint.</param>
+    /// <param name="MinimumY">Lowest Samus center Y observed during the 120-update replay.</param>
+    /// <param name="FinalY">Expected Samus center Y after all replay updates.</param>
+    /// <param name="FinalPose">Expected pose after all replay updates.</param>
     private readonly record struct MochtroidClipNativeRecord(
         string Case,
         ushort EnemyNativeIndex,
@@ -52,6 +72,8 @@ internal static partial class Program
             "one-frame posture radius, successful ceiling passage, and one-pixel failure match the original CPU.");
     }
 
+    /// <summary>Replays one native checkpoint row in the retail Botwoon Hallway and checks its landing, posture, and final-state measurements.</summary>
+    /// <param name="expected">Recorded input-frame markers and native values for the selected success or failure case.</param>
     private static void VerifyMochtroidClipRecord(MochtroidClipNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -160,6 +182,12 @@ internal static partial class Program
         AssertEqual(expected.FinalPose, samus.Pose, $"{expected.Case} final pose");
     }
 
+    /// <summary>Parses one fixed-width CSV checkpoint row using invariant integer syntax.</summary>
+    /// <param name="line">Comma-separated record containing the case label followed by eighteen numeric values.</param>
+    /// <returns>The replay inputs and expected measurements represented by the row.</returns>
+    /// <exception cref="InvalidDataException">The row does not contain exactly nineteen fields.</exception>
+    /// <exception cref="FormatException">A numeric field is not an unsigned decimal integer.</exception>
+    /// <exception cref="OverflowException">A numeric field does not fit its declared integer type.</exception>
     private static MochtroidClipNativeRecord ParseMochtroidClipRecord(string line)
     {
         string[] fields = line.Split(',');

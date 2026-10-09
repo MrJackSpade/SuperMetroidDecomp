@@ -281,6 +281,8 @@ public enum EnemyProjectileDrawPriority : byte
 /// </summary>
 public sealed class RoomEnemyProjectileSlot
 {
+    /// <summary>Creates one inactive slot at its fixed index in the native eighteen-entry projectile pool.</summary>
+    /// <param name="slotIndex">Zero-based physical slot index corresponding to an even native byte index.</param>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the native byte index $00..$22.</summary>
@@ -388,6 +390,7 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
 
+    /// <summary>Releases this slot and resets projectile metadata while preserving whole position and velocity words.</summary>
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
@@ -410,13 +413,17 @@ public sealed partial class RoomEnemySystem
 {
     // Super Metroid reserves native indexes $00..$22, in steps of two, for eighteen enemy
     // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
+    /// <summary>Number of physical projectile records represented by the cartridge's indexes $00 through $22.</summary>
     private const int RoomEnemyProjectileSlotCount = 18;
+    /// <summary>Graphics palette/tile selector used by Ridley's fireballs and afterburn actors.</summary>
     private static readonly ushort FireballGraphicsIndex = EnemyPaletteBits.Palette5;
 
+    /// <summary>Fixed projectile records searched from the highest native index toward zero for allocation.</summary>
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
+    /// <summary>Low-byte NMI frame value used by instruction effects that alternate on an 8-bit frame phase.</summary>
     private byte _currentEnemyProjectileFrame8;
 
     /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
@@ -729,6 +736,12 @@ public sealed partial class RoomEnemySystem
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
+    /// <summary>Submits active projectiles of one priority in native reverse-slot order, applying camera and time-freeze shake.</summary>
+    /// <param name="oam">The output object-attribute buffer.</param>
+    /// <param name="cameraX">Layer viewport X origin.</param>
+    /// <param name="cameraY">Layer viewport Y origin.</param>
+    /// <param name="priority">The low- or high-priority pass being drawn.</param>
+    /// <param name="timeIsFrozen">Whether the current frame uses frozen-gameplay shake behavior.</param>
     private void DrawEnemyProjectilePass(
         OamBuffer oam,
         ushort cameraX,
@@ -805,6 +818,10 @@ public sealed partial class RoomEnemySystem
         state.FireballYVelocity = MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)));
     }
 
+    /// <summary>Applies the cartridge's signed sine-table multiply used for either a sine or cosine component.</summary>
+    /// <param name="speed">Unsigned fixed-point speed magnitude supplied to the native multiply.</param>
+    /// <param name="angle">Eight-bit turn-table index; callers offset it by a quarter turn for cosine.</param>
+    /// <returns>The signed 8.8 velocity word produced by the cartridge-compatible multiplication.</returns>
     private static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {
         return EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
@@ -831,6 +848,8 @@ public sealed partial class RoomEnemySystem
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
     }
 
+    /// <summary>Sets Ridley fireball damage from the bound player's current area, using Crateria when no player is bound.</summary>
+    /// <param name="projectile">The fireball or afterburn actor receiving its area-specific damage.</param>
     private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
     {
         // EnemyMain binds live Samus before dispatch, including her current room
@@ -839,6 +858,8 @@ public sealed partial class RoomEnemySystem
         projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
     }
 
+    /// <summary>Claims the first inactive slot in native descending-index order and clears its reusable metadata.</summary>
+    /// <returns>The newly available projectile slot, or <see langword="null"/> when all eighteen are active.</returns>
     private RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
         // SpawnEnemyProjectile searches from native index $22 toward zero.
@@ -887,6 +908,14 @@ public sealed partial class RoomEnemySystem
         projectile.GraphicsIndex = graphicsIndex;
     }
 
+    /// <summary>Dispatches the active projectile's family-specific pre-instruction before its instruction-list update.</summary>
+    /// <param name="projectile">The active projectile whose pre-instruction is dispatched.</param>
+    /// <param name="level">Room collision data used by movement and impact routines.</param>
+    /// <param name="samus">Player state used by aiming and special contact behavior.</param>
+    /// <param name="cameraX">Viewport X origin used by offscreen checks.</param>
+    /// <param name="cameraY">Viewport Y origin used by offscreen checks.</param>
+    /// <param name="nmiFrameCounter8">Low-byte frame phase available to animation effects.</param>
+    /// <param name="samusBombs">Shared Samus bomb slots for routines that interact with bombs.</param>
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -1326,6 +1355,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves one axis by signed 8.8 velocity, probing every crossed room block and snapping to collision geometry.</summary>
+    /// <param name="projectile">The projectile whose coordinate and subposition are advanced or corrected.</param>
+    /// <param name="level">The room collision map used along the swept axis.</param>
+    /// <param name="horizontal"><see langword="true"/> moves X; <see langword="false"/> moves Y.</param>
+    /// <returns><see langword="true"/> if an out-of-room or solid collision blocked the attempted movement.</returns>
     private bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -1409,6 +1443,16 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Tests a crossed block against projectile collision rules and returns any slope-aligned snap position.</summary>
+    /// <param name="level">The room collision map.</param>
+    /// <param name="projectile">The projectile providing damage identity and collision extent.</param>
+    /// <param name="blockX">Horizontal block coordinate being tested.</param>
+    /// <param name="blockY">Vertical block coordinate being tested.</param>
+    /// <param name="horizontal">Whether movement is along X rather than Y.</param>
+    /// <param name="movingNegative">Whether travel is toward decreasing coordinates.</param>
+    /// <param name="targetEdge">Leading edge of the projectile at the candidate position.</param>
+    /// <param name="slopeAlignedPosition">Receives the corrected whole coordinate when collision uses an aligned slope surface.</param>
+    /// <returns><see langword="true"/> when the block or room boundary obstructs movement.</returns>
     private bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
@@ -1535,6 +1579,10 @@ public sealed partial class RoomEnemySystem
     private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
         level.GetCollisionBlock(x >> 4, y >> 4).CollisionType != RoomCollisionType.Air;
 
+    /// <summary>Applies one projectile's damaging overlap and touch-list behavior, returning the horizontal knockback direction when hit.</summary>
+    /// <param name="projectile">The active projectile collision box and damage properties.</param>
+    /// <param name="samus">The player receiving damage and invincibility state.</param>
+    /// <returns>Knockback direction for a collision, or <see langword="null"/> when the projectile is harmless or does not overlap.</returns>
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -1586,6 +1634,11 @@ public sealed partial class RoomEnemySystem
         return knockbackXDirection;
     }
 
+    /// <summary>Advances one projectile's bank-$86 instruction stream, applying timed frames and state-changing opcodes.</summary>
+    /// <param name="projectile">The projectile whose instruction pointer and timer are processed.</param>
+    /// <param name="samus">Player context required by aim and player-dependent instructions.</param>
+    /// <param name="cameraX">Viewport X origin for instructions that test visibility.</param>
+    /// <param name="cameraY">Viewport Y origin for instructions that test visibility.</param>
     private void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
@@ -2126,6 +2179,11 @@ public sealed partial class RoomEnemySystem
                         $"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector.");
     }
 
+    /// <summary>Resolves an executable instruction word from the compiled program owned by this projectile's family.</summary>
+    /// <param name="projectile">The projectile identity used to select its program catalog.</param>
+    /// <param name="address">Bank-$86 instruction address being read.</param>
+    /// <returns>The mechanics word at that address.</returns>
+    /// <exception cref="InvalidDataException">No compiled mechanics program owns the projectile address.</exception>
     private static ushort ReadEnemyProjectileInstructionMechanicsWord(
         RoomEnemyProjectileSlot projectile,
         ushort address)
@@ -2446,6 +2504,9 @@ public sealed partial class RoomEnemySystem
         _ = SpawnRoomSpriteObject(x, y, kind, graphicsIndex: 0);
     }
 
+    /// <summary>Applies the instruction's packed axis masks and centers, preserving its random rejection and sign-bit sequence.</summary>
+    /// <param name="projectile">The debris actor whose whole coordinates are offset.</param>
+    /// <param name="instructionPointer">Address of the opcode whose following words contain X and Y parameters.</param>
     private void MoveEnemyProjectileRandomlyWithinRadius(
         RoomEnemyProjectileSlot projectile,
         ushort instructionPointer)
@@ -2488,6 +2549,11 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(projectile.YPosition + yOffset));
     }
 
+    /// <summary>Allocates a stationary afterburn center at an impact point and records how many directional pairs remain.</summary>
+    /// <param name="kind">Horizontal or vertical center definition.</param>
+    /// <param name="x">Impact X coordinate copied to the new center.</param>
+    /// <param name="y">Impact Y coordinate copied to the new center.</param>
+    /// <param name="remaining">Continuation count used by later animation instructions.</param>
     private void SpawnAfterburnCenter(
         RoomEnemyProjectileKind kind,
         ushort x,
@@ -2506,6 +2572,9 @@ public sealed partial class RoomEnemySystem
         center.RemainingAfterburns = remaining;
     }
 
+    /// <summary>Spawns the two opposite directional afterburns associated with a horizontal or vertical center.</summary>
+    /// <param name="center">The center actor whose location and continuation count are inherited.</param>
+    /// <param name="horizontal">Selects left/right flames when true and up/down flames otherwise.</param>
     private void SpawnAfterburnPair(RoomEnemyProjectileSlot center, bool horizontal)
     {
         if (horizontal)
@@ -2520,6 +2589,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates one directional afterburn with the source's position and continuation state.</summary>
+    /// <param name="source">Center or preceding flame supplying position and chain count.</param>
+    /// <param name="kind">Directional projectile definition to initialize.</param>
+    /// <param name="xVelocity">Native signed 8.8 horizontal velocity word.</param>
+    /// <param name="yVelocity">Native signed 8.8 vertical velocity word.</param>
     private void SpawnDirectionalAfterburn(
         RoomEnemyProjectileSlot source,
         RoomEnemyProjectileKind kind,
@@ -2539,6 +2613,8 @@ public sealed partial class RoomEnemySystem
         afterburn.NextAfterburnKind = (ushort)kind;
     }
 
+    /// <summary>Decrements the chain's low-byte counter and spawns its next flame unless signed underflow ended the sequence.</summary>
+    /// <param name="source">The afterburn actor carrying the remaining count, next kind, and velocity.</param>
     private void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
         byte lowCount = unchecked((byte)(source.RemainingAfterburns - 1));
@@ -2552,6 +2628,8 @@ public sealed partial class RoomEnemySystem
             source.YVelocity);
     }
 
+    /// <summary>Switches a wall-impacting afterburn to its terminal animation, whose pre-instruction stops movement.</summary>
+    /// <param name="projectile">The afterburn actor whose instruction list is replaced.</param>
     private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer =

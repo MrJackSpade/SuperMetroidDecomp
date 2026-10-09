@@ -23,20 +23,33 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
+    /// <summary>Compiled message tilemap words currently displayed on BG3.</summary>
     private ushort[] _tilemap = [];
+    /// <summary>Optional artwork for ROM-defined message titles.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
+    /// <summary>Optional item-panel artwork for configurable Shoot and Run glyphs.</summary>
     [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
+    /// <summary>Optional save-confirmation and completion-notice artwork.</summary>
     [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
+    /// <summary>Tracks input edges from the controller values read by the message coroutine.</summary>
     private readonly ControllerInputState _controller = new();
+    /// <summary>Address space retained while the message coroutine owns gameplay, including the gunship notice reopen.</summary>
     private ISnesAddressSpace? _activeBus;
+    /// <summary>Opening-window radius to publish on the next accepted opening update.</summary>
     private int _nextOpeningRadiusPixels;
+    /// <summary>Closing-window radius to publish on the next accepted closing update.</summary>
     private int _nextClosingRadiusPixels;
+    /// <summary>YES/NO result held until closing and PPU restoration have completed.</summary>
     private bool? _closingConfirmationResult;
+    /// <summary>Whether a successful gunship confirmation must reopen with the completion notice.</summary>
     private bool _gunshipCompletion;
+    /// <summary>Whether the synchronous gunship save-sound request has yet to be consumed.</summary>
     private bool _savingSoundRequested;
+    /// <summary>Remaining blocked updates in the gunship's clear-and-save-sound wait.</summary>
     private int _savingFramesRemaining;
     // Lag frames left in the current Preparing/Restoring stretch, or until the save
     // selector's next ReadControllerInput.
+    /// <summary>Blocked updates remaining in preparation, restoration, or the save selector's input cadence.</summary>
     private int _lagFramesRemaining;
 
     /// <summary>
@@ -44,11 +57,14 @@ public sealed class GameplayMessageBoxState
     /// one frame, without the audio handlers, before the redrawn row uploads and $37 queues.
     /// </summary>
     private bool _selectionRedrawWaitPending;
+    /// <summary>Audio and HDMA work scheduled by the last accepted message update.</summary>
     [NonSerialized] private MessageBoxFrameAudio _lastFrameAudio;
 
     /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio => _lastFrameAudio;
+    /// <summary>Current controller-bit binding substituted for the Shoot glyph in configurable panels.</summary>
     private ushort _shootBinding = (ushort)SnesButton.X;
+    /// <summary>Current controller-bit binding substituted for the Run glyph in configurable panels.</summary>
     private ushort _runBinding = (ushort)SnesButton.B;
 
     /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
@@ -59,6 +75,7 @@ public sealed class GameplayMessageBoxState
         return requested;
     }
 
+    /// <summary>Whether the active message presents a two-choice save confirmation selection.</summary>
     private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
         GameplayMessageId.GunshipSaveConfirmation;
 
@@ -196,6 +213,8 @@ public sealed class GameplayMessageBoxState
         BeginPreparing(GameplayMessageRomData.Timing.PreOpenLagFrames - 1);
     }
 
+    /// <summary>Enters the preparation wait with the remaining native lag updates before opening begins.</summary>
+    /// <param name="lagFrames">Updates to consume before the opening coroutine phase.</param>
     private void BeginPreparing(int lagFrames)
     {
         _lagFramesRemaining = lagFrames;
@@ -374,6 +393,7 @@ public sealed class GameplayMessageBoxState
         StepClosing();
     }
 
+    /// <summary>Contracts the scanline window, then enters the gunship save wait or PPU restoration.</summary>
     private void StepClosing()
     {
         RadiusPixels = _nextClosingRadiusPixels;
@@ -426,6 +446,10 @@ public sealed class GameplayMessageBoxState
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
     }
 
+    /// <summary>Replaces the configured-button tile in a compiled panel using the selected control binding.</summary>
+    /// <param name="messageId">Message whose authored configurable-glyph offset is used.</param>
+    /// <param name="binding">Native controller-bit binding whose glyph word is written.</param>
+    /// <exception cref="InvalidDataException">The configured glyph offset is odd or falls outside the tilemap.</exception>
     private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
         int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
@@ -438,6 +462,9 @@ public sealed class GameplayMessageBoxState
         _tilemap[byteOffset / 2] = ResolveButtonTilemapWord(binding);
     }
 
+    /// <summary>Selects the current Shoot or Run binding for an installed panel and patches its configured glyph.</summary>
+    /// <param name="messageId">Panel identity whose metadata determines the button binding.</param>
+    /// <exception cref="InvalidDataException">The panel has no compiled binding or specifies an unknown binding kind.</exception>
     private void PatchInstalledPanelButton(GameplayMessageId messageId)
     {
         switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
@@ -457,6 +484,9 @@ public sealed class GameplayMessageBoxState
         }
     }
 
+    /// <summary>Resolves a native controller-button mask to its tilemap glyph word.</summary>
+    /// <param name="binding">Native button binding from the current control configuration.</param>
+    /// <returns>Tilemap word for the matching button glyph.</returns>
     private static ushort ResolveButtonTilemapWord(ushort binding) =>
         GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
 

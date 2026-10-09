@@ -54,8 +54,11 @@ public enum BabyTurtleAiFunction : ushort
 /// </summary>
 public sealed class MamaTurtleEnemyState
 {
+    /// <summary>Physical enemy record backing Mama Turtle's ordinary variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over Mama Turtle's enemy record.</summary>
+    /// <param name="slot">The Mama Turtle slot whose ordinary variables and identity are exposed.</param>
     internal MamaTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Mama Turtle AI function pointer.</summary>
@@ -102,8 +105,11 @@ public sealed class MamaTurtleEnemyState
 /// <summary>Typed view of a Baby Turtle's ordinary variables and required extension words.</summary>
 public sealed class BabyTurtleEnemyState
 {
+    /// <summary>Physical enemy record backing this Baby Turtle's ordinary variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over a Baby Turtle's enemy record.</summary>
+    /// <param name="slot">The child slot whose ordinary variables and identity are exposed.</param>
     internal BabyTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Baby Turtle AI function pointer.</summary>
@@ -157,18 +163,29 @@ public sealed class BabyTurtleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-property bit that makes Mama Turtle collide as a solid platform.</summary>
     private const ushort MamaTurtleSolidProperty = 0x8000;
+    /// <summary>Maximum horizontal distance in room pixels a Baby Turtle crawls from its spawn before turning.</summary>
     private const ushort BabyTurtleTravelDistance = 0x0030;
+    /// <summary>Authored room Y coordinate at which the rider-powered ascent changes to its peak pause.</summary>
     private const ushort MamaTurtlePeakYPosition = 0x01e8;
+    /// <summary>Mama Turtle's upward displacement per update while Samus rides during the final ascent.</summary>
     private const ushort MamaTurtleRisingSpeed = 7;
+    /// <summary>Peak hover duration in enemy updates before Mama Turtle begins falling.</summary>
     private const ushort MamaTurtlePeakPauseFrames = 30;
+    /// <summary>Maximum downward whole-pixel velocity used by the falling state.</summary>
     private const ushort MamaTurtleMaximumFallingSpeed = 4;
+    /// <summary>Absolute horizontal velocity cap applied while Mama Turtle hovers.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
+    /// <summary>Library-two sound identifier requested while Mama Turtle spins with Samus aboard.</summary>
     private const ushort MamaTurtleSpinSound = 0x003a;
+    /// <summary>Library-two sound identifier requested when Mama Turtle reverses at a room wall.</summary>
     private const ushort MamaTurtleWallSound = 0x001b;
 
+    /// <summary>Per-slot state views for initialized Mama Turtle parent records.</summary>
     private readonly MamaTurtleEnemyState?[] _mamaTurtleStates =
         new MamaTurtleEnemyState?[MaximumEnemyCount];
+    /// <summary>Per-slot state views for initialized Baby Turtle child records.</summary>
     private readonly BabyTurtleEnemyState?[] _babyTurtleStates =
         new BabyTurtleEnemyState?[MaximumEnemyCount];
 
@@ -464,6 +481,7 @@ public sealed partial class RoomEnemySystem
             : whole;
     }
 
+    /// <summary>Adds fractional and whole horizontal acceleration, then caps speed while preserving the native old-sign rule.</summary>
     private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
@@ -668,6 +686,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves a spinning child horizontally with wall reversal, then applies its vertical velocity.</summary>
     private void MoveSpinningBabyTurtle(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -845,6 +864,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveBabyTurtleShotAfterCommon(BabyTurtleEnemyState state) =>
         WakeMamaTurtle(state);
 
+    /// <summary>Decrements the parent's shared wake counter in response to a Baby Turtle interaction.</summary>
     private void WakeMamaTurtle(BabyTurtleEnemyState child)
     {
         MamaTurtleEnemyState parent = RequireMamaTurtleParent(child);
@@ -890,6 +910,7 @@ public sealed partial class RoomEnemySystem
         ResolveNormalEnemyTouch(mama, samus, controllerInput);
     }
 
+    /// <summary>Resolves the child's native parent index and validates that it identifies a Mama Turtle.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = SlotFromNativeIndex(child.ParentNativeIndex);
@@ -902,14 +923,17 @@ public sealed partial class RoomEnemySystem
         return RequireMamaTurtleState(parent);
     }
 
+    /// <summary>Returns the initialized parent-state view for a Mama Turtle slot.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
         _mamaTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mama Turtle state.");
 
+    /// <summary>Returns the initialized child-state view for a Baby Turtle slot.</summary>
     private BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
         _babyTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Baby Turtle state.");
 
+    /// <summary>Selects the left- or right-facing crawling animation from the child's velocity sign.</summary>
     private static void InstallBabyTurtleCrawlingInstruction(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state) =>
@@ -919,12 +943,14 @@ public sealed partial class RoomEnemySystem
                 ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
                 : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
 
+    /// <summary>Changes a turtle's instruction list and restarts its instruction timer.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Rejects turtle movement when the active room collision geometry is unavailable.</summary>
     private static void RequireTurtleLevel(RoomLevelData? level)
     {
         if (level is null)

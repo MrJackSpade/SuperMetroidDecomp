@@ -16,15 +16,22 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomPaletteFxSystem
 {
+    /// <summary>Fixed number of native palette-FX objects indexed by their room-slot bit.</summary>
     private const int SlotCount = 8;
 
+    /// <summary>Live native objects in descending-handler slot order.</summary>
     private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    /// <summary>Sound requests emitted by palette instructions during the current frame.</summary>
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    /// <summary>Current power-bomb state used to suppress incompatible palette sound requests; not serialized with the owner.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    /// <summary>Music requests emitted by palette instructions during the current frame.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
+    /// <summary>Palette animation index published by the Norfair FX objects for Samus's heat palette.</summary>
     private ushort samusInHeatPaletteIndex;
+    /// <summary>Last heat-palette index installed into this slot's instruction program.</summary>
     private ushort previousSamusInHeatPaletteIndex;
 
     /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
@@ -70,6 +77,14 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated) =>
         LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
+    /// <summary>Resets active objects and applies either a supplied FX record or the record selected from room pointers.</summary>
+    /// <param name="bus">Address space used by spawned objects during later interpreter steps.</param>
+    /// <param name="fxPointer">Room FX table pointer; zero means the room has no palette-FX record.</param>
+    /// <param name="doorPointer">Door-specific selector used to resolve the matching room FX record.</param>
+    /// <param name="area">Area whose per-bit palette-FX definitions are spawned.</param>
+    /// <param name="equippedItems">Equipment state used by setup callbacks that choose a program.</param>
+    /// <param name="areaMiniBossDefeated">Controls conditional Brinstar palette-object setup.</param>
+    /// <param name="suppliedDefinition">Optional preselected room-FX record, bypassing pointer-based selection.</param>
     private void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
@@ -161,6 +176,11 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Allocates and initializes one palette-FX object, silently ignoring spawns when all eight slots are occupied.</summary>
+    /// <param name="bus">Address space retained by the object interpreter's caller.</param>
+    /// <param name="definition">Bank-$8D definition identifying setup and initial instruction behavior.</param>
+    /// <param name="equippedItems">Equipment bits used by suit-dependent setup routines.</param>
+    /// <param name="areaMiniBossDefeated">Whether conditional Brinstar setup should clear the new object.</param>
     private void Spawn(
         ISnesAddressSpace bus,
         ushort definition,
@@ -221,6 +241,16 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Applies the slot's native pre-instruction before its timed palette instruction is advanced.</summary>
+    /// <param name="bus">Address space used by any pre-instruction data reads.</param>
+    /// <param name="slot">Active palette object whose pre-instruction is dispatched.</param>
+    /// <param name="slotIndex">Physical native slot index, used by adjacent-slot inspection.</param>
+    /// <param name="samusY">Current Samus Y coordinate for vertical palette switches.</param>
+    /// <param name="equippedItems">Current equipment for heat and setup behavior.</param>
+    /// <param name="enemyZeroIsDead">Whether the enemy-linked object should be deleted.</param>
+    /// <param name="areaMiniBossDefeated">Whether the conditional area object should be deleted.</param>
+    /// <param name="samus">Optional active Samus state used by heat damage.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to gate periodic heat damage sound.</param>
     private void RunPreInstruction(
         ISnesAddressSpace bus,
         PaletteFxSlot slot,
@@ -330,6 +360,11 @@ public sealed class RoomPaletteFxSystem
             samusInHeatPaletteIndex);
     }
 
+    /// <summary>Executes leading palette bytecode until it reaches a timed color record or deletes its object.</summary>
+    /// <param name="bus">Address space used for mechanics words and bytecode operands.</param>
+    /// <param name="cgram">CGRAM destination modified by any executed color record.</param>
+    /// <param name="colors">Installed presentation source for palette-color words not owned by mechanics bytecode.</param>
+    /// <param name="slot">Object whose cursor, timers, pre-instruction, and audio requests are updated.</param>
     private void ExecuteProgram(
         ISnesAddressSpace bus,
         SnesCgram cgram,
@@ -438,6 +473,12 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
+    /// <summary>Writes a mixed color/skip record into CGRAM and saves the cursor following its wait command.</summary>
+    /// <param name="bus">Address space retained for the interpreter's shared record contract.</param>
+    /// <param name="cgram">CGRAM modified by each resolved color word.</param>
+    /// <param name="colors">Installed source used when a record word is presentation color data.</param>
+    /// <param name="slot">Object supplying the destination byte index and receiving its next instruction cursor.</param>
+    /// <param name="cursor">Address of the first word in the color record.</param>
     private static void WritePaletteRecord(
         ISnesAddressSpace bus,
         SnesCgram cgram,
@@ -505,6 +546,11 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
+    /// <summary>Resolves a mechanics-owned bank-$8D word without falling back to installed color data.</summary>
+    /// <param name="bus">Address space required by the native read boundary.</param>
+    /// <param name="pointer">Bank-$8D word address in the translated mechanics domain.</param>
+    /// <returns>The compiled mechanics word.</returns>
+    /// <exception cref="InvalidDataException">No compiled mechanics value exists at the address.</exception>
     private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
@@ -530,6 +576,11 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
+    /// <summary>Resolves a mechanics-owned bank-$8D byte, including byte operands in mixed-width instructions.</summary>
+    /// <param name="bus">Address space required by the native read boundary.</param>
+    /// <param name="pointer">Bank-$8D byte address in the translated mechanics domain.</param>
+    /// <returns>The compiled mechanics byte.</returns>
+    /// <exception cref="InvalidDataException">No compiled mechanics value exists at the address.</exception>
     private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
@@ -543,15 +594,23 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
+    /// <summary>Mutable host representation of the six words in one native palette-FX object slot.</summary>
     private sealed class PaletteFxSlot
     {
+        /// <summary>Definition pointer; zero marks this slot as free.</summary>
         public ushort Id { get; set; }
+        /// <summary>Destination CGRAM byte index advanced by color-record skip commands.</summary>
         public ushort ColorByteIndex { get; set; }
+        /// <summary>Bank-$8D pre-instruction dispatched before timed instruction processing.</summary>
         public ushort PreInstruction { get; set; }
+        /// <summary>Current bank-$8D instruction or color-record cursor.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Countdown controlling when the current instruction list is processed.</summary>
         public ushort InstructionTimer { get; set; }
+        /// <summary>Auxiliary countdown consumed by decrement-and-branch bytecode.</summary>
         public ushort Timer { get; set; }
 
+        /// <summary>Returns the slot to its free state and clears all associated interpreter words.</summary>
         public void Clear()
         {
             Id = 0;

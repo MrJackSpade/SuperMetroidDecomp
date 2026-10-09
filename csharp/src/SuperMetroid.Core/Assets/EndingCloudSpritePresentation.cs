@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the six atmospheric ending clouds.</summary>
 public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled compositions indexed by the bank-$8C pointers used by the ending actors.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Creates a presentation from compositions already validated against the stock cloud layouts.</summary>
+    /// <param name="frames">Compiled frames keyed by their cinematic spritemap pointers.</param>
     private EndingCloudSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -103,14 +106,50 @@ public static class EndingCloudSpriteDefinitions
     /// <summary>$8C:B6F3, EndingCutsceneBottomCloudsPattern; four16-part records
     /// precede the right and left32-part records.</summary>
     private const ushort FirstRecord = 0xb6f3;
+    /// <summary>Number of ordered cloud frames exposed to the editable presentation.</summary>
     private const int FrameCount = 6;
     // Native storage order is distinct from the actor/list order.
-    private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
-    internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
+    /// <summary>Record order in the cartridge's cloud spritemap data, which differs from actor draw order.</summary>
+    private enum Record
+    {
+        /// <summary>Bottom cloud pattern in the native storage sequence.</summary>
+        BottomPattern,
+        /// <summary>Top cloud pattern in the native storage sequence.</summary>
+        TopPattern,
+        /// <summary>Bottom cloud edge in the native storage sequence.</summary>
+        BottomEdge,
+        /// <summary>Top cloud edge in the native storage sequence.</summary>
+        TopEdge,
+        /// <summary>Right-side cloud composition, stored as a 32-part record.</summary>
+        Right,
+        /// <summary>Left-side cloud composition, stored as a 32-part record.</summary>
+        Left
+    }
+
+    /// <summary>Presentation order expected by the six ending actors and their instruction lists.</summary>
+    internal enum Role
+    {
+        /// <summary>First upper-cloud pattern frame.</summary>
+        UpperPattern,
+        /// <summary>Second upper-cloud edge frame.</summary>
+        UpperEdge,
+        /// <summary>First lower-cloud edge frame.</summary>
+        LowerEdge,
+        /// <summary>Second lower-cloud pattern frame.</summary>
+        LowerPattern,
+        /// <summary>Right-side cloud frame.</summary>
+        Right,
+        /// <summary>Left-side cloud frame.</summary>
+        Left
+    }
 
     /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
 
+    /// <summary>Maps a presentation-order index to the stable JSON name and cartridge record for that cloud actor.</summary>
+    /// <param name="index">Zero-based actor/list order from upper pattern through left-side cloud.</param>
+    /// <returns>The frame identity and stock layout assigned to the actor.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the six published roles.</exception>
     private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
     {
         Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
@@ -122,6 +161,10 @@ public static class EndingCloudSpriteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Calculates a frame's bank-$8C pointer and part count from its position in native spritemap storage.</summary>
+    /// <param name="name">Stable JSON key exposed to editable assets.</param>
+    /// <param name="record">The corresponding native storage record.</param>
+    /// <returns>The identity and stock composition size for that record.</returns>
     private static EndingCloudSpriteFrameDefinition Define(string name, Record record)
     {
         int index = (int)record;
@@ -131,10 +174,20 @@ public static class EndingCloudSpriteDefinitions
         return new(name, (ushort)(FirstRecord + offset), index < 4 ? 16 : 32);
     }
 
+    /// <summary>Provides indexed and sequential access to the six calculated cloud frame identities.</summary>
     private sealed class FrameView : IReadOnlyList<EndingCloudSpriteFrameDefinition>
     {
+        /// <summary>Gets the fixed number of cloud frame identities.</summary>
         public int Count => FrameCount;
+
+        /// <summary>Gets the frame identity assigned to one ending actor position.</summary>
+        /// <param name="index">Zero-based index in published actor/list order.</param>
+        /// <returns>The corresponding stable frame definition.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the published frame range.</exception>
         public EndingCloudSpriteFrameDefinition this[int index] => Get(index);
+
+        /// <summary>Enumerates the six frame identities in the order consumed by the ending actors.</summary>
+        /// <returns>An enumerator over the stable frame definitions.</returns>
         public IEnumerator<EndingCloudSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);

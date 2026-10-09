@@ -22,8 +22,11 @@ public sealed class HudState
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
+    /// <summary>Row-major words for the three mutable HUD tilemap rows uploaded to WRAM.</summary>
     private readonly ushort[] _tiles = new ushort[MutableTileCount];
+    /// <summary>Prior selected-item index used to detect inventory selection changes.</summary>
     private ushort _previousSelectedItem;
+    /// <summary>Optional installed artwork and layout used to render host-owned HUD presentation.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 
     /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
@@ -325,12 +328,14 @@ public sealed class HudState
         queue.Enqueue(MutableByteCount, WorkRamAddress, VramDestination);
     }
 
+    /// <summary>Writes the current energy digits and bar using the installed HUD presentation.</summary>
     private void DrawHealth(ISnesAddressSpace bus, ushort health, ushort maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
     }
 
+    /// <summary>Updates the AUTO reserve indicator to reflect whether stored reserve energy is available.</summary>
     private void DrawAutoReserve(ISnesAddressSpace bus, bool containsEnergy)
     {
         (presentation ?? throw new InvalidOperationException(
@@ -345,30 +350,35 @@ public sealed class HudState
             "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
     }
 
+    /// <summary>Installs the missile icon in its HUD tile cells when the presentation provides it.</summary>
     private void AddMissileIcon(ISnesAddressSpace bus)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
     }
 
+    /// <summary>Installs the selected 2-by-2 equipment icon into the corresponding HUD cells.</summary>
     private void AddTwoByTwoIcon(ISnesAddressSpace bus, int itemIndex, int source)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
     }
 
+    /// <summary>Changes the item-selection highlight palette when the selected HUD item changes.</summary>
     private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
     }
 
+    /// <summary>Writes the formatted ammunition count for one equipment slot.</summary>
     private void DrawAmmo(ISnesAddressSpace bus, int itemIndex, ushort value, int byteOffset)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);
     }
 
+    /// <summary>Rebuilds mutable presentation cells from current inventory, counters, reserve state, and selection.</summary>
     private void ApplyCurrentPresentationState(SamusState samus)
     {
         if (presentation is null) return;
@@ -387,12 +397,28 @@ public sealed class HudState
         presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
+    /// <summary>Maps a coordinate in the native 5-by-3 minimap window to the mutable HUD tile buffer.</summary>
+    /// <param name="outputX">Column within the minimap window.</param>
+    /// <param name="outputY">Row within the minimap window.</param>
+    /// <returns>Row-major index in the 96-word mutable HUD buffer.</returns>
     private static int NativeMinimapCellIndex(int outputX, int outputY) =>
         26 + outputY * WidthInTiles + outputX;
 
 }
 
-/// <summary>Explicit inputs consumed while constructing one HUD state.</summary>
+/// <summary>Explicit inventory and resource values consumed when constructing or refreshing the HUD.</summary>
+/// <param name="Health">Current energy units shown in the HUD.</param>
+/// <param name="MaxHealth">Maximum energy capacity used to render the energy display.</param>
+/// <param name="Missiles">Current missile count.</param>
+/// <param name="MaxMissiles">Missile capacity; zero means the missile icon and count are absent.</param>
+/// <param name="SuperMissiles">Current Super Missile count.</param>
+/// <param name="MaxSuperMissiles">Super Missile capacity; zero means its icon and count are absent.</param>
+/// <param name="PowerBombs">Current Power Bomb count.</param>
+/// <param name="MaxPowerBombs">Power Bomb capacity; zero means its icon and count are absent.</param>
+/// <param name="EquippedItems">Equipment bitset used to decide which equipment icons appear.</param>
+/// <param name="SelectedItem">Native HUD item index whose selection highlight is applied.</param>
+/// <param name="ReserveHealth">Stored reserve energy units.</param>
+/// <param name="ReserveMode">Native reserve mode; value one enables the AUTO indicator.</param>
 public readonly record struct HudSnapshot(
     ushort Health,
     ushort MaxHealth,

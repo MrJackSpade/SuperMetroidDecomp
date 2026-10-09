@@ -65,6 +65,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// ordinary gameplay body, but the native room main explicitly rejects their game-state
     /// numbers; keeping that input explicit preserves the same ownership boundary.
     /// </param>
+    /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
     public CeresElevatorShaftRoomMainResult Step(
         ISnesAddressSpace bus,
         SamusState? samus,

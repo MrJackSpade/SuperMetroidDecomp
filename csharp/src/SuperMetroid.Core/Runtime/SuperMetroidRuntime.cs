@@ -1006,6 +1006,7 @@ public sealed partial class SuperMetroidRuntime
     public ushort NmiCounterIncludingLag { get; private set; }
 
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic.</summary>
+    /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
     /// <param name="drawHighPriorityEnemyProjectiles">
     /// Optional bank-$86 high-priority enemy-projectile draw pass. The generic runtime does
     /// not own a room-specific enemy pool yet, so the Mother Brain debugger injects its
@@ -1015,11 +1016,15 @@ public sealed partial class SuperMetroidRuntime
     /// Optional bank-$86 low-priority enemy-projectile draw pass at enemy layer six,
     /// immediately after Samus/projectiles as selected by `$A0:887C`.
     /// </param>
+    /// <param name="allowCeresElevatorDeparture">Allows the Ceres shaft room-main trigger to request departure; the outer dispatcher enables this only in state eight, not departure states $20/$21. Shaft rotation still advances independently.</param>
+    /// <param name="afterAcceptedNmi">Optional per-call hook immediately after the ordinary accepted NMI and before HDMA/main-loop owners; not retained or invoked by the suspended message-box frame path.</param>
+    /// <param name="advanceGameTime">Whether the normal frame tail advances the native four-word gameplay clock; disabling it does not suppress NMI, RNG, or gameplay-owner updates.</param>
     /// <param name="queueEchoSound">
     /// Immediate native echo sound call, including the CPU accumulator returned by
     /// the queue operation. The caller must publish earlier frame sounds into the
     /// same queue first. This per-call delegate is not retained in debugger states.
     /// </param>
+    /// <param name="checkLowHealth">Optional per-call low-energy-check hook after Samus's periodic damage when her health-check handler is enabled and X-ray does not own control; not retained in runtime state.</param>
     public RuntimeFrameResult StepFrame(
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,

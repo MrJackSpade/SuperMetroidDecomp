@@ -29,8 +29,8 @@ public static class SamusBeamPreInstructionCodes
     /// </summary>
     public const ushort ChainsawWindowStoreThenPowerBomb = 0xb0ac;
     /// <summary>
-    /// Charged combination thirteen overruns <see cref="ChargedTable"/> at $90:BA58 and
-    /// reads callback <c>$0A0A</c>. JSR therefore enters the bank-$90 low-WRAM mirror at
+    /// Charged combination thirteen overruns the callback table at <c>$90:BA3E..BA55</c> and
+    /// reads callback <c>$0A0A</c> at <c>$90:BA58</c>. JSR therefore enters the bank-$90 low-WRAM mirror at
     /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
@@ -50,7 +50,7 @@ public static class SamusBeamPreInstructionCodes
 
     /// <summary>
     /// $90:A4AA, the callback obtained when charged all-beams combination fifteen reads
-    /// beyond <see cref="ChargedTable"/>. The safe left-facing Murder Beam has a zero
+    /// beyond the charged callback table at <c>$90:BA3E..BA55</c>. The safe left-facing Murder Beam has a zero
     /// instruction pointer, so bank $90 never dispatches this callback; unsafe directions
     /// retain nonzero lists and enter unrelated native code.
     /// </summary>

@@ -36,6 +36,12 @@ public static class CorpseRottingTableProcessor
     }
 
     /// <summary>Runs one complete call of the shared cartridge table processor.</summary>
+    /// <param name="bus">Address space used to write updated row offsets, delay words, and finished-entry markers.</param>
+    /// <param name="memory">Mutable WRAM backing the same table, used to read its current row and delay words.</param>
+    /// <param name="tableAddress">Full WRAM byte address of the first four-byte signed-Y/delay entry.</param>
+    /// <param name="entryCount">Nonzero number of entries processed in ascending index order.</param>
+    /// <param name="yLimit">Exclusive pixel-row limit for the two-pixel advance; also the native entry-index threshold that returns final completion.</param>
+    /// <param name="lateMoveEntryIndex">First entry index that uses the destructive move callback during the last four delay states instead of copying its pixel row.</param>
     /// <param name="copyOrMovePixelRow">
     /// Receives the current unsigned Y row and whether the selected enemy-specific routine
     /// is the destructive move callback rather than the non-destructive copy callback.

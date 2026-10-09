@@ -110,6 +110,7 @@ public sealed class OamBuffer
     /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
     /// <param name="originX">Screen-space X origin produced by bank $90.</param>
     /// <param name="originY">Screen-space Y origin produced by bank $90.</param>
+    /// <param name="artwork">Required installed Samus compositions indexed by the native pointer-table ordinal; a zero-pointer catalog entry selects the mutable WRAM spritemap case rather than an empty image.</param>
     public void AddSamusSpritemap(
         ISnesMutableMemory memory,
         ushort spritemapIndex,

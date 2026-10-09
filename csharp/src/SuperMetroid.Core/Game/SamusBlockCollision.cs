@@ -68,6 +68,15 @@ public static partial class SamusBlockCollision
     /// Ports <c>BlockColl_Handle_Horiz</c> at <c>$94:9543</c>, the position addition in
     /// <c>Samus_MoveRight_NoSolidColl</c>, and the subsequent non-square slope alignment.
     /// </summary>
+    /// <param name="bus">Address space used by native collision dispatch and its memory side effects.</param>
+    /// <param name="level">Active room level supplying collision blocks and receiving supported block mutations.</param>
+    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion words are updated.</param>
+    /// <param name="displacement">Signed horizontal displacement in 16.16 pixel units; negative moves left and nonnegative selects the right entry.</param>
+    /// <param name="canBreakBombBlocks">Explicit permission to break supported collision-bomb blocks in addition to native pose and momentum checks.</param>
+    /// <param name="plms">Optional active room PLM owner for collision-triggered scrolls, stations, and block restoration; required when a reached reaction needs an owner.</param>
+    /// <param name="publishDoorSideEffects">Whether horizontal door dispatch publishes its native transition scratch writes rather than only resolving the destination.</param>
+    /// <param name="alignToSlopeAfterMovement">Enables post-move non-square slope alignment when the state's slope-enable bit permits it, and live movement inheritance publication.</param>
+    /// <param name="blockReactionDirection">Optional native block-reaction direction override; the nondirectional probe value suppresses directional station activation.</param>
     /// <param name="collisionMovementDirection">
     /// Native $0B02 stored by the displacement calculator. When supplied, this is a bank-$90
     /// <c>MoveSamus_Right/Left</c> call: the solid-enemy probe always runs in this direction,

@@ -643,6 +643,7 @@ public sealed class RoomLayer3FxState
     /// word resets selection to zero. Constant sound selection and the index bound
     /// replace those words; the independently retained rhythm supplies only delays.
     /// </summary>
+    /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="mainGameLoopCarry">
     /// Carry entering the routine. <c>QueueSound_Lib2_Max6</c> restores it with <c>PLP</c>,
     /// so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first

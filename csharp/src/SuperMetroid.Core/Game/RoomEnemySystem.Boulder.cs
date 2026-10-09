@@ -26,8 +26,11 @@ public enum BoulderAiFunction : ushort
 /// </summary>
 public sealed class BoulderEnemyState
 {
+    /// <summary>Physical enemy slot backing the Boulder function and motion-counter words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the slot containing this Boulder actor's native state.</summary>
+    /// <param name="slot">Enemy record whose ordinary variables are exposed through this state.</param>
     internal BoulderEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Current bank-$A6 indirect AI target, backed by common variable A here and corresponding to native <c>Boulder.function</c> at $0FA8,x.</summary>
@@ -91,12 +94,17 @@ public sealed class BoulderEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer for the bank-$A6 Boulder actor.</summary>
     internal const ushort BoulderDefinition = 0xdfbf;
 
+    /// <summary>Library-two sound identifier requested when the Boulder lands or hits a wall.</summary>
     private const ushort BoulderImpactSound = 0x0042;
+    /// <summary>Library-two sound identifier requested for a breaking impact.</summary>
     private const ushort BoulderBreakSound = 0x0043;
+    /// <summary>Room-graphics dust animation used when the Boulder breaks on impact.</summary>
     private const ushort BoulderDustAnimationIndex = 0x0011;
 
+    /// <summary>Per-slot typed views installed during Boulder initialization.</summary>
     private readonly BoulderEnemyState?[] _boulderStates =
         new BoulderEnemyState?[MaximumEnemyCount];
 
@@ -181,6 +189,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for Samus to enter the configured vertical and direction-dependent horizontal trigger window.</summary>
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
         short deltaY = unchecked((short)(samus.YPosition - slot.YPosition));
@@ -199,6 +208,7 @@ public sealed partial class RoomEnemySystem
             : BoulderAiFunction.InitialFall;
     }
 
+    /// <summary>Falls without terrain collision until the saved spawn height, then starts the first rebound.</summary>
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: false);
@@ -216,6 +226,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSpeedAccumulator = 0x2000;
     }
 
+    /// <summary>Applies the rising quadratic-table arc and horizontal acceleration until the vertical phase turns downward.</summary>
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: true);
@@ -234,6 +245,7 @@ public sealed partial class RoomEnemySystem
             0x5000);
     }
 
+    /// <summary>Falls with terrain collision, rebounding on impacts or breaking immediately for the authored break direction.</summary>
     private void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = ReadQuadraticEnemySpeed(
@@ -277,6 +289,7 @@ public sealed partial class RoomEnemySystem
             0x5000);
     }
 
+    /// <summary>Rolls along terrain with vertical compensation, then hides, deletes, and breaks the actor at a wall.</summary>
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = unchecked(
@@ -319,6 +332,7 @@ public sealed partial class RoomEnemySystem
         state.PreviousYSubposition = slot.YSubposition;
     }
 
+    /// <summary>Applies the direction-signed quadratic horizontal displacement to the slot's 16.16 X position.</summary>
     private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
     {
         int displacement = ReadBoulderHorizontalDisplacement(state);
@@ -328,11 +342,13 @@ public sealed partial class RoomEnemySystem
         slot.XSubposition = unchecked((ushort)position);
     }
 
+    /// <summary>Reads the current quadratic horizontal speed and applies the selected travel direction.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         ReadQuadraticEnemySpeed(
             unchecked((byte)(state.HorizontalSpeedAccumulator >> 8)),
             negative: state.DirectionSelector != 0);
 
+    /// <summary>Applies one quadratic vertical displacement to the slot's 16.16 Y position.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
     {
         int displacement = ReadQuadraticEnemySpeed(
@@ -344,12 +360,14 @@ public sealed partial class RoomEnemySystem
         slot.YSubposition = unchecked((ushort)position);
     }
 
+    /// <summary>Adds an unsigned acceleration step and saturates at the configured maximum.</summary>
     private static ushort AddAndCapUnsigned(ushort value, ushort increment, ushort maximum)
     {
         ushort result = unchecked((ushort)(value + increment));
         return unchecked((short)(result - maximum)) < 0 ? result : maximum;
     }
 
+    /// <summary>Returns the initialized state view associated with a Boulder enemy slot.</summary>
     private BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
         _boulderStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");

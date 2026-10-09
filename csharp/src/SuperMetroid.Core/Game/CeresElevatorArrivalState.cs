@@ -16,9 +16,13 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
+    /// <summary>Non-null cartridge address space supplied with the arrival state; its compiled projectile programs are decoded from definitions.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Moving pad projectile that carries Samus down to the Ceres landing point.</summary>
     private readonly CeresElevatorProjectile pad;
+    /// <summary>Stationary elevator platform removed when Samus reaches the landing height.</summary>
     private readonly CeresElevatorProjectile platform;
+    /// <summary>Installed spritemap data used to draw the projectiles' current animation frames.</summary>
     [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
@@ -115,6 +119,11 @@ public sealed class CeresElevatorArrivalState
         DrawProjectile(platform, oam, cameraX, cameraY);
     }
 
+    /// <summary>Creates an active projectile with its definition, initial instruction, position, and graphics bank.</summary>
+    /// <param name="definition">Compiled retail projectile definition supplying its pointer and entry instruction.</param>
+    /// <param name="xPosition">Initial room-space horizontal position.</param>
+    /// <param name="yPosition">Initial room-space vertical position.</param>
+    /// <returns>The initialized projectile state used by this arrival sequence.</returns>
     private static CeresElevatorProjectile LoadProjectile(
         CeresElevatorProjectileDefinition definition,
         ushort xPosition,
@@ -128,6 +137,8 @@ public sealed class CeresElevatorArrivalState
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
+    /// <summary>Advances one projectile instruction timer and executes frame, goto, or delete commands on expiry.</summary>
+    /// <param name="projectile">Projectile whose instruction state is updated.</param>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
         ushort oldTimer = projectile.InstructionTimer;
@@ -166,6 +177,11 @@ public sealed class CeresElevatorArrivalState
             $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} exceeded its command guard.");
     }
 
+    /// <summary>Draws an active, on-screen projectile using its installed current-frame spritemap.</summary>
+    /// <param name="projectile">Projectile whose position and animation frame are rendered.</param>
+    /// <param name="oam">Destination buffer for low-priority enemy sprite entries.</param>
+    /// <param name="cameraX">Current room camera horizontal offset.</param>
+    /// <param name="cameraY">Current room camera vertical offset.</param>
     private void DrawProjectile(
         CeresElevatorProjectile projectile,
         OamBuffer oam,
@@ -194,8 +210,15 @@ public sealed class CeresElevatorArrivalState
             originYIsOnScreen: (screenY & 0xff00) == 0);
     }
 
+    /// <summary>Mutable runtime state for one of the Ceres arrival's bank-$86 enemy projectiles.</summary>
     private sealed class CeresElevatorProjectile
     {
+        /// <summary>Creates a projectile at its spawn coordinates with its initial instruction and graphics identity.</summary>
+        /// <param name="definitionPointer">Native bank-$86 projectile definition identity.</param>
+        /// <param name="instructionPointer">Initial bank-$86 instruction-list address.</param>
+        /// <param name="xPosition">Initial room-space horizontal coordinate.</param>
+        /// <param name="yPosition">Initial room-space vertical coordinate.</param>
+        /// <param name="graphicsIndex">Graphics and palette word copied into the projectile state.</param>
         public CeresElevatorProjectile(
             ushort definitionPointer,
             ushort instructionPointer,
@@ -210,14 +233,23 @@ public sealed class CeresElevatorArrivalState
             GraphicsIndex = graphicsIndex;
         }
 
+        /// <summary>Native bank-$86 projectile definition used to identify invalid instruction streams in diagnostics.</summary>
         public ushort DefinitionPointer { get; }
+        /// <summary>Graphics and palette identity used when the current spritemap is submitted to OAM.</summary>
         public ushort GraphicsIndex { get; }
+        /// <summary>Whether this projectile remains eligible for stepping and drawing.</summary>
         public bool Active { get; set; } = true;
+        /// <summary>Room-space horizontal coordinate assigned at spawn.</summary>
         public ushort XPosition { get; }
+        /// <summary>Room-space vertical coordinate, advanced by the pad pre-instruction when applicable.</summary>
         public ushort YPosition { get; set; }
+        /// <summary>Arrival-specific delay before the moving pad begins carrying Samus downward.</summary>
         public ushort WaitTimer { get; set; }
+        /// <summary>Bank-$86 address of the next instruction command.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Remaining frame delay before the instruction pointer is processed again.</summary>
         public ushort InstructionTimer { get; set; } = 1;
+        /// <summary>Bank-$8D spritemap selected by the most recently executed frame command.</summary>
         public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
     }
 }

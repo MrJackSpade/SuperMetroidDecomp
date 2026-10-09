@@ -59,6 +59,9 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>$A7:CB07/CB19/CB1B: dark green, red indicator and gold indicator selected intensities.</summary>
     private const int BackgroundGreenDark = 6, RedIndicator = 21, GoldIndicatorRed = 27, GoldIndicatorGreen = 18;
 
+    /// <summary>Resolves one of the seven sixteen-ink material rows used by the powered Wrecked Ship palettes.</summary>
+    /// <param name="index">Flattened palette index from 0 through 111, selecting a row and ink position.</param>
+    /// <returns>The packed SNES color or the authored transparent metadata for a door's zero ink.</returns>
     internal static ushort Color(int index)
     {
         if ((uint)index >= 112) throw new ArgumentOutOfRangeException(nameof(index));
@@ -76,6 +79,9 @@ internal static class WreckedShipPowerPaintDefinitions
             _ => ink == 14 ? White : Neutral(CommonNeutral),
         };
     }
+    /// <summary>Selects shared gold, metal, green, magenta, and neutral inks used by common ship machinery.</summary>
+    /// <param name="ink">Nontransparent ink index from the common palette row.</param>
+    /// <returns>The corresponding packed material color.</returns>
     private static ushort Common(int ink) => ink switch
     {
         >= 1 and <= 3 => Gold(ink - 1),
@@ -84,6 +90,9 @@ internal static class WreckedShipPowerPaintDefinitions
         10 or 12 or 14 => White, 11 => 0,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Builds the green-door palette from shared highlights, steel, shadows, and gold accents.</summary>
+    /// <param name="ink">Ink index within the green-door row.</param>
+    /// <returns>The selected packed door color or neutral fallback.</returns>
     private static ushort GreenDoor(int ink) => ink switch
     {
         1 => GreenHighlight, 2 => GreenMiddle, 3 => GreenDark,
@@ -92,12 +101,18 @@ internal static class WreckedShipPowerPaintDefinitions
         11 => 0, 12 => White, 13 => Gold(0), 14 => Rgb(31, 0, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Selects the magenta door's bright, middle, dark, and neutral palette inks.</summary>
+    /// <param name="ink">Ink index within the magenta-door row.</param>
+    /// <returns>The corresponding packed door color.</returns>
     private static ushort MagentaDoor(int ink) => ink switch
     {
         1 => Rgb(MagentaLight, MagentaLightGreen, MagentaLight),
         2 => MagentaMiddle, 3 => Rgb(MagentaDarkRed, 0, MagentaDarkBlue),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Selects the three blue-door shading levels, white highlight, or neutral fallback.</summary>
+    /// <param name="ink">Ink index within the blue-door row.</param>
+    /// <returns>The corresponding packed door color.</returns>
     private static ushort BlueDoor(int ink) => ink switch
     {
         1 => Rgb(DoorBlueLightRed, DoorBlueLightGreen, DoorBlueBright),
@@ -105,6 +120,9 @@ internal static class WreckedShipPowerPaintDefinitions
         3 => Rgb(DoorBlueDarkRed, DoorBlueDarkGreen, DoorBlueDark),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Composes the foreground wall and conduit inks from warm, cool, outline, and green-door paints.</summary>
+    /// <param name="ink">Ink index within the foreground material row.</param>
+    /// <returns>The selected packed foreground color.</returns>
     private static ushort Foreground(int ink) => ink switch
     {
         >= 1 and <= 3 => Warm(ShipLight - ShadeStep * (ink - 1), GreenMaterialTint),
@@ -114,6 +132,9 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => GreenMiddle, 13 => GreenHighlight, 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Builds the dimmer background wall/conduit palette and its red and gold indicator inks.</summary>
+    /// <param name="ink">Ink index within the background material row.</param>
+    /// <returns>The selected packed background color.</returns>
     private static ushort Background(int ink) => ink switch
     {
         1 => Subtract(GreenMiddle, BackgroundGreenReduction), 2 => GreenDark,
@@ -123,12 +144,18 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => Rgb(RedIndicator, 0, 0), 13 => Rgb(GoldIndicatorRed, GoldIndicatorGreen, 0), 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Interpolates the selected gold accent through its authored light, middle, and dark shades.</summary>
+    /// <param name="shade">Zero for the light endpoint, one for the selected middle red, or another value for dark.</param>
+    /// <returns>The packed red-green gold color.</returns>
     private static ushort Gold(int shade)
     {
         int red = shade switch { 0 => 31, 1 => GoldMiddleRed, _ => GoldDarkRed };
         int green = GoldDarkGreen + (red - GoldDarkRed) * (GoldLightGreen - GoldDarkGreen) / (31 - GoldDarkRed);
         return Rgb(red, green, 0);
     }
+    /// <summary>Selects one of the four common steel facets and derives its blue tint from the green channel.</summary>
+    /// <param name="shade">Zero-based steel facet index; values beyond the first three select the darkest facet.</param>
+    /// <returns>The packed metal color.</returns>
     private static ushort CommonMetal(int shade)
     {
         (int red, int green) = shade switch
@@ -138,13 +165,40 @@ internal static class WreckedShipPowerPaintDefinitions
         };
         return Rgb(red, green, green + (shade < 2 ? MetalLightBlueTint : MetalDarkBlueTint));
     }
+    /// <summary>Creates a warm wall color with a bounded blue floor and optional green-channel tint.</summary>
+    /// <param name="intensity">Red-channel intensity used as the base wall shade.</param>
+    /// <param name="greenTint">Additional green intensity for the green material.</param>
+    /// <returns>The packed warm wall color.</returns>
     private static ushort Warm(int intensity, int greenTint = 0) =>
         Rgb(intensity, intensity + greenTint, Math.Max(WarmBlueFloor, intensity - WarmBlueSeparation));
+
+    /// <summary>Creates the cool conduit shade by raising blue above a shared red and green intensity.</summary>
+    /// <param name="intensity">Base red and green channel value.</param>
+    /// <returns>The packed cool conduit color.</returns>
     private static ushort Cool(int intensity) => Rgb(intensity, intensity, intensity + CoolBlueTint);
+
+    /// <summary>Subtracts a shared lighting amount from each color channel without allowing negative components.</summary>
+    /// <param name="color">Packed SNES color to darken.</param>
+    /// <param name="amount">Channel value removed from red, green, and blue.</param>
+    /// <returns>The packed darkened color.</returns>
     private static ushort Subtract(ushort color, int amount) =>
         Rgb(Math.Max(0, (color & 31) - amount), Math.Max(0, (color >> 5 & 31) - amount), Math.Max(0, (color >> 10) - amount));
+
+    /// <summary>Green-door shadow whose green component is twice the shared red intensity.</summary>
     private static ushort GreenDark => Rgb(GreenDarkRed, GreenDarkRed * 2, 0);
+
+    /// <summary>Builds a neutral color with equal five-bit values in all three channels.</summary>
+    /// <param name="intensity">Red, green, and blue component value.</param>
+    /// <returns>The packed grayscale color.</returns>
     private static ushort Neutral(int intensity) => Rgb(intensity, intensity, intensity);
+
+    /// <summary>Full-intensity neutral ink used for palette highlights.</summary>
     private static ushort White => Neutral(31);
+
+    /// <summary>Packs five-bit red, green, and blue components into the SNES color-word layout.</summary>
+    /// <param name="red">Red component in bits 0-4.</param>
+    /// <param name="green">Green component in bits 5-9.</param>
+    /// <param name="blue">Blue component in bits 10-14.</param>
+    /// <returns>The packed 15-bit SNES color.</returns>
     private static ushort Rgb(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

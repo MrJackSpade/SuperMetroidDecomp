@@ -6,17 +6,31 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
+    /// <summary>Address-space context used to advance and draw the ending actor sprites.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Whether this reward uses the armored helmet placement during the jump sequence.</summary>
     private readonly bool helmeted;
+    /// <summary>Host callback that queues one indexed upload of the reward graphics.</summary>
     private readonly Action<int> queueGraphicsUpload;
+    /// <summary>Active body sprite whose flight and landing determine the shared jump motion.</summary>
     private readonly IntroDiscoverySprite body;
+    /// <summary>Optional separate head actor used by suited rewards; suitless rewards have no head sprite.</summary>
     private readonly IntroDiscoverySprite? head;
+    /// <summary>Shared signed fixed-point vertical velocity accelerated by each active actor's movement step.</summary>
     private int velocity;
+    /// <summary>Number of reward graphics uploads already requested during the landing sequence.</summary>
     private int uploads;
+    /// <summary>Signals that the native shoot instruction ran and the ending flow should show its screenshot.</summary>
     public bool ShotRequested { get; private set; }
+    /// <summary>OBJ palette and size selection used after the body reaches the sheet-switch height.</summary>
     public byte ObjectSelection { get; private set; }
+    /// <summary>Current body Y coordinate interpreted as a signed screen position.</summary>
     public short BodyY => unchecked((short)body.YPosition);
 
+    /// <summary>Creates the reward actors selected by the ending reward and retains the host graphics-upload callback.</summary>
+    /// <param name="bus">Address-space context used by the actors' instruction lists and rendering.</param>
+    /// <param name="reward">Reward appearance that determines whether the actor is suitless, helmetless, or armored.</param>
+    /// <param name="queueGraphicsUpload">Callback invoked with each upload index as the body lands.</param>
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {
         this.bus = bus;
@@ -27,6 +41,8 @@ internal sealed class EndingRewardJump
         body = Spawn(reward == EndingReward.Suitless ? EndingRewardJumpDefinitions.SuitlessBody : EndingRewardJumpDefinitions.SuitedBody);
     }
 
+    /// <summary>Advances active actors, their instruction lists, shared jump motion, landing uploads, and screenshot request state.</summary>
+    /// <param name="instructionWord">Optional reader for native instruction words; when absent, each sprite uses its built-in instruction source.</param>
     public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         // Native fixed slots put the head above the body in the descending handler.
@@ -65,6 +81,10 @@ internal sealed class EndingRewardJump
         body.Step(bus, Instruction, instructionWord);
     }
 
+    /// <summary>Draws the active head and body sprites, creating and finalizing an OAM frame when no destination is supplied.</summary>
+    /// <param name="installedArt">Optional installed artwork used to resolve the reward sprites.</param>
+    /// <param name="destination">Existing OAM buffer to append to; caller owns its frame lifecycle when provided.</param>
+    /// <returns>The supplied buffer or a newly created buffer containing the actor entries.</returns>
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
@@ -75,6 +95,8 @@ internal sealed class EndingRewardJump
         return oam;
     }
 
+    /// <summary>Applies gravity and advances one actor's Y coordinate using the shared fixed-point velocity.</summary>
+    /// <param name="actor">Sprite whose integer and fractional Y position are updated.</param>
     private void Move(IntroDiscoverySprite actor)
     {
         velocity = unchecked(velocity + EndingRewardJumpDefinitions.Gravity);
@@ -84,6 +106,10 @@ internal sealed class EndingRewardJump
         actor.YSubPosition = (ushort)position;
     }
 
+    /// <summary>Handles reward-specific launch, head placement, and shot instructions, leaving unrelated words to the sprite interpreter.</summary>
+    /// <param name="instruction">Native instruction word currently being dispatched.</param>
+    /// <param name="cursor">Instruction cursor to retain when this handler consumes the word.</param>
+    /// <returns>The unchanged cursor for handled words, or null when the instruction belongs to the default interpreter.</returns>
     private ushort? Instruction(ushort instruction, ushort cursor)
     {
         switch (instruction)
@@ -107,7 +133,14 @@ internal sealed class EndingRewardJump
         }
     }
 
+    /// <summary>Returns the separate head actor required by suited jump instructions.</summary>
+    /// <returns>The configured head sprite.</returns>
+    /// <exception cref="InvalidDataException">A suited instruction requests a head when this reward has none.</exception>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+
+    /// <summary>Creates a reward sprite from its definition, initialization record, and instruction-list pointer.</summary>
+    /// <param name="definition">Actor definition pointer selecting the sprite's initial position, palette, and instruction list.</param>
+    /// <returns>The initialized sprite with its native pre-instruction installed.</returns>
     private static IntroDiscoverySprite Spawn(ushort definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);

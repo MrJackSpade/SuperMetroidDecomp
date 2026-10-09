@@ -18,6 +18,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public bool MotherBrainDeletedHdmaObjects { get; private set; }
 
+    /// <summary>Authored room coordinates sampled in order for the fake-death explosion sequence.</summary>
     private static readonly (ushort X, ushort Y)[] MotherBrainFakeDeathExplosionPositions =
     [
         (136, 116),
@@ -45,7 +46,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
     private static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
+    /// <summary>Reads a scroll layer's current state while the fake-death sequence locks the arena.</summary>
     private Func<int, RoomScrollState>? _readMotherBrainRoomScrollState;
+    /// <summary>Applies a scroll-layer state change requested by the fake-death sequence.</summary>
     private Action<int, RoomScrollState>? _setMotherBrainRoomScrollState;
 
     /// <summary>Dispatches the body pointer after the phase-one function changes to $881D.</summary>
@@ -166,6 +169,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Expires the initial pause, locks Samus controls, and constrains the second scroll layer.</summary>
+    /// <param name="state">Encounter state whose countdown and next cutscene function are updated.</param>
+    /// <param name="samus">Active player state required when the pause expires and the lock is installed.</param>
     private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -196,6 +202,8 @@ public sealed partial class RoomEnemySystem
         return timer.IsNegative;
     }
 
+    /// <summary>Advances the timed fake-death color fade and enters tube collapse when its steps finish.</summary>
+    /// <param name="state">Encounter state containing the fade timer, palette step, and next function.</param>
     private void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -281,6 +289,8 @@ public sealed partial class RoomEnemySystem
             "Mother Brain room-palette list exceeded 16 commands without selecting a timed entry.");
     }
 
+    /// <summary>Applies the flash colors selected by the current timed room-palette bytecode entry.</summary>
+    /// <param name="timedEntryPointer">Pointer to the timed palette entry currently being interpreted.</param>
     private void ApplyMotherBrainRoomPalette(ushort timedEntryPointer)
     {
         (MotherBrainRoomColors ?? throw new InvalidOperationException(
@@ -288,6 +298,8 @@ public sealed partial class RoomEnemySystem
             .ApplyFlash(_cgram!, timedEntryPointer);
     }
 
+    /// <summary>Stops the active room flash and installs the final palette for the fake-death transition.</summary>
+    /// <param name="state">Encounter state whose room-palette instruction cursor and timer are cleared.</param>
     private void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
     {
         state.RoomPaletteInstructionPointer = 0;
@@ -297,6 +309,8 @@ public sealed partial class RoomEnemySystem
             .ApplyFinal(_cgram!);
     }
 
+    /// <summary>Emits the next timed explosion at an authored location using the encounter's sampled RNG word.</summary>
+    /// <param name="state">Encounter state holding the explosion timer and location sequence index.</param>
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FakeDeathExplosionTimer);
@@ -318,6 +332,8 @@ public sealed partial class RoomEnemySystem
 
     // Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so
     // each waits out the $20 (or $02) its preceding clear step set.
+    /// <summary>Runs one step of the scripted PLM-clearing and tube-spawning sequence.</summary>
+    /// <param name="state">Encounter state containing the tube-collapse function and countdown.</param>
     private void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseFunction)
@@ -430,6 +446,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Decrements the tube sequence timer and reports when its native signed-word test expires.</summary>
+    /// <param name="state">Encounter state whose tube-collapse timer is decremented in place.</param>
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.TubeCollapseTimer);
@@ -437,6 +455,13 @@ public sealed partial class RoomEnemySystem
         return timer.IsNegative;
     }
 
+    /// <summary>Queues a ceiling or floor cleanup PLM and arms the following tube-sequence step.</summary>
+    /// <param name="state">Encounter state receiving the PLM request, next step, and wait timer.</param>
+    /// <param name="blockX">Horizontal room-block coordinate at which the cleanup PLM is placed.</param>
+    /// <param name="blockY">Vertical room-block coordinate at which the cleanup PLM is placed.</param>
+    /// <param name="header">PLM header describing the tile or tube piece to clear.</param>
+    /// <param name="next">Tube-collapse step to run after the requested wait.</param>
+    /// <param name="timer">Native countdown loaded for that next step.</param>
     private static void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
         byte blockX,
@@ -450,6 +475,10 @@ public sealed partial class RoomEnemySystem
         state.TubeCollapseTimer = timer;
     }
 
+    /// <summary>Allocates and initializes a stationary ceiling-tube projectile at its authored coordinates.</summary>
+    /// <param name="kind">Projectile definition for this ceiling tube.</param>
+    /// <param name="xPosition">Room-space horizontal spawn coordinate.</param>
+    /// <param name="yPosition">Room-space vertical spawn coordinate.</param>
     private void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         ushort xPosition,
@@ -498,6 +527,8 @@ public sealed partial class RoomEnemySystem
         SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 12);
     }
 
+    /// <summary>Creates a falling-tube enemy from its cutscene population record when an enemy slot is free.</summary>
+    /// <param name="populationPointer">Bank-$A9 population-record address identifying the authored tube placement.</param>
     private void SpawnMotherBrainFallingTube(ushort populationPointer)
     {
         int slotIndex = Array.FindIndex(_slots, slot => slot.EnemyDefinitionPointer == 0);
@@ -567,6 +598,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances a falling tube and applies its landing effects, including the main-tube transition.</summary>
+    /// <param name="tube">Enemy slot carrying the tube's position, velocity, and landing threshold.</param>
+    /// <param name="mainTube">Whether this is the main tube that moves Mother Brain and starts the ascent.</param>
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
         tube.VariableC = unchecked((ushort)(tube.VariableC + 6));
@@ -623,6 +657,8 @@ public sealed partial class RoomEnemySystem
         ExplodeMotherBrainTube(tube);
     }
 
+    /// <summary>Advances the tube's smoke cadence and emits a puff when its native countdown expires.</summary>
+    /// <param name="tube">Enemy slot holding the smoke timer, cycle index, and horizontal origin.</param>
     private void SpawnMotherBrainTubeSmoke(RoomEnemySlot tube)
     {
         tube.VariableD = unchecked((ushort)(tube.VariableD - 1));
@@ -637,6 +673,8 @@ public sealed partial class RoomEnemySystem
             animationIndex: 9);
     }
 
+    /// <summary>Deletes a landed tube and emits its impact effect and sound request.</summary>
+    /// <param name="tube">Enemy slot for the tube to remove and use as the impact position.</param>
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
         ushort x = tube.XPosition;
@@ -647,6 +685,11 @@ public sealed partial class RoomEnemySystem
             _motherBrain.LastSoundEffect = 0x24;
     }
 
+    /// <summary>Queues the next pair of background-row PLMs during the fake-death ascent.</summary>
+    /// <param name="state">Encounter state whose ascent function selects the first row and advances afterward.</param>
+    /// <param name="firstHeader">PLM header for the first row in the pair.</param>
+    /// <param name="secondHeader">PLM header for the immediately following row.</param>
+    /// <param name="next">Ascent function to enter after both row requests are queued.</param>
     private static void RequestMotherBrainRoomRows(
         MotherBrainEnemyState state,
         ushort firstHeader,
@@ -668,6 +711,8 @@ public sealed partial class RoomEnemySystem
         state.Function = next;
     }
 
+    /// <summary>Installs phase-two room colors and transfers the prepared enemy background tilemap.</summary>
+    /// <param name="state">Encounter state advanced to the phase-two brain setup step.</param>
     private void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero

@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
+    /// <summary>Room slot containing the native common words exposed by this state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the common variables of an initialized Work Robot slot.</summary>
+    /// <param name="slot">Live enemy slot whose cartridge variables back this state.</param>
     internal WorkRobotEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -70,18 +73,35 @@ public sealed class WorkRobotEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A8 enemy definition pointer for the powered Work Robot.</summary>
     internal const ushort WorkRobotDefinition = 0xe8ff;
+
+    /// <summary>Bank-$A8 enemy definition pointer for the Work Robot initialized without power.</summary>
     internal const ushort WorkRobotNoPowerDefinition = 0xe93f;
 
+    /// <summary>Signed 8.8 laser X velocity assigned while the robot faces left.</summary>
     private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
+
+    /// <summary>Signed 8.8 laser X velocity assigned while the robot faces right.</summary>
     private const ushort WorkRobotFacingRightVelocity = 0x0200;
+
+    /// <summary>Whole-pixel distance moved by each scripted walking step.</summary>
     private const int WorkRobotStepPixels = 4;
+
+    /// <summary>Library-two sound requested when an on-screen robot footstep executes.</summary>
     private const ushort WorkRobotFootstepSound = 0x0068;
 
+    /// <summary>Typed variable views indexed by native enemy slot, cleared between rooms.</summary>
     private readonly WorkRobotEnemyState?[] _workRobotStates =
         new WorkRobotEnemyState?[MaximumEnemyCount];
+
+    /// <summary>Shared countdown for the active Work Robot palette animation hook.</summary>
     private ushort _workRobotPaletteAnimationTimer;
+
+    /// <summary>Byte offset of the next timing record in the shared palette animation sequence.</summary>
     private ushort _workRobotPaletteAnimationTableOffset;
+
+    /// <summary>OBJ palette index captured by powered initialization for the shared animation hook.</summary>
     private ushort _workRobotPaletteAnimationPaletteIndex;
 
     /// <summary>
@@ -90,6 +110,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastWorkRobotSoundEffect { get; private set; }
 
+    /// <summary>Reports whether a population record uses either powered or unpowered Work Robot data.</summary>
+    /// <param name="definitionPointer">Enemy definition pointer read from the population record.</param>
     private static bool IsWorkRobotDefinition(ushort definitionPointer) =>
         definitionPointer is WorkRobotDefinition or WorkRobotNoPowerDefinition;
 
@@ -315,6 +337,20 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Executes one scripted horizontal step, including wall response and the optional ledge probe.</summary>
+    /// <param name="slot">Robot slot whose position and instruction state are updated.</param>
+    /// <param name="state">Robot variables used for facing velocity, cooldown, and temporary probe coordinates.</param>
+    /// <param name="samus">Active Samus state for moving-solid contact, when present.</param>
+    /// <param name="level">Room collision data required to move and probe the robot.</param>
+    /// <param name="nextCursor">Instruction pointer to resume when the step continues normally.</param>
+    /// <param name="horizontalPixels">Signed whole-pixel movement for this step.</param>
+    /// <param name="facingLaserVelocity">Laser X velocity corresponding to the robot's current facing.</param>
+    /// <param name="wallInstruction">Instruction list selected when horizontal movement hits a wall.</param>
+    /// <param name="checkLedge">Whether to probe for floor beyond the robot's feet after moving.</param>
+    /// <param name="ledgeProbeDirection">Horizontal direction used by the temporary foot probe.</param>
+    /// <param name="fallInstruction">Instruction list selected when the ledge probe finds no floor.</param>
+    /// <param name="fallLaserVelocity">Laser X velocity installed when the robot begins a fall.</param>
+    /// <returns>The next instruction pointer chosen by normal movement, wall collision, or the ledge check.</returns>
     private ushort MoveWorkRobot(
         RoomEnemySlot slot,
         WorkRobotEnemyState state,
@@ -369,6 +405,11 @@ public sealed partial class RoomEnemySystem
         return fallInstruction;
     }
 
+    /// <summary>Tests the robot origin against the strict left/top and inclusive right/bottom camera bounds.</summary>
+    /// <param name="robot">Robot slot whose world position is tested.</param>
+    /// <param name="cameraX">Horizontal world coordinate of the camera's left edge.</param>
+    /// <param name="cameraY">Vertical world coordinate of the camera's top edge.</param>
+    /// <returns><see langword="true"/> when the origin lies inside the visible 256-by-224-pixel bounds.</returns>
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
         ushort cameraX,
@@ -378,6 +419,15 @@ public sealed partial class RoomEnemySystem
         unchecked((short)(robot.YPosition - cameraY)) > 0 &&
         unchecked((short)(cameraY + 224 - robot.YPosition)) >= 0;
 
+    /// <summary>Consumes a laser attempt, decrementing cooldown or spawning a projectile and selecting its firing list.</summary>
+    /// <param name="robot">Robot slot that may create the projectile.</param>
+    /// <param name="state">Robot firing velocity and cooldown state.</param>
+    /// <param name="nextCursor">Instruction pointer used when the attempt is still cooling down.</param>
+    /// <param name="projectileDefinition">Compiled projectile definition to spawn after a successful attempt.</param>
+    /// <param name="firingInstruction">Instruction list entered when the laser is fired.</param>
+    /// <param name="cameraX">Camera X used for projectile spawn positioning.</param>
+    /// <param name="cameraY">Camera Y used for projectile spawn positioning.</param>
+    /// <returns>The instruction pointer for either the cooldown continuation or firing animation.</returns>
     private ushort TryFireWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
@@ -401,6 +451,8 @@ public sealed partial class RoomEnemySystem
         return firingInstruction;
     }
 
+    /// <summary>Decrements a nonzero laser cooldown using the robot's wrapping word counter.</summary>
+    /// <param name="state">Robot firing state whose cooldown is advanced toward zero.</param>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         if (state.LaserCooldown != 0)
@@ -480,6 +532,10 @@ public sealed partial class RoomEnemySystem
             _workRobotPaletteAnimationTableOffset + 10));
     }
 
+    /// <summary>Gets the state view installed for a robot slot or reports an initialization-order violation.</summary>
+    /// <param name="slot">Work Robot slot whose typed state is required.</param>
+    /// <returns>The state view created during Work Robot initialization.</returns>
+    /// <exception cref="InvalidOperationException">No Work Robot state has been initialized for the slot.</exception>
     private WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
         _workRobotStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");

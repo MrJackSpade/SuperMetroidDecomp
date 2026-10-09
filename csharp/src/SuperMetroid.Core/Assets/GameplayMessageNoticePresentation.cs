@@ -10,9 +10,15 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageNoticePresentation
 {
+    /// <summary>Validated per-message templates and overlays used to render notices.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
+    /// <summary>Shared top and bottom border rows copied into every generated notice tilemap.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Creates a presentation catalog from already validated notice data and its source identity.</summary>
+    /// <param name="notices">Compiled content keyed by the supported gameplay-message identifiers.</param>
+    /// <param name="border">Packed tile words for the shared 32-cell border row.</param>
+    /// <param name="contentIdentity">Hexadecimal SHA-256 identity of the validated source document.</param>
     private GameplayMessageNoticePresentation(
         Dictionary<GameplayMessageId, CompiledNotice> notices,
         ushort[] border,
@@ -196,12 +202,21 @@ public sealed class GameplayMessageNoticePresentation
         output.Write(bytes);
     }
 
+    /// <summary>Returns the compiled layout owned by this catalog for the requested message.</summary>
+    /// <param name="messageId">Identifier of the notice whose compiled data is needed.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The catalog has no entry for the identifier.</exception>
     private CompiledNotice Get(GameplayMessageId messageId) =>
         notices.TryGetValue(messageId, out CompiledNotice? notice)
             ? notice
             : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message notice catalog does not own this message.");
 
+    /// <summary>Validated tilemap and selection data prepared for one gameplay message.</summary>
+    /// <param name="RowCount">Number of content rows between the shared border rows.</param>
+    /// <param name="Template">Row-major packed tile words forming the content background.</param>
+    /// <param name="Text">Validated text overlays applied when the notice tilemap is built.</param>
+    /// <param name="YesSelection">Optional packed replacement row for a selected YES choice.</param>
+    /// <param name="NoSelection">Optional packed replacement row for a selected NO choice.</param>
     private sealed record CompiledNotice(
         int RowCount,
         ushort[] Template,
@@ -209,6 +224,13 @@ public sealed class GameplayMessageNoticePresentation
         ushort[]? YesSelection,
         ushort[]? NoSelection);
 
+    /// <summary>Validated text and tile styling for one bounded region of a notice template.</summary>
+    /// <param name="Row">Zero-based content row receiving the text.</param>
+    /// <param name="Column">Zero-based first tile column of the bounded region.</param>
+    /// <param name="Width">Number of tile cells reserved for the region.</param>
+    /// <param name="Alignment">Validated alignment mode used to position the text within the region.</param>
+    /// <param name="Text">Supported glyph sequence overlaid on the template.</param>
+    /// <param name="Palette">Tile palette index applied to generated glyphs.</param>
     private sealed record CompiledTextRegion(
         int Row,
         int Column,

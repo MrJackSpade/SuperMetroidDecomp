@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks quicksand displacement, suit and direction branches, sinking contact, and horizontal sandfall side effects.</summary>
     static void VerifyQuicksand()
     {
         var bus = new TestAddressSpace();
@@ -56,6 +57,8 @@ internal static partial class Program
         Console.WriteLine("  Quicksand: suit/direction branches, sinking contact, pose clearance, and sandfall forces agree.");
     }
 
+    /// <summary>Verifies compiled special-air and quicksand tables and exercises their production collision and movement paths.</summary>
+    /// <param name="rom">Retail address space used to compare authored table bytes and pointers.</param>
     private static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySpecialAirInsideHeaderMapping), () => VerifySpecialAirInsideHeaderMapping(rom));
@@ -135,12 +138,19 @@ internal static partial class Program
             "Special-air/quicksand definitions: all 224 retail area dispatch records, eight quicksand setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
     }
 
+    /// <summary>Checks each native quicksand PLM header's reaction setup pointer.</summary>
+    /// <param name="rom">Retail address space supplying the bank-$84 instruction words.</param>
     private static void VerifyQuicksandSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, false));
 
+    /// <summary>Checks each native quicksand PLM header's reaction instruction-list pointer.</summary>
+    /// <param name="rom">Retail address space supplying the bank-$84 instruction words.</param>
     private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
+    /// <summary>Compares all possible reaction headers with catalog ownership and checks their setup or instruction word.</summary>
+    /// <param name="rom">Retail address space containing the native reaction definitions.</param>
+    /// <param name="instruction">Selects instruction-list comparison when true; otherwise checks the setup pointer.</param>
     private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
@@ -165,15 +175,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares both suit-specific moving displacement values with their bank-$84 source words.</summary>
+    /// <param name="rom">Retail address space used as the reference.</param>
     private static void VerifyQuicksandMovingDisplacement(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement));
 
+    /// <summary>Compares both suit-specific stationary displacement values with their bank-$84 source words.</summary>
+    /// <param name="rom">Retail address space used as the reference.</param>
     private static void VerifyQuicksandStationaryDisplacement(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement));
 
+    /// <summary>Compares both suit-specific upward speed limits with their bank-$84 source words.</summary>
+    /// <param name="rom">Retail address space used as the reference.</param>
     private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
+    /// <summary>Reads one native quicksand physics word per suit and compares the selected catalog value.</summary>
+    /// <param name="rom">Retail address space containing the two suit records.</param>
+    /// <param name="address">Address of the non-Gravity-Suit word; the Gravity Suit value follows by one word.</param>
+    /// <param name="field">Selector for the displacement or speed-limit value under verification.</param>
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
         Func<QuicksandSurfacePhysics, ushort> field)
     {
@@ -183,18 +203,31 @@ internal static partial class Program
                 $"quicksand physics {address:X6} suit {suit}");
     }
 
+    /// <summary>Checks area-indexed special-air inside-reaction headers against the native pointer table.</summary>
+    /// <param name="rom">Retail address space used to traverse the area and reaction tables.</param>
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false));
 
+    /// <summary>Checks setup pointers selected by special-air inside-reaction headers.</summary>
+    /// <param name="rom">Retail address space used to traverse the area and setup tables.</param>
     private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true));
 
+    /// <summary>Checks area-indexed special-air collision headers against the native pointer table.</summary>
+    /// <param name="rom">Retail address space used to traverse the area and reaction tables.</param>
     private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false));
 
+    /// <summary>Checks setup pointers selected by special-air collision headers.</summary>
+    /// <param name="rom">Retail address space used to traverse the area and setup tables.</param>
     private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true));
 
+    /// <summary>Checks selector bounds, area-table routing, and either the native reaction header or its setup pointer.</summary>
+    /// <param name="rom">Retail address space containing the native area pointers and reaction data.</param>
+    /// <param name="resolve">Catalog lookup for the inside or collision special-air reaction table.</param>
+    /// <param name="nativePointers">Bank-$94 address of the per-area pointer table.</param>
+    /// <param name="setup">When true, compares the setup word referenced by the selected header.</param>
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
         Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
     {
@@ -230,11 +263,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space guard that rejects retail reads for every migrated quicksand and special-air definition region.</summary>
+    /// <param name="source">Underlying address space used for all reads and writes outside the forbidden definition ranges.</param>
     private sealed class QuicksandDefinitionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guard's migrated-definition checks.</summary>
+        /// <param name="address">Bus address requested by the importer.</param>
+        /// <returns>The byte supplied by the guarded address-space mapping.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated table ranges and forwards all other addresses to the wrapped bus.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The byte read from the wrapped address space when the address remains allowed.</returns>
+        /// <exception cref="InvalidOperationException">Production requests a definition byte that the catalog should supply.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x9491d9 and < 0x9492e7 or
                 >= 0x949a06 and < 0x949b14 or
@@ -258,6 +300,9 @@ internal static partial class Program
                     $"Quicksand attempted migrated definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the wrapped address space; the guard only restricts reads.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) =>
             source.WriteByte(address, value);
     }

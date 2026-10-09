@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Botwoon instruction-definition checks against the installed retail ROM.</summary>
     private static void VerifyBotwoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBotwoonInstructionProgramDefinitions), () => VerifyBotwoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native Botwoon head and body selectors against the compiled definitions and production callbacks.</summary>
+    /// <param name="rom">Retail address space used to read expected selector words.</param>
     private static void VerifyBotwoonInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -125,6 +128,8 @@ internal static partial class Program
             "Botwoon instruction definitions: all 56 native selector words and 48 real head/body selections pass with all source tables forbidden.");
     }
 
+    /// <summary>Verifies compiled Botwoon mechanics and presentation data, then runs every selector-reachable program.</summary>
+    /// <param name="rom">Retail address space used to compare compiled instruction operands and spritemaps.</param>
     private static void VerifyBotwoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -288,6 +293,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises compiled mechanics lookup repeatedly and returns a checksum over the selected program word.</summary>
+    /// <returns>A checksum that ensures lookup values are consumed.</returns>
     private static int ProbeBotwoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -299,19 +306,33 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from the supplied native bank-address space.</summary>
+    /// <param name="bus">ROM address space that provides the low and high bytes.</param>
+    /// <param name="address">Address of the low byte to read.</param>
+    /// <returns>The assembled 16-bit instruction or selector word.</returns>
     private static ushort ReadBotwoonInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps cartridge reads to reject migrated tables, forbid compiled mechanics reads, and record presentation reads.</summary>
+    /// <param name="source">Underlying address space for reads not rejected by the guard and for all writes.</param>
     private sealed class BotwoonInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed through permitted bank-$B3 reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads from bytes owned by the compiled mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the guard's cartridge byte path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte if the address passes guard checks.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated-table and mechanics reads, records visual operands, then delegates permitted reads.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The byte returned by the underlying source for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (BotwoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -344,8 +365,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address receiving the write.</param>
+        /// <param name="value">Byte stored at the address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
+
+    /// <summary>Compares the enumerated Botwoon instruction-control words, ownership ranges, and invalid-word boundaries.</summary>
+    /// <param name="rom">Reference ROM supplying the expected bank-$B3 words.</param>
     private static void VerifyBotwoonControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] movement = [0x9341,0x9349,0x9351,0x9361,0x9369,0x9371,0x9379,0x9381];
@@ -383,6 +410,8 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue,-1,74,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonInstructionProgramDefinitionsTooling.MechanicsWord(index), "Botwoon mechanics ordinal bounds");
     }
+    /// <summary>Checks the movement instruction selected for every possible head angle and rejects invalid octants.</summary>
+    /// <param name="rom">Reference ROM containing the eight native movement pointers.</param>
     private static void VerifyBotwoonHeadMovementSelection(SuperMetroidAddressSpace rom)
     {
         for (int angle = 0; angle <= byte.MaxValue; angle++)
@@ -392,6 +421,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => BotwoonInstructionDefinitions.HeadForOctant(octant), "Botwoon invalid octant domain");
     }
 
+    /// <summary>Checks all angle inputs against the native biased and byte-wrapped spit selector.</summary>
+    /// <param name="rom">Reference ROM containing the eight native spit pointers.</param>
     private static void VerifyBotwoonHeadSpitSelection(SuperMetroidAddressSpace rom)
     {
         for (int angle = 0; angle <= byte.MaxValue; angle++)
@@ -399,6 +430,8 @@ internal static partial class Program
                 BotwoonInstructionDefinitions.HeadSpitInstruction((byte)angle), "Botwoon spit bias and byte wrap for all angles");
     }
 
+    /// <summary>Checks every body/tail selector offset and confirms that odd or out-of-range values are rejected.</summary>
+    /// <param name="rom">Reference ROM containing the body and tail instruction pointers.</param>
     private static void VerifyBotwoonBodyTailSelection(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
@@ -409,6 +442,8 @@ internal static partial class Program
                 AssertThrows<ArgumentOutOfRangeException>(() => BotwoonInstructionDefinitions.BodyInstruction((ushort)offset), "Botwoon body selector rejects odd and high offsets");
     }
 
+    /// <summary>Validates calculated head spritemaps, exported frame identities, and rejection of non-visual gaps.</summary>
+    /// <param name="rom">Reference ROM supplying native head spritemap pointers and map entry counts.</param>
     private static void VerifyBotwoonVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,
@@ -451,6 +486,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => BotwoonVisualDefinitions.FrameAt(address), "Botwoon distant invalid visual");
     }
 
+    /// <summary>Checks the ordered presentation-operand catalog against complete address-domain membership.</summary>
     private static void VerifyBotwoonOperandMapping()
     {
         ushort[] expected = [0x9345,0x934d,0x9355,0x9365,0x936d,0x9375,0x937d,0x9385,0x938b,

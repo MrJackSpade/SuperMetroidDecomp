@@ -59,6 +59,12 @@ internal static partial class Program
     // Test-only bank-$A5 stream reader. Opcode lengths and effects are taken
     // from pinned sm_a0.c / sm_a5.c, independently of the compiled catalogs.
     // Palette, sound and particle side effects have their own focused fixtures.
+    /// <summary>Interprets one Spore Spawn bank-$A5 program from cartridge bytes to build an independent per-tick reference trace.</summary>
+    /// <param name="rom">Retail cartridge source for the native instruction stream and operands.</param>
+    /// <param name="initial">Address of the selected program's first instruction.</param>
+    /// <param name="frames">Number of update ticks to record.</param>
+    /// <param name="selectors">Set receiving each spritemap operand address encountered in a timed frame.</param>
+    /// <returns>Expected instruction, timer, visual selector, and gameplay-state values for each tick.</returns>
     private static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
         SuperMetroidAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
     {
@@ -126,6 +132,10 @@ internal static partial class Program
         }
         return trace;
     }
+    /// <summary>Snapshots installed runtime fields that are compared with the independently interpreted reference trace.</summary>
+    /// <param name="system">Enemy system containing the active Spore Spawn state.</param>
+    /// <param name="slot">Room slot carrying the current instruction, timer, visual frame, and actor properties.</param>
+    /// <returns>A value record of the selected frame's mechanics and presentation state.</returns>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemySlot slot)
     {
@@ -138,6 +148,20 @@ internal static partial class Program
             state.DeathStarted, state.DeathDropRequested);
     }
 
+    /// <summary>Per-update comparison row for native and installed Spore Spawn instruction execution.</summary>
+    /// <param name="Instruction">Current instruction pointer after processing this update.</param>
+    /// <param name="Timer">Instruction countdown remaining at the end of the update.</param>
+    /// <param name="VisualFrame">Selected spritemap pointer used for the actor's current appearance.</param>
+    /// <param name="X">Actor center X coordinate.</param>
+    /// <param name="Y">Actor center Y coordinate.</param>
+    /// <param name="Health">Current enemy health.</param>
+    /// <param name="Properties">Native enemy property word affecting collision and display behavior.</param>
+    /// <param name="ExtraProperties">Native extended property word, including instruction-frame state.</param>
+    /// <param name="Function">Current Spore Spawn AI function.</param>
+    /// <param name="Angle">Current movement or attack angle.</param>
+    /// <param name="MaximumXRadius">Maximum horizontal attack radius selected by the program.</param>
+    /// <param name="DeathStarted">Whether the boss has entered its death sequence.</param>
+    /// <param name="DeathDropRequested">Whether the death program has requested its item drop.</param>
     private readonly record struct SporeSpawnProgramFrame(
         ushort Instruction, ushort Timer, ushort VisualFrame,
         ushort X, ushort Y, ushort Health,
@@ -145,6 +169,10 @@ internal static partial class Program
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
 
+    /// <summary>Confirms that replacing Spore Spawn artwork leaves all five installed programs' per-tick mechanics trace unchanged.</summary>
+    /// <param name="rom">Retail cartridge used by the independent reference and read guard.</param>
+    /// <param name="stock">Catalog with the stock Spore Spawn art family.</param>
+    /// <param name="remapped">Catalog with replacement visuals whose mechanics must match the stock run.</param>
     private static void VerifySporeSpawnVisualRemapKeepsMechanics(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog stock,

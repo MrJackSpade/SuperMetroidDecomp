@@ -1,9 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call made by bank $A4's Crocomire AI.</summary>
+/// <param name="BlockX">Horizontal room-block coordinate passed to the hardcoded PLM spawn routine.</param>
+/// <param name="BlockY">Vertical room-block coordinate passed to the hardcoded PLM spawn routine.</param>
+/// <param name="Header">PLM instruction/header pointer selected by the death sequence.</param>
 public readonly record struct CrocomirePlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One delayed music request emitted by Crocomire's death graph.</summary>
+/// <param name="Command">Track or stop command to enqueue after the associated delay.</param>
+/// <param name="Delay">Gameplay-update delay before the music command is issued.</param>
 public readonly record struct CrocomireMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>Boss-specific pickup request emitted by <c>Enemy_ItemDrop_Crocomire</c>.</summary>
@@ -17,16 +22,23 @@ public readonly record struct CrocomireDropRequest();
 /// </summary>
 public sealed class CrocomireDeathState
 {
+    /// <summary>Number of horizontal pixel columns tracked while Crocomire's body melts.</summary>
     internal const int MeltingColumnCount = 128;
     // $A4:943D contains a shipped off-by-one copy: each nominal $0200-word chunk copies
     // $0201 words, and the seventh second-melt chunk reaches just beyond the authored
     // $0E00-byte image. Keep enough adjacent scratch to preserve that overlap safely.
+    /// <summary>Scratch capacity for melting graphics, including the cartridge's overread beyond its authored $0E00-byte image.</summary>
     internal const int MeltingGraphicsByteCount = 0x1200;
+    /// <summary>Number of 16-bit words in the working BG2 tilemap used to compose the death-scene background.</summary>
     internal const int Bg2WorkingWordCount = 0x0800;
 
+    /// <summary>Per-column erased heights used to build the melting silhouette.</summary>
     private readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];
+    /// <summary>Mutable graphics staging area copied into VRAM as columns are erased.</summary>
     private readonly byte[] _meltingGraphics = new byte[MeltingGraphicsByteCount];
+    /// <summary>Working BG2 tilemap populated before transfer to the PPU.</summary>
     private readonly ushort[] _bg2WorkingTilemap = new ushort[Bg2WorkingWordCount];
+    /// <summary>Per-scanline vertical-scroll values used by the melting distortion window.</summary>
     private readonly ushort[] _bg2ScrollByScanline = new ushort[256];
 
     /// <summary>Unaligned $7E:9016 bridge-fragment parameter: 0,2,...,22.</summary>
@@ -101,10 +113,16 @@ public sealed class CrocomireDeathState
     /// </summary>
     public bool MeltingHdmaActive { get; internal set; }
 
+    /// <summary>Mutable per-column height table updated as the melting routine removes pixels.</summary>
     internal Span<byte> MutableMeltingColumnHeights => _meltingColumnHeights;
+    /// <summary>Mutable melting-image bytes used for graphics initialization and column erasure.</summary>
     internal Span<byte> MutableMeltingGraphics => _meltingGraphics;
+    /// <summary>Mutable BG2 working map filled by room-background composition helpers.</summary>
     internal Span<ushort> MutableBg2WorkingTilemap => _bg2WorkingTilemap;
+    /// <summary>Mutable scanline scroll table populated for each distortion band.</summary>
     internal Span<ushort> MutableBg2ScrollByScanline => _bg2ScrollByScanline;
+    /// <summary>Read-only view of the staged melting graphics copied into VRAM.</summary>
     internal ReadOnlySpan<byte> MeltingGraphics => _meltingGraphics;
+    /// <summary>Read-only view of the composed BG2 tilemap used for graphics transfers.</summary>
     internal ReadOnlySpan<ushort> Bg2WorkingTilemap => _bg2WorkingTilemap;
 }

@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the eight final assembling-logo frames.</summary>
 public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Decoded OAM compositions keyed by their bank-$8C cinematic pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Creates a presentation from the validated compositions for all ending-logo frames.</summary>
+    /// <param name="frames">Frame compositions indexed by the pointers used by the cinematic script.</param>
     private EndingLogoSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -109,12 +112,30 @@ public static class EndingLogoSpriteDefinitions
     /// <summary>$8C:B97F, ScrewAttackSymbolUpperPart, followed by the lower S,
     /// three right-wrap and three left-wrap compositions.</summary>
     private const ushort FirstFrame = 0xb97f;
+
+    /// <summary>Number of published logo frames and the number of OAM parts in each S-letter segment.</summary>
     private const int FrameCount = 8, SParts = 14;
-    private enum CircleStage { First, Second, Complete }
+
+    /// <summary>Assembly stage used to size each circle composition in the native packed OAM records.</summary>
+    private enum CircleStage
+    {
+        /// <summary>The first partial circle image.</summary>
+        First,
+
+        /// <summary>The second partial circle image.</summary>
+        Second,
+
+        /// <summary>The completed circle image.</summary>
+        Complete
+    }
 
     /// <summary>Gets the two letter segments followed by three right-wrap and three left-wrap stages.</summary>
     public static IReadOnlyList<EndingLogoSpriteFrameDefinition> Frames { get; } = new FrameView();
 
+    /// <summary>Computes the bank-$8C pointer of one frame from the packed record sizes.</summary>
+    /// <param name="index">Zero-based index among the eight published frame definitions.</param>
+    /// <returns>The bank-local pointer to the frame's native OAM record.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the published frame range.</exception>
     internal static ushort FramePointer(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -129,6 +150,9 @@ public static class EndingLogoSpriteDefinitions
         return (ushort)(FirstFrame + offset);
     }
 
+    /// <summary>Returns the number of OAM parts emitted at a particular circle assembly stage.</summary>
+    /// <param name="stage">Circle progression stage being measured.</param>
+    /// <returns>The number of packed OAM parts in that stage.</returns>
     private static int CircleParts(CircleStage stage) => stage switch
     {
         CircleStage.First => 12,
@@ -136,8 +160,14 @@ public static class EndingLogoSpriteDefinitions
         CircleStage.Complete => 25,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
+    /// <summary>Calculates the byte size of a packed OAM record including its part-count word.</summary>
+    /// <param name="parts">Number of five-byte OAM parts stored after the count word.</param>
+    /// <returns>Total record length in bytes.</returns>
     private static int RecordBytes(int parts) => sizeof(ushort) + parts * 5;
 
+    /// <summary>Builds the named frame metadata at an index in the published ending-logo sequence.</summary>
+    /// <param name="index">Zero-based frame index.</param>
+    /// <returns>Name, native pointer, and stock OAM part count for that frame.</returns>
     private static EndingLogoSpriteFrameDefinition Get(int index)
     {
         ushort pointer = FramePointer(index);
@@ -148,10 +178,20 @@ public static class EndingLogoSpriteDefinitions
         return new(name, pointer, CircleParts((CircleStage)stage));
     }
 
+    /// <summary>Calculates the eight frame definitions on demand without storing a second catalog.</summary>
     private sealed class FrameView : IReadOnlyList<EndingLogoSpriteFrameDefinition>
     {
+        /// <summary>Gets the fixed number of frames in the ending-logo assembly sequence.</summary>
         public int Count => FrameCount;
+
+        /// <summary>Gets the definition at its position in the cinematic assembly order.</summary>
+        /// <param name="index">Zero-based frame index.</param>
+        /// <returns>The corresponding frame name, pointer, and stock part count.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the published frame range.</exception>
         public EndingLogoSpriteFrameDefinition this[int index] => Get(index);
+
+        /// <summary>Enumerates the frame definitions in the same order used by the cinematic script.</summary>
+        /// <returns>An enumerator over the eight computed frame definitions.</returns>
         public IEnumerator<EndingLogoSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);

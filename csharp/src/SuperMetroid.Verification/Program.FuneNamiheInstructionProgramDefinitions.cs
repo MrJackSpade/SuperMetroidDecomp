@@ -24,6 +24,8 @@ internal static partial class Program
         Suite(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(rom));
     }
 
+    /// <summary>Verifies compiled mechanics, visual selectors, and execution results for all authored Fune/Namihe streams.</summary>
+    /// <param name="rom">Retail ROM address space used as the reference for native words and spritemaps.</param>
     private static void VerifyFuneNamiheInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -107,6 +109,8 @@ internal static partial class Program
             "and visual-selector reads forbidden.");
     }
 
+    /// <summary>Checks that each interleaved visual operand resolves to the native spritemap and that gaps are rejected.</summary>
+    /// <param name="rom">Reference ROM containing the expected spritemap pointers and maps.</param>
     private static void VerifyFuneNamiheVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x939b, 0x93a1, 0x93a5, 0x93a9, 0x93ad, 0x93b5, 0x93b9, 0x93bd,
@@ -140,6 +144,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
                 "Fune/Namihe visual resolver rejects distant addresses");
     }
+    /// <summary>Compares the compiled mechanics words and byte-ownership map against their native bank-$A8 locations.</summary>
+    /// <param name="rom">Reference ROM supplying the expected mechanics values.</param>
     private static void VerifyFuneNamiheMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9399, 0x939d, 0x939f, 0x93a3, 0x93a7, 0x93ab, 0x93af, 0x93b1, 0x93b3, 0x93b7, 0x93bb, 0x93bf, 0x93c3, 0x93c5, 0x93c7, 0x93c9, 0x93cd, 0x93cf, 0x93d3, 0x93d7, 0x93db, 0x93df, 0x93e1, 0x93e3, 0x93e7, 0x93eb, 0x93ef, 0x93f3, 0x93f5, 0x93f7, 0x95bd, 0x95c1, 0x95c3, 0x95c7, 0x95cb, 0x95cf, 0x95d3, 0x95d7, 0x95d9, 0x95db, 0x95df, 0x95e3, 0x95e7, 0x95eb, 0x95ed, 0x95ef, 0x95f1, 0x95f5, 0x95f7, 0x95fb, 0x95ff, 0x9603, 0x9607, 0x960b, 0x960d, 0x960f, 0x9613, 0x9617, 0x961b, 0x961f, 0x9621, 0x9623];
@@ -176,6 +182,7 @@ internal static partial class Program
                 "Fune/Namihe mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the ordered list and complete membership domain of compiled visual-selector operands.</summary>
     private static void VerifyFuneNamihePresentationAddresses()
     {
         ushort[] addresses = [0x939b, 0x93a1, 0x93a5, 0x93a9, 0x93ad, 0x93b5, 0x93b9, 0x93bd, 0x93c1, 0x93cb, 0x93d1, 0x93d5, 0x93d9, 0x93dd, 0x93e5, 0x93e9, 0x93ed, 0x93f1, 0x95bf, 0x95c5, 0x95c9, 0x95cd, 0x95d1, 0x95d5, 0x95dd, 0x95e1, 0x95e5, 0x95e9, 0x95f3, 0x95f9, 0x95fd, 0x9601, 0x9605, 0x9609, 0x9611, 0x9615, 0x9619, 0x961d];
@@ -192,6 +199,10 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Fune/Namihe visual ordinal bounds");
     }
+    /// <summary>Initializes one authored species, facing, and activity case, then runs its production instruction stream.</summary>
+    /// <param name="bus">Guarded cartridge address space installed as the enemy system's instruction source.</param>
+    /// <param name="program">Entry and behavior flags defining the Fune or Namihe stream under examination.</param>
+    /// <returns>The enemy system after stepping the stream and its initialized enemy slot.</returns>
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
         FuneNamiheInstructionReadGuard bus,
         FuneNamiheProgramCase program)
@@ -238,6 +249,10 @@ internal static partial class Program
         return (enemies, slot);
     }
 
+    /// <summary>Reads a little-endian 16-bit word from the bank-$A8 program address space.</summary>
+    /// <param name="source">ROM source providing the two bytes.</param>
+    /// <param name="address">Bank-$A8 address of the low byte.</param>
+    /// <returns>The assembled native word.</returns>
     private static ushort ReadFuneNamiheProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -245,6 +260,12 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Describes one species, facing, and active-or-idle instruction stream used by the verification matrix.</summary>
+    /// <param name="Entry">Bank-$A8 address where the program begins.</param>
+    /// <param name="SelectorCursor">Initial cursor into the species' visual-selector table.</param>
+    /// <param name="Namihe">True for Namihe's program and state; false selects Fune.</param>
+    /// <param name="Right">True for right-facing parameters and projectile direction.</param>
+    /// <param name="Active">True when the stream should spawn the active spit projectile.</param>
     private readonly record struct FuneNamiheProgramCase(
         ushort Entry,
         ushort SelectorCursor,
@@ -252,14 +273,24 @@ internal static partial class Program
         bool Right,
         bool Active);
 
+    /// <summary>Observes visual-operand reads and fails if production execution reads compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and forwarded writes.</param>
     private sealed class FuneNamiheInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Visual words encountered during permitted production reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Count of production attempts to read a byte owned by the compiled mechanics catalog.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes the import-source API through the guarded byte-read implementation.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the guarded read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records visual operands, and delegates other reads.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The byte supplied by the underlying source when allowed.</returns>
         public byte ReadByte(int address)
         {
             if (FuneNamiheInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -290,6 +321,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address receiving the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -52,6 +52,9 @@ internal static class IntroCinematicPaintDefinitions
     /// <summary>$8C:E44B: blue-only outline intensity.</summary>
     private const int PortraitOutlineBlue = 5;
 
+    /// <summary>Checks whether a serialized 256-word palette matches the paint rules defined for the intro.</summary>
+    /// <param name="bytes">Palette bytes in little-endian RGB555 word order.</param>
+    /// <returns><see langword="true"/> when every word matches its row and ink definition.</returns>
     internal static bool Matches(ReadOnlySpan<byte> bytes)
     {
         for (int index = 0; index < 256; index++)
@@ -59,6 +62,11 @@ internal static class IntroCinematicPaintDefinitions
         return true;
     }
 
+    /// <summary>Resolves one entry in the intro's sixteen-row, sixteen-ink palette.</summary>
+    /// <param name="row">Palette row, from 0 through 15.</param>
+    /// <param name="ink">Entry within the row, from 0 through 15.</param>
+    /// <returns>The selected color packed as a 15-bit BGR555 word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either palette coordinate is outside its 0–15 range.</exception>
     internal static ushort Color(int row, int ink)
     {
         if ((uint)row >= 16 || (uint)ink >= 16) throw new ArgumentOutOfRangeException(nameof(row));
@@ -81,6 +89,9 @@ internal static class IntroCinematicPaintDefinitions
         };
     }
 
+    /// <summary>Builds row zero's glyph palette, including its transparent, green, neutral, and shadow slots.</summary>
+    /// <param name="ink">Entry index within the row.</param>
+    /// <returns>The glyph paint packed as BGR555.</returns>
     private static ushort Font(int ink)
     {
         int group = ink / 4;
@@ -93,33 +104,51 @@ internal static class IntroCinematicPaintDefinitions
             _ => Pack(0, FontShadow(group + 1), 0),
         };
     }
+    /// <summary>Calculates the green-channel shadow ramp between full intensity and the darkest font shadow.</summary>
+    /// <param name="depth">Interpolation depth along the four-step shadow ramp.</param>
+    /// <returns>A five-bit green intensity.</returns>
     private static int FontShadow(int depth)
     {
         if (depth == 4) return FontShadowDark;
         double intensity = (Math.Sqrt(31) * (4 - depth) + Math.Sqrt(FontShadowDark) * depth) / 4;
         return (int)Math.Ceiling(intensity * intensity);
     }
+    /// <summary>Creates a zero-ink glyph tint by gamma-interpolating green and scaling blue with it.</summary>
+    /// <param name="shade">Position in the two-interval tint ramp.</param>
+    /// <returns>The tinted glyph color packed as BGR555.</returns>
     private static ushort FontZero(int shade)
     {
         int green = Gamma(31, FontZeroGreenDark, shade, 2);
         return Pack(0, green, FontZeroBlue * green / 31);
     }
+    /// <summary>Maps a sepia ink index to its stepped neutral-brown level and reduced blue channel.</summary>
+    /// <param name="ink">Sepia-row ink index used to select the main shade or outline step.</param>
+    /// <returns>The sepia paint packed as BGR555.</returns>
     private static ushort Sepia(int ink)
     {
         int level = ink <= 6 ? (31 * (6 - ink) + SepiaDark * (ink - 1) + SepiaIntervals - 1) / SepiaIntervals
             : SepiaDark - (ink - 6) * SepiaOutlineStep;
         return Pack(level, level, Math.Max(0, level - SepiaBlueDeficit));
     }
+    /// <summary>Warms a sepia paint by adding a bounded offset to its red and green channels.</summary>
+    /// <param name="ink">Base sepia ink index.</param>
+    /// <param name="tint">RGB5 offset applied to red and green; blue remains unchanged.</param>
+    /// <returns>The tinted paint packed as BGR555.</returns>
     private static ushort Warm(int ink, int tint)
     {
         ushort color = Sepia(ink);
         return Pack(Math.Min(31, (color & 31) + tint), Math.Min(31, (color >> 5 & 31) + tint), color >> 10);
     }
+    /// <summary>Returns the health-plate highlight darkened by one RGB5 level in every channel.</summary>
+    /// <returns>The shaded plate paint packed as BGR555.</returns>
     private static ushort Plate()
     {
         ushort color = MotherBrainHealthPaintDefinitions.PlateHighlight;
         return Pack((color & 31) - PlateShade, (color >> 5 & 31) - PlateShade, (color >> 10) - PlateShade);
     }
+    /// <summary>Selects the cinematic scene material, including its neutral, sepia, warm, and plate accents.</summary>
+    /// <param name="ink">Ink index in the scene palette row.</param>
+    /// <returns>The scene paint packed as BGR555, or transparent black for unused entries.</returns>
     private static ushort Scene(int ink) => ink switch
     {
         1 => Neutral(SceneHighlight), 2 => Sepia(4), 3 => Pack(SceneDark, SceneDark, SceneDarkBlue),
@@ -127,27 +156,44 @@ internal static class IntroCinematicPaintDefinitions
         8 => Neutral(LowNeutral), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
         12 => Sepia(7), 13 or 14 => Sepia(1), _ => 0,
     };
+    /// <summary>Resolves the first object palette's plate, warm, sepia, and red accent entries.</summary>
+    /// <param name="ink">Ink index in object palette row one.</param>
+    /// <returns>The selected object paint packed as BGR555.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ink index is not defined by this palette row.</exception>
     private static ushort ObjectOne(int ink) => ink switch
     {
         1 or 5 or 10 or 13 or 15 => Plate(), 2 or 6 or 11 => Warm(5, WarmTint),
         3 or 7 or 12 => Warm(6, WarmTint), 4 or 8 => Sepia(7),
         9 => Pack(ObjectAccentRed, 0, ObjectAccentBlue), 14 => Sepia(1), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Resolves object palette row four using the shared sepia and contour shades.</summary>
+    /// <param name="ink">Ink index in object palette row four.</param>
+    /// <returns>The selected object paint packed as BGR555.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ink index is not defined by this palette row.</exception>
     private static ushort ObjectFour(int ink) => ink switch
     {
         1 or 5 or 14 => Sepia(5), 2 or 7 => Sepia(3), 3 => Neutral(Contour), 4 => Sepia(1), 6 => Sepia(2),
         8 or 9 or 10 or 12 => Sepia(4), 11 or 13 or 15 => Sepia(6), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Resolves object palette row five, repeating its warm and sepia accents across remaining inks.</summary>
+    /// <param name="ink">Ink index in object palette row five.</param>
+    /// <returns>The selected object paint packed as BGR555.</returns>
     private static ushort ObjectFive(int ink) => ink switch
     {
         1 or 15 => Sepia(1), 14 => Neutral(Contour),
         _ => ((ink - 2) % 3) switch { 0 => Warm(4, StrongWarmTint), 1 => Warm(5, WarmTint), _ => Sepia(6) },
     };
+    /// <summary>Builds the crossfade row's sepia start, blue fade, and final green accents.</summary>
+    /// <param name="ink">Ink index in the crossfade palette row.</param>
+    /// <returns>The crossfade paint packed as BGR555, or transparent black for unused entries.</returns>
     private static ushort Crossfade(int ink) => ink switch
     {
         <= 8 => Sepia(ink), <= 12 => Pack(0, 0, (31 * (12 - ink) + CrossfadeBlueDark * (ink - 9)) / 3),
         13 => Pack(0, 31, 0), 14 => Pack(0, CrossfadeAccentGreen, CrossfadeAccentBlue), _ => 0,
     };
+    /// <summary>Resolves Mother Brain's intro palette row, reusing shared plate and material paints.</summary>
+    /// <param name="ink">Ink index in the Mother Brain palette row.</param>
+    /// <returns>The selected paint packed as BGR555, or transparent black for unused entries.</returns>
     private static ushort MotherBrain(int ink) => ink switch
     {
         1 or 13 or 14 => Sepia(1), 2 => Sepia(4), 3 => Neutral(Contour), 4 => Neutral(DeepContour),
@@ -155,6 +201,10 @@ internal static class IntroCinematicPaintDefinitions
         8 => Neutral(PlateDarkNeutral), 9 => Plate(), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
         12 => Sepia(7), _ => 0,
     };
+    /// <summary>Builds the portrait row's helmet, cheek, visor, contour, and silhouette shades.</summary>
+    /// <param name="ink">Ink index in the portrait palette row.</param>
+    /// <returns>The selected portrait paint packed as BGR555.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ink index is not defined by the portrait row.</exception>
     private static ushort Portrait(int ink)
     {
         if (ink is 9 or 14 or 15)
@@ -177,11 +227,26 @@ internal static class IntroCinematicPaintDefinitions
             4 => Pack(0, VisorGlintGreen, VisorGlintBlue), 6 => PortraitContour, 12 => PortraitDeep,
             _ => throw new ArgumentOutOfRangeException(nameof(ink)) };
     }
+    /// <summary>Interpolates between channel endpoints in square-root intensity space.</summary>
+    /// <param name="first">Intensity at the start of the ramp.</param>
+    /// <param name="last">Intensity at the end of the ramp.</param>
+    /// <param name="shade">Current position between the endpoints.</param>
+    /// <param name="intervals">Number of steps spanning the complete ramp.</param>
+    /// <returns>The interpolated channel intensity rounded to the nearest integer.</returns>
     private static int Gamma(int first, int last, int shade, int intervals)
     {
         double intensity = (Math.Sqrt(first) * (intervals - shade) + Math.Sqrt(last) * shade) / intervals;
         return (int)Math.Floor(intensity * intensity + 0.5);
     }
+    /// <summary>Packs one RGB5 intensity into all three channels for a neutral gray.</summary>
+    /// <param name="value">Five-bit intensity copied to red, green, and blue.</param>
+    /// <returns>The neutral paint packed as BGR555.</returns>
     private static ushort Neutral(int value) => Pack(value, value, value);
+
+    /// <summary>Packs three five-bit channels into the palette's BGR555 word representation.</summary>
+    /// <param name="red">Red channel in bits 0–4.</param>
+    /// <param name="green">Green channel in bits 5–9.</param>
+    /// <param name="blue">Blue channel in bits 10–14.</param>
+    /// <returns>The combined 15-bit color word.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

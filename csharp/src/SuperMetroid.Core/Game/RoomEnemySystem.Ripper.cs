@@ -9,10 +9,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RipperVariantEnemyState
 {
+    /// <summary>Room enemy slot whose common variables hold this actor's motion state.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot storage for GRipper's exclusive left patrol reversal thresholds.</summary>
     private readonly ushort[] _minimumXPositions;
+    /// <summary>Per-slot storage for GRipper's inclusive right patrol reversal thresholds.</summary>
     private readonly ushort[] _maximumXPositions;
 
+    /// <summary>Creates a view that maps the slot's common motion words and the room's GRipper patrol-bound arrays.</summary>
+    /// <param name="slot">Enemy slot supplying the shared C, D, and E motion variables and slot index.</param>
+    /// <param name="minimumXPositions">Room-owned minimum-bound array indexed by the slot's index.</param>
+    /// <param name="maximumXPositions">Room-owned maximum-bound array indexed by the slot's index.</param>
     internal RipperVariantEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumXPositions,
@@ -67,19 +74,27 @@ public sealed class RipperVariantEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A2 enemy definition pointer for the GRipper actor.</summary>
     internal const ushort GRipperDefinition = 0xd3ff;
+    /// <summary>Bank-$A2 enemy definition pointer for the Ripper II actor.</summary>
     internal const ushort Ripper2Definition = 0xd43f;
+    /// <summary>Bank-$A2 enemy definition pointer for the standard Ripper actor.</summary>
     internal const ushort RipperDefinition = 0xd47f;
 
+    /// <summary>AI pointer used by GRipper and Ripper II when dispatching their shared projectile-shot routine.</summary>
     internal const ushort GRipperRipper2ShotAi = EnemyAiCodePointers.BankA2.GRipperRipper2Shot;
 
+    /// <summary>Per-room left patrol thresholds indexed by enemy slot for GRippers.</summary>
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[MaximumEnemyCount];
+    /// <summary>Per-room right patrol thresholds indexed by enemy slot for GRippers.</summary>
     private readonly ushort[] _ripperVariantMaximumXPositions =
         new ushort[MaximumEnemyCount];
+    /// <summary>Cached state views for initialized GRipper and Ripper II slots.</summary>
     private readonly RipperVariantEnemyState?[] _ripperVariantStates =
         new RipperVariantEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Clears the per-slot GRipper patrol bounds and cached variant views when room enemy state is reset.</summary>
     private void ResetRipperVariantRoomState()
     {
         Array.Clear(_ripperVariantMinimumXPositions);
@@ -215,6 +230,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Loads the signed whole-pixel and fractional velocity pair selected by the slot's speed-table offset and direction.</summary>
+    /// <param name="slot">Enemy slot whose E offset selects a logical speed entry and whose C/D words receive the result.</param>
+    /// <param name="movingRight">Selects the positive pair when true and the negated pair when false.</param>
     private static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
     {
         var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
@@ -236,6 +254,9 @@ public sealed partial class RoomEnemySystem
             : RipperInstructionProgramDefinitions.FrozenFacingRightSpritemap;
     }
 
+    /// <summary>Creates and caches the GRipper/Ripper II view that exposes slot motion words and indexed patrol bounds together.</summary>
+    /// <param name="slot">Initialized enemy slot that will own the cached view.</param>
+    /// <returns>The state view stored at the slot's index for later family-specific updates.</returns>
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
     {
         var state = new RipperVariantEnemyState(
@@ -246,6 +267,10 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Ensures a Ripper-family movement update has the active room collision allocation it needs.</summary>
+    /// <param name="level">Collision data for the active room.</param>
+    /// <param name="species">Actor name included in the failure message when collision data is unavailable.</param>
+    /// <exception cref="InvalidOperationException">The active room has no collision allocation.</exception>
     private static void RequireRipperTerrain(RoomLevelData? level, string species)
     {
         if (level is null)
@@ -255,6 +280,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Changes a GRipper/Ripper II actor's velocity direction and selects the corresponding instruction list.</summary>
+    /// <param name="slot">Actor whose current signed velocity determines its new direction.</param>
+    /// <param name="positiveInstruction">Instruction-list pointer used after the actor turns toward positive X.</param>
+    /// <param name="negativeInstruction">Instruction-list pointer used after the actor turns toward negative X.</param>
     private static void ReverseRipperVariant(
         RoomEnemySlot slot,
         ushort positiveInstruction,
@@ -267,6 +296,9 @@ public sealed partial class RoomEnemySystem
             wasMovingNegative ? positiveInstruction : negativeInstruction);
     }
 
+    /// <summary>Starts an enemy instruction list and resets its instruction and general timers for dispatch.</summary>
+    /// <param name="slot">Enemy slot whose current instruction and timers are updated.</param>
+    /// <param name="instruction">Native instruction-list pointer to dispatch on the next update.</param>
     private static void SetRipperInstructionList(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -274,6 +306,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the cached variant state established during GRipper or Ripper II initialization.</summary>
+    /// <param name="slot">Initialized actor slot whose state view is required.</param>
+    /// <returns>The cached view for the slot.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a GRipper or Ripper II.</exception>
     private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
         _ripperVariantStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");

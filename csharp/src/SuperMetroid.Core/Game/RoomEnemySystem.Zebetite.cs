@@ -20,8 +20,11 @@ public enum ZebetiteAiFunction : ushort
 /// </summary>
 public sealed class ZebetiteEnemyState
 {
+    /// <summary>Physical enemy slot containing the cartridge variables projected by this view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a debugger-facing view over an initialized Zebetite slot.</summary>
+    /// <param name="slot">Live enemy slot whose common words store the Zebetite state.</param>
     internal ZebetiteEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native Zebetite.function in variable A ($0FA8 plus this half's slot offset): the bank-$A6 indirect main-AI entry, independent for each physical half.</summary>
@@ -75,11 +78,16 @@ public sealed class ZebetiteEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A6 enemy definition pointer used by primary and linked Zebetite population records.</summary>
     internal const ushort ZebetiteDefinition = 0xe27f;
 
+    /// <summary>Maximum health to which an active Zebetite regenerates.</summary>
     private const ushort ZebetiteMaximumHealth = 1000;
+
+    /// <summary>Library-three sound effect requested by the native Zebetite shot callback.</summary>
     private const ushort ZebetiteShotSound = 9;
 
+    /// <summary>Typed variable views indexed by physical enemy slot; cleared when a Zebetite dies.</summary>
     private readonly ZebetiteEnemyState?[] _zebetiteStates =
         new ZebetiteEnemyState?[MaximumEnemyCount];
 
@@ -159,6 +167,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Allocates and links a secondary half when requested by the generation flags, then proceeds to door gating.</summary>
+    /// <param name="slot">Primary barrier slot whose generation controls linked-half allocation.</param>
+    /// <param name="state">Primary state receiving the spawned half's native slot index.</param>
     private void RunZebetiteSpawnLinkedHalf(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if ((state.GenerationFlags & 0x8000) != 0)
@@ -172,6 +183,9 @@ public sealed partial class RoomEnemySystem
         RunZebetiteWaitForDoorTransition(slot, state);
     }
 
+    /// <summary>Holds a barrier inert during the shared door transition and activates it on the first clear update.</summary>
+    /// <param name="slot">Barrier slot to activate after the transition.</param>
+    /// <param name="state">State whose function changes from transition wait to active behavior.</param>
     private void RunZebetiteWaitForDoorTransition(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         // WRAM $0795 is shared with normal elevator transitions. Native holds the barrier
@@ -182,6 +196,9 @@ public sealed partial class RoomEnemySystem
         RunZebetiteActive(slot, state);
     }
 
+    /// <summary>Cycles active artwork, regenerates health, or advances generation events and death progression.</summary>
+    /// <param name="slot">Barrier half whose health and lifetime are updated.</param>
+    /// <param name="state">Generation and linked-half state governing the death path.</param>
     private void RunZebetiteActive(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         CycleZebetitePalette(slot);
@@ -209,6 +226,8 @@ public sealed partial class RoomEnemySystem
             SpawnZebetite(linkedHalf: false);
     }
 
+    /// <summary>Advances the primary-owned two-color cycle unless a scripted fade or secondary half suppresses it.</summary>
+    /// <param name="slot">Barrier slot whose parameters determine whether palette cycling is enabled.</param>
     private void CycleZebetitePalette(RoomEnemySlot slot)
     {
         if (PaletteChangeNumber != 0 || slot.Parameter1 != 0)
@@ -226,6 +245,9 @@ public sealed partial class RoomEnemySystem
             .Apply(_cgram!, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
     }
 
+    /// <summary>Selects the compiled health-stage instruction list for this generation and current HP.</summary>
+    /// <param name="slot">Barrier slot receiving the instruction pointer and fresh timers.</param>
+    /// <param name="state">Generation flags used to select paired or single-barrier artwork.</param>
     private static void SelectZebetiteHealthAnimation(
         RoomEnemySlot slot,
         ZebetiteEnemyState state)
@@ -237,6 +259,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Allocates a free native enemy slot and initializes a primary or linked-half population record.</summary>
+    /// <param name="linkedHalf">Whether to use the generation's secondary-half spawn record.</param>
+    /// <returns>The initialized slot after its initialization AI has run.</returns>
+    /// <exception cref="InvalidOperationException">The native enemy slot pool has no free slot.</exception>
+    /// <exception cref="InvalidDataException">The compiled spawn record does not identify a Zebetite.</exception>
     private RoomEnemySlot SpawnZebetite(bool linkedHalf)
     {
         // A0:9275 scans physical slots from zero. In particular, a primary's
@@ -282,6 +309,8 @@ public sealed partial class RoomEnemySystem
         linked.FlashTimer = struck.FlashTimer;
     }
 
+    /// <summary>Creates the death effect when possible, clears the actor while preserving spawn provenance, and counts its death.</summary>
+    /// <param name="slot">Defeated barrier slot to release.</param>
     private void FinishZebetiteDeath(RoomEnemySlot slot)
     {
         RoomEnemySpawnSnapshot survivingSpawn = slot.Spawn;
@@ -308,8 +337,13 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
+    /// <summary>Reads one persistent event bit used to reconstruct the barrier generation.</summary>
+    /// <param name="eventNumber">Event bit identifying a destroyed Zebetite generation.</param>
+    /// <returns><see langword="true"/> when the persistent event is set.</returns>
     private bool HasZebetiteEvent(EventNumber eventNumber) => RequireEvent(eventNumber);
 
+    /// <summary>Writes all three persistent destruction bits from the encoded next-generation value.</summary>
+    /// <param name="generation">Generation number whose low bits map to the three destruction events.</param>
     private void PublishZebetiteGenerationEvents(ushort generation)
     {
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
@@ -317,6 +351,9 @@ public sealed partial class RoomEnemySystem
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit2, (generation & 4) != 0);
     }
 
+    /// <summary>Sets or clears one generation event to match its corresponding bit.</summary>
+    /// <param name="eventNumber">Persistent event bit to update.</param>
+    /// <param name="set">Whether the event must be set; <see langword="false"/> clears it.</param>
     private void PublishZebetiteEvent(EventNumber eventNumber, bool set)
     {
         if (set)
@@ -325,6 +362,10 @@ public sealed partial class RoomEnemySystem
             RequireClearEvent(eventNumber);
     }
 
+    /// <summary>Gets the typed state installed for a Zebetite slot or reports an initialization-order violation.</summary>
+    /// <param name="slot">Zebetite slot whose state view is required.</param>
+    /// <returns>The state created by the Zebetite initializer.</returns>
+    /// <exception cref="InvalidOperationException">No Zebetite state has been initialized for the slot.</exception>
     private ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
         _zebetiteStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zebetite state.");

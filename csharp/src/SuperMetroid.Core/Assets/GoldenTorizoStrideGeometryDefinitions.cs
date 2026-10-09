@@ -24,6 +24,9 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>$AA:8FD6-8FE4 and the other body poses: three8px floor-strip tiles $160/$161/$162.</summary>
     private const int FirstFootTile = 0x160, FootTiles = 3, TilePixels = 8;
 
+    /// <summary>Returns the horizontal anchor of the planted foot for one of the ten walking phases.</summary>
+    /// <param name="phase">Walking phase from the first through the final pose.</param>
+    /// <returns>The support-foot X origin in local sprite coordinates.</returns>
     private static int SupportFootX(int phase) => (phase % 5) switch
     {
         0 or 1 => ForwardPlantX,
@@ -44,6 +47,11 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return next - SupportFootX((phase + 9) % 10);
     }
 
+    /// <summary>Replaces verified floor-strip coordinates in a Golden Torizo walking body frame with phase-derived placement.</summary>
+    /// <param name="frameIdentity">Identity of the extended frame being rendered.</param>
+    /// <param name="componentIndex">Spritemap component index within that frame.</param>
+    /// <param name="supplied">Original parts to retain when the frame is unrelated or its foot geometry does not match the catalog.</param>
+    /// <returns>Parts that preserve supplied artwork while deriving the recognized foot strips from the walking phase.</returns>
     internal static EnemySpritemapParts Compile(int frameIdentity, int componentIndex, EnemySpritemapParts supplied)
     {
         int offset = frameIdentity - FirstFrame;
@@ -71,10 +79,21 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return seen == expected ? new FootParts(supplied, phase, footIndices.ToArray()) : supplied;
     }
 
+    /// <summary>Preserves one foot tile's appearance while allowing its local horizontal origin to follow the stride phase.</summary>
+    /// <param name="XFlags">Non-coordinate bits of the SNES horizontal-position word.</param>
+    /// <param name="Y">Unchanged vertical sprite coordinate.</param>
+    /// <param name="Attributes">Tile, palette, and other object attributes retained from the source part.</param>
     private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
     {
+        /// <summary>Captures the foot tile's horizontal flags, vertical coordinate, and object attributes.</summary>
+        /// <param name="part">Supplied sprite part whose horizontal coordinate will later be recomputed.</param>
+        /// <returns>A retained appearance record for the tile.</returns>
         internal static FootAppearance From(EnemySpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
+
+        /// <summary>Places the tile at its support or departing-foot anchor for the requested stride phase.</summary>
+        /// <param name="phase">Walking phase used to choose the planted-foot anchor.</param>
+        /// <returns>The sprite part with its computed horizontal coordinate and retained appearance data.</returns>
         internal EnemySpritemapPart At(int phase)
         {
             int supportPalette = phase < 5 ? 1 : 2;
@@ -84,12 +103,22 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         }
     }
 
+    /// <summary>Lazy spritemap view that recalculates recognized foot-strip parts and preserves every other part.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
+        /// <summary>Unmodified supplied parts that are not part of the recognized foot strips.</summary>
         private readonly EnemySpritemapPart[] otherParts;
+        /// <summary>Appearance data for foot parts, stored in the same order as their original indices.</summary>
         private readonly FootAppearance[] footAppearance;
+        /// <summary>Original positions of foot parts in the complete supplied part sequence.</summary>
         private readonly int[] footIndices;
+        /// <summary>Walking phase used when lazily recomputing each foot tile's horizontal coordinate.</summary>
         private readonly int phase;
+
+        /// <summary>Builds a view that keeps non-foot parts intact and derives foot placement from the supplied phase.</summary>
+        /// <param name="supplied">Original ordered spritemap parts.</param>
+        /// <param name="phase">Walking phase for the recognized frame.</param>
+        /// <param name="footIndices">Ascending original indices of the foot-strip parts.</param>
         internal FootParts(EnemySpritemapParts supplied, int phase, int[] footIndices)
         {
             this.phase = phase;
@@ -104,7 +133,12 @@ internal static class GoldenTorizoStrideGeometryDefinitions
                 else otherParts[other++] = supplied[index];
             }
         }
+        /// <summary>Gets the number of parts in the original sprite sequence.</summary>
         public override int Count => otherParts.Length + footIndices.Length;
+
+        /// <summary>Gets a part at its original sequence index, recomputing its X coordinate when it is a foot tile.</summary>
+        /// <param name="index">Zero-based index in the original sequence.</param>
+        /// <returns>The preserved non-foot part or phase-adjusted foot part at that position.</returns>
         public override EnemySpritemapPart this[int index]
         {
             get

@@ -24,12 +24,23 @@ public enum KzanEnemyFunction : ushort
 /// </summary>
 public sealed class KzanEnemyState
 {
+    /// <summary>Owning visible top slot whose native variables back the first six state properties.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot copy of population parameter 2's low-byte top-wait reload value.</summary>
     private readonly ushort[] _fallWaitTimerResetValues;
+    /// <summary>Per-slot whole-pixel Y sample from immediately before the latest platform movement.</summary>
     private readonly ushort[] _previousYPositions;
+    /// <summary>Per-slot byte offset into the shared linearly increasing falling-speed table.</summary>
     private readonly ushort[] _fallingYSpeedTableIndexes;
+    /// <summary>Per-slot countdown between landing and the start of upward movement.</summary>
     private readonly ushort[] _riseWaitTimers;
 
+    /// <summary>Connects the common enemy slot to Kzan's four parallel per-slot extension arrays.</summary>
+    /// <param name="slot">Visible top slot whose variables hold the native state words.</param>
+    /// <param name="fallWaitTimerResetValues">Array containing each Kzan top's population-defined wait reload.</param>
+    /// <param name="previousYPositions">Array retaining each top's prior whole-pixel position for rider carry.</param>
+    /// <param name="fallingYSpeedTableIndexes">Array retaining each top's current falling-speed table offset.</param>
+    /// <param name="riseWaitTimers">Array retaining each top's post-landing delay.</param>
     internal KzanEnemyState(
         RoomEnemySlot slot,
         ushort[] fallWaitTimerResetValues,
@@ -128,19 +139,30 @@ public sealed class KzanEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition word for the visible platform top, which owns animation and movement state.</summary>
     internal const ushort KzanTopDefinition = 0xdfff;
+    /// <summary>Enemy-definition word for the invisible follower placed immediately after its top slot.</summary>
     internal const ushort KzanBottomDefinition = 0xe03f;
 
+    /// <summary>Library-two sound effect queued when the falling top reaches its lower target.</summary>
     private const ushort KzanLandingSoundEffect = 0x001b;
+    /// <summary>NTSC actor-update delay held at the lower target before the top rises.</summary>
     private const ushort KzanNtscRiseWaitFrames = 0x0040;
+    /// <summary>Fractional 16.16 displacement for the NTSC half-pixel-per-update upward motion.</summary>
     private const ushort KzanNtscRisingSubspeed = 0x8000;
+    /// <summary>Maximum byte offset into the native falling-speed table after acceleration reaches its cap.</summary>
     private const ushort KzanMaximumFallingSpeedTableOffset = 0x0200;
 
+    /// <summary>Typed state instances indexed by enemy slot; only initialized Kzan tops have an entry.</summary>
     private readonly KzanEnemyState?[] _kzanStates =
         new KzanEnemyState?[MaximumEnemyCount];
+    /// <summary>Population-derived top-wait reloads indexed by owning enemy slot.</summary>
     private readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[MaximumEnemyCount];
+    /// <summary>Previous top Y coordinates used to compute the platform's accepted rider displacement.</summary>
     private readonly ushort[] _kzanPreviousYPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Current falling-speed table offsets maintained independently for each top slot.</summary>
     private readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Post-landing rise delays indexed by owning enemy slot.</summary>
     private readonly ushort[] _kzanRiseWaitTimers = new ushort[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_KzanTop</c> at <c>$A6:8B2F</c>.</summary>
@@ -369,6 +391,10 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraYDisplacement + yDelta));
     }
 
+    /// <summary>Returns the initialized extension state for a Kzan top slot.</summary>
+    /// <param name="slot">Enemy slot whose state is required by the top dispatcher.</param>
+    /// <returns>The state installed when the top was initialized.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Kzan-top state.</exception>
     private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
         _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");

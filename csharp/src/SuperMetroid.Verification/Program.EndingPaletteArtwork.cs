@@ -9,6 +9,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the cartridge's logo palette pointer tables and reverse-copy colors match the computed fade model.</summary>
+    /// <param name="rom">Retail cartridge address space used as the native palette-data oracle.</param>
     private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
@@ -107,6 +109,8 @@ internal static partial class Program
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 
+    /// <summary>Validates ending palette source addresses, allocation sizes, and published filenames against cartridge operands.</summary>
+    /// <param name="rom">Retail cartridge address space containing the indexed palette-load instructions.</param>
     private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
@@ -167,6 +171,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms that each positional catalog argument remains associated with its ending palette role.</summary>
     private static void VerifyEndingPaletteRoleSelection()
     {
         // Distinct caller-owned values exercise the original constructor-position contract.
@@ -195,6 +200,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
     }
 
+    /// <summary>Checks installed ending palette bytes, native scene parity, cartridge-read guarding, and visible palette overrides.</summary>
+    /// <param name="installation">Installed game assets whose stock and override palette files are verified.</param>
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
@@ -385,6 +392,10 @@ internal static partial class Program
         Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, ROM-free installed scene/audio-step guard, live visible overrides and strict failures pass.");
     }
 
+    /// <summary>Checks that changing installed Zebes explosion palette-FX colors changes rendered pixels while preserving scene timing and VRAM.</summary>
+    /// <param name="installation">Installed palette-FX and ending palette files used to build the edited fixture.</param>
+    /// <param name="guardedBus">Address space that rejects runtime reads from installed palette sources.</param>
+    /// <param name="nativeBus">Cartridge-backed reference address space for the unchanged ending scene.</param>
     private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -449,6 +460,10 @@ internal static partial class Program
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
+    /// <summary>Compares every installed logo crossfade step with the native palette transfer and instruction sequence.</summary>
+    /// <param name="stock">Installed palette catalog supplying the logo's initial and crossfade colors.</param>
+    /// <param name="nativeBus">Cartridge address space used to advance the native logo and read its fade colors.</param>
+    /// <param name="guardedBus">Address space used by the installed logo to detect palette rereads.</param>
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, EndingPaletteSourceReadGuard guardedBus)
     {
@@ -486,6 +501,10 @@ internal static partial class Program
             "installed logo never reads either native palette color source");
     }
 
+    /// <summary>Confirms an edited credits palette changes visible credits pixels without changing scene VRAM.</summary>
+    /// <param name="installation">Installation whose credits palette file is replaced for the override check.</param>
+    /// <param name="guardedBus">Address space used to ensure the edited scene consumes installed palette artwork.</param>
+    /// <param name="nativeBus">Cartridge-backed address space for the stock comparison scene.</param>
     private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -536,6 +555,10 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Confirms a caller-edited logo crossfade changes visible ending pixels while leaving scene VRAM intact.</summary>
+    /// <param name="installation">Installation whose logo crossfade file is replaced for the override check.</param>
+    /// <param name="guardedBus">Address space used to ensure the edited scene consumes installed palette artwork.</param>
+    /// <param name="nativeBus">Cartridge-backed address space for the stock comparison scene.</param>
     private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -586,10 +609,14 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Wraps memory access to fail verification if ending palette or palette-FX colors are reread from cartridge space.</summary>
+    /// <param name="source">Address-space and memory implementation whose permitted requests are forwarded.</param>
+    /// <param name="effectColors">Installed room palette-FX colors whose source addresses are guarded.</param>
     private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source,
         RoomPaletteFxPresentation effectColors) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Half-open cartridge address intervals for ending palette resources checked by the guard.</summary>
         private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
             Enum.GetValues<EndingPaletteId>()
                 .Where(id => id != EndingPaletteId.LogoCrossfade)
@@ -599,9 +626,15 @@ internal static partial class Program
                 .Append((EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
                 .ToArray();
 
+        /// <summary>Number of reads rejected because they addressed installed ending palette data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+        /// <summary>When enabled, rejects every cartridge-space read in addition to the palette-specific checks.</summary>
         public bool RejectAllCartridgeReads { get; set; }
 
+        /// <summary>Rejects palette source reads and otherwise forwards the byte request to the wrapped address space.</summary>
+        /// <param name="address">CPU address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The request targets guarded palette data or an enabled cartridge-read range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x8d8000 and < 0x8e0000 &&
@@ -627,8 +660,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write without altering the wrapped address-space behavior.</summary>
+        /// <param name="address">CPU address receiving the value.</param>
+        /// <param name="value">Byte written to the wrapped address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Applies the read guard before forwarding a cartridge-byte request to the import source.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The cartridge byte supplied by the wrapped import source.</returns>
         public byte ReadCartridgeByte(int address)
         {
             _ = ReadByte(address);
@@ -637,11 +676,17 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads work RAM from the wrapped mutable-memory implementation.</summary>
+        /// <param name="address">Work RAM address requested by the caller.</param>
+        /// <returns>The stored work RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending palette guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM from the wrapped mutable-memory implementation.</summary>
+        /// <param name="address">Save RAM address requested by the caller.</param>
+        /// <returns>The stored save RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending palette guard requires SRAM."))

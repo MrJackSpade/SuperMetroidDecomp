@@ -3,10 +3,19 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>A fixed bank-$A5 component offset and hitbox-list identity, not editable art.</summary>
+/// <param name="X">Horizontal component offset relative to the frame origin.</param>
+/// <param name="Y">Vertical component offset relative to the frame origin.</param>
+/// <param name="HitboxPointer">Bank-$A5 pointer selecting the native hitbox list for this component.</param>
 internal readonly record struct DraygonCollisionComponent(
     short X, short Y, ushort HitboxPointer);
 
 /// <summary>One native Draygon rectangle with its touch and shot callbacks.</summary>
+/// <param name="Left">Left edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Top">Top edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Right">Right edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Bottom">Bottom edge of the rectangle relative to the enemy origin.</param>
+/// <param name="TouchAi">Native routine selected when Samus touches this rectangle.</param>
+/// <param name="ShotAi">Native routine selected when a projectile hits this rectangle.</param>
 internal readonly record struct DraygonCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
@@ -28,6 +37,7 @@ internal static partial class DraygonCollisionDefinitions
     private const ushort FirstLeftBodyFrame = 0xa31b;
     /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
     private const ushort FirstRightBodyFrame = 0xa643;
+    /// <summary>Native hitboxes for Draygon's left-facing body poses, retaining each rectangle's original callbacks.</summary>
     private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
         new(-17, -16, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -40,6 +50,7 @@ internal static partial class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>Native hitboxes for Draygon's right-facing body poses, retaining each rectangle's original callbacks.</summary>
     private static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
     [
         new(-18, -7, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -52,9 +63,14 @@ internal static partial class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>Represents the zero-or-one BG2 collision component associated with a frame.</summary>
+    /// <param name="HasComponent"><see langword="true"/> when the frame contributes a collision component.</param>
+    /// <param name="HitboxPointer">Hitbox-list pointer carried by the component when present.</param>
     internal readonly record struct ComponentSequence(bool HasComponent, ushort HitboxPointer)
         : IEnumerable<DraygonCollisionComponent>
     {
+        /// <summary>Enumerates the component only when this frame has one.</summary>
+        /// <returns>An enumerator containing the zero-offset component or no elements.</returns>
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
             if (HasComponent) yield return new(0, 0, HitboxPointer);
@@ -82,6 +98,9 @@ internal static partial class DraygonCollisionDefinitions
             ? right ? SecondBodyList : FirstBodyList : EmptyList;
         return new(true, hitboxes);
     }
+    /// <summary>Returns the collision rectangles associated with a native hitbox-list pointer.</summary>
+    /// <param name="pointer">Bank-$A5 hitbox-list pointer selected by the component data.</param>
+    /// <returns>The corresponding rectangle sequence, empty for the native empty list.</returns>
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
         ushort pointer) => pointer switch
     {

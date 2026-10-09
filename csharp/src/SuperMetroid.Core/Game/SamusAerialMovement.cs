@@ -596,6 +596,14 @@ public static class SamusAerialMovement
         return result;
     }
 
+    /// <summary>Calculates and applies the horizontal pass shared by ordinary aerial movement handlers.</summary>
+    /// <param name="bus">Address space used to read movement tables and facing state.</param>
+    /// <param name="level">Room collision data for the horizontal sweep.</param>
+    /// <param name="samus">Samus state whose speed and position are advanced.</param>
+    /// <param name="controllerInput">Buttons held during this movement update.</param>
+    /// <param name="movementType">Native movement mode selecting the horizontal speed rules.</param>
+    /// <param name="plms">Optional room PLM system participating in collision.</param>
+    /// <returns>The result of the horizontal sweep, or <see cref="BlockMoveResult.NotMoved"/> when idle acceleration rules skip it.</returns>
     private static BlockMoveResult MoveNormalAerialX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -640,6 +648,16 @@ public static class SamusAerialMovement
         return horizontal;
     }
 
+    /// <summary>Runs the vertical pass after horizontal movement and derives landing status.</summary>
+    /// <param name="bus">Address space used by vertical movement and collision.</param>
+    /// <param name="level">Room collision data for the vertical sweep.</param>
+    /// <param name="samus">Samus state whose vertical motion and collision result are updated.</param>
+    /// <param name="horizontal">Completed horizontal sweep result for the frame.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to alternate vertical collision scan order.</param>
+    /// <param name="canBreakBombBlocks">Whether this vertical pass may activate bomb-block breaking.</param>
+    /// <param name="plms">Optional room PLM system participating in collision.</param>
+    /// <param name="deferCeilingResponse">Whether the caller will handle a ceiling collision response itself.</param>
+    /// <returns>Landing and ceiling-contact outcomes for the combined movement update.</returns>
     private static AerialMovementResult FinishVerticalMovement(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -756,6 +774,9 @@ public static class SamusAerialMovement
         return vertical;
     }
 
+    /// <summary>Ends upward motion when Jump is released or the native upward speed has underflowed.</summary>
+    /// <param name="state">Kinematics whose upward speed and direction may be stopped.</param>
+    /// <param name="controllerInput">Buttons held during the current jump update.</param>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
         ushort controllerInput)
@@ -773,6 +794,11 @@ public static class SamusAerialMovement
         }
     }
 
+    /// <summary>Checks the direction button matching Samus's current facing.</summary>
+    /// <param name="bus">Address space used to resolve Samus's facing direction.</param>
+    /// <param name="samus">Samus whose facing determines the forward direction.</param>
+    /// <param name="controllerInput">Buttons held during this update.</param>
+    /// <returns><see langword="true"/> when the facing-matched direction button is held.</returns>
     private static bool IsForwardHeld(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -889,6 +915,8 @@ public static class SamusAerialMovement
         return true;
     }
 
+    /// <summary>Clears persistent base horizontal speed and returns its acceleration mode to idle.</summary>
+    /// <param name="speed">Horizontal speed state to stop without changing external displacement.</param>
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
         speed.BaseSpeed = 0;
@@ -896,6 +924,10 @@ public static class SamusAerialMovement
         speed.AccelerationMode = 0;
     }
 
+    /// <summary>Rejects missing dependencies shared by aerial movement entry points.</summary>
+    /// <param name="bus">Address space required for native movement data.</param>
+    /// <param name="level">Room collision data required for movement.</param>
+    /// <param name="samus">Samus state required for movement.</param>
     private static void ValidateCommon(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -906,16 +938,28 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(samus);
     }
 
+    /// <summary>Stores a 16.16 vertical magnitude as the cartridge's separate whole and fractional words.</summary>
+    /// <param name="state">Kinematics receiving the split speed words.</param>
+    /// <param name="speed">Unsigned fixed-point magnitude, with the whole word in the high half.</param>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
         state.YSpeed = unchecked((ushort)(speed >> 16));
         state.YSubspeed = unchecked((ushort)speed);
     }
 
+    /// <summary>Combines whole and fractional words into the 16.16 representation used for vertical arithmetic.</summary>
+    /// <param name="high">Whole-number speed or acceleration word.</param>
+    /// <param name="low">Fractional speed or acceleration word.</param>
+    /// <returns>The combined unsigned fixed-point value.</returns>
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 }
 
 /// <summary>Both collision scans and collision state produced by one aerial frame.</summary>
+/// <param name="Landed">Whether downward movement collided with the floor.</param>
+/// <param name="HitCeiling">Whether upward movement collided with the ceiling.</param>
+/// <param name="WallJumpTriggered">Whether the frame accepted a wall jump.</param>
+/// <param name="WallContact">Whether the wall probe found contact, even if the jump was not accepted.</param>
+/// <param name="WallDistance">Accepted horizontal probe distance in pixels for wall contact.</param>
 public readonly record struct AerialMovementResult(
     bool Landed,
     bool HitCeiling,
@@ -923,6 +967,10 @@ public readonly record struct AerialMovementResult(
     bool WallContact = false,
     ushort WallDistance = 0);
 
+/// <summary>Reports the outcome and measured proximity of the aerial wall-jump probe.</summary>
+/// <param name="Triggered">Whether a fresh Jump press close enough to the wall launched a wall jump.</param>
+/// <param name="Contact">Whether the terrain or solid-enemy probe found a wall.</param>
+/// <param name="Distance">Accepted probe distance in pixels; default when the probe found no contact.</param>
 internal readonly record struct WallJumpCheckResult(
     bool Triggered,
     bool Contact,

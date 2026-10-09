@@ -7,16 +7,34 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
 public sealed class PauseReserveUiPresentation
 {
+    /// <summary>Compiled label words keyed by the four supported reserve-screen labels.</summary>
     private readonly Dictionary<string, ReserveLabel> labels;
+    /// <summary>Byte offset of the first reserve digit word in the equipment tilemap.</summary>
     private readonly int digitOffset;
+    /// <summary>Non-stock digit glyph words, or null when the compiled glyphs match the native defaults.</summary>
     private readonly byte[][]? digits;
+    /// <summary>Non-stock byte offsets for arrow cells, or null when native cell placement is unchanged.</summary>
     private readonly int[]? arrowOffsets;
+    /// <summary>Palette indices selected for the reserve arrow's enabled and disabled states, respectively.</summary>
     private readonly int enabledPalette, disabledPalette;
+    /// <summary>Solid RGB555 colors for bevel slots six and eleven when pulse animation is not used.</summary>
     private readonly ushort solidColor6, solidColor11;
     private readonly (ushort? Color6, ushort? Color11) arrowStartEdits;
+    /// <summary>Endpoint grey levels used to interpolate each arrow bevel channel across the pulse.</summary>
     private readonly (int Color6, int Color11) arrowGreyLevels;
+    /// <summary>Source pulse colors that differ from the calculated shared fade.</summary>
     private readonly Dictionary<int, ushort> arrowColorEdits = [];
 
+    /// <summary>Compiles editable reserve UI values while retaining only visual differences from the native defaults.</summary>
+    /// <param name="labels">Resolved destination offsets and tile words for each reserve label.</param>
+    /// <param name="digitOffset">Byte offset of the first numeric glyph destination.</param>
+    /// <param name="digits">Compiled glyph words in decimal order.</param>
+    /// <param name="arrowOffsets">Byte offsets of the ten arrow cells in draw order.</param>
+    /// <param name="enabledPalette">Palette index used while the reserve arrow is enabled.</param>
+    /// <param name="disabledPalette">Palette index used while the reserve arrow is disabled.</param>
+    /// <param name="solidColor6">RGB555 color for arrow bevel slot six when the pulse is not animated.</param>
+    /// <param name="solidColor11">RGB555 color for arrow bevel slot eleven when the pulse is not animated.</param>
+    /// <param name="arrowFrames">Ordered pairs of source colors for the 32-phase arrow pulse.</param>
     private PauseReserveUiPresentation(Dictionary<string, ReserveLabel> labels, int digitOffset,
         byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
         ushort solidColor6, ushort solidColor11, (ushort, ushort)[] arrowFrames)
@@ -155,6 +173,10 @@ public sealed class PauseReserveUiPresentation
         return (ushort)value;
     }
 
+    /// <summary>Resolves one arrow bevel color from the source override or the calculated pulse.</summary>
+    /// <param name="frame">Pulse phase, reduced to the authored 32-frame cycle.</param>
+    /// <param name="second">Selects bevel slot eleven when true or slot six when false.</param>
+    /// <returns>RGB555 color for the selected bevel slot and phase.</returns>
     private ushort ArrowColor(int frame, bool second)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
@@ -212,13 +234,28 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
+    /// <summary>Compiled label identity, optional placement edit, and sparse tile-word changes.</summary>
+    /// <param name="name">Case-sensitive native label identity used to retrieve stock placement and words.</param>
+    /// <param name="offsetEdit">Replacement byte offset, or null when native placement is unchanged.</param>
+    /// <param name="edits">Only tile words that differ from the stock label definition.</param>
     private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
     {
+        /// <summary>Destination byte offset, using the stock label position unless authoring changed it.</summary>
         internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
+        /// <summary>Number of tile words occupied by this label.</summary>
         internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
+
+        /// <summary>Gets an edited tile word or falls back to the stock word for this label.</summary>
+        /// <param name="index">Zero-based word index within the label.</param>
+        /// <returns>The selected little-endian tilemap word.</returns>
         internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
             ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
 
+        /// <summary>Compiles a label's supplied tile words into sparse differences from the native definition.</summary>
+        /// <param name="name">Supported label identity used to compare words and default placement.</param>
+        /// <param name="offset">Byte offset where the label starts in the equipment-page tilemap.</param>
+        /// <param name="bytes">Little-endian tile words compiled from the editable label cells.</param>
+        /// <returns>Label data retaining the supplied position and only non-stock word edits.</returns>
         internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();

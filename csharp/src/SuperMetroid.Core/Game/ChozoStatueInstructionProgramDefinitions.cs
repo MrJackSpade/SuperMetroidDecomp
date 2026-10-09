@@ -27,19 +27,32 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
     // chosen spike-clearing spawn points within each drawn stride pose: compared with the support-foot
     // origins -31/-28/-14/-7 in ChozoStrideGeometryDefinitions they differ by +23/+8/-2/+7, so no
     // stride geometry derives them; they are placement choices attached to the artwork.
+    /// <summary>Authored holds for the acquisition poses shared by the statue sequences.</summary>
     private static readonly ushort[] AcquisitionHolds = [32, 8, 80];
+    /// <summary>Authored duration pattern used by the breathing and stride animations.</summary>
     private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
+    /// <summary>Signed vertical spawn offsets selected for the four repeating footstep poses.</summary>
     private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];
 
+    /// <summary>Number of instruction words available to mechanics-oriented consumers.</summary>
     public static int MechanicsWordCount => 166;
+    /// <summary>Number of pose words whose following addresses identify installed presentation data.</summary>
     public static int PresentationWordCount => 52;
 
+    /// <summary>Returns the mechanics operand at a position in the compiled Chozo statue instruction lists.</summary>
+    /// <param name="index">Zero-based position among mechanics words.</param>
+    /// <returns>The bank-$AA address and value of the selected word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside <see cref="MechanicsWordCount"/>.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, false).Selected;
     }
 
+    /// <summary>Returns the address following a pose-duration word, where its presentation operand is stored.</summary>
+    /// <param name="index">Zero-based position among pose words.</param>
+    /// <returns>The bank-$AA address associated with the selected pose.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -60,6 +73,9 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         return layout;
     }
 
+    /// <summary>Appends one statue's acquisition, breathing, release, and any scene-specific control sequence.</summary>
+    /// <param name="layout">Cursor and selection state shared with the compiled-list walk.</param>
+    /// <param name="wreckedShip"><see langword="true"/> to append the Wrecked Ship scene; otherwise append Lower Norfair.</param>
     private static void BuildScene(ref Layout layout, bool wreckedShip)
     {
         layout.Address = wreckedShip ? WreckedShipInitial : LowerNorfairInitial;
@@ -109,6 +125,10 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         layout.Word(CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Appends one Wrecked Ship stride pose with its movement and footstep-projectile operands.</summary>
+    /// <param name="layout">Cursor and selection state for the Wrecked Ship instruction list.</param>
+    /// <param name="pose">Pose index used to choose movement data, footstep offset, and hold duration.</param>
+    /// <param name="footsteps">Whether this pose is in the repeating carrying loop that emits periodic footstep sounds.</param>
     private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)
     {
         layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
@@ -118,18 +138,31 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         if (footsteps && pose % 4 == 0) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX);
     }
 
+    /// <summary>Tracks an instruction-list address and captures a requested mechanics word or presentation location.</summary>
+    /// <param name="target">Zero-based word position to capture.</param>
+    /// <param name="presentation">Whether selection targets pose presentation locations rather than mechanics operands.</param>
     private struct Layout(int target, bool presentation)
     {
+        /// <summary>Number of eligible words still to skip before the target is selected.</summary>
         private int remaining = target;
+        /// <summary>Current bank-$AA address while words are appended.</summary>
         internal ushort Address;
+        /// <summary>Captured address and value for the requested mechanics word or presentation location.</summary>
         internal InstructionMechanicsWord Selected;
 
+        /// <summary>Appends one word and captures it when it is the requested mechanics operand.</summary>
+        /// <param name="value">Word value to place at the current address.</param>
         internal void Word(ushort value)
         {
             if (!presentation && remaining-- == 0) Selected = new(Address, value);
             Address += 2;
         }
+        /// <summary>Appends a two-word instruction consisting of its opcode and operand.</summary>
+        /// <param name="instruction">Native instruction opcode.</param>
+        /// <param name="operand">Word operand consumed by that instruction.</param>
         internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
+        /// <summary>Appends a timed pose and captures its following presentation location when requested.</summary>
+        /// <param name="duration">Interpreter ticks for which the pose remains active.</param>
         internal void Pose(ushort duration)
         {
             Word(duration);

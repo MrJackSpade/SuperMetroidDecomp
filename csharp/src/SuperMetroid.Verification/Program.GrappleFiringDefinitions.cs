@@ -6,6 +6,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks grapple firing and origin definitions against cartridge values while forbidding gameplay reads from authored mechanics tables.</summary>
+    /// <param name="rom">Retail cartridge image used as the independent reference for the expected words.</param>
     private static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
@@ -185,6 +187,8 @@ internal static partial class Program
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
+    /// <summary>Compares default and running grapple origin X selections with their corresponding cartridge tables.</summary>
+    /// <param name="rom">Cartridge image providing the reference words.</param>
     private static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
@@ -193,14 +197,24 @@ internal static partial class Program
             true, origin => origin.X, "running X alias"));
     }
 
+    /// <summary>Checks that each default grapple direction selects the matching origin Y entry.</summary>
+    /// <param name="rom">Cartridge image providing the reference words.</param>
     private static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
             false, origin => origin.Y, "default Y"));
 
+    /// <summary>Checks that each running grapple direction selects the matching origin Y entry.</summary>
+    /// <param name="rom">Cartridge image providing the reference words.</param>
     private static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
             true, origin => origin.Y, "running Y"));
 
+    /// <summary>Compares one ten-direction origin field with its source table and verifies invalid direction rejection.</summary>
+    /// <param name="rom">Cartridge image containing the expected table values.</param>
+    /// <param name="address">First reference word for the selected origin table.</param>
+    /// <param name="running">Selects the running or default origin definition.</param>
+    /// <param name="select">Accessor that returns the chosen X or Y origin component for a direction.</param>
+    /// <param name="label">Description included in assertion messages for this field.</param>
     private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
         bool running, Func<(short X, short Y), short> select, string label)
     {
@@ -215,18 +229,29 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => GrappleFiringDefinitions.Origin(direction, running),
                 $"Grapple origin {label} bounds");
     }
+    /// <summary>Verifies the compiled horizontal grapple launch velocity for every firing direction.</summary>
+    /// <param name="rom">Cartridge image supplying the reference velocity table.</param>
     private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
 
+    /// <summary>Verifies the compiled vertical grapple launch velocity for every firing direction.</summary>
+    /// <param name="rom">Cartridge image supplying the reference velocity table.</param>
     private static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity"));
 
+    /// <summary>Verifies the cartridge angle selected for each of the ten grapple firing directions.</summary>
+    /// <param name="rom">Cartridge image supplying the reference angle table.</param>
     private static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
             direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle"));
 
+    /// <summary>Compares one compiled launch field against its cartridge table and checks direction bounds.</summary>
+    /// <param name="rom">Cartridge image containing the expected words.</param>
+    /// <param name="source">First reference word for the selected ten-entry field.</param>
+    /// <param name="select">Accessor that returns the compiled value for a direction.</param>
+    /// <param name="label">Field name included in assertion messages.</param>
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
         Func<byte, ushort> select, string label)
     {
@@ -239,19 +264,37 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
         AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
+    /// <summary>Test address space that supplies controlled pose bytes and rejects runtime reads of compiled grapple tables.</summary>
+    /// <param name="source">Underlying memory provider for cartridge, WRAM, and SRAM bytes outside the guarded definitions.</param>
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
         IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge reads through <see cref="ReadByte"/> so forbidden table access is rejected.</summary>
+        /// <param name="address">Cartridge address requested by the system under test.</param>
+        /// <returns>A controlled fixture byte or the underlying cartridge value.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Delegates WRAM reads to the underlying mutable memory source.</summary>
+        /// <param name="address">WRAM address requested by the system under test.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Delegates SRAM reads to the underlying mutable memory source.</summary>
+        /// <param name="address">SRAM address requested by the system under test.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Per-case fixture inputs: the direction is returned for pose aiming, while graphics-Y selects the separately bound artwork fixture.</summary>
         public byte GraphicsY, Direction;
+        /// <summary>Pose index whose movement and graphics offsets are guarded while its aim direction is supplied by the fixture.</summary>
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
+
+        /// <summary>Supplies fixture values for controlled pose fields and rejects reads of compiled grapple tables.</summary>
+        /// <param name="address">Address requested by gameplay code.</param>
+        /// <returns>The selected fixture value, or the byte forwarded from the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address is an authored mechanics/graphics lookup that must use compiled data.</exception>
         public byte ReadByte(int address)
         {
             int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
@@ -265,6 +308,10 @@ internal static partial class Program
                 throw new InvalidOperationException($"Compiled Grapple mechanics read ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Rejects writes because the read-guard fixture is intentionally immutable.</summary>
+        /// <param name="address">Address the system under test attempted to modify.</param>
+        /// <param name="value">Byte the system under test attempted to store.</param>
+        /// <exception cref="InvalidOperationException">Every write is unexpected for this read-only verification fixture.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Grapple definition write.");
     }
 }

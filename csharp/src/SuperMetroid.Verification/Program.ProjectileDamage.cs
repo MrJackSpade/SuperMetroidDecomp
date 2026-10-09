@@ -5,6 +5,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled projectile damage data with cartridge values and checks runtime initialization without data-table reads.</summary>
+    /// <param name="rom">Cartridge address space used as the reference for native table values and animation metadata.</param>
     private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
@@ -100,6 +102,9 @@ internal static partial class Program
         Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
+    /// <summary>Checks that compiled combo cost, origin-angle, and motion definitions reproduce cartridge calculations.</summary>
+    /// <param name="rom">Cartridge address space providing the reference combo tables.</param>
+    /// <param name="readWord">Reads one little-endian reference word from the cartridge.</param>
     private static void VerifyComboMechanicsDefinitions(
         SuperMetroidAddressSpace rom,
         Func<int, ushort> readWord)
@@ -109,6 +114,8 @@ internal static partial class Program
         Suite(nameof(VerifyComboMotionAndActivation), () => VerifyComboMotionAndActivation(rom));
     }
 
+    /// <summary>Compares all twelve compiled Power Bomb costs with the cartridge table and checks index bounds.</summary>
+    /// <param name="readWord">Reads one expected cost word from the cartridge table.</param>
     private static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
@@ -124,6 +131,8 @@ internal static partial class Program
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
 
+    /// <summary>Compares the four compiled combo projectile origin angles with the cartridge table and checks bounds.</summary>
+    /// <param name="readWord">Reads one expected angle word from the cartridge table.</param>
     private static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -139,6 +148,8 @@ internal static partial class Program
         Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
     }
 
+    /// <summary>Checks every byte-sized angle and amplitude against the cartridge's signed sine-offset calculation.</summary>
+    /// <param name="rom">Cartridge address space containing the positive sine table used for reference results.</param>
     private static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
         (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
@@ -164,6 +175,8 @@ internal static partial class Program
 
     }
 
+    /// <summary>Exercises combo activation and special-beam movement while forbidding reads of compiled mechanics tables.</summary>
+    /// <param name="rom">Cartridge address space used for unrelated projectile and animation data.</param>
     private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
@@ -216,37 +229,68 @@ internal static partial class Program
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
+    /// <summary>Forwards memory access while rejecting reads from the native projectile damage and selector tables.</summary>
+    /// <param name="source">Underlying address space for all permitted memory operations.</param>
     private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge reads through the guard so forbidden table access is detected.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the underlying address space when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads work RAM directly from the wrapped mutable memory.</summary>
+        /// <param name="address">Work RAM address to read.</param>
+        /// <returns>The stored work RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM directly from the wrapped mutable memory.</summary>
+        /// <param name="address">Save RAM address to read.</param>
+        /// <returns>The stored save RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects forbidden projectile data-table reads and forwards all other bus reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x9383c1 and < 0x9386db)
                 throw new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a bus write to the wrapped mutable address space.</summary>
+        /// <param name="address">SNES bus address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Forwards memory access while rejecting reads from compiled combo cost, angle, and sine tables.</summary>
+    /// <param name="source">Underlying address space for all permitted memory operations.</param>
     private sealed class ComboMechanicsReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge reads through the guard to detect forbidden combo table access.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the underlying address space when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads work RAM directly from the wrapped mutable memory.</summary>
+        /// <param name="address">Work RAM address to read.</param>
+        /// <returns>The stored work RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM directly from the wrapped mutable memory.</summary>
+        /// <param name="address">Save RAM address to read.</param>
+        /// <returns>The stored save RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects reads from combo cost, origin-angle, and sine tables, forwarding other bus reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 ||
@@ -257,6 +301,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a bus write to the wrapped mutable address space.</summary>
+        /// <param name="address">SNES bus address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

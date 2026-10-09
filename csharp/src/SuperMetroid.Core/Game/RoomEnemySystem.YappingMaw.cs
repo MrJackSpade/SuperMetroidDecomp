@@ -27,6 +27,8 @@ public enum YappingMawAiFunction : ushort
 /// </summary>
 public sealed class YappingMawEnemyState
 {
+    /// <summary>Creates the translated state object bound to the physical mouth enemy slot.</summary>
+    /// <param name="owner">Enemy slot whose native fields and position this state projects.</param>
     internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite-object slot.</summary>
@@ -117,7 +119,9 @@ public sealed class YappingMawEnemyState
     // Native variables 27..2E hold one correction pair per link. They are public through
     // read-only list views because they are valuable breakpoint watches, but only bank-$A8
     // calculations are allowed to mutate the backing arrays.
+    /// <summary>Per-link horizontal corrections retained from the native extension workspace.</summary>
     internal ushort[] CorrectionX { get; } = new ushort[4];
+    /// <summary>Per-link vertical corrections retained from the native extension workspace.</summary>
     internal ushort[] CorrectionY { get; } = new ushort[4];
 }
 
@@ -129,14 +133,21 @@ public sealed class YappingMawEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition pointer for the Yapping Maw at bank-$A8:$A0C7.</summary>
     internal const ushort YappingMawDefinition = 0xe7bf;
 
+    /// <summary>Distance at which neutral targeting refreshes the grab cooldown and suppresses a new lunge.</summary>
     private const ushort YappingMawGrabSafetyDistance = 32;
+    /// <summary>Maximum positive whole-word curl reached before the tongue reverses direction.</summary>
     private const ushort YappingMawMaximumCurl = 128;
+    /// <summary>Native cooldown loaded after a grab or completed retraction.</summary>
     private const ushort YappingMawGrabCooldownFrames = 48;
+    /// <summary>Native retracted hold duration before the Maw releases Samus and returns to neutral.</summary>
     private const ushort YappingMawRetractedDelayFrames = 64;
+    /// <summary>Sound-effect identifier requested when an on-screen Maw begins its attack.</summary>
     private const ushort YappingMawAttackSound = 0x002f;
 
+    /// <summary>Per-slot projections of initialized Yapping Maw native state, indexed by enemy slot.</summary>
     private readonly YappingMawEnemyState?[] _yappingMawStates =
         new YappingMawEnemyState?[MaximumEnemyCount];
 
@@ -421,6 +432,11 @@ public sealed partial class RoomEnemySystem
             PositionSamusInYappingMaw(slot, state, samus);
     }
 
+    /// <summary>Adds two native words and an incoming carry, updating carry from the 16-bit overflow.</summary>
+    /// <param name="value">First unsigned word operand.</param>
+    /// <param name="addend">Second unsigned word operand.</param>
+    /// <param name="carry">Incoming carry value, replaced with the overflow carry for the next word.</param>
+    /// <returns>The low sixteen bits of the three-term sum.</returns>
     private static ushort AddWithCarry(ushort value, ushort addend, ref int carry)
     {
         int sum = value + addend + carry;
@@ -533,6 +549,9 @@ public sealed partial class RoomEnemySystem
         ReleaseSamusFromYappingMaw(state, samus);
     }
 
+    /// <summary>Releases the Maw's captive and unlocks living Samus input.</summary>
+    /// <param name="state">Maw state whose captive ownership flag is cleared.</param>
+    /// <param name="samus">Player state to unlock unless its death sequence still owns input.</param>
     private static void ReleaseSamusFromYappingMaw(
         YappingMawEnemyState state,
         SamusState? samus)
@@ -567,6 +586,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Selects the frozen flash color or restores the actor's original palette bits.</summary>
+    /// <param name="originalPaletteBits">Palette bits saved before the freeze effect began.</param>
+    /// <param name="frozenTimer">Remaining native freeze timer used to determine the flash phase.</param>
+    /// <returns>Either the saved palette or palette six for the current flash interval.</returns>
     private static ushort SelectYappingMawFrozenPalette(
         ushort originalPaletteBits,
         ushort frozenTimer)
@@ -591,12 +614,19 @@ public sealed partial class RoomEnemySystem
         state.HeldSamusYOffset = unchecked((ushort)y);
     }
 
+    /// <summary>Queues the attack sound only while the Maw's sampled point is on screen.</summary>
+    /// <param name="state">Maw state containing the visibility result for the current update.</param>
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
             LastYappingMawSoundEffect = YappingMawAttackSound;
     }
 
+    /// <summary>Writes a solved link position into its corresponding physical body projectile.</summary>
+    /// <param name="state">Maw state containing the four body-projectile slots.</param>
+    /// <param name="index">Zero-based link index, ordered from the root toward the mouth.</param>
+    /// <param name="x">Solved room-space horizontal coordinate.</param>
+    /// <param name="y">Solved room-space vertical coordinate.</param>
     private static void PositionYappingMawBodyProjectile(
         YappingMawEnemyState state,
         int index,
@@ -610,6 +640,11 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = y;
     }
 
+    /// <summary>Tests whether the enemy point lies outside the camera's 256-by-256 room-pixel viewport.</summary>
+    /// <param name="slot">Enemy slot supplying the point coordinates.</param>
+    /// <param name="cameraX">Horizontal camera origin in room pixels.</param>
+    /// <param name="cameraY">Vertical camera origin in room pixels.</param>
+    /// <returns><see langword="true"/> when the point falls outside the signed viewport bounds.</returns>
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
         ushort cameraX,
@@ -677,6 +712,9 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)((2 * (negatedProduct >> 8)) | 0xff00));
     }
 
+    /// <summary>Gets the initialized state projection associated with an enemy slot.</summary>
+    /// <param name="slot">Physical enemy slot whose Yapping Maw state is required.</param>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Yapping Maw state.</exception>
     private YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
         _yappingMawStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Yapping Maw slot {slot.SlotIndex} has no initialized native state.");

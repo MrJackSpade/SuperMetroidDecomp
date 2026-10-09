@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Host identity assigned while an extracted scene is being captured.</summary>
     private RenderFrameIdentity? captureIdentity;
+    /// <summary>Most recently captured immutable display, retained for paused publication.</summary>
     private RenderFrameSnapshot? capturedDisplay;
 
     /// <summary>
@@ -58,6 +60,8 @@ public sealed partial class SuperMetroidGame
         finally { captureIdentity = null; }
     }
 
+    /// <summary>Publishes title-sequence output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Title scene whose current display is published.</param>
     private void PublishMenu(TitleSequenceState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -65,6 +69,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes file-selection output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">File-selection menu whose current display is published.</param>
     private void PublishMenu(FileSelectMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -72,6 +78,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes options-menu output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Options menu whose current display is published.</param>
     private void PublishMenu(GameOptionsMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -79,6 +87,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes pause-menu output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Pause menu whose current display is published.</param>
     private void PublishMenu(PauseMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -86,6 +96,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Applies one master-brightness step to the retained snapshot or legacy raster.</summary>
+    /// <param name="brightness">Brightness-register value appended to snapshot passes or applied to pixels.</param>
     private void ApplyDisplayBrightness(byte brightness)
     {
         // Every published level is a write of the brightness register $51; pause entry
@@ -105,6 +117,8 @@ public sealed partial class SuperMetroidGame
         }
     }
 
+    /// <summary>Publishes game-over output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Game-over menu whose current display is published.</param>
     private void PublishMenu(GameOverMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -112,6 +126,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes Ceres-destruction output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Cinematic whose current display is published.</param>
     private void PublishCeresDestruction(CeresDestructionCinematicState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -119,6 +135,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes ending-credit output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Ending-credit state whose current display is published.</param>
     private void PublishEnding(EndingCreditsState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -126,6 +144,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes file-map output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">File-map menu whose current display is published.</param>
     private void PublishFileMap(FileSelectMapMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -133,6 +153,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes translated intro output as a snapshot during capture or as legacy pixels otherwise.</summary>
+    /// <param name="scene">Intro cinematic whose current display is published.</param>
     private void PublishIntro(IntroCinematicState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -142,6 +164,8 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    /// <summary>Publishes gameplay output unless diagnostic no-render mode retains the prior display.</summary>
+    /// <param name="activeRuntime">Runtime whose current extracted display is captured or rasterized.</param>
     private void PublishGameplay(SuperMetroidRuntime activeRuntime)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
@@ -154,12 +178,18 @@ public sealed partial class SuperMetroidGame
         else lastPixels = SuperMetroidRuntimeFrameRenderer.Render(activeRuntime);
     }
 
+    /// <summary>Publishes opaque black for a state with no scene output.</summary>
     private void PublishBlack()
     {
         if (captureIdentity is { } identity) capturedDisplay = new(identity, new Rgba32(0, 0, 0, 255));
         else lastPixels = CreateBlackFrame();
     }
 
+    /// <summary>Creates a snapshot with a new host identity while preserving its composition and brightness passes.</summary>
+    /// <param name="frame">Previously captured composition to retain.</param>
+    /// <param name="identity">Host publication identity assigned to the retained display.</param>
+    /// <param name="passes">Brightness-register writes to apply when the snapshot is composed.</param>
+    /// <returns>A snapshot containing the original display content under the supplied identity.</returns>
     private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,
         ReadOnlySpan<byte> passes)
     {
@@ -176,6 +206,8 @@ public sealed partial class SuperMetroidGame
 /// backend coverage/telemetry. The normal desktop uses captured output; legacy
 /// callers can still explicitly request raster output through Step.
 /// </summary>
+/// <param name="Frame">Legacy frontend frame, including raster pixels when the state has no extracted snapshot.</param>
+/// <param name="Snapshot">GPU-ready immutable composition for scenes supported by the capture path; null for legacy-only output.</param>
 public readonly record struct CapturedFrontendFrame(FrontendFrame Frame, RenderFrameSnapshot? Snapshot)
 {
 }

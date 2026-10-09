@@ -11,19 +11,33 @@ internal sealed class MapObjectTileArtwork
     internal const int FirstHighlightTile = 0x5b, HighlightTileCount = 4;
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
     private const int CursorTile = 0x46;
+    /// <summary>Planar bytes for OBJ tiles not supplied by a dedicated menu-art renderer or procedural tile rule.</summary>
     private readonly byte[] otherCharacters;
+    /// <summary>Pixel source for the small menu font tiles in the object sheet.</summary>
     private readonly MenuSmallFontArtwork smallFont;
+    /// <summary>Pixel source for the larger title lettering tiles in the object sheet.</summary>
     private readonly MenuLargeFontArtwork largeFont;
+    /// <summary>Pixel source for compact elevator lettering tiles in the object sheet.</summary>
     private readonly MenuCompactLetteringArtwork elevatorLettering;
+    /// <summary>Pixel source for the panel corner and edge tiles in the object sheet.</summary>
     private readonly MenuPanelTileArtwork panel;
+    /// <summary>Pixel source for the shoulder-button icon tiles in the object sheet.</summary>
     private readonly MenuShoulderButtonArtwork shoulderButtons;
+    /// <summary>Pixel source for the highlighted shoulder-button frame tiles.</summary>
     private readonly MenuShoulderHighlightArtwork shoulderHighlight;
+    /// <summary>Pixel source for map marker tiles used by the object sheet.</summary>
     private readonly MapMarkerTileArtwork markers;
+    /// <summary>Pixel source for beveled square tiles in the object sheet.</summary>
     private readonly MenuBeveledSquareArtwork squares;
+    /// <summary>Pixel source for thin border tiles in the object sheet.</summary>
     private readonly MenuThinBorderArtwork thinBorder;
+    /// <summary>Imported per-pixel overrides for the otherwise procedural reserve bar tiles; null when source pixels match the rule.</summary>
     private readonly Dictionary<int, byte>? reserveEdits;
+    /// <summary>Imported per-pixel overrides for the otherwise procedural selector border tiles; null when source pixels match the rule.</summary>
     private readonly Dictionary<int, byte>? highlightEdits;
 
+    /// <summary>Encodes the indexed OBJ sheet and separates reusable artwork from procedural tiles and authored pixel exceptions.</summary>
+    /// <param name="image">Indexed sprite-sheet image supplying the map object's source pixels.</param>
     internal MapObjectTileArtwork(IndexedPngImage image)
     {
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);
@@ -62,7 +76,14 @@ internal sealed class MapObjectTileArtwork
         }
     }
 
+    /// <summary>Reports whether a tile index belongs to the contiguous reserve bar region generated from reserve pixel rules.</summary>
+    /// <param name="tile">OBJ tile index in the map sprite sheet.</param>
+    /// <returns>True for one of the reserve bar, empty, full, or cap tiles.</returns>
     private static bool IsReserve(int tile) => tile >= FirstReserveTile && tile < FirstReserveTile + ReserveTileCount;
+
+    /// <summary>Reports whether a tile index belongs to the selector border region with procedural pixel rules.</summary>
+    /// <param name="tile">OBJ tile index in the map sprite sheet.</param>
+    /// <returns>True for one of the four selector corner or edge tiles.</returns>
     private static bool IsHighlight(int tile) => tile >= FirstHighlightTile && tile < FirstHighlightTile + HighlightTileCount;
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
@@ -96,6 +117,9 @@ internal sealed class MapObjectTileArtwork
         return x <= fill ? (byte)9 : (byte)14;
     }
 
+    /// <summary>Builds the complete map OBJ tile payload from imported and generated artwork and writes it to VRAM.</summary>
+    /// <param name="vram">Destination VRAM receiving the encoded tile bytes.</param>
+    /// <param name="destinationByte">Byte offset at which the sprite-sheet payload begins.</param>
     internal void LoadTo(SnesVram vram, int destinationByte)
     {
         // This is the immediate transfer payload, never a retained calculated lookup.

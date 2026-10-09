@@ -32,14 +32,24 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         DecorationInitialHold = 128, StatueHold = 0x0777;
     /// <summary>$86:B7E0-B7E6: the authored four-particle burst count; it sets how many particle frames repeat, not a physical quantity.</summary>
     private const int ParticleBurstCount = 4;
+    /// <summary>Number of instruction words exposed as projectile mechanics operands.</summary>
     public static int MechanicsWordCount => 57;
+    /// <summary>Number of pose-duration words whose addresses identify installed presentation data.</summary>
     public static int PresentationWordCount => 28;
 
+    /// <summary>Returns the mechanics operand at the requested position in the compiled Tourian statue programs.</summary>
+    /// <param name="index">Zero-based position among the mechanics words.</param>
+    /// <returns>The bank-$86 address and value of that operand.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside <see cref="MechanicsWordCount"/>.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Returns the ROM address of a pose-duration word used to select presentation data.</summary>
+    /// <param name="index">Zero-based position among the pose words.</param>
+    /// <returns>The bank-$86 address of the selected pose word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -95,30 +105,50 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the authored instruction layout while capturing one mechanics operand or pose-word address.</summary>
+    /// <param name="requested">Zero-based operand position to capture during the walk.</param>
+    /// <param name="visual">Whether the requested result is a pose-word address instead of a mechanics operand.</param>
+    /// <param name="start">Initial bank-$86 address for the list being traversed.</param>
     private ref struct Layout(int requested, bool visual, ushort start)
     {
+        /// <summary>Current bank-$86 cursor in the instruction stream being traversed.</summary>
         internal ushort Cursor { get; private set; } = start;
+        /// <summary>Counts mechanics words and pose words encountered; the latter select presentation addresses.</summary>
         private int mechanics, presentation;
+        /// <summary>The operand or presentation address captured at the requested position.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Moves traversal to another native instruction-list entry.</summary>
+        /// <param name="address">Bank-$86 address of the next list entry.</param>
         internal void Start(ushort address) => Cursor = address;
+        /// <summary>Advances past a byte-sized operand that is not represented by the mechanics-word view.</summary>
         internal void SkipByte() => Cursor++;
+        /// <summary>Accounts for a two-byte instruction operand and captures it when it matches the requested position.</summary>
+        /// <param name="value">Value stored in the instruction word.</param>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Consumes a timed pose word and, in presentation mode, records its following data address.</summary>
+        /// <param name="duration">Number of interpreter ticks for which the pose remains active.</param>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Adds the native projectile-delete opcode to the traversed mechanics words.</summary>
         internal void Delete() => Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        /// <summary>Adds a native GotoY opcode and its destination operand.</summary>
+        /// <param name="target">Bank-$86 address to which the instruction transfers control.</param>
         internal void Goto(ushort target)
         {
             Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY); Word(target);
         }
     }
+    /// <summary>Determines whether a projectile kind is implemented by the compiled Tourian statue programs.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for one of the statue's splash, eye-glow, particle, tail, soul, statue, or decoration actors.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.TourianStatueSplash or
         RoomEnemyProjectileKind.TourianStatueEyeGlow or
@@ -129,6 +159,10 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.TourianStatuePhantoon or
         RoomEnemyProjectileKind.TourianStatueBaseDecoration;
 
+    /// <summary>Resolves a compiled mechanics-word address to the operand stored there.</summary>
+    /// <param name="address">Bank-$86 address to look up.</param>
+    /// <returns>The mechanics operand at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics-word locations.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

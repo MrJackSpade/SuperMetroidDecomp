@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    // Independently captured accepted identities before replacing the original record array.
+    /// <summary>Native Room FX record pointers captured before the record table was converted to definitions.</summary>
     private static readonly ushort[] OriginalFxRecordPointers =
     [
         0x8000, 0x8010, 0x8020, 0x8030, 0x8040, 0x8050, 0x8060, 0x8070, 0x8080, 0x8090, 0x80A0, 0x80B0,
@@ -33,6 +33,9 @@ internal static partial class Program
         0xA15E, 0xA17E, 0xA180, 0xA182, 0xA184, 0xA186, 0xA188,
     ];
 
+    /// <summary>Runs field-by-field checks that converted Room FX definitions preserve native record bytes.</summary>
+    /// <param name="rom">Loaded ROM used as the byte-level reference for the original records.</param>
+    /// <param name="originals">Pre-conversion records, keyed by their accepted native pointers.</param>
     private static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
@@ -51,6 +54,8 @@ internal static partial class Program
         Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
     }
 
+    /// <summary>Checks that the converted catalog preserves the native pointer set, ordering, and lookup rejection rules.</summary>
+    /// <param name="originals">Pre-conversion records used to compare the accepted pointer sequence.</param>
     private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
         AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
@@ -78,18 +83,47 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares the door-pointer word against the native bytes at offset zero.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxDoorPointer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
+    /// <summary>Compares the base Y-position word against the native bytes at offset two.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => record.BaseYPosition);
+    /// <summary>Compares the target Y-position word against the native bytes at offset four.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => record.TargetYPosition);
+    /// <summary>Compares the packed Y-velocity word against the native bytes at offset six.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.PackedYVelocity);
+    /// <summary>Compares the timer byte against the native byte at offset eight.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
+    /// <summary>Compares the type byte against the native byte at offset nine.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => record.Type);
+    /// <summary>Compares the default layer-blend byte against the native byte at offset ten.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => record.DefaultLayerBlend);
+    /// <summary>Compares the Layer 3 blend byte against the native byte at offset eleven.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => record.Layer3LayerBlend);
+    /// <summary>Compares the liquid-options byte against the native byte at offset twelve.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => record.LiquidOptions);
+    /// <summary>Compares the palette-effects bitset against the native byte at offset thirteen.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => record.PaletteFxBitset);
+    /// <summary>Compares the animated-tile bitset against the native byte at offset fourteen.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => record.AnimatedTileBitset);
+    /// <summary>Compares the palette-blend byte against the native byte at offset fifteen.</summary>
+    /// <param name="rom">Loaded ROM containing the original Room FX records.</param>
     private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => record.PaletteBlend);
+    /// <summary>Checks one selected property against each accepted record's original bytes and overlapping word views.</summary>
+    /// <param name="rom">Loaded ROM used to read the native record bytes.</param>
+    /// <param name="offset">Byte offset of the property within each 16-byte record.</param>
+    /// <param name="width">Property width in bytes: one for byte fields or two for words.</param>
+    /// <param name="field">Accessor that reads the corresponding property from a converted definition.</param>
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {
@@ -116,6 +150,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares catalog list selection with an independent first-match oracle built from native bytes.</summary>
+    /// <param name="rom">Loaded ROM containing the Room FX linked-list records.</param>
     private static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native $89:AB99..ABB7: zero loads, FFFF returns, then compare door.

@@ -11,12 +11,20 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed partial class FileSelectAreaMapGraphics
 {
+    /// <summary>Address space used by the menu PPU when binding artwork and screen resources.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Owned menu PPU state containing this map's VRAM and CGRAM.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Installed palette source used when an area selection loads its colors.</summary>
     [NonSerialized] private MapStaticPalettes? palettes;
+    /// <summary>Optional station-label coordinates, bound separately from the background artwork.</summary>
     [NonSerialized] private WorldMapLabelLayout? labels;
+    /// <summary>Installed foreground and per-area background tilemaps.</summary>
     [NonSerialized] private MapScreenPresentation? screens;
+    /// <summary>Installed OBJ graphics used to draw the map title and unlocked area labels.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>Binds label coordinates independently of the map's background and palette resources.</summary>
+    /// <param name="content">Label layout to use, or null when labels are not yet installed.</param>
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
@@ -78,12 +86,15 @@ public sealed partial class FileSelectAreaMapGraphics
         SelectedArea = selectedArea;
     }
 
+    /// <summary>Copies the fixed world-map foreground tilemap into the owned BG1 tilemap region.</summary>
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
             .LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
     }
 
+    /// <summary>Loads the background tilemap associated with the selected game area.</summary>
+    /// <param name="selectedArea">Validated Zebes area identity used to select its background resource.</param>
     private void LoadBackground(int selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
@@ -100,13 +111,19 @@ public sealed partial class FileSelectAreaMapGraphics
         LoadBackground(SelectedArea);
     }
 
+    /// <summary>Replaces the palette source and immediately refreshes CGRAM for the current selection.</summary>
+    /// <param name="content">Installed world-map palette data, or null while assets are unavailable.</param>
     internal void BindPalettes(MapStaticPalettes? content)
     {
         palettes = content;
         if (content is not null) LoadInstalledPalette(SelectedArea);
     }
+    /// <summary>Replaces the OBJ sprite catalog and updates the menu PPU's sprite binding.</summary>
+    /// <param name="content">Map-label sprite data, or null when the artwork is not installed.</param>
     internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(bus, content); }
 
+    /// <summary>Writes the selected area's installed colors into the owned CGRAM.</summary>
+    /// <param name="selectedArea">Validated game-area identity selecting the world-map palette.</param>
     private void LoadInstalledPalette(int selectedArea)
     {
         var colors = palettes!.World((SuperMetroid.Core.Game.AreaId)selectedArea);
@@ -118,10 +135,14 @@ public sealed partial class FileSelectAreaMapGraphics
     /// enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
     /// </summary>
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
+    /// <summary>Reusable RGBA target for rasterizing the map's BG1 foreground layer.</summary>
     [NonSerialized] private Rgba32[]? foregroundScratch;
+    /// <summary>Reusable RGBA target for rasterizing the additive BG3 subscreen.</summary>
     [NonSerialized] private Rgba32[]? subscreenScratch;
+    /// <summary>Reusable RGBA target for the map's OBJ label layer.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
     // Owned frame: valid until this map renders again.
+    /// <summary>Reusable composed frame returned to callers until the next render overwrites it.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
@@ -167,6 +188,9 @@ public sealed partial class FileSelectAreaMapGraphics
         return frame;
     }
 
+    /// <summary>Builds OBJ entries for the title and areas with at least one used station marker.</summary>
+    /// <param name="usedStationMasks">Per-area station-use bits that determine which area labels are visible.</param>
+    /// <returns>Finalized OAM data ready for the map's OBJ renderer.</returns>
     private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)

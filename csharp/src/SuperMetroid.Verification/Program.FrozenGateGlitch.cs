@@ -6,12 +6,26 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Samus's starting horizontal position for the native frozen-gate collision fixture.</summary>
     private const int FrozenGateStartX = 602;
+    /// <summary>Shared Samus and Zero vertical position used by the native collision cases.</summary>
     private const int FrozenGateY = 860;
+    /// <summary>Expected Caterpillar gate block index at the fixture camera position.</summary>
     private const int FrozenGateBlockIndex = 0x0a16;
+    /// <summary>Horizontal camera position used to load the fixture's retail room state.</summary>
     private const ushort FrozenGateCameraX = 512;
+    /// <summary>Vertical camera position used to load the fixture's retail room state.</summary>
     private const ushort FrozenGateCameraY = 768;
 
+    /// <summary>One native CPU-recorded input and its observable collision and gate results.</summary>
+    /// <param name="Distance">Horizontal movement distance applied to Samus in pixels.</param>
+    /// <param name="EnemyX">Zero's native horizontal position for this case.</param>
+    /// <param name="Frozen">Whether the native Zero was frozen during the collision.</param>
+    /// <param name="EnemyCollision">Whether the native movement result identified the enemy as the collision owner.</param>
+    /// <param name="FinalX">Samus's native horizontal position after the movement attempt.</param>
+    /// <param name="GateWoke">Whether the gate advanced from its sleeping instruction after the case.</param>
+    /// <param name="GatePreInstruction">Raw native pre-instruction word retained for disassembly comparison.</param>
+    /// <param name="GateInstructionList">Raw native instruction-list word retained for disassembly comparison.</param>
     private readonly record struct FrozenGateNativeRecord(
         int Distance,
         ushort EnemyX,
@@ -22,6 +36,7 @@ internal static partial class Program
         ushort GatePreInstruction,
         ushort GateInstructionList);
 
+    /// <summary>Loads the native frozen-gate cases and checks their collision ownership and gate activation in the retail room.</summary>
     private static void VerifyFrozenEnemyGateGlitch()
     {
         FrozenGateNativeRecord[] expected = File.ReadLines(
@@ -42,6 +57,8 @@ internal static partial class Program
             "one-pixel boundary, unfrozen control, and gate wake match the original CPU.");
     }
 
+    /// <summary>Replays one native fixture case against the retail Caterpillar room and compares movement and gate results.</summary>
+    /// <param name="expected">Recorded native positions, collision state, and gate outcome for this case.</param>
     private static void VerifyFrozenEnemyGateRecord(FrozenGateNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -145,6 +162,9 @@ internal static partial class Program
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 
+    /// <summary>Parses one comma-separated native fixture row into its typed collision and gate observations.</summary>
+    /// <param name="row">Eight-column record containing decimal state values, boolean markers, and hexadecimal gate words.</param>
+    /// <returns>The native observations represented by the row.</returns>
     private static FrozenGateNativeRecord ParseFrozenGateNativeRecord(string row)
     {
         string[] columns = row.Split(',');

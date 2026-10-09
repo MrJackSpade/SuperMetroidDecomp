@@ -225,6 +225,9 @@ public sealed partial class SamusProjectileSystem
         }
     }
 
+    /// <summary>Allocates a free trail pair and initializes its animation lists and offsets for the projectile's current frame.</summary>
+    /// <param name="bus">Address space used to read direction-specific trail coordinates.</param>
+    /// <param name="projectile">Beam or missile whose family, direction, and installed instruction frame select the trail.</param>
     private void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
     {
         int pointerIndex;
@@ -300,6 +303,9 @@ public sealed partial class SamusProjectileSystem
         trail.Right.YPosition = AddSignedOffset(projectile.YPosition, rightY, -4);
     }
 
+    /// <summary>Reads the frame word adjacent to the currently installed projectile instruction cursor.</summary>
+    /// <param name="projectile">Projectile providing the bank-$93 instruction pointer.</param>
+    /// <returns>The word used to select this update's trail spread.</returns>
     private static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
@@ -308,9 +314,23 @@ public sealed partial class SamusProjectileSystem
         return SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
+    /// <summary>Adds a signed byte displacement and fixed adjustment to a wrapping room coordinate.</summary>
+    /// <param name="origin">Whole-pixel coordinate before the offset.</param>
+    /// <param name="encodedOffset">Two's-complement byte displacement read from the trail table.</param>
+    /// <param name="constant">Additional pixel adjustment for the trail anchor.</param>
+    /// <returns>The adjusted 16-bit room coordinate.</returns>
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
         unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
 
+    /// <summary>Advances one trail-side instruction stream unless time is frozen, then draws it only when its full screen coordinates are visible.</summary>
+    /// <param name="bus">Address space supplying the side's movement-list records.</param>
+    /// <param name="oam">Frame OAM buffer receiving an in-viewport trail sprite.</param>
+    /// <param name="pair">Both trail sides, since movement opcodes may alter their sibling's coordinates.</param>
+    /// <param name="layer1X">Horizontal camera origin used for the native unsigned visibility test.</param>
+    /// <param name="layer1Y">Vertical camera origin used for the native unsigned visibility test.</param>
+    /// <param name="timeIsFrozen"><see langword="true"/> preserves instruction timers while still allowing the current side to draw.</param>
+    /// <param name="isLeft">Selects which instruction stream and OAM position to process.</param>
+    /// <param name="artwork">Optional installed trail art used to resolve the current tile attributes.</param>
     private static void HandleTrailSideAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -389,6 +409,12 @@ public sealed partial class SamusProjectileSystem
             artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
     }
 
+    /// <summary>Applies the projectile's signed fixed-point X velocity, then scans the leading vertical span for shot reactions.</summary>
+    /// <param name="level">Room collision geometry traversed by the projectile.</param>
+    /// <param name="slot">Projectile position, radius, velocity, and family used by the scan.</param>
+    /// <param name="roomPlms">Optional owner for shootable-block and resident-PLM side effects.</param>
+    /// <param name="waveBeam"><see langword="true"/> applies Wave's non-stopping reaction semantics while still invoking block effects.</param>
+    /// <returns><see langword="true"/> when ordinary shot collision should stop movement; Wave collisions are consumed separately.</returns>
     private static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -476,6 +502,12 @@ public sealed partial class SamusProjectileSystem
         return false;
     }
 
+    /// <summary>Applies the projectile's signed fixed-point Y velocity, then scans the leading horizontal span for shot reactions.</summary>
+    /// <param name="level">Room collision geometry traversed by the projectile.</param>
+    /// <param name="slot">Projectile position, radius, velocity, and family used by the scan.</param>
+    /// <param name="roomPlms">Optional owner for shootable-block and resident-PLM side effects.</param>
+    /// <param name="waveBeam"><see langword="true"/> applies Wave's non-stopping reaction semantics while still invoking block effects.</param>
+    /// <returns><see langword="true"/> when ordinary shot collision should stop movement; Wave collisions are consumed separately.</returns>
     private static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -495,6 +527,11 @@ public sealed partial class SamusProjectileSystem
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 
+    /// <summary>Scans every block touched by the projectile's horizontal leading edge and aggregates their collision reactions.</summary>
+    /// <param name="level">Room collision geometry and block lookup.</param>
+    /// <param name="slot">Projectile bounds and horizontal travel direction.</param>
+    /// <param name="roomPlms">Optional PLM owner receiving projectile-trigger side effects.</param>
+    /// <returns>Whether the scan's collision counter reached its stopping condition.</returns>
     private static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -530,6 +567,11 @@ public sealed partial class SamusProjectileSystem
         return everyBlockSolid;
     }
 
+    /// <summary>Scans every block touched by the projectile's vertical leading edge and aggregates their collision reactions.</summary>
+    /// <param name="level">Room collision geometry and block lookup.</param>
+    /// <param name="slot">Projectile bounds and vertical travel direction.</param>
+    /// <param name="roomPlms">Optional PLM owner receiving projectile-trigger side effects.</param>
+    /// <returns>Whether the scan's collision counter reached its stopping condition.</returns>
     private static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -566,6 +608,9 @@ public sealed partial class SamusProjectileSystem
     /// A block span's scan state: $1A (blocks spanned minus one), $26 (blocks still to check
     /// minus one; the first, top or left, block has $26 = $1A) and $1C (target boundary).
     /// </summary>
+    /// <param name="Span">Total number of blocks spanned minus one for the current leading edge.</param>
+    /// <param name="Remaining">Blocks still to scan after the current block, matching the native counter's remaining-minus-one value.</param>
+    /// <param name="TargetBoundary">Whole-pixel edge coordinate used to select the leading quarter-cell.</param>
     private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
 
     /// <summary>
@@ -617,6 +662,15 @@ public sealed partial class SamusProjectileSystem
         return Solid(rowCell) || Solid(rowCell ^ 1);
     }
 
+    /// <summary>Resolves one touched block's shot behavior, including extension links, slope quadrants, and PLM-trigger reactions.</summary>
+    /// <param name="level">Room geometry used to follow extension blocks and interpret slopes.</param>
+    /// <param name="slot">Projectile family, bounds, and position used by reaction-specific rules.</param>
+    /// <param name="block">Currently touched collision block, possibly an extension of a reaction origin.</param>
+    /// <param name="roomPlms">Optional PLM owner for collectible, resident, and shootable triggers.</param>
+    /// <param name="span">Counters and leading-edge coordinate for the scan containing this block.</param>
+    /// <param name="endSpan">Receives whether a special surface or spawned gate ends further scanning.</param>
+    /// <param name="horizontalMovement"><see langword="true"/> selects horizontal leading-edge geometry; otherwise use vertical geometry.</param>
+    /// <returns>Whether this block reports collision carry to the caller.</returns>
     private static bool RunShotReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -696,6 +750,11 @@ public sealed partial class SamusProjectileSystem
         return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
     }
 
+    /// <summary>Follows signed horizontal or vertical BTS extension links to their origin, rejecting cycles beyond the supported chain depth.</summary>
+    /// <param name="level">Room layer providing block indices and width for vertical offsets.</param>
+    /// <param name="initialBlock">First block encountered by the projectile scan.</param>
+    /// <returns>The reaction-origin block, or <see langword="null"/> when a zero-offset extension has no reaction origin.</returns>
+    /// <exception cref="InvalidDataException">A link leaves the room layer or the chain exceeds sixteen links.</exception>
     private static RoomCollisionBlock? ResolveShotReactionExtension(
         RoomLevelData level,
         RoomCollisionBlock initialBlock)
@@ -736,6 +795,11 @@ public sealed partial class SamusProjectileSystem
             $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
     }
 
+    /// <summary>Dispatches shootable-block BTS values to their specialized PLM setup when the current projectile is eligible.</summary>
+    /// <param name="level">Room data needed by gate and shot-block setup routines.</param>
+    /// <param name="slot">Projectile whose packed type is passed to the selected reaction owner.</param>
+    /// <param name="block">Shootable block or air cell whose BTS selects a reaction.</param>
+    /// <param name="roomPlms">PLM owner; absence skips allocation while preserving the collision scan.</param>
     private static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -800,6 +864,11 @@ public sealed partial class SamusProjectileSystem
         }
     }
 
+    /// <summary>Publishes a projectile hit to the PLM already resident at a shared-trigger block.</summary>
+    /// <param name="roomPlms">Active resident-PLM owner required to process the hit.</param>
+    /// <param name="block">Resolved trigger-origin block identifying the resident PLM.</param>
+    /// <param name="projectileType">Packed projectile family and beam flags passed to the resident handler.</param>
+    /// <exception cref="InvalidOperationException">There is no active PLM owner for the resident-trigger hit.</exception>
     private static void NotifyResidentProjectileHit(
         RoomPlmSystem? roomPlms,
         RoomCollisionBlock block,
@@ -815,6 +884,11 @@ public sealed partial class SamusProjectileSystem
             $"Projectile hit resident-trigger block {block.Index} with no active PLM owner.");
     }
 
+    /// <summary>Adds a signed 8.8 projectile velocity to a whole/subpixel position with native 16.16 wrapping.</summary>
+    /// <param name="position">Whole-pixel coordinate before movement.</param>
+    /// <param name="subposition">Fractional coordinate before movement.</param>
+    /// <param name="velocity">Signed 8.8 velocity word.</param>
+    /// <returns>The updated whole and fractional position words.</returns>
     private static (ushort Position, ushort Subposition) AddVelocity(
         ushort position,
         ushort subposition,
@@ -841,6 +915,9 @@ public sealed partial class SamusProjectileSystem
         KillBeam(bus, slot);
     }
 
+    /// <summary>Moves a beam-impact anchor to its leading edge and replaces its payload with the bank-$93 beam explosion.</summary>
+    /// <param name="bus">Address space supplied by the collision caller; the compiled beam-explosion selector requires no live bus read.</param>
+    /// <param name="slot">Beam slot to convert in place.</param>
     private static void KillBeam(ISnesAddressSpace bus, SamusProjectileSlot slot)
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
@@ -864,6 +941,10 @@ public sealed partial class SamusProjectileSystem
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
 
+    /// <summary>Converts an ordinary missile impact to its explosion, clears unsupported families, and applies shared impact effects.</summary>
+    /// <param name="bus">Address space supplied by the impact caller; this conversion uses the compiled explosion selectors.</param>
+    /// <param name="slot">Projectile slot receiving the explosion or being cleared.</param>
+    /// <param name="sharedProjectiles">Shared bomb/explosion owner for impact audio and missile cooldown updates.</param>
     private void KillMissile(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot,

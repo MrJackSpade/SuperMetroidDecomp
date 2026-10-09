@@ -7,6 +7,8 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Hidden-HWND integration checks: no visible window, native dialog, or player save mutation.</summary>
 internal static partial class Program
 {
+    /// <summary>Starts the hidden-window desktop verification process and reports uncaught startup failures to stderr.</summary>
+    /// <param name="args">Command-line options selecting the verification audit to run.</param>
     [STAThread]
     private static void Main(string[] args)
     {
@@ -23,6 +25,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Configures the Windows Forms host and runs the requested desktop verification on its idle loop.</summary>
+    /// <param name="args">Command-line options selecting an audit, soak, or the default renderer checks.</param>
     private static void Run(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
@@ -166,6 +170,9 @@ internal static partial class Program
         Application.Run(context);
     }
 
+    /// <summary>Checks save/restore, display identity, resizing, and shutdown for a renderer in an isolated ROM copy.</summary>
+    /// <param name="renderer">Renderer backend selected for this verification instance.</param>
+    /// <returns>A task that completes after the form and renderer have been shut down and the fixture is removed.</returns>
     private static async Task Verify(RendererSelection renderer)
     {
         // Private fixture data lives in a new directory, never in the player's live slots.
@@ -237,6 +244,11 @@ internal static partial class Program
         Console.WriteLine($"  {renderer}: retained load/reset display verified; test-owned files removed.");
     }
 
+    /// <summary>Waits for a GPU-worker condition while surfacing worker faults and enforcing a ten-second deadline.</summary>
+    /// <param name="condition">Predicate that signals the awaited worker state.</param>
+    /// <param name="worker">Worker checked for faults while the predicate remains false.</param>
+    /// <returns>A task that completes when the condition becomes true.</returns>
+    /// <exception cref="TimeoutException">The condition remains false past the deadline.</exception>
     private static async Task Until(Func<bool> condition, D3D11RenderWorker worker)
     {
         long deadline = Environment.TickCount64 + 10000;
@@ -249,16 +261,36 @@ internal static partial class Program
     }
 
     // Exercise the actual toolbar handlers without exposing debug-only production APIs.
+    /// <summary>Invokes a named nonpublic instance method for the desktop-control fixture.</summary>
+    /// <param name="owner">Object declaring the handler.</param>
+    /// <param name="name">Handler method name to find and invoke.</param>
+    /// <param name="args">Arguments forwarded to reflection invocation.</param>
     private static void Call(object owner, string name, params object[] args) =>
         (owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(name)).Invoke(owner, args);
+
+    /// <summary>Invokes a named nonpublic instance handler and returns its task result.</summary>
+    /// <param name="owner">Object declaring the handler.</param>
+    /// <param name="name">Handler method name to find and invoke.</param>
+    /// <param name="args">Arguments forwarded to reflection invocation.</param>
+    /// <returns>The task returned by the handler.</returns>
     private static Task CallAsync(object owner, string name, params object[] args) =>
         (Task)((owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(name)).Invoke(owner, args)
             ?? throw new InvalidOperationException("Async handler returned no task."));
+
+    /// <summary>Reads a required nonpublic instance field from a desktop-control fixture.</summary>
+    /// <typeparam name="T">Expected field value type.</typeparam>
+    /// <param name="owner">Object containing the field.</param>
+    /// <param name="name">Field name to find and read.</param>
+    /// <returns>The field value cast to <typeparamref name="T"/>.</returns>
     private static T Field<T>(object owner, string name) =>
         (T)(owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(owner)
             ?? throw new MissingFieldException(name));
+
+    /// <summary>Fails the current verification immediately when its expected condition is false.</summary>
+    /// <param name="condition">Condition that must hold for the check to pass.</param>
+    /// <param name="message">Failure description included in the thrown exception.</param>
     private static void Check(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

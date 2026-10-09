@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the Noob Tube draw definitions, physical collision geometry, visual catalog, and
+    /// production draw path against the cartridge data.
+    /// </summary>
     private static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
@@ -46,6 +50,10 @@ internal static partial class Program
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
+    /// <summary>
+    /// Runs one compiled tube draw list through the production PLM renderer and verifies its
+    /// physical blocks while guarding the immutable draw payload against runtime reads.
+    /// </summary>
     private static void VerifyNoobTubeNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -117,6 +125,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Exercises extraction, stock-manifest validation, visual overrides, stock replacement,
+    /// and rejection of malformed tube visual data in an isolated installation directory.
+    /// </summary>
     private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -178,14 +190,26 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Wraps the test address space and fails if rendering reads bytes belonging to any compiled
+    /// Noob Tube draw-list payload.
+    /// </summary>
+    /// <param name="source">Address space that supplies all non-draw-payload reads and receives writes.</param>
+    /// <param name="lists">Compiled draw lists whose encoded source ranges must not be read during rendering.</param>
     private sealed class NoobTubeDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of rejected reads into compiled draw-list payloads.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the same guarded path used by the address-space interface.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Returns a byte from the wrapped address space, throwing if the requested address lies
+        /// inside one of the compiled draw-list payloads.
+        /// </summary>
         public byte ReadByte(int address)
         {
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
@@ -203,6 +227,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

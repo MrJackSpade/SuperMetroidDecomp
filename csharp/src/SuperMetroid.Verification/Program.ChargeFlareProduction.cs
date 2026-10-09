@@ -9,6 +9,13 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks normal and Hyper charge flares against cartridge rendering and exercises installed composition rebinding.</summary>
+    /// <param name="bus">Retail address space used as the native rendering reference.</param>
+    /// <param name="stock">Installed stock flare compositions.</param>
+    /// <param name="edited">Composition catalog with an intentional visual edit.</param>
+    /// <param name="body">Installed Samus body artwork required by the runtime actor pass.</param>
+    /// <param name="roomAssets">Installed room assets used to initialize the Ceres runtime fixture.</param>
+    /// <param name="maps">Presentation catalog bound to the runtime and its restored state.</param>
     private static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
@@ -109,10 +116,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects reads of flare selector and source spritemap ROM bytes so rendering must use installed compositions.</summary>
     private sealed class ChargeFlareCompositionGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Address space used for accesses outside the guarded flare presentation ranges.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>ROM byte addresses that production flare rendering must not consult.</summary>
         private readonly HashSet<int> forbidden = new();
+
+        /// <summary>Builds the prohibited address set from the native selector table and referenced spritemap records.</summary>
+        /// <param name="source">Cartridge-backed address space used to enumerate native record sizes and forward allowed operations.</param>
         public ChargeFlareCompositionGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -125,10 +139,20 @@ internal static partial class Program
                 for (int i = 0; i < size; i++) forbidden.Add(address + i);
             }
         }
+        /// <summary>Routes cartridge-import reads through the same forbidden-range check as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped source byte for an address outside the guarded presentation data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of native flare selectors or sprite records and forwards other addresses.</summary>
+        /// <param name="address">Address requested by production rendering code.</param>
+        /// <returns>The byte from the wrapped source when the address is allowed.</returns>
         public byte ReadByte(int address) => forbidden.Contains(address)
             ? throw new InvalidOperationException($"Flare composition read from ROM at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -9,6 +9,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed ending Mode-7 scenes against native rendering and checks map and character overrides.</summary>
+    /// <param name="installation">Installed asset root used to load stock and edited Mode-7 data.</param>
     private static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -221,11 +223,17 @@ internal static partial class Program
     }
 
 
+    /// <summary>Guards ending-scene execution against rereading cartridge-owned graphics and map sources.</summary>
+    /// <param name="source">Underlying bus that supplies allowed memory operations and cartridge imports.</param>
     private sealed class EndingMode7SourceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from protected ending artwork sources.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects source-table and Mode-7 artwork reads, forwarding accesses to other bus regions.</summary>
+        /// <param name="address">Full bus address requested by the caller.</param>
+        /// <returns>The wrapped bus byte when the address is outside guarded ranges.</returns>
         public byte ReadByte(int address)
         {
             if ((address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
@@ -246,8 +254,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped bus.</summary>
+        /// <param name="address">Destination bus address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Checks an imported cartridge address before delegating to the wrapped import source.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The cartridge byte when it is outside guarded ending artwork sources.</returns>
         public byte ReadCartridgeByte(int address)
         {
             _ = ReadByte(address);
@@ -256,11 +270,17 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads a WRAM byte through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">WRAM address requested by the caller.</param>
+        /// <returns>The stored WRAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending Mode-7 guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads an SRAM byte through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">SRAM address requested by the caller.</param>
+        /// <returns>The stored SRAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ending Mode-7 guard requires SRAM."))

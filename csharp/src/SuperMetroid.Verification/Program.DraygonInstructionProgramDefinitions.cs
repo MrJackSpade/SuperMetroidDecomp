@@ -136,12 +136,22 @@ internal static partial class Program
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
 
+    /// <summary>Reads a named Draygon enemy-definition pointer constant from the room enemy system.</summary>
+    /// <param name="name">Field name identifying the body, eye, tail, or arms definition.</param>
+    /// <param name="flags">Reflection binding flags used to locate the private constant field.</param>
+    /// <returns>The definition pointer stored by the selected field.</returns>
     private static ushort ReadDraygonDefinition(string name, BindingFlags flags) =>
         (ushort)typeof(RoomEnemySystem).GetField(name, flags)!.GetRawConstantValue()!;
 
+    /// <summary>Reads a little-endian word from two consecutive cartridge bytes.</summary>
+    /// <param name="source">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two bytes combined into an unsigned 16-bit value.</returns>
     private static ushort ReadDraygonWord(SuperMetroidAddressSpace source, int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
+    /// <summary>Exercises warmed Draygon mechanics lookups and returns a checksum that consumes their values.</summary>
+    /// <returns>The accumulated mechanics-word checksum for the allocation probe.</returns>
     private static int ProbeDraygonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -153,12 +163,21 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Address-space sentinel that records and rejects cartridge access during compiled mechanics lookup.</summary>
     private sealed class DraygonInstructionReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of cartridge-byte reads attempted against this guard.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-cartridge read to the rejecting address-space implementation.</summary>
+        /// <param name="address">Cartridge address whose byte was requested.</param>
+        /// <returns>This guard never returns a byte because all reads are forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Counts and rejects an attempted cartridge-byte read.</summary>
+        /// <param name="address">Address that the mechanics lookup attempted to read.</param>
+        /// <returns>This method never returns because cartridge reads are forbidden.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge byte read was attempted.</exception>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -166,6 +185,10 @@ internal static partial class Program
                 $"Draygon mechanics attempted cartridge read ${address:X6}.");
         }
 
+        /// <summary>Rejects cartridge writes so the guard detects unexpected mutation as well as reads.</summary>
+        /// <param name="address">Address that the mechanics lookup attempted to write.</param>
+        /// <param name="value">Byte that the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A cartridge byte write was attempted.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException(
                 $"Draygon mechanics attempted cartridge write ${address:X6}.");

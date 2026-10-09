@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the compiled Crocomire arena PLM programs, physical draw mappings, and bridge or wall mutations.</summary>
     private static void VerifyCompiledCrocomireArenaPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -29,6 +30,12 @@ internal static partial class Program
 
     }
 
+    /// <summary>Builds the expected tile word for one cell in the Crocomire invisible-wall pattern.</summary>
+    /// <param name="x">Zero-based column within the three-block-wide wall.</param>
+    /// <param name="y">Zero-based row within the eight-block-high wall.</param>
+    /// <param name="solid">Whether to set the collision bit on the selected tile word.</param>
+    /// <returns>The tile index and optional solid-collision flag for the requested cell.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The row is outside the wall pattern.</exception>
     private static ushort WallWord(int x, int y, bool solid)
     {
         ushort value = y switch
@@ -42,6 +49,9 @@ internal static partial class Program
         return solid ? (ushort)(value | 0x8000) : value;
     }
 
+    /// <summary>Runs one Crocomire arena mutation PLM and checks every affected physical room word and its source-read guard.</summary>
+    /// <param name="header">Compiled Crocomire mutation PLM header to spawn.</param>
+    /// <param name="expectedWord">Oracle returning the expected level word for each block offset from the mutation origin.</param>
     private static void VerifyCrocomireMutation(ushort header,
         Func<int, int, ushort> expectedWord)
     {
@@ -71,13 +81,23 @@ internal static partial class Program
             $"Crocomire header ${header:X4} reads no migrated ROM records");
     }
 
+    /// <summary>Blocks cartridge reads from the compiled Crocomire program and draw-data ranges.</summary>
+    /// <param name="source">Address space used for all reads and writes outside the guarded bank-$84 ranges.</param>
     private sealed class CrocomireSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempted reads of compiled Crocomire PLM program or draw records.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge access through the compiled-source guard.</summary>
+        /// <param name="address">Cartridge address requested by the PLM system.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads in the compiled Crocomire program and draw ranges, forwarding other addresses.</summary>
+        /// <param name="address">Address requested during PLM execution.</param>
+        /// <returns>The wrapped source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address targets compiled Crocomire PLM source data.</exception>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -94,6 +114,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

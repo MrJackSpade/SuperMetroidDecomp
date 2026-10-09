@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the compiled Metroid escape and cry tables against cartridge data and exercises their production consumers.
+    /// </summary>
+    /// <param name="rom">Cartridge address space used as the reference for the original table values.</param>
     private static void VerifyMetroidBehaviorDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 4; frame++)
@@ -29,6 +33,8 @@ internal static partial class Program
             "Metroid behavior definitions: eight displacement words, eight cry words, all 65,536 escape selectors and all eight production instruction selections pass with source tables forbidden.");
     }
 
+    /// <summary>Confirms the production escape routine applies the compiled displacement and countdown behavior for every timer value.</summary>
+    /// <param name="rom">Cartridge address space wrapped to reject reads from the migrated displacement table.</param>
     private static void VerifyMetroidEscapeConsumer(SuperMetroidAddressSpace rom)
     {
         MethodInfo runEscape = typeof(RoomEnemySystem).GetMethod(
@@ -79,6 +85,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms the production instruction interpreter selects the compiled cry sound for each random-table index.</summary>
+    /// <param name="rom">Cartridge address space used for reference instruction data and guarded against migrated-table reads.</param>
     private static void VerifyMetroidCryConsumer(SuperMetroidAddressSpace rom)
     {
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -119,14 +127,29 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads a little-endian word from the cartridge table under verification.</summary>
+    /// <param name="bus">Address space supplying the word's bytes.</param>
+    /// <param name="address">Cartridge address of the low byte.</param>
+    /// <returns>The unsigned 16-bit value stored at the address.</returns>
     private static ushort ReadMetroidBehaviorWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps cartridge access and fails if production Metroid behavior attempts to read the migrated escape or cry tables.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class MetroidBehaviorReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address if it is outside the migrated tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated Metroid behavior tables and delegates all other reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the underlying address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within an escape-displacement or random-cry table range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0xa3ea3f and < 0xa3ea4f ||
@@ -138,6 +161,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

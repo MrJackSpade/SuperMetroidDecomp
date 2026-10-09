@@ -50,6 +50,7 @@ public sealed partial class SamusProjectileSystem
         LoadNormalSuitPalette(bus, cgram, samus);
     }
 
+    /// <summary>Clears the active beam-charge counters and all flare-animation layers.</summary>
     private void CancelCharge()
     {
         FlareCounter = 0;
@@ -57,6 +58,15 @@ public sealed partial class SamusProjectileSystem
         ClearFlareAnimationState();
     }
 
+    /// <summary>Applies held and edge-triggered fire input, advancing charge state or dispatching beam and Hyper shots.</summary>
+    /// <param name="bus">Address space used for projectile data and Samus movement-state reads.</param>
+    /// <param name="level">Room collision data used to resolve a beam's initial muzzle impact.</param>
+    /// <param name="samus">Equipment, pose, and charge state updated or consumed by the selected firing path.</param>
+    /// <param name="controllerInput">Current held-button word used for Shoot and Charge processing.</param>
+    /// <param name="controllerNewInput">Fresh-button edge used by ordinary beam shot admission and cooldown selection.</param>
+    /// <param name="sharedProjectiles">Shared cooldown and explosion state used by all projectile families.</param>
+    /// <param name="roomPlms">Optional room PLM sink for beam impacts on doors or shootable blocks.</param>
+    /// <returns>The allocated slot, sound request, and maximum queued sound duration; absent shots return a null slot.</returns>
     private (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -212,6 +222,15 @@ public sealed partial class SamusProjectileSystem
             : (null, 0, 0);
     }
 
+    /// <summary>Allocates and initializes an ordinary or charged beam after checking slot capacity and the shared cooldown.</summary>
+    /// <param name="bus">Address space supplying projectile tables, collision state, and movement data.</param>
+    /// <param name="level">Room collision grid used to test the muzzle on the firing frame.</param>
+    /// <param name="samus">Shooter state supplying equipment, direction, and position.</param>
+    /// <param name="controllerNewInput">Fresh-button word used when selecting uncharged auto-fire cooldown.</param>
+    /// <param name="sharedProjectiles">Shared projectile cooldown and bomb-explosion state.</param>
+    /// <param name="roomPlms">Optional sink for door or shootable-block reactions caused by the muzzle.</param>
+    /// <param name="charged">Selects charged projectile data and cooldown behavior when <see langword="true"/>.</param>
+    /// <returns>The allocated projectile slot and routed sound, or no slot and no sound when admission fails.</returns>
     private (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -334,6 +353,13 @@ public sealed partial class SamusProjectileSystem
         return (slotIndex, sound);
     }
 
+    /// <summary>Allocates the Hyper beam projectile, applies its fixed damage and presentation state, and checks its initial collision.</summary>
+    /// <param name="bus">Address space supplying projectile tables and Samus movement data.</param>
+    /// <param name="level">Room collision grid used to test the muzzle before movement begins.</param>
+    /// <param name="samus">Shooter state supplying position and shot direction.</param>
+    /// <param name="sharedProjectiles">Shared slot cooldown and power-bomb explosion state.</param>
+    /// <param name="roomPlms">Optional sink for door or shootable-block reactions from the initial impact.</param>
+    /// <returns>The allocated projectile slot and sound request, or no slot when capacity, cooldown, or direction rejects firing.</returns>
     private (int? Slot, ushort Sound) TryFireHyperBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -422,6 +448,13 @@ public sealed partial class SamusProjectileSystem
         return (slotIndex, sound);
     }
 
+    /// <summary>Attempts to fire a missile or Super Missile from a fresh or retained Shoot edge, consuming ammo on allocation.</summary>
+    /// <param name="bus">Address space used to read Samus movement type and projectile data.</param>
+    /// <param name="samus">Selected weapon, ammunition, direction, and position used to initialize the shot.</param>
+    /// <param name="controllerNewInput">Current fresh-button word.</param>
+    /// <param name="controllerPreviousNewInput">Previous filtered fresh-button word retained for the native delayed edge.</param>
+    /// <param name="sharedProjectiles">Shared projectile cooldown and allocation state.</param>
+    /// <returns>The allocated slot and sound request, or no slot and sound when input or admission conditions reject firing.</returns>
     internal (int? Slot, ushort Sound) TryFireMissile(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -517,6 +550,10 @@ public sealed partial class SamusProjectileSystem
         return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }
 
+    /// <summary>Places a projectile at the direction-specific muzzle offset selected by Samus's pose and movement type.</summary>
+    /// <param name="bus">Address space used to resolve Samus's movement type.</param>
+    /// <param name="samus">Shooter pose and position supplying the origin and pose-specific Y adjustment.</param>
+    /// <param name="slot">Projectile whose direction selects the muzzle offset and whose position is initialized.</param>
     private static void InitializePosition(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -534,6 +571,9 @@ public sealed partial class SamusProjectileSystem
         slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));
     }
 
+    /// <summary>Selects the native speed row for the projectile's beam combination and direction, then applies directional inheritance.</summary>
+    /// <param name="bus">Mutable SNES memory used to read Samus's inherited velocity.</param>
+    /// <param name="slot">Beam projectile whose packed type and direction select its base speed and final velocity.</param>
     private static void InitializePowerBeamVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
@@ -549,6 +589,10 @@ public sealed partial class SamusProjectileSystem
         InitializeDirectionalVelocity(bus, slot, speed);
     }
 
+    /// <summary>Clears projectile subpositions and combines its base speed with Samus's direction-dependent inherited velocity.</summary>
+    /// <param name="bus">Mutable SNES memory containing Samus's live velocity words.</param>
+    /// <param name="slot">Projectile whose direction determines inherited velocity components.</param>
+    /// <param name="baseSpeed">Projectile-family speed added to the inherited velocity.</param>
     private static void InitializeDirectionalVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot,

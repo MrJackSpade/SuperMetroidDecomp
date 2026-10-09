@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies installed ending text panels and typewriter sequences against cartridge data,
+    /// including editable text and font assets without runtime reads of the guarded text stream.
+    /// </summary>
+    /// <param name="romPath">Path to the retail ROM used to extract and compare ending assets.</param>
     private static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -112,6 +117,11 @@ internal static partial class Program
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
     }
 
+    /// <summary>Reads a contiguous run of little-endian tilemap words from the ending-text bank.</summary>
+    /// <param name="bus">Address space supplying the cartridge bytes.</param>
+    /// <param name="pointer">Bank-local address of the first tilemap word.</param>
+    /// <param name="count">Number of adjacent words to copy.</param>
+    /// <returns>Tilemap words in the same order as their addresses.</returns>
     private static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new ushort[count];
@@ -122,6 +132,11 @@ internal static partial class Program
         return result;
     }
 
+    /// <summary>Checks deterministic stock text extraction, override compilation and identity, and rejection of corrupt JSON.</summary>
+    /// <param name="bus">Retail cartridge address space used for extraction.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock ending-text document.</param>
+    /// <param name="overrideDirectory">Directory used for the temporary text override.</param>
+    /// <param name="stockCatalog">Unmodified catalog used to compare content identity after editing.</param>
     private static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -151,6 +166,11 @@ internal static partial class Program
         Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
     }
 
+    /// <summary>Checks deterministic font extraction, PNG override compilation and identity, and rejection of corrupt images.</summary>
+    /// <param name="bus">Retail cartridge address space used for extraction.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock font atlas.</param>
+    /// <param name="overrideDirectory">Directory used for the temporary indexed-PNG override.</param>
+    /// <param name="stockCatalog">Unmodified catalog used to compare transfer bytes and content identity.</param>
     private static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -182,10 +202,18 @@ internal static partial class Program
         Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
+    /// <summary>Prevents installed ending-text execution from falling back to native text-stream reads.</summary>
+    /// <param name="source">Underlying address space for cartridge reads outside the guarded ending-text range.</param>
     private sealed class EndingTextReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes import reads through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not part of the guarded text stream.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from native ending text streams and forwards other byte reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             int bank = address >> 16;
@@ -195,6 +223,9 @@ internal static partial class Program
                 throw new InvalidOperationException($"Installed ending text read cartridge address ${address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+/// <summary>Checks the selected and unselected tile palettes while ensuring palette replacement preserves the other packed tile attributes.</summary>
 static void VerifyGameOptionsRomDataCatalog()
 {
     const ushort packedTile = 0xe155;
@@ -32,6 +33,7 @@ static void VerifyGameOptionsRomDataCatalog()
         "palette replacement agree.");
 }
 
+/// <summary>Exercises controller remapping, both options submenus, and persistence of the resulting settings through SRAM.</summary>
 static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
@@ -132,6 +134,7 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
     Console.WriteLine("  Options: controller swap, both submenus, normalization, and SRAM persistence agree.");
 }
 
+/// <summary>Checks reserve-energy recovery locking, transfer cadence, completion, sound timing, and maximum-health clamping.</summary>
 static void VerifyReserveAutoRecovery()
 {
     var samus = new SamusState
@@ -171,6 +174,7 @@ static void VerifyReserveAutoRecovery()
     Console.WriteLine("  Reserve tanks: lock, one-point transfer, sound cadence, exhaustion, and clamp agree.");
 }
 
+/// <summary>Checks all four door-scroll directions across camera alignment, per-IRQ motion, streaming gates, and final snapping.</summary>
 static void VerifyDoorOpeningTrajectories()
 {
     // Door destination screens are multiplied by $100. Up is the only direction whose
@@ -299,6 +303,7 @@ static void VerifyDoorOpeningTrajectories()
         "  Doors: all four IRQ trajectories, frame counts, endpoints, and delayed nudge agree.");
 }
 
+/// <summary>Verifies credits row timing, tilemap copies, circular row reuse, and the final disable boundary.</summary>
 static void VerifyCreditsObjectInterpreter()
 {
     ushort[][] rows = Enumerable.Range(0, 33)
@@ -329,6 +334,7 @@ static void VerifyCreditsObjectInterpreter()
         "  Credits: half-pixel scroll, installed rows, circular staging, and completion agree.");
 }
 
+/// <summary>Runs the retail-backed ending through its final hold and checks its major phases, reward branches, and percentage display when a ROM is available.</summary>
 static void VerifyEndingCreditsState()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -419,12 +425,19 @@ static void VerifyEndingCreditsState()
         "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");
 }
 
+/// <summary>Advances the options state once with a button pressed, then releases all buttons for the next input edge.</summary>
+/// <param name="options">Menu state receiving the input pulse.</param>
+/// <param name="button">Button held for the first update.</param>
 private static void PressOptions(GameOptionsMenuState options, SnesButton button)
 {
     options.Step((ushort)button);
     options.Step(0);
 }
 
+/// <summary>Steps the menu with neutral input until it reaches the requested phase or the frame limit.</summary>
+/// <param name="options">Menu state to advance.</param>
+/// <param name="expected">Phase that ends the wait.</param>
+/// <param name="maximumFrames">Maximum neutral-input updates allowed before asserting the phase.</param>
 private static void StepOptionsUntil(
     GameOptionsMenuState options,
     GameOptionsPhase expected,

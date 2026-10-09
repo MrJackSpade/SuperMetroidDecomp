@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled blue-door draw programs against native execution and editable visual data.</summary>
+    /// <param name="rom">Cartridge address space used to read native instruction operands for the comparison.</param>
     private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
@@ -134,6 +136,8 @@ internal static partial class Program
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
+    /// <summary>Runs the focused checks for blue-door control flow, draw words, sounds, and BTS updates.</summary>
+    /// <param name="rom">Cartridge address space used by the blue-door program verifiers.</param>
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueProgramControls), () => VerifyBlueProgramControls(rom));
@@ -142,6 +146,9 @@ internal static partial class Program
         Suite(nameof(VerifyBlueProgramBts), () => VerifyBlueProgramBts(rom));
     }
 
+    /// <summary>Verifies extracted stock visuals, installed overrides, and validation of malformed blue-door data.</summary>
+    /// <param name="rom">Supported cartridge image used to extract and validate stock visual data.</param>
+    /// <param name="firstDraw">Native first-draw pointer used to check that the installed override reaches rendering.</param>
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {
@@ -203,14 +210,25 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space wrapper that fails if production blue-door drawing rereads compiled ROM payloads.</summary>
+    /// <param name="source">Underlying cartridge address space for reads and writes outside guarded ranges.</param>
+    /// <param name="lists">Compiled draw lists whose native payload reads must be rejected during verification.</param>
     private sealed class BlueDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads into forbidden instruction or draw-payload ranges.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-cartridge read through the same guarded address-space path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the underlying source when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects native rereads of compiled blue-door data and forwards all other reads.</summary>
+        /// <param name="address">Address requested by the production code under verification.</param>
+        /// <returns>The underlying source byte for an address outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The read targets a forbidden instruction or draw-payload range.</exception>
         public byte ReadByte(int address)
         {
             if (address >= 0x84c489 && address <= 0x84c54c)
@@ -232,6 +250,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

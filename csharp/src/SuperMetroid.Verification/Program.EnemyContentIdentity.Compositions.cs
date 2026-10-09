@@ -5,6 +5,10 @@ internal static partial class Program
 {
     private sealed partial class EnemyIdentityFixture
     {
+        /// <summary>Builds a two-part sprite composition and optionally applies the fixture's selected mutation.</summary>
+        /// <param name="family">Mutation family used to register and select a component change.</param>
+        /// <param name="mutate">Whether to register mutation cases and apply the selected change.</param>
+        /// <returns>The ordered sprite parts used by the content-identity fixtures.</returns>
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
@@ -29,6 +33,8 @@ internal static partial class Program
             return change switch { "order" => [second, first], "count" => [first], _ => [first, second] };
         }
 
+        /// <summary>Creates an enemy OAM document and varies each visual property to test identity coverage.</summary>
+        /// <returns>A document containing stock frames with the fixture's selected OAM edit.</returns>
         public EnemySpritemapDocument OamDocument()
         {
             var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -43,8 +49,12 @@ internal static partial class Program
                         ? definitions.First(other => other.Bank == frame.Bank && other.Name != frame.Name).Name : frame.Name))),
             };
         }
+        /// <summary>Loads the fixture's serialized OAM document as an enemy spritemap catalog.</summary>
+        /// <returns>The catalog used by content-identity comparisons.</returns>
         public EnemySpritemapCatalog Oam() => EnemySpritemapCatalog.Load(Json(OamDocument()));
 
+        /// <summary>Creates extended-frame content with independent component, ordering, count, and binding mutations.</summary>
+        /// <returns>The serialized-data model for the fixture's enemy extended-frame catalog.</returns>
         public EnemyExtendedFrameDocument ExtendedDocument()
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -70,8 +80,12 @@ internal static partial class Program
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };
         }
+        /// <summary>Loads the fixture's extended-frame document into its catalog representation.</summary>
+        /// <returns>The catalog used by content-identity comparisons.</returns>
         public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameCatalog.Load(Json(ExtendedDocument()));
 
+        /// <summary>Creates projectile spritemap data with a selectable mutation in the final authored frame.</summary>
+        /// <returns>A document containing projectile sprite and program-frame compositions.</returns>
         public EnemyProjectileSpritemapDocument ProjectileDocument()
         {
             var frames = EnemyProjectileSpritemapDefinitions.Frames.ToArray();
@@ -85,8 +99,14 @@ internal static partial class Program
                     KeyValuePair.Create(frame.Name, Parts("projectile-program", index == programs.Length - 1)))),
             };
         }
+        /// <summary>Loads the fixture's projectile document into the projectile spritemap catalog.</summary>
+        /// <returns>The catalog used by content-identity comparisons.</returns>
         public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
 
+        /// <summary>Serializes BG2 frame writes with optional edits to tile payload, placement, ordering, count, or run boundaries.</summary>
+        /// <param name="family">Mutation family prefix identifying which edit case is selected.</param>
+        /// <param name="definitions">Ordered native frame definitions whose keys and frame count seed the document.</param>
+        /// <returns>A memory stream containing the generated BG2 frame document.</returns>
         private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);

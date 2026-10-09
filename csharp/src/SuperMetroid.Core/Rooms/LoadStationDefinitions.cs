@@ -44,6 +44,10 @@ public static class LoadStationDefinitions
 
     // Only validated non-Ceres slots reach this selector. The default is the
     // native unused-station record, not an extension to unknown area/station inputs.
+    /// <summary>Selects the native placement tuple for a validated non-Ceres station.</summary>
+    /// <param name="area">The retail area whose station table is being indexed.</param>
+    /// <param name="station">The station slot within that area's native list.</param>
+    /// <returns>The room, door, camera, and Samus offsets compiled for that station, or the native inert tuple for an unused slot.</returns>
     private static LoadStationDefinition Placement(AreaId area, byte station) => (area, station) switch
     {
         (AreaId.Crateria, 0) => new(0x91f8, 0x896a, 0x0400, 0x0400, 0x0040, 0x0000),
@@ -104,6 +108,13 @@ public static class LoadStationDefinitions
         _ => new(0, 0, 0x0400, 0x0400, 0x00b0, 0),
     };
 
+    /// <summary>Six native words consumed by the load-station placement path.</summary>
+    /// <param name="RoomPointer">Bank-local pointer to the room header loaded at this station.</param>
+    /// <param name="DoorPointer">Bank-local pointer to the door used to enter the room.</param>
+    /// <param name="CameraX">Horizontal camera position selected before entering the room.</param>
+    /// <param name="CameraY">Vertical camera position selected before entering the room.</param>
+    /// <param name="SamusYOffset">Vertical offset applied to Samus's load-station placement.</param>
+    /// <param name="SamusXOffset">Horizontal offset applied to Samus's load-station placement.</param>
     private readonly record struct LoadStationDefinition(
         ushort RoomPointer, ushort DoorPointer, ushort CameraX,
         ushort CameraY, ushort SamusYOffset, ushort SamusXOffset);

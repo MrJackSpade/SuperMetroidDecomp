@@ -21,12 +21,24 @@ internal static partial class Program
             "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
     }
 
+    /// <summary>Reads one little-endian word from the native cartridge table at the supplied address.</summary>
+    /// <param name="rom">Cartridge address space containing the table bytes.</param>
+    /// <param name="address">Address of the low byte of the word.</param>
+    /// <returns>The two bytes combined as an unsigned 16-bit value.</returns>
     private static ushort SmallTableWord(ISnesAddressSpace rom, int address) =>
         (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
+    /// <summary>Invokes a private static verifier helper and casts its result to the requested type.</summary>
+    /// <typeparam name="T">Expected result type of the reflected helper.</typeparam>
+    /// <param name="owner">Type declaring the private static method.</param>
+    /// <param name="method">Method name to resolve on <paramref name="owner"/>.</param>
+    /// <param name="arguments">Arguments forwarded to the reflected method in parameter order.</param>
+    /// <returns>The helper's return value cast to <typeparamref name="T"/>.</returns>
     private static T InvokePrivateStatic<T>(Type owner, string method, params object[] arguments) =>
         (T)owner.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, arguments)!;
 
+    /// <summary>Compares all five Mother Brain falling-tube body records with their native radius and floor words.</summary>
+    /// <param name="rom">Cartridge address space used as the expected source for each table word.</param>
     private static void VerifyMotherBrainFallingTubeBodies(ISnesAddressSpace rom)
     {
         for (int tube = 0; tube < 5; tube++)
@@ -41,6 +53,8 @@ internal static partial class Program
             typeof(RoomEnemySystem), "MotherBrainFallingTubeBody", 5), "Falling tube upper bound");
     }
 
+    /// <summary>Checks each bomb-bounce stage acceleration against the native table and shared fall acceleration.</summary>
+    /// <param name="rom">Cartridge address space containing the bomb-bounce acceleration words.</param>
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
     {
         for (int stage = 0; stage < MotherBrainBombBounceDefinitions.StageCount; stage++)
@@ -51,6 +65,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBombBounceDefinitions.YAcceleration(10), "Bomb stage bound");
     }
 
+    /// <summary>Checks the seven Crocomire bridge dust spawn coordinates against their unrolled native instructions.</summary>
+    /// <param name="rom">Cartridge address space containing the dust-spawn instruction bytes and operands.</param>
     private static void VerifyCrocomireBridgeDustPositions(ISnesAddressSpace rom)
     {
         // $A4:8F35..: each unrolled spawn is LDA #X / STA / LDA #Y / STA / LDA #$15 / JSL, twenty bytes.
@@ -66,6 +82,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => RoomEnemySystem.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
 
+    /// <summary>Checks all sixteen Ceres falling-debris column positions against the native table.</summary>
+    /// <param name="rom">Cartridge address space containing the debris-column words.</param>
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
         for (int column = 0; column < 16; column++)
@@ -74,6 +92,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroidRuntime.CeresFallingDebrisX(16), "Debris column bound");
     }
 
+    /// <summary>Checks the eleven Rinka spawn records, including position and projectile resource token.</summary>
+    /// <param name="rom">Cartridge address space containing the packed six-byte spawn records.</param>
     private static void VerifyRinkaSpawnResources(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 11; index++)
@@ -86,6 +106,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks dead Tourian species layouts against their native copy routines and graphics initialization.</summary>
+    /// <param name="rom">Cartridge address space used to inspect corpse routines and configuration pointers.</param>
     private static void VerifyDeadTourianCorpseLayouts(ISnesAddressSpace rom)
     {
         const int bank = 0xa90000, workBuffer = 0x2000;

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Compares all 32 compiled Power Bomb half-width entries with their retail ROM bytes and checks bounds behavior.</summary>
+    /// <param name="rom">Retail address space containing the native width table.</param>
     private static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
@@ -16,6 +18,8 @@ internal static partial class Program
                 "Power Bomb width bounds");
     }
 
+    /// <summary>Compares the 32 compiled Power Bomb band boundaries with retail data and verifies the table's index limits.</summary>
+    /// <param name="rom">Retail address space containing the native top-offset table.</param>
     private static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 32; i++)
@@ -26,6 +30,8 @@ internal static partial class Program
                 "Power Bomb top offset bounds");
     }
 
+    /// <summary>Checks rendered Power Bomb scanline widths and clipping against a native-style profile without permitting runtime ROM reads.</summary>
+    /// <param name="rom">Retail address space used to capture the expected width and top-offset tables.</param>
     private static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));
@@ -93,15 +99,30 @@ internal static partial class Program
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
 
+    /// <summary>Address-space sentinel that fails any attempt to read or write through the Power Bomb shape renderer.</summary>
     private sealed class PowerBombShapeReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects cartridge imports so tests can confirm the renderer uses compiled shape metadata.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>This implementation never returns because all reads are unexpected.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge byte read was attempted.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects a runtime read, since shape rendering must not depend on ROM access.</summary>
+        /// <param name="address">Address whose read would violate the test's no-bus contract.</param>
+        /// <returns>This implementation never returns because all reads are unexpected.</returns>
+        /// <exception cref="InvalidOperationException">A byte read was attempted.</exception>
         public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected shape ROM read: {address:X6}.");
+
+        /// <summary>Rejects writes because the shape-rendering probe is not expected to mutate an address space.</summary>
+        /// <param name="address">Address whose write was attempted.</param>
+        /// <param name="value">Byte value supplied by the caller.</param>
+        /// <exception cref="InvalidOperationException">A bus write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected shape bus write.");
     }
 }
 
+/// <summary>Retail bank-$88 locations of the two 32-byte lookup tables used to construct the Power Bomb shape profile.</summary>
 internal static class PowerBombShapeReferenceData
 {
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center bytes.</summary>

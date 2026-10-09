@@ -9,9 +9,16 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public static class RoomLevelStreamDefinitions
 {
+    /// <summary>Assembly resource containing the compiled decompressed level-stream corpus.</summary>
     private const string ResourceName = "SuperMetroid.RoomLevelStreams.bin";
+
+    /// <summary>Version identifier stored in the corpus header after its magic bytes.</summary>
     private const int FormatVersion = 1;
+
+    /// <summary>Size of the fixed corpus header before the per-source records begin.</summary>
     private const int HeaderByteCount = 44;
+
+    /// <summary>Loads and validates the embedded corpus once, on first access.</summary>
     private static readonly Lazy<Corpus> Installed = new(Load);
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
@@ -21,6 +28,9 @@ public static class RoomLevelStreamDefinitions
             : throw new InvalidDataException(
                 $"Compiled room-level data lacks source ${sourceAddress:X6}.");
 
+    /// <summary>Parses the embedded corpus and validates its header, source set, record lengths, and exact end.</summary>
+    /// <returns>The indexed native level streams backed by the loaded resource bytes.</returns>
+    /// <exception cref="InvalidDataException">The resource is missing, malformed, incomplete, or contains unexpected sources.</exception>
     private static Corpus Load()
     {
         using Stream source = typeof(RoomLevelStreamDefinitions).Assembly
@@ -58,6 +68,8 @@ public static class RoomLevelStreamDefinitions
         return new Corpus(streams);
     }
 
+    /// <summary>Collects every compressed level-data source selected by the installed room states.</summary>
+    /// <returns>The distinct cartridge addresses that the compiled corpus must contain.</returns>
     private static HashSet<int> BuildExpectedSources()
     {
         var expected = new HashSet<int>();
@@ -67,6 +79,8 @@ public static class RoomLevelStreamDefinitions
         return expected;
     }
 
+    /// <summary>Validated room-level streams indexed by their original cartridge source address.</summary>
+    /// <param name="Streams">Complete native level allocations keyed by compressed level-data address.</param>
     private sealed record Corpus(
         IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams);
 }

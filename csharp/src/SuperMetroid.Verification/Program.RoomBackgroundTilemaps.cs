@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies extracted background atlases against decompressed cartridge data and checks
+    /// that the Ceres library loader uses installed tilemaps without rereading its source.
+    /// </summary>
     private static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -77,23 +81,45 @@ internal static partial class Program
             "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
     }
 
+    /// <summary>
+    /// Forwards memory operations while rejecting cartridge reads from one compressed
+    /// background source, proving the loader consumes the installed atlas for that source.
+    /// </summary>
+    /// <param name="source">Address space supplying permitted cartridge reads and live mutable memory.</param>
+    /// <param name="blockedSource">Cartridge address of the compressed background stream that must not be reread.</param>
     private sealed class BackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Accesses the wrapped source's mutable WRAM/SRAM interface required by the composite bus.</summary>
         private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
             throw new InvalidOperationException("Background tilemap read guard source has no live WRAM.");
 
+        /// <summary>Forwards a CPU-addressed work-RAM read to the wrapped mutable memory.</summary>
+        /// <param name="cpuAddress">CPU address within work RAM.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
 
+        /// <summary>Forwards a CPU-addressed save-RAM read to the wrapped mutable memory.</summary>
+        /// <param name="cpuAddress">CPU address within save RAM.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
 
+        /// <summary>Routes cartridge-import reads through the selected-source guard.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is not the blocked compressed source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the selected compressed stream and forwards all other bus reads.</summary>
+        /// <param name="address">Cartridge or mapped address requested by the caller.</param>
+        /// <returns>The wrapped bus value for an allowed address.</returns>
         public byte ReadByte(int address) => address == blockedSource
             ? throw new InvalidOperationException(
                 $"Installed room background reread source ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

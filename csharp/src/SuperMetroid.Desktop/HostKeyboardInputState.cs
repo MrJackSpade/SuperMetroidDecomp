@@ -13,11 +13,19 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class HostKeyboardInputState
 {
+    /// <summary>Win32 message identifier for a regular key press.</summary>
     internal const int KeyDownMessage = 0x0100;
+
+    /// <summary>Win32 message identifier for a regular key release.</summary>
     internal const int KeyUpMessage = 0x0101;
+
+    /// <summary>Win32 message identifier for a system-key press, such as one involving Alt.</summary>
     internal const int SystemKeyDownMessage = 0x0104;
+
+    /// <summary>Win32 message identifier for a system-key release.</summary>
     internal const int SystemKeyUpMessage = 0x0105;
 
+    /// <summary>Gameplay keys currently held according to accepted key-down and key-up messages.</summary>
     private readonly HashSet<Keys> heldKeys = [];
 
     /// <summary>
@@ -47,6 +55,7 @@ internal sealed class HostKeyboardInputState
         }
     }
 
+    /// <summary>Forgets all event-tracked keys, for example when keyboard focus is lost.</summary>
     public void Clear() => heldKeys.Clear();
 
     /// <summary>Merges the keyboard producer into an already-polled gamepad word.</summary>
@@ -71,6 +80,9 @@ internal sealed class HostKeyboardInputState
         return (ushort)input;
     }
 
+    /// <summary>Identifies keys reserved for the game's keyboard-to-controller mapping.</summary>
+    /// <param name="key">Key code with any modifier bits removed.</param>
+    /// <returns><see langword="true"/> when the key is mapped to a SNES controller button.</returns>
     private static bool IsGameplayKey(Keys key) => key is
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
         Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
@@ -89,6 +101,7 @@ internal sealed class HostKeyboardInputState
 /// </remarks>
 internal sealed class HostInputActivationGate
 {
+    /// <summary>Whether host input remains blocked until a merged keyboard/gamepad sample is neutral.</summary>
     private bool suppressedUntilNeutral;
 
     /// <summary>Suppresses subsequent input until every host control has been released.</summary>

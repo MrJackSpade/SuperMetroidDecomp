@@ -26,6 +26,7 @@ public sealed partial class SamusState
     /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
     public SamusTileTransferState TileTransfers { get; } = new();
 
+    /// <summary>Optional installed palette data used when loading the Power, Varia, and Gravity suit colors.</summary>
     [NonSerialized] private SamusSuitColorCatalog? suitColors;
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
     public SamusSuitColorCatalog? SuitColors
@@ -34,6 +35,7 @@ public sealed partial class SamusState
         set => suitColors = value;
     }
 
+    /// <summary>Optional installed color-cycle data used by full-body animation palette updates.</summary>
     [NonSerialized] private SamusFullBodyCycleColorCatalog? fullBodyCycleColors;
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     public SamusFullBodyCycleColorCatalog? FullBodyCycleColors
@@ -42,6 +44,7 @@ public sealed partial class SamusState
         set => fullBodyCycleColors = value;
     }
 
+    /// <summary>Optional installed color data used for charged shots and Hyper-beam body palettes.</summary>
     [NonSerialized] private SamusChargeColorCatalog? chargeColors;
     /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
     public SamusChargeColorCatalog? ChargeColors
@@ -253,6 +256,12 @@ public sealed partial class SamusState
         AnimationFrameTimer = timer;
     }
 
+    /// <summary>Interprets the current animation delay byte or command and updates the selected frame state.</summary>
+    /// <param name="bus">Address space containing this pose's delay program and any command operands.</param>
+    /// <param name="controllerInput">Controller bits consulted by animation commands such as Dash interception.</param>
+    /// <param name="prospectiveInputPose">Optional pose selected by the current input processing pass.</param>
+    /// <param name="demoPoseInput">Whether prospective pose selection comes from demo input rules.</param>
+    /// <param name="queueEchoSound">Optional callback used when an animation command requests an echo sound.</param>
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
         ushort? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
@@ -463,6 +472,9 @@ public sealed partial class SamusState
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameBuffer + selectedDelay));
     }
 
+    /// <summary>Ensures the cached delay-list address still corresponds to the current pose.</summary>
+    /// <param name="bus">Address space associated with the animation pass; this consistency check does not read it.</param>
+    /// <exception cref="InvalidOperationException">The delay list was not initialized after the pose changed.</exception>
     private void EnsureAnimationInitialized(ISnesAddressSpace bus)
     {
         int expectedList = ResolveAnimationDelayList();
@@ -473,12 +485,18 @@ public sealed partial class SamusState
         }
     }
 
+    /// <summary>Resolves the current pose's bank-$91 delay-list pointer to its full bus address.</summary>
+    /// <returns>The address cached by animation initialization and checked before each animation pass.</returns>
     private int ResolveAnimationDelayList()
     {
         ushort pointer = SamusAnimationDelayDefinitions.PointerForPose(Pose);
         return SamusMovementRomData.Banks.Pose | pointer;
     }
 
+    /// <summary>Reads one byte from the cached animation delay list at the supplied frame or operand index.</summary>
+    /// <param name="bus">Address space containing the pose's animation program.</param>
+    /// <param name="byteIndex">Byte offset within that program, including command operands when applicable.</param>
+    /// <returns>The native delay or command byte stored at the selected offset.</returns>
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
         SamusAnimationDelayDefinitions.ReadAnimationByte(bus,
             unchecked((ushort)AnimationDelayListAddress), byteIndex);
@@ -853,6 +871,13 @@ public sealed partial class SamusState
         }
     }
 
+    /// <summary>Draws one visible speed-booster echo using Samus's current top and optional bottom spritemap indices.</summary>
+    /// <param name="bus">Mutable address space supplying the zero-pointer spritemap data and graphics offset.</param>
+    /// <param name="oam">OAM buffer receiving the echo's sprite parts.</param>
+    /// <param name="echoX">Captured echo world X position; zero denotes an unused slot.</param>
+    /// <param name="echoY">Captured echo world Y position.</param>
+    /// <param name="layer1X">Horizontal room scroll subtracted to obtain screen coordinates.</param>
+    /// <param name="layer1Y">Vertical room scroll subtracted to obtain screen coordinates.</param>
     private void DrawActiveSpeedBoosterEcho(
         ISnesAddressSpace bus,
         OamBuffer oam,

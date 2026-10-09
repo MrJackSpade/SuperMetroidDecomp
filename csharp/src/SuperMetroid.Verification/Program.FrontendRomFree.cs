@@ -835,12 +835,19 @@ internal static partial class Program
             "operand-free Torizo return executes without reading $AA:F002");
     }
 
+    /// <summary>Wraps an address space to reject cartridge reads and selected visual-stream reads.</summary>
+    /// <param name="source">Installed mutable memory that receives permitted reads and all writes.</param>
+    /// <param name="lookupSource">Optional native ROM used only to discover BG2 stream ranges to block.</param>
     private sealed class FrontendCartridgeReadGuard(
         ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>CPU addresses belonging to native BG2 visual streams that installed code must not reread.</summary>
         private readonly HashSet<int> blockedPresentationBytes = [];
 
+        /// <summary>Marks each component stream in the supplied native BG2 frame sequence as forbidden to read.</summary>
+        /// <param name="bank">Cartridge bank containing the frame descriptors and streams.</param>
+        /// <param name="frames">Frame sequence whose component streams are inventoried from the lookup source.</param>
         internal void BlockExtendedBg2Streams(byte bank,
             EnemyBg2FrameDefinitionSequence frames)
         {
@@ -884,8 +891,15 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Applies the guard before returning any byte requested through the cartridge-import interface.</summary>
+        /// <param name="address">CPU address requested by the caller.</param>
+        /// <returns>The permitted byte supplied by the wrapped address space.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks inventoried presentation bytes and cartridge-space reads, forwarding other reads.</summary>
+        /// <param name="address">CPU address requested from the installed runtime.</param>
+        /// <returns>The underlying byte when the requested address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a blocked BG2 byte, cartridge byte, or required memory region is unavailable.</exception>
         public byte ReadByte(int address)
         {
             if (blockedPresentationBytes.Contains(address))
@@ -899,13 +913,24 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the installed memory without applying read restrictions.</summary>
+        /// <param name="address">CPU address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Reads mutable work RAM from the wrapped memory for persistent room state.</summary>
+        /// <param name="address">Work-RAM CPU address to read.</param>
+        /// <returns>The byte stored at the requested address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Installed frontend guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM from the wrapped mutable memory.</summary>
+        /// <param name="address">Save-RAM CPU address to read.</param>
+        /// <returns>The byte stored at the requested address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Installed frontend guard requires SRAM."))

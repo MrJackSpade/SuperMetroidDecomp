@@ -6,6 +6,10 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted projectile compositions against native OAM output and validates editable catalog files.</summary>
+    /// <param name="rom">Retail address space used as the native spritemap reference.</param>
+    /// <param name="compositionOnly">When true, limits the run to composition checks and skips intro artwork.</param>
+    /// <param name="sourceRom">ROM image installed for the file and runtime integration checks.</param>
     private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
     {
@@ -95,6 +99,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms projectile, explosion, and bomb owners draw identical OAM when cartridge reads are forbidden.</summary>
+    /// <param name="rom">Retail address space used for the native comparison draw.</param>
+    /// <param name="content">Extracted composition catalog supplied to production draw paths.</param>
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
         var forbidden = new ProjectileCompositionForbiddenBus();
@@ -141,14 +148,31 @@ internal static partial class Program
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
+    /// <summary>A bus double that fails immediately if composition drawing reads or writes cartridge memory.</summary>
     private sealed class ProjectileCompositionForbiddenBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects cartridge-import reads during a draw that should use host-loaded compositions.</summary>
+        /// <param name="address">CPU address that the draw path attempted to read.</param>
+        /// <returns>This method never returns because every read is forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reports an unexpected ROM read from a projectile composition draw.</summary>
+        /// <param name="address">Address that was read.</param>
+        /// <returns>This method never returns.</returns>
         public static byte ReadByte(int address) => throw new InvalidOperationException($"Composition draw read ROM {address:X6}.");
+        /// <summary>Reports an unexpected bus mutation during projectile composition drawing.</summary>
+        /// <param name="address">Address the draw attempted to modify.</param>
+        /// <param name="value">Value the draw attempted to store.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Composition draw mutated the bus.");
     }
 
+    /// <summary>Verifies selected projectile edits reach runtime actor drawing and survive game-state serialization.</summary>
+    /// <param name="bus">Address space used to initialize the runtime and frontend.</param>
+    /// <param name="stock">Unedited composition catalog used as the reference presentation.</param>
+    /// <param name="edited">Catalog containing the changed part offset.</param>
+    /// <param name="sprite">Sprite composition identifier altered for this check.</param>
+    /// <param name="roomAssets">Installed room palettes bound during runtime initialization.</param>
+    /// <param name="maps">Area-map catalog needed by the room runtime.</param>
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
@@ -241,6 +265,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks projectile installation, override selection, content identity, and invalid-file handling.</summary>
+    /// <param name="bus">Retail bus used to extract or repair installed projectile assets.</param>
+    /// <param name="editedJson">Serialized composition document whose edit must be retained by the installer.</param>
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
         using var rootScratch = new TestTempDirectory("projectile-install");

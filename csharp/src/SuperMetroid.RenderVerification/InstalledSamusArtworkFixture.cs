@@ -8,12 +8,24 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class InstalledSamusArtworkFixture : IDisposable
 {
+    /// <summary>Disposable test installation root that owns the copied and edited PNG files.</summary>
     private readonly string root;
+
+    /// <summary>Stock Samus body artwork loaded from the existing installation before fixture edits.</summary>
     internal SamusBodyArtworkCatalog Stock { get; }
+
+    /// <summary>Samus body artwork reloaded from the fixture installation after PNG overrides are written.</summary>
     internal SamusBodyArtworkCatalog Edited { get; }
+
+    /// <summary>Number of body, arm-cannon, and death-atlas PNG files overridden by this fixture.</summary>
     internal int EditedPngCount { get; }
+
+    /// <summary>Installation descriptor for the fixture's temporary data directories.</summary>
     internal GameInstallation Installation { get; }
 
+    /// <summary>Creates an isolated artwork installation and changes nontransparent character indices in its PNG overrides.</summary>
+    /// <param name="installationRoot">Existing installation used as the source of extracted Samus artwork.</param>
+    /// <param name="editLayout">Whether to also write the fixture's body-layout override.</param>
     internal InstalledSamusArtworkFixture(string installationRoot, bool editLayout = false)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -64,8 +76,13 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         catch { Dispose(); throw; }
     }
 
+    /// <summary>Maps a nonzero four-bit character index to a different index while retaining transparency at zero.</summary>
+    /// <param name="index">Source indexed-PNG pixel value.</param>
+    /// <returns>Zero for transparent pixels; otherwise a value in the range 1 through 15.</returns>
     internal static byte Remap(byte index) => index == 0 ? (byte)0 : (byte)(index % 15 + 1);
 
+    /// <summary>Removes the temporary installation after verifying that its path is inside the fixture directory.</summary>
+    /// <exception cref="InvalidOperationException">The recorded root is not a recognized installed-artwork fixture path.</exception>
     public void Dispose()
     {
         string owner = Path.GetFullPath(Path.Combine("csharp", "test-temp")) + Path.DirectorySeparatorChar;

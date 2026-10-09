@@ -10,10 +10,14 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Room-side writer used by the tube's script to set the earthquake type.</summary>
     private Action<ushort>? _writeNoobTubeEarthquakeType;
+    /// <summary>Projectile factory that creates the tube crack, debris, and released air bubbles.</summary>
     private Action<NoobTubeProjectileRequest>? _spawnNoobTubeProjectile;
+    /// <summary>Room liquid-physics state enabled when the tube breaks and releases water.</summary>
     private RoomLayer3FxState? _noobTubeRoomFx;
 
+    /// <summary>Clears the per-room callbacks and liquid state captured for the tube PLM.</summary>
     private void ResetNoobTubeState()
     {
         _writeNoobTubeEarthquakeType = null;
@@ -77,6 +81,11 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Executes a recognized bank-$84 tube instruction and advances its program cursor.</summary>
+    /// <param name="bus">Address space used to read operands from the active instruction stream.</param>
+    /// <param name="slot">Tube PLM slot whose instruction pointer and gameplay effects may be updated.</param>
+    /// <param name="instruction">Opcode already fetched from the slot's current instruction pointer.</param>
+    /// <returns><see langword="true"/> if this method handled the opcode; otherwise leaves it for another instruction handler.</returns>
     private bool TryExecuteNoobTubeInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -169,13 +178,23 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Gets the event-state query required to test whether the tube's break event is set.</summary>
+    /// <returns>The room event reader installed for the current PLM update.</returns>
+    /// <exception cref="InvalidOperationException">No event reader is available for the tube.</exception>
     private Func<EventNumber, bool> RequireNoobTubeEventReader() =>
         _hasEvent ?? throw new InvalidOperationException("N00b tube has no event reader.");
 
+    /// <summary>Gets the active Samus actor whose control or liquid physics the tube script changes.</summary>
+    /// <returns>The active Samus state supplied to the room PLM system.</returns>
+    /// <exception cref="InvalidOperationException">The tube requires Samus, but no active actor is available.</exception>
     private SamusState RequireNoobTubeSamus() =>
         _collectibleSamus?.Invoke() ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
+    /// <summary>Creates a tube projectile at the block occupied by its PLM slot.</summary>
+    /// <param name="slot">PLM slot supplying the projectile's room block origin.</param>
+    /// <param name="definition">Cartridge projectile definition selected for the crack, shard, or bubble.</param>
+    /// <param name="parameter">Native projectile parameter forwarded unchanged to the projectile factory.</param>
     private void SpawnNoobTubeProjectile(PlmSlot slot, ushort definition, ushort parameter) =>
         (_spawnNoobTubeProjectile ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner."))(

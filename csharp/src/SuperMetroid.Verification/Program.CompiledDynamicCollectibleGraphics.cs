@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that room loading uses compiled collectible graphics instead of rereading their retail payloads.</summary>
+    /// <param name="rom">Retail address space used for fixture setup and guarded room loading.</param>
     private static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
     {
@@ -40,18 +42,31 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledDynamicCollectibleArt), () => VerifyInstalledDynamicCollectibleArt(rom));
     }
 
+    /// <summary>Reads a little-endian word from bank $84 for resolving a retail collectible instruction list.</summary>
+    /// <param name="bus">Address space containing the retail header bytes.</param>
+    /// <param name="address">Low-byte address of the word within bank $84.</param>
+    /// <returns>The two bytes combined with the lower-address byte first.</returns>
     private static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => unchecked((ushort)(
         bus.ReadByte(0x840000 | address) |
         bus.ReadByte(0x840000 | (address + 1)) << 8));
 
+    /// <summary>Wraps retail memory and rejects collectible graphics or item-list reads replaced by compiled data.</summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and all writes.</param>
     private sealed class RetailCollectibleGraphicsReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from compiled collectible graphics or upload instruction bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Checks importer reads against the same forbidden ranges as ordinary address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte if the address is outside all guarded ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to compiled collectible payloads and retail upload lists, delegating other reads.</summary>
+        /// <param name="address">Cartridge address to check and, if allowed, read.</param>
+        /// <returns>The underlying byte for a permitted address.</returns>
         public byte ReadByte(int address)
         {
             foreach (RoomPlmDynamicCollectibleGraphic graphic in
@@ -77,6 +92,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Records a forbidden retail read attempt and fails the verification immediately.</summary>
+        /// <param name="address">Address that should have been supplied by compiled collectible data.</param>
+        /// <returns>This method never returns.</returns>
         private byte Reject(int address)
         {
             ForbiddenReadAttempts++;
@@ -84,6 +102,9 @@ internal static partial class Program
                 $"Retail collectible reread compiled graphics byte ${address:X6}.");
         }
 
+        /// <summary>Passes writes directly to the wrapped address space; the guard restricts reads only.</summary>
+        /// <param name="address">Destination cartridge address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

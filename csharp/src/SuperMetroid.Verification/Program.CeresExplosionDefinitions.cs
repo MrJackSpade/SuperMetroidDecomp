@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled Ceres explosion actor and instruction metadata with the retail ROM and exercises the production cinematic path.</summary>
     private static void VerifyCeresExplosionDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -65,6 +66,8 @@ internal static partial class Program
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
     }
 
+    /// <summary>Checks the repeating and final explosion offsets and initial timing against their retail instruction data.</summary>
+    /// <param name="retail">Address space containing the retail ROM bytes used as the expected layout.</param>
     private static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
@@ -96,13 +99,23 @@ internal static partial class Program
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
     }
 
+    /// <summary>Wraps a ROM address space and fails if the cinematic rereads any Ceres explosion definitions after import.</summary>
+    /// <param name="source">Underlying address space used for reads and writes outside the protected definition ranges.</param>
     private sealed class CeresExplosionDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from protected compiled-definition ranges.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the guard so protected definition ranges remain monitored.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte from the wrapped address space when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte unless it belongs to a compiled Ceres explosion definition range.</summary>
+        /// <param name="address">Address to read from the wrapped space.</param>
+        /// <returns>The source byte when the address is outside the protected ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address is a protected definition byte; the attempt is counted before throwing.</exception>
         public byte ReadByte(int address)
         {
             if (IsForbidden(address))
@@ -114,8 +127,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space without applying the read guard.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Tests whether an address falls inside one of the compiled Ceres explosion definition byte ranges.</summary>
+        /// <param name="address">Cartridge address to classify.</param>
+        /// <returns><see langword="true"/> when reads from this address are forbidden by the guard.</returns>
         private static bool IsForbidden(int address) =>
             address is >= 0x8bc46b and < 0x8bc489 or
                 >= 0x8bc4a9 and < 0x8bc4ab or

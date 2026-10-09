@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies resident colored-door draw data, program behavior, installed visual overrides,
+    /// and the opening and closing lifecycles while authored program and draw reads are blocked.
+    /// </summary>
+    /// <param name="rom">Retail cartridge address space used to seed and compare native door data.</param>
     private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
@@ -176,6 +181,8 @@ internal static partial class Program
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
+    /// <summary>Runs the focused checks for colored-door control words, draws, targets, sounds, hit counts, and callbacks.</summary>
+    /// <param name="rom">Retail cartridge address space used as the program behavior reference.</param>
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredProgramControls), () => VerifyColoredProgramControls(rom));
@@ -186,6 +193,8 @@ internal static partial class Program
         Suite(nameof(VerifyColoredProgramCallback), () => VerifyColoredProgramCallback(rom));
     }
 
+    /// <summary>Checks extracted stock visuals, editable overrides, replacement persistence, and invalid-data rejection.</summary>
+    /// <param name="rom">Retail cartridge address space used to extract and validate stock colored-door visuals.</param>
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -248,14 +257,27 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Wraps an address space and throws if resident colored-door execution reads compiled
+    /// instruction bytes or any authored draw-list payload.
+    /// </summary>
+    /// <param name="source">Underlying bus for reads outside the guarded program and draw ranges.</param>
+    /// <param name="lists">Compiled draw lists whose cartridge payloads must not be read at runtime.</param>
     private sealed class ColoredDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads rejected from compiled instruction or draw data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import requests through the same forbidden-range checks.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside guarded ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from resident colored-door program and draw-list ROM ranges.</summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The underlying bus value for a permitted address.</returns>
         public byte ReadByte(int address)
         {
             if (address >= 0x84bffd && address <= 0x84c488)
@@ -278,6 +300,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

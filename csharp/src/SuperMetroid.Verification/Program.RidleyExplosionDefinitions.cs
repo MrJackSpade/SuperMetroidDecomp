@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares Ridley's compiled breakup tables and four-list instruction command with cartridge data.</summary>
+    /// <param name="rom">Cartridge address space supplying native table words and instruction operands.</param>
     private static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
@@ -119,6 +121,8 @@ internal static partial class Program
             "spawns match the cartridge with migrated reads forbidden.");
     }
 
+    /// <summary>Checks all ten production death-explosion spawns against their native scatter positions and effects.</summary>
+    /// <param name="rom">Cartridge address space used as the reference for the death-scatter offsets.</param>
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +170,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises every body and tail-fragment initializer case while forbidding migrated definition reads.</summary>
+    /// <param name="rom">Cartridge address space used to compare production initialization with native words.</param>
     private static void VerifyRidleyExplosionProductionInitializer(
         SuperMetroidAddressSpace rom)
     {
@@ -268,14 +274,28 @@ internal static partial class Program
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
 
+    /// <summary>Reads one little-endian word from the cartridge data used by Ridley's explosion definitions.</summary>
+    /// <param name="source">Cartridge address space containing the native word.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The two bytes combined as an unsigned 16-bit value.</returns>
     private static ushort ReadRidleyExplosionWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space adapter that rejects reads from definition tables already migrated to compiled data.</summary>
+    /// <param name="source">Underlying cartridge address space for reads and writes outside migrated ranges.</param>
     private sealed class RidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Forwards an import-cartridge read through the migrated-definition guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside migrated definition ranges.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a migrated definition table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated definition ranges and forwards all other reads.</summary>
+        /// <param name="address">Address requested by the production code under verification.</param>
+        /// <returns>The source byte for an address outside the guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to a migrated definition table.</exception>
         public byte ReadByte(int address) => address is
             >= 0xa6c6ce and < 0xa6c6fe or
             >= 0xa6c66e and < 0xa6c696 or
@@ -289,6 +309,9 @@ internal static partial class Program
                     $"Ridley breakup attempted migrated definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the underlying cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks both Samus Eater header identities, their instruction and mounting data, and compiled program fields.</summary>
+    /// <param name="rom">Retail address space used to compare native header and instruction bytes.</param>
     private static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
@@ -70,12 +72,19 @@ internal static partial class Program
             "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
     }
 
+    /// <summary>Verifies that floor and ceiling headers select their respective native instruction lists.</summary>
+    /// <param name="rom">Retail address space containing the header instruction pointers.</param>
     private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, false));
 
+    /// <summary>Checks that compiled floor and ceiling mounting rules match their native setup instructions.</summary>
+    /// <param name="rom">Retail address space containing the floor and ceiling setup data.</param>
     private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
+    /// <summary>Validates the selected header's instruction pointer or its floor/ceiling setup and mounting behavior.</summary>
+    /// <param name="rom">Retail address space used to inspect native header and setup bytes.</param>
+    /// <param name="mounting">When <see langword="true"/>, checks setup and mounting direction; otherwise checks the initial instruction pointer.</param>
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -108,6 +117,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares the compiled program's owned control bytes and all overlapping word views with retail data.</summary>
+    /// <param name="rom">Retail address space supplying expected bytes and words.</param>
     private static void VerifySamusEaterProgramControls(SuperMetroidAddressSpace rom)
     {
         int[] drawWords = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
@@ -133,6 +144,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks every compiled draw operand against the original instruction-list words and bytes.</summary>
+    /// <param name="rom">Retail address space supplying the original draw operands.</param>
     private static void VerifySamusEaterProgramDraws(SuperMetroidAddressSpace rom)
     {
         int[] pointers = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
@@ -149,6 +162,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that the two compiled sound selectors preserve their original instruction bytes.</summary>
+    /// <param name="rom">Retail address space containing the sound-selection operands.</param>
     private static void VerifySamusEaterProgramSound(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in new ushort[] {0xaccd,0xad0d})
@@ -158,6 +173,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads two consecutive bytes as a little-endian Samus Eater PLM word.</summary>
+    /// <param name="bus">Address space containing the instruction or header bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

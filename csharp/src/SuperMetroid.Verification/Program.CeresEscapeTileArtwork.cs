@@ -6,6 +6,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed Ceres escape transfers with native VRAM and verifies editable artwork overrides and missing-art failures.</summary>
+    /// <param name="rom">Cartridge address space used as the native byte and transfer oracle.</param>
+    /// <param name="stockDirectory">Directory containing the validated stock tile artwork files.</param>
+    /// <param name="stock">Installed stock artwork catalog used for native and edited transfer comparisons.</param>
     private static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -176,22 +180,42 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Provides escape-timer assets from the timer atlas and character bytes from the installed tile catalog.</summary>
+    /// <param name="tiles">Catalog that resolves installed Ceres escape character transfers.</param>
+    /// <param name="timer">Atlas that resolves escape-timer VRAM assets.</param>
     private sealed class CeresEscapeArtworkProvider(
         EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a timer graphics asset through the dedicated timer atlas.</summary>
+        /// <param name="asset">Timer asset identity requested by the VRAM transfer.</param>
+        /// <returns>The encoded bytes associated with the requested timer asset.</returns>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => timer.Resolve(asset);
 
+        /// <summary>Looks up an installed Ceres character transfer by its native source address and byte length.</summary>
+        /// <param name="sourceAddress">Native source address identifying the character data.</param>
+        /// <param name="byteCount">Number of bytes requested from the installed artwork.</param>
+        /// <param name="data">Receives the matching bytes when the catalog contains the complete requested range.</param>
+        /// <returns><see langword="true"/> when the complete transfer range is installed.</returns>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
     }
 
+    /// <summary>Prevents installed Ceres transfers from falling back to cartridge reads for native artwork sources.</summary>
+    /// <param name="source">Underlying address space for reads and writes outside the guarded artwork ranges.</param>
     private sealed class CeresEscapeArtworkReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the native artwork-source guard.</summary>
+        /// <param name="address">Cartridge address requested by the transfer.</param>
+        /// <returns>The wrapped source byte when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of Ceres transfer descriptors, overlay maps, character art, and timer artwork.</summary>
+        /// <param name="address">Address requested by the installed transfer path.</param>
+        /// <returns>The underlying byte when the address does not belong to a guarded artwork range.</returns>
+        /// <exception cref="InvalidOperationException">The address targets a native Ceres artwork source that must come from installed assets.</exception>
         public byte ReadByte(int address) =>
             CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
             CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
@@ -203,6 +227,9 @@ internal static partial class Program
                     $"Installed Ceres escape reread source ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

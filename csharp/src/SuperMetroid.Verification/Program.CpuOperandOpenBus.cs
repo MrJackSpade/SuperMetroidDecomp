@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that CPU data reads preserve the operand bus value when a mirrored register address is undriven.</summary>
     private static void VerifyCpuOperandOpenBus()
     {
         var bus = new OperandReadWitness();
@@ -40,14 +41,39 @@ internal static partial class Program
             "indirect long operand cannot read cartridge bytes through the gameplay bus");
     }
 
+    /// <summary>Returns a fixed MDR byte for each mapped memory source to make open-bus propagation observable.</summary>
     private sealed class OperandReadWitness : ISnesAddressSpace,
         ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
+        /// <summary>Supplies the witness byte for generic address-space reads.</summary>
+        /// <param name="address">CPU-visible address being sampled.</param>
+        /// <returns>The fixed data-bus witness value.</returns>
         public static byte ReadByte(int address) => 0xab;
+
+        /// <summary>Supplies the witness byte for work-RAM accesses.</summary>
+        /// <param name="address">Work-RAM byte address being sampled.</param>
+        /// <returns>The fixed data-bus witness value.</returns>
         public byte ReadWorkRamByte(int address) => 0xab;
+
+        /// <summary>Supplies the witness byte for save-RAM accesses.</summary>
+        /// <param name="address">Save-RAM byte address being sampled.</param>
+        /// <returns>The fixed data-bus witness value.</returns>
         public byte ReadSaveRamByte(int address) => 0xab;
+
+        /// <summary>Supplies the witness byte for cartridge-source accesses.</summary>
+        /// <param name="address">Cartridge byte address being sampled.</param>
+        /// <returns>The fixed data-bus witness value.</returns>
         public byte ReadCartridgeByte(int address) => 0xab;
+
+        /// <summary>Supplies the witness byte for mapped CPU-peripheral accesses.</summary>
+        /// <param name="address">Peripheral address being sampled.</param>
+        /// <returns>The fixed data-bus witness value.</returns>
         public byte ReadPeripheralByte(int address) => 0xab;
+
+        /// <summary>Rejects writes because this read witness only models byte sources for the verification.</summary>
+        /// <param name="address">Address that would receive the write.</param>
+        /// <param name="value">Value that would be written.</param>
+        /// <exception cref="NotSupportedException">The witness has no write behavior.</exception>
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

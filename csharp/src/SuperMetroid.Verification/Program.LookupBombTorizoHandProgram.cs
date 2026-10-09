@@ -3,14 +3,37 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the compiled Bomb Torizo hand definition retains the original control-word bytes.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramControls(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 0);
+
+    /// <summary>Checks that the compiled hand definition retains its original draw-instruction bytes.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramDraws(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 1);
+
+    /// <summary>Checks that the compiled hand definition retains the original instruction callback address.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramCallback(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 2);
+
+    /// <summary>Checks that the compiled hand definition retains its original debris-spawn arguments.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramDebrisArguments(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 3);
+
+    /// <summary>Checks that the compiled hand definition retains the original transfer length.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramTransferSize(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 4);
+
+    /// <summary>Checks that the compiled hand definition retains all bytes of its original transfer source pointer.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramTransferSource(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 5);
+
+    /// <summary>Checks that the compiled hand definition retains its original transfer destination.</summary>
+    /// <param name="rom">Retail ROM used as the source of expected instruction bytes.</param>
     private static void VerifyHandProgramTransferDestination(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 6);
 
+    /// <summary>Compares one hand-program field against the retail bytes and verifies its exact, nonoverlapping address ownership.</summary>
+    /// <param name="rom">Retail ROM supplying the expected bytes for the selected field.</param>
+    /// <param name="field">Index selecting one field's byte set in the hand-program layout.</param>
     private static void VerifyHandProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Actual supported-ROM boundaries, including the alignment change after

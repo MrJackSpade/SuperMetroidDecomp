@@ -10,6 +10,9 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class ExtractedInstallationValidationVerification
 {
+    /// <summary>Exercises strict extracted-content diagnostics and ROM-free repair-admission behavior on a temporary fixture.</summary>
+    /// <param name="sourceRoot">Installed source tree whose stock non-ROM files seed the isolated fixture.</param>
+    /// <returns>Zero after every known validation contract is confirmed.</returns>
     internal static int Run(string sourceRoot)
     {
         GameInstallation source = GameAssetInstallerTooling.ValidateExtractedContent(sourceRoot);
@@ -79,6 +82,11 @@ internal static class ExtractedInstallationValidationVerification
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
+    /// <summary>Confirms a damaged installation produces the expected strict error and is not silently repaired.</summary>
+    /// <typeparam name="T">Exception type required from strict extracted-content validation.</typeparam>
+    /// <param name="fixture">Temporary installation whose content was deliberately damaged.</param>
+    /// <param name="failingPath">Path that the strict diagnostic must identify.</param>
+    /// <param name="scenario">Label used in assertion messages for this rejection case.</param>
     private static void VerifyRejection<T>(GameInstallation fixture, string failingPath, string scenario) where T : Exception
     {
         Dictionary<string, string> damaged = Snapshot(fixture.ContentDirectory);
@@ -88,6 +96,10 @@ internal static class ExtractedInstallationValidationVerification
         AssertUnchanged(damaged, fixture, scenario);
     }
 
+    /// <summary>Requires strict validation to throw the expected exception and name the exact failing path.</summary>
+    /// <typeparam name="T">Exception type expected from the invalid installation.</typeparam>
+    /// <param name="root">Installation root passed to strict extracted-content validation.</param>
+    /// <param name="failingPath">Path that must appear in the diagnostic.</param>
     private static void Reject<T>(string root, string failingPath) where T : Exception
     {
         try { GameAssetInstallerTooling.ValidateExtractedContent(root); }
@@ -100,6 +112,10 @@ internal static class ExtractedInstallationValidationVerification
         throw new InvalidDataException($"Strict validation accepted defective content; expected {typeof(T).Name} for {failingPath}.");
     }
 
+    /// <summary>Applies a temporary file mutation, runs its verification, and restores the original bytes even on failure.</summary>
+    /// <param name="path">Fixture file whose original contents must be restored.</param>
+    /// <param name="edit">Mutation that creates the invalid fixture state.</param>
+    /// <param name="verify">Checks performed while the mutation is present.</param>
     private static void WithEditedFile(string path, Action edit, Action verify)
     {
         byte[] original = File.ReadAllBytes(path);
@@ -107,12 +123,23 @@ internal static class ExtractedInstallationValidationVerification
         finally { File.WriteAllBytes(path, original); }
     }
 
+    /// <summary>Parses a fixture file as a JSON object.</summary>
+    /// <param name="path">JSON file to load.</param>
+    /// <returns>The parsed object.</returns>
+    /// <exception cref="InvalidDataException">The file does not contain a JSON object.</exception>
     private static JsonObject ReadObject(string path) => JsonNode.Parse(File.ReadAllText(path))?.AsObject()
         ?? throw new InvalidDataException($"Expected JSON object at {path}.");
 
+    /// <summary>Hashes every file under a fixture root, keyed by its path relative to that root.</summary>
+    /// <param name="root">Directory tree whose file contents form the snapshot.</param>
+    /// <returns>Relative paths and SHA-256 digests used to detect fixture mutation.</returns>
     private static Dictionary<string, string> Snapshot(string root) => Directory.GetFiles(root, "*", SearchOption.AllDirectories)
         .ToDictionary(path => Path.GetRelativePath(root, path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>Checks that validation left all fixture files byte-identical and did not create a ROM file.</summary>
+    /// <param name="expected">Pre-validation relative-path hashes.</param>
+    /// <param name="fixture">Installation whose content and ROM path are checked.</param>
+    /// <param name="scenario">Label added to assertion failures.</param>
     private static void AssertUnchanged(Dictionary<string, string> expected, GameInstallation fixture, string scenario)
     {
         Dictionary<string, string> actual = Snapshot(fixture.ContentDirectory);
@@ -121,6 +148,10 @@ internal static class ExtractedInstallationValidationVerification
         Assert(!File.Exists(fixture.RomPath), scenario + ": no cartridge was created");
     }
 
+    /// <summary>Throws the verification failure when a required condition is false.</summary>
+    /// <param name="condition">Condition that must hold for the fixture contract to pass.</param>
+    /// <param name="message">Failure detail surfaced when the condition is false.</param>
+    /// <exception cref="InvalidDataException">The condition is false.</exception>
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

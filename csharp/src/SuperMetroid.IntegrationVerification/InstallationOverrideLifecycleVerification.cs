@@ -12,6 +12,9 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static partial class InstallationOverrideLifecycleVerification
 {
+    /// <summary>Exercises override persistence across fresh startup, stock repair, and extraction-format upgrade.</summary>
+    /// <param name="sourceRom">ROM image copied into the isolated test installation for extraction.</param>
+    /// <returns>Zero after all lifecycle assertions pass.</returns>
     internal static int Run(string sourceRom)
     {
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-override-lifecycle-").FullName;
@@ -79,6 +82,9 @@ internal static partial class InstallationOverrideLifecycleVerification
         }
     }
 
+    /// <summary>Copies stock files into every declared override directory and adds an unrecognized user file.</summary>
+    /// <param name="installation">The installed content whose domain files seed the override tree.</param>
+    /// <returns>Names of the override directories copied from installed content.</returns>
     private static string[] CopyEveryOverrideDomain(GameInstallation installation)
     {
         string[] directories = typeof(GameInstallation).GetProperties()
@@ -104,6 +110,9 @@ internal static partial class InstallationOverrideLifecycleVerification
         return directories;
     }
 
+    /// <summary>Loads each parameterless catalog API and records the content identity it selected.</summary>
+    /// <param name="installation">Installation used as the receiver for catalog loaders.</param>
+    /// <returns>A map from loader name to the selected catalog's content identity.</returns>
     private static Dictionary<string, string> CatalogSnapshot(GameInstallation installation)
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -129,11 +138,18 @@ internal static partial class InstallationOverrideLifecycleVerification
         return result;
     }
 
+    /// <summary>Hashes every file beneath a directory, keyed by its path relative to that directory.</summary>
+    /// <param name="root">Directory whose recursive file contents are captured.</param>
+    /// <returns>Relative file paths paired with uppercase SHA-256 digests.</returns>
     private static Dictionary<string, string> FileSnapshot(string root) =>
         Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
             .ToDictionary(file => Path.GetRelativePath(root, file),
                 file => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file))), StringComparer.Ordinal);
 
+    /// <summary>Requires two file or catalog snapshots to contain identical keys and values.</summary>
+    /// <param name="expected">Reference snapshot.</param>
+    /// <param name="actual">Snapshot produced by the operation under verification.</param>
+    /// <param name="context">Scenario label included in assertion failures.</param>
     private static void AssertSnapshot(Dictionary<string, string> expected, Dictionary<string, string> actual, string context)
     {
         Assert(expected.Count == actual.Count, context + ": file/catalog count");
@@ -141,6 +157,9 @@ internal static partial class InstallationOverrideLifecycleVerification
             Assert(actual.TryGetValue(key, out string? selected) && selected == digest, context + ": " + key);
     }
 
+    /// <summary>Checks that presentation edits affect only the catalog loaders expected to consume them.</summary>
+    /// <param name="baseline">Catalog identities before override edits.</param>
+    /// <param name="selected">Catalog identities after the edits are selected.</param>
     private static void AssertOnlyEditedCatalogsChanged(Dictionary<string, string> baseline, Dictionary<string, string> selected)
     {
         string[] changed = [nameof(GameInstallation.LoadMaps), nameof(GameInstallation.LoadAudio),
@@ -149,6 +168,9 @@ internal static partial class InstallationOverrideLifecycleVerification
             Assert((selected[loader] != digest) == changed.Contains(loader), "isolated presentation edits: " + loader);
     }
 
+    /// <summary>Confirms malformed user content is reported and retained instead of being replaced by stock repair.</summary>
+    /// <param name="installation">Installation containing the override under examination.</param>
+    /// <param name="expected">Snapshot of all override files before the malformed-file probe.</param>
     private static void VerifyInvalidOverrideIsRetained(GameInstallation installation, Dictionary<string, string> expected)
     {
         string path = Path.Combine(installation.StandardObjectOverrideDirectory, StandardObjectArtworkFormat.FileName);
@@ -173,6 +195,9 @@ internal static partial class InstallationOverrideLifecycleVerification
         AssertSnapshot(expected, FileSnapshot(Path.Combine(installation.Root, "overrides")), "author repair restores override files");
     }
 
+    /// <summary>Raises a verification failure with the supplied explanation when a condition is false.</summary>
+    /// <param name="condition">Predicate that must hold for the lifecycle check to pass.</param>
+    /// <param name="message">Failure context reported if the predicate is false.</param>
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

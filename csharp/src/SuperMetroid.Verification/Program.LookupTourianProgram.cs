@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the compiled statue program exposes native timed-frame source operand positions.</summary>
+    /// <param name="rom">Address space used to enumerate the original instruction stream for comparison.</param>
     private static void VerifyTourianStatueSourceOperandPositions(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -21,6 +23,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares each original statue instruction opcode with its compiled mechanics word.</summary>
+    /// <param name="rom">Address space containing the original statue instruction streams.</param>
     private static void VerifyTourianStatueInstructionOpcodes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -28,6 +32,8 @@ internal static partial class Program
             VerifyTourianStatueOriginalWord(rom, header, instruction.Cursor);
     }
 
+    /// <summary>Checks the duration words for every timed frame after the first compiled frame.</summary>
+    /// <param name="rom">Address space containing the original statue instruction streams.</param>
     private static void VerifyTourianStatueSubsequentDurations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -35,6 +41,8 @@ internal static partial class Program
             VerifyTourianStatueOriginalWord(rom, header, frame.Cursor);
     }
 
+    /// <summary>Verifies the compiled branch and loop destination operands used by statue programs.</summary>
+    /// <param name="rom">Address space containing the original statue instruction streams.</param>
     private static void VerifyTourianStatueBranchDestinations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -51,6 +59,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the operand that points from each statue's state instruction to the shared busy flag.</summary>
+    /// <param name="rom">Address space containing the original statue instruction streams.</param>
     private static void VerifyTourianStatueBusyStateOperand(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -61,6 +71,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exhaustively confirms each compiled statue mechanics definition accepts exactly its native control-word domain.</summary>
+    /// <param name="rom">Address space used to enumerate each statue's original instructions.</param>
     private static void VerifyTourianStatueMechanicsDomain(ISnesAddressSpace rom)
     {
         int total = 0;
@@ -83,6 +95,10 @@ internal static partial class Program
         AssertEqual(184, total, "All original mechanics words partitioned by named field/control proofs");
     }
 
+    /// <summary>Compares one compiled statue control word with the corresponding word in the original bank.</summary>
+    /// <param name="rom">Address space containing the original control word.</param>
+    /// <param name="header">Native object-header pointer selecting the statue definition.</param>
+    /// <param name="pointer">Bank-local address of the mechanics word to compare.</param>
     private static void VerifyTourianStatueOriginalWord(ISnesAddressSpace rom, ushort header, ushort pointer)
     {
         AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition),
@@ -91,6 +107,8 @@ internal static partial class Program
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
     }
 
+    /// <summary>Runs the focused source-position, opcode, timing, branch, busy-state, and mechanics-domain checks.</summary>
+    /// <param name="rom">Address space used to compare compiled statue data with the original programs.</param>
     private static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
         VerifyTourianStatueSourceOperandPositions(rom);

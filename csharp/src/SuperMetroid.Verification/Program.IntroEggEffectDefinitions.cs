@@ -4,6 +4,9 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that intro egg effect definitions match cartridge data and that their compiled actors finish without rereading source lists.
+    /// </summary>
     private static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -64,6 +67,13 @@ internal static partial class Program
             "  Intro egg effects: 21 actor words and 76 instruction/delete bytes match; six fragments and four slime drops complete without source-list reads.");
     }
 
+    /// <summary>
+    /// Compares the compiled pre-instruction and instruction-list pointers with the corresponding cartridge actor header.
+    /// </summary>
+    /// <param name="retail">Cartridge address space containing the native actor definition.</param>
+    /// <param name="definitionPointer">Bank-local pointer to the actor's six-byte definition header.</param>
+    /// <param name="actual">Compiled definition whose callback and instruction-list pointers are being checked.</param>
+    /// <param name="name">Label used to identify assertion failures for this actor.</param>
     private static void VerifyIntroEggEffectActor(
         SuperMetroidAddressSpace retail,
         ushort definitionPointer,
@@ -78,16 +88,32 @@ internal static partial class Program
             $"{name} instruction list");
     }
 
+    /// <summary>Reads a little-endian 16-bit actor-definition field from the cartridge address space.</summary>
+    /// <param name="bus">Address space that supplies the two bytes.</param>
+    /// <param name="address">Cartridge address of the low byte.</param>
+    /// <returns>The word formed by the low byte followed by the high byte.</returns>
     private static ushort ReadIntroEggEffectWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>
+    /// Wraps the cartridge address space and rejects reads from intro egg definition and instruction-list ranges during actor execution.
+    /// </summary>
+    /// <param name="source">Underlying address space used for allowed reads and forwarded writes.</param>
     private sealed class IntroEggEffectDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts attempts to read cartridge bytes in ranges that compiled intro egg actors must no longer access.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer byte reads through the guard so forbidden definition ranges are detected.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled intro egg source-data ranges and delegates other reads to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The requested byte when the address is outside the forbidden ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a definition or instruction-list range guarded by this wrapper.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x8bcecd and < 0x8bcef7 or
@@ -101,6 +127,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards memory writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

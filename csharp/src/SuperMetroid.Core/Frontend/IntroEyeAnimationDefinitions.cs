@@ -27,8 +27,20 @@ internal static class IntroEyeAnimationDefinitions
     /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>
     private const ushort PackedPosition = 17 | (13 << 8);
 
-    private enum EyeFrame { HalfOpen = 1, Closed = 2, Deadpan = 3 }
+    /// <summary>Frame selectors used by the page-six script after its initial closed-eye hold.</summary>
+    private enum EyeFrame
+    {
+        /// <summary>Uses the partially open portrait-eye draw record.</summary>
+        HalfOpen = 1,
+        /// <summary>Uses the fully closed portrait-eye draw record.</summary>
+        Closed = 2,
+        /// <summary>Uses the page-six neutral expression draw record.</summary>
+        Deadpan = 3
+    }
 
+    /// <summary>Compiles one word of the bank-$8C eye instruction stream from its script position.</summary>
+    /// <param name="index">Zero-based word offset from <see cref="StartPointer"/>.</param>
+    /// <returns>The duration, packed portrait position, frame pointer, or native goto operand at that position.</returns>
     private static ushort ProgramWord(int index)
     {
         if (index is 24 or 35) return CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto;
@@ -59,6 +71,10 @@ internal static class IntroEyeAnimationDefinitions
             : (ushort)(FrameStartPointer + FrameStride * frame);
     }
 
+    /// <summary>Reads one little-endian program byte from the compiled eye script's native pointer range.</summary>
+    /// <param name="pointer">Bank-$8C address of the byte to read.</param>
+    /// <returns>The byte stored at that script address.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The address lies outside the compiled script range.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
@@ -67,6 +83,11 @@ internal static class IntroEyeAnimationDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Attempts to read a complete little-endian script word without crossing the compiled program boundary.</summary>
+    /// <param name="pointer">Bank-$8C address of the word's first byte.</param>
+    /// <param name="word">Receives the decoded word on success, or zero when the address is outside the script.</param>
+    /// <returns><see langword="true"/> when the pointer begins a complete word within the script.</returns>
+    /// <exception cref="InvalidDataException">The pointer addresses the final byte, so the word would overrun the program.</exception>
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
@@ -80,6 +101,10 @@ internal static class IntroEyeAnimationDefinitions
         return true;
     }
 
+    /// <summary>Recognizes pointers to the start of one of the four fixed-stride portrait-eye draw records.</summary>
+    /// <param name="pointer">Bank-$8C address to check against the draw-record table.</param>
+    /// <param name="index">Receives the zero-based frame number when the pointer is an aligned record start.</param>
+    /// <returns><see langword="true"/> only for an aligned pointer within the four-record table.</returns>
     internal static bool TryFrameIndex(ushort pointer, out int index)
     {
         int offset = pointer - FrameStartPointer;

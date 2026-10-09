@@ -102,6 +102,11 @@ internal static partial class Program
             "forbidden.");
     }
 
+    /// <summary>Executes one Rinka instruction program through the production interpreter for enough frames to observe its loop.</summary>
+    /// <param name="bus">Guarded address space that rejects compiled mechanics reads and tracks visual operand access.</param>
+    /// <param name="initialPointer">Native initial instruction pointer for the ordinary or special firing program.</param>
+    /// <param name="special">Whether to initialize the special Rinka variant, which retains off-screen processing.</param>
+    /// <returns>The configured enemy system and its Rinka slot after the instruction sequence runs.</returns>
     private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
         RinkaInstructionReadGuard bus,
         ushort initialPointer,
@@ -137,6 +142,10 @@ internal static partial class Program
         return (enemies, rinka);
     }
 
+    /// <summary>Reads a little-endian mechanics word from bank $A2 at a bank-local instruction address.</summary>
+    /// <param name="source">Cartridge address space containing the native program.</param>
+    /// <param name="address">Bank-local address of the low byte.</param>
+    /// <returns>The two source bytes combined into a 16-bit word.</returns>
     private static ushort ReadRinkaProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -144,14 +153,26 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects runtime reads of compiled Rinka mechanics and records accesses to presentation operands.</summary>
+    /// <param name="source">Underlying cartridge address space for reads outside the protected mechanics data.</param>
     private sealed class RinkaInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation word addresses observed while Rinka instructions execute.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to reread mechanics bytes supplied by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-byte requests through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other byte reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The underlying byte when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Rinka mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -182,6 +203,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

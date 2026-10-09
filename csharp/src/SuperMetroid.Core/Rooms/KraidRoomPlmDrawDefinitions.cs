@@ -28,12 +28,20 @@ internal static class KraidRoomPlmDrawDefinitions
     /// <summary><c>$84:93BF</c>: already-defeated spikes clear, twenty-two blocks.</summary>
     internal const ushort ClearSpikes = 0x93bf;
 
+    /// <summary>Number of distinct Kraid room draw lists represented by the compiled catalog.</summary>
     internal const int DrawCount = 10;
 
     /// <summary>A horizontal, single-run Kraid draw evaluated without stored words.</summary>
+    /// <param name="Pointer">Bank-$84 address identifying the native draw list.</param>
     internal readonly record struct Draw(ushort Pointer)
     {
+        /// <summary>Gets the number of level blocks emitted by this draw list.</summary>
         internal int BlockCount => CountFor(Pointer);
+
+        /// <summary>Calculates one full room level word at its position in the draw list.</summary>
+        /// <param name="index">Zero-based block index within the draw list.</param>
+        /// <returns>The level word, including its collision bits.</returns>
+        /// <exception cref="IndexOutOfRangeException">The index is outside this draw list's block count.</exception>
         internal ushort WordAt(int index) => LevelWord(Pointer, index);
     }
 
@@ -51,6 +59,10 @@ internal static class KraidRoomPlmDrawDefinitions
         };
     }
 
+    /// <summary>Resolves a native draw-list pointer when it belongs to the compiled Kraid catalog.</summary>
+    /// <param name="pointer">Bank-$84 address to look up.</param>
+    /// <param name="draw">Receives the calculated draw when the pointer is recognized; otherwise receives the default value.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a supported draw list.</returns>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (CountFor(pointer) != 0)
@@ -115,6 +127,10 @@ internal static class KraidRoomPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves a stable presentation key to its corresponding compiled room draw.</summary>
+    /// <param name="id">One of the catalog's crumble, background, or clear visual identifiers.</param>
+    /// <param name="draw">Receives the matching draw, or the default value when the identifier is unknown.</param>
+    /// <returns><see langword="true"/> when the identifier maps to a Kraid draw list.</returns>
     internal static bool TryGetByVisualId(string id, out Draw draw) =>
         TryGet(id switch
         {
@@ -130,6 +146,10 @@ internal static class KraidRoomPlmDrawDefinitions
             "clear-spikes" => ClearSpikes,
             _ => (ushort)0,
         }, out draw);
+    /// <summary>Returns the stable presentation identifier for a compiled Kraid draw pointer.</summary>
+    /// <param name="pointer">Bank-$84 address of a supported draw list.</param>
+    /// <returns>The semantic key used to identify the list in editable presentation data.</returns>
+    /// <exception cref="InvalidDataException">No Kraid visual identifier is defined for the pointer.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         CrumbleFirst => "crumble-first",
@@ -146,6 +166,9 @@ internal static class KraidRoomPlmDrawDefinitions
             $"Kraid room draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Determines whether a room PLM header owns one of the compiled Kraid ceiling or spike lists.</summary>
+    /// <param name="header">Room PLM header value to classify.</param>
+    /// <returns><see langword="true"/> for a Kraid crumble or clear PLM.</returns>
     internal static bool IsKraidOwner(ushort header) => header is
         RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1 or
         RoomPlmHeaders.CrumbleKraidPlatformVariant1 or

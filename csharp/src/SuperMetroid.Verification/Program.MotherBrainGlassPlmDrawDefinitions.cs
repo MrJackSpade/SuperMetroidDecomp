@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that Mother Brain glass draw lists match their compiled definitions and retain
+    /// the expected stock and override visual behavior.
+    /// </summary>
     private static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -48,6 +52,10 @@ internal static partial class Program
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
+    /// <summary>
+    /// Exercises one compiled glass draw list through the production PLM draw path and checks
+    /// its physical block writes while forbidding rereads of the draw payload.
+    /// </summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -122,6 +130,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks that extracted stock glass visuals can be overridden, survive stock refresh, and
+    /// reject invalid overrides or tampered stock data.
+    /// </summary>
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -185,14 +197,29 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Address-space wrapper that prevents the compiled glass draw path from rereading its
+    /// source payload while allowing unrelated cartridge accesses to reach the source.
+    /// </summary>
+    /// <param name="source">The address space that supplies allowed cartridge reads and receives writes.</param>
+    /// <param name="lists">The compiled draw lists whose encoded payload ranges must not be read during drawing.</param>
     private sealed class MotherBrainGlassDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Reads through the guarded address-space path used for cartridge import.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Gets the number of attempted reads that targeted a protected draw payload.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Rejects reads in any compiled draw-list payload range and forwards all other reads
+        /// to the wrapped address space.
+        /// </summary>
+        /// <param name="address">The SNES address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">A draw payload byte is read during the guarded operation.</exception>
         public byte ReadByte(int address)
         {
             foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
@@ -210,6 +237,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without restricting destinations.</summary>
+        /// <param name="address">The SNES address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

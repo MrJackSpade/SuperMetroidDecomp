@@ -10,6 +10,14 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native pause wireframes, isolated visual overrides, equipment interactions,
+    /// rendering parity, and restore behavior while blocking runtime reads of wireframe art.
+    /// </summary>
+    /// <param name="bus">Retail cartridge address space used to compare native assets and seed the read guard.</param>
+    /// <param name="stock">Directory containing the installed stock presentation documents.</param>
+    /// <param name="overrides">Directory used for temporary pause-wireframe overrides.</param>
+    /// <param name="original">Unmodified catalog used as the baseline for edits and content restoration.</param>
     private static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
@@ -136,10 +144,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Wraps a cartridge bus and rejects runtime access to the native pause-wireframe
+    /// selector table and all four referenced art payloads.
+    /// </summary>
     private sealed class PauseWireframeReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Underlying cartridge bus for reads outside the guarded wireframe ranges.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Addresses of native selector and wireframe bytes that installed rendering must not reread.</summary>
         private readonly HashSet<int> blocked = [];
+
+        /// <summary>Builds the blocked address set from the cartridge's four wireframe pointers.</summary>
+        /// <param name="source">Address space used to read the selector table and later serve permitted requests.</param>
         public PauseWireframeReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -150,10 +168,20 @@ internal static partial class Program
             }
             for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);
         }
+        /// <summary>Routes importer reads through the same blocked-address check as runtime reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not a guarded selector or art byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from guarded wireframe data and forwards other byte reads to the wrapped bus.</summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The wrapped bus value for an allowed address.</returns>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read wireframe art at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards a byte write unchanged to the wrapped cartridge bus.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

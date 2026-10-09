@@ -12,20 +12,33 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class BombSpreadTransitionScenario
 {
+    /// <summary>Column names emitted by <see cref="Row"/> for each per-frame trace record.</summary>
     internal const string TraceHeader = "left,delay,frame,input,pose,x,xsub,y,ysub,charge,spread,bombs";
 
+    /// <summary>Selects the left-facing variant of the selected bomb-spread route.</summary>
     internal bool Left { get; }
+    /// <summary>Selects the wall-jump route instead of earning the spread during an aerial turn-around.</summary>
     internal bool WallRoute { get; }
+    /// <summary>Selected timing variant, including the wall-route late-success and negative-control cases.</summary>
     internal int TimingCase { get; }
     /// <summary>Frames the timed release or morph is late; wall cases 10..13 are the 40..43 controls.</summary>
     internal int Delay { get; }
+    /// <summary>Runtime initialized with the cleared Landing Site fixture used by this scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Samus instance whose input-earned pose, charge, and projectile state the scenario records.</summary>
     internal SamusState Samus => Runtime.Samus!;
+    /// <summary>Number of frames required to run the selected route through its observation window.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
     /// <summary>Timing cases per direction: ten delays, plus the wall route's late-success and two negative controls.</summary>
     internal static int TimingCaseCount(bool wallRoute) => wallRoute ? 14 : 10;
 
+    /// <summary>Initializes the test room and Samus state while leaving movement and bomb-spread charge to controller input.</summary>
+    /// <param name="runtime">Runtime whose Landing Site room is prepared for the route.</param>
+    /// <param name="bus">Address space used to initialize Samus collision radii and animation.</param>
+    /// <param name="left">Selects the left-facing variant of the route.</param>
+    /// <param name="timingCase">Selects the release or morph delay, including route-specific control cases.</param>
+    /// <param name="wallRoute">Selects the charged wall-jump route when true, otherwise the aerial route.</param>
     internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, bool left, int timingCase, bool wallRoute)
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);

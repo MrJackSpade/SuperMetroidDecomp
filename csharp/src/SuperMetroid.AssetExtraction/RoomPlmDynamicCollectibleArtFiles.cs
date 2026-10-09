@@ -18,10 +18,14 @@ public static class RoomPlmDynamicCollectibleArtFiles
     public const string PaletteFileName = "palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and hashes for seventeen item PNGs plus palette-selector JSON.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Current manifest and palette-selector document schema version.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Indexed PNG width containing eight native 8-by-8 characters in one row.</summary>
     private const int Width = 64;
+    /// <summary>Indexed PNG height of one native character row.</summary>
     private const int Height = 8;
 
+    /// <summary>Camel-case JSON settings shared by the stock manifest and editable palette selectors.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -172,6 +176,11 @@ public static class RoomPlmDynamicCollectibleArtFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Reads one required stock resource and verifies its exact bytes against the manifest.</summary>
+    /// <param name="directory">Stock dynamic-collectible family directory.</param>
+    /// <param name="manifest">Validated manifest containing required filename hashes.</param>
+    /// <param name="name">Resource filename to read.</param>
+    /// <returns>The verified file bytes.</returns>
     private static byte[] ReadStock(string directory, ArtManifest manifest,
         string name)
     {
@@ -184,6 +193,10 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return bytes;
     }
 
+    /// <summary>Decodes a fixed 64-by-8 indexed PNG and recompiles its pixels to eight four-bit planar characters.</summary>
+    /// <param name="png">Complete PNG bytes.</param>
+    /// <param name="path">Logical filename included in admission failures.</param>
+    /// <returns>The native-order planar character bytes.</returns>
     private static byte[] ReadTiles(byte[] png, string path)
     {
         try
@@ -200,6 +213,9 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>Validates complete one-per-kind palette-selector coverage and normalizes selectors to bytes in enum order.</summary>
+    /// <param name="document">Deserialized editable selector document.</param>
+    /// <returns>Eight selectors per collectible kind ordered from Bombs through Reserve Tank.</returns>
     private static byte[][] ParsePalettes(PaletteDocument document)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -232,6 +248,11 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return result;
     }
 
+    /// <summary>Deserializes a required dynamic-collectible JSON document and normalizes syntax/null failures.</summary>
+    /// <typeparam name="T">Expected manifest or selector-document type.</typeparam>
+    /// <param name="bytes">Complete UTF-8 JSON bytes.</param>
+    /// <param name="path">Logical filename included in failures.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -245,11 +266,24 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>Computes the uppercase SHA-256 identity stored for exact stock file bytes.</summary>
+    /// <param name="bytes">Complete resource bytes.</param>
+    /// <returns>Uppercase hexadecimal SHA-256.</returns>
     private static string Sha(byte[] bytes) =>
         Convert.ToHexString(SHA256.HashData(bytes));
 
+    /// <summary>Stock provenance and per-file byte identities for the dynamic collectible family.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">Cartridge identity used for extraction.</param>
+    /// <param name="Hashes">Required PNG and palette JSON hashes keyed by filename.</param>
     private sealed record ArtManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Hashes);
+    /// <summary>Versioned complete collection of per-item tile palette selectors.</summary>
+    /// <param name="Version">Selector document schema version.</param>
+    /// <param name="Entries">One entry for every supported permanent-item kind.</param>
     private sealed record PaletteDocument(int Version, PaletteEntry[] Entries);
+    /// <summary>Eight editable BG palette selectors for one collectible's two four-tile frames.</summary>
+    /// <param name="Id">Exact <see cref="InWorldCollectibleKind"/> name.</param>
+    /// <param name="Offsets">Palette offsets 0 through 7 in native tile-upload order.</param>
     private sealed record PaletteEntry(string Id, int[] Offsets);
 }

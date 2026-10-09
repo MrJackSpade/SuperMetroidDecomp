@@ -16,8 +16,10 @@ public static class RoomPlmShotBlockVisualFiles
     public const string VisualFileName = "shot-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Current manifest and shot-block visual-document schema version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Camel-case JSON settings shared by the manifest and editable visual document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -96,6 +98,9 @@ public static class RoomPlmShotBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Verifies every native shot-block run header, physical level word, and continuation offset while extracting visual bits.</summary>
+    /// <param name="bus">Import address space containing the bank-$84 draw lists.</param>
+    /// <returns>Entries ordered by native draw-list pointer.</returns>
     private static RoomPlmShotBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var result = new List<RoomPlmShotBlockVisualEntry>();
@@ -136,6 +141,9 @@ public static class RoomPlmShotBlockVisualFiles
         return result.ToArray();
     }
 
+    /// <summary>Ensures validated stock visuals still equal the visual portion of every compiled physical draw-list word.</summary>
+    /// <param name="catalog">Compiled stock shot-block catalog.</param>
+    /// <param name="path">Stock visual filename included in failures.</param>
     private static void VerifyStockMatchesCompiled(
         RoomPlmShotBlockVisualCatalog catalog, string path)
     {
@@ -151,12 +159,19 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Checks the visual document's schema version and required entry collection.</summary>
+    /// <param name="document">Deserialized shot-block document.</param>
+    /// <param name="path">Source filename included in failures.</param>
     private static void ValidateDocument(VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Shot-block visuals {path} have an incompatible format.");
     }
 
+    /// <summary>Compiles a validated document and adds its filename to structural admission errors.</summary>
+    /// <param name="document">Validated visual document.</param>
+    /// <param name="path">Source filename included in failures.</param>
+    /// <returns>The immutable shot-block visual catalog.</returns>
     private static RoomPlmShotBlockVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -171,8 +186,17 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Reads and deserializes a required shot-block JSON file.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="path">File to read.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes already-read shot-block JSON and normalizes syntax/null failures as invalid asset data.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="bytes">Complete UTF-8 JSON bytes.</param>
+    /// <param name="path">Logical source filename included in failures.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -186,11 +210,22 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Reads one little-endian word from a bank-$84 shot-block draw-list pointer.</summary>
+    /// <param name="bus">Import address space containing the draw list.</param>
+    /// <param name="pointer">Sixteen-bit bank-relative word pointer.</param>
+    /// <returns>The native word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
             (bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8)));
 
+    /// <summary>Stock provenance and exact visual-document byte identity.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">Cartridge identity used for extraction.</param>
+    /// <param name="VisualSha256">Uppercase SHA-256 of the stock visual JSON bytes.</param>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned complete editable shot-block visual entry collection.</summary>
+    /// <param name="Version">Visual-document schema version.</param>
+    /// <param name="Entries">All ordinary shot-block draw lists and their visual run words.</param>
     private sealed record VisualDocument(int Version, RoomPlmShotBlockVisualEntry[] Entries);
 }

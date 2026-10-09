@@ -8,6 +8,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Decodes ordered bank-$82 menu parts, preserving native caller-palette inheritance.</summary>
 internal static class MenuSpriteExtractor
 {
+    /// <summary>Decodes one pointer-selected menu spritemap while preserving its ordered offsets, tile references, size, priority, and flips.</summary>
+    /// <param name="bus">Import address space containing the bank-$82 menu spritemap tables.</param>
+    /// <param name="id">Zero-based native spritemap pointer-table index.</param>
+    /// <returns>The ordered visual parts with palette selection left to the native caller contract.</returns>
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)
     {
         int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);

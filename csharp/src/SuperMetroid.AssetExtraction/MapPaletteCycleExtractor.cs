@@ -8,6 +8,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Decodes the native map highlight sequence into colors/durations, not an executable palette program.</summary>
 internal static class MapPaletteCycleExtractor
 {
+    /// <summary>Reads the terminated native map-highlight palette sequence and serializes its RGB5 rows with authored tick durations.</summary>
+    /// <param name="bus">Import address space containing the map palette timing and color tables.</param>
+    /// <returns>The UTF-8 versioned map palette-cycle document.</returns>
+    /// <exception cref="InvalidDataException">The native sequence has no terminator within the bounded frame range.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new List<MapPaletteCycleFrame>();

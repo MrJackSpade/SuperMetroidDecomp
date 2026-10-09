@@ -10,6 +10,12 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class IndexedTilePageExtractor
 {
+    /// <summary>Exports a tile-aligned four-bit native character span as indexed PNG and verifies an exact planar-byte round trip.</summary>
+    /// <param name="bus">Import address space containing the native character span.</param>
+    /// <param name="sourceAddress">SNES CPU address of the first planar character byte.</param>
+    /// <param name="byteCount">Number of tile-aligned native bytes to export.</param>
+    /// <param name="identity">Human-readable resource identity included in round-trip failures.</param>
+    /// <returns>The encoded indexed PNG bytes.</returns>
     internal static byte[] Extract(ISnesAddressSpace bus, int sourceAddress,
         int byteCount, string identity)
     {

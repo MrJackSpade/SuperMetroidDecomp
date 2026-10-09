@@ -69,6 +69,11 @@ public static class CeresDoorVisualFiles
         CeresDoorVisualCatalog.Load(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));
 
+    /// <summary>Reads a fixed native palette row and rejects the unrepresentable BGR555 high bit.</summary>
+    /// <param name="bus">Import address space containing the palette words.</param>
+    /// <param name="sourceAddress">SNES CPU address of the first color word.</param>
+    /// <param name="count">Number of consecutive colors to decode.</param>
+    /// <returns>RGB5 components in native row order.</returns>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int sourceAddress,
         int count)
     {

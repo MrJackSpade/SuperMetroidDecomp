@@ -19,8 +19,10 @@ public static class RoomVisualLayoutFiles
 {
     /// <summary>Stock manifest filename recording version-one provenance and each retail source's address, block dimensions, filename, and JSON byte hash.</summary>
     public const string ManifestFileName = "room-layouts.json";
+    /// <summary>Current manifest and per-source visual-layout document schema version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Strict camel-case JSON settings shared by stock manifests and editable layout documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -144,6 +146,8 @@ public static class RoomVisualLayoutFiles
     /// <exception cref="InvalidDataException">Stock provenance, hashes, schema, coverage, or layouts are invalid.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Collects every distinct retail compressed level source and proves that shared sources use one row stride.</summary>
+    /// <returns>Read-only source-address to width-in-blocks mapping.</returns>
     private static ReadOnlyDictionary<int, int> BuildRetailSources()
     {
         var sources = new Dictionary<int, int>();
@@ -162,6 +166,11 @@ public static class RoomVisualLayoutFiles
         return new ReadOnlyDictionary<int, int>(sources);
     }
 
+    /// <summary>Decompresses one native level allocation and separates its initial BG1 and optional BG2 visual words from collision/BTS data.</summary>
+    /// <param name="bus">Import address space containing the compressed level stream.</param>
+    /// <param name="sourceAddress">SNES CPU address of the compressed stream.</param>
+    /// <param name="widthInBlocks">Retail room row stride in 16-pixel blocks.</param>
+    /// <returns>A versioned document with row-major twelve-bit foreground and background visual words.</returns>
     private static RoomVisualLayoutDocument Decode(ISnesAddressSpace bus,
         int sourceAddress, int widthInBlocks)
     {
@@ -193,10 +202,26 @@ public static class RoomVisualLayoutFiles
             widthInBlocks, blockCount / widthInBlocks, foreground, background);
     }
 
+    /// <summary>Manifest identity, dimensions, and stock byte hash for one compressed level source.</summary>
+    /// <param name="SourceAddress">Native 24-bit compressed level-data address.</param>
+    /// <param name="WidthInBlocks">Retail row stride in 16-pixel blocks.</param>
+    /// <param name="HeightInBlocks">Height derived from the native BG1 allocation.</param>
+    /// <param name="Sha256">Uppercase SHA-256 of the exact stock layout JSON bytes.</param>
     private sealed record LayoutFileEntry(int SourceAddress, int WidthInBlocks,
         int HeightInBlocks, string Sha256);
+    /// <summary>Stock provenance and complete per-file inventory for all retail room visual layouts.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">Cartridge identity from which stock layouts were extracted.</param>
+    /// <param name="Entries">Filename-keyed source identities, dimensions, and byte hashes.</param>
     private sealed record LayoutFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, LayoutFileEntry> Entries);
+    /// <summary>Editable initial BG visual allocation for one distinct native room-level source.</summary>
+    /// <param name="FormatVersion">Layout document schema version.</param>
+    /// <param name="SourceAddress">Immutable native source identity.</param>
+    /// <param name="WidthInBlocks">Row width in 16-pixel blocks.</param>
+    /// <param name="HeightInBlocks">Row count implied by the native BG1 allocation.</param>
+    /// <param name="ForegroundVisualWords">Row-major twelve-bit BG1 metatile/flip words.</param>
+    /// <param name="BackgroundVisualWords">Row-major twelve-bit BG2 words, zero-filled where the native stream omits BG2 data.</param>
     private sealed record RoomVisualLayoutDocument(int FormatVersion, int SourceAddress,
         int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
         ushort[] BackgroundVisualWords);

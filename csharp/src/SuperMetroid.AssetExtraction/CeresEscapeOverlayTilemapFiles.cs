@@ -6,6 +6,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports fixed Ceres warning tile words without exposing DMA control metadata.</summary>
 internal static class CeresEscapeOverlayTilemapFiles
 {
+    /// <summary>Serializes every fixed Ceres escape warning-page tile word and verifies exact native-byte resolution after reload.</summary>
+    /// <param name="bus">Import address space containing the catalogued warning-page transfers.</param>
+    /// <returns>The UTF-8 versioned overlay-tilemap document.</returns>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Reads the four bank-$AD pointer-selected damage palette pairs once at installation.</summary>
 internal static class MotherBrainHealthPaletteExtractor
 {
+    /// <summary>Serializes all pointer-selected Mother Brain body and back-leg health palette states into a versioned RGB5 document.</summary>
+    /// <param name="bus">Import address space containing the bank-$AD pointer tables and palette rows.</param>
+    /// <returns>The UTF-8 Mother Brain health-palette document.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

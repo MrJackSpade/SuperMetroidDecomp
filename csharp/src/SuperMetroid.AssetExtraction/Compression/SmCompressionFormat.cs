@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
 public readonly record struct SmCompressionHeader
 {
+    /// <summary>Creates a decoded header while retaining its original one- or two-byte encoding.</summary>
+    /// <param name="firstByte">Command, short length, or terminator byte.</param>
+    /// <param name="secondByte">Low length byte required by long headers.</param>
     private SmCompressionHeader(byte firstByte, byte? secondByte)
     {
         FirstByte = firstByte;

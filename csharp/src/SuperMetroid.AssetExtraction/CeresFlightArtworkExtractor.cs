@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
 internal static class CeresFlightArtworkExtractor
 {
+    /// <summary>Exports the Ceres approach's Mode-7 characters/maps, object characters, complete palette, sprite frames, and rear-view actor placements.</summary>
+    /// <param name="bus">Import address space containing the native Ceres flight presentation streams.</param>
+    /// <returns>Resource filenames mapped to validated PNG or JSON file bytes.</returns>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

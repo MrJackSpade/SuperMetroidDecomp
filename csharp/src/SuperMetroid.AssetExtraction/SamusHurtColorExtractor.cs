@@ -24,6 +24,10 @@ public static class SamusHurtColorExtractor
         });
     }
 
+    /// <summary>Decodes one complete native Samus hurt-flash palette row into RGB5 components.</summary>
+    /// <param name="bus">Import address space containing the color words.</param>
+    /// <param name="address">SNES CPU address of the row's first color.</param>
+    /// <returns>The fixed-size palette row in native order.</returns>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

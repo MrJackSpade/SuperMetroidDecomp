@@ -62,6 +62,12 @@ public static class PauseEquipmentLabelExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes a bank-$82 pause-label tilemap span into semantic backdrop cells.</summary>
+    /// <param name="bus">Import address space containing the tilemap words.</param>
+    /// <param name="source">Bank-relative pointer to the first tilemap word.</param>
+    /// <param name="count">Number of consecutive cells to read.</param>
+    /// <param name="name">Diagnostic identity prefixed to each decoded cell.</param>
+    /// <returns>The decoded cells in native order.</returns>
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
         Enumerable.Range(0, count)
             .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

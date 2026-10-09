@@ -30,6 +30,10 @@ public static class TitleGradientDecoder
         return result;
     }
 
+    /// <summary>Expands one native HDMA run stream to the complete 224-scanline value sequence.</summary>
+    /// <param name="cartridge">Cartridge source containing the run headers and values.</param>
+    /// <param name="cursor">SNES CPU address of the first HDMA run header.</param>
+    /// <returns>One effective byte per visible scanline, extending the last value after a terminator.</returns>
     private static byte[] Expand(IImportCartridgeSource cartridge, int cursor)
     {
         var result = new byte[SnesPpuLayout.ScreenHeightPixels];

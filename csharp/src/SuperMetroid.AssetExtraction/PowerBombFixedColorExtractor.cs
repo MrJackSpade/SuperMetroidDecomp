@@ -24,6 +24,10 @@ public static class PowerBombFixedColorExtractor
         });
     }
 
+    /// <summary>Reads one power-bomb phase's byte-separated RGB component sequence.</summary>
+    /// <param name="bus">Import address space containing the fixed-color bytes.</param>
+    /// <param name="sequence">Pre-explosion or explosion sequence to select.</param>
+    /// <returns>The authored RGB5 colors in playback order.</returns>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

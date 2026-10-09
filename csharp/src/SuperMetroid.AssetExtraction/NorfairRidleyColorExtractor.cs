@@ -38,6 +38,11 @@ public static class NorfairRidleyColorExtractor
         });
     }
 
+    /// <summary>Decodes one contiguous Norfair Ridley BGR555 band after verifying that bit 15 is clear.</summary>
+    /// <param name="bus">Import address space containing the palette band.</param>
+    /// <param name="source">SNES CPU address of the first color word.</param>
+    /// <param name="count">Number of colors to decode.</param>
+    /// <returns>RGB5 components in native order.</returns>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int source, int count)
     {
         var colors = new PaletteRgb5[count];

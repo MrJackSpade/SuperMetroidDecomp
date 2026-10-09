@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class CartridgeImageCache
 {
+    /// <summary>Weak process-wide cartridge images keyed by uppercase SHA-256 so unused multi-megabyte images remain collectible.</summary>
     private static readonly ConcurrentDictionary<string, WeakReference<byte[]>> images = new(StringComparer.Ordinal);
 
     /// <summary>The shared image equal to <paramref name="content"/>, creating it on first use.</summary>

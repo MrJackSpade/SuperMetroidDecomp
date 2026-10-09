@@ -121,6 +121,8 @@ public static class GameOverPresentationExtractor
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
     }
 
+    /// <summary>Proves that the compiled Baby Metroid frame, sound, and restart chain still matches its bank-$82 instruction stream.</summary>
+    /// <param name="bus">Import address space containing the native game-over animation instructions.</param>
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
     {
         foreach (GameOverBabyInstruction instruction in GameOverBabyAnimationDefinitions.All)

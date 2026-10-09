@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the remaining Ceres map slices and Zebes reveal transfers.</summary>
 internal static class CeresDestructionArtworkExtractor
 {
+    /// <summary>Exports the three Ceres destruction views, Zebes reveal graphics, sprite frames, and editable actor placements with native-byte round-trip checks.</summary>
+    /// <param name="bus">Import address space containing the destruction and reveal presentation sources.</param>
+    /// <returns>Resource filenames mapped to their PNG or JSON file bytes.</returns>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

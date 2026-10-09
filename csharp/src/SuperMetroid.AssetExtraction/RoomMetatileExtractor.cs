@@ -57,6 +57,10 @@ public static class RoomMetatileExtractor
         }
     }
 
+    /// <summary>Decodes one quadrant word from a native four-quadrant room metatile.</summary>
+    /// <param name="sourceBlock">Eight native bytes containing the metatile's quadrant words.</param>
+    /// <param name="quadrant">Zero-based quadrant index in native word order.</param>
+    /// <returns>Semantic tile coordinates, palette, priority, and flip attributes.</returns>
     private static RoomMetatileCell Cell(ReadOnlySpan<byte> sourceBlock, int quadrant)
     {
         var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(

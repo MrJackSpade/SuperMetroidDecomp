@@ -13,7 +13,9 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     public const int RetailRomByteCount = 0x300000;
 
     // The immutable image is shared through CartridgeImageCache; debugger graphs carry its digest.
+    /// <summary>Process-shared immutable cartridge bytes, reattached from the digest after debugger-state restoration.</summary>
     [NonSerialized] internal byte[] _rom;
+    /// <summary>SHA-256 identity used to reconnect a restored graph to its process-owned cartridge image.</summary>
     private readonly byte[] _romSha256;
 
     /// <summary>Creates mutable import memory backed by a shared immutable LoROM image.</summary>

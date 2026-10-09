@@ -20,6 +20,11 @@ public static class ProjectileSpriteExtractor
         return json;
     }
 
+    /// <summary>Decodes the requested bank-$93 spritemaps into a versioned visual-part document.</summary>
+    /// <param name="bus">Import address space containing the native spritemaps.</param>
+    /// <param name="requiredPointers">Spritemap pointers to decode when the canonical projectile list is not requested.</param>
+    /// <param name="useProjectilePointers">Whether to ignore <paramref name="requiredPointers"/> and use the complete compiled projectile pointer catalog.</param>
+    /// <returns>The UTF-8 sprite-frame JSON document.</returns>
     internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();

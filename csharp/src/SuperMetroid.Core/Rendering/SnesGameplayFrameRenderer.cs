@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
 public static partial class SnesGameplayFrameRenderer
 {
+    /// <summary>Visible SNES viewport width in pixels.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
+    /// <summary>Visible SNES viewport height in physical scanlines.</summary>
     public const int Height = SnesPpuLayout.ScreenHeightPixels;
+    /// <summary>Height in pixels of the fixed gameplay HUD above the room viewport.</summary>
     public const int HudHeight = SnesPpuLayout.GameplayHudHeightPixels;
 
     /// <summary>

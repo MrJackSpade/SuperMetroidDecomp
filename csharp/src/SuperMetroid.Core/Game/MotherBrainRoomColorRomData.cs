@@ -17,6 +17,7 @@ public static class MotherBrainRoomColorRomData
 
     /// <summary>The second source slice is copied to CGRAM byte offsets $A6 and $E6.</summary>
     public const int SecondColor = 0x00a6 / sizeof(ushort);
+    /// <summary>$A9:D03B's mirrored destination at CGRAM word index 115 (byte $E6), BG palette 7 color 3; receives the same twelve colors as palette 5.</summary>
     public const int MirroredSecondColor = 0x00e6 / sizeof(ushort);
 
     /// <summary>Phase-two setup copies fifteen nontransparent attack colors from $A9:94B4.</summary>
@@ -50,6 +51,7 @@ public static class MotherBrainRoomColorRomData
     public const int RecoveryLightsColorsPerDestination = 14;
     /// <summary>The room-light source rows descend by $38 bytes in bank $AD.</summary>
     public const int RecoveryLightsFirstSource = 0xadf3d3;
+    /// <summary>Byte size of one $AD:F24B recovery image: two fourteen-word RGB5 slices, so playback subtracts 56 bytes between source rows.</summary>
     public const int RecoveryLightsByteStride = 0x38;
     /// <summary>First room-light slice begins at CGRAM byte offset $0062.</summary>
     public const int RecoveryLightsFirstColor = 0x0062 / sizeof(ushort);
@@ -66,6 +68,10 @@ public static class MotherBrainRoomColorRomData
     public const int AttackGrayFirst = 10, AttackGrayLast = 14;
     /// <summary>$A9:94CE repeats the body palette's white nontransparent slot13.</summary>
     public const int WhiteColor = 13;
+    /// <summary>Calculates the full bank-$AD source selected by FadeInBackgroundForMotherBrainPhase3's $F273 pointer table, without reading or applying colors.</summary>
+    /// <param name="index">Playback image 0..6, selecting native rows palette6 through palette0; excludes the following zero-pointer terminator.</param>
+    /// <returns>24-bit cartridge address $AD:F3D3 minus <paramref name="index"/> times $38, not an address in <see cref="SourceBank"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..6.</exception>
     public static int RecoveryLightsSource(int index) =>
         (uint)index < RecoveryLightsFrames
             ? RecoveryLightsFirstSource - index * RecoveryLightsByteStride

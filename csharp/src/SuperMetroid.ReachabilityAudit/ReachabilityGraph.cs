@@ -8,9 +8,12 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal sealed class ReachabilityGraph
 {
+    /// <summary>Explicit owner-to-target references, keyed by stable repository symbol key.</summary>
     private readonly Dictionary<string, HashSet<string>> edges = [];
+    /// <summary>Members reached implicitly whenever their containing type is reached.</summary>
     private readonly Dictionary<string, HashSet<string>> typeImplied = [];
 
+    /// <summary>Adds an explicit reachability edge; missing identities and self-edges are ignored.</summary>
     public void Edge(string? from, string? to)
     {
         if (from is null || to is null || from == to)
@@ -20,6 +23,7 @@ internal sealed class ReachabilityGraph
         targets.Add(to);
     }
 
+    /// <summary>Adds a dispatch or runtime edge from a type to a member invoked without source reference.</summary>
     public void ImpliedByType(string? typeKey, string? memberKey)
     {
         if (typeKey is null || memberKey is null)
@@ -29,6 +33,7 @@ internal sealed class ReachabilityGraph
         members.Add(memberKey);
     }
 
+    /// <summary>Computes the transitive set reachable from the supplied root keys.</summary>
     public HashSet<string> Reach(IEnumerable<string> roots)
     {
         var reached = new HashSet<string>();

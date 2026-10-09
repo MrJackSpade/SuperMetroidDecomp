@@ -9,12 +9,17 @@ namespace SuperMetroid.ResourceAudit;
 /// initializer/write/call must be finite; unknown writes, ref aliases, escaping
 /// helper delegates and recursive flows remain unresolved. No path is executed.
 /// </summary>
+/// <param name="compilation">Source compilation used to find symbol references and operations.</param>
+/// <param name="directConstants">Resolver for repository-defined operations with explicitly finite outputs.</param>
 internal sealed class FinitePresentationNameFlow(Compilation compilation,
     Func<IOperation, string[]?> directConstants)
 {
+    /// <summary>Symbols currently being resolved, preventing recursive data-flow loops.</summary>
     private readonly HashSet<ISymbol> active = new(SymbolEqualityComparer.Default);
+    /// <summary>Cached finite values, including null results for flows that cannot be closed.</summary>
     private readonly Dictionary<ISymbol, string[]?> known = new(SymbolEqualityComparer.Default);
 
+    /// <summary>Resolves an operation to its finite string values when every source path is statically bounded.</summary>
     internal string[]? Resolve(IOperation operation)
     {
         if (directConstants(operation) is { } direct) return direct;
@@ -54,6 +59,7 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         return null;
     }
 
+    /// <summary>Collects initializer, call-site and assignment values for a local, private field or parameter.</summary>
     private string[]? SymbolValues(ISymbol symbol)
     {
         if (known.TryGetValue(symbol, out string[]? cached)) return cached;
@@ -119,17 +125,21 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         string[]? Cache(string[]? values) { known[symbol] = values; return values; }
     }
 
+    /// <summary>Finds bound identifier references to a symbol across the analyzed compilation.</summary>
     private IEnumerable<IdentifierNameSyntax> References(ISymbol symbol) => compilation.SyntaxTrees
         .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
             .Where(name => name.Identifier.ValueText == symbol.Name)
             .Where(name => SymbolEqualityComparer.Default.Equals(
                 compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol?.OriginalDefinition, symbol.OriginalDefinition)));
 
+    /// <summary>Gets the bound operation for a syntax node in the source compilation.</summary>
     private IOperation? Operation(SyntaxNode syntax) => compilation.GetSemanticModel(syntax.SyntaxTree).GetOperation(syntax);
 
+    /// <summary>Identifies throw expressions that do not contribute a returned name value.</summary>
     private static bool Throws(IOperation operation) => operation is IThrowOperation ||
         operation is IConversionOperation conversion && Throws(conversion.Operand);
 
+    /// <summary>Combines nonempty finite sets, returning null if any branch is unknown or empty.</summary>
     private static string[]? Union(IEnumerable<string[]?> sets)
     {
         var values = new HashSet<string>(StringComparer.Ordinal);

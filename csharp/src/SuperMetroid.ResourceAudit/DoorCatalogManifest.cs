@@ -8,23 +8,42 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One imported retail room header, door list, and its native door-block summaries.</summary>
+/// <param name="Name">Disassembly label suffix that identifies the room.</param>
+/// <param name="Room">Native room header address in bank $8F.</param>
+/// <param name="List">Native door-list address for the room.</param>
+/// <param name="Doors">Door header pointers in native list order.</param>
+/// <param name="States">Native room states and the door-block BTS values found in each state.</param>
 internal sealed record NativeDoorRoom(string Name, ushort Room, ushort List, ushort[] Doors,
     NativeDoorState[] States);
+/// <summary>Native room-state address and door-block BTS inventory for one imported room.</summary>
+/// <param name="State">Room-state header address.</param>
+/// <param name="Level">Compressed level-data address recorded by that state.</param>
+/// <param name="DoorBts">Distinct BTS values of blocks using the door-block tile type.</param>
 internal sealed record NativeDoorState(ushort State, int Level, int[] DoorBts);
+/// <summary>Imported door oracle tied to its disassembly revision and cartridge image.</summary>
+/// <param name="Revision">Pinned disassembly commit used to identify native labels.</param>
+/// <param name="RomSha256">SHA-256 of the required unheadered cartridge image.</param>
+/// <param name="Rooms">Native room and door-list boundaries with state summaries.</param>
+/// <param name="Headers">Imported native door headers in pointer order.</param>
 internal sealed record NativeDoorManifest(string Revision, string RomSha256,
     NativeDoorRoom[] Rooms, CartridgeDoorHeader[] Headers);
 
 /// <summary>Import-only native oracle: label boundaries, never compiled catalog membership.</summary>
 internal static class DoorCatalogManifest
 {
+    /// <summary>Disassembly commit from which the oracle label boundaries were imported.</summary>
     internal const string Revision = "362be646929cf8e483f692b73a6561cfc2dc1d0d";
+    /// <summary>Required SHA-256 for the unheadered J/U NTSC 1.0 cartridge.</summary>
     internal const string RomHash = "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72";
+    /// <summary>Repository-relative path of the checked-in native oracle JSON.</summary>
     internal const string RelativePath = "csharp/src/SuperMetroid.ResourceAudit/Data/native-door-catalog.json";
-    // LF-normalized digest of the independently imported oracle. Catalog edits cannot
-    // silently weaken its boundary/operand inventory; regenerations require review.
+    /// <summary>LF-normalized digest that prevents catalog edits from silently weakening the imported inventory.</summary>
     internal const string ManifestHash = "DD25D46C08A04D7354F76AB4E2BDFEF62A6C67976DEF37743C84406640C9ED8A";
+    /// <summary>JSON formatting settings used when generating the native oracle.</summary>
     internal static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
+    /// <summary>Imports door allocation boundaries from pinned disassembly and native data from the pinned ROM.</summary>
     internal static int Generate(string disassembly, string rom, string output)
     {
         string bank8f = ReadPinned(Path.Combine(disassembly, "src/bank_8F.asm"),
@@ -109,6 +128,7 @@ internal static class DoorCatalogManifest
         ushort Word(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 
+    /// <summary>Reads a pinned source file after verifying its expected SHA-256 digest.</summary>
     private static string ReadPinned(string path, string hash)
     {
         byte[] bytes = File.ReadAllBytes(path);
@@ -117,6 +137,7 @@ internal static class DoorCatalogManifest
         return System.Text.Encoding.UTF8.GetString(bytes);
     }
 
+    /// <summary>Extracts the bank address annotation from a disassembly label body.</summary>
     private static ushort Address(string body, string bank)
     {
         Match address = Regex.Match(body, ";" + bank + @"([0-9A-F]{4});");
@@ -124,6 +145,7 @@ internal static class DoorCatalogManifest
         return Convert.ToUInt16(address.Groups[1].Value, 16);
     }
 
+    /// <summary>Splits disassembly source into label names and the text allocated up to the next label.</summary>
     private static (string Name, string Body)[] Labels(string source) =>
         Regex.Matches(source, @"^(\w+):(?<body>.*?)(?=^\w+:|\z)", RegexOptions.Multiline | RegexOptions.Singleline)
             .Select(match => (match.Groups[1].Value, match.Groups["body"].Value)).ToArray();

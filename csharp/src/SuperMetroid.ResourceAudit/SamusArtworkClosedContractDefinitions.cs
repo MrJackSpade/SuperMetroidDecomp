@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete placement/composition domains, separate from editable DMA frame-selector closure.</summary>
 internal static class SamusArtworkClosedContractDefinitions
 {
+    /// <summary>Fingerprints closing selected Samus placement and composition resource domains.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.SamusBodyArtworkCatalog", "samus-complete-placement-offsets",

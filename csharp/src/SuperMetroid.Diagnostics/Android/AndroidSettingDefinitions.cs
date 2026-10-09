@@ -8,6 +8,7 @@ internal sealed record AndroidSettingDefinition(string Label, string Section, st
 
 internal static class AndroidSettingDefinitions
 {
+    /// <summary>Settings exposed by Android controls, mapped to the shared host INI values.</summary>
     internal static readonly AndroidSettingDefinition[] All =
     [
         new("Door-transition autosaves", "Game", "DoorTransitionAutosave", ["true", "false"], o => o.DoorTransitionAutosave.ToString().ToLowerInvariant()),

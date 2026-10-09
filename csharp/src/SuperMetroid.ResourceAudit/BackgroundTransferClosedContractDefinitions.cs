@@ -3,13 +3,17 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete authored BG2/effect/upload domains, not display placement or effect mechanics.</summary>
 internal static class BackgroundTransferClosedContractDefinitions
 {
+    /// <summary>Fingerprint shared by each reviewed BG2 frame loader.</summary>
     private static readonly ReviewedSource SharedBg2Loader = new(
         "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs", "A330767AF6BAC71E0F47A7643ADB32E1B3399168C4DB4DEEBD8736992F48B365");
+    /// <summary>Fingerprint for the shared BG2 instruction sequence consumed by frame catalogs.</summary>
     private static readonly ReviewedSource SharedBg2Sequence = new(
         "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs", "DC2420942352DB6FB8E1781CDAD188A4FA9F6780401EA22C487F73E02A809AF8");
+    /// <summary>Fingerprint for the shared BG2 record layout used to validate frame definitions.</summary>
     private static readonly ReviewedSource SharedBg2Layout = new(
         "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinition.cs", "8A606BC937500FC4AC942F7C33B3271C7253F3EB6AE737745190BB0CC951076F");
 
+    /// <summary>Per-family fingerprints that close authored background-transfer frame membership.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         Bg2("Phantoon", "79E36732653BE385B94414E5D1FC8F40E38D108CC80EEEAB37ABC93575182CC7",
@@ -38,6 +42,7 @@ internal static class BackgroundTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "368BAF27A59AD317E14B4D907C23EA5BB2438547E593FC781712960F529E631B")]),
     ];
 
+    /// <summary>Builds the reviewed catalog and definition fingerprint set for a BG2 family.</summary>
     private static ClosedPresentationContract Bg2(string family, string catalogHash, string definitionHash,
         params ReviewedSource[] additionalSources) => new("SuperMetroid.Core.Assets." + family + "Bg2FrameCatalog",
         family.ToLowerInvariant() + "-complete-bg2-membership", ["TryGet"],

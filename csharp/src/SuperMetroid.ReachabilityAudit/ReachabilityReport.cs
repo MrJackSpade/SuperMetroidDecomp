@@ -5,6 +5,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>Writes findings.tsv (one row per finding), the reflection review lists and summary.txt.</summary>
 internal static class ReachabilityReport
 {
+    /// <summary>Writes tab-separated findings and reflection review lists, then prints aggregate counts.</summary>
     public static void Write(ReachabilityResult result, string outputDirectory)
     {
         Directory.CreateDirectory(outputDirectory);
@@ -43,6 +44,7 @@ internal static class ReachabilityReport
     /// any allow-list entry that no longer matches a finding. An entry is a findings.tsv row's
     /// category, kind, symbol and file, tab-separated; blank lines and <c>#</c> comments are ignored.
     /// </summary>
+    /// <summary>Writes the report and checks that the allow-list exactly matches current findings.</summary>
     public static int Check(ReachabilityResult result, string outputDirectory, string allowListPath)
     {
         Write(result, outputDirectory);
@@ -68,8 +70,10 @@ internal static class ReachabilityReport
         return 1;
     }
 
+    /// <summary>Extracts the unqualified type or member name from a C# symbol display string.</summary>
     private static string SimpleName(string display) => display.Split('(')[0].Split('.')[^1].Split('<')[0];
 
+    /// <summary>Writes distinct lines in ordinal order using UTF-8 without a byte-order mark.</summary>
     private static void WriteLines(string directory, string name, IEnumerable<string> lines) =>
         File.WriteAllLines(Path.Combine(directory, name), lines.Distinct().Order(StringComparer.Ordinal), new UTF8Encoding(false));
 }

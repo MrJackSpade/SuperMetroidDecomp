@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete imported color sequences; no battle, death or palette animation is executed.</summary>
 internal static class SequenceColorClosedContractDefinitions
 {
+    /// <summary>Reviewed source fingerprints that bound sequence-driven color provider operations.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.MotherBrainRainbowPalettePresentation", "mother-brain-rainbow-v3-complete-sequences",

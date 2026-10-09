@@ -3,10 +3,12 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete loader-owned player color domains; no palette clocks or gameplay paths are executed.</summary>
 internal static class SamusColorClosedContractDefinitions
 {
+    /// <summary>Fingerprint for the native palette layout used by all reviewed Samus color providers.</summary>
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
         "063EA177518DE0CF5C8EA5BD064C2C20E19E1A9D796A632384DDC7F6113EAE2E");
 
+    /// <summary>Fingerprints closing the loader-owned player color provider domains.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.SamusFullBodyCycleColorCatalog", "samus-body-cycle-complete-palettes", ["Apply", "Resolve"],

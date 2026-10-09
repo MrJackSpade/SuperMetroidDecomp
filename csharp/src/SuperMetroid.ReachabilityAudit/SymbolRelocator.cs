@@ -23,15 +23,33 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal static class SymbolRelocator
 {
-    private enum Placement { WholeType, AdapterMember, ExtensionMember }
+    /// <summary>Destination form for a shipped declaration used only by development tools.</summary>
+    private enum Placement
+    {
+        /// <summary>Move the complete non-generic type into the tooling project.</summary>
+        WholeType,
+        /// <summary>Move a static member into the owning type's tooling adapter.</summary>
+        AdapterMember,
+        /// <summary>Move an eligible instance member into an extension block.</summary>
+        ExtensionMember
+    }
 
+    /// <summary>A source declaration selected for relocation and the semantic context used to rewrite it.</summary>
+    /// <param name="Symbol">Declaration symbol being moved.</param>
+    /// <param name="Node">Syntax node that will be removed from its original file.</param>
+    /// <param name="Tree">Source syntax tree containing the declaration.</param>
+    /// <param name="Model">Semantic model used to retarget references.</param>
+    /// <param name="Placement">Relocation form chosen for the declaration.</param>
     private sealed record Move(ISymbol Symbol, SyntaxNode Node, SyntaxTree Tree, SemanticModel Model, Placement Placement)
     {
+        /// <summary>The existing owner for adapter or extension members; whole-type moves have no owner.</summary>
         public INamedTypeSymbol? Owner => Placement == Placement.WholeType ? null : Symbol.ContainingType;
     }
 
+    /// <summary>Symbol comparer used to match Roslyn symbols across constructed and original forms.</summary>
     private static readonly SymbolEqualityComparer Comparer = SymbolEqualityComparer.Default;
 
+    /// <summary>Moves declarations in a finding category to tooling source and retargets repository references.</summary>
     public static void Relocate(LoadedSolution solution, ReachabilityResult result, string category,
         string targetDirectory, IReadOnlySet<string> shippedAssemblies)
     {
@@ -300,6 +318,7 @@ internal static class SymbolRelocator
             $"{promotions.Count} members made internal; {manual.Count} left for manual relocation.");
     }
 
+    /// <summary>Chooses a mechanically safe relocation form, or null when the declaration needs manual work.</summary>
     private static Placement? Classify(ISymbol symbol, SyntaxNode node, SemanticModel model)
     {
         if (symbol is INamedTypeSymbol type)
@@ -322,12 +341,15 @@ internal static class SymbolRelocator
         }
     }
 
+    /// <summary>Checks whether a property owns a compiler-generated storage field that cannot move as an extension.</summary>
     private static bool HasBackingField(IPropertySymbol property) => property.ContainingType.GetMembers()
         .OfType<IFieldSymbol>().Any(f => Comparer.Equals(f.AssociatedSymbol, property));
 
+    /// <summary>Checks whether moving this member out of a struct would change writes to the struct instance.</summary>
     private static bool MutatesStruct(INamedTypeSymbol owner, SyntaxNode node) =>
         owner.TypeKind == TypeKind.Struct && node.DescendantNodes().OfType<AssignmentExpressionSyntax>().Any();
 
+    /// <summary>Returns a whole field declaration when its only declarator is selected for relocation.</summary>
     private static SyntaxNode DeclarationNode(SyntaxNode node) => node switch
     {
         VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax field } when
@@ -335,6 +357,7 @@ internal static class SymbolRelocator
         _ => node,
     };
 
+    /// <summary>Enumerates containing types from the immediate owner to the outermost owner.</summary>
     private static IEnumerable<INamedTypeSymbol> Containers(ISymbol symbol)
     {
         for (var type = symbol.ContainingType; type is not null; type = type.ContainingType)
@@ -367,6 +390,7 @@ internal static class SymbolRelocator
         return "";
     }
 
+    /// <summary>Checks whether a type is the owner, one of its containing types, or an ancestor of either.</summary>
     private static bool InOwnerChain(INamedTypeSymbol owner, INamedTypeSymbol candidate)
     {
         for (var type = owner; type is not null; type = type.ContainingType)
@@ -375,6 +399,7 @@ internal static class SymbolRelocator
         return false;
     }
 
+    /// <summary>Checks whether a name has qualification or appears in a context that must retain its type prefix.</summary>
     private static bool IsQualifiedName(SimpleNameSyntax name) => name.Parent switch
     {
         MemberAccessExpressionSyntax access => access.Name == name,
@@ -389,11 +414,14 @@ internal static class SymbolRelocator
     private static string TypeName(INamedTypeSymbol type) =>
         type.ContainingType is { } outer ? TypeName(outer) + "." + type.Name : type.Name;
 
+    /// <summary>Returns the tooling adapter name for an owner, flattening nested type names.</summary>
     internal static string AdapterName(INamedTypeSymbol owner) => FlatName(owner) + "Tooling";
 
+    /// <summary>Flattens nested type names for generated adapter declarations.</summary>
     private static string FlatName(INamedTypeSymbol type) =>
         type.ContainingType is { } outer ? FlatName(outer) + type.Name : type.Name;
 
+    /// <summary>Formats a source node's repository-relative file and one-based line for relocation diagnostics.</summary>
     private static string Location(SymbolIdentity identity, SyntaxNode node) =>
         $"{identity.Relative(node.SyntaxTree.FilePath)}:{node.GetLocation().GetLineSpan().StartLinePosition.Line + 1}";
 
@@ -406,6 +434,7 @@ internal static class SymbolRelocator
         return Path.Combine([parts[project]["SuperMetroid.".Length..], .. parts[(project + 1)..]]);
     }
 
+    /// <summary>Applies contained text edits in reverse order and returns the rewritten source span.</summary>
     private static string Rewritten(SyntaxTree tree, TextSpan span, Dictionary<SyntaxTree, List<(TextSpan Span, string Text)>> edits)
     {
         var text = new StringBuilder(tree.GetText().ToString(span));
@@ -443,17 +472,25 @@ internal static class SymbolRelocator
         return body[..firstToken] + "internal " + body[firstToken..];
     }
 
+    /// <summary>Gets the file-level using directives in their original source form.</summary>
     private static IReadOnlyList<string> Usings(SyntaxTree tree) =>
         [.. tree.GetCompilationUnitRoot().Usings.Select(u => u.ToString())];
 
+    /// <summary>Gets the file's first namespace name, or an empty string for global-namespace source.</summary>
     private static string Namespace(SyntaxTree tree) =>
         tree.GetCompilationUnitRoot().Members.OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "";
 
+    /// <summary>Accumulates relocated declarations for one target source file.</summary>
+    /// <param name="usings">Usings copied from source declarations moved into this file.</param>
+    /// <param name="ns">Namespace used by the generated file.</param>
     private sealed class TargetFile(IReadOnlyList<string> usings, string ns)
     {
+        /// <summary>Complete type declarations to append to the generated file.</summary>
         public List<string> Types { get; } = [];
+        /// <summary>Adapters keyed by their existing owner type.</summary>
         private readonly Dictionary<INamedTypeSymbol, AdapterClass> adapters = new(Comparer);
 
+        /// <summary>Gets or creates an adapter and adds forwarders for interface members that stay on the owner.</summary>
         public AdapterClass Adapter(INamedTypeSymbol owner, HashSet<INamedTypeSymbol> movedInterfaces, Func<ISymbol, bool> moves)
         {
             if (adapters.TryGetValue(owner, out var adapter))
@@ -470,6 +507,7 @@ internal static class SymbolRelocator
             return adapter;
         }
 
+        /// <summary>Creates a static adapter member that forwards to the implementation on its original owner.</summary>
         private static string Forwarder(INamedTypeSymbol owner, ISymbol implementation)
         {
             var format = SymbolDisplayFormat.MinimallyQualifiedFormat;
@@ -526,6 +564,7 @@ internal static class SymbolRelocator
             return output.ToString().Replace("\r\n", "\n").Replace("\n", "\r\n");
         }
 
+        /// <summary>Renders all accumulated usings, namespace, moved types and generated adapters.</summary>
         public string Render()
         {
             var output = new StringBuilder();
@@ -543,13 +582,21 @@ internal static class SymbolRelocator
         }
     }
 
+    /// <summary>Collected adapter members and interface declarations for one relocated owner.</summary>
+    /// <param name="owner">Original type that owns instance implementations used by adapter forwarders.</param>
+    /// <param name="interfaces">Moved interface names implemented by the generated adapter.</param>
     private sealed class AdapterClass(INamedTypeSymbol owner, List<string> interfaces)
     {
+        /// <summary>Original declaring type represented by this adapter.</summary>
         public INamedTypeSymbol Owner { get; } = owner;
+        /// <summary>Moved interfaces the adapter must implement.</summary>
         public List<string> Interfaces { get; } = interfaces;
+        /// <summary>Static adapter members and interface forwarders.</summary>
         public List<string> Members { get; } = [];
+        /// <summary>Instance extension members relocated from the owner.</summary>
         public List<string> Extensions { get; } = [];
 
+        /// <summary>Renders the adapter class and any extension class for its owner.</summary>
         public string Render()
         {
             var output = new StringBuilder();
@@ -576,6 +623,7 @@ internal static class SymbolRelocator
             return output.ToString();
         }
 
+        /// <summary>Indents every non-empty line by one level for placement inside an extension block.</summary>
         private static string Indent(string text) =>
             string.Join("\r\n", text.Replace("\r\n", "\n").Split('\n').Select(l => l.Length == 0 ? l : "    " + l));
     }

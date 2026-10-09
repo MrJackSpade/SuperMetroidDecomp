@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed nonconstant producer bodies. A changed body must be re-reviewed, never silently skipped.</summary>
 internal static class VramDmaProducerContracts
 {
+    /// <summary>Finds the reviewed DMA producer family for an owner and source fingerprint.</summary>
     internal static bool TryGet(string owner, string hash, out string? family)
     {
         family = (owner, hash) switch

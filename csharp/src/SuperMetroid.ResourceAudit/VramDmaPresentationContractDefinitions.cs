@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Exact native aliases added for #1163; query false does not imply unowned artwork exists.</summary>
 internal static class VramDmaPresentationContractDefinitions
 {
+    /// <summary>Reviewed native source/count aliases admitted by the queued VRAM DMA audit.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.HudTileAtlas", "native-HudTileAtlas-dma-aliases", ["TryResolve"],

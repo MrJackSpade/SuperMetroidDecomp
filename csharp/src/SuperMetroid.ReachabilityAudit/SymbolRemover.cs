@@ -14,6 +14,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal static class SymbolRemover
 {
+    /// <summary>Removes declarations for selected finding categories, optionally limited to repository-relative files.</summary>
     public static void Remove(LoadedSolution solution, ReachabilityResult result, IReadOnlySet<string> categories,
         string? pathPrefix, string retiredFieldsPath) =>
         Remove(solution, ReachabilityFindings.Classify(result)
@@ -22,6 +23,7 @@ internal static class SymbolRemover
             .Select(f => f.Declaration.Key).ToHashSet(), retiredFieldsPath);
 
     /// <summary>Deletes the named declarations, given by their symbol keys.</summary>
+    /// <summary>Removes declarations identified by stable symbol keys and records retired instance fields.</summary>
     public static void Remove(LoadedSolution solution, HashSet<string> targets, string retiredFieldsPath)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
@@ -91,12 +93,14 @@ internal static class SymbolRemover
     }
 
     /// <summary>The syntax a set of positional-parameter removals takes out of one file.</summary>
+    /// <summary>Syntax removals for a tree plus record parameters whose XML entries must be removed.</summary>
     private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<(string Record, string Parameter)> DocumentedParameters);
 
     /// <summary>
     /// For every targeted positional record parameter: the parameter itself and the matching
     /// argument of each primary-constructor call, record base call and <c>with</c> initializer.
     /// </summary>
+    /// <summary>Collects edits for positional record properties and the corresponding constructor arguments.</summary>
     private static Dictionary<SyntaxTree, PositionalEdits> PositionalParameterEdits(
         (SyntaxTree Tree, Compilation Compilation)[] trees, SymbolIdentity identity, HashSet<string> targets,
         SortedSet<string> retired)
@@ -209,6 +213,7 @@ internal static class SymbolRemover
         return string.Join(newline, lines);
     }
 
+    /// <summary>Marks syntax nodes selected for removal after overlapping edits have been collapsed.</summary>
     private static readonly SyntaxAnnotation Removal = new("reachability-removal");
 
     /// <summary>Surviving enum members without an initializer that follow a removed member, with their constant value.</summary>
@@ -233,6 +238,7 @@ internal static class SymbolRemover
         return survivors;
     }
 
+    /// <summary>Promotes a selected variable to its field declaration when every variable is being removed.</summary>
     private static SyntaxNode RemovalNode(SyntaxNode node, SemanticModel model, SymbolIdentity identity, HashSet<string> targets)
     {
         if (node is not VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax declaration } || declaration.Parent is not BaseFieldDeclarationSyntax field)

@@ -18,9 +18,12 @@ internal static class DebuggerRetiredFieldDefinitions
 {
     // Legacy values drained from a restored instance, for migrations that run after the
     // owning graph is complete. Weak keys keep this from retaining restored state.
+    /// <summary>Drained legacy values awaiting migration after graph restoration, without rooting instances.</summary>
     private static readonly ConditionalWeakTable<object, Dictionary<string, object?>> LegacyValues = new();
 
+    /// <summary>Historical serialized identity for the cartridge palette transition type.</summary>
     private const string CartridgePaletteTransition = "SuperMetroid.Core.Frontend.CartridgePaletteTransition";
+    /// <summary>Historical serialized identity for station PLM state.</summary>
     private const string StationPlmState = "SuperMetroid.Core.Rooms.RoomPlmSystem+StationPlmState";
 
     /// <summary>(Declaring type full name, field name) of every retired field, with its migration.</summary>

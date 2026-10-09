@@ -9,10 +9,16 @@ internal static class DebuggerStateTypeIdentity
 {
     // Version this logical identity if captures or callback semantics change. Compiler
     // ordinals are deliberately excluded; unrelated runtime members renumber them.
+    /// <summary>Stable identity used for supported room-load callbacks in saved graphs.</summary>
     internal const string RoomLoadCallbacksIdentity = "SuperMetroid.DebugState.RoomLoadCallbacks.v1, SuperMetroid.Core";
+    /// <summary>Legacy nested debugger root name retained for old save-state captures.</summary>
     private const string LegacyRootName = "SuperMetroid.Desktop.DebuggerSaveStateStore+DebuggerSaveStateRoot";
+    /// <summary>Assembly identity that accompanied the historical debugger root.</summary>
     private const string LegacyAssemblyName = "SuperMetroid.Desktop";
 
+    /// <summary>Resolves a serialized type identity, including the narrowly supported historical aliases.</summary>
+    /// <param name="name">Assembly-qualified identity read from a debugger-state graph.</param>
+    /// <returns>The resolved runtime type, or <see langword="null"/> when the identity is unknown.</returns>
     public static Type? Resolve(string name)
     {
         string[] identity = name.Split(',', 3, StringSplitOptions.TrimEntries);
@@ -52,11 +58,18 @@ internal static class DebuggerStateTypeIdentity
 
     // A type's serialized name is fixed for the process; the writer asks for it for every
     // object and field, and building AssemblyQualifiedName allocates a new string each time.
+    /// <summary>Caches stable serialized names because graph writers request them repeatedly.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, string> serializedNames = new();
 
+    /// <summary>Gets the saved-graph identity for a runtime type.</summary>
+    /// <param name="type">Type whose serialized identity is needed.</param>
+    /// <returns>Stable logical identity or its assembly-qualified name.</returns>
     internal static string GetSerializedName(Type type) =>
         serializedNames.GetOrAdd(type, CalculateSerializedName);
 
+    /// <summary>Builds and validates the serialized identity for a runtime type.</summary>
+    /// <param name="type">Type to name.</param>
+    /// <returns>The versioned callback identity or assembly-qualified name.</returns>
     private static string CalculateSerializedName(Type type)
     {
         if (type.DeclaringType == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&

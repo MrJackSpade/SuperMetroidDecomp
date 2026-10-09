@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Small synthetic confirmations of the audit itself; never searches gameplay.</summary>
 internal static class AuditContractChecks
 {
+    /// <summary>Runs focused synthetic checks for consumer binding and audit report behavior.</summary>
     public static void Run()
     {
         const string text = """
@@ -92,6 +93,7 @@ internal static class AuditContractChecks
             "Mother Brain bank/color-row metadata, guarded closed providers and deterministic output confirmed.");
     }
 
+    /// <summary>Confirms operand-bound and direct-OAM projectile routes use their respective export domains.</summary>
     private static void ConfirmProjectileRouting()
     {
         // These synthetic IDs isolate the two provider contracts, not an enemy or frame sequence.
@@ -112,6 +114,7 @@ internal static class AuditContractChecks
         Require(bound.Findings.Count == 0, "an operand-bound frame must not require unused direct OAM");
     }
 
+    /// <summary>Confirms shared Spore Spawn aliases and title palette colors have installed identities.</summary>
     private static void ConfirmPaletteProviders()
     {
         // Confirmation of the two identified audit false positives: shared Spore
@@ -128,11 +131,13 @@ internal static class AuditContractChecks
         Require(report.Findings.Count == 0, "shared aliases and the independent title provider must be recognized");
     }
 
+    /// <summary>Fails the contract check when a stated audit property does not hold.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Resource audit contract failed: " + message);
     }
 
+    /// <summary>Confirms only the reported A8/B3 empty extended frames qualify as renderer no-ops.</summary>
     private static void ConfirmEmptyFrameBoundary()
     {
         // Confirmation of the identified A8/B3 blank-frame false positives.
@@ -158,6 +163,7 @@ internal static class AuditContractChecks
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }
 
+    /// <summary>Confirms the identified Mother Brain program bank, operands and flash color rows.</summary>
     private static void ConfirmMotherBrainMetadata()
     {
         // Confirms only the two identified metadata gaps. No AI, room, frame,

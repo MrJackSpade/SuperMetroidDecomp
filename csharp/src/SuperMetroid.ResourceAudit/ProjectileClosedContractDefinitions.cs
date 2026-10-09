@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed complete projectile/rope visual domains; no firing, motion, damage or sound is exercised.</summary>
 internal static class ProjectileClosedContractDefinitions
 {
+    /// <summary>Reviewed fingerprints that bound the projectile and grapple visual provider domains.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve"],

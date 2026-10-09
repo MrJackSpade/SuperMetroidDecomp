@@ -6,21 +6,39 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>How a declaration is reported; enum members and fields have their own categories.</summary>
 internal enum DeclarationShape
 {
+    /// <summary>A named type or delegate.</summary>
     Type,
+    /// <summary>A method, property, event, or other non-field member.</summary>
     Member,
+    /// <summary>A field declared by a type.</summary>
     Field,
+    /// <summary>An enum constant, tracked separately so implicit numeric values can be preserved.</summary>
     EnumMember,
 }
 
 /// <summary>One repository declaration and every project that compiles it.</summary>
+/// <param name="Key">Stable symbol identity combining documentation ID and repository-relative file.</param>
+/// <param name="Kind">Human-readable declaration kind used in reports.</param>
+/// <param name="Display">C# display form of the declaration.</param>
+/// <param name="File">Repository-relative source path.</param>
+/// <param name="Line">One-based source line of the declaration.</param>
+/// <param name="ContainingTypeKey">Stable key of the containing type, when present.</param>
+/// <param name="Shape">Reporting category used to distinguish types, members, fields, and enum constants.</param>
+/// <param name="Projects">Names of all solution projects that compile this source declaration.</param>
 internal sealed record Declaration(string Key, string Kind, string Display, string File, int Line,
     string ContainingTypeKey, DeclarationShape Shape, HashSet<string> Projects);
 
 /// <summary>Records every type and member declared in repository source.</summary>
+/// <param name="identity">Provides source filtering, symbol normalization, and stable keys.</param>
+/// <param name="graph">Receives containment edges so reachable members keep their type reachable.</param>
 internal sealed class DeclarationCollector(SymbolIdentity identity, ReachabilityGraph graph)
 {
+    /// <summary>Declarations keyed by stable symbol identity, merged across projects that share source.</summary>
     public Dictionary<string, Declaration> Declarations { get; } = [];
 
+    /// <summary>Adds declarations from repository source in one compiled project.</summary>
+    /// <param name="project">Project whose compilation is being visited.</param>
+    /// <param name="compilation">Compilation supplying syntax trees and bound symbols.</param>
     public void Collect(Project project, Compilation compilation)
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
@@ -46,6 +64,10 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         }
     }
 
+    /// <summary>Gets the symbol represented by a supported declaration node, including positional record properties.</summary>
+    /// <param name="model">Semantic model for the node's syntax tree.</param>
+    /// <param name="node">Syntax node to interpret as a declaration.</param>
+    /// <returns>The normalized declaration candidate, or null for syntax that is not tracked.</returns>
     internal static ISymbol? DeclaredSymbol(SemanticModel model, SyntaxNode node) => node switch
     {
         BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or BaseMethodDeclarationSyntax
@@ -59,6 +81,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => null,
     };
 
+    /// <summary>Maps a Roslyn declaration symbol to its reporting shape.</summary>
     private static DeclarationShape Shape(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol => DeclarationShape.Type,
@@ -67,6 +90,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => DeclarationShape.Member,
     };
 
+    /// <summary>Returns the concise declaration-kind label written to finding reports.</summary>
     private static string Kind(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol { IsRecord: true, TypeKind: TypeKind.Struct } => "record struct",

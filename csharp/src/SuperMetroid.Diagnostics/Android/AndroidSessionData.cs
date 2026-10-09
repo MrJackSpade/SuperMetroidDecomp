@@ -9,60 +9,116 @@ namespace SuperMetroid.Android;
 /// <summary>
 /// Worker-owned game and diagnostic state. No Activity/View references are persisted.
 /// A reset recording starts from SRAM; a recording after a state load includes the exact
-/// seed file alongside it so desktop replay need not invent a reset-time equivalent.
-/// </summary>
-internal sealed class AndroidSessionData : IDisposable
+    /// seed file alongside it so desktop replay need not invent a reset-time equivalent.
+    /// </summary>
+    /// <param name="root">Application data directory for settings, saves, recordings, and installed assets.</param>
+    /// <param name="cartridgePath">Optional cartridge import source; runtime uses the installed, cartridge-free content.</param>
+    /// <param name="audioDirectory">Optional override directory for extracted audio assets.</param>
+    internal sealed class AndroidSessionData : IDisposable
 {
+    /// <summary>Application-private directory containing settings, saves, and installed assets.</summary>
     private readonly string root;
+    /// <summary>Path to the JSON save file persisted when game SRAM changes.</summary>
     private readonly string savePath;
+    /// <summary>Audio samples loaded from the installation or an explicitly selected directory.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
+    /// <summary>Installed area-map presentation catalog bound to the game.</summary>
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog maps;
+    /// <summary>Installed gameplay base palettes bound to the game.</summary>
     private readonly SuperMetroid.Core.Assets.GameplayBasePaletteCatalog gameplayBasePalettes;
+    /// <summary>Standard room object graphics used by the game renderer.</summary>
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlas standardObjectArt;
+    /// <summary>Intro cinematic artwork supplied to the frontend presentation.</summary>
     private readonly SuperMetroid.Core.Assets.IntroCinematicArtworkCatalog introCinematicArt;
+    /// <summary>Samus body artwork loaded from the extracted installation.</summary>
     private readonly SuperMetroid.Core.Assets.SamusBodyArtworkCatalog samusBodyArt;
+    /// <summary>Mode 7 artwork used for the ending sequence.</summary>
     private readonly SuperMetroid.Core.Assets.EndingMode7ArtworkCatalog endingMode7Art;
+    /// <summary>Ending-sequence object artwork.</summary>
     private readonly SuperMetroid.Core.Assets.EndingObjectArtworkCatalog endingObjectArt;
+    /// <summary>Palette resources used by ending sequences.</summary>
     private readonly SuperMetroid.Core.Assets.EndingPaletteCatalog endingPaletteArt;
+    /// <summary>Per-room character graphics.</summary>
     private readonly SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog roomCharacters;
+    /// <summary>Per-room static palettes.</summary>
     private readonly SuperMetroid.Core.Assets.RoomStaticPaletteCatalog roomPalettes;
+    /// <summary>Room metatile graphics and layout data.</summary>
     private readonly SuperMetroid.Core.Assets.RoomMetatileCatalog roomMetatiles;
+    /// <summary>Room visual layouts required by the game renderer.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog roomVisualLayouts;
+    /// <summary>Installed shot-block PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog roomPlmShotBlockVisuals;
+    /// <summary>Installed grapple-block PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog roomPlmGrappleBlockVisuals;
+    /// <summary>Installed station PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog roomPlmStationVisuals;
+    /// <summary>Installed blue-door PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmBlueDoorVisualCatalog roomPlmBlueDoorVisuals;
+    /// <summary>Installed colored-door PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmColoredDoorVisualCatalog roomPlmColoredDoorVisuals;
+    /// <summary>Installed grey-door PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmGreyDoorVisualCatalog roomPlmGreyDoorVisuals;
+    /// <summary>Installed eye-door PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog roomPlmEyeDoorVisuals;
+    /// <summary>Installed Mother Brain glass PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmMotherBrainGlassVisualCatalog roomPlmMotherBrainGlassVisuals;
+    /// <summary>Installed noob-tube PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmNoobTubeVisualCatalog roomPlmNoobTubeVisuals;
+    /// <summary>Installed downward-gate PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog roomPlmDownwardGateVisuals;
+    /// <summary>Installed elevator-platform PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog roomPlmElevatorPlatformVisuals;
+    /// <summary>Installed escape-gate PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog roomPlmEscapeGateVisuals;
+    /// <summary>Installed Bomb Torizo hand PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog roomPlmBombTorizoHandVisuals;
+    /// <summary>Installed Draygon cannon PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog roomPlmDraygonCannonVisuals;
+    /// <summary>Installed Chozo statue PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmChozoStatueVisualCatalog roomPlmChozoStatueVisuals;
+    /// <summary>Installed linked-restore PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmLinkedRestoreVisualCatalog roomPlmLinkedRestoreVisuals;
+    /// <summary>Installed Tourian-access PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog roomPlmTourianAccessVisuals;
+    /// <summary>Installed speed-booster PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog roomPlmSpeedBoosterVisuals;
+    /// <summary>Installed Maridia elevatube PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog roomPlmMaridiaElevatubeVisuals;
+    /// <summary>Installed Spore Spawn ceiling PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog roomPlmSporeSpawnCeilingVisuals;
+    /// <summary>Installed Samus-eater PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmSamusEaterVisualCatalog roomPlmSamusEaterVisuals;
+    /// <summary>Installed Botwoon wall PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog roomPlmBotwoonWallVisuals;
+    /// <summary>Installed Kraid PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmKraidVisualCatalog roomPlmKraidVisuals;
+    /// <summary>Installed Crocomire PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmCrocomireVisualCatalog roomPlmCrocomireVisuals;
+    /// <summary>Installed Mother Brain fake-death PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog roomPlmMotherBrainFakeDeathVisuals;
+    /// <summary>Installed collectible PLM artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog roomPlmCollectibleVisuals;
+    /// <summary>Installed dynamic collectible artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.RoomPlmDynamicCollectibleArtCatalog roomPlmDynamicCollectibleArt;
+    /// <summary>Installed X-ray reveal artwork.</summary>
     private readonly SuperMetroid.Core.Rooms.XrayRevealVisualCatalog xrayRevealVisuals;
+    /// <summary>Installed room background tilemaps.</summary>
     private readonly SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog roomBackgroundTilemaps;
+    /// <summary>Installed room sky tilemaps.</summary>
     private readonly SuperMetroid.Core.Assets.RoomSkyTilemapCatalog roomSkyTilemaps;
+    /// <summary>Projectile presentation catalogs imported for this session.</summary>
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation projectiles;
+    /// <summary>Installed enemy tile artwork bound to the game.</summary>
     private readonly SuperMetroid.Core.Assets.EnemyTileArtworkCatalog enemyTiles;
+    /// <summary>Debugger save-state persistence service for this session.</summary>
     private readonly DebuggerSaveStateStore states;
+    /// <summary>Active controller-input recording, when input capture is enabled.</summary>
     private ControllerInputRecorder recorder;
 
+    /// <summary>Creates a worker-owned game session and binds every installed presentation catalog.</summary>
+    /// <param name="root">Application data directory.</param>
+    /// <param name="cartridgePath">Optional source cartridge to import into the installation.</param>
+    /// <param name="audioDirectory">Optional directory overriding installed audio assets.</param>
     public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
@@ -238,26 +294,48 @@ internal sealed class AndroidSessionData : IDisposable
         WriteRecordingMetadata(seedFile: null);
     }
 
+    /// <summary>Effective host gameplay and audio options for this session.</summary>
     public SuperMetroidGameOptions Options { get; }
+    /// <summary>Runtime address space for the live game, including its current SRAM state.</summary>
     public SuperMetroidAddressSpace Bus { get; private set; }
+    /// <summary>Live game instance whose state may be replaced by a successful state load.</summary>
     public SuperMetroidGame Game { get; private set; }
+    /// <summary>Audio renderer paired with the current game and managed audio-player graph.</summary>
     public CartridgeAudioRenderer Audio { get; private set; }
+    /// <summary>Identity of the installed audio, map, projectile, and presentation content.</summary>
     public SuperMetroid.AssetExtraction.GameContentIdentity ContentIdentity { get; }
+    /// <summary>Generation counter incremented when a saved game replaces the active session.</summary>
     public long Generation { get; private set; } = 1;
 
+    /// <summary>Records one controller input word in the active session recording.</summary>
+    /// <param name="input">SNES controller bitfield consumed for the current frame.</param>
     public void Record(ushort input) => recorder.RecordFrame(input);
+    /// <summary>Persists current SRAM to the regular save file.</summary>
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
+    /// <summary>Flushes buffered recording data after a failed frame.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
+    /// <summary>Validates and imports a debugger state into a manual save slot.</summary>
+    /// <param name="path">Source debugger-state file.</param>
+    /// <param name="slot">Destination numbered slot.</param>
+    /// <returns>User-facing import status.</returns>
     public string ImportState(string path, int slot) =>
         AndroidFileImport.ImportState(root, path, slot);
+    /// <summary>Validates and stages a regular save for application at the next startup.</summary>
+    /// <param name="path">Source regular-save JSON.</param>
+    /// <returns>User-facing staging status.</returns>
     public string ImportSave(string path) =>
         AndroidFileImport.StageRegularSave(root, path);
 
+    /// <summary>Saves automatically when the configured door-transition policy permits it.</summary>
+    /// <param name="previousState">Game state before the door transition completed.</param>
     public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
         DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
             previousState, states, Bus, Game, Audio.Player);
 
+    /// <summary>Saves a numbered state slot, or reports that the automatic slot is reserved.</summary>
+    /// <param name="slot">State slot to save.</param>
+    /// <returns>User-facing save result with frame and room metadata.</returns>
     public string SaveSlot(int slot)
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
@@ -267,6 +345,9 @@ internal sealed class AndroidSessionData : IDisposable
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
     }
 
+    /// <summary>Loads a saved graph and atomically rebinds its game to this session's installed catalogs.</summary>
+    /// <param name="slot">State slot to load.</param>
+    /// <returns>User-facing load result with any migration warnings.</returns>
     public string LoadSlot(int slot)
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
@@ -340,6 +421,8 @@ internal sealed class AndroidSessionData : IDisposable
             (loaded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", loaded.Warnings));
     }
 
+    /// <summary>Writes sidecar metadata identifying whether the recording begins at reset or a saved state.</summary>
+    /// <param name="seedFile">Optional filename of the exact saved-state seed captured for replay.</param>
     private void WriteRecordingMetadata(string? seedFile)
     {
         // The recording embeds installed-content identity. This sidecar additionally
@@ -358,6 +441,8 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
+    /// <summary>Starts a recording bound to this session's SRAM seed, options, and installed content.</summary>
+    /// <returns>The new input recorder.</returns>
     private ControllerInputRecorder StartRecorder() =>
         ControllerInputRecorder.StartInstalled(
             root,
@@ -365,5 +450,6 @@ internal sealed class AndroidSessionData : IDisposable
             Options,
             ContentIdentity);
 
+    /// <summary>Closes the active controller-input recording.</summary>
     public void Dispose() => recorder.Dispose();
 }

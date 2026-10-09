@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete authored pause providers; this does not certify inventory logic, input, sound or menu pixels.</summary>
 internal static class PauseClosedContractDefinitions
 {
+    /// <summary>Fingerprints that close the authored pause-screen presentation providers.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.PauseEquipmentBasePresentation", "pause-equipment-complete-base-image",

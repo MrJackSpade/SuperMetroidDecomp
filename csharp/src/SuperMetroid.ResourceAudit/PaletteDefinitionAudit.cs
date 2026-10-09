@@ -16,6 +16,10 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PaletteDefinitionAudit
 {
+    /// <summary>Resolves bounded palette color pointers and records their coverage.</summary>
+    /// <param name="root">Repository root used to locate each catalog's source file.</param>
+    /// <param name="exports">Installed color identities recognized by the real importers.</param>
+    /// <param name="report">Audit report receiving references, gaps, and coverage.</param>
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         InstallColorIdentities(exports);
@@ -72,6 +76,8 @@ internal static class PaletteDefinitionAudit
             exports.Count(ResourceDomains.PaletteFx)));
     }
 
+    /// <summary>Installs color-pointer identities produced by the room and title palette importers.</summary>
+    /// <param name="exports">Index receiving the identities exposed by the loaded presentations.</param>
     internal static void InstallColorIdentities(ResourceIndex exports)
     {
         var recorder = new ColorAddressRecorder();
@@ -90,11 +96,24 @@ internal static class PaletteDefinitionAudit
             exports.Add(ResourceDomains.PaletteFx, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
     }
 
+    /// <summary>Identifies catalog methods whose two integer arguments select a color pointer.</summary>
+    /// <param name="method">Reflected method to classify.</param>
+    /// <returns><see langword="true"/> when the method has the bounded color-pointer signature.</returns>
     private static bool IsColorMethod(MethodInfo method) =>
         method.Name.EndsWith("ColorPointer", StringComparison.Ordinal) && method.ReturnType == typeof(ushort) &&
         method.GetParameters() is [{ ParameterType: var first }, { ParameterType: var second }] &&
         first == typeof(int) && second == typeof(int);
 
+    /// <summary>Enumerates a finite color-pointer method and records each referenced resource.</summary>
+    /// <param name="rowType">Type that declares frame and color bounds.</param>
+    /// <param name="row">Optional row instance on which the pointer method is invoked.</param>
+    /// <param name="method">Pointer-producing method to inspect.</param>
+    /// <param name="prefix">Catalog prefix for static bound names.</param>
+    /// <param name="catalog">Catalog owning the audited declaration.</param>
+    /// <param name="source">Repository-relative source label for findings.</param>
+    /// <param name="exports">Installed resources used to resolve each pointer.</param>
+    /// <param name="report">Audit report receiving references or a gap.</param>
+    /// <returns><see langword="true"/> if finite bounds were found and inspected.</returns>
     private static bool CheckColorMethod(Type rowType, object? row, MethodInfo method, string prefix,
         Type catalog, string source, ResourceIndex exports, AuditReport report)
     {
@@ -118,6 +137,11 @@ internal static class PaletteDefinitionAudit
         return true;
     }
 
+    /// <summary>Reads a declared integer bound from a reflected field or property.</summary>
+    /// <param name="type">Type containing the bound.</param>
+    /// <param name="row">Instance for an instance member, or <see langword="null"/> for a static member.</param>
+    /// <param name="name">Bound member name.</param>
+    /// <returns>The bound when represented as an integer; otherwise <see langword="null"/>.</returns>
     private static int? ReadCount(Type type, object? row, string name)
     {
         const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
@@ -125,6 +149,10 @@ internal static class PaletteDefinitionAudit
         return value is int count ? count : null;
     }
 
+    /// <summary>Finds the source file for a palette catalog across current and moved source layouts.</summary>
+    /// <param name="root">Repository root.</param>
+    /// <param name="name">Catalog type name used as the source file name.</param>
+    /// <returns>A repository-relative path, or the expected Core path when no file is present.</returns>
     private static string FindSource(string root, string name)
     {
         string path = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");
@@ -134,9 +162,14 @@ internal static class PaletteDefinitionAudit
         return "csharp/src/SuperMetroid.Core/Game/" + name;
     }
 
+    /// <summary>Records importer reads while supplying inert bytes only within the color address ranges.</summary>
     private sealed class ColorAddressRecorder : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>CPU addresses read by the room and title palette importers, in access order.</summary>
         public List<int> Reads { get; } = [];
+        /// <summary>Allows only palette-bank bytes and the title's initial palette region to be read.</summary>
+        /// <param name="cpuAddress">CPU address requested by an importer.</param>
+        /// <returns>Zero, since values are irrelevant to the identity inventory.</returns>
         public byte ReadCartridgeByte(int cpuAddress)
         {
             bool titleInitialColor = cpuAddress >= TitleSequenceRomData.Assets.PaletteAddress &&
@@ -146,6 +179,9 @@ internal static class PaletteDefinitionAudit
             Reads.Add(cpuAddress);
             return 0;
         }
+        /// <summary>Rejects writes because palette identity extraction must not mutate emulated state.</summary>
+        /// <param name="address">Requested emulated address.</param>
+        /// <param name="value">Requested byte value.</param>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Static color extraction must not mutate emulated state.");
     }

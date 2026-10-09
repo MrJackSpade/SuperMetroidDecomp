@@ -11,6 +11,11 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal static class AndroidDiagnosticBundle
 {
+    /// <summary>Creates a new archive containing allowlisted local diagnostics for one selected state slot.</summary>
+    /// <param name="root">Application data directory from which files are selected.</param>
+    /// <param name="destination">New archive path; an existing file is never overwritten.</param>
+    /// <param name="slot">Numbered debugger state slot included when present.</param>
+    /// <returns>The destination path of the created archive.</returns>
     public static string Create(string root, string destination, int slot)
     {
         string state = $"debug-states/SuperMetroid-debug-slot-{DebuggerSaveStateStore.SlotName(slot)}.smstate";

@@ -9,11 +9,16 @@ namespace SuperMetroid.ResourceAudit;
 /// New program catalogs are discovered from their declaration contract, not from
 /// a hand-maintained list of enemy kinds or paths reached during gameplay.
 /// </summary>
+/// <param name="exports">Installed resources available to resolve discovered operands.</param>
+/// <param name="report">Audit report that receives unresolved and missing operand findings.</param>
 internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport report)
 {
+    /// <summary>Provider types already scanned, preventing duplicate reports across partial declarations.</summary>
     private readonly HashSet<string> inspected = new(StringComparer.Ordinal);
+    /// <summary>Number of presentation operands checked against the resource index.</summary>
     private int references;
 
+    /// <summary>Inspects a declared catalog for its finite presentation operand contract.</summary>
     public void Inspect(ClassDeclarationSyntax declaration, SemanticModel semantic)
     {
         if (!declaration.Members.OfType<PropertyDeclarationSyntax>()
@@ -98,6 +103,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         }
     }
 
+    /// <summary>Publishes operand reference coverage after all catalog declarations are inspected.</summary>
     public void Complete() => report.Coverage.Add(new("compiled-presentation-operands", references,
         exports.Count(ResourceDomains.CompiledSelector) + exports.Count(ResourceDomains.EnemyProjectileProgram) +
         exports.Count(ResourceDomains.EnemyProjectileSprite)));

@@ -12,9 +12,12 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class ClosedPresentationAudit
 {
+    /// <summary>Reviewed provider methods and whether each source contract still matches.</summary>
     private readonly Dictionary<(string Type, string Method), (ClosedPresentationContract Contract, bool Valid)> contracts = [];
+    /// <summary>Number of provider references accepted under a valid closed contract.</summary>
     private int references;
 
+    /// <summary>Validates reviewed contracts against compiled sources and installs their resource identities.</summary>
     internal ClosedPresentationAudit(Compilation compilation, ResourceIndex exports)
     {
         var sources = compilation.SyntaxTrees.ToDictionary(tree => tree.FilePath, tree => tree.GetText().ToString(),
@@ -141,9 +144,11 @@ internal sealed class ClosedPresentationAudit
         NamedPresentationAudit.Install(exports);
     }
 
+    /// <summary>Checks whether source text has the fingerprint recorded by a reviewed source contract.</summary>
     internal static bool MatchesReviewedSource(string text, ReviewedSource source) =>
         SourceFingerprint.Of(text) == source.Fingerprint;
 
+    /// <summary>Audits a provider invocation under its reviewed closure rule and domain-specific checks.</summary>
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location, string arguments)
     {
@@ -195,6 +200,7 @@ internal sealed class ClosedPresentationAudit
         return true;
     }
 
+    /// <summary>Finds constant arguments outside the finite identities or index ranges for this provider.</summary>
     private static string? InvalidConstantIndex(IInvocationOperation operation)
     {
         foreach (IArgumentOperation argument in operation.Arguments)
@@ -226,6 +232,7 @@ internal sealed class ClosedPresentationAudit
         return null;
     }
 
+    /// <summary>Publishes the total provider references and covered exports after source scanning completes.</summary>
     internal void Complete(ResourceIndex exports, AuditReport report) => report.Coverage.Add(new(
         "closed-presentation-contract", references, exports.Count("closed-presentation-contract")));
 }

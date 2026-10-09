@@ -17,6 +17,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     /// <summary>Every repository symbol referenced anywhere, reachable or not.</summary>
     public HashSet<string> Referenced { get; } = [];
 
+    /// <summary>Scans repository syntax trees in a project and records each bound reference.</summary>
     public void Collect(Project project, Compilation compilation)
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
@@ -27,6 +28,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         }
     }
 
+    /// <summary>Handles implicit constructor edges and sends reference-bearing syntax to semantic analysis.</summary>
     private void Visit(Project project, SemanticModel model, SyntaxNode node)
     {
         switch (node)
@@ -82,6 +84,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         }
     }
 
+    /// <summary>Adds compiler-inserted calls and value-sensitive reads associated with a syntax node.</summary>
     private void AddImplicitTargets(SemanticModel model, SyntaxNode node, SymbolInfo info, List<ISymbol?> targets, string owner)
     {
         switch (node)
@@ -184,6 +187,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         "Remove", "CountBy", "AggregateBy", "ToFrozenDictionary", "ToFrozenSet", "Equals",
     ];
 
+    /// <summary>Adds instance values read by synthesized record equality, including nested record values.</summary>
     private static void AddRecordMembers(ITypeSymbol? type, List<ISymbol?> targets, int depth = 0)
     {
         if (depth > 4 || type is not INamedTypeSymbol { IsRecord: true } record)
@@ -240,6 +244,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         "Format", nameof(ToString),
     ];
 
+    /// <summary>Adds enum constants whose names or values are observed by reflection or formatting.</summary>
     private static void AddEnumMembers(ITypeSymbol? type, List<ISymbol?> targets)
     {
         if (type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType)
@@ -248,6 +253,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
             AddEnumMembers(nullable.TypeArguments[0], targets);
     }
 
+    /// <summary>Adds the deconstructor and any user-defined conversions used by deconstruction.</summary>
     private static void AddDeconstruction(DeconstructionInfo info, List<ISymbol?> targets)
     {
         targets.Add(info.Method);
@@ -257,9 +263,11 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
             AddDeconstruction(nested, targets);
     }
 
+    /// <summary>Finds the base constructor callable without explicit arguments.</summary>
     private static IMethodSymbol? ParameterlessBaseConstructor(INamedTypeSymbol type) =>
         type.BaseType?.InstanceConstructors.FirstOrDefault(c => c.Parameters.All(p => p.IsOptional || p.IsParams));
 
+    /// <summary>Checks whether a node occurs within a <c>nameof</c> operand, which does not execute a reference.</summary>
     private static bool IsInsideNameof(SyntaxNode node)
     {
         foreach (var invocation in node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>())
@@ -270,6 +278,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     }
 
     /// <summary>The declaration whose reachability makes this reference happen.</summary>
+    /// <summary>Finds the repository declaration or entry point whose execution owns a source reference.</summary>
     private string? OwnerKey(Project project, SemanticModel model, SyntaxNode node)
     {
         foreach (var ancestor in node.Ancestors())

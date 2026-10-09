@@ -1,6 +1,8 @@
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>One reported declaration and why it is reported.</summary>
+/// <param name="Category">Stable report category identifier.</param>
+/// <param name="Declaration">Source declaration that triggered the finding.</param>
 internal sealed record Finding(string Category, Declaration Declaration);
 
 /// <summary>
@@ -9,20 +11,28 @@ internal sealed record Finding(string Category, Declaration Declaration);
 /// </summary>
 internal static class ReachabilityFindings
 {
+    /// <summary>Category for a type with no reachable use.</summary>
     public const string UnreachableType = "unreachable-type";
+    /// <summary>Category for a non-field member with no reachable use.</summary>
     public const string UnreachableMember = "unreachable-member";
+    /// <summary>Category for a field with no reachable use.</summary>
     public const string UnreferencedField = "unreferenced-field";
+    /// <summary>Category for an enum constant not observed by a value-sensitive use.</summary>
     public const string UnreferencedEnumMember = "unreferenced-enum-member";
+    /// <summary>Category for a member accessed only through recognized serialization.</summary>
     public const string SerializationOnly = "serialization-only";
+    /// <summary>Category for shipped symbols used by tools but not by production roots.</summary>
     public const string ReachedOnlyByTools = "production-reached-only-by-tools";
     /// <summary>Unused by tools in a source file verification projects also compile: unlink it from the tool.</summary>
     public const string TestSupportUnusedByTools = "test-support-unused-by-tools";
 
     /// <summary>Assemblies that ship to players; symbols here must be reachable from the player hosts.</summary>
+    /// <summary>Player-shipped assemblies considered when identifying tool-only references.</summary>
     internal static readonly HashSet<string> ProductionAssemblies =
         ["SuperMetroid.Core", "SuperMetroid.AssetExtraction", "SuperMetroid.Diagnostics", "SuperMetroid.Desktop",
          "SuperMetroid.Rendering.Direct3D11", "SuperMetroid.Game", "SuperMetroid.Android"];
 
+    /// <summary>Classifies unreachable declarations and shipped declarations reached only by tools.</summary>
     public static IReadOnlyList<Finding> Classify(ReachabilityResult result)
     {
         var declarations = result.Declarations;
@@ -55,6 +65,7 @@ internal static class ReachabilityFindings
         return findings;
     }
 
+    /// <summary>Enumerates the containing-type keys from the immediate owner outward.</summary>
     private static IEnumerable<string> Containers(IReadOnlyDictionary<string, Declaration> declarations, Declaration declaration)
     {
         for (string key = declaration.ContainingTypeKey; key.Length > 0;

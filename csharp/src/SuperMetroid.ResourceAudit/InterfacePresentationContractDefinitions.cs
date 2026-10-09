@@ -5,6 +5,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed source-owned interface dispatch sets; external injected implementations are not certified.</summary>
 internal static class InterfacePresentationContractDefinitions
 {
+    /// <summary>Reviewed concrete implementation sets for source-owned presentation interfaces.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
@@ -36,8 +37,10 @@ internal static class InterfacePresentationContractDefinitions
              Source("IntroCinematicSpriteCompiler", "B7425C9529BBF7DE5EC6E220C69E70A36EF2FE6203F51E8179BFCB02CAFBA77F")]),
     ];
 
+    /// <summary>Creates a fingerprint record for an asset-provider source file.</summary>
     private static ReviewedSource Source(string name, string hash) => new("csharp/src/SuperMetroid.Core/Assets/" + name + ".cs", hash);
 
+    /// <summary>Returns the reviewed implementation names for a presentation interface, if covered.</summary>
     internal static string[]? Implementations(string type) => type switch
     {
         "SuperMetroid.Core.Assets.IPaletteFxColorSource" => [typeof(RoomPaletteFxPresentation).FullName!, typeof(TitlePalettePresentation).FullName!],

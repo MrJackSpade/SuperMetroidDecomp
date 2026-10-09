@@ -8,9 +8,15 @@ namespace SuperMetroid.ResourceAudit;
 /// guards keep these widths/control-flow edges tied to the actual interpreter.
 /// Operands are offsets from the opcode; links are also future execution roots.
 /// </summary>
+/// <param name="Length">Encoded instruction width in bytes.</param>
+/// <param name="Words">Offsets of 16-bit operands in the instruction.</param>
+/// <param name="Bytes">Offsets of 8-bit operands in the instruction.</param>
+/// <param name="Targets">Offsets containing instruction-list targets.</param>
+/// <param name="FallThrough">Whether control proceeds to the following instruction after this opcode.</param>
 internal sealed record PlmInstructionFormat(int Length, int[] Words, int[] Bytes,
     int[] Targets, bool FallThrough = true)
 {
+    /// <summary>Returns the reviewed operand layout for a supported bank-$84 opcode.</summary>
     internal static PlmInstructionFormat? Get(ushort opcode) => opcode switch
     {
         RoomPlmInstructionCodes.Delete or RoomPlmInstructionCodes.Sleep =>

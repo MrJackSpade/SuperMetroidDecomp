@@ -13,13 +13,20 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class PlmProgramSource
 {
+    /// <summary>Report receiving interpreter source-guard failures.</summary>
     private readonly PlmProgramAuditReport report;
+    /// <summary>Unique Core runtime types addressable by simple name in discovered resolver calls.</summary>
     private readonly Dictionary<string, Type> types;
+    /// <summary>Production PLM declaration methods collected from Core source.</summary>
     private readonly MethodDeclarationSyntax[] methods;
+    /// <summary>Calculated draw providers used by the production draw dispatcher.</summary>
     private readonly List<MethodInfo> drawProviders = [];
+    /// <summary>Direct draw IDs accepted by the dispatcher without a provider callback.</summary>
     private readonly HashSet<ushort> directDraws = [];
+    /// <summary>Memoized membership results for draw IDs queried by the walker.</summary>
     private readonly Dictionary<ushort, bool> draws = [];
 
+    /// <summary>Discovers production PLM source methods, providers and direct draw IDs.</summary>
     internal PlmProgramSource(string root, PlmProgramAuditReport report)
     {
         this.report = report;
@@ -69,6 +76,7 @@ internal sealed class PlmProgramSource
             throw new InvalidDataException("The production PLM draw dispatcher could not be inventoried.");
     }
 
+    /// <summary>Enumerates word positions accepted by each exact compiled PLM definition resolver.</summary>
     internal Dictionary<ushort, string> InventoryWords()
     {
         MethodDeclarationSyntax resolver = methods.Single(method => method.Identifier.Text == "TryReadWord");
@@ -88,6 +96,7 @@ internal sealed class PlmProgramSource
         return result;
     }
 
+    /// <summary>Finds constant instruction pointers assigned by production PLM methods.</summary>
     internal IEnumerable<(ushort Address, string Owner)> AssignedConstantRoots()
     {
         foreach (MethodDeclarationSyntax method in methods)
@@ -116,6 +125,7 @@ internal sealed class PlmProgramSource
         }
     }
 
+    /// <summary>Extracts possible values from a conditional instruction-pointer expression.</summary>
     private static IEnumerable<ExpressionSyntax> RootExpressions(ExpressionSyntax expression)
     {
         // Conditions can compare a header ID; that is not an instruction root.
@@ -128,6 +138,7 @@ internal sealed class PlmProgramSource
         else yield return expression;
     }
 
+    /// <summary>Checks whether a pointer is handled by a direct draw entry or discovered calculated provider.</summary>
     internal bool OwnsDraw(ushort pointer)
     {
         if (draws.TryGetValue(pointer, out bool owned)) return owned;
@@ -141,6 +152,7 @@ internal sealed class PlmProgramSource
         return owned;
     }
 
+    /// <summary>Checks guarded interpreter and dispatch methods against their reviewed token fingerprints.</summary>
     internal void VerifyInterpreter()
     {
         foreach (MethodDeclarationSyntax method in methods.Where(RequiresGuard))
@@ -156,8 +168,10 @@ internal sealed class PlmProgramSource
                 report.Findings.Add(new("unresolved-source", key, 0, "Guarded production method was removed."));
     }
 
+    /// <summary>Computes the token fingerprint for one interpreter method.</summary>
     internal static string TokenHash(MethodDeclarationSyntax method) => SourceFingerprint.Of(method);
 
+    /// <summary>Whether a production method affects instruction decoding, roots, draw dispatch or ownership.</summary>
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or
         "DrawPlmInstruction" or "TryIdentifyPermanentCollectible" or
@@ -168,6 +182,7 @@ internal sealed class PlmProgramSource
         method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(call =>
             call.Expression.ToString() is "ReadProgramWord" or "ReadProgramByte");
 
+    /// <summary>Resolves one source-discovered compiled word provider by type and method signature.</summary>
     private MethodInfo ResolveMethod(string type, string name) => types[type].GetMethods(
         BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
         .Single(method => method.Name == name && method.GetParameters() is

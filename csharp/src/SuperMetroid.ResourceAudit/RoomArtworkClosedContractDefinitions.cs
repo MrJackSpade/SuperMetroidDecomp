@@ -3,8 +3,10 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete graphics-set source membership and the contiguous sky transfer store.</summary>
 internal static class RoomArtworkClosedContractDefinitions
 {
+    /// <summary>Fingerprint for the source list that maps room tilesets to their native graphics addresses.</summary>
     private static readonly ReviewedSource TilesetSources = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "AF68FB26662D9CF4BD94B6DFD4BAF632089B67FFD45BA7E7C6FB377B1281B810");
+    /// <summary>Fingerprints closing room character, metatile, palette and sky transfer sources.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog", "room-complete-tileset-character-sources", ["Get"],

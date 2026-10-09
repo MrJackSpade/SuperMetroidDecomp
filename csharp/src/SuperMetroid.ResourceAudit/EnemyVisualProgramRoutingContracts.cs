@@ -6,6 +6,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Revokes the reviewed common-interpreter routing proof when its code changes.</summary>
 internal static class EnemyVisualProgramRoutingContracts
 {
+    /// <summary>Expected source fingerprints for shared enemy visual instruction routing methods.</summary>
     private static readonly Dictionary<string, string> Methods = new()
     {
         ["ReadEnemyInstructionMechanicsWord"] = "D9A4F9CB3B767BF4A16555EE799AAEA8E069CD5FC1221F57718526E04C8CCAC4",
@@ -17,6 +18,7 @@ internal static class EnemyVisualProgramRoutingContracts
         ["ProcessEnemyProjectileInstructions"] = "6169FEBA0A8D8CB8550BCA059295013FBB46EA7EDA37383A2D20224976A92F50",
     };
 
+    /// <summary>Compares common interpreter routing methods with their reviewed fingerprints.</summary>
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)
     {
         MethodDeclarationSyntax[] methods = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()

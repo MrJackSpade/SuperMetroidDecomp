@@ -7,14 +7,29 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One queued transfer that is missing ownership or could not be classified.</summary>
+/// <param name="Code">Stable category for the transfer finding.</param>
+/// <param name="Owner">Producer method or source operation responsible for the transfer.</param>
+/// <param name="Source">Source file and line where the queue call occurs.</param>
+/// <param name="Detail">Explanation of the invalid transfer or incomplete producer boundary.</param>
 internal sealed record VramDmaFinding(string Code, string Owner, string Source, string Detail);
+/// <summary>Queue producer site retained in the report inventory.</summary>
 internal sealed record VramDmaSite();
+/// <summary>Native-address or typed-asset transfer descriptor emitted by a producer.</summary>
+/// <param name="Owner">Method whose body owns the descriptor.</param>
+/// <param name="SourceAddress">Native bus address when the descriptor is not typed.</param>
+/// <param name="ByteCount">Transfer byte count.</param>
+/// <param name="Asset">Typed VRAM asset identifier, or <see cref="VramAssetId.None"/> for a native source.</param>
 internal sealed record VramDmaTransfer(string Owner, int SourceAddress, int ByteCount,
     VramAssetId Asset = VramAssetId.None);
+/// <summary>Producer sites, transfer descriptors and ownership findings from one DMA analysis.</summary>
 internal sealed class VramDmaReport
 {
+    /// <summary>Source locations that enqueue VRAM transfers.</summary>
     public List<VramDmaSite> Sites { get; } = [];
+    /// <summary>Resolved native and typed transfer descriptors.</summary>
     public List<VramDmaTransfer> Transfers { get; } = [];
+    /// <summary>Unresolved producers and transfers without an admitted owner.</summary>
     public List<VramDmaFinding> Findings { get; } = [];
 }
 
@@ -25,6 +40,7 @@ internal sealed class VramDmaReport
 /// </summary>
 internal static class VramDmaAudit
 {
+    /// <summary>Runs the queued-transfer source audit and optionally writes its JSON report.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         VramDmaReport report = Analyze(CreateCompilation(root), root);
@@ -43,6 +59,7 @@ internal static class VramDmaAudit
         return report.Findings.Count == 0 ? 0 : 1;
     }
 
+    /// <summary>Compiles repository Core source with SDK platform references for semantic DMA inspection.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
@@ -61,6 +78,7 @@ internal static class VramDmaAudit
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true));
     }
 
+    /// <summary>Finds queued transfer sites, resolves finite descriptors and checks installed ownership.</summary>
     internal static VramDmaReport Analyze(CSharpCompilation compilation, string? root = null,
         Func<int, int, bool>? ownsNative = null, Func<VramAssetId, int, bool>? ownsTyped = null)
     {
@@ -144,6 +162,7 @@ internal static class VramDmaAudit
         }
     }
 
+    /// <summary>Checks transfer size and verifies that its typed or native source has an installed owner.</summary>
     internal static string? CheckTransfer(VramDmaTransfer transfer, Func<int, int, bool> ownsNative,
         Func<VramAssetId, int, bool> ownsTyped)
     {
@@ -165,12 +184,15 @@ internal static class VramDmaAudit
         return null;
     }
 
+    /// <summary>Reads a named invocation argument when its value is a compile-time integer constant.</summary>
     private static int? Constant(IInvocationOperation call, string name)
     {
         var value = call.Arguments.Single(argument => argument.Parameter?.Name == name).Value.ConstantValue;
         return value is { HasValue: true, Value: not null } ? Convert.ToInt32(value.Value) : null;
     }
+    /// <summary>Computes the stable source-token fingerprint used by reviewed producer contracts.</summary>
     internal static string Hash(SyntaxNode node) => SourceFingerprint.Of(node);
+    /// <summary>Formats a syntax node's repository path and one-based line number.</summary>
     private static string Location(SyntaxNode node) => node.SyntaxTree.FilePath + ":" +
         (node.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
 }

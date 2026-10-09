@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified atomic map install without loading files or running a screen.</summary>
 internal static class AreaMapPresentationContractChecks
 {
+    /// <summary>Confirms that the reviewed map provider installs only its finite owned identities.</summary>
     internal static void Run()
     {
         var trees = AreaMapClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -67,6 +68,9 @@ internal static class AreaMapPresentationContractChecks
             "changed atomic area admission must revoke both map operations, including valid-looking constants");
     }
 
+    /// <summary>Fails the contract check when a fixture does not demonstrate its intended condition.</summary>
+    /// <param name="valid">Whether the asserted contract holds.</param>
+    /// <param name="reason">Explanation included in the failure exception.</param>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Area map provider confirmation failed: " + reason);

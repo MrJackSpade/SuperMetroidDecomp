@@ -5,11 +5,17 @@ using Microsoft.CodeAnalysis.MSBuild;
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>The compiled repository: every project of the solution with its error-free compilation.</summary>
+/// <param name="RepositoryRoot">The repository directory used to identify hand-written source.</param>
+/// <param name="Projects">Each loaded project paired with the compilation used for symbol analysis.</param>
 internal sealed record LoadedSolution(string RepositoryRoot, IReadOnlyList<(Project Project, Compilation Compilation)> Projects);
 
 /// <summary>Loads and compiles every project listed in a .slnx solution, failing on any load or compile error.</summary>
 internal static class SolutionLoader
 {
+    /// <summary>Loads the solution's projects and returns only after all available compilations are error-free.</summary>
+    /// <param name="solutionPath">Absolute or relative path to the solution XML file.</param>
+    /// <returns>The repository root and compiled projects for subsequent source analysis.</returns>
+    /// <exception cref="InvalidOperationException">A workspace load failed or a project has compilation errors.</exception>
     public static async Task<LoadedSolution> LoadAsync(string solutionPath)
     {
         string solutionDirectory = Path.GetDirectoryName(solutionPath)!;

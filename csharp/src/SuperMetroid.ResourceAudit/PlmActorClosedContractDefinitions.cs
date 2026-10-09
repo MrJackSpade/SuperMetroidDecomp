@@ -3,10 +3,12 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Individually reviewed room-actor artwork contracts; unrelated PLM families remain unresolved.</summary>
 internal static class PlmActorClosedContractDefinitions
 {
+    /// <summary>Fingerprint for the shared source shape used by reviewed PLM actor draw contracts.</summary>
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
         "EE5DD1AAFD6BCCA4627D2D11582BCB88782327B9B764DAA7081B5DAD3822D132");
 
+    /// <summary>Reviewed fingerprints that bound the selected room-actor PLM artwork providers.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog", "plm-downward-gate-complete-draws", ["GetWord"],

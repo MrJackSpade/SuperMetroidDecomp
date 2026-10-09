@@ -11,6 +11,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Marks a member or type that only reflection reaches (SuperMetroid.Core.AccessedByReflectionAttribute).</summary>
     public const string ReflectionMarker = "AccessedByReflectionAttribute";
 
+    /// <summary>Attribute names whose framework or host machinery creates annotated types.</summary>
     private static readonly HashSet<string> FrameworkCreatedAttributes =
         ["ActivityAttribute", "ApplicationAttribute", "ServiceAttribute", "BroadcastReceiverAttribute",
          "ContentProviderAttribute", "DiagnosticAnalyzerAttribute"];
@@ -21,9 +22,11 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Roots of the shipped player hosts and the build-time analyzer only.</summary>
     public HashSet<string> ProductionRoots { get; } = [];
 
+    /// <summary>Whether the symbol carries the repository attribute that declares name-based reflection access.</summary>
     public static bool HasReflectionMarker(ISymbol symbol) =>
         symbol.GetAttributes().Any(a => a.AttributeClass?.Name == ReflectionMarker);
 
+    /// <summary>Adds executable roots and members reached through framework dispatch for one compilation.</summary>
     public void Collect(Project project, Compilation compilation, bool production)
     {
         if (compilation.GetEntryPoint(CancellationToken.None) is { } entry)
@@ -55,6 +58,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Top-level statements compile to a synthesized entry point that has no repository key.</summary>
     public string EntryPointKey(IMethodSymbol entry, string projectName) => identity.Key(entry) ?? $"ENTRY:{projectName}";
 
+    /// <summary>Records a root for all-tool reachability and, when applicable, production reachability.</summary>
     private void AddRoot(string key, bool production)
     {
         Roots.Add(key);
@@ -62,6 +66,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             ProductionRoots.Add(key);
     }
 
+    /// <summary>Adds override and interface implementation edges, including framework-triggered dispatch.</summary>
     private void CollectDispatch(INamedTypeSymbol type, string typeKey)
     {
         foreach (var member in type.GetMembers())
@@ -96,8 +101,10 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             }
     }
 
+    /// <summary>Checks whether a symbol has at least one source declaration.</summary>
     private static bool InSource(ISymbol symbol) => symbol.Locations.Any(l => l.IsInSource);
 
+    /// <summary>Enumerates namespace types recursively, including nested types.</summary>
     public static IEnumerable<INamedTypeSymbol> AllTypes(INamespaceSymbol ns)
     {
         foreach (var member in ns.GetMembers())
@@ -108,6 +115,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
         }
     }
 
+    /// <summary>Enumerates a type followed by all of its nested types.</summary>
     private static IEnumerable<INamedTypeSymbol> WithNested(INamedTypeSymbol type)
     {
         yield return type;

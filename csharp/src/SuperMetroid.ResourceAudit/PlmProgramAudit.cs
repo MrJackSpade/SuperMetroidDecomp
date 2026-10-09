@@ -6,26 +6,43 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One missing or unresolved instruction word, operand, target, or artwork transfer.</summary>
+/// <param name="Code">Stable category describing the audit failure.</param>
+/// <param name="Owner">Instruction-list root from which the failure was discovered.</param>
+/// <param name="Address">Bank-$84 address associated with the finding.</param>
+/// <param name="Detail">Human-readable explanation of the missing data or unsupported boundary.</param>
 internal sealed record PlmProgramFinding(string Code, string Owner, ushort Address, string Detail);
+/// <summary>One instruction-list root delegated to a typed runtime owner.</summary>
 internal sealed record PlmProgramClassification();
 
 /// <summary>Finite closure of immutable PLM records. Never runs a PLM or opens a ROM.</summary>
 internal sealed class PlmProgramAuditReport
 {
+    /// <summary>Number of instruction records decoded.</summary>
     public int Records { get; set; }
+    /// <summary>Number of timed-draw records encountered.</summary>
     public int TimedDraws { get; set; }
+    /// <summary>Number of 16-bit instruction operands read.</summary>
     public int WordOperands { get; set; }
+    /// <summary>Number of 8-bit instruction operands read.</summary>
     public int ByteOperands { get; set; }
+    /// <summary>Number of installed-artwork DMA transfers encountered.</summary>
     public int ArtworkTransfers { get; set; }
+    /// <summary>Missing or unresolved instruction-program findings.</summary>
     public List<PlmProgramFinding> Findings { get; } = [];
+    /// <summary>Program roots handled by identified typed runtime owners.</summary>
     public List<PlmProgramClassification> Classifications { get; } = [];
 }
 
+/// <summary>Static walker and entry points for the finite PLM instruction-program audit.</summary>
 internal static class PlmProgramAudit
 {
+    /// <summary>Reads one compiled word at an address when present.</summary>
     internal delegate bool WordReader(ushort address, out ushort value);
+    /// <summary>Reads one compiled byte at an address when present.</summary>
     internal delegate bool ByteReader(ushort address, out byte value);
 
+    /// <summary>Audits every known PLM instruction-list root and writes optional findings JSON.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         var report = new PlmProgramAuditReport();
@@ -97,6 +114,7 @@ internal static class PlmProgramAudit
 
     // These are actual alternative execution owners, not missing-data exemptions.
     // Their setup/step source is guarded alongside the generic interpreter.
+    /// <summary>Identifies headers executed by specialized collectible, scroll or station handlers.</summary>
     private static string? TypedHeaderRoute(ushort header)
     {
         if (RoomPlmSystem.TryIdentifyPermanentCollectible(header, out _, out _))
@@ -112,6 +130,7 @@ internal static class PlmProgramAudit
         };
     }
 
+    /// <summary>Identifies instruction lists owned by specialized scroll, station or treadmill handlers.</summary>
     private static string? TypedListRoute(string name) => name switch
     {
         nameof(RoomPlmInstructionLists.ScrollTriggerWaiting) or
@@ -124,14 +143,24 @@ internal static class PlmProgramAudit
         _ => null,
     };
 
+    /// <summary>Decodes linked PLM programs while tracking occupied bytes and checking resource operands.</summary>
+    /// <param name="readWord">Reader for compiled 16-bit instruction words.</param>
+    /// <param name="readByte">Reader for compiled byte operands.</param>
+    /// <param name="ownsDraw">Predicate for production PLM draw definitions.</param>
+    /// <param name="report">Mutable report receiving counts, classifications and findings.</param>
+    /// <param name="ownsArtwork">Optional provider predicate for installed artwork transfers.</param>
     internal sealed class Walker(WordReader readWord, ByteReader readByte,
         Func<ushort, bool> ownsDraw, PlmProgramAuditReport report,
         Func<int, int, bool>? ownsArtwork = null)
     {
+        /// <summary>Instruction entry addresses already decoded by this walker.</summary>
         private readonly HashSet<ushort> visited = [];
+        /// <summary>Every byte in a decoded instruction or operand span.</summary>
         private readonly HashSet<ushort> covered = [];
+        /// <summary>Whether an address has already been claimed by a decoded instruction span.</summary>
         internal bool Covered(ushort address) => covered.Contains(address);
 
+        /// <summary>Walks an instruction-list root and records missing words, bad links and absent resources.</summary>
         internal void Visit(ushort root, string owner)
         {
             var pending = new Stack<ushort>();

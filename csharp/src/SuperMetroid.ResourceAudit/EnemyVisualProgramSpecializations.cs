@@ -11,6 +11,7 @@ internal static class EnemyVisualProgramSpecializations
 
     // These files were inspected as control-only programs. Any source change
     // invalidates that disposition rather than granting a permanent exemption.
+    /// <summary>Fingerprints for owners reviewed as control-only instruction programs.</summary>
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "ECEEAB15597158422F47BA4E1EB12EB6BF2D4F0DBB4BF2F87913A2E407C659D1",
@@ -20,6 +21,7 @@ internal static class EnemyVisualProgramSpecializations
         [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "75F94F33315595FA75DCDFEE8D1E35E4AF705F36C81C6A26BCFD5CFF4A39E079",
     };
 
+    /// <summary>Fingerprints for owners with custom instruction operand layouts.</summary>
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
         [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "3DE6D14720ED5D9F3F581ED71952CCF8192F1B893DF922196100FD3D13314E3E",
@@ -28,6 +30,9 @@ internal static class EnemyVisualProgramSpecializations
         [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "83D279758A5E1FEAF7FC600BCF7749A4E81AB60BAF5F71CA0EAEBF4D28296EA7",
     };
 
+    /// <summary>Rejects changes to the reviewed Mother Brain instruction layouts.</summary>
+    /// <summary>Verifies the source fingerprints governing custom Mother Brain operand layouts.</summary>
+    /// <param name="root">Repository root containing the reviewed source files.</param>
     internal static void GuardCustomLayouts(string root)
     {
         // Falling-tube layout delegates its five visual identities to this calculated catalog.
@@ -40,6 +45,10 @@ internal static class EnemyVisualProgramSpecializations
     /// The reviewed source of a Core program owner: its shipped definition file, or the development
     /// file it moved to whole, followed by the development adapter holding what only tools read.
     /// </summary>
+    /// <summary>Combines a program owner's definition and optional tooling adapter source.</summary>
+    /// <param name="root">Repository root.</param>
+    /// <param name="name">Program-owner type name.</param>
+    /// <returns>Source text for the shipped definition or moved tooling definition and its adapter.</returns>
     internal static string OwnerSource(string root, string name)
     {
         string shipped = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");
@@ -49,12 +58,22 @@ internal static class EnemyVisualProgramSpecializations
         return File.ReadAllText(definition) + (File.Exists(adapter) ? File.ReadAllText(adapter) : "");
     }
 
+    /// <summary>Checks a named program owner's combined Core and tooling source fingerprint.</summary>
+    /// <summary>Rejects a program owner whose reviewed source fingerprint has changed.</summary>
+    /// <param name="root">Repository root.</param>
+    /// <param name="name">Program-owner type name.</param>
+    /// <param name="expected">Expected token fingerprint.</param>
     private static void GuardOwner(string root, string name, string expected)
     {
         if (!SourceMatches(OwnerSource(root, name), expected))
             throw new InvalidDataException(name + ": reviewed static layout changed; update its adapter after source review.");
     }
 
+    /// <summary>Checks that one source file still matches its reviewed layout fingerprint.</summary>
+    /// <summary>Rejects a source file whose reviewed static-layout fingerprint has changed.</summary>
+    /// <param name="root">Repository root.</param>
+    /// <param name="path">Repository-relative source path.</param>
+    /// <param name="expected">Expected token fingerprint.</param>
     internal static void GuardSource(string root, string path, string expected)
     {
         string source = File.ReadAllText(Path.Combine(root, path));
@@ -62,9 +81,19 @@ internal static class EnemyVisualProgramSpecializations
             throw new InvalidDataException(path + ": reviewed static layout changed; update its adapter after source review.");
     }
 
+    /// <summary>Compares source against a reviewed token fingerprint.</summary>
+    /// <summary>Tests whether source text produces the expected normalized token fingerprint.</summary>
+    /// <param name="source">Source text to fingerprint.</param>
+    /// <param name="expected">Expected fingerprint string.</param>
+    /// <returns><see langword="true"/> when the fingerprints match.</returns>
     internal static bool SourceMatches(string source, string expected) =>
         SourceFingerprint.Of(source) == expected;
 
+    /// <summary>Checks whether a type is a pinned control-only program and verifies its source.</summary>
+    /// <summary>Recognizes pinned control-only owners and validates their source before accepting them.</summary>
+    /// <param name="type">Program definition type under inspection.</param>
+    /// <param name="root">Repository root.</param>
+    /// <returns><see langword="true"/> when the type is pinned as control-only.</returns>
     internal static bool IsReviewedControlOnly(Type type, string root)
     {
         if (!ControlOnly.TryGetValue(type.Name, out string? expected)) return false;
@@ -72,11 +101,20 @@ internal static class EnemyVisualProgramSpecializations
         return true;
     }
 
+    /// <summary>Checks whether a program type uses one of the custom Mother Brain layouts.</summary>
+    /// <summary>Identifies the Mother Brain instruction owners with custom visual operand layouts.</summary>
+    /// <param name="type">Program definition type to classify.</param>
+    /// <returns><see langword="true"/> for a supported Mother Brain owner.</returns>
     internal static bool IsMotherBrain(Type type) => type == typeof(MotherBrainBodyInstructionProgramDefinitions) ||
         type == typeof(MotherBrainHeadInstructionProgramDefinitions) ||
         type == typeof(MotherBrainHandBeamBodyInstructionDefinitions) ||
         type == typeof(MotherBrainFallingTubeInstructionDefinitions);
 
+    /// <summary>Collects statically declared visual operands for supported custom Mother Brain programs.</summary>
+    /// <summary>Collects visual operand locations using the reviewed static layout for an owner.</summary>
+    /// <param name="type">Program definition type whose layout is decoded.</param>
+    /// <param name="operands">Set receiving each discovered operand address.</param>
+    /// <returns><see langword="true"/> when this owner has a supported custom layout.</returns>
     internal static bool TryOperands(Type type, HashSet<ushort> operands)
     {
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))
@@ -121,6 +159,7 @@ internal static class EnemyVisualProgramSpecializations
         return true;
     }
 
+    /// <summary>Disjoint address ranges containing Mother Brain head instruction records.</summary>
     private static readonly (ushort Start, ushort End)[] HeadRegions =
     [
         (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart, MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyEnd),
@@ -131,6 +170,10 @@ internal static class EnemyVisualProgramSpecializations
         (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeStart, MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    /// <summary>Returns the encoded byte width for supported Mother Brain head opcodes.</summary>
+    /// <summary>Returns the byte width of a recognized Mother Brain head command.</summary>
+    /// <param name="opcode">Command word at the current instruction address.</param>
+    /// <returns>Encoded command size in bytes.</returns>
     private static int HeadCommandBytes(ushort opcode) => opcode switch
     {
         Instruction_MotherBrain_GotoX or Instruction_MotherBrainHead_EnableNeckMovement_GotoX or
@@ -148,6 +191,12 @@ internal static class EnemyVisualProgramSpecializations
         _ => throw new InvalidDataException($"Unknown Mother Brain head command ${opcode:X4}; static layout needs review."),
     };
 
+    /// <summary>Resolves a supported visual operand through its owner-specific compiled selector.</summary>
+    /// <summary>Resolves an operand through the compiled selector owned by its program layout.</summary>
+    /// <param name="type">Program definition type owning the operand.</param>
+    /// <param name="operand">Address of the visual operand.</param>
+    /// <param name="pointer">Receives the resolved visual pointer when the owner is supported.</param>
+    /// <returns><see langword="true"/> when a supported owner resolved the operand.</returns>
     internal static bool TryResolve(Type type, ushort operand, out ushort pointer)
     {
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))

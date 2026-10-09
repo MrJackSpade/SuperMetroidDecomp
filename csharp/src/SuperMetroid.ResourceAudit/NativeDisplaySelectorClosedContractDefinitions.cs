@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Display-ID projection without an artwork request; not a frame-availability proof.</summary>
 internal static class NativeDisplaySelectorClosedContractDefinitions
 {
+    /// <summary>Fingerprint set bounding display-ID projection without requesting frame artwork.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog", "extended-display-id-projection-no-resource-read", ["GetDisplayPointer"],

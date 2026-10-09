@@ -1,7 +1,14 @@
 namespace SuperMetroid.ResourceAudit;
 
 /// <summary>A source file whose reviewed code is pinned by its <see cref="SourceFingerprint"/>.</summary>
+/// <param name="Path">Repository-relative path to the reviewed source file.</param>
+/// <param name="Fingerprint">Expected token fingerprint of that source file.</param>
 internal sealed record ReviewedSource(string Path, string Fingerprint);
+/// <summary>A reviewed rule that closes selected provider operations over specific source files.</summary>
+/// <param name="Type">Fully qualified provider type subject to the rule.</param>
+/// <param name="Rule">Stable contract identifier used in audit results.</param>
+/// <param name="Methods">Provider operations covered by the rule.</param>
+/// <param name="Sources">Source fingerprints whose contents define the reviewed boundary.</param>
 internal sealed record ClosedPresentationContract(string Type, string Rule, string[] Methods,
     ReviewedSource[] Sources);
 
@@ -12,6 +19,7 @@ internal sealed record ClosedPresentationContract(string Type, string Rule, stri
 /// </summary>
 internal static class ClosedPresentationContractDefinitions
 {
+    /// <summary>Combined reviewed contracts consumed by the closed-provider audit.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         .. MenuClosedPresentationContractDefinitions.All,

@@ -1,6 +1,16 @@
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>Everything the report needs: declarations, both reachability sets and the scans.</summary>
+/// <param name="Declarations">All repository declarations compiled outside verification projects.</param>
+/// <param name="Reachable">Symbols reachable from any executable or tool root.</param>
+/// <param name="ProductionReachable">Symbols reachable from shipped hosts or the build-time analyzer.</param>
+/// <param name="Referenced">Repository symbols named by a source reference, independently of reachability.</param>
+/// <param name="SerializerAccessed">Members read by supported serializer calls.</param>
+/// <param name="Reflection">Reflection sites and names collected for the report.</param>
+/// <param name="VerificationSourceFiles">Repository files compiled into verification projects.</param>
+/// <param name="Graph">Reference and implicit-dispatch edges used to compute reachability.</param>
+/// <param name="ProductionRoots">Entry points and marked roots for production assemblies.</param>
+/// <param name="Roots">Entry points and marked roots for all analyzed assemblies.</param>
 internal sealed record ReachabilityResult(
     IReadOnlyDictionary<string, Declaration> Declarations,
     HashSet<string> Reachable,
@@ -29,6 +39,7 @@ internal static class ReachabilityAnalysis
         ["SuperMetroid.Verification", "SuperMetroid.IntegrationVerification", "SuperMetroid.RenderVerification",
          "SuperMetroid.DesktopVerification", "SuperMetroid.EnsureVerification"];
 
+    /// <summary>Builds declaration and reference data, then computes production and all-tool reachability.</summary>
     public static ReachabilityResult Run(LoadedSolution solution)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);

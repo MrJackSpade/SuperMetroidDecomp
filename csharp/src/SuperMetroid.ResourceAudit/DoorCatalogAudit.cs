@@ -8,8 +8,13 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Static definition/data analysis. Does not instantiate a runtime or advance a frame.</summary>
 internal static class DoorCatalogAudit
 {
+    /// <summary>A mismatch found while comparing compiled door definitions with the imported native oracle.</summary>
+    /// <param name="Code">Stable door-audit finding code.</param>
+    /// <param name="Owner">Room, list or door identity associated with the finding.</param>
+    /// <param name="Message">Explanation of the mismatch or documented native exception.</param>
     private sealed record Finding(string Code, string Owner, string Message);
 
+    /// <summary>Compares compiled door headers, room states and lists with the pinned native manifest.</summary>
     internal static int Run(string root, string output)
     {
         NativeDoorManifest native = Load(root);
@@ -77,10 +82,12 @@ internal static class DoorCatalogAudit
         return findings.Count == 0 ? 0 : 1;
     }
 
+    /// <summary>Recognizes the single documented invalid BTS index in the unused native room.</summary>
     private static bool IsUnusedNativeDoorIndex(NativeDoorRoom room, NativeDoorState state, int bts) =>
         room.Room == 0xb3e1 && room.List == 0xb408 && room.Doors.SequenceEqual(new ushort[] { 0x991e }) &&
         state.State == 0xb3ee && state.Level == 0xc8f40b && bts == 1;
 
+    /// <summary>Checks compiled room door lists for missing, extra, truncated or reordered entries.</summary>
     private static List<Finding> CompareLists(NativeDoorManifest native, Dictionary<ushort, ushort[]> lists)
     {
         var findings = new List<Finding>();
@@ -103,6 +110,7 @@ internal static class DoorCatalogAudit
         return findings;
     }
 
+    /// <summary>Enumerates the compiled door-list identity space without loading a room or advancing gameplay.</summary>
     private static Dictionary<ushort, ushort[]> CompiledLists()
     {
         // Inventory the complete calculated identity domain, including unexpected
@@ -118,6 +126,7 @@ internal static class DoorCatalogAudit
         return lists;
     }
 
+    /// <summary>Loads the pinned native oracle after checking its digest, provenance and expected inventory.</summary>
     private static NativeDoorManifest Load(string root)
     {
         string text = File.ReadAllText(Path.Combine(root, DoorCatalogManifest.RelativePath)).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -132,6 +141,7 @@ internal static class DoorCatalogAudit
         return native;
     }
 
+    /// <summary>Checks the door comparison against focused omissions, extras, ordering and native exception fixtures.</summary>
     internal static void SelfCheck(string root)
     {
         NativeDoorManifest native = Load(root);

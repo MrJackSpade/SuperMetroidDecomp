@@ -3,15 +3,25 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Resource identity spaces; bank-$86 operands are not bank-$8D OAM pointers.</summary>
 internal static class ResourceDomains
 {
+    /// <summary>Lookup space for enemy display definitions.</summary>
     public const string EnemyDisplay = "enemy-display";
+    /// <summary>Lookup space for ordinary enemy OAM compositions.</summary>
     public const string EnemySimple = "enemy-simple-oam";
+    /// <summary>Lookup space for extended enemy display frames.</summary>
     public const string EnemyExtended = "enemy-extended-display";
+    /// <summary>Lookup space for enemy-projectile program frame operands.</summary>
     public const string EnemyProjectileProgram = "enemy-projectile-program-frame";
+    /// <summary>Lookup space for enemy-projectile OAM compositions.</summary>
     public const string EnemyProjectileSprite = "enemy-projectile-oam";
+    /// <summary>Lookup space for palette-FX colors.</summary>
     public const string PaletteFx = "palette-fx-color";
+    /// <summary>Lookup space for Samus projectile OAM compositions.</summary>
     public const string SamusProjectile = "samus-projectile-oam";
+    /// <summary>Audit domain for source sites consuming resources.</summary>
     public const string Consumer = "resource-consumer";
+    /// <summary>Lookup space for selectors compiled into source rather than read from an asset catalog.</summary>
     public const string CompiledSelector = "compiled-visual-selector";
+    /// <summary>Lookup space for Mother Brain room-flash palette rows.</summary>
     public const string MotherBrainRoomFlash = "mother-brain-room-flash-row";
 }
 

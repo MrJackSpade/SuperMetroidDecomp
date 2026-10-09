@@ -3,8 +3,10 @@ using System.Text.Json;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>Console entry point for static resource, artwork and transfer audits.</summary>
 internal static partial class Program
 {
+    /// <summary>Runs the selected audit command and reports failures without opening Windows error dialogs.</summary>
     private static int Main(string[] args)
     {
         // Install before parsing paths or loading definitions. An audit error must
@@ -185,6 +187,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Sets the Windows process error mode used to suppress system error dialogs.</summary>
     [LibraryImport("kernel32.dll")]
     private static partial uint SetErrorMode(uint mode);
 }

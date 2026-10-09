@@ -13,8 +13,10 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class SourceFingerprint
 {
+    /// <summary>Computes the reviewed-source fingerprint for C# text after parsing it as source.</summary>
     internal static string Of(string text) => Of(CSharpSyntaxTree.ParseText(text).GetRoot());
 
+    /// <summary>Hashes source tokens and behavior-affecting trivia while ignoring comments and whitespace.</summary>
     internal static string Of(SyntaxNode node)
     {
         var parts = new List<string>();
@@ -27,6 +29,7 @@ internal static class SourceFingerprint
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join(" ", parts))));
     }
 
+    /// <summary>Adds preprocessor directives and disabled source text to the fingerprint token sequence.</summary>
     private static void AddCompiledTrivia(SyntaxTriviaList trivia, List<string> parts)
     {
         foreach (SyntaxTrivia item in trivia)

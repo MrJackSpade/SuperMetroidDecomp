@@ -11,7 +11,9 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     /// <summary>Suffix of the key that stands for a source type's compiler-generated constructor.</summary>
     public const string ImplicitConstructorSuffix = "#implicit-ctor";
 
+    /// <summary>Directory segment used to exclude generated intermediate source trees.</summary>
     private static readonly string ObjSegment = $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}";
+    /// <summary>Directory segment used to exclude generated output source trees.</summary>
     private static readonly string BinSegment = $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}";
 
     /// <summary>Hand-written repository source; generated files under obj/ and bin/ are excluded.</summary>
@@ -23,6 +25,7 @@ internal sealed class SymbolIdentity(string repositoryRoot)
             && !path.Contains(BinSegment, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Returns a repository-relative path with forward slashes for stable reports.</summary>
     public string Relative(string path) => Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');
 
     /// <summary>

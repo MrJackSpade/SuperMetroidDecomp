@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the cartridge-backed Torizo Chozo-orb instruction verification suite.</summary>
     private static void VerifyTorizoChozoOrbInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoChozoOrbInstructionProgramDefinitions), () => VerifyTorizoChozoOrbInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled orb mechanics with cartridge words and exercises bomb and golden orb
+    /// production loops, impact behavior, shot drops, and forbidden runtime mechanics reads.
+    /// </summary>
+    /// <param name="rom">Retail cartridge address space used to verify native mechanics and visual operands.</param>
     private static void VerifyTorizoChozoOrbInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -210,6 +216,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms repeated lookups of the compiled moving and shot instruction words.</summary>
+    /// <returns>A checksum that keeps both mechanics lookup results observable.</returns>
     private static int ProbeTorizoChozoOrbInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,14 +231,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Detects runtime reads of compiled orb mechanics and records any cartridge reads of
+    /// presentation operands that should be supplied by compiled visual selectors.
+    /// </summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded mechanics table.</param>
     private sealed class TorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses observed during guarded byte reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from bytes represented by compiled orb mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same byte-read guard as gameplay.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The wrapped address-space byte if the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics, records reads of presentation operands in the
+        /// projectile bank, and forwards other requests to the wrapped address space.
+        /// </summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (TorizoChozoOrbInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -259,6 +284,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

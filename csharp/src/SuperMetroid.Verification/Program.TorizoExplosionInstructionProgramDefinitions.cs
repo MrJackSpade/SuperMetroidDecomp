@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Torizo explosion program checks.</summary>
     private static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Verifies compiled mechanics and visual selectors, then exercises the low-health producer
+    /// and both probabilistic death-explosion paths through their complete lifetimes.
+    /// </summary>
+    /// <param name="rom">The retail address space used to compare mechanics and executed sprite selectors.</param>
     private static void VerifyTorizoExplosionInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -219,6 +225,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly resolves low-health and death program entries to measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that consumes the values returned by the mechanics lookups.</returns>
     private static int ProbeTorizoExplosionInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -232,14 +240,29 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Wraps the cartridge bus to reject compiled explosion mechanics reads and record accesses
+    /// to the visual-selector operands exercised by production programs.
+    /// </summary>
+    /// <param name="source">The underlying address space used for reads outside compiled mechanics and for writes.</param>
     private sealed class TorizoExplosionInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$86 presentation-word addresses whose bytes were requested through the guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled Torizo explosion mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge import request through the mechanics guard and presentation tracking.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, tracks presentation-word reads, and forwards other bytes.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Torizo explosion mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -268,6 +291,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

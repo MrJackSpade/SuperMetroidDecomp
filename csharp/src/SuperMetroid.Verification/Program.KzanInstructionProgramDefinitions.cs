@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Kzan instruction-program verification against the pinned retail cartridge.</summary>
     private static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks the compiled mechanics words and executes Kzan's production instruction sequence through a ROM read guard.</summary>
+    /// <param name="rom">Pinned retail address space used to verify native word values and permitted presentation reads.</param>
     private static void VerifyKzanInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -72,6 +75,8 @@ internal static partial class Program
             "program and exact frame selection pass with instruction bytes forbidden.");
     }
 
+    /// <summary>Repeatedly reads the compiled idle word so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated mechanics reads observable.</returns>
     private static int ProbeKzanInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -83,17 +88,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian mechanics word from the supplied banked cartridge address space.</summary>
+    /// <param name="bus">Retail cartridge address space used for the two byte reads.</param>
+    /// <param name="address">Banked address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadKzanInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects cartridge reads of compiled Kzan mechanics and visual operands during production instruction execution.</summary>
+    /// <param name="source">Address space supplying all reads permitted by the guard.</param>
     private sealed class KzanInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts blocked reads of compiled mechanics bytes; attempts to read the visual operand are rejected separately.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge access through the Kzan mechanics and presentation guard.</summary>
+        /// <param name="address">Cartridge address requested by instruction processing.</param>
+        /// <returns>The source byte when the address is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics or the compiled visual operand and forwards other reads.</summary>
+        /// <param name="address">CPU address requested by production execution.</param>
+        /// <returns>The wrapped source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Kzan mechanics or its visual operand.</exception>
         public byte ReadByte(int address)
         {
             if (KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -112,6 +131,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

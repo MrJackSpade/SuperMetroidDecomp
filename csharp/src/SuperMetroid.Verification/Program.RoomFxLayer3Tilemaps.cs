@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies every compiled room-FX layer-three tilemap page and ensures production loading uses installed catalogs.</summary>
     private static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -42,6 +43,10 @@ internal static partial class Program
         Console.WriteLine("  Room-FX BG3 tilemaps: six complete native pages and five guarded installed loads pass.");
     }
 
+    /// <summary>Checks that an edited stock tilemap reaches BG3 VRAM and removing the override restores stock identity.</summary>
+    /// <param name="stock">Directory containing the validated stock room-FX tilemap document.</param>
+    /// <param name="overrides">Directory in which the temporary override is written and then removed.</param>
+    /// <param name="baseline">Presentation catalog whose identity and lava page represent the unmodified stock selection.</param>
     private static void VerifyRoomFxLayer3TilemapOverride(
         string stock, string overrides, AreaMapPresentationCatalog baseline)
     {
@@ -88,6 +93,12 @@ internal static partial class Program
         Console.WriteLine("Room-FX BG3 override: edited lava tile reaches VRAM and removal restores stock.");
     }
 
+    /// <summary>Loads one compiled default room-FX record into a fresh VRAM instance through a bus that forbids tilemap ROM reads.</summary>
+    /// <param name="type">Room-FX type whose default layer-three page is to be loaded.</param>
+    /// <param name="catalog">Installed tilemap catalog supplying the page words.</param>
+    /// <param name="paletteColors">Installed palette-blend catalog supplied to the room-FX state.</param>
+    /// <param name="guarded">Receives the address-space wrapper used to detect forbidden native tilemap reads.</param>
+    /// <returns>VRAM after the selected room-FX record has loaded its layer-three page.</returns>
     private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out ForbiddenRoomFxTilemapBus guarded)
@@ -108,11 +119,16 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Rejects reads from native layer-three tilemap storage and its pointer table during installed page loading.</summary>
+    /// <param name="inner">Underlying address space for accesses outside the guarded source ranges.</param>
     private sealed class ForbiddenRoomFxTilemapBus(ISnesAddressSpace inner) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from a forbidden native tilemap page or pointer-table range.</summary>
         public int ForbiddenReads { get; private set; }
 
+        /// <summary>Counts and rejects accesses to cartridge ranges that contain native layer-three pages or pointers.</summary>
+        /// <param name="address">Address being checked before it reaches the underlying bus.</param>
         private void RejectTilemapSource(int address)
         {
             if ((address >> 16) == 0x8a ||
@@ -125,18 +141,27 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Checks the address guard before forwarding a general memory read.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The underlying address-space byte when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             RejectTilemapSource(address);
             return inner.ReadByte(address);
         }
 
+        /// <summary>Checks the same native-source guard before forwarding a cartridge-specific read.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The underlying cartridge byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectTilemapSource(address);
             return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

@@ -4,10 +4,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-ROM-backed checks for Mother Brain glass projectile instruction programs.</summary>
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native glass shard and sparkle timing while ensuring runtime visuals use compiled data.</summary>
+    /// <param name="rom">Cartridge address space used by focused native instruction and presentation checks.</param>
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -155,6 +158,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises repeated shard and sparkle mechanics lookups for the warmed allocation measurement.</summary>
+    /// <returns>A checksum of the looked-up mechanics words to keep the probe observable.</returns>
     private static int ProbeMotherBrainGlassInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -168,14 +173,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects reads of compiled glass mechanics and records reads of presentation operands.</summary>
+    /// <param name="source">Underlying address space for reads that the guard permits and for forwarded writes.</param>
     private sealed class MotherBrainGlassInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Presentation word addresses observed while glass projectile instructions run.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to reread mechanics bytes that are supplied by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other byte reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The byte returned by the underlying address space when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled glass mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -207,6 +224,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

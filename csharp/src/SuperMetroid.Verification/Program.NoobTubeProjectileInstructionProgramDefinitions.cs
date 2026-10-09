@@ -6,10 +6,13 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs Noob Tube projectile-program checks against the pinned retail ROM.</summary>
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks compiled words and exercises crack, shard, bubble, and shared-delete projectile paths.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare mechanics and presentation operands.</param>
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -199,6 +202,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled mechanics lookups and accumulates the selected entry values for the allocation check.</summary>
+    /// <returns>Checksum of repeated crack and released-bubble instruction reads.</returns>
     private static int ProbeNoobTubeProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -212,14 +217,27 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Prevents live reads of compiled mechanics while recording presentation operands read by production.</summary>
+    /// <param name="source">Underlying address space used after mechanics checks pass.</param>
     private sealed class NoobTubeProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses whose bytes were requested from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled projectile mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge read through the mechanics guard and presentation-operand tracker.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards all other reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (NoobTubeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -252,6 +270,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

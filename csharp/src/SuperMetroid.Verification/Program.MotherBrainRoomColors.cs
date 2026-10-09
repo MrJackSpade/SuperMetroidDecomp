@@ -6,6 +6,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares extracted and installed Mother Brain palettes across room entry, recovery
+    /// lights, flash, final-room colors, and phase two, then checks edited and legacy overrides.
+    /// </summary>
+    /// <param name="rom">Retail address space used for reference colors and runtime fixture setup.</param>
+    /// <param name="stock">Directory containing the extracted stock map and color documents.</param>
+    /// <param name="overrides">Directory where temporary edited or legacy color documents are written.</param>
+    /// <param name="original">Stock map presentation catalog used to create the initial runtime binding.</param>
+    /// <param name="initialPalettes">Installed base palettes passed to the runtime fixture.</param>
     private static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -184,6 +193,10 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Compares every recovery-light frame against cartridge colors and rejects malformed transfer requests.</summary>
+    /// <param name="rom">Retail address space supplying native palette data.</param>
+    /// <param name="installed">Installed room-color presentation being verified.</param>
+    /// <param name="extracted">Presentation extracted from the same cartridge for comparison.</param>
     private static void VerifyMotherBrainRecoveryLights(ISnesAddressSpace rom,
         MotherBrainRoomColorPresentation installed,
         MotherBrainRoomColorPresentation extracted)
@@ -215,6 +228,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms edited recovery-light data changes only the two CGRAM destinations selected by one request.</summary>
+    /// <param name="original">Stock catalog supplying the unedited recovery-light colors.</param>
+    /// <param name="edited">Catalog containing the edited recovery-light colors.</param>
     private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -239,12 +255,18 @@ internal static partial class Program
             "recovery-light edits change only two selected CGRAM words");
     }
 
+    /// <summary>Builds the transfer request for one authored recovery-light frame.</summary>
+    /// <param name="frame">Zero-based frame within the recovery-light sequence.</param>
+    /// <returns>A request with that frame's source address, two CGRAM destinations, and per-destination color count.</returns>
     private static MotherBrainBackgroundPaletteTransferRequest RecoveryRequest(ushort frame) =>
         new(frame, (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
             (ushort)(MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort)),
             (ushort)(MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort)),
             MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
+    /// <summary>Confirms room-entry overrides change the glass and tube colors and no other CGRAM entries.</summary>
+    /// <param name="original">Stock catalog used for the reference room-entry palette.</param>
+    /// <param name="edited">Catalog containing the replacement room-entry colors.</param>
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -267,6 +289,16 @@ internal static partial class Program
             "room-entry edits change only the two selected CGRAM colors");
     }
 
+    /// <summary>
+    /// Invokes a room-palette operation with stock and edited catalogs, checking that only
+    /// the expected colors change and that Mother Brain's control state remains identical.
+    /// </summary>
+    /// <param name="methodName">Private room-palette operation to invoke on each fixture.</param>
+    /// <param name="original">Catalog supplying the stock room colors.</param>
+    /// <param name="edited">Catalog supplying the replacement room colors.</param>
+    /// <param name="expectedFirstColor">CGRAM index expected to differ after the operation.</param>
+    /// <param name="expectedDifferences">Exact number of CGRAM entries allowed to differ.</param>
+    /// <param name="flash">Whether to initialize both palette cursors at the flash program's start.</param>
     private static void AssertEdited(string methodName, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
         bool flash = false)
@@ -305,6 +337,11 @@ internal static partial class Program
             $"edited {methodName} preserves palette-program timer");
     }
 
+    /// <summary>Creates an enemy-system fixture with its bus, CGRAM, VRAM, and optional room-color provider installed.</summary>
+    /// <param name="bus">Address space used by the fixture's enemy logic.</param>
+    /// <param name="cgram">Color memory to receive palette writes.</param>
+    /// <param name="colors">Optional installed room-color presentation; null leaves the fixture on its native source path.</param>
+    /// <returns>A room-enemy system wired to the supplied rendering and presentation state.</returns>
     private static RoomEnemySystem CreateEnemy(ISnesAddressSpace bus, SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
@@ -316,9 +353,14 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Finds a nonpublic instance method on the room-enemy system for a focused reflection fixture.</summary>
+    /// <param name="name">Exact method name to resolve.</param>
+    /// <returns>The matching method metadata.</returns>
     private static MethodInfo Method(string name) => typeof(RoomEnemySystem).GetMethod(name,
         BindingFlags.Instance | BindingFlags.NonPublic)!;
 
+    /// <summary>Fills every CGRAM entry with a repeatable nonuniform value before palette comparisons.</summary>
+    /// <param name="cgram">Color memory to seed.</param>
     private static void Seed(SnesCgram cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)

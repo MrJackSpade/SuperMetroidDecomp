@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Ki-Hunter instruction-program verification against the pinned retail ROM.</summary>
     private static void VerifyKiHunterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words and exercises the Ki-Hunter body, wings, movement, landing, and spit programs.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare mechanics words with native data.</param>
     private static void VerifyKiHunterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -198,6 +201,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats mechanics lookups and accumulates their values so the allocation check observes the results.</summary>
+    /// <returns>Checksum of repeated reads of the compiled left-flight entry.</returns>
     private static int ProbeKiHunterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -209,17 +214,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the supplied cartridge address.</summary>
+    /// <param name="bus">Address space containing the native instruction bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two bytes combined as an unsigned 16-bit value.</returns>
     private static ushort ReadKiHunterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects production reads of compiled Ki-Hunter mechanics and visual-selector bytes.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class KiHunterInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from protected mechanics or presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Checks a cartridge read through the same forbidden-data guard as a bus read.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte when the address is outside compiled data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or visual selectors.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and visual-selector reads before forwarding other bus reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the address is outside compiled data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or visual selectors.</exception>
         public byte ReadByte(int address)
         {
             if (KiHunterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -251,6 +271,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

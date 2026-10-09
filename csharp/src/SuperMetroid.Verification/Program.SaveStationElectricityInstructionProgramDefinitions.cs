@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs save-station electricity mechanics and production checks against the pinned retail ROM.</summary>
     private static void VerifySaveStationElectricityInstructionProgramDefinitions() =>
         Suite(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks the compiled instruction words, real spawn, animation lifetime, deletion, and visual operands.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare compiled mechanics and selectors.</param>
     private static void VerifySaveStationElectricityInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -135,6 +138,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled mechanics lookups and accumulates their values for the allocation check.</summary>
+    /// <returns>Checksum of alternating initial and loop instruction words.</returns>
     private static int ProbeSaveStationElectricityInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -148,14 +153,27 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled mechanics and records reads of presentation operands.</summary>
+    /// <param name="source">Underlying address space used after the mechanics guard passes.</param>
     private sealed class SaveStationElectricityInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses whose bytes production requested from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled save-station or shared projectile mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge read through the mechanics guard and operand tracker.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics reads, records presentation operands, and forwards all other reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (SaveStationElectricityInstructionProgramDefinitionsTooling
@@ -191,6 +209,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

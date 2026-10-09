@@ -8,6 +8,14 @@ internal static partial class Program
     /// Oracle-owned description of one $90:C663 arm-cannon draw: whether the OBJ is visible,
     /// whether the tile upload is queued, and the OAM/DMA words the native routine emits.
     /// </summary>
+    /// <param name="SpriteWritten">Whether the native cannon OBJ falls within the visible screen bounds on this draw.</param>
+    /// <param name="TileUploadQueued">Whether the native routine queues the cannon tile transfer.</param>
+    /// <param name="Frame">Cannon animation frame used to select its tile word.</param>
+    /// <param name="DirectionSelector">Direction-table selector chosen from the pose's cannon drawing data.</param>
+    /// <param name="Attributes">OAM attributes emitted for the selected cannon direction.</param>
+    /// <param name="TileSource">Tile-list word selected for the current cannon frame.</param>
+    /// <param name="ScreenX">Signed screen-space X coordinate after camera subtraction.</param>
+    /// <param name="ScreenY">Signed screen-space Y coordinate after camera subtraction and pose offsets.</param>
     private readonly record struct RidleyNativeCannonDrawResult(
         bool SpriteWritten,
         bool TileUploadQueued,
@@ -44,6 +52,11 @@ internal static partial class Program
             true, frame, direction, attributes, R(tiles + frame * 2), x, y);
     }
 
+    /// <summary>Checks whether the recorded OAM tables contain the expected native cannon sprite entry.</summary>
+    /// <param name="low">Packed low OAM table containing each sprite's X, Y, and attributes.</param>
+    /// <param name="high">Packed high OAM table containing each sprite's size and X-high bits.</param>
+    /// <param name="draw">Native draw result whose screen position and attributes must match.</param>
+    /// <returns><see langword="true"/> when any OAM entry matches the expected coordinates, attributes, and size mode.</returns>
     private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
         RidleyNativeCannonDrawResult draw)
     {

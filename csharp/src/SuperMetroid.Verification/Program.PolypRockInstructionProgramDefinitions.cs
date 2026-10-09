@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Polyp-rock instruction-program verification against the pinned retail cartridge.</summary>
     private static void VerifyPolypRockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and executes the real rock producer, animation, sleep, and shared-delete paths.</summary>
+    /// <param name="rom">Pinned retail address space used to verify native words and supply permitted fixture reads.</param>
     private static void VerifyPolypRockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -109,6 +112,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the compiled initial and sleep words so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated mechanics reads observable.</returns>
     private static int ProbePolypRockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -122,6 +127,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian mechanics word from the projectile bank in the supplied cartridge address space.</summary>
+    /// <param name="source">Retail address space supplying the word bytes.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The two consecutive bytes combined into a 16-bit value.</returns>
     private static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -131,13 +140,23 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects reads of compiled Polyp-rock and shared projectile mechanics and of its installed visual operand.</summary>
+    /// <param name="source">Address space supplying all reads permitted by the guard.</param>
     private sealed class PolypRockInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts blocked mechanics-byte reads; visual-operand reads are rejected without incrementing this counter.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through mechanics and presentation-operand checks.</summary>
+        /// <param name="address">Cartridge address requested by projectile execution.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics or the compiled visual operand and forwards other reads.</summary>
+        /// <param name="address">CPU address requested by production projectile processing.</param>
+        /// <returns>The source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Polyp-rock mechanics or its visual operand.</exception>
         public byte ReadByte(int address)
         {
             if (PolypRockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -156,6 +175,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to write at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

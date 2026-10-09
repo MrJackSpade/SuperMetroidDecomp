@@ -4,10 +4,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Mother Brain ceiling-tube program checks.</summary>
     private static void VerifyMotherBrainTopTubeInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Verifies compiled tube mechanics and visual operands, then exercises all four producers,
+    /// their terminal sleeps, and the shared deletion path.
+    /// </summary>
+    /// <param name="rom">The retail address space used to compare native instruction and sprite data.</param>
     private static void VerifyMotherBrainTopTubeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -118,6 +124,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly looks up two tube mechanics words to measure warmed definition-lookup allocations.
+    /// </summary>
+    /// <returns>A checksum that consumes the values returned by the lookups.</returns>
     private static int ProbeMotherBrainTopTubeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -131,14 +141,29 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Wraps the cartridge bus to reject reads of compiled private or shared tube mechanics
+    /// and record reads from installed presentation words during production execution.
+    /// </summary>
+    /// <param name="source">The underlying address space for permitted reads and forwarded writes.</param>
     private sealed class MotherBrainTopTubeInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses whose bytes were requested through the guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read compiled tube mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Runs cartridge reads through the guard's mechanics rejection and presentation tracking.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, tracks presentation words, and forwards other reads.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled tube or shared projectile mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -172,6 +197,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

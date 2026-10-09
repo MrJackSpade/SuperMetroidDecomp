@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled projectile-trail coordinate bytes and CPU operand behavior across bank boundaries.</summary>
+    /// <param name="bus">Address space supplying the pinned cartridge and mutable-memory regions.</param>
     private static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
         var guard = new TrailCoordinateGuard(bus);
@@ -75,6 +77,8 @@ internal static partial class Program
         Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands preserve compiled/live-memory behavior while rejecting unrelated upper ROM.");
     }
 
+    /// <summary>Compares spawned trail positions with native signed coordinate reads across frames and wrap cases.</summary>
+    /// <param name="bus">Address space used by the native reference and guarded production spawn path.</param>
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
     {
         ReadOnlySpan<ushort> compiledFrameWordAddresses =
@@ -171,6 +175,12 @@ internal static partial class Program
     // Import-only reference for the actual $9B absolute-indexed operand. The
     // production CPU reader intentionally rejects ROM, so native expectations
     // must resolve cartridge bytes through the asset-import boundary instead.
+    /// <summary>Models the cartridge-side absolute-indexed coordinate operand, including open bus and mapped memory reads.</summary>
+    /// <param name="bus">Address space providing cartridge, work-RAM, save-RAM, and peripheral bytes.</param>
+    /// <param name="operand">Base operand address in bank $9B.</param>
+    /// <param name="index">Unsigned index added to the base using the CPU address mask.</param>
+    /// <returns>The low and high data bytes combined as a word.</returns>
+    /// <exception cref="InvalidOperationException">The read reaches hardware not modeled by the supplied address space.</exception>
     private static ushort ReadNativeTrailOperandWord(
         ISnesAddressSpace bus, ushort operand, ushort index)
     {
@@ -206,21 +216,42 @@ internal static partial class Program
         return (ushort)(low | high << 8);
     }
 
+    /// <summary>Rejects production reads from the cartridge region containing authored trail coordinates.</summary>
+    /// <param name="source">Underlying address space for allowed reads and all forwarded writes.</param>
     private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace,
         ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Forwards work-RAM reads to the underlying mutable address space.</summary>
+        /// <param name="address">CPU address of the work-RAM byte.</param>
+        /// <returns>The stored work-RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        /// <summary>Forwards save-RAM reads to the underlying mutable address space.</summary>
+        /// <param name="address">CPU address of the save-RAM byte.</param>
+        /// <returns>The stored save-RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+
+        /// <summary>Routes cartridge data requests through the guarded bus-read path.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte when the address is outside the guarded coordinate range.</returns>
+        /// <exception cref="InvalidDataException">The address refers to authored trail-coordinate data.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from authored trail coordinates and forwards other bus reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the address is not in the guarded range.</returns>
+        /// <exception cref="InvalidDataException">The address refers to authored trail-coordinate data.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x9ba4b3 and <= 0x9bb3a6)
                 throw new InvalidDataException("Trail coordinate owner still reads authored ROM data.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

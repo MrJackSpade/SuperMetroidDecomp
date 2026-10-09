@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Spore Spawn projectile instruction checks against the retail cartridge.</summary>
     private static void VerifySporeSpawnProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares compiled mechanics and executes the emitter, spore, stalk, and shot paths through their native instruction programs.</summary>
+    /// <param name="rom">Retail address space used to compare mechanics words, frame durations, and visual selectors.</param>
     private static void VerifySporeSpawnProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -143,6 +146,8 @@ internal static partial class Program
             AssertEqual(nativeOperands.Length, draw, "Spore Spawn executes every expected draw step");
         }
     }
+    /// <summary>Repeats closed-emitter and shot-program lookups so verification can check warmed mechanics access allocations.</summary>
+    /// <returns>A checksum of the looked-up mechanics words.</returns>
     private static int ProbeSporeSpawnProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -156,14 +161,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled Spore Spawn mechanics and tracks accesses to presentation operands.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class SporeSpawnProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses read while production projectile instructions execute.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from mechanics bytes compiled into the port.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same compiled-mechanics guard as runtime reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operand access, and forwards other addresses.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped byte for an address outside compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Spore Spawn projectile mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (SporeSpawnProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -192,6 +209,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because the guard only restricts reads.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

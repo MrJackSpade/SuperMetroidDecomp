@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks station-map OAM parity, editable layout coordinates, rendered menu rebinding, and override provenance validation.</summary>
+    /// <param name="bus">Retail address space used to compare native station lists and rebuild stock assets.</param>
+    /// <param name="stock">Directory containing the extracted stock map-presentation assets.</param>
+    /// <param name="overrides">Directory used to write and reload the edited station-layout override.</param>
+    /// <param name="original">Stock catalog used as the native drawing and rendering baseline.</param>
     private static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new StationLayoutReadGuard(bus);
@@ -98,10 +103,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects runtime reads of native station coordinate and discovery tables while forwarding other cartridge access.</summary>
     private sealed class StationLayoutReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Wrapped address space used for permitted reads and all writes.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Cartridge addresses belonging to native station-list pointers and records.</summary>
         private readonly HashSet<int> blocked = new();
+
+        /// <summary>Builds the set of native station-list bytes that installed-layout rendering must not read.</summary>
+        /// <param name="source">Retail address space used to enumerate the native station lists and later serve allowed reads.</param>
         public StationLayoutReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -121,6 +133,9 @@ internal static partial class Program
                 }
             }
         }
+        /// <summary>Throws when an access targets a native station coordinate or discovery-table byte.</summary>
+        /// <param name="address">Cartridge address being checked.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded station table.</exception>
         private void RejectStationSource(int address)
         {
             if (blocked.Contains(address))
@@ -128,18 +143,29 @@ internal static partial class Program
                     "Installed station drawing read ROM coordinates/discovery tables.");
         }
 
+        /// <summary>Checks the station-table guard before forwarding a general address-space read.</summary>
+        /// <param name="address">Cartridge or memory address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded station table.</exception>
         public byte ReadByte(int address)
         {
             RejectStationSource(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks the station-table guard before forwarding an importer cartridge read.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped cartridge byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded station table.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectStationSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because the guard only restricts reads.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

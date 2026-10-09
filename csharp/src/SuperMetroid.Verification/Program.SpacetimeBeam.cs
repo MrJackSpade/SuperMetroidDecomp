@@ -193,6 +193,9 @@ internal static partial class Program
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
+    /// <summary>Computes the retail probe's FNV-1a checksum over the progression mirror in WRAM.</summary>
+    /// <param name="bus">Address space containing the live progression bytes.</param>
+    /// <returns>The 32-bit checksum used to compare the two measured beam-update states.</returns>
     private static uint HashWram(SuperMetroidAddressSpace bus)
     {
         uint hash = 2166136261;
@@ -206,6 +209,11 @@ internal static partial class Program
         return hash;
     }
 
+    /// <summary>Copies a contiguous range of live WRAM bytes for comparison with the saved progression snapshot.</summary>
+    /// <param name="bus">Address space containing the requested memory range.</param>
+    /// <param name="address">Starting WRAM address.</param>
+    /// <param name="length">Number of consecutive bytes to copy.</param>
+    /// <returns>A new array containing the bytes observed at the requested addresses.</returns>
     private static byte[] ReadWram(SuperMetroidAddressSpace bus, int address, int length)
     {
         var bytes = new byte[length];
@@ -214,6 +222,7 @@ internal static partial class Program
         return bytes;
     }
 
+    /// <summary>Checks that SpaceTime-corrupted save data dispatches to the opening cinematic or Ceres restart as configured.</summary>
     private static void VerifySpacetimeSaveRestartFrontend()
     {
         SuperMetroidSaveSnapshot CreateResetSnapshot()
@@ -309,6 +318,7 @@ internal static partial class Program
             AssertTrue(predicate(), context);
         }
     }
+    /// <summary>Verifies SpaceTime beam tile uploads and confirms its palette is read from current mutable memory.</summary>
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -343,12 +353,29 @@ internal static partial class Program
         }
     }
     // No import/cartridge capability is available while the production projectile path executes.
+    /// <summary>Exposes mutable memory and CPU peripherals while withholding cartridge-import access from projectile execution.</summary>
+    /// <param name="source">Retail-backed address space that supplies the allowed mutable-memory and peripheral operations.</param>
     private sealed class SpacetimeMutableOnlyBus(SuperMetroidAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, ISnesCpuPeripheralSource
     {
+        /// <summary>Forwards reads from the wrapped SNES work-RAM implementation.</summary>
+        /// <param name="address">CPU address in work RAM.</param>
+        /// <returns>The byte currently stored at that address.</returns>
         public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        /// <summary>Forwards reads from the wrapped SNES save-RAM implementation.</summary>
+        /// <param name="address">CPU address in save RAM.</param>
+        /// <returns>The byte currently stored at that address.</returns>
         public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+
+        /// <summary>Forwards CPU peripheral reads to the wrapped address space.</summary>
+        /// <param name="address">CPU peripheral address to read.</param>
+        /// <returns>The peripheral byte supplied by the wrapped source.</returns>
         public byte ReadPeripheralByte(int address) => ((ISnesCpuPeripheralSource)source).ReadPeripheralByte(address);
+
+        /// <summary>Forwards mutable-memory writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

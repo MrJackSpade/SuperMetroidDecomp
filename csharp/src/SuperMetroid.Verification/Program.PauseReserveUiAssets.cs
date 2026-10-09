@@ -8,6 +8,14 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Confirms that installed reserve labels, digits, and arrow artwork match native output,
+    /// remain editable and rebindable, and do not require their migrated ROM reads at runtime.
+    /// </summary>
+    /// <param name="bus">The cartridge address space guarded against reserve UI source reads.</param>
+    /// <param name="stock">Directory containing the shipped reserve UI resource.</param>
+    /// <param name="overrides">Directory used for temporary edited reserve UI resources.</param>
+    /// <param name="original">The area-map presentation catalog used by both native and installed pause states.</param>
     private static void VerifyPauseReserveUiAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
@@ -114,10 +122,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Blocks cartridge reads for reserve menu artwork that is supplied by the installed UI resource.</summary>
     private sealed class PauseReserveUiReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Address space that supplies reads not covered by the reserve UI block list and receives writes.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Absolute cartridge addresses forbidden for production reserve UI reads.</summary>
         private readonly HashSet<int> blocked = [];
+
+        /// <summary>Creates a guard and populates its blocked set from the stock reserve UI source tables.</summary>
+        /// <param name="source">The underlying cartridge bus used to find source tables and forward permitted access.</param>
         public PauseReserveUiReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -129,11 +144,26 @@ internal static partial class Program
                 Block(sourceAddress, 14);
             }
         }
+        /// <summary>Adds a contiguous range of absolute addresses to the forbidden-read set.</summary>
+        /// <param name="start">The first address in the range.</param>
+        /// <param name="count">The number of consecutive addresses to block.</param>
         private void Block(int start, int count) { for (int i = 0; i < count; i++) blocked.Add(start + i); }
+
+        /// <summary>Routes a cartridge import read through the reserve UI address guard.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is not reserved for installed UI data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of blocked reserve UI source data and forwards other reads.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address is part of a migrated reserve UI source range.</exception>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read reserve UI at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards a write unchanged to the underlying address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

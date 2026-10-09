@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Ninja Space Pirate instruction-program checks against the pinned retail cartridge.</summary>
     private static void VerifyNinjaSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and runs every production program with compiled instruction reads guarded.</summary>
+    /// <param name="rom">Pinned retail address space used to verify native words, palette data, and presentation selectors.</param>
     private static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -199,6 +202,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the compiled active-facing word so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated mechanics reads observable.</returns>
     private static int ProbeNinjaSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -210,16 +215,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from two consecutive bytes in the banked cartridge address space.</summary>
+    /// <param name="bus">Retail cartridge address space supplying the bytes.</param>
+    /// <param name="address">Banked address of the word's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadNinjaPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads of compiled Ninja Space Pirate mechanics and presentation selectors during production execution.</summary>
+    /// <param name="source">Address space supplying reads that are allowed through the guard.</param>
     private sealed class NinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Counts blocked reads of compiled mechanics bytes or frame-selector operands.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the mechanics and presentation-selector guard.</summary>
+        /// <param name="address">Cartridge address requested by instruction processing.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics or frame-selector reads and forwards all other cartridge access.</summary>
+        /// <param name="address">CPU address requested by the production system.</param>
+        /// <returns>The wrapped source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address contains compiled mechanics data or a presentation selector.</exception>
         public byte ReadByte(int address)
         {
             if (NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -250,6 +269,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

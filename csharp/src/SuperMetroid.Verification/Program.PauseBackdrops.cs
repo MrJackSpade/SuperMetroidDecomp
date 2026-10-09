@@ -11,6 +11,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks native pause backdrop parity, edited artwork rebinding, animation continuity, and strict asset validation.</summary>
+    /// <param name="bus">Retail address space used to compare the native pause graphics.</param>
+    /// <param name="stock">Directory containing extracted stock pause-presentation assets.</param>
+    /// <param name="overrides">Directory used for the edited backdrop and button override files.</param>
+    /// <param name="original">Stock presentation catalog used as the visual and state baseline.</param>
     private static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
@@ -158,21 +163,42 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects runtime reads of native pause backdrop, button, and area-label bytes while forwarding other addresses.</summary>
     private sealed class PauseBackdropReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Wrapped cartridge space used for permitted reads and all writes.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Addresses containing native pause artwork or area-label data that installed rendering must not read.</summary>
         private readonly HashSet<int> blocked = [];
+
+        /// <summary>Builds the guarded address set for native backdrop, button, and per-area label data.</summary>
+        /// <param name="source">Retail address space used to resolve area-label pointers and serve allowed reads.</param>
         public PauseBackdropReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
             Add(0xb6e000, 0x800); Add(0x82965f, 14);
             for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82965f + area * 2), 24);
         }
+        /// <summary>Adds a contiguous native data range to the set of forbidden runtime read addresses.</summary>
+        /// <param name="address">First byte address in the range.</param>
+        /// <param name="size">Number of consecutive bytes to guard.</param>
         private void Add(int address, int size) { for (int i = 0; i < size; i++) blocked.Add(address + i); }
+
+        /// <summary>Routes importer reads through the same pause-artwork address guard as runtime reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of native pause artwork and labels, forwarding other addresses to the wrapped space.</summary>
+        /// <param name="address">Cartridge address requested by installed rendering.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded pause artwork or label range.</exception>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidOperationException($"Installed pause read backdrop/button/label at {address:X6}.") : source.ReadByte(address);
+        /// <summary>Forwards writes unchanged because this guard only restricts reads.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

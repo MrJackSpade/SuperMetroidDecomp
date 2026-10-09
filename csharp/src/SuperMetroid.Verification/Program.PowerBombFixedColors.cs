@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares imported fixed-color RGB5 values with the cartridge tables and checks that
+    /// explosion lifecycles use installed colors without runtime reads from those tables.
+    /// </summary>
     private static void VerifyPowerBombFixedColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -47,6 +51,13 @@ internal static partial class Program
         Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
+    /// <summary>
+    /// Compares cartridge-backed and catalog-backed Power Bomb or Crystal Flash animation
+    /// frame by frame, including timing, phase transitions, radii, and rendered fixed colors.
+    /// </summary>
+    /// <param name="rom">Address space used by the cartridge-backed animation as the reference.</param>
+    /// <param name="catalog">Installed fixed-color data supplied to both animation states.</param>
+    /// <param name="crystalFlash">Selects Crystal Flash initialization when <see langword="true"/>; otherwise tests a Power Bomb.</param>
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
         PowerBombFixedColorCatalog catalog, bool crystalFlash)
     {
@@ -91,6 +102,13 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReads, "installed explosion never rereads fixed-color ROM tables");
     }
 
+    /// <summary>
+    /// Writes a changed stock color into an override, verifies that the installed catalog and
+    /// live explosion use it, then removes the override and checks that stock identity returns.
+    /// </summary>
+    /// <param name="stock">Directory containing the stock presentation catalog.</param>
+    /// <param name="overrides">Directory where the temporary Power Bomb color override is written.</param>
+    /// <param name="baseline">Catalog identity and color values expected after the override is removed.</param>
     private static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
@@ -129,16 +147,28 @@ internal static partial class Program
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
+    /// <summary>
+    /// Wraps an address space and fails if gameplay reads any native fixed-color table,
+    /// while allowing cartridge-import reads to follow their separate import contract.
+    /// </summary>
+    /// <param name="inner">Underlying bus that receives permitted reads and all writes.</param>
     private sealed class ForbiddenPowerBombColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of fixed-color table read attempts rejected by this guard.</summary>
         public int ForbiddenReads { get; private set; }
 
+        /// <summary>Rejects native fixed-color table reads before forwarding other byte reads.</summary>
+        /// <param name="address">Cartridge byte address requested by gameplay.</param>
+        /// <returns>The underlying bus value when the address is outside the fixed-color tables.</returns>
         public byte ReadByte(int address)
         {
             RejectNativeColorRead(address);
             return inner.ReadByte(address);
         }
 
+        /// <summary>Applies the same fixed-color read guard to cartridge-import reads.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The imported byte when the address is outside the fixed-color tables.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectNativeColorRead(address);
@@ -146,6 +176,8 @@ internal static partial class Program
                 "The wrapped source has no cartridge import contract.")).ReadCartridgeByte(address);
         }
 
+        /// <summary>Throws and increments <see cref="ForbiddenReads"/> when an address falls in a native color sequence.</summary>
+        /// <param name="address">Cartridge byte address being checked against each fixed-color range.</param>
         private void RejectNativeColorRead(int address)
         {
             foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -161,6 +193,9 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Forwards writes without changing the address or byte value.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte written to the underlying bus.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

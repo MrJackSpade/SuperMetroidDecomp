@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-ROM-backed checks for walking Space Pirate instruction programs.</summary>
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native mechanics, movement and attack sequences, and compiled frame selectors.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare native instruction and presentation words.</param>
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -170,6 +173,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises repeated mechanics lookups for the warmed allocation measurement.</summary>
+    /// <returns>A checksum of the walking-program mechanics word to keep the probe observable.</returns>
     private static int ProbeWalkingSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -181,16 +186,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Cartridge address space containing the instruction bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two bytes combined as a 16-bit instruction word.</returns>
     private static ushort ReadWalkingPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects runtime reads of compiled walking Pirate mechanics and visual selectors.</summary>
+    /// <param name="source">Underlying cartridge address space for reads outside the protected tables.</param>
     private sealed class WalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempts to read protected mechanics or presentation bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-byte requests through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The underlying byte when it is outside the protected tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects protected mechanics and visual bytes, forwarding other byte reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The byte returned by the underlying address space when permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or visual-selector data.</exception>
         public byte ReadByte(int address)
         {
             if (WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -222,6 +241,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

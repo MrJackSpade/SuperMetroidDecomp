@@ -10,6 +10,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies pause-selector artwork, authored animation overrides, persistence, and strict data validation.</summary>
+    /// <param name="bus">Cartridge address space used to compare native selector assets and state.</param>
+    /// <param name="stock">Directory containing the extracted stock selector document.</param>
+    /// <param name="overrides">Directory used for temporary selector override files.</param>
+    /// <param name="catalog">Installed map-presentation catalog used by pause-menu fixtures.</param>
     private static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
@@ -144,10 +149,18 @@ internal static partial class Program
             return pause;
         }
     }
+    /// <summary>Blocks pause-selector asset reads after setup while forwarding all other address-space access.</summary>
+    /// <param name="source">Underlying cartridge address space wrapped by the guard.</param>
     private sealed class PauseSelectorReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Address space that supplies reads and receives writes not intercepted by this guard.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>CPU-visible byte addresses containing selector assets that runtime code must not reread.</summary>
         private readonly HashSet<int> blocked = [];
+
+        /// <summary>Builds the guarded address set from stock selector pointers and their referenced data lengths.</summary>
+        /// <param name="source">Cartridge address space from which setup reads the native selector tables.</param>
         public PauseSelectorReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -163,10 +176,25 @@ internal static partial class Program
                 Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
             }
         }
+        /// <summary>Marks a contiguous byte range as forbidden for subsequent guarded reads.</summary>
+        /// <param name="address">First CPU-visible byte address in the range.</param>
+        /// <param name="count">Number of consecutive bytes to block.</param>
         private void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }
+
+        /// <summary>Routes cartridge-byte requests through the guarded read path.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The underlying byte when the address is not blocked.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of selector data addresses and forwards all other byte reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The underlying byte when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address contains selector data that runtime code must not reread.</exception>
         public byte ReadByte(int address) => blocked.Contains(address) ? throw new InvalidOperationException($"Installed pause read selector data at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

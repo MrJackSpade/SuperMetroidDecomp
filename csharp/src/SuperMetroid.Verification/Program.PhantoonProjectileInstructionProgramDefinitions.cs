@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Phantoon projectile instruction checks against the installed retail ROM.</summary>
     private static void VerifyPhantoonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled mechanics and selectors with the cartridge, then exercises both
+    /// producers and each flame program through production projectile instruction processing.
+    /// </summary>
+    /// <param name="rom">Retail address space supplying reference mechanics and presentation words.</param>
     private static void VerifyPhantoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -192,6 +198,11 @@ internal static partial class Program
                     unchecked((ushort)(address + 1))) << 8));
     }
 
+    /// <summary>
+    /// Repeatedly looks up the idle and shot program words for the warmed mechanics
+    /// allocation check performed by the caller.
+    /// </summary>
+    /// <returns>A checksum that keeps the compiled word values observable.</returns>
     private static int ProbePhantoonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -205,14 +216,29 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Rejects production reads of compiled Phantoon mechanics and records presentation
+    /// operand reads that should be resolved through the compiled selector catalog.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class PhantoonProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the distinct presentation operand addresses read from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of rejected reads from compiled Phantoon mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-time cartridge read through the same mechanics guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records selector reads, and forwards other bytes.</summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled Phantoon mechanics word.</exception>
         public byte ReadByte(int address)
         {
             if (PhantoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -243,6 +269,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

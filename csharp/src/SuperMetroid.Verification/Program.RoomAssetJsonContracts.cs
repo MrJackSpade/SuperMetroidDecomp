@@ -96,8 +96,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Describes one installed room-asset family and the loader used to calculate its selected-content identity.</summary>
+    /// <param name="Name">Short family label used for diagnostics and temporary-directory naming.</param>
+    /// <param name="Source">Installed directory containing the family's stock JSON files.</param>
+    /// <param name="Manifest">Manifest filename validated before visual documents are loaded.</param>
+    /// <param name="Identity">Loader callback returning the content identity for stock data and an optional override directory.</param>
     private sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);
 
+    /// <summary>Produces malformed manifest or visual JSON variants covering unsupported versions, casing, duplicates, and invalid values.</summary>
+    /// <param name="json">Original serialized document to mutate into defective variants.</param>
+    /// <param name="versionField">Version-property spelling used by this document family.</param>
+    /// <returns>Invalid serialized documents that should be rejected by the corresponding loader.</returns>
     private static IEnumerable<string> RoomJsonCorruptions(string json, string versionField = "version")
     {
         yield return "{\"" + versionField + "\":999," + json[1..];
@@ -119,6 +128,10 @@ internal static partial class Program
             yield return TilemapContractMutate(json, copy => copy["entries"]![0]!["damage"] = 7);
     }
 
+    /// <summary>Produces layout or X-ray override documents with required visual fields removed or invalid dimensions.</summary>
+    /// <param name="json">Valid visual document to mutate.</param>
+    /// <param name="domain">Visual family name selecting the required-field mutations.</param>
+    /// <returns>Defective documents that the family's loader must reject.</returns>
     private static IEnumerable<string> RoomJsonMissingVisualFields(string json, string domain)
     {
         if (domain == "layouts")
@@ -136,9 +149,16 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Hashes every top-level file in a room-asset directory to detect unintended stock-file changes.</summary>
+    /// <param name="directory">Directory whose files are captured by filename and SHA-256 digest.</param>
+    /// <returns>A filename-to-hash snapshot of the directory contents.</returns>
     private static Dictionary<string, string> SnapshotRoomJsonFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>Asserts that a room-asset directory still has the same files and bytes represented by a prior snapshot.</summary>
+    /// <param name="expected">Filename-to-hash snapshot captured before the loader operation.</param>
+    /// <param name="directory">Directory to compare with that snapshot.</param>
+    /// <param name="description">Context included in the assertion failure message.</param>
     private static void AssertRoomJsonUnchanged(Dictionary<string, string> expected, string directory, string description)
     {
         Dictionary<string, string> actual = SnapshotRoomJsonFiles(directory);

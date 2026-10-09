@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the compiled Space Pirate projectile checks against the retail ROM.</summary>
     private static void VerifySpacePirateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled mechanics words with native data and exercises the real laser and
+    /// claw producers through their facing-specific projectile instruction programs.
+    /// </summary>
+    /// <param name="rom">Retail address space used to verify native words and presentation selectors.</param>
     private static void VerifySpacePirateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -186,6 +192,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeats compiled laser and claw mechanics lookups for the allocation measurement.</summary>
     private static int ProbeSpacePirateProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -199,14 +206,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects reads from compiled Space Pirate mechanics while tracking attempted presentation-word reads.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class SpacePirateProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the presentation words whose bytes production execution requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from private or shared compiled mechanics tables.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an imported cartridge read through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped source byte unless the address belongs to a compiled mechanics table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte read from the wrapped source for permitted addresses.</returns>
         public byte ReadByte(int address)
         {
             if (SpacePirateProjectileInstructionProgramDefinitionsTooling
@@ -241,6 +259,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -48,6 +48,10 @@ internal static partial class Program
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
+    /// <summary>Builds small room-art catalogs for checking canonical, domain-isolated content hashes.</summary>
+    /// <param name="edited">Optional domain name whose fixture data should differ from the baseline.</param>
+    /// <param name="reverse">Whether catalog entries should be inserted in reverse order to test order independence.</param>
+    /// <returns>Catalogs containing shared fixture assets and their computed content identities.</returns>
     private static RoomIdentityFixture CreateRoomIdentityFixture(string? edited = null, bool reverse = false)
     {
         RoomCharacterAtlas Characters(bool change)
@@ -135,11 +139,19 @@ internal static partial class Program
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
+    /// <summary>Holds the six selected room-art catalogs used to verify independent content identities.</summary>
+    /// <param name="Characters">Room character atlases, including the shared CRE character source.</param>
+    /// <param name="Palettes">Static room palettes selected across the fixture's tilesets.</param>
+    /// <param name="Metatiles">Metatile atlases, including the shared CRE block source.</param>
+    /// <param name="Backgrounds">Background tilemap pages selected by their source addresses.</param>
+    /// <param name="Skies">Sky tilemap pages available to room presentation.</param>
+    /// <param name="Layouts">Visual layouts whose ordered layer data contributes to room identity.</param>
     private sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
         RoomStaticPaletteCatalog Palettes, RoomMetatileCatalog Metatiles,
         RoomBackgroundTilemapCatalog Backgrounds, RoomSkyTilemapCatalog Skies,
         RoomVisualLayoutCatalog Layouts)
     {
+        /// <summary>Gets the canonical hash for each independently selected room-art domain.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
             Characters, Palettes, Metatiles, Backgrounds, Skies, Layouts);
     }

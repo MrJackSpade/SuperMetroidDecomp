@@ -6,6 +6,7 @@ internal static partial class Program
     // Independent population identities captured from the original Sources in
     // 80cc06ebb64ec54caabbd686a9a286fda0d16b3a, before replacing that storage.
     // Placement field values and terminating words are read from the pinned ROM.
+    /// <summary>Sorted bank-$8F pointers independently captured for all 284 retail room-population lists.</summary>
     private static readonly ushort[] OriginalRetailPopulationPointers =
     [
         0x8000, 0x8026, 0x8058, 0x805A, 0x8104, 0x81CC, 0x81D4, 0x81DC, 0x81FC, 0x81FE, 0x8230, 0x8238,
@@ -34,6 +35,8 @@ internal static partial class Program
         0xC8A5, 0xC8B3, 0xC8BB, 0xC8BD, 0xC8BF, 0xC8C1, 0xC8C3, 0xC8C5,
     ];
 
+    /// <summary>Runs identity, record-field, and zero-header termination comparisons for the complete retail population catalog.</summary>
+    /// <param name="rom">Retail address space containing the original bank-$8F placement lists.</param>
     private static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
@@ -44,6 +47,7 @@ internal static partial class Program
         Suite(nameof(VerifyRetailPopulationTermination), () => VerifyRetailPopulationTermination(rom));
     }
 
+    /// <summary>Checks that compiled population identities exactly preserve the independently captured retail pointer set.</summary>
     private static void VerifyRetailPopulationIdentities()
     {
         var original = OriginalRetailPopulationPointers.ToHashSet();
@@ -74,12 +78,25 @@ internal static partial class Program
             "population dispatch requires a placement consumer");
     }
 
+    /// <summary>Compares every compiled placement header with its corresponding retail record.</summary>
+    /// <param name="rom">Retail address space containing the original placement records.</param>
     private static void VerifyRetailPopulationHeaders(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 0);
+    /// <summary>Compares every compiled horizontal block coordinate with its corresponding retail record.</summary>
+    /// <param name="rom">Retail address space containing the original placement records.</param>
     private static void VerifyRetailPopulationX(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 1);
+    /// <summary>Compares every compiled vertical block coordinate with its corresponding retail record.</summary>
+    /// <param name="rom">Retail address space containing the original placement records.</param>
     private static void VerifyRetailPopulationY(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 2);
+    /// <summary>Compares every compiled room argument with its corresponding retail record.</summary>
+    /// <param name="rom">Retail address space containing the original placement records.</param>
     private static void VerifyRetailPopulationArguments(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 3);
+    /// <summary>Confirms each compiled list ends at the same zero-header record as its retail source.</summary>
+    /// <param name="rom">Retail address space containing the original placement records and terminators.</param>
     private static void VerifyRetailPopulationTermination(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 4);
 
+    /// <summary>Compares one selected placement field or the terminating record across all captured population lists.</summary>
+    /// <param name="rom">Retail address space used to read each source list.</param>
+    /// <param name="field">Selection code for header, X, Y, room argument, or zero-header termination.</param>
     private static void VerifyRetailPopulationField(SuperMetroidAddressSpace rom, int field)
     {
         int total = 0;

@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares compiled splash, foot-contact, and Crateria room-policy tables with the
+    /// cartridge, then checks their production consumers while migrated ranges are guarded.
+    /// </summary>
+    /// <param name="rom">Retail address space providing the reference policy-table bytes.</param>
     private static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
         const int waterSplashTypes = 0x9081a4;
@@ -61,6 +66,7 @@ internal static partial class Program
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, and all production handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Checks that production water entry spawns the splash type and slot count selected for each movement mode.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
         MethodInfo spawn = typeof(SamusLiquidPhysicsState).GetMethod(
@@ -87,6 +93,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks each running animation frame through production until its foot-contact tick is processed.</summary>
+    /// <param name="guarded">Address space that rejects reads from migrated atmospheric policy tables.</param>
+    /// <param name="pose">Running pose used to initialize Samus for each frame case.</param>
     private static void VerifyProductionRunningContacts(
         ISnesAddressSpace guarded,
         byte pose)
@@ -114,6 +123,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks room-specific running splashes and landing splashes for all Crateria room policy entries.</summary>
+    /// <param name="guarded">Address space that rejects reads from migrated atmospheric policy tables.</param>
+    /// <param name="pose">Running and landing pose used by the production fixtures.</param>
     private static void VerifyProductionCrateriaPolicies(
         ISnesAddressSpace guarded,
         byte pose)
@@ -165,6 +177,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Advances the compiled animation delay until the current frame reaches its final foot-contact tick.</summary>
+    /// <param name="samus">Samus state whose animation timer is advanced in place.</param>
+    /// <param name="bus">Address space used by the production animation tick.</param>
     private static void AdvanceToFootContactTick(
         SamusState samus,
         ISnesAddressSpace bus)
@@ -178,11 +193,24 @@ internal static partial class Program
             samus.AnimateNoFx(bus);
     }
 
+    /// <summary>
+    /// Blocks production reads of the native splash, running-contact, and Crateria policy
+    /// tables while forwarding unrelated address-space operations.
+    /// </summary>
+    /// <param name="source">Underlying address space for reads outside the migrated ranges and for writes.</param>
     private sealed class SamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-time cartridge read through the policy-table guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded policy ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address is in a migrated atmospheric policy table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated policy tables and forwards all other bytes.</summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is in a migrated atmospheric policy table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x9081a4 and < 0x9081c0 or
                 >= 0x90a424 and < 0x90a42e or
@@ -192,6 +220,9 @@ internal static partial class Program
                     $"Samus atmospheric policy attempted migrated source read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

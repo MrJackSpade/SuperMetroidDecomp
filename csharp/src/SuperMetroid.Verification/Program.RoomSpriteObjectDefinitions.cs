@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies all room sprite-object selectors and their production instruction programs
+    /// against cartridge data, including executed spritemap operands and guarded ROM access.
+    /// </summary>
+    /// <param name="rom">Retail cartridge address space used as the selector and spritemap reference.</param>
     private static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -127,6 +132,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms compiled mechanics lookups for the allocation-free access check.</summary>
+    /// <returns>A checksum that keeps repeated instruction-word lookups observable.</returns>
     private static int ProbeRoomSpriteObjectInstructionAllocation()
     {
         int checksum = 0;
@@ -138,19 +145,40 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction or selector word from the cartridge bus.</summary>
+    /// <param name="bus">Address space supplying the two bytes.</param>
+    /// <param name="address">Cartridge address of the low byte.</param>
+    /// <returns>The adjacent bytes combined as an unsigned 16-bit value.</returns>
     private static ushort ReadRoomSpriteObjectWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Guards migrated selector and compiled-mechanics ranges while recording runtime reads of
+    /// presentation operands, so the verification can ensure visuals come from installed data.
+    /// </summary>
+    /// <param name="source">Underlying address space that serves permitted reads and forwarded writes.</param>
     private sealed class RoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word operands encountered during guarded runtime reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Count of attempted reads from the mechanics bytes supplied by compiled definitions.</summary>
         internal int ForbiddenMechanicsReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guard's cartridge-byte path.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The underlying byte for an address allowed by the guard.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects migrated selector and compiled-mechanics reads, records presentation operands,
+        /// and forwards other byte requests to the wrapped address space.
+        /// </summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The wrapped bus value when the address is not rejected.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0xb4bda8 and < 0xb4be24)
@@ -172,6 +200,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

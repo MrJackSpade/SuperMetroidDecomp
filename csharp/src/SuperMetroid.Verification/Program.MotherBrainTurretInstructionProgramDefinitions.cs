@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the compiled Mother Brain turret instruction checks against the retail ROM.</summary>
     private static void VerifyMotherBrainTurretInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled turret mechanics with cartridge words and exercises every turret,
+    /// bullet selector, and contact reaction through the production projectile interpreter.
+    /// </summary>
+    /// <param name="rom">Retail address space supplying the native mechanics and presentation words.</param>
     private static void VerifyMotherBrainTurretInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -195,6 +201,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeats compiled turret mechanics lookups for the allocation measurement.</summary>
     private static int ProbeMotherBrainTurretInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -208,14 +215,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads from compiled turret mechanics while tracking presentation-operand access.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class MotherBrainTurretInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the presentation words whose bytes were requested by production execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from private or shared compiled mechanics tables.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an imported cartridge read through the guard's address-space checks.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped source byte unless the address belongs to a compiled mechanics table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte read from the wrapped source for permitted addresses.</returns>
         public byte ReadByte(int address)
         {
             if (MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -247,6 +265,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

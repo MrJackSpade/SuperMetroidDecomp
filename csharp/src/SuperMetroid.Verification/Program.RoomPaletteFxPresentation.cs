@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted Norfair palette colors and installed playback across environmental and cinematic palette-FX families.</summary>
+    /// <param name="bus">Retail address space used to extract source colors and compare native execution.</param>
     private static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
     {
@@ -344,6 +346,9 @@ internal static partial class Program
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
+    /// <summary>Checks the extracted ending gunship palette animation against its native color words and installed playback.</summary>
+    /// <param name="bus">Retail address space containing the source palette data and native FX program.</param>
+    /// <param name="presentation">Extracted presentation catalog supplying the installed palette colors.</param>
     private static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -423,6 +428,9 @@ internal static partial class Program
             "gunship does not invent missing interpolation inputs");
     }
 
+    /// <summary>Checks post-credits logo glare colors and animation behavior against the cartridge and installed catalog.</summary>
+    /// <param name="bus">Retail address space containing the source colors and native program.</param>
+    /// <param name="presentation">Extracted catalog used by the installed palette-FX system.</param>
     private static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -479,6 +487,9 @@ internal static partial class Program
             "glare does not invent a missing base color");
     }
 
+    /// <summary>Validates canonical Samus loading colors, calculated tint aliases, and installed suit-loading animations.</summary>
+    /// <param name="bus">Retail address space used to verify native loading-color and tint values.</param>
+    /// <param name="presentation">Extracted presentation catalog checked for canonical colors and runtime playback.</param>
     private static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -647,6 +658,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks installed Samus heat colors and palette-FX output against their cartridge-derived inputs.</summary>
+    /// <param name="bus">Retail address space containing the heat palette source data.</param>
+    /// <param name="presentation">Extracted catalog providing the installed heat-color values.</param>
     private static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -885,6 +899,16 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares one installed palette-FX family with native playback while forbidding runtime reads of its extracted color bytes.</summary>
+    /// <param name="bus">Retail address space used for native playback and source-color comparison.</param>
+    /// <param name="presentation">Catalog supplying copied palette colors to the installed system.</param>
+    /// <param name="description">Family label used to identify assertion context.</param>
+    /// <param name="frameCount">Number of animation frames whose colors are owned by the presentation.</param>
+    /// <param name="colorsPerFrame">Number of palette entries in each animation frame.</param>
+    /// <param name="colorPointer">Maps a frame and color index to its bank-local source address.</param>
+    /// <param name="definitions">Native FX definitions whose playback is compared.</param>
+    /// <param name="framesToRun">Number of native and installed update steps to compare per definition.</param>
+    /// <param name="samusY">Samus vertical coordinate supplied to both palette-FX systems for conditional effects.</param>
     private static void VerifyInstalledPaletteFxFamily(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation,
@@ -940,6 +964,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies extracted Wrecked Ship palette colors and installed animated output against the native effect.</summary>
+    /// <param name="bus">Retail address space used to read native colors and run the reference effect.</param>
+    /// <param name="presentation">Extracted palette catalog used by installed playback.</param>
     private static void VerifyExtractedWreckedShipPaletteFxPresentation(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation)
@@ -996,6 +1023,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies Maridia environmental palette colors and installed animation output against cartridge behavior.</summary>
+    /// <param name="bus">Retail address space used to compare source colors and native effect output.</param>
+    /// <param name="presentation">Extracted catalog used by the installed palette-FX system.</param>
     private static void VerifyExtractedMaridiaPaletteFxPresentation(
         ISnesAddressSpace bus,
         RoomPaletteFxPresentation presentation)
@@ -1047,6 +1077,9 @@ internal static partial class Program
             "installed Maridia palette loops avoid cartridge color reads");
     }
 
+    /// <summary>Checks that the room palette-FX document reader rejects unsupported versions, incomplete data, and invalid color content.</summary>
+    /// <param name="extracted">Serialized presentation document whose malformed variants are constructed and validated.</param>
+    /// <param name="bus">Cartridge source used when validation compares extracted colors with native data.</param>
     private static void VerifyRoomPaletteFxPresentationValidation(
         byte[] extracted, ISnesAddressSpace bus)
     {

@@ -10,6 +10,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed reserve-tank artwork with native menu output and verifies that presentation edits leave gameplay behavior intact.</summary>
+    /// <param name="bus">Retail address space used for native rendering and guarded production execution.</param>
+    /// <param name="stock">Directory containing the validated stock reserve-tank presentation.</param>
+    /// <param name="overrides">Directory used to write and reload the edited reserve-tank document.</param>
+    /// <param name="catalog">Installed area-map presentation catalog supplying reserve-tank assets.</param>
     private static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
@@ -119,8 +124,13 @@ internal static partial class Program
     }
     private sealed class ReserveTankAssetReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Underlying address space delegated reads and writes that are not blocked as installed artwork data.</summary>
         private readonly ISnesAddressSpace source;
+        /// <summary>Cartridge byte addresses belonging to reserve-tank graphics or their selector and frame definitions.</summary>
         private readonly HashSet<int> blocked = [];
+
+        /// <summary>Creates a read guard populated with the cartridge ranges that the installed reserve-tank art replaces.</summary>
+        /// <param name="source">Retail address space used to resolve the original frame pointers and wrapped for later access.</param>
         public ReserveTankAssetReadGuard(ISnesAddressSpace source)
         {
             this.source = source; Add(0x82c1d6, 14); Add(0x82b3d9, 32);
@@ -131,10 +141,24 @@ internal static partial class Program
                 Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
             }
         }
+        /// <summary>Adds a contiguous cartridge byte range to the set forbidden to installed rendering.</summary>
+        /// <param name="address">First byte address in the range.</param>
+        /// <param name="count">Number of consecutive bytes to block.</param>
         private void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }
+
+        /// <summary>Routes a cartridge import request through the guard's checked byte-read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not reserved artwork data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from reserved artwork ranges and delegates other addresses to the wrapped source.</summary>
+        /// <param name="address">Address requested from the SNES memory space.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address) => blocked.Contains(address) ? throw new InvalidOperationException($"Installed pause read reserve visual ROM at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

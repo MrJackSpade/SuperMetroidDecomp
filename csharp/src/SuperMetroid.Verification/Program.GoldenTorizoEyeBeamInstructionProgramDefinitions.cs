@@ -6,10 +6,16 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Golden Torizo eye-beam program checks.</summary>
     private static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled mechanics and visual selectors with cartridge data, then exercises both
+    /// beam directions and the wall and floor impact instruction branches.
+    /// </summary>
+    /// <param name="rom">The retail address space used to verify native mechanics and presentation words.</param>
     private static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -272,6 +278,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly resolves wall-impact and normal mechanics words to measure warmed lookup allocations.
+    /// </summary>
+    /// <returns>A checksum that consumes the values returned by the mechanics lookups.</returns>
     private static int ProbeGoldenTorizoEyeBeamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -285,14 +295,29 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Wraps the cartridge bus to reject compiled eye-beam mechanics reads and record any reads
+    /// from installed presentation selector words during production execution.
+    /// </summary>
+    /// <param name="source">The underlying address space used for reads not rejected by the guard and for writes.</param>
     private sealed class GoldenTorizoEyeBeamInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses whose bytes were observed through the guarded bus.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled Golden Torizo eye-beam mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's mechanics check and presentation tracking.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, tracks presentation-word reads, and forwards other bytes.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled eye-beam mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (GoldenTorizoEyeBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -321,6 +346,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

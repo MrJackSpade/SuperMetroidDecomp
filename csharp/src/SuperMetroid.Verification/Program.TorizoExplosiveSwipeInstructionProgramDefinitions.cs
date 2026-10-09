@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs explosive-swipe program verification against the pinned retail ROM.</summary>
     private static void VerifyTorizoExplosiveSwipeInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosiveSwipeInstructionProgramDefinitions), () => VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks compiled mechanics, the real swipe lifetime, and every extracted visual selector.</summary>
+    /// <param name="rom">Retail address space used to compare compiled mechanics and selector values.</param>
     private static void VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -90,6 +93,8 @@ internal static partial class Program
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Repeats mechanics lookups and accumulates their values for the allocation check.</summary>
+    /// <returns>Checksum of alternating initial and loop-entry instruction reads.</returns>
     private static int ProbeTorizoExplosiveSwipeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -103,14 +108,27 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled swipe mechanics and records presentation-operand reads.</summary>
+    /// <param name="source">Underlying address space used after the mechanics guard passes.</param>
     private sealed class TorizoExplosiveSwipeInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operand addresses whose bytes production requested from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled explosive-swipe mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the mechanics guard and presentation-word tracker.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics reads, records presentation operands, and forwards all other reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (TorizoExplosiveSwipeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -139,6 +157,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

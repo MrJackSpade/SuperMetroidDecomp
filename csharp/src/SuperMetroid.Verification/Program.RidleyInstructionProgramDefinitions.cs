@@ -99,6 +99,14 @@ internal static partial class Program
             "extended-sprite selections pass with zero live operand reads.");
     }
 
+    /// <summary>Runs one Ridley instruction program to its terminal sleep and checks every selected visual operand.</summary>
+    /// <param name="rom">The retail address space used to verify executed sprite selectors.</param>
+    /// <param name="executedOperands">Set collecting the native visual words reached by the program.</param>
+    /// <param name="guard">Address space that rejects runtime mechanics reads and records presentation accesses.</param>
+    /// <param name="program">Bank-$A6 entry address of the instruction sequence to execute.</param>
+    /// <param name="facingDirection">Ridley's facing value for this execution path.</param>
+    /// <param name="enemyDefinition">Enemy definition pointer installed before the program runs.</param>
+    /// <exception cref="InvalidDataException">The program fails to reach a compiled sleep command within the frame limit.</exception>
     private static void RunProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -155,6 +163,8 @@ internal static partial class Program
             $"Ridley program $A6:{program:X4}, facing {facingDirection}, did not sleep.");
     }
 
+    /// <summary>Repeatedly resolves the fireball program's mechanics entry to measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that consumes the mechanics values returned by the probe.</returns>
     private static int ProbeRidleyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -166,17 +176,36 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from two adjacent cartridge bytes.</summary>
+    /// <param name="source">The address space containing the reference word.</param>
+    /// <param name="address">The absolute address of the word's low byte.</param>
+    /// <returns>The word formed from the addressed byte and the following byte.</returns>
     private static ushort ReadRidleyWord(SuperMetroidAddressSpace source, int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
+    /// <summary>
+    /// Wraps cartridge access to reject reads of compiled Ridley mechanics and record reads of
+    /// presentation words while production programs execute.
+    /// </summary>
+    /// <param name="source">The underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class RidleyInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$A6 presentation-word addresses whose bytes were requested through this guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled Ridley mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import cartridge read through the mechanics guard and presentation tracking.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics, tracks presentation-word reads, and forwards other bytes.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Ridley mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -206,6 +235,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

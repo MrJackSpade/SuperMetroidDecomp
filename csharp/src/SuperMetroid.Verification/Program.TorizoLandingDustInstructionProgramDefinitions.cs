@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Torizo landing-dust checks against the installed retail ROM.</summary>
     private static void VerifyTorizoLandingDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled mechanics and selectors with the cartridge, then exercises both
+    /// foot-dust producers and their rising, four-pose programs through production processing.
+    /// </summary>
+    /// <param name="rom">Retail address space supplying the reference mechanics and selector words.</param>
     private static void VerifyTorizoLandingDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -115,6 +121,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly resolves the right- and left-foot program words for the warmed allocation check.</summary>
+    /// <returns>A checksum that keeps the compiled mechanics results observable.</returns>
     private static int ProbeTorizoLandingDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -128,14 +136,29 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Rejects reads from compiled landing-dust mechanics and records presentation operand
+    /// reads that should be resolved through the compiled visual-selector catalog.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class TorizoLandingDustInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the distinct presentation operand addresses read from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of rejected reads from compiled landing-dust mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-time cartridge read through the mechanics read guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics reads, records selector reads, and forwards other bytes.</summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled landing-dust mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (TorizoLandingDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -164,6 +187,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

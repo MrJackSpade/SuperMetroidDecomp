@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Tourian statue projectile-program checks against the pinned retail cartridge.</summary>
     private static void VerifyTourianStatueProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native mechanics words and executes statue projectile families while guarding compiled ROM data.</summary>
+    /// <param name="rom">Pinned retail address space used to verify words and compare installed sprite selectors.</param>
     private static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -176,6 +179,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the compiled eye-glow and Phantoon words so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that keeps the repeated mechanics reads observable.</returns>
     private static int ProbeTourianStatueProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -189,14 +194,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics reads and records accesses to installed Tourian statue presentation operands.</summary>
+    /// <param name="source">Address space supplying cartridge bytes not rejected by the guard.</param>
     private sealed class TourianStatueProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed while projectile instructions resolve their visual frames.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Counts cartridge reads rejected because they target compiled Tourian statue mechanics.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge access through the compiled-mechanics read guard.</summary>
+        /// <param name="address">Cartridge address requested by projectile execution.</param>
+        /// <returns>The source byte for an allowed address.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics, tracks presentation operands, and forwards other reads.</summary>
+        /// <param name="address">CPU address requested by the projectile system.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Tourian statue mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
@@ -226,6 +243,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

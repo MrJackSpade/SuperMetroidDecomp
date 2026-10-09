@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Polyp instruction mechanics and execution against the retail ROM.</summary>
     private static void VerifyPolypInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypInstructionProgramDefinitions), () => VerifyPolypInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies native mechanics words and runs the production Polyp initializer and instruction loop.</summary>
+    /// <param name="rom">Retail address space supplying the expected instruction words and frame operand.</param>
     private static void VerifyPolypInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -83,6 +86,7 @@ internal static partial class Program
             "terminal sleep, and exact frame selection pass with instruction bytes forbidden.");
     }
 
+    /// <summary>Warms and repeats compiled Polyp mechanics lookups for the allocation measurement.</summary>
     private static int ProbePolypInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -96,6 +100,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A2 at the specified offset.</summary>
+    /// <param name="source">Address space containing the native instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The two bytes combined with the low byte in the least significant position.</returns>
     private static ushort ReadPolypInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -103,13 +111,22 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects production reads from compiled Polyp mechanics and presentation operands.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class PolypInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from the compiled Polyp mechanics words.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an imported cartridge read through the mechanics and presentation guards.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped byte unless the address is a forbidden compiled word.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled Polyp words and forwards other addresses to the wrapped bus.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the wrapped source for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (PolypInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -125,6 +142,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

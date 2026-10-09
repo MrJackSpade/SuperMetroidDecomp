@@ -3,15 +3,41 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks cartridge bytes assigned to the glass program's control fields.</summary>
+    /// <param name="rom">Retail address space used to verify each independently owned byte.</param>
     private static void VerifyGlassControls(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 0);
+
+    /// <summary>Checks the glass program's spritemap drawing operands against the cartridge.</summary>
+    /// <param name="rom">Retail address space containing the native operands.</param>
     private static void VerifyGlassDraws(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 1);
+
+    /// <summary>Checks the target-selection words used by the glass program.</summary>
+    /// <param name="rom">Retail address space containing the native target words.</param>
     private static void VerifyGlassTargets(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 2);
+
+    /// <summary>Checks the native callback operand in the glass instruction sequence.</summary>
+    /// <param name="rom">Retail address space used to verify the callback bytes.</param>
     private static void VerifyGlassCallback(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 3);
+
+    /// <summary>Checks the glass program's event-related bytes against their cartridge locations.</summary>
+    /// <param name="rom">Retail address space containing the native event operands.</param>
     private static void VerifyGlassEvents(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 4);
+
+    /// <summary>Checks the boss-mask value read by the glass PLM program.</summary>
+    /// <param name="rom">Retail address space used to verify the native mask.</param>
     private static void VerifyGlassBossMask(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 5);
+
+    /// <summary>Checks the timing threshold words that divide the glass program's stages.</summary>
+    /// <param name="rom">Retail address space containing the native thresholds.</param>
     private static void VerifyGlassThresholds(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 6);
+
+    /// <summary>Checks the eight-byte argument blocks passed when glass shards are spawned.</summary>
+    /// <param name="rom">Retail address space containing the native shard arguments.</param>
     private static void VerifyGlassShardArguments(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 7);
 
+    /// <summary>Verifies one classified glass-program field over its full owned address domain.</summary>
+    /// <param name="rom">Retail address space providing the expected native bytes and words.</param>
+    /// <param name="field">Field category selected by the glass-specific verifier methods.</param>
     private static void VerifyGlassField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand boundaries. Values come only from original ROM.

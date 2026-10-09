@@ -5,6 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that the compiled Mother Brain room-palette control words match the cartridge and that
+    /// the production palette loop preserves its native pointer, timer, and CGRAM behavior.
+    /// </summary>
     private static void VerifyMotherBrainRoomPaletteProgramDefinitions()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -101,11 +105,17 @@ internal static partial class Program
             "and allocation-free lookup pass.");
     }
 
+    /// <summary>Reads one little-endian control word from the cartridge address space.</summary>
+    /// <param name="source">Address space containing the retail ROM bytes.</param>
+    /// <param name="address">Cartridge address of the word's low byte.</param>
+    /// <returns>The two bytes at <paramref name="address"/> and the following address, combined little-endian.</returns>
     private static ushort ReadMotherBrainRoomPaletteWord(
         SuperMetroidAddressSpace source,
         int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
+    /// <summary>Warms the compiled mechanics lookup and consumes its values for the allocation check.</summary>
+    /// <returns>A checksum of repeated reads, ensuring the lookup result is used.</returns>
     private static int ProbeMotherBrainRoomPaletteAllocation()
     {
         int checksum = 0;
@@ -117,14 +127,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Wraps the room-palette bus to detect forbidden reads of compiled control data and unexpected
+    /// reads of palette operands that should already be installed in the presentation data.
+    /// </summary>
+    /// <param name="source">Underlying address space that handles permitted cartridge reads and writes.</param>
     private sealed class MotherBrainRoomPaletteReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Forwards cartridge-import reads through the same guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The byte returned by the wrapped address space, unless the address is forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Presentation-word addresses observed during guarded runtime reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads into the mechanics range served by compiled definitions.</summary>
         internal int ForbiddenMechanicsReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics bytes, records presentation-word reads, and forwards
+        /// every other request to the wrapped address space.
+        /// </summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The wrapped address space's byte for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte(address))
@@ -141,6 +168,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge byte address to update.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

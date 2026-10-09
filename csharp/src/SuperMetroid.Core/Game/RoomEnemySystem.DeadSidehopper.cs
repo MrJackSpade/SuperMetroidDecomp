@@ -12,19 +12,27 @@ public sealed partial class RoomEnemySystem
     /// <summary>Bank-$A0 enemy definition $ED7F for the dead-sidehopper family, initialized by $A9:D7B6 as an initially alive victim or an already dead Tourian corpse.</summary>
     public const ushort DeadSidehopperDefinition = 0xed7f;
 
+    /// <summary>WRAM base used for the tile workspace that receives dead-monster corpse graphics.</summary>
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
+    /// <summary>Enemy-property bit that makes the finished corpse solid to Samus.</summary>
     private const ushort DeadMonsterSolidProperty = 0x8000;
+    /// <summary>Enemy-property bit set after contact to reject further ordinary corpse interaction during rotting.</summary>
     private const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
+    /// <summary>Per-slot corpse state projections, initialized only for dead-sidehopper population entries.</summary>
     private readonly DeadSidehopperEnemyState?[] _deadSidehopperStates =
         new DeadSidehopperEnemyState?[MaximumEnemyCount];
+    /// <summary>VRAM writes accumulated while processing the current dead-sidehopper frame.</summary>
     private readonly List<VramWriteEntry> _deadSidehopperFrameVramTransfers = [];
+    /// <summary>Room geometry supplied to the last dead-sidehopper update and reused by callback dispatch.</summary>
     private RoomLevelData? _deadSidehopperLevel;
+    /// <summary>Camera X from the last update, retained for power-bomb dispatch that lacks camera context.</summary>
     private ushort _deadSidehopperCameraX;
 
     /// <summary>Last library-two dust sound requested by a completed sidehopper row.</summary>
     public ushort? LastDeadSidehopperSoundEffect { get; private set; }
 
+    /// <summary>Clears all per-room corpse state, pending uploads, sound output, and cached movement context.</summary>
     private void ResetDeadSidehopperRoomState()
     {
         Array.Clear(_deadSidehopperStates);
@@ -34,6 +42,7 @@ public sealed partial class RoomEnemySystem
         _deadSidehopperCameraX = 0;
     }
 
+    /// <summary>Starts a fresh frame's upload and sound-effect collection for dead-sidehopper processing.</summary>
     private void BeginDeadSidehopperFrame()
     {
         _deadSidehopperFrameVramTransfers.Clear();
@@ -106,6 +115,10 @@ public sealed partial class RoomEnemySystem
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
+    /// <summary>Creates the corpse's configured row-processing state, initializes its WRAM table, and loads its initial graphics.</summary>
+    /// <param name="slot">Enemy slot whose native variables and corpse position are represented by the returned state.</param>
+    /// <param name="graphicsVariant">Population-specific tile layout used to choose initial graphics and row-copy columns.</param>
+    /// <param name="definition">Rotting, upload, and geometry configuration selected for this corpse variant.</param>
     private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
         ushort graphicsVariant,
@@ -153,6 +166,12 @@ public sealed partial class RoomEnemySystem
         DispatchDeadSidehopperState(slot, state, samus, level, cameraX);
     }
 
+    /// <summary>Executes the current corpse AI function, including camera activation, hopping, palette changes, and rotting.</summary>
+    /// <param name="slot">The physical enemy slot being updated.</param>
+    /// <param name="state">Mutable state for this corpse's native function and extended words.</param>
+    /// <param name="samus">Samus state used to detect solid-enemy contact; may be absent outside gameplay updates.</param>
+    /// <param name="level">Room collision geometry required once movement reaches terrain-driven handling.</param>
+    /// <param name="cameraX">Current room camera position used by the victim's activation threshold.</param>
     private void DispatchDeadSidehopperState(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
@@ -286,6 +305,10 @@ public sealed partial class RoomEnemySystem
             verticalDisplacement);
     }
 
+    /// <summary>Applies one signed 8.8 velocity directly to the selected coordinate without terrain collision.</summary>
+    /// <param name="slot">Enemy whose position and subposition words are updated.</param>
+    /// <param name="horizontal">Selects X when true and Y when false.</param>
+    /// <param name="velocity">Signed 8.8 displacement word whose fractional carry is added to the coordinate.</param>
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
         bool horizontal,
@@ -310,6 +333,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Requires room geometry when the corpse has crossed into terrain-collision movement.</summary>
+    /// <param name="level">Room geometry supplied by the current enemy update.</param>
     private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData? level) =>
         level ?? throw new InvalidDataException(
             "Dead sidehopper crossed into terrain-driven movement without room level data.");
@@ -416,6 +441,9 @@ public sealed partial class RoomEnemySystem
             _deadSidehopperCameraX);
     }
 
+    /// <summary>Enters the shared corpse-rotting routine and disables ordinary offscreen and Samus-collision handling.</summary>
+    /// <param name="slot">Corpse slot whose native function and interaction properties are changed.</param>
+    /// <param name="state">Corpse state whose function is switched to rotting.</param>
     private static void TriggerDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -425,6 +453,9 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
+    /// <summary>Advances the staggered pixel-row schedule, applies row callbacks, and appends this call's VRAM transfers.</summary>
+    /// <param name="slot">Corpse slot used by completed-row effects and the completion transition.</param>
+    /// <param name="state">Configuration and progress for the active rotting pass.</param>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -444,6 +475,8 @@ public sealed partial class RoomEnemySystem
         BuildDeadSidehopperVramTransfers(state);
     }
 
+    /// <summary>Copies the variant's initial corpse tile rows from installed artwork into the shared WRAM work buffer.</summary>
+    /// <param name="graphicsVariant">Selects the source row layout for the living-victim or dead-corpse variant.</param>
     private void InitializeDeadSidehopperGraphics(ushort graphicsVariant)
     {
         ReadOnlySpan<byte> installedTiles = InstalledDeadTourianCorpseTiles();
@@ -463,6 +496,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Copies a corpse pixel row down one tile row, optionally clearing its source as it moves.</summary>
+    /// <param name="state">Variant-specific tile layout and wrapping data for the corpse.</param>
+    /// <param name="yOffset">Pixel-row offset that selects the source row and eligible tile columns.</param>
+    /// <param name="move">When true, clears the copied source words after writing the destination.</param>
     private void CopyOrMoveDeadSidehopperPixelRow(
         DeadSidehopperEnemyState state,
         ushort yOffset,
@@ -498,6 +535,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Records a completed row and emits its dust effect and periodic library-two sound request.</summary>
+    /// <param name="slot">Corpse position used to place the row's dust effect.</param>
+    /// <param name="state">Diagnostic progress counters updated for this completion callback.</param>
+    /// <param name="entryIndex">Zero-based rotting-table entry that just completed.</param>
     private void FinishDeadSidehopperCorpseRow(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
@@ -515,9 +556,13 @@ public sealed partial class RoomEnemySystem
             LastDeadSidehopperSoundEffect = 0x0010;
     }
 
+    /// <summary>Appends upload entries described by this corpse variant's native VRAM table.</summary>
+    /// <param name="state">State containing the VRAM-table identity for the corpse.</param>
     private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
         AppendDeadMonsterVramTransfers(state.VramTablePointer);
 
+    /// <summary>Enqueues the frame's accumulated corpse-tile writes when a render upload queue is available.</summary>
+    /// <param name="queue">Destination queue, or null when this frame has no VRAM consumer.</param>
     private void QueueDeadSidehopperFrameVramTransfers(VramWriteQueue? queue)
     {
         if (queue is null)
@@ -531,6 +576,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Selects a corpse instruction list and resets the instruction interpreter's counters.</summary>
+    /// <param name="slot">Enemy slot whose animation is changed.</param>
+    /// <param name="instruction">Address of the selected instruction list.</param>
     private static void SetDeadSidehopperInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -538,6 +586,8 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the initialized state for a corpse slot and rejects state associated with another slot.</summary>
+    /// <param name="slot">Physical enemy slot whose state is required.</param>
     private DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = _deadSidehopperStates[slot.SlotIndex] ??
@@ -548,9 +598,14 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Reads one 16-bit word from the dead-monster WRAM tile workspace.</summary>
+    /// <param name="wordOffset">Word index relative to the workspace base.</param>
     private ushort ReadDeadMonsterWorkWord(int wordOffset) =>
         SnesWorkRam.ReadWord(EnemyWorkMemory, DeadMonsterWorkBufferAddress + wordOffset * 2);
 
+    /// <summary>Writes one 16-bit word into the dead-monster WRAM tile workspace.</summary>
+    /// <param name="wordOffset">Word index relative to the workspace base.</param>
+    /// <param name="value">Tile-data word stored at that index.</param>
     private void WriteDeadMonsterWorkWord(int wordOffset, ushort value) =>
         WriteWord(_bus!, DeadMonsterWorkBufferAddress + wordOffset * 2, value);
 
@@ -583,6 +638,20 @@ public enum DeadSidehopperAiFunction : ushort
 /// <summary>Typed projection of one dead sidehopper's extended bank-$A9 WRAM.</summary>
 public sealed class DeadSidehopperEnemyState
 {
+    /// <summary>Captures the native configuration and row bounds used to translate one corpse's rotting behavior.</summary>
+    /// <param name="slot">Physical enemy slot that owns this state.</param>
+    /// <param name="graphicsVariant">Population variant selecting the corpse's initial tile layout.</param>
+    /// <param name="configurationPointer">Native configuration identity for the rotting behavior.</param>
+    /// <param name="tablePointer">WRAM offset of the mutable row schedule.</param>
+    /// <param name="vramTablePointer">Native identity of the corpse's VRAM upload table.</param>
+    /// <param name="copyFunction">Native callback identity for non-destructive row copies.</param>
+    /// <param name="moveFunction">Native callback identity for row moves that clear their source.</param>
+    /// <param name="rotationTablePointer">Native tile-row offset table used to locate source words.</param>
+    /// <param name="finishFunction">Native callback identity for completed-row effects.</param>
+    /// <param name="entryCount">Number of staggered row entries in the schedule.</param>
+    /// <param name="yLimit">Final pixel-row boundary used by the scheduler.</param>
+    /// <param name="lateMoveEntryIndex">Schedule index at which row processing switches to destructive moves.</param>
+    /// <param name="wrapOffset">Byte adjustment that wraps bottom tile rows into their destination tile row.</param>
     internal DeadSidehopperEnemyState(
         RoomEnemySlot slot,
         ushort graphicsVariant,

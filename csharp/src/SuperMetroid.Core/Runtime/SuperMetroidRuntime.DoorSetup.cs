@@ -88,6 +88,7 @@ public sealed partial class SuperMetroidRuntime
         }
     }
 
+    /// <summary>Starts the destination entrance treadmill and attempts its matching PLM spawn.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
     {
         if (LevelData is null || BackgroundStreamer is null || ActiveRoom is null)
@@ -107,6 +108,7 @@ public sealed partial class SuperMetroidRuntime
             System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }
 
+    /// <summary>Configures Samus and the hardcoded PLM for entry into the Maridia elevatube.</summary>
     private void SetUpMaridiaElevatube(bool fromSouth)
     {
         if (LevelData is null)
@@ -128,6 +130,7 @@ public sealed partial class SuperMetroidRuntime
 /// <summary>Pure scroll-byte portion of translated bank-$8F door setup programs.</summary>
 internal static class DoorSetupCodeInterpreter
 {
+    /// <summary>Applies the room-scroll writes owned by a translated door setup routine.</summary>
     public static void ApplyScrollWrites(
         ushort setupCodePointer,
         ushort doorPointer,

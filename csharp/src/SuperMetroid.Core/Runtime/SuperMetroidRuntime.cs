@@ -17,12 +17,19 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Provides the runtime's typed read/write boundary over native address space.</summary>
     internal readonly ISnesAddressSpace _addressSpace;
+    /// <summary>Retains the suit pickup requested for the next eligible gameplay step.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
+    /// <summary>Retains a save-station activation awaiting completion.</summary>
     private StationActivationEvent? _pendingSaveStation;
+    /// <summary>Retains the save-station event awaiting its persistence handoff.</summary>
     private StationActivationEvent? _pendingSaveStationCompletion;
+    /// <summary>Retains the completed save-station request until the host consumes it.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
+    /// <summary>Counts the remaining Samus load-appearance frames.</summary>
     private ushort _samusLoadAppearanceFramesRemaining;
+    /// <summary>Identifies the palette effect used during Samus's load appearance.</summary>
     private ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>
@@ -447,6 +454,7 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
+    /// <summary>Retains the lazily created room spike animation owner.</summary>
     private RoomSpikeAnimatedTilesState? _roomSpikes;
 
     /// <summary>FX-selected horizontal spikes; older debugger states restart the absent owner at frame zero.</summary>
@@ -794,6 +802,7 @@ public sealed partial class SuperMetroidRuntime
         return grappleOwnsMovement;
     }
 
+    /// <summary>Loads the installed grapple-beam firing palette into CGRAM.</summary>
     private void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
@@ -1070,6 +1079,7 @@ public sealed partial class SuperMetroidRuntime
         }
     }
 
+    /// <summary>Advances one runtime frame inside host guard and scripted-input cleanup boundaries.</summary>
     private RuntimeFrameResult StepFrameGuarded(
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
@@ -4155,6 +4165,7 @@ Landed: true, HitCeiling: false);
         return;
     }
 
+    /// <summary>Completes frame-exit host guards and returns the immutable frame result.</summary>
     private RuntimeFrameResult Snapshot(
         bool escapeTimerExpired,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
@@ -4175,6 +4186,15 @@ Landed: true, HitCeiling: false);
 /// <summary>
 /// PPU register values that were made visible together by one accepted gameplay NMI.
 /// </summary>
+/// <param name="Layer1XPosition">Published horizontal layer-one world position.</param>
+/// <param name="Layer1YPosition">Published vertical layer-one world position.</param>
+/// <param name="Bg1HorizontalScroll">Published BG1 horizontal scroll register value.</param>
+/// <param name="Bg1VerticalScroll">Published BG1 vertical scroll register value.</param>
+/// <param name="Bg2HorizontalScroll">Published BG2 horizontal scroll register value.</param>
+/// <param name="Bg2VerticalScroll">Published BG2 vertical scroll register value.</param>
+/// <param name="RoomShake">Published room-shake offsets for each background.</param>
+/// <param name="Bg2FirstScanline">First physical scanline on which BG2 is displayed.</param>
+/// <param name="Bg2EndScanline">Exclusive physical scanline after the BG2 display band.</param>
 public readonly record struct GameplayPpuRenderSnapshot(
     ushort Layer1XPosition,
     ushort Layer1YPosition,
@@ -4186,6 +4206,8 @@ public readonly record struct GameplayPpuRenderSnapshot(
     int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
 
 /// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
+/// <param name="AreaIndex">Area containing the confirmed save station.</param>
+/// <param name="StationIndex">Save-station index within the area.</param>
 public readonly record struct SaveStationPersistenceRequest(
     AreaId AreaIndex,
     ushort StationIndex);

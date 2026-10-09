@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Reference byte-domain color math from a detached BG plane and register rows.</summary>
 internal static class SoftwareBgColorMathRenderer
 {
+    /// <summary>Applies the detached BG plane's additive or subtractive color math to a native-sized frame.</summary>
     internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;

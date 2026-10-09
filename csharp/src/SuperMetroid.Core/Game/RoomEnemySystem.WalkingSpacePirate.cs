@@ -42,8 +42,11 @@ public enum WalkingSpacePirateFunction : ushort
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
+    /// <summary>Underlying room slot that owns the shared native enemy variables exposed by this view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a debugger-facing projection over an initialized walking Pirate room slot.</summary>
+    /// <param name="slot">Slot whose function pointer, patrol posts, and firing count are exposed.</param>
     internal WalkingSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Bank-$B2 function address stored in native enemy variable A.</summary>
@@ -77,28 +80,46 @@ public sealed class WalkingSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native bank-$B2 definition pointer for the gray walking Space Pirate.</summary>
     internal const ushort GreyWalkingSpacePirateDefinition = 0xf653;
+    /// <summary>Native bank-$B2 definition pointer for the green walking Space Pirate.</summary>
     internal const ushort GreenWalkingSpacePirateDefinition = 0xf693;
+    /// <summary>Native bank-$B2 definition pointer for the red walking Space Pirate.</summary>
     internal const ushort RedWalkingSpacePirateDefinition = 0xf6d3;
+    /// <summary>Native bank-$B2 definition pointer for the gold walking Space Pirate.</summary>
     internal const ushort GoldWalkingSpacePirateDefinition = 0xf713;
+    /// <summary>Native bank-$B2 definition pointer for the magenta walking Space Pirate.</summary>
     internal const ushort MagentaWalkingSpacePirateDefinition = 0xf753;
+    /// <summary>Native bank-$B2 definition pointer for the silver walking Space Pirate.</summary>
     internal const ushort SilverWalkingSpacePirateDefinition = 0xf793;
 
+    /// <summary>Library-two sound identifier emitted when a walking Pirate fires its shared laser.</summary>
     private const ushort PirateMotherBrainLaserSound = 0x0067;
+    /// <summary>16.16 displacement for the one-pixel downward grounded probe.</summary>
     private const int WalkingPirateOnePixelDown = 1 << 16;
+    /// <summary>Horizontal distance from a left-facing Pirate used to probe support ahead.</summary>
     private const int WalkingPirateLeftLedgeProbePixels = 17;
+    /// <summary>Horizontal distance from a right-facing Pirate used to probe support ahead.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
+    /// <summary>Native signed 16.16 leftward patrol step, retaining its one-subpixel asymmetry.</summary>
     private const int WalkingPirateLeftStepDisplacement = -0x3801;
+    /// <summary>Native signed 16.16 rightward patrol step, retaining its one-subpixel asymmetry.</summary>
     private const int WalkingPirateRightStepDisplacement = 0x3800;
+    /// <summary>Strict vertical distance below which a Pirate chooses its firing animation.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
+    /// <summary>Strict horizontal and vertical projectile proximity threshold for the flinch detector.</summary>
     private const int WalkingPirateFlinchBoxPixels = 32;
+    /// <summary>Horizontal muzzle offset from the Pirate's center when creating a laser.</summary>
     private const int WalkingPirateLaserMuzzleXOffset = 24;
+    /// <summary>Horizontal speed for lasers fired by a Pirate with the slow-laser parameter bit set.</summary>
     private const int WalkingPirateSlowLaserPixelsPerFrame = 2;
+    /// <summary>Horizontal speed for ordinary walking-Pirate and Mother Brain lasers.</summary>
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
     // The six palette/health tiers share the same initialization, main AI, collision AI,
     // dimensions, animation lists, and projectile. Definition identity must still remain
     // explicit because damage, health, vulnerability, drops, tiles, and palette are ROM data.
+    /// <summary>Per-slot debugger projections created during walking Pirate initialization.</summary>
     private readonly WalkingSpacePirateEnemyState?[] _walkingSpacePirateStates =
         new WalkingSpacePirateEnemyState?[MaximumEnemyCount];
 
@@ -108,6 +129,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastSpacePirateSoundEffect { get; private set; }
 
+    /// <summary>Recognizes the six native color-tier definitions that share walking Pirate behavior.</summary>
+    /// <param name="definition">Enemy definition pointer from a room population entry.</param>
+    /// <returns>True when the pointer names a translated walking Space Pirate tier.</returns>
     internal static bool IsWalkingSpacePirateDefinition(ushort definition) => definition is
         GreyWalkingSpacePirateDefinition or
         GreenWalkingSpacePirateDefinition or
@@ -325,12 +349,19 @@ public sealed partial class RoomEnemySystem
             : WalkingSpacePirateInstructionProgramDefinitions.WalkingRight;
     }
 
+    /// <summary>Tests whether Samus is inside the Pirate's strict vertical firing band.</summary>
+    /// <param name="slot">Walking Pirate position.</param>
+    /// <param name="samus">Current Samus position.</param>
+    /// <returns>True when their signed vertical separation is less than sixteen pixels.</returns>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
         Math.Abs(unchecked((short)(samus.YPosition - slot.YPosition))) <
             WalkingPirateFiringBandPixels;
 
+    /// <summary>Selects the laser-firing list aimed toward Samus's horizontal side of the Pirate.</summary>
+    /// <param name="slot">Pirate whose instruction list is changed.</param>
+    /// <param name="samus">Position used to choose left- or right-facing fire.</param>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
         SamusState samus) =>
@@ -340,6 +371,9 @@ public sealed partial class RoomEnemySystem
                 ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
                 : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 
+    /// <summary>Changes a Pirate's instruction list and makes its first instruction eligible immediately.</summary>
+    /// <param name="slot">Enemy slot whose instruction cursor and timer are updated.</param>
+    /// <param name="instructionPointer">Bank-$B2 list address to install.</param>
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -463,6 +497,10 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Gets the initialized walking-Pirate projection associated with a room enemy slot.</summary>
+    /// <param name="slot">Slot whose per-enemy state is required.</param>
+    /// <returns>The projection registered for that slot during initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a walking Pirate.</exception>
     private WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
         _walkingSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(

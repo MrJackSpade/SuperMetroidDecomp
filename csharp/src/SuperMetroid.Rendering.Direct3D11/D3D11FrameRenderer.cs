@@ -10,27 +10,48 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <remarks>Unsupported operations fail explicitly. Readback is diagnostic, not the presentation path.</remarks>
 public sealed partial class D3D11FrameRenderer : IDisposable
 {
+    /// <summary>Shared render device that owns this renderer's thread-affine GPU resources.</summary>
     internal readonly D3D11RenderDevice owner;
+    /// <summary>Factory for loading embedded shader bytecode, replaceable by strict missing-resource verification.</summary>
     private readonly Func<string, Stream?> openShaderResource;
+    /// <summary>Compute shader that composes solid-color snapshots into the output texture.</summary>
     private readonly ID3D11ComputeShader shader;
+    /// <summary>Compute-writable output texture consumed by display and readback paths.</summary>
     internal readonly ID3D11Texture2D output;
     internal RenderFrameIdentity? renderedIdentity;
+    /// <summary>Identity of the most recently submitted frame whose composition completed successfully.</summary>
     internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;
+    /// <summary>Device shared with presenters and other renderers.</summary>
     internal D3D11RenderDevice DeviceOwner => owner;
+    /// <summary>Unordered-access binding for the composed output texture.</summary>
     private readonly ID3D11UnorderedAccessView view;
+    /// <summary>Shader-resource binding that exposes the composed output to the display pixel shader.</summary>
     private readonly ID3D11ShaderResourceView displaySource;
+    /// <summary>Vertex shader used to draw the output texture to a presentation target.</summary>
     private readonly ID3D11VertexShader displayVertexShader;
+    /// <summary>Pixel shader that presents the composed output texture.</summary>
     private readonly ID3D11PixelShader displayPixelShader;
+    /// <summary>Constant buffer for the solid-color compute pass.</summary>
     private readonly ID3D11Buffer constants;
+    /// <summary>Compute shader that resolves SNES tile layers.</summary>
     private readonly ID3D11ComputeShader tileShader;
+    /// <summary>Compute shader that composes title-screen gradient layers.</summary>
     private readonly ID3D11ComputeShader titleGradientShader;
+    /// <summary>Structured shader-resource buffer containing the uploaded PPU memory view.</summary>
     private readonly ID3D11Buffer memoryBuffer;
+    /// <summary>Shader-resource binding for the uploaded PPU memory buffer.</summary>
     private readonly ID3D11ShaderResourceView memoryView;
+    /// <summary>Compute output texture holding resolved object pixels and metadata.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
+    /// <summary>Unordered-access binding for resolved object pixels.</summary>
     private readonly ID3D11UnorderedAccessView objectView;
+    /// <summary>GPU resources owned by this renderer, released in reverse creation order.</summary>
     private readonly List<IDisposable> resources = [];
+    /// <summary>Whether owned resources have been released; guards repeated disposal.</summary>
     internal bool disposed;
+    /// <summary>Reusable upload staging for the packed PPU memory buffer.</summary>
     private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PpuMemoryWords];
+    /// <summary>Reusable upload staging for solid-pass constants.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
 
     /// <summary>
@@ -89,6 +110,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         renderedIdentity = packet.Identity;
     }
 
+    /// <summary>Dispatches the specialized solid, layered, or Mode 7 compute path for a validated frame snapshot.</summary>
+    /// <param name="packet">Snapshot containing the composition inputs and dimensions to submit.</param>
     private unsafe void RenderCore(RenderFrameSnapshot packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
@@ -134,15 +157,28 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         disposed = true;
     }
 
+    /// <summary>Registers a newly created disposable GPU object for this renderer's reverse-order cleanup.</summary>
+    /// <typeparam name="T">A disposable Direct3D resource type.</typeparam>
+    /// <param name="value">Resource whose lifetime becomes owned by this renderer.</param>
+    /// <returns>The same resource, allowing registration at its creation site.</returns>
     internal T Own<T>(T value) where T : IDisposable { resources.Add(value); return value; }
+
+    /// <summary>Releases every registered resource in reverse creation order and clears the ownership list.</summary>
     private void DisposeResources()
     {
         for (int i = resources.Count - 1; i >= 0; i--) resources[i].Dispose();
         resources.Clear();
     }
+    /// <summary>Creates a compute shader from the named embedded bytecode resource.</summary>
+    /// <param name="name">Manifest resource name containing compiled compute-shader bytecode.</param>
+    /// <returns>The device-created compute shader.</returns>
     private ID3D11ComputeShader LoadShader(string name)
         => owner.Device.CreateComputeShader(LoadShaderBytes(name));
 
+    /// <summary>Reads a named shader resource completely into a byte array for Direct3D shader creation.</summary>
+    /// <param name="name">Manifest resource name to request from the configured resource provider.</param>
+    /// <returns>The resource's compiled bytecode.</returns>
+    /// <exception cref="InvalidDataException">The configured provider does not contain the requested shader.</exception>
     private byte[] LoadShaderBytes(string name)
     {
         using Stream resource = openShaderResource(name)

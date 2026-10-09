@@ -7,6 +7,7 @@ public sealed partial class SuperMetroidRuntime
     // Keep new members after the existing partial declarations: old binary debugger
     // fixtures contain compiler-generated closure identities numbered by member order.
     // The field migration handles this new owner without renumbering those old closures.
+    /// <summary>Retains the lazily created Tourian statue sequence for the active runtime.</summary>
     private TourianStatueSequence? _tourianStatues;
     /// <summary>Room-owned native statue tile programs and HDMA descent.</summary>
     public TourianStatueSequence TourianStatues => _tourianStatues ??= new();

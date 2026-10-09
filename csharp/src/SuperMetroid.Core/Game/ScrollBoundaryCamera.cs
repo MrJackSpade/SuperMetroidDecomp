@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class ScrollBoundaryCamera
 {
+    /// <summary>Mutable room scroll-state grid consulted by directional camera boundary handlers.</summary>
     private readonly RoomScrollGrid _scrolls;
 
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
@@ -225,6 +226,12 @@ public sealed class ScrollBoundaryCamera
 
     // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
     // back, as do screen offsets below the near edge; offsets at the far edge advance.
+    /// <summary>Moves the camera by the configured step until Samus's screen offset falls inside the dead zone.</summary>
+    /// <param name="camera">Current camera coordinate in pixels.</param>
+    /// <param name="samus">Samus's coordinate on the same axis.</param>
+    /// <param name="nearEdge">Inclusive offset below which the camera moves toward Samus.</param>
+    /// <param name="farEdge">Offset at or beyond which the camera moves with Samus.</param>
+    /// <returns>The adjusted camera coordinate, unchanged while Samus is within the dead zone.</returns>
     private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
     {
         if (samus < camera)
@@ -424,6 +431,7 @@ public sealed class ScrollBoundaryCamera
             : unchecked((ushort)((proposed & 0xff00) + 0x0100));
     }
 
+    /// <summary>Applies rightward ideal-camera movement while enforcing the room edge and red scroll-cell boundary.</summary>
     private void HandleScrollingRight()
     {
         ushort proposed = XPosition;
@@ -457,6 +465,7 @@ public sealed class ScrollBoundaryCamera
         XPosition = candidate;
     }
 
+    /// <summary>Applies leftward ideal-camera movement while enforcing the room edge and red scroll-cell boundary.</summary>
     private void HandleScrollingLeft()
     {
         ushort proposed = XPosition;
@@ -484,6 +493,7 @@ public sealed class ScrollBoundaryCamera
         XPosition = candidate;
     }
 
+    /// <summary>Applies downward ideal-camera movement using the current cell's vertical alignment and lower boundary.</summary>
     private void HandleScrollingDown()
     {
         ushort proposed = YPosition;
@@ -527,6 +537,7 @@ public sealed class ScrollBoundaryCamera
         }
     }
 
+    /// <summary>Applies upward ideal-camera movement while enforcing the upper red-cell boundary and room edge.</summary>
     private void HandleScrollingUp()
     {
         ushort proposed = YPosition;
@@ -553,6 +564,8 @@ public sealed class ScrollBoundaryCamera
         YPosition = candidate;
     }
 
+    /// <summary>Finds the scroll-grid cell at the camera's horizontal center and current vertical screen row.</summary>
+    /// <returns>Row-major cell index in <see cref="Scrolls"/>.</returns>
     private int VerticalCellIndex()
     {
         int xScreenAtCenter = (ushort)(XPosition + 0x0080) >> 8;
@@ -560,8 +573,18 @@ public sealed class ScrollBoundaryCamera
         return yScreen * _scrolls.WidthInScreens + xScreenAtCenter;
     }
 
+    /// <summary>Compares wrapped SNES coordinate words using the native signed 16-bit subtraction result.</summary>
+    /// <param name="left">Coordinate or boundary being compared.</param>
+    /// <param name="right">Reference coordinate subtracted from <paramref name="left"/>.</param>
+    /// <returns>The signed modular difference, preserving 16-bit wraparound.</returns>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 
+    /// <summary>Calculates absolute camera travel as 16.16 speed and adds the native one-pixel bias.</summary>
+    /// <param name="previousPosition">Prior whole-pixel coordinate.</param>
+    /// <param name="previousSubposition">Prior fractional coordinate word.</param>
+    /// <param name="currentPosition">Current whole-pixel coordinate.</param>
+    /// <param name="currentSubposition">Current fractional coordinate word.</param>
+    /// <returns>Whole and fractional speed words used by the camera's autoscroll handlers.</returns>
     private static (ushort Speed, ushort Subspeed) CalculateDistanceMovedPlusOne(
         ushort previousPosition,
         ushort previousSubposition,
@@ -581,6 +604,7 @@ public sealed class ScrollBoundaryCamera
         return ((ushort)(distance >> 16), (ushort)distance);
     }
 
+    /// <summary>Adds a 16.16 speed pair to the horizontal camera coordinate with native modular arithmetic.</summary>
     private void AddToX(ushort speed, ushort subspeed)
     {
         uint fixedPosition = ((uint)XPosition << 16) | XSubposition;
@@ -590,6 +614,7 @@ public sealed class ScrollBoundaryCamera
         XSubposition = (ushort)fixedPosition;
     }
 
+    /// <summary>Subtracts a 16.16 speed pair from the horizontal camera coordinate with native modular arithmetic.</summary>
     private void SubtractFromX(ushort speed, ushort subspeed)
     {
         uint fixedPosition = ((uint)XPosition << 16) | XSubposition;
@@ -599,6 +624,7 @@ public sealed class ScrollBoundaryCamera
         XSubposition = (ushort)fixedPosition;
     }
 
+    /// <summary>Adds a 16.16 speed pair to the vertical camera coordinate with native modular arithmetic.</summary>
     private void AddToY(ushort speed, ushort subspeed)
     {
         uint fixedPosition = ((uint)YPosition << 16) | YSubposition;
@@ -608,6 +634,7 @@ public sealed class ScrollBoundaryCamera
         YSubposition = (ushort)fixedPosition;
     }
 
+    /// <summary>Subtracts a 16.16 speed pair from the vertical camera coordinate with native modular arithmetic.</summary>
     private void SubtractFromY(ushort speed, ushort subspeed)
     {
         uint fixedPosition = ((uint)YPosition << 16) | YSubposition;
@@ -618,14 +645,23 @@ public sealed class ScrollBoundaryCamera
     }
 }
 
-/// <summary>One 16.16 Samus position sample consumed by the camera routines.</summary>
+/// <summary>One Samus position sample, split into whole and fractional words for native 16.16 camera calculations.</summary>
+/// <param name="XPosition">Whole-pixel horizontal room coordinate.</param>
+/// <param name="XSubposition">Fractional horizontal coordinate word paired with <paramref name="XPosition"/>.</param>
+/// <param name="YPosition">Whole-pixel vertical room coordinate.</param>
+/// <param name="YSubposition">Fractional vertical coordinate word paired with <paramref name="YPosition"/>.</param>
 public readonly record struct SamusCameraPoint(
     ushort XPosition,
     ushort XSubposition,
     ushort YPosition,
     ushort YSubposition);
 
-/// <summary>State branches used by horizontal camera target selection at <c>$90:95B7</c>.</summary>
+/// <summary>Movement state that selects the facing-relative horizontal camera target.</summary>
+/// <param name="KnockbackDirection">Native knockback direction word; nonzero reverses the facing target.</param>
+/// <param name="MovementType">Movement mode, where moonwalking also reverses the facing target.</param>
+/// <param name="XAccelerationMode">Horizontal acceleration mode; mode one reverses the facing target.</param>
+/// <param name="PoseXDirection">Native pose-facing value; four denotes right-facing.</param>
+/// <param name="CameraDistanceIndex">Byte offset selecting the horizontal camera-distance table entry.</param>
 public readonly record struct HorizontalCameraContext(
     ushort KnockbackDirection,
     SamusMovementType MovementType,
@@ -633,7 +669,10 @@ public readonly record struct HorizontalCameraContext(
     byte PoseXDirection,
     ushort CameraDistanceIndex);
 
-/// <summary>Scroller distances used by vertical target selection at <c>$90:9666</c>.</summary>
+/// <summary>Samus vertical direction and the two scroller offsets used to calculate the vertical camera target.</summary>
+/// <param name="YDirection">Native vertical movement direction used by target selection.</param>
+/// <param name="UpScroller">Vertical offset applied for upward movement.</param>
+/// <param name="DownScroller">Vertical offset applied for downward movement.</param>
 public readonly record struct VerticalCameraContext(
     ushort YDirection,
     ushort UpScroller,

@@ -36,8 +36,13 @@ public readonly record struct MetroidDropRequest();
 /// </summary>
 public sealed class MetroidEnemyState
 {
+    /// <summary>Common enemy slot whose native variables hold the Metroid's velocities, timer, and AI index.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the enemy slot and its two already-allocated outer sprite objects.</summary>
+    /// <param name="slot">Common room slot containing the Metroid's native variables.</param>
+    /// <param name="outerBodyA">Electricity layer managed alongside the central enemy body.</param>
+    /// <param name="outerBodyB">Outer shell layer managed alongside the central enemy body.</param>
     internal MetroidEnemyState(
         RoomEnemySlot slot,
         RoomSpriteObjectSlot outerBodyA,
@@ -115,21 +120,34 @@ public sealed class MetroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer used when Metroid death requests its five special pickups.</summary>
     internal const ushort MetroidDefinition = 0xdd7f;
 
+    /// <summary>Frozen instruction-list pointer used to display the electricity outer layer.</summary>
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
+    /// <summary>Frozen instruction-list pointer used to display the shell outer layer.</summary>
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
+    /// <summary>Palette word applied to outer sprite layers while the Metroid is frozen.</summary>
     private const ushort MetroidFrozenSpritePalette = 0x0c00;
+    /// <summary>Library-three sound identifier played when ice damage is accepted.</summary>
     private const ushort MetroidIceSoundEffect = 0x000a;
+    /// <summary>Library-two sound identifier played for a non-ice recoil hit.</summary>
     private const ushort MetroidRecoilSoundEffect = 0x005a;
+    /// <summary>Library-two sound identifier used by the Metroid's animation sequence.</summary>
     private const ushort MetroidAnimationSoundEffect = 0x0050;
+    /// <summary>Number of updates the frozen handler retains before its family-specific animation state expires.</summary>
     private const ushort MetroidFrozenDuration = 400;
+    /// <summary>Number of displacement steps in the power-bomb escape sequence.</summary>
     private const ushort MetroidEscapeDuration = 4;
+    /// <summary>Maximum whole-pixel velocity magnitude used by the homing movement routine.</summary>
     private const int MetroidMaximumVelocity = 3;
+    /// <summary>Number of randomized pickup requests emitted when a Metroid dies.</summary>
     private const int MetroidSpecialDropCount = 5;
 
+    /// <summary>Typed state views for initialized ordinary Metroids, indexed by enemy slot.</summary>
     private readonly MetroidEnemyState?[] _metroidStates =
         new MetroidEnemyState?[MaximumEnemyCount];
+    /// <summary>Counts each special death-drop request without retaining the pickup actor's scattered coordinates.</summary>
     private readonly List<MetroidDropRequest> _metroidDropRequests = new();
 
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
@@ -246,6 +264,9 @@ public sealed partial class RoomEnemySystem
             StoreMetroidXVelocity(state, 0);
     }
 
+    /// <summary>Reproduces the native low-byte seek calculation and clamps the resulting whole-pixel velocity.</summary>
+    /// <param name="target">Target coordinate to approach.</param>
+    /// <param name="current">Current coordinate of the Metroid.</param>
     private static int CalculateMetroidClosingVelocity(ushort target, ushort current)
     {
         int lowByteDifference = unchecked((byte)(target - (byte)current));
@@ -371,6 +392,9 @@ public sealed partial class RoomEnemySystem
         SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.DrainingSamus);
     }
 
+    /// <summary>Accumulates suit-dependent fractional drain and subtracts one energy when the accumulator borrows.</summary>
+    /// <param name="state">Metroid accumulator receiving the selected drain rate.</param>
+    /// <param name="samus">Actor whose energy is reduced when the accumulated fraction crosses a whole point.</param>
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
         ushort drainRate = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -437,6 +461,10 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary2 = MetroidRecoilSoundEffect;
     }
 
+    /// <summary>Starts the four-step bomb escape, resumes the chasing list, and clears Samus's flash state.</summary>
+    /// <param name="slot">Enemy slot whose movement state and instruction list are changed.</param>
+    /// <param name="state">Metroid state receiving the escape timer and movement function.</param>
+    /// <param name="samus">Optional actor whose attachment flash flag is cleared.</param>
     private static void DetachMetroidWithPowerBomb(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -476,6 +504,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Limits the signed whole-pixel portion of a 16.16 velocity while preserving in-range fractions.</summary>
+    /// <param name="velocity">Signed 16.16 movement velocity.</param>
     private static int ClampMetroidVelocity(int velocity)
     {
         short whole = unchecked((short)(velocity >> 16));
@@ -486,18 +516,28 @@ public sealed partial class RoomEnemySystem
         return velocity;
     }
 
+    /// <summary>Splits a signed 16.16 horizontal velocity into the slot's whole and fractional words.</summary>
+    /// <param name="state">State view whose horizontal velocity words are updated.</param>
+    /// <param name="velocity">Signed 16.16 pixels-per-update value.</param>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity)
     {
         state.XVelocity = unchecked((short)(velocity >> 16));
         state.XSubvelocity = unchecked((ushort)velocity);
     }
 
+    /// <summary>Splits a signed 16.16 vertical velocity into the slot's whole and fractional words.</summary>
+    /// <param name="state">State view whose vertical velocity words are updated.</param>
+    /// <param name="velocity">Signed 16.16 pixels-per-update value.</param>
     private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity)
     {
         state.YVelocity = unchecked((short)(velocity >> 16));
         state.YSubvelocity = unchecked((ushort)velocity);
     }
 
+    /// <summary>Synchronizes an outer sprite object with the Metroid's position and graphics while enabling it.</summary>
+    /// <param name="outerBody">Electricity or shell layer to reposition.</param>
+    /// <param name="metroid">Central enemy slot providing position and palette data.</param>
+    /// <param name="graphicsIndex">Combined tile and palette index copied to the sprite object.</param>
     private static void PositionMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
         RoomEnemySlot metroid,
@@ -509,6 +549,9 @@ public sealed partial class RoomEnemySystem
         outerBody.DisableFlags = 0;
     }
 
+    /// <summary>Switches an outer layer to its frozen display and disables animation without resetting its timer.</summary>
+    /// <param name="outerBody">Layer whose frozen visual state is installed.</param>
+    /// <param name="frozenInstructionList">Native instruction list selecting the frozen frame.</param>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
         ushort frozenInstructionList)
@@ -522,12 +565,17 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(frozenInstructionList + 2)));
     }
 
+    /// <summary>Selects a Metroid instruction list and makes its next command eligible on the following update.</summary>
+    /// <param name="slot">Enemy slot whose animation cursor is changed.</param>
+    /// <param name="instructionList">Native instruction-list pointer to install.</param>
     private static void SetMetroidInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Returns the initialized state view for this slot, failing when it has no ordinary Metroid state.</summary>
+    /// <param name="slot">Enemy slot whose state is requested.</param>
     private MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
         _metroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metroid state.");

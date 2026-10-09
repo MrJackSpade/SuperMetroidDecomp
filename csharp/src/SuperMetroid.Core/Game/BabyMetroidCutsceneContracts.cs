@@ -108,6 +108,10 @@ public readonly record struct BabyMetroidOnionRingHitResult();
 public readonly record struct BabyMetroidCutscenePoint();
 
 /// <summary>One `$86:E509` dust explosion requested during the Baby's death.</summary>
+/// <param name="XPosition">Whole-pixel horizontal projectile spawn coordinate.</param>
+/// <param name="YPosition">Whole-pixel vertical projectile spawn coordinate.</param>
+/// <param name="ProjectileParameter">Native parameter selecting the death-explosion projectile variant.</param>
+/// <param name="SoundEffect">Sound effect requested alongside the explosion.</param>
 public readonly record struct BabyMetroidDeathExplosionRequest(
     ushort XPosition,
     ushort YPosition,
@@ -118,12 +122,19 @@ public readonly record struct BabyMetroidDeathExplosionRequest(
 /// One of the three parameter-nine `$86:E509` dust clouds emitted by
 /// <c>$A9:C98C-C9C2</c> when the Baby releases Mother Brain's head.
 /// </summary>
+/// <param name="XPosition">Whole-pixel horizontal spawn coordinate in the room.</param>
+/// <param name="YPosition">Whole-pixel vertical spawn coordinate in the room.</param>
+/// <param name="ProjectileParameter">Native projectile parameter selecting the dust-cloud behavior.</param>
 public readonly record struct BabyMetroidReleaseDustRequest(
     ushort XPosition,
     ushort YPosition,
     ushort ProjectileParameter);
 
 /// <summary>One fourteen-colour write from `$AD:E90C-$E998` to sprite palette seven.</summary>
+/// <param name="PaletteIndex">Palette slot selected by the native transfer routine.</param>
+/// <param name="SourceAddress">ROM address of the first color word to copy.</param>
+/// <param name="DestinationColorIndex">First color slot written within sprite palette seven.</param>
+/// <param name="ColorCount">Number of consecutive color words transferred.</param>
 public readonly record struct BabyMetroidPaletteTransferRequest(
     ushort PaletteIndex,
     uint SourceAddress,
@@ -131,6 +142,11 @@ public readonly record struct BabyMetroidPaletteTransferRequest(
     ushort ColorCount);
 
 /// <summary>One phase-three room-light palette pair selected by `$AD:F24B`.</summary>
+/// <param name="PaletteIndex">Source palette index selected for the room-light update.</param>
+/// <param name="SourceAddress">ROM address of the palette color data.</param>
+/// <param name="FirstDestinationColorIndex">First destination color slot updated in the room palette.</param>
+/// <param name="SecondDestinationColorIndex">Second destination color slot updated by the same transfer.</param>
+/// <param name="ColorsPerDestination">Number of color words copied to each destination location.</param>
 public readonly record struct MotherBrainBackgroundPaletteTransferRequest(
     ushort PaletteIndex,
     uint SourceAddress,
@@ -138,7 +154,17 @@ public readonly record struct MotherBrainBackgroundPaletteTransferRequest(
     ushort SecondDestinationColorIndex,
     ushort ColorsPerDestination);
 
-/// <summary>One-call debugger witness for the Baby entrance and latch chain.</summary>
+/// <summary>One-call debugger witness for state transitions and presentation effects in the Baby Metroid cutscene.</summary>
+/// <param name="PhaseBefore">Phase selected when this enemy-AI call began.</param>
+/// <param name="PhaseAfter">Phase selected when the call completed.</param>
+/// <param name="BodyStumbleRequested">Whether this call requested Mother Brain's body stumble response.</param>
+/// <param name="LatchSoundQueued">Whether this call queued the one-shot attachment sound.</param>
+/// <param name="ReleaseDustClouds">Dust projectile requests emitted while the Baby releases Mother Brain.</param>
+/// <param name="AmbientCrySoundQueued">Whether this call queued the Baby's ambient cry.</param>
+/// <param name="DeathExplosion">Optional projectile request emitted by the Baby's death sequence.</param>
+/// <param name="BabyPaletteTransfer">Optional palette write requested for the Baby sprite.</param>
+/// <param name="AttackTileTransfer">Optional sprite-tile write used to prepare the final attack presentation.</param>
+/// <param name="BackgroundPaletteTransfer">Optional room-light palette write requested during the sequence.</param>
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,
     BabyMetroidCutscenePhase PhaseAfter,

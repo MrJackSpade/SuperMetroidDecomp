@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition word selecting Ceres Ridley's slot-zero AI and state extension.</summary>
     private const ushort CeresRidleyDefinition = EnemyDefinitionPointers.CeresRidley;
 
     /// <summary>
@@ -476,6 +477,9 @@ public sealed partial class RoomEnemySystem
             .ApplyHealth(_cgram!, paletteIndex);
     }
 
+    /// <summary>Applies the deceleration phase after liftoff crosses its vertical threshold, then switches to hover.</summary>
+    /// <param name="slot">Ridley slot supplying the height threshold.</param>
+    /// <param name="state">State whose vertical velocity and AI function are advanced.</param>
     private static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemySlot slot,
         RidleyEnemyState state)
@@ -490,6 +494,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Runs the hover cycle, selecting the retreat, lunge, swoop, or fireball branch from combat state.</summary>
+    /// <param name="slot">Ridley slot used for range checks and movement targets.</param>
+    /// <param name="state">Combat counters and dispatch state updated by the hover cycle.</param>
+    /// <param name="samus">Active player state used when a lunge direction must be chosen.</param>
     private void TickCeresRidleyHover(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -544,6 +552,9 @@ public sealed partial class RoomEnemySystem
         state.HoverCounter = 0;
     }
 
+    /// <summary>Moves Ridley into the firing position while keeping the vertical velocity at its native minimum magnitude.</summary>
+    /// <param name="slot">Ridley slot whose position determines the approach phase.</param>
+    /// <param name="state">Movement state and hover counter updated during the approach.</param>
     private void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
     {
         int verticalVelocity = unchecked((short)state.VerticalVelocity);
@@ -572,6 +583,9 @@ public sealed partial class RoomEnemySystem
         TickCeresRidleyFireballShooting(slot, state);
     }
 
+    /// <summary>Applies shared-RNG horizontal jitter while Ridley holds position for the fireball attack.</summary>
+    /// <param name="slot">Ridley slot providing the current attack position.</param>
+    /// <param name="state">Attack target and movement state used to aim the shooting phase.</param>
     private void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         ushort random = _nextRandom!();
@@ -592,6 +606,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Accelerates Ridley through the aimed lunge and transitions when its attack phase completes.</summary>
+    /// <param name="slot">Ridley slot receiving movement and used for attack-boundary checks.</param>
+    /// <param name="state">Lunge timer and velocity state.</param>
+    /// <param name="samus">Required active player position for selecting the lunge target.</param>
+    /// <exception cref="InvalidOperationException">The lunge is run without an active Samus actor.</exception>
     private static void TickCeresRidleyLunge(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -613,6 +632,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Steers Ridley to the swoop start point before initializing the descending phase.</summary>
+    /// <param name="slot">Ridley slot used for position checks.</param>
+    /// <param name="state">Movement and swoop phase state.</param>
     private static void TickCeresRidleySwoopMoveToPosition(
         RoomEnemySlot slot,
         RidleyEnemyState state)
@@ -626,6 +648,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances one timed swoop arc segment and switches to its configured next phase at timer underflow.</summary>
+    /// <param name="state">Ridley state containing the angle, speed magnitude, timer, and current function.</param>
+    /// <param name="angleDelta">Signed angular adjustment applied for this update.</param>
+    /// <param name="targetAngle">Angle at which this segment clamps its sweep.</param>
+    /// <param name="targetMagnitude">Speed magnitude approached during the segment.</param>
+    /// <param name="nextFunction">Function selected when the segment timer expires.</param>
+    /// <param name="nextTimer">Timer value installed for the next phase.</param>
     private static void TickCeresRidleySwoopPhase(
         RidleyEnemyState state,
         int angleDelta,
@@ -643,6 +672,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Approaches the phase's speed magnitude and angle, then derives signed axis velocities from the trigonometry table.</summary>
+    /// <param name="state">Ridley movement state receiving the updated magnitude, angle, and velocities.</param>
+    /// <param name="angleDelta">Signed angular adjustment for this update.</param>
+    /// <param name="targetAngle">Terminal angle for the current swoop segment.</param>
+    /// <param name="targetMagnitude">Magnitude approached in increments of at most 32.</param>
     private static void UpdateRidleySwoopVelocity(
         RidleyEnemyState state,
         int angleDelta,
@@ -668,12 +702,17 @@ public sealed partial class RoomEnemySystem
         state.VerticalVelocity = EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)));
     }
 
+    /// <summary>Starts the real retreat by selecting upward movement and lowering Ridley's minimum Y bound.</summary>
+    /// <param name="state">Ridley state whose retreat function and vertical range are changed.</param>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
     {
         state.Function = RidleyAiFunction.CeresRealRetreatRising;
         state.MinimumY = unchecked((ushort)-192);
     }
 
+    /// <summary>Steers the high-hit-count fake retreat toward its staging point before beginning the rise.</summary>
+    /// <param name="slot">Ridley slot used to test arrival at the staging X coordinate.</param>
+    /// <param name="state">Movement state advanced toward the fake-retreat staging point.</param>
     private static void TickCeresRidleyFakeRetreatMoveToPosition(
         RoomEnemySlot slot,
         RidleyEnemyState state)
@@ -685,6 +724,9 @@ public sealed partial class RoomEnemySystem
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
 
+    /// <summary>Raises Ridley during the fake retreat and starts the Baby's fall and retrieval delay at the height threshold.</summary>
+    /// <param name="slot">Ridley slot supplying the rise threshold.</param>
+    /// <param name="state">Ridley and Baby state updated for the fake retreat transition.</param>
     private static void TickCeresRidleyFakeRetreatRising(
         RoomEnemySlot slot,
         RidleyEnemyState state)
@@ -702,6 +744,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves Ridley's hand toward the falling Baby and begins the real retreat when their native rectangles overlap.</summary>
+    /// <param name="slot">Ridley slot defining the moving hand position.</param>
+    /// <param name="state">Baby position and function plus Ridley's movement state.</param>
     private static void TickCeresRidleyRetrieveBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
@@ -723,6 +768,10 @@ public sealed partial class RoomEnemySystem
         BeginCeresRidleyRetreat(state);
     }
 
+    /// <summary>Updates the attached Baby position or its falling motion according to the Baby's native function word.</summary>
+    /// <param name="slot">Ridley slot used as the Baby's carried-position anchor.</param>
+    /// <param name="state">Combined Ridley extension holding Baby position, velocity, and function.</param>
+    /// <exception cref="InvalidDataException">The Baby function word has no translated behavior.</exception>
     private static void TickCeresBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
         switch (state.BabyFunction)
@@ -770,6 +819,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Accelerates Ridley upward until he clears the off-screen threshold, then starts the retreat delay.</summary>
+    /// <param name="slot">Ridley slot whose Y position determines when the delay begins.</param>
+    /// <param name="state">Retreat movement and timer state.</param>
     private void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
@@ -807,6 +859,12 @@ public sealed partial class RoomEnemySystem
             "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_cgram!);
     }
 
+    /// <summary>Adjusts each signed axis velocity toward a target using the selected cartridge inertia divisor.</summary>
+    /// <param name="slot">Current Ridley position used to determine each axis error.</param>
+    /// <param name="state">Velocity state updated independently for X and Y.</param>
+    /// <param name="targetX">Target room-space X coordinate.</param>
+    /// <param name="targetY">Target room-space Y coordinate.</param>
+    /// <param name="divisorIndex">Index into the native inertia-divisor definition.</param>
     private static void AccelerateRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -880,6 +938,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Integrates Ridley's 8.8 velocity into room position, clamps to movement bounds, and optionally emits left-wall impact.</summary>
+    /// <param name="slot">Enemy slot whose integer and fractional coordinates are advanced.</param>
+    /// <param name="state">Velocity and movement bounds used and updated by integration.</param>
+    /// <param name="ceresWallImpact">Whether the Ceres liftoff wall-impact condition is enabled for this pass.</param>
     private void IntegrateRidleyMovement(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -915,6 +977,13 @@ public sealed partial class RoomEnemySystem
             state.MaximumY);
     }
 
+    /// <summary>Integrates one 8.8 axis and clamps at either bound, zeroing velocity on contact.</summary>
+    /// <param name="position">Current integer coordinate.</param>
+    /// <param name="subposition">Current fractional coordinate whose high byte accumulates velocity fraction.</param>
+    /// <param name="velocityWord">Signed 8.8 velocity word.</param>
+    /// <param name="minimum">Inclusive lower movement bound.</param>
+    /// <param name="maximum">Upper movement bound at which motion is clamped.</param>
+    /// <returns>Updated integer position, fractional position, and velocity.</returns>
     private static (ushort Position, ushort Subposition, ushort Velocity) IntegrateAxis(
         ushort position,
         ushort subposition,
@@ -936,6 +1005,11 @@ public sealed partial class RoomEnemySystem
         return (next, subposition, velocityWord);
     }
 
+    /// <summary>Integrates one 8.8 axis without applying movement bounds.</summary>
+    /// <param name="position">Current integer coordinate.</param>
+    /// <param name="subposition">Current fractional coordinate.</param>
+    /// <param name="velocityWord">Signed 8.8 velocity word.</param>
+    /// <returns>Updated integer and fractional coordinates with the cartridge's byte carry.</returns>
     private static (ushort Position, ushort Subposition) IntegrateUnclampedAxis(
         ushort position,
         ushort subposition,
@@ -949,6 +1023,13 @@ public sealed partial class RoomEnemySystem
         return (nextPosition, nextSubposition);
     }
 
+    /// <summary>Tests inclusive rectangle overlap between Ridley and a target, accounting for both actor radii.</summary>
+    /// <param name="slot">Ridley slot whose center and radii define one rectangle.</param>
+    /// <param name="centerX">Target rectangle center in room coordinates.</param>
+    /// <param name="centerY">Target rectangle center in room coordinates.</param>
+    /// <param name="radiusX">Target half-width.</param>
+    /// <param name="radiusY">Target half-height.</param>
+    /// <returns><see langword="true"/> when the rectangles overlap, including their boundaries.</returns>
     private static bool IsWithinRidleyRectangle(
         RoomEnemySlot slot,
         ushort centerX,
@@ -960,6 +1041,8 @@ public sealed partial class RoomEnemySystem
         Math.Abs(unchecked((short)(slot.XPosition - centerX))) < unchecked((ushort)(slot.XRadius + radiusX + 1)) &&
             Math.Abs(unchecked((short)(slot.YPosition - centerY))) < unchecked((ushort)(slot.YRadius + radiusY + 1));
 
+    /// <summary>Creates seven inactive tail links at their authored rest lengths and initial angles.</summary>
+    /// <returns>Tail segments in root-to-tip order, ready for the liftoff transition to activate.</returns>
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {
         // Each successive link begins one ideal angular separation beyond its predecessor.
@@ -978,6 +1061,8 @@ public sealed partial class RoomEnemySystem
         return segments;
     }
 
+    /// <summary>Counts down the post-door delay and switches from waiting to the eye fade on signed underflow.</summary>
+    /// <param name="state">Ridley state containing the dispatcher timer and fade phase.</param>
     private static void TickCeresRidleyInitialDelay(RidleyEnemyState state)
     {
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
@@ -989,6 +1074,8 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 0;
     }
 
+    /// <summary>Applies the next authored eye-palette fade row, then enables movement when the fade sequence completes.</summary>
+    /// <param name="state">Ridley state whose fade offset and movement-enable flag are advanced.</param>
     private void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
         // The original INC/BNE sequence advances once per AI call for every reachable
@@ -1014,6 +1101,10 @@ public sealed partial class RoomEnemySystem
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
     }
 
+    /// <summary>Applies body palette rows on alternating calls and begins the roar wait after the last row.</summary>
+    /// <param name="slot">Ridley slot whose collision property is restored when the fade completes.</param>
+    /// <param name="state">Fade offset, dispatcher timer, and music request state.</param>
+    /// <exception cref="InvalidOperationException">The current fade offset does not map to an installed body-palette row.</exception>
     private void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
@@ -1048,6 +1139,9 @@ public sealed partial class RoomEnemySystem
         state.MusicRequest = MusicCommand.SelectTrack(5);
     }
 
+    /// <summary>Installs an instruction-list pointer and resets its interpreter timers.</summary>
+    /// <param name="slot">Ridley slot whose animation interpreter is updated.</param>
+    /// <param name="instruction">Instruction-list address selected for the next animation update.</param>
     private static void SetRidleyInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -1055,6 +1149,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Validates that a slot is the initialized slot-zero Ceres Ridley and returns its extension state.</summary>
+    /// <param name="slot">Enemy slot entering a Ceres Ridley routine.</param>
+    /// <returns>The initialized Ceres Ridley state.</returns>
+    /// <exception cref="InvalidOperationException">The slot is not definition $E13F in slot zero or its state is absent.</exception>
     private RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != CeresRidleyDefinition ||

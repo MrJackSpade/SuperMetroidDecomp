@@ -28,8 +28,11 @@ public enum CrawlerEnemyFunction : ushort
 /// </summary>
 public sealed class CrawlerEnemyState
 {
+    /// <summary>The physical enemy record supplying the crawler's common variable aliases.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed crawler state view over its physical room-enemy record.</summary>
+    /// <param name="slot">The Zoomer, HZoomer, or shared crawler record whose common variables are exposed.</param>
     internal CrawlerEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Signed two's-complement 8.8 X motion word, used as the tangent on horizontal surfaces or as the wall-probe direction on vertical surfaces. Native <c>Crawler.XVelocity</c> at $0FA8,x, projected through common variable A.</summary>
@@ -70,15 +73,24 @@ public sealed class CrawlerEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy header for Sciser, which enters the shared crawler state machine.</summary>
     internal const ushort SciserDefinition = 0xd77f;
+    /// <summary>Room enemy header for Zero, which enters the shared crawler state machine.</summary>
     internal const ushort ZeroDefinition = 0xd7bf;
+    /// <summary>Room enemy header for Viola, which uses its property bits to select its initial surface.</summary>
     internal const ushort ViolaDefinition = 0xdabf;
+    /// <summary>Room enemy header for Zeela, which enters the shared crawler state machine.</summary>
     internal const ushort ZeelaDefinition = 0xdc7f;
+    /// <summary>Room enemy header for Sova, which enters the shared crawler state machine.</summary>
     internal const ushort SovaDefinition = 0xdcbf;
+    /// <summary>Room enemy header for the orange Zoomer with its own pursuit behavior.</summary>
     internal const ushort HZoomerDefinition = 0xdc3f;
+    /// <summary>Room enemy header for the common red Zoomer crawler.</summary>
     internal const ushort ZoomerDefinition = 0xdcff;
+    /// <summary>Room enemy header for the stone Zoomer variant using shared crawler behavior.</summary>
     internal const ushort StoneZoomerDefinition = 0xdd3f;
 
+    /// <summary>State views indexed by physical room-enemy slot for actors using crawler movement.</summary>
     private readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[MaximumEnemyCount];
 
@@ -142,6 +154,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Checks whether a room header belongs to a species dispatched through the shared crawler state machine.</summary>
+    /// <param name="definitionPointer">The enemy definition pointer from a room record.</param>
+    /// <returns><see langword="true"/> for shared crawlers, excluding the separately handled orange HZoomer.</returns>
     private static bool IsSharedCrawlerDefinition(ushort definitionPointer) =>
         definitionPointer is
             SciserDefinition or
@@ -218,6 +233,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances orange HZoomer along a wall, turning around edges and reversing its tangent to pursue Samus.</summary>
+    /// <param name="slot">The HZoomer record being moved.</param>
+    /// <param name="state">The wall-probe, tangent, and corner state.</param>
+    /// <param name="samus">The player position used to choose the direction of travel.</param>
+    /// <param name="level">Collision data used for attachment and movement probes.</param>
     private void RunHZoomerVertical(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -255,6 +275,11 @@ public sealed partial class RoomEnemySystem
         SetHZoomerVerticalInstruction(slot, state);
     }
 
+    /// <summary>Advances orange HZoomer along a floor or ceiling, including slope scaling, corner turns, and pursuit.</summary>
+    /// <param name="slot">The HZoomer record being moved.</param>
+    /// <param name="state">The surface-probe, tangent, and corner state.</param>
+    /// <param name="samus">The player position used to choose the direction of travel.</param>
+    /// <param name="level">Collision data used for attachment and slope-aware movement.</param>
     private void RunHZoomerHorizontal(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -292,6 +317,8 @@ public sealed partial class RoomEnemySystem
         SetHZoomerHorizontalInstruction(slot, state);
     }
 
+    /// <summary>Starts the shared fall transition when the active earthquake matches the Super Missile shake.</summary>
+    /// <param name="state">The crawler function saved before entering its falling state.</param>
     private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
         if (EarthquakeTimer == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
@@ -299,6 +326,9 @@ public sealed partial class RoomEnemySystem
             BeginCrawlerFall(state);
     }
 
+    /// <summary>Selects the orange HZoomer animation for its current upward or downward wall tangent.</summary>
+    /// <param name="slot">The enemy record whose instruction list is installed.</param>
+    /// <param name="state">The signed vertical tangent used to select orientation.</param>
     private static void SetHZoomerVerticalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
@@ -310,6 +340,9 @@ public sealed partial class RoomEnemySystem
                 : CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
+    /// <summary>Selects the orange HZoomer animation for its current leftward or rightward floor tangent.</summary>
+    /// <param name="slot">The enemy record whose instruction list is installed.</param>
+    /// <param name="state">The signed horizontal tangent used to select orientation.</param>
     private static void SetHZoomerHorizontalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
@@ -321,6 +354,9 @@ public sealed partial class RoomEnemySystem
                 : CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
+    /// <summary>Installs an orange HZoomer instruction list and restarts its command timer.</summary>
+    /// <param name="slot">The enemy record receiving the instruction pointer and timer reset.</param>
+    /// <param name="instructionList">The animation list appropriate to the current surface orientation.</param>
     private static void SetHZoomerInstructionList(
         RoomEnemySlot slot,
         ushort instructionList)
@@ -465,12 +501,17 @@ public sealed partial class RoomEnemySystem
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
     }
 
+    /// <summary>Saves the attached movement function and switches the crawler into its gravity-driven fall state.</summary>
+    /// <param name="state">The state whose current function is preserved for restoration after landing.</param>
     private static void BeginCrawlerFall(CrawlerEnemyState state)
     {
         state.NonFallingFunction = state.Function;
         state.Function = CrawlerEnemyFunction.Falling;
     }
 
+    /// <summary>Selects the shared crawler wall animation from the signed vertical tangent.</summary>
+    /// <param name="slot">The crawler record receiving the orientation-specific list.</param>
+    /// <param name="state">The vertical tangent used to choose upright or upside-down orientation.</param>
     private static void SetCrawlerVerticalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
@@ -481,6 +522,9 @@ public sealed partial class RoomEnemySystem
         SetCrawlerInstructionFromTable(slot, orientation);
     }
 
+    /// <summary>Selects the shared crawler floor or ceiling animation from the signed horizontal tangent.</summary>
+    /// <param name="slot">The crawler record receiving the orientation-specific list.</param>
+    /// <param name="state">The horizontal tangent used to choose the surface orientation.</param>
     private static void SetCrawlerHorizontalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
@@ -491,6 +535,10 @@ public sealed partial class RoomEnemySystem
         SetCrawlerInstructionFromTable(slot, orientation);
     }
 
+    /// <summary>Looks up and installs the selected species' animation list for a surface orientation.</summary>
+    /// <param name="slot">The crawler record receiving the selected list.</param>
+    /// <param name="orientation">The wall, floor, ceiling, or opposite-facing surface state.</param>
+    /// <exception cref="InvalidDataException">The species table offset is odd or outside its six-word table.</exception>
     private static void SetCrawlerInstructionFromTable(
         RoomEnemySlot slot,
         CrawlerSurfaceOrientation orientation)
@@ -508,6 +556,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Computes horizontal movement using the crawler tangent and any non-square slope under the actor.</summary>
+    /// <param name="slot">The crawler position and collision extents used to sample its surface.</param>
+    /// <param name="state">The horizontal and vertical surface velocities.</param>
+    /// <param name="level">The room collision map containing the supporting block.</param>
+    /// <returns>The signed fixed-point horizontal displacement for this update.</returns>
     private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -546,10 +599,18 @@ public sealed partial class RoomEnemySystem
         return unchecked((short)xVelocity) << 8;
     }
 
+    /// <summary>Returns the initialized movement state associated with an enemy slot.</summary>
+    /// <param name="slot">The crawler record whose state is required.</param>
+    /// <returns>The typed crawler state view.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a crawler.</exception>
     private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
         _crawlerStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized crawler state.");
 
+    /// <summary>Builds a signed collision probe by shifting an 8.8 velocity and adding a whole-pixel bias in its direction.</summary>
+    /// <param name="velocity">The signed 8.8 velocity word.</param>
+    /// <param name="wholePixels">The integral probe distance added in the velocity's signed direction.</param>
+    /// <returns>The signed fixed-point displacement consumed by the movement routine.</returns>
     private static int Shift8AddMagnitude(ushort velocity, int wholePixels)
     {
         int signedVelocity = unchecked((short)velocity);
@@ -557,5 +618,8 @@ public sealed partial class RoomEnemySystem
         return unchecked((signedVelocity << 8) + (signedVelocity < 0 ? -bias : bias));
     }
 
+    /// <summary>Negates a velocity word with native 16-bit wraparound.</summary>
+    /// <param name="value">The two's-complement word to reverse.</param>
+    /// <returns>The negated word modulo 16 bits.</returns>
     private static ushort Negate16(ushort value) => unchecked((ushort)-value);
 }

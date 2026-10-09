@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Retains the active stock demo input program while an attract scene runs.</summary>
     private AttractDemoInput? _attractDemoInput;
+    /// <summary>Retains the disposable controller-input override installed for the current demo frame.</summary>
     private IDisposable? _attractDemoInputRestore;
+    /// <summary>Gets whether the runtime is currently executing an attract-mode demo.</summary>
     internal bool IsAttractDemo => _attractDemoInput is not null;
 
+    /// <summary>Advances stock demo input and installs it as the current controller source.</summary>
     private void BeginAttractSamusInput()
     {
         if (_attractDemoInput is null) return;
@@ -20,6 +24,7 @@ public sealed partial class SuperMetroidRuntime
             _attractDemoInput.Script.Held, _attractDemoInput.Script.NewlyPressed);
     }
 
+    /// <summary>Removes the current demo input override and restores player input.</summary>
     private void RestoreAttractPlayerInput()
     {
         _attractDemoInputRestore?.Dispose();
@@ -83,6 +88,7 @@ public sealed partial class SuperMetroidRuntime
         _attractDemoInput = new AttractDemoInput(scene);
     }
 
+    /// <summary>Applies the translated Samus setup routine selected by a stock demo scene.</summary>
     private void ApplyAttractSamusSetup(ushort pointer)
     {
         var samus = Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
@@ -117,6 +123,7 @@ public sealed partial class SuperMetroidRuntime
         }
     }
 
+    /// <summary>Applies the translated room setup routine selected by a stock demo scene.</summary>
     private void ApplyAttractRoomSetup(ushort pointer)
     {
         switch (pointer)

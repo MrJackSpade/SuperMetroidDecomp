@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Clears saved boss, event, and eye-door progress for a tester-mode restart.</summary>
     private void ResetSavedEncounters()
     {
         // Run after the saved mirror is restored and before any room-state or

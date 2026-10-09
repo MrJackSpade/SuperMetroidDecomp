@@ -16,6 +16,7 @@ public readonly record struct SnesSignedEightEight(ushort RawValue)
 /// <summary>A signed native 16.16 displacement with explicit whole and fractional halves.</summary>
 public readonly record struct SnesSignedSixteenSixteen
 {
+    /// <summary>Creates a displacement from its signed native 16.16 word.</summary>
     private SnesSignedSixteenSixteen(int rawValue) => RawValue = rawValue;
 
     /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>

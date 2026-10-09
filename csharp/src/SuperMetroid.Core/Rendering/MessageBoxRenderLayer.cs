@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Owned bank-$85 tile words and the centered reveal window, independent of input/timing state.</summary>
 public sealed record MessageBoxRenderLayer : RenderLayer
 {
+    /// <summary>Owns the packed BG tile words displayed by this layer.</summary>
     private readonly ushort[] tilemap;
     /// <summary>Gets the owned packed BG tile words in 32-column row order.</summary>
     public ReadOnlySpan<ushort> Tilemap => tilemap;

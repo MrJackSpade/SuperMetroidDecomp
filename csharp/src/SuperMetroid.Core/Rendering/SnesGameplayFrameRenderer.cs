@@ -123,6 +123,7 @@ public static partial class SnesGameplayFrameRenderer
     // and is not a useful breakpoint surface for ordinary gameplay debugging. Without the
     // attribute, Debug JIT call/range-check overhead alone consumes most of the 16.67 ms
     // video-frame budget.
+    /// <summary>Composites the ordinary gameplay viewport from captured BG and object state.</summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
@@ -331,6 +332,7 @@ public static partial class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>Decodes one ordinary-gameplay background pixel and its tile priority.</summary>
     [System.Runtime.CompilerServices.MethodImpl(
         System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private static bool TryDecodeOrdinaryGameplayBgPixel(
@@ -384,6 +386,7 @@ public static partial class SnesGameplayFrameRenderer
             destination[color] = SnesGraphics.DecodeBgr555Color(source[color]);
     }
 
+    /// <summary>Draws the native gameplay HUD into the top scanlines of the output.</summary>
     private static void DrawHud(
         Span<Rgba32> output,
         SnesVram vram,
@@ -877,6 +880,7 @@ public static partial class SnesGameplayFrameRenderer
             verticalWave: true);
     }
 
+    /// <summary>Builds the per-scanline BG2 scroll table for animated lava or acid waves.</summary>
     private static ushort[] BuildLavaAcidBg2Wave(
         ushort baseScroll,
         ushort bg2VerticalScroll,
@@ -940,6 +944,7 @@ public static partial class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>Reads the rendered power-bomb window half-width for one distance from its center.</summary>
     private static int ReadPowerBombHalfWidth(
         SamusPowerBombExplosionState explosion,
         int yFromCenter)
@@ -1013,15 +1018,19 @@ public static partial class SnesGameplayFrameRenderer
         return selectedHalfWidth;
     }
 
+    /// <summary>Expands a five-bit PPU color component across an eight-bit channel.</summary>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
+    /// <summary>Adds two color components while clamping at the channel maximum.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>
         (byte)Math.Min(byte.MaxValue, left + right);
 
+    /// <summary>Subtracts two color components while clamping at the channel minimum.</summary>
     private static byte SaturatingSubtract(byte left, byte right) =>
         (byte)Math.Max(byte.MinValue, left - right);
 
+    /// <summary>Reconstructs the signed X-ray beam direction for a wrapping table angle.</summary>
     private static XrayDirection ReadXrayDirection(ISnesAddressSpace bus, int angle)
     {
         int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
@@ -1049,6 +1058,7 @@ public static partial class SnesGameplayFrameRenderer
         return new XrayDirection(-tangent, -SamusXrayRomData.Window.UnitVector);
     }
 
+    /// <summary>Creates or reuses a native-sized frame filled with the PPU backdrop color.</summary>
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -1062,6 +1072,7 @@ public static partial class SnesGameplayFrameRenderer
         return output;
     }
 
+    /// <summary>Draws the gameplay HUD and resolved objects over a prepared output frame.</summary>
     private static void DrawHudAndObjects(
         Rgba32[] output,
         SnesVram vram,
@@ -1108,5 +1119,7 @@ public static partial class SnesGameplayFrameRenderer
     }
 
     /// <summary>One signed 8.8 direction vector reconstructed from `$91:C9D4`.</summary>
+    /// <param name="X">Signed horizontal direction component.</param>
+    /// <param name="Y">Signed vertical direction component.</param>
     private readonly record struct XrayDirection(int X, int Y);
 }

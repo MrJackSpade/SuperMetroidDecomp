@@ -25,8 +25,11 @@ public enum MorphBallEyeAiFunction : ushort
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
+    /// <summary>The physical eye or mount enemy record whose common words store this actor's variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed eye state view over one room enemy record.</summary>
+    /// <param name="slot">The mount or tracking-eye record whose native variables are exposed.</param>
     internal MorphBallEyeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -115,6 +118,7 @@ public sealed class MorphBallEyeBeamState
     /// <summary>Raw SNES COLDATA blue selector/component byte.</summary>
     public byte Blue { get; internal set; } = 0x80;
 
+    /// <summary>Restores the room-global reveal beam to its inactive phase and native fixed-color base values.</summary>
     internal void Reset()
     {
         Phase = MorphBallEyeBeamPhase.Inactive;
@@ -164,17 +168,27 @@ public readonly record struct MorphBallEyeBeamRenderSnapshot(
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy header shared by the decorative mount and tracking eye; parameter two selects the role.</summary>
     internal const ushort MorphBallEyeDefinition = 0xe6bf;
 
+    /// <summary>Collected-item bit required for the eye body AI to run, matching the cartridge's collected-items check.</summary>
     private const ushort MorphBallItemMask = 0x0004;
+    /// <summary>Strict horizontal proximity threshold that starts the opening sequence.</summary>
     private const ushort EyeActivateXDistance = 0x0080;
+    /// <summary>Strict horizontal proximity threshold beyond which an active eye starts closing.</summary>
     private const ushort EyeDeactivateXDistance = 0x00b0;
+    /// <summary>Strict vertical proximity threshold that starts the opening sequence.</summary>
     private const ushort EyeActivateYDistance = 0x0080;
+    /// <summary>Strict vertical proximity threshold beyond which an active eye starts closing.</summary>
     private const ushort EyeDeactivateYDistance = 0x0080;
+    /// <summary>Opening and closing transition duration in enemy updates.</summary>
     private const ushort EyeTransitionDuration = 0x0020;
+    /// <summary>Library-two sound identifier emitted when the eye finishes opening.</summary>
     private const ushort EyeActivationSound = 0x0017;
+    /// <summary>Library-two sound identifier emitted when the eye leaves its active range.</summary>
     private const ushort EyeDeactivationSound = 0x0071;
 
+    /// <summary>Per-slot typed state for the room's morph-ball-eye mount and tracking body.</summary>
     private readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
         new MorphBallEyeEnemyState?[MaximumEnemyCount];
 
@@ -254,6 +268,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Starts the opening animation and countdown once Samus is strictly within both activation distances.</summary>
+    /// <param name="eye">The tracking eye whose instruction list and function change on entry.</param>
+    /// <param name="state">The eye countdown and AI function state.</param>
+    /// <param name="samus">The player position tested against the eye's activation bounds.</param>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -273,6 +291,10 @@ public sealed partial class RoomEnemySystem
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
+    /// <summary>Counts down the opening transition, then plays the activation sound, requests the beam, and begins tracking.</summary>
+    /// <param name="eye">The body record used to initialize the beam object.</param>
+    /// <param name="state">The activation timer, angle, and AI function.</param>
+    /// <param name="samus">The player position used to set the initial aim angle.</param>
     private void AdvanceMorphBallEyeActivation(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -291,6 +313,10 @@ public sealed partial class RoomEnemySystem
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
 
+    /// <summary>Tracks Samus while she remains inside the wider active bounds, otherwise starts the closing transition.</summary>
+    /// <param name="eye">The body record whose active animation is selected from the aim angle.</param>
+    /// <param name="state">The activation flag, current aim, timer, and AI function.</param>
+    /// <param name="samus">The player position used for proximity and aim calculations.</param>
     private void TrackSamusWithMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -322,6 +348,8 @@ public sealed partial class RoomEnemySystem
         eye.InstructionTimer = 1;
     }
 
+    /// <summary>Completes the closing countdown and returns the eye to proximity waiting when its native timer expires.</summary>
+    /// <param name="state">The countdown and AI function advanced by this update.</param>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -330,11 +358,18 @@ public sealed partial class RoomEnemySystem
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 
+    /// <summary>Calculates the cartridge-compatible zero-up clockwise aim from the eye to Samus.</summary>
+    /// <param name="eye">The actor position used as the angle origin.</param>
+    /// <param name="samus">The player position used as the angle target.</param>
+    /// <returns>The 8-bit table angle represented as a <see cref="SnesAngle"/>.</returns>
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         SnesAngle.FromTableIndex(CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - eye.XPosition)),
             unchecked((short)(samus.YPosition - eye.YPosition))));
 
+    /// <summary>Resets and schedules the room-global beam object for initialization on the next HDMA-object pass.</summary>
+    /// <param name="eye">The retail eye body expected to occupy enemy slot one.</param>
+    /// <exception cref="InvalidDataException">The caller is not the tracking eye in its native slot.</exception>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {
         // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
@@ -379,6 +414,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Initializes the beam's fixed-color channels and widening state, then marks the body active.</summary>
     private void InitializeMorphBallEyeBeamObject()
     {
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
@@ -396,6 +432,7 @@ public sealed partial class RoomEnemySystem
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
+    /// <summary>Advances the beam's 16.16 half-width by its native acceleration until the full four-unit width is reached.</summary>
     private void WidenMorphBallEyeBeam()
     {
         uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + 0x4000u;
@@ -418,6 +455,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Tracks the eye while active and cycles its yellow color; a cleared body activation flag begins fading.</summary>
     private void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = RequireMorphBallEyeState(RequireMorphBallEyeBeamBody());
@@ -433,6 +471,7 @@ public sealed partial class RoomEnemySystem
         MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & 0x000f));
     }
 
+    /// <summary>Decrements the beam's fixed-color components until the native green endpoint clears the reveal object.</summary>
     private void FadeMorphBallEyeBeam()
     {
         // $88:EAD6 tests green before updating the table or decrementing any component.
@@ -452,6 +491,9 @@ public sealed partial class RoomEnemySystem
             MorphBallEyeBeam.Blue--;
     }
 
+    /// <summary>Resolves the stored beam body slot and validates that it still contains the tracking eye rather than its decorative mount.</summary>
+    /// <returns>The active eye body record owning the beam state.</returns>
+    /// <exception cref="InvalidDataException">The recorded slot is invalid, has another definition, or represents the mount role.</exception>
     private RoomEnemySlot RequireMorphBallEyeBeamBody()
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
@@ -465,6 +507,10 @@ public sealed partial class RoomEnemySystem
         return _slots[index];
     }
 
+    /// <summary>Returns the initialized native-variable view for an eye slot.</summary>
+    /// <param name="slot">The mount or body record whose state is required.</param>
+    /// <returns>The state view assigned during actor initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized morph-ball-eye state.</exception>
     private MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
         _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");

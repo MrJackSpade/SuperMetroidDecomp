@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Reference implementation of explicit HUD/Mode-7/Mode-1 scanline bands.</summary>
 internal static class SoftwareMode7GameplayRenderer
 {
+    /// <summary>Composites the HUD, Mode-7 viewport, optional floor band, and object priorities into one frame.</summary>
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
         Mode7GameplayRenderLayer layer, byte objectSelection, Rgba32[]? outputBuffer = null)
     {

@@ -31,6 +31,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
     public const ushort PowerBombType = SamusBombSpreadRomData.PowerBombType;
 
+    /// <summary>The five physical bomb-slot views corresponding to projectile indices five through nine.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
 
@@ -342,6 +343,8 @@ public sealed class SamusBombProjectileSystem
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
     private const ushort ChargeSoundFlareThreshold = 0x10;
 
+    /// <summary>Advances the shared projectile cooldown, holding it at the native frozen-time value during X-ray.</summary>
+    /// <param name="timeIsFrozen">Whether projectile time is frozen for this frame.</param>
     private void StepCooldown(bool timeIsFrozen)
     {
         // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
@@ -369,6 +372,13 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = 0;
     }
 
+    /// <summary>Attempts placement on held Shoot after enforcing item, fresh-press, slot, and shared-cooldown rules.</summary>
+    /// <param name="bus">Address space used to load native projectile data and start a power-bomb blast.</param>
+    /// <param name="samus">Player state supplying equipment, item selection, position, and charge.</param>
+    /// <param name="controllerInput">Held controller buttons for the current frame.</param>
+    /// <param name="controllerNewInput">Buttons newly pressed this frame; Shoot must be present to reserve a slot.</param>
+    /// <param name="rejectedPlacementClearedCharge">Receives whether helper-two rejection consumed an existing beam charge.</param>
+    /// <returns>The allocated bomb slot index, or <see langword="null"/> when no bomb was placed.</returns>
     internal int? TryPlaceBomb(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -446,6 +456,11 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Handles Morph-Ball spread charge, release cancellation, and spread activation from the Shoot input.</summary>
+    /// <param name="bus">Address space used to initialize spread projectiles.</param>
+    /// <param name="samus">Player state containing pose, charge counters, and movement data.</param>
+    /// <param name="controllerInput">Held input used to determine whether Shoot remains pressed.</param>
+    /// <returns>The admission outcome used by the caller to decide whether ordinary bomb placement is attempted.</returns>
     private BombSpreadAdmission HandleBombSpreadInput(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -487,6 +502,9 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
+    /// <summary>Replaces all five bomb slots with the charged Morph-Ball spread projectiles.</summary>
+    /// <param name="bus">Address space used to initialize each projectile from bank-$93 data.</param>
+    /// <param name="samus">Player state supplying the spread charge, origin, and velocity modifiers.</param>
     private void SpawnBombSpread(ISnesAddressSpace bus, SamusState samus)
     {
         int verticalModifier =
@@ -517,6 +535,10 @@ public sealed class SamusBombProjectileSystem
         samus.ProjectileFlareCounter = 0;
     }
 
+    /// <summary>Admits a new placement only on a fresh Shoot edge and when the native active-count/cooldown gates allow it.</summary>
+    /// <param name="controllerNewInput">Buttons newly pressed for this frame.</param>
+    /// <param name="shoot">Button mask representing the Shoot edge to require.</param>
+    /// <returns><see langword="true"/> if a physical slot and counter capacity are reserved.</returns>
     private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
     {
         if ((controllerNewInput & shoot) == 0)
@@ -539,6 +561,8 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
+    /// <summary>Finds the first bomb slot whose native type word is zero, preserving the cartridge fallback for corrupt full state.</summary>
+    /// <returns>Index of the available slot, or the last slot for the defensive full-pool fallback.</returns>
     private int FindFreeBombSlot()
     {
         int slotIndex = 0;
@@ -556,6 +580,9 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Loads damage, instruction program, and initial frame geometry using the slot's native type word.</summary>
+    /// <param name="bus">Address space used by projectile-definition reads.</param>
+    /// <param name="slot">Bomb slot whose remaining projectile fields are populated.</param>
     private static void InitializeBombFromRom(
         ISnesAddressSpace bus,
         SamusBombProjectileSlot slot)
@@ -575,6 +602,15 @@ public sealed class SamusBombProjectileSystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs one bomb pre-instruction, applying fuse, spread motion, collision, explosion, and block-reaction effects.</summary>
+    /// <param name="bus">Address space used for explosion setup and related native data.</param>
+    /// <param name="level">Room collision map used by moving and exploding bombs.</param>
+    /// <param name="slot">Bomb slot whose pre-instruction is executed.</param>
+    /// <param name="blockReactions">Frame-local collection receiving each visited bombed block.</param>
+    /// <param name="roomPlms">Optional PLM owner required if a collision produces a room reaction.</param>
+    /// <param name="areaIndex">Current area used to select area-specific reactions.</param>
+    /// <param name="samusKinematics">Samus acceleration state applied to bomb-spread motion.</param>
+    /// <returns><see langword="true"/> when this pre-instruction starts an explosion.</returns>
     private bool RunBombPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -681,6 +717,11 @@ public sealed class SamusBombProjectileSystem
         return explosionStarted;
     }
 
+    /// <summary>Integrates spread-bomb vertical acceleration and position, handles floor bounce, and then moves horizontally.</summary>
+    /// <param name="bus">Address space used for collision-related native reads.</param>
+    /// <param name="level">Room geometry tested for bomb collision.</param>
+    /// <param name="slot">Spread projectile being advanced.</param>
+    /// <param name="samus">Current kinematics used to update bomb acceleration coupling.</param>
     private static void MoveBombSpread(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -728,6 +769,8 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadXVelocity ^= 0x8000;
     }
 
+    /// <summary>Decodes the cartridge's packed horizontal direction and integrates its whole and fractional movement.</summary>
+    /// <param name="slot">Spread projectile whose horizontal coordinates are updated.</param>
     private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
     {
         ushort swapped = unchecked((ushort)(
@@ -749,6 +792,12 @@ public sealed class SamusBombProjectileSystem
             : unchecked((ushort)(slot.XPosition + wholeMagnitude + carryOrBorrow));
     }
 
+    /// <summary>Adds two unsigned fixed-point word pairs while carrying fractional overflow into the whole word.</summary>
+    /// <param name="whole">Current integer portion.</param>
+    /// <param name="fraction">Current fractional portion.</param>
+    /// <param name="addWhole">Integer portion to add.</param>
+    /// <param name="addFraction">Fractional portion to add.</param>
+    /// <returns>The wrapped whole and fraction words after addition.</returns>
     private static (ushort Whole, ushort Fraction) AddFixedWords(
         ushort whole,
         ushort fraction,
@@ -761,6 +810,11 @@ public sealed class SamusBombProjectileSystem
         return (whole, fraction);
     }
 
+    /// <summary>Checks the spread projectile's room block and any parent block for collision.</summary>
+    /// <param name="bus">Address space used for native collision data.</param>
+    /// <param name="level">Room block map containing the projectile position.</param>
+    /// <param name="slot">Spread projectile whose block coordinates are tested.</param>
+    /// <returns><see langword="true"/> when the projectile is outside the room or meets a colliding block.</returns>
     private static bool BombSpreadCollides(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -842,6 +896,12 @@ public sealed class SamusBombProjectileSystem
             CollectSingleBombedBlockReaction(level, right, y, reactions, roomPlms, areaIndex, projectileType);
     }
 
+    /// <summary>Collects the normal-bomb cross or Power Bomb border blocks and dispatches their reactions in visit order.</summary>
+    /// <param name="level">Room collision map receiving the reaction checks.</param>
+    /// <param name="slot">Exploding projectile whose location and family define the pattern.</param>
+    /// <param name="reactions">Frame-local reaction log appended for each block visited.</param>
+    /// <param name="roomPlms">PLM owner used to create reactions where the block type requires one.</param>
+    /// <param name="areaIndex">Area identifier used for area-dependent block behavior.</param>
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -883,6 +943,14 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
+    /// <summary>Records and dispatches one bombed block, including parent blocks and special BTS-triggered PLMs.</summary>
+    /// <param name="level">Room map containing the target block.</param>
+    /// <param name="x">Block-column coordinate.</param>
+    /// <param name="y">Block-row coordinate.</param>
+    /// <param name="reactions">Collection receiving a visit record.</param>
+    /// <param name="roomPlms">PLM owner required for block reactions that allocate actors.</param>
+    /// <param name="areaIndex">Area used by area-dependent reaction tables.</param>
+    /// <param name="projectileType">Packed projectile family/type that determines accepted reactions.</param>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         int x,
@@ -1087,6 +1155,11 @@ public sealed class SamusBombProjectileSystem
             $"BTS ${block.Behavior:X2} at ({x},{y}).");
     }
 
+    /// <summary>Consumes timed-frame, delete, and goto instructions from the bomb's bank-$93 program.</summary>
+    /// <param name="bus">Address space used to resolve projectile frame bindings.</param>
+    /// <param name="slot">Bomb slot whose instruction cursor and frame fields are advanced.</param>
+    /// <returns><see langword="true"/> when the instruction program deletes the slot.</returns>
+    /// <exception cref="InvalidDataException">The list has an invalid timed frame, opcode, or fails to reach a frame within the operation bound.</exception>
     private bool RunProjectileInstructionHandler(
         ISnesAddressSpace bus,
         SamusBombProjectileSlot slot)
@@ -1151,6 +1224,9 @@ public sealed class SamusBombProjectileSystem
         throw new InvalidDataException("Bomb projectile instruction list did not reach a timed frame within 16 operations.");
     }
 
+    /// <summary>Publishes the jump direction for the last eligible bomb slot overlapping Samus during the native ascending scan.</summary>
+    /// <param name="samus">Player state receiving the direction selected by the overlap pass.</param>
+    /// <returns>Zero when no bomb qualifies; otherwise one for left, two for straight up, or three for right.</returns>
     private byte PublishBombJumpOverlap(SamusState samus)
     {
         byte publishedDirection = 0;
@@ -1196,6 +1272,8 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
+    /// <summary>Zeros a bomb slot and decrements the shared active-bomb counter only if it was active.</summary>
+    /// <param name="slot">Slot whose projectile fields are cleared.</param>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;
@@ -1215,6 +1293,8 @@ public sealed class SamusBombProjectileSystem
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>
 public sealed class SamusBombProjectileSlot
 {
+    /// <summary>Creates a semantic view for one of the five physical bomb slots.</summary>
+    /// <param name="index">Logical bomb index from zero through four.</param>
     internal SamusBombProjectileSlot(int index) => Index = index;
 
     /// <summary>Logical bomb index zero through four; physical projectile index is 5+Index.</summary>
@@ -1276,6 +1356,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => InstructionPointer != 0;
 
+    /// <summary>Resets every semantic field to the zero/inactive state without changing the slot's logical index.</summary>
     internal void ClearFields()
     {
         XPosition = 0;
@@ -1309,11 +1390,16 @@ public readonly record struct BombProjectileFrameResult(
     bool BeamChargeConsumed = false,
     IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
 
+/// <summary>Outcome of Morph-Ball spread input processing used to arbitrate normal bomb placement and charge cancellation.</summary>
 internal enum BombSpreadAdmission
 {
+    /// <summary>No spread action applies, so the caller may attempt ordinary bomb placement.</summary>
     NotApplicable,
+    /// <summary>The input is building spread charge without creating projectiles.</summary>
     Charging,
+    /// <summary>The charged input created the spread across the five bomb slots.</summary>
     Spawned,
+    /// <summary>Spread input consumed or cancelled beam charge, preventing ordinary bomb placement this frame.</summary>
     ChargeCancelled,
 }
 

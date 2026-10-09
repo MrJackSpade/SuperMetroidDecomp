@@ -4,12 +4,19 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Spawns the recurring drool projectile used by Bomb Torizo's low-health attack.</summary>
+    /// <param name="torizo">Low-health Bomb Torizo whose position, facing, and random stream seed the shot.</param>
     private void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
+    /// <summary>Spawns the initial gut-break droplet before Bomb Torizo's recurring low-health volleys.</summary>
+    /// <param name="torizo">Bomb Torizo supplying the initial droplet's origin and orientation.</param>
     private void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 
+    /// <summary>Creates either Bomb Torizo drool variant, preserving its distinct launch and random-consumption rules.</summary>
+    /// <param name="torizo">Enemy whose state determines the projectile's spawn position and trajectory.</param>
+    /// <param name="kind">Initial gut-break drool or recurring low-health drool projectile kind.</param>
     private void SpawnBombTorizoDrool(
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
@@ -79,6 +86,9 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(torizo.XPosition - 8));
     }
 
+    /// <summary>Creates the swipe hitbox at the facing-adjusted offset selected by the attack parameter.</summary>
+    /// <param name="torizo">Bomb Torizo whose facing and position anchor the swipe.</param>
+    /// <param name="parameter">Attack-table selector for the swipe's horizontal and vertical offsets.</param>
     private void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, ushort parameter)
     {
         BombTorizoSwipeDefinition definition =
@@ -99,6 +109,9 @@ public sealed partial class RoomEnemySystem
             torizo.YPosition + definition.YOffset));
     }
 
+    /// <summary>Spawns the selected low-health explosion and stores its origin for subsequent movement.</summary>
+    /// <param name="torizo">Bomb Torizo anchoring the explosion's attack-relative position.</param>
+    /// <param name="parameter">Selector for the low-health explosion definition.</param>
     private void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, ushort parameter)
     {
         BombTorizoExplosionDefinition definition =
@@ -121,6 +134,8 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = projectile.YPosition;
     }
 
+    /// <summary>Creates the death explosion at Bomb Torizo's current position and records that origin.</summary>
+    /// <param name="torizo">Dying enemy whose position anchors the explosion.</param>
     private void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -136,6 +151,8 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = torizo.YPosition;
     }
 
+    /// <summary>Spawns Bomb Torizo's bouncing Chozo orb using its facing-specific launch definition.</summary>
+    /// <param name="torizo">Enemy supplying the orb's origin and facing.</param>
     private void SpawnBombTorizoChozoOrb(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -153,18 +170,28 @@ public sealed partial class RoomEnemySystem
                 facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
+    /// <summary>Launches Bomb Torizo's sonic boom in the direction encoded by its attack parameter.</summary>
+    /// <param name="torizo">Enemy whose position and facing determine the projectile trajectory.</param>
+    /// <param name="parameter">Direction value published by the attack instruction.</param>
     private void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
         => SpawnTorizoSonicBoom(
             torizo,
             parameter,
             RoomEnemyProjectileKind.BombTorizoSonicBoom);
 
+    /// <summary>Launches Golden Torizo's sonic boom through the shared Torizo projectile path.</summary>
+    /// <param name="torizo">Golden Torizo supplying the launch position and facing.</param>
+    /// <param name="parameter">Direction value published by the attack instruction.</param>
     private void SpawnGoldenTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
         => SpawnTorizoSonicBoom(
             torizo,
             parameter,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
+    /// <summary>Initializes the shared Bomb/Golden Torizo sonic boom with facing-dependent direction and randomized height.</summary>
+    /// <param name="torizo">Torizo actor anchoring the projectile.</param>
+    /// <param name="parameter">Direction parameter copied into the projectile.</param>
+    /// <param name="kind">Concrete projectile variant, selecting its instruction program and definition.</param>
     private void SpawnTorizoSonicBoom(
         RoomEnemySlot torizo,
         ushort parameter,
@@ -197,6 +224,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Spawns Golden Torizo's bouncing orb using its variant-specific launch values.</summary>
+    /// <param name="torizo">Golden Torizo supplying the orb's origin and facing.</param>
     private void SpawnGoldenTorizoChozoOrb(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -214,6 +243,8 @@ public sealed partial class RoomEnemySystem
                 facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
+    /// <summary>Creates a timed Golden Torizo egg whose horizontal charge and fall follow its projectile handlers.</summary>
+    /// <param name="torizo">Golden Torizo supplying egg origin, charge direction, and launch definition.</param>
     private void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -236,6 +267,8 @@ public sealed partial class RoomEnemySystem
                 movingRight: unchecked((short)torizo.Parameter1) < 0));
     }
 
+    /// <summary>Creates a Golden Torizo super missile attached to the actor until its reflection launch begins.</summary>
+    /// <param name="torizo">Golden Torizo whose slot, position, and facing initialize the missile.</param>
     private void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -254,6 +287,9 @@ public sealed partial class RoomEnemySystem
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight);
     }
 
+    /// <summary>Spawns a Golden Torizo eye beam with the requested direction and randomized trigonometric velocity.</summary>
+    /// <param name="torizo">Enemy whose position and facing anchor the beam.</param>
+    /// <param name="parameter">Direction parameter copied to the projectile.</param>
     private void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo, ushort parameter)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -281,6 +317,10 @@ public sealed partial class RoomEnemySystem
             EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)));
     }
 
+    /// <summary>Applies a Torizo projectile definition and consumes two random bytes for velocity variation.</summary>
+    /// <param name="projectile">Allocated projectile to initialize.</param>
+    /// <param name="torizo">Actor whose coordinates form the projectile origin.</param>
+    /// <param name="definition">Facing-selected list pointer, offsets, and base velocities.</param>
     private void InitializeTorizoRandomizedProjectile(
         RoomEnemyProjectileSlot projectile,
         RoomEnemySlot torizo,
@@ -299,6 +339,9 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)_nextRandom!()) - 128));
     }
 
+    /// <summary>Spawns landing dust beside the selected Bomb Torizo foot.</summary>
+    /// <param name="torizo">Enemy whose position anchors the dust effect.</param>
+    /// <param name="rightFoot">Selects the right-foot or left-foot effect and horizontal offset.</param>
     private void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -312,6 +355,9 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(torizo.YPosition + 48));
     }
 
+    /// <summary>Advances Bomb Torizo's orb, converting wall or descending floor collisions into non-damaging impact lists.</summary>
+    /// <param name="projectile">Orb state updated in place; impact transitions disable damage.</param>
+    /// <param name="level">Room geometry used for axis-separated collision movement.</param>
     private void RunBombTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -342,6 +388,9 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Moves Bomb Torizo's sonic boom horizontally, then accelerates it until it exits its lifetime range.</summary>
+    /// <param name="projectile">Sonic-boom state updated in place.</param>
+    /// <param name="level">Room geometry used to detect the wall-impact transition.</param>
     private void RunBombTorizoSonicBoomPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -407,6 +456,9 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Advances Golden Torizo's bouncing orb, damping horizontal motion and reflecting from the floor.</summary>
+    /// <param name="projectile">Orb state updated in place; a low bounce selects the floor-impact list.</param>
+    /// <param name="level">Room geometry used for horizontal and vertical collision checks.</param>
     private void RunGoldenTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -437,6 +489,9 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 24));
     }
 
+    /// <summary>Runs the egg's arcing phase until its timer expires and it switches to a horizontal charge.</summary>
+    /// <param name="projectile">Egg state containing the charge direction and remaining arc timer.</param>
+    /// <param name="level">Room geometry used for wall bounce and floor reflection.</param>
     private void RunGoldenTorizoEggPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -471,6 +526,9 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Moves the egg horizontally during its charge and changes to wall-impact handling on collision.</summary>
+    /// <param name="projectile">Egg state whose velocity and pre-instruction may be updated.</param>
+    /// <param name="level">Room geometry used to detect a wall collision.</param>
     private void RunGoldenTorizoEggHorizontalCharge(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -487,6 +545,9 @@ public sealed partial class RoomEnemySystem
             ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)));
     }
 
+    /// <summary>Applies gravity during the egg's fall and selects the facing-specific break list on landing.</summary>
+    /// <param name="projectile">Egg state updated until it collides with the floor.</param>
+    /// <param name="level">Room geometry used for vertical movement and collision.</param>
     private void RunGoldenTorizoEggFall(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -503,6 +564,8 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 48));
     }
 
+    /// <summary>Keeps the missile aligned to Golden Torizo's firing position, deleting it if the actor is absent.</summary>
+    /// <param name="projectile">Attached missile state whose position follows the live Golden Torizo slot.</param>
     private void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
     {
         TorizoEnemyState? state = GoldenTorizo;
@@ -518,6 +581,9 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
     }
 
+    /// <summary>Moves the launched missile, selects its impact list on collision, and applies gravity until it leaves range.</summary>
+    /// <param name="projectile">Missile state updated in place.</param>
+    /// <param name="level">Room geometry used to detect horizontal or descending floor impact.</param>
     private void RunGoldenTorizoSuperMissileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -542,6 +608,10 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Calculates a missile launch velocity directed toward Samus or away from her.</summary>
+    /// <param name="projectile">Missile receiving the computed X and Y velocities.</param>
+    /// <param name="samus">Target position used to calculate the cartridge angle.</param>
+    /// <param name="awayFromSamus">When true, selects the opposite half-turn from the target angle.</param>
     private static void SetGoldenTorizoSuperMissileVelocity(
         RoomEnemyProjectileSlot projectile,
         SamusState samus,
@@ -562,6 +632,9 @@ public sealed partial class RoomEnemySystem
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
     }
 
+    /// <summary>Moves the eye beam along both axes and selects the corresponding impact list on wall or floor collision.</summary>
+    /// <param name="projectile">Eye-beam state updated in place.</param>
+    /// <param name="level">Room geometry used for axis-separated collision movement.</param>
     private void RunGoldenTorizoEyeBeamPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Stores host-provided X-ray reveal artwork outside debugger serialization.</summary>
     [NonSerialized] private XrayRevealVisualCatalog? xrayRevealVisuals;
 
     /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
@@ -72,6 +73,7 @@ public sealed partial class SuperMetroidRuntime
             WriteXrayWord(destination + i * 2, Vram.ReadWord(source + i));
     }
 
+    /// <summary>Writes one little-endian word into X-ray work memory.</summary>
     private void WriteXrayWord(int address, ushort value)
     {
         _addressSpace.WriteByte(address, (byte)value);

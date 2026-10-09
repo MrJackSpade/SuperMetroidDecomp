@@ -221,6 +221,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return output;
     }
 
+    /// <summary>Samples a captured background subscreen, optionally restricted to one tile priority.</summary>
     private static Rgba32[] SampleSubscreen(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
         BgSubscreenAddRenderLayer layer, bool? priority)
     {
@@ -242,6 +243,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 ((x + layer.Scrolls[y].X) & 255)];
         return result;
     }
+    /// <summary>Adds an expanded fixed-color component to a source component with saturation.</summary>
     private static byte AddFixed(byte component, byte addend)
     {
         int reduced = (component * 31 + 127) / 255;
@@ -249,6 +251,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return (byte)((sum << 3) | (sum >> 2));
     }
 
+    /// <summary>Subtracts an expanded subscreen component from a main-screen component with saturation.</summary>
     private static byte Subtract(byte main, byte sub)
     {
         int difference = Math.Max(0, (main >> 3) - (sub >> 3));

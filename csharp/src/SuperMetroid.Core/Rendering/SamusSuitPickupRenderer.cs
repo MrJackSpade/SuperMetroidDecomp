@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Replays the suit pickup's WH0/WH1 fixed-color window over a composed frame.</summary>
 public static class SamusSuitPickupRenderer
 {
+    /// <summary>Physical width of the native gameplay output.</summary>
     private const int Width = SnesPpuLayout.ScreenWidthPixels;
+    /// <summary>Physical height of the native gameplay output.</summary>
     private const int Height = SnesPpuLayout.ScreenHeightPixels;
 
     /// <summary>Captures the live window once; later rendering does not read or advance the pickup.</summary>
@@ -68,9 +70,11 @@ public static class SamusSuitPickupRenderer
         }
     }
 
+    /// <summary>Expands one five-bit COLDATA component across an eight-bit channel.</summary>
     private static byte ExpandFiveBit(byte rawColdata) =>
         (byte)(((rawColdata & 0x1f) << 3) | ((rawColdata & 0x1f) >> 2));
 
+    /// <summary>Adds two expanded color components while clamping at the channel maximum.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>
         unchecked((byte)Math.Min(byte.MaxValue, left + right));
 }

@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Inclusive horizontal endpoints and expanded-byte RGB addition for one physical scanline.</summary>
+/// <param name="Left">Inclusive left endpoint of the color-add window.</param>
+/// <param name="Right">Inclusive right endpoint of the color-add window.</param>
+/// <param name="Red">Expanded red component added inside the window.</param>
+/// <param name="Green">Expanded green component added inside the window.</param>
+/// <param name="Blue">Expanded blue component added inside the window.</param>
 public readonly record struct ColorAddWindow(byte Left, byte Right, byte Red, byte Green, byte Blue)
 {
     /// <summary>Inverted endpoints represent an empty window, including hidden HUD lines.</summary>
@@ -16,6 +21,7 @@ public readonly record struct ColorAddWindow(byte Left, byte Right, byte Red, by
 /// </summary>
 public sealed record ScanlineColorAddRenderLayer : RenderLayer
 {
+    /// <summary>Owns the copied per-scanline color-add program.</summary>
     private readonly ColorAddWindow[] windows;
     /// <summary>Exactly 224 immutable per-scanline windows in top-to-bottom physical display order.</summary>
     public ReadOnlySpan<ColorAddWindow> Windows => windows;

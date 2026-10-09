@@ -9,11 +9,15 @@ public sealed partial class SuperMetroidRuntime
 {
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    /// <summary>Tracks whether the door-scrolling IRQ has requested an NMI handoff.</summary>
     private bool _doorScrollingIrqRequestsNmi;
+    /// <summary>Retains the active door-opening scroll program while the transition runs.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     // An arriving elevator's placement of Samus, made by the one-step room load but due
     // when the cartridge's door loader reaches that enemy's init AI.
+    /// <summary>Retains deferred elevator placement until the destination enemy initialization step.</summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
+    /// <summary>Retains the PPU scroll values that the door-opening IRQ will publish.</summary>
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
     /// <summary>
@@ -653,6 +657,7 @@ public sealed partial class SuperMetroidRuntime
         return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, (sourceSamusXFixed, sourceSamusYFixed));
     }
 
+    /// <summary>Loads the pending door destination and derives its initial viewport and Samus placement.</summary>
     private InitialViewportResult LoadPendingDoorDestination(
         RoomViewportLoadMode viewportLoadMode, (uint X, uint Y)? sourcePosition = null)
     {
@@ -1453,6 +1458,7 @@ public sealed partial class SuperMetroidRuntime
         return new DoorTransitionPlacement(destinationX, finalCameraY, xFixed, yFixed);
     }
 
+    /// <summary>Replaces the whole-pixel half of a 16.16 position while preserving its fraction.</summary>
     private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>
         ((uint)whole << 16) | (fixedPosition & 0xffff);
 
@@ -1568,6 +1574,11 @@ public sealed partial class SuperMetroidRuntime
 }
 
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>
+/// <param name="AreaIndex">Area containing the active room.</param>
+/// <param name="MapX">Room origin on the area's horizontal map axis.</param>
+/// <param name="MapY">Room origin on the area's vertical map axis.</param>
+/// <param name="UpScroller">Camera distance maintained above Samus.</param>
+/// <param name="DownScroller">Camera distance maintained below Samus.</param>
 internal readonly record struct ActiveRoomGeometry(
     AreaId AreaIndex,
     byte MapX,
@@ -1576,6 +1587,10 @@ internal readonly record struct ActiveRoomGeometry(
     byte DownScroller);
 
 /// <summary>Final native door-scroll camera and 16.16 Samus coordinates.</summary>
+/// <param name="CameraX">Final horizontal camera coordinate.</param>
+/// <param name="CameraY">Final vertical camera coordinate.</param>
+/// <param name="SamusXFixed">Final horizontal Samus coordinate in unsigned 16.16 form.</param>
+/// <param name="SamusYFixed">Final vertical Samus coordinate in unsigned 16.16 form.</param>
 internal readonly record struct DoorTransitionPlacement(
     ushort CameraX,
     ushort CameraY,

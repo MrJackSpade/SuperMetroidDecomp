@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Shared cartridge shadow-register ownership and accepted-NMI publication.</summary>
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Retains the nonserialized live and displayed gameplay window register cache.</summary>
     [NonSerialized]
     private GameplayWindowRegisterCache? gameplayWindowRegisters;
 
@@ -17,6 +18,7 @@ public sealed partial class SuperMetroidRuntime
     public GameplayWindowRegisterSnapshot DisplayedGameplayWindowRegisters =>
         GameplayWindowRegisters.Displayed;
 
+    /// <summary>Gets or initializes the gameplay window register cache used by runtime systems.</summary>
     private GameplayWindowRegisterCache GameplayWindowRegisters
     {
         get

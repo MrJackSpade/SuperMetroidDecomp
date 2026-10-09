@@ -54,8 +54,11 @@ public enum WallSpacePirateClimbDirection : ushort
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
+    /// <summary>Enemy slot whose native variables back the debugger-facing state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a view over the slot initialized by the wall-Pirate AI.</summary>
+    /// <param name="slot">Enemy slot containing the native per-enemy variables.</param>
     internal WallSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Bank-$B2 AI entry stored in slot variable A, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and landing lists advance.</summary>
@@ -117,21 +120,35 @@ public sealed class WallSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$B2 definition pointer for the grey wall Space Pirate, whose initializer begins at $F353.</summary>
     internal const ushort GreyWallSpacePirateDefinition = 0xf353;
+    /// <summary>Bank-$B2 definition pointer for the green wall Space Pirate initializer at $F393.</summary>
     internal const ushort GreenWallSpacePirateDefinition = 0xf393;
+    /// <summary>Bank-$B2 definition pointer for the red wall Space Pirate initializer at $F3D3.</summary>
     internal const ushort RedWallSpacePirateDefinition = 0xf3d3;
+    /// <summary>Bank-$B2 definition pointer for the gold wall Space Pirate initializer at $F413.</summary>
     internal const ushort GoldWallSpacePirateDefinition = 0xf413;
+    /// <summary>Bank-$B2 definition pointer for the magenta wall Space Pirate initializer at $F453.</summary>
     internal const ushort MagentaWallSpacePirateDefinition = 0xf453;
+    /// <summary>Bank-$B2 definition pointer for the silver wall Space Pirate initializer at $F493.</summary>
     internal const ushort SilverWallSpacePirateDefinition = 0xf493;
 
+    /// <summary>Strict vertical distance in room pixels within which a wall Pirate can detect Samus and attack.</summary>
     private const int WallPirateSamusDetectionBand = 32;
+    /// <summary>Vertical pixel displacement from a Pirate's position to the laser muzzle.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
+    /// <summary>Library-two sound request queued when a wall Pirate successfully allocates its laser.</summary>
     private const ushort WallPirateLaserSound = 0x0067;
+    /// <summary>Library-two sound request emitted by the wall-jump attack instruction.</summary>
     private const ushort WallPirateJumpSound = 0x0066;
 
+    /// <summary>Per-slot state views created when each wall Space Pirate runs its native initializer.</summary>
     private readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
         new WallSpacePirateEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Tests whether a bank-$B2 enemy definition pointer identifies one of the six wall-Pirate variants.</summary>
+    /// <param name="definition">Enemy definition pointer stored in the room enemy slot.</param>
+    /// <returns><see langword="true"/> for a grey, green, red, gold, magenta, or silver wall Pirate.</returns>
     internal static bool IsWallSpacePirateDefinition(ushort definition) => definition is
         GreyWallSpacePirateDefinition or
         GreenWallSpacePirateDefinition or
@@ -140,6 +157,9 @@ public sealed partial class RoomEnemySystem
         MagentaWallSpacePirateDefinition or
         SilverWallSpacePirateDefinition;
 
+    /// <summary>Tests whether a definition belongs to any translated ordinary Space Pirate family.</summary>
+    /// <param name="definition">Enemy definition pointer to classify.</param>
+    /// <returns><see langword="true"/> for a wall, walking, or ninja Space Pirate.</returns>
     internal static bool IsOrdinarySpacePirateDefinition(ushort definition) =>
         IsWallSpacePirateDefinition(definition) ||
         IsWalkingSpacePirateDefinition(definition) ||
@@ -222,6 +242,9 @@ public sealed partial class RoomEnemySystem
             "Wall Space Pirate detection requires the active Samus position.");
     }
 
+    /// <summary>Advances a rightward jump arc and installs the right-wall landing list at its endpoint angle.</summary>
+    /// <param name="slot">Enemy whose position and instruction state are advanced.</param>
+    /// <param name="state">Per-enemy arc center and byte-angle timing parameters.</param>
     private static void StepWallSpacePirateJumpRight(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -238,6 +261,9 @@ public sealed partial class RoomEnemySystem
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Advances a leftward jump arc and installs the left-wall landing list at its endpoint angle.</summary>
+    /// <param name="slot">Enemy whose position and instruction state are advanced.</param>
+    /// <param name="state">Per-enemy arc center and byte-angle timing parameters.</param>
     private static void StepWallSpacePirateJumpLeft(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -254,6 +280,9 @@ public sealed partial class RoomEnemySystem
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Recomputes whole-pixel X and Y from the stored center and current native byte-angle phase.</summary>
+    /// <param name="slot">Enemy whose whole positions are replaced while preserving fractional positions.</param>
+    /// <param name="state">Arc center and angle values established by jump preparation.</param>
     private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -271,10 +300,16 @@ public sealed partial class RoomEnemySystem
             ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2))));
     }
 
+    /// <summary>Checks whether Samus is within the wall Pirate's vertical attack band.</summary>
+    /// <param name="slot">Wall Pirate whose Y position is the detection reference.</param>
+    /// <param name="samus">Active player state to compare with the Pirate.</param>
+    /// <returns><see langword="true"/> when the signed vertical separation is less than 32 pixels.</returns>
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
         Math.Abs(unchecked((short)(samus.YPosition - slot.YPosition))) <
             WallPirateSamusDetectionBand;
 
+    /// <summary>Applies the native nibble-dependent eight- or sixteen-pixel X alignment after a jump landing.</summary>
+    /// <param name="slot">Enemy whose whole-pixel X coordinate is snapped to the wall grid.</param>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
@@ -284,6 +319,9 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)((slot.XPosition & 0xfff0) + 16));
     }
 
+    /// <summary>Switches the enemy to a wall-Pirate instruction list and starts its first instruction timer.</summary>
+    /// <param name="slot">Enemy whose current list and timer are replaced.</param>
+    /// <param name="instructionPointer">Bank-$B2 instruction-list address to run next.</param>
     private static void InstallWallSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -292,6 +330,13 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Moves the Pirate vertically, advancing past the opcode on success or reversing climb list after collision.</summary>
+    /// <param name="slot">Enemy being moved through room collision data.</param>
+    /// <param name="state">Per-enemy climb direction updated when movement collides.</param>
+    /// <param name="level">Current room collision map; required to resolve the movement.</param>
+    /// <param name="signedPixelDisplacement">Native signed pixel displacement encoded in the instruction operand.</param>
+    /// <param name="onRightWall">Whether the alternate climb list belongs to the right wall.</param>
+    /// <param name="cursor">Instruction cursor updated to the next opcode or selected replacement list.</param>
     private void MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -321,6 +366,10 @@ public sealed partial class RoomEnemySystem
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Chooses up or down from the next RNG low bit and selects that wall's corresponding climb list.</summary>
+    /// <param name="state">Per-enemy state receiving the randomly chosen direction.</param>
+    /// <param name="onRightWall">Whether to choose from the right-wall instruction lists.</param>
+    /// <param name="cursor">Instruction cursor replaced with the selected list address.</param>
     private void RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
         bool onRightWall,
@@ -332,6 +381,10 @@ public sealed partial class RoomEnemySystem
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Selects the native climb instruction list for a wall and vertical direction pair.</summary>
+    /// <param name="onRightWall">Whether the Pirate is attached to the right wall.</param>
+    /// <param name="direction">Upward or downward climb direction stored in variable C.</param>
+    /// <returns>Bank-$B2 address of the matching climb list.</returns>
     private static ushort SelectWallSpacePirateClimbList(
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
@@ -348,6 +401,10 @@ public sealed partial class RoomEnemySystem
             $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
     };
 
+    /// <summary>Stores the destination, ellipse center, and initial byte-angle phase for a wall-to-wall jump.</summary>
+    /// <param name="slot">Enemy supplying the departure position and jump span.</param>
+    /// <param name="state">Per-enemy fields that retain the jump arc parameters.</param>
+    /// <param name="jumpingRight">Selects the rightward endpoint and positive horizontal span when <see langword="true"/>.</param>
     private static void PrepareWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -363,6 +420,10 @@ public sealed partial class RoomEnemySystem
         state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
     }
 
+    /// <summary>Attempts laser allocation and records its count and sound request only when a projectile is created.</summary>
+    /// <param name="slot">Wall Pirate supplying the laser origin.</param>
+    /// <param name="state">Per-enemy diagnostic count incremented after successful allocation.</param>
+    /// <param name="movingRight">Selects the laser's horizontal direction.</param>
     private void FireWallSpacePirateLaser(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -462,6 +523,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Returns the initialized wall-Pirate state associated with an enemy slot.</summary>
+    /// <param name="slot">Slot whose per-enemy state was expected to be created during initialization.</param>
+    /// <returns>The stored state view for that slot.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized wall-Pirate state.</exception>
     private WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
         _wallSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized wall Space Pirate state.");

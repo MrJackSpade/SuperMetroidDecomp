@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Stores host-provided Samus body artwork outside debugger serialization.</summary>
     [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArt;
 
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>

@@ -23,27 +23,57 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal const ushort RestoreSquare = 0xa48b;
 
     /// <summary>One native record: direction/count, complete level words, then the signed offset to the next record.</summary>
+    /// <param name="DirectionAndCount">Native direction flag combined with the number of level words in this run.</param>
+    /// <param name="LevelWords">Complete collision-and-visual words written by the run.</param>
+    /// <param name="NextX">Signed horizontal block offset to the next run.</param>
+    /// <param name="NextY">Signed vertical block offset to the next run.</param>
     internal readonly record struct Run(
         ushort DirectionAndCount,
         ReadOnlyMemory<ushort> LevelWords,
         sbyte NextX,
         sbyte NextY);
 
+    /// <summary>Export form of one native draw routine, including its ordered level-word mutation runs.</summary>
+    /// <param name="Pointer">Bank-$84 address of the draw routine.</param>
+    /// <param name="Runs">Ordered mutations and signed offsets emitted by that routine.</param>
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
+    /// <summary>Number of breakup and collision-restoration draw routines represented by this catalog.</summary>
     internal const int DrawCount = 19;
-    internal enum Shape { Single, Horizontal, Vertical, Square }
+    /// <summary>Block footprint used by a shot-block draw routine.</summary>
+    internal enum Shape
+    {
+        /// <summary>One tile cell belonging to a single-block shot block.</summary>
+        Single,
+        /// <summary>Two adjacent horizontal tile cells.</summary>
+        Horizontal,
+        /// <summary>Two vertically adjacent tile cells.</summary>
+        Vertical,
+        /// <summary>Four tile cells arranged as a two-by-two block.</summary>
+        Square
+    }
 
     /// <summary>Bounded native draw: four breakup stages per shape at $84:A345-$A3DC,
     /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
     /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
+    /// <param name="Pointer">Bank-$84 address selecting the native draw routine.</param>
+    /// <param name="Layout">Footprint determining how many level words each run contains.</param>
+    /// <param name="Frame">Zero-based breakup stage, or zero for a restoration routine.</param>
+    /// <param name="Restore">Whether this draw reinstates the shootable parent and collision-linked children.</param>
     internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
     {
+        /// <summary>Number of horizontal runs needed to cover this footprint.</summary>
         internal int RunCount => Layout == Shape.Square ? 2 : 1;
+        /// <summary>Number of block words in each run: one for a single block and two for paired shapes.</summary>
         internal int WordsPerRun => Layout == Shape.Single ? 1 : 2;
+        /// <summary>Whether successive runs advance vertically rather than horizontally.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
 
+        /// <summary>Calculates the complete native level word for one run/block position.</summary>
+        /// <param name="run">Zero-based run within the footprint.</param>
+        /// <param name="block">Zero-based block word within that run.</param>
+        /// <exception cref="IndexOutOfRangeException">Either index lies outside the draw's footprint.</exception>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
@@ -58,6 +88,10 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Resolves a native breakup-frame or parent-restoration routine address to its calculated mutation.</summary>
+    /// <param name="pointer">Bank-$84 draw-routine address.</param>
+    /// <param name="draw">Calculated draw on success; the default value when the address is not in this catalog.</param>
+    /// <returns>Whether the address identifies a supported shot-block draw routine.</returns>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (TryFrames(pointer, SingleFrame0, 6, Shape.Single, out draw) ||
@@ -73,6 +107,13 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Resolves one address in a regular four-frame breakup sequence.</summary>
+    /// <param name="pointer">Address being queried.</param>
+    /// <param name="first">Address of frame zero.</param>
+    /// <param name="stride">Address distance between consecutive frames.</param>
+    /// <param name="shape">Block footprint associated with this sequence.</param>
+    /// <param name="draw">Calculated frame on success, or the default value otherwise.</param>
+    /// <returns>Whether the address is an exact frame start in this sequence.</returns>
     private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
     {
         int relative = pointer - first;
@@ -87,6 +128,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
 
     // Preserve the published interleaved export order; materialize DTOs only for
     // asset tooling. Runtime uses the calculated draw directly.
+    /// <summary>Enumerates all calculated mutations in the stable interleaved asset-export order.</summary>
     internal static IEnumerable<Draw> Calculated
     {
         get
@@ -104,14 +146,22 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Projects each calculated draw into the run-based representation consumed by asset tooling.</summary>
     internal static IEnumerable<DrawList> All => Calculated.Select(Export);
 
+    /// <summary>Resolves a known catalog address or rejects an address outside the shot-block draw set.</summary>
+    /// <param name="pointer">Bank-$84 draw-routine address to describe.</param>
+    /// <returns>The calculated mutation for that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the catalogued routines.</exception>
     private static Draw Describe(ushort pointer)
     {
         if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
         return draw;
     }
 
+    /// <summary>Materializes a calculated draw as ordered direction/count and level-word runs.</summary>
+    /// <param name="draw">Calculated mutation to export.</param>
+    /// <returns>The native draw address and its corresponding level-word runs.</returns>
     private static DrawList Export(Draw draw)
     {
         var runs = new Run[draw.RunCount];

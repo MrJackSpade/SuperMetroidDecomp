@@ -7,21 +7,31 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Arm instruction-list address used for the normal phase between lunges.</summary>
     private const ushort KraidArmNormalInstruction =
         KraidArmInstructionProgramDefinitions.Normal;
+    /// <summary>Arm instruction-list address for the retracted pose during lunge preparation.</summary>
     private const ushort KraidArmRetractedInstruction =
         KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge;
+    /// <summary>Foot instruction-list address for the neutral pose between movement sequences.</summary>
     private const ushort KraidFootNeutralInstruction =
         KraidFootInstructionProgramDefinitions.Neutral;
+    /// <summary>Foot instruction-list address that performs the first-phase forward lunge.</summary>
     private const ushort KraidFootLungeInstruction =
         KraidFootInstructionProgramDefinitions.LungeForward;
+    /// <summary>Terminal foot instruction-list address signaling that the forward lunge animation finished.</summary>
     private const ushort KraidFootLungeFinishedInstruction =
         KraidFootInstructionProgramDefinitions.LungeForwardFinished;
+    /// <summary>Foot instruction-list address that walks Kraid back toward the starting edge.</summary>
     private const ushort KraidFootWalkBackInstruction =
         KraidFootInstructionProgramDefinitions.WalkingBackward;
+    /// <summary>Looping foot instruction-list address used to detect completion of a walk-back cycle.</summary>
     private const ushort KraidFootWalkBackLoopInstruction =
         KraidFootInstructionProgramDefinitions.WalkingBackwardLoop;
 
+    /// <summary>Tracks the arm against the body anchor, culls it by viewport position, and holds its instruction timer while the mouth is closed.</summary>
+    /// <param name="arm">Physical arm enemy slot.</param>
+    /// <param name="cameraY">Current vertical camera origin used for viewport visibility.</param>
     private void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
     {
         KraidEnemyState state = RequireKraidState(arm);
@@ -43,6 +53,9 @@ public sealed partial class RoomEnemySystem
             arm.InstructionTimer = unchecked((ushort)(arm.InstructionTimer + 1));
     }
 
+    /// <summary>Dispatches one belly lint's native production, charge, firing, or body-alignment phase.</summary>
+    /// <param name="lint">Physical lint enemy slot whose function word selects the phase.</param>
+    /// <param name="samus">Active actor for contact resolution and support carry; absent when no Samus state is available.</param>
     private void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
     {
         KraidEnemyState state = RequireKraidState(lint);
@@ -73,12 +86,17 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Returns an attached part to its body's horizontal anchor and advances its function timer.</summary>
+    /// <param name="partSlot">Physical arm or lint slot to align.</param>
+    /// <param name="part">Per-part timing and next-function state.</param>
     private void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
         partSlot.XPosition = unchecked((ushort)(_slots[0].XPosition - partSlot.XRadius));
         TickKraidFunctionTimer(partSlot, part);
     }
 
+    /// <summary>Moves a newly produced lint out from the body while counting its release distance.</summary>
+    /// <param name="lint">Lint slot in the production phase.</param>
     private void ProduceKraidLint(RoomEnemySlot lint)
     {
         lint.Properties = lint.Properties.Without(
@@ -93,6 +111,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Flashes a lint while its charge timer counts down, then selects firing and requests its sound.</summary>
+    /// <param name="lint">Lint slot in the charge phase.</param>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
         lint.PaletteIndex = (lint.VariableF & 1) != 0 ? (ushort)3584 : (ushort)0;
@@ -107,6 +127,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves a fired lint left, hides and recycles it at the body, and applies native support carry to Samus.</summary>
+    /// <param name="lint">Lint slot in the firing phase.</param>
+    /// <param name="part">Part state receiving the next production function.</param>
+    /// <param name="samus">Active Samus actor to receive support displacement when standing on the lint.</param>
     private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part, SamusState? samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
@@ -137,6 +161,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Positions and culls the physical foot actor, then dispatches its current encounter-phase behavior.</summary>
+    /// <param name="foot">Physical foot enemy slot.</param>
+    /// <param name="cameraY">Current vertical camera origin used for viewport visibility.</param>
     private void RunKraidFootMain(RoomEnemySlot foot, ushort cameraY)
     {
         KraidEnemyState state = RequireKraidState(foot);
@@ -195,6 +222,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for the arm pause to finish, retracts the arm, and starts the first-phase foot lunge.</summary>
+    /// <param name="body">Encounter body, checked for a pending growth transition.</param>
+    /// <param name="foot">Foot slot whose lunge instruction and function are installed.</param>
     private void PrepareKraidFirstPhaseLunge(RoomEnemySlot body, RoomEnemySlot foot)
     {
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
@@ -211,6 +241,10 @@ public sealed partial class RoomEnemySystem
         foot.VariableF = 0;
     }
 
+    /// <summary>Runs the first-phase lunge until its instruction sequence completes at the left boundary.</summary>
+    /// <param name="body">Encounter body whose horizontal position is clamped during the lunge.</param>
+    /// <param name="foot">Foot slot whose animation indicates lunge completion.</param>
+    /// <param name="part">Foot timing state used to schedule the retreat transition.</param>
     private void RunKraidFirstPhaseLunge(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -236,6 +270,9 @@ public sealed partial class RoomEnemySystem
         foot.InstructionTimer = 1;
     }
 
+    /// <summary>Counts down the foot's one-step transition delay before installing the next phase function and walk-back list.</summary>
+    /// <param name="foot">Foot slot carrying the transition timer and current function.</param>
+    /// <param name="part">Part state containing the function to enter after the delay.</param>
     private static void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidPartState part)
     {
         if (foot.VariableF == 0)
@@ -250,6 +287,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves the body back to its right boundary, then restores the arm and schedules another first-phase lunge.</summary>
+    /// <param name="body">Encounter body whose horizontal position is clamped during retreat.</param>
+    /// <param name="foot">Foot slot whose backward-walk loop marks retreat completion.</param>
+    /// <param name="part">Foot state receiving the next lunge-preparation function.</param>
     private void RunKraidFirstPhaseRetreat(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -279,6 +320,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Walks the foot back until the body reaches the stored second-phase starting coordinate.</summary>
+    /// <param name="body">Encounter body carrying the target coordinate.</param>
+    /// <param name="foot">Foot slot whose walk-back loop signals arrival.</param>
+    /// <param name="part">Foot state receiving the initial second-phase think interval.</param>
     private void RunKraidSecondPhaseWalkToStart(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -300,6 +345,10 @@ public sealed partial class RoomEnemySystem
         foot.InstructionTimer = 1;
     }
 
+    /// <summary>Counts down the second-phase think interval and chooses a new horizontal destination using cartridge RNG.</summary>
+    /// <param name="body">Encounter body used to choose a direction and movement target.</param>
+    /// <param name="foot">Foot slot switched to the selected walking instruction list.</param>
+    /// <param name="part">Foot state carrying the think countdown and destination transition.</param>
     private void RunKraidSecondPhaseThinking(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -316,6 +365,11 @@ public sealed partial class RoomEnemySystem
             SetKraidWalkingLeft(foot, part, targetX, thinkTimer);
     }
 
+    /// <summary>Stores a rightward destination and starts the backward-walking animation used for that movement.</summary>
+    /// <param name="foot">Foot slot receiving the walking function and instruction list.</param>
+    /// <param name="part">Foot state receiving the subsequent think interval.</param>
+    /// <param name="targetX">Body coordinate where the walk ends.</param>
+    /// <param name="thinkTimer">Delay before the next destination choice.</param>
     private void SetKraidWalkingRight(
         RoomEnemySlot foot,
         KraidPartState part,
@@ -329,6 +383,11 @@ public sealed partial class RoomEnemySystem
         foot.InstructionTimer = 1;
     }
 
+    /// <summary>Stores a leftward destination and starts the forward-walking animation used for that movement.</summary>
+    /// <param name="foot">Foot slot receiving the walking function and instruction list.</param>
+    /// <param name="part">Foot state receiving the subsequent think interval.</param>
+    /// <param name="targetX">Body coordinate where the walk ends.</param>
+    /// <param name="thinkTimer">Delay before the next destination choice.</param>
     private void SetKraidWalkingLeft(
         RoomEnemySlot foot,
         KraidPartState part,
@@ -342,6 +401,9 @@ public sealed partial class RoomEnemySystem
         foot.InstructionTimer = 1;
     }
 
+    /// <summary>Moves toward a rightward destination and returns to thinking after the backward-walk loop completes.</summary>
+    /// <param name="body">Encounter body whose position follows the selected target.</param>
+    /// <param name="foot">Foot slot whose instruction loop signals movement completion.</param>
     private void RunKraidSecondPhaseWalkingRight(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
@@ -359,6 +421,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves toward a leftward destination and returns to thinking when the forward-walk animation completes.</summary>
+    /// <param name="body">Encounter body whose position follows the selected target.</param>
+    /// <param name="foot">Foot slot whose instruction sequence signals movement completion.</param>
     private void RunKraidSecondPhaseWalkingLeft(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
@@ -383,6 +448,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Adds a signed fixed-point horizontal displacement to an enemy's whole and fractional X position.</summary>
+    /// <param name="slot">Enemy actor whose X position is updated.</param>
+    /// <param name="displacement">Signed 16.16 horizontal displacement.</param>
     private static void AddSignedKraidHorizontalDisplacement(
         RoomEnemySlot slot,
         int displacement)

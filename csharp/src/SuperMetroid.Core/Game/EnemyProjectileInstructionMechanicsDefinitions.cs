@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Game;
 /// One bank-$86 timed program whose frame durations and control flow affect simulation.
 /// Spritemap operands remain outside this definition and select installed presentation content.
 /// </summary>
+/// <param name="InitialPointer">Bank-$86 address where this instruction program begins.</param>
+/// <param name="FrameCount">Number of timed visual frames before the terminal instruction.</param>
+/// <param name="PrefixInstruction">Optional one-word mechanics opcode before the timed frames.</param>
+/// <param name="TerminalInstruction">Mechanics opcode following the final timed frame.</param>
+/// <param name="TerminalOperand">Optional word consumed by the terminal instruction.</param>
 internal readonly record struct EnemyProjectileTimedProgramDefinition(
     ushort InitialPointer,
     int FrameCount,
@@ -12,6 +17,8 @@ internal readonly record struct EnemyProjectileTimedProgramDefinition(
     ushort? TerminalOperand);
 
 /// <summary>One presentation-only spritemap operand in a compiled bank-$86 program.</summary>
+/// <param name="OperandAddress">Address of the word containing this frame's spritemap operand.</param>
+/// <param name="Name">Stable asset name used to associate the operand with installed artwork.</param>
 internal readonly record struct EnemyProjectilePresentationFrameDefinition(
     ushort OperandAddress,
     string Name);
@@ -123,12 +130,27 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:E1FC, <c>UNUSED_InstList_EnemyProj_MiscDust_1C_ElevatorPad_86E1FC</c>, native misc-dust selector 28: LoopingElevatorPad.</summary>
     internal const ushort MiscDustLoopingElevatorPad = 0xe1fc;
 
+    /// <summary>Highest collision radius represented by the translated six-stage blue ring program.</summary>
     internal const int BlueRingRadiusCount = 6;
 
     /// <summary>$8D:8276/827D/8284..82C6: mutually exclusive tiny seed, single ring and composite radial growth forms.</summary>
-    private enum RingGrowthPhase { Seed, Formation, RadialExpansion }
+    private enum RingGrowthPhase
+    {
+        /// <summary>The initial single 8x8 seed appears before a collision radius is established.</summary>
+        Seed,
+        /// <summary>The seed becomes one 16x16 ring at the first collision radius.</summary>
+        Formation,
+        /// <summary>The ring grows through composite quadrants as its collision radius increases.</summary>
+        RadialExpansion
+    }
     /// <summary>$8D:B098/B0AE versus B0C4/B0DA/B0F0: four small versus four large burst quadrants.</summary>
-    private enum RainbowBurstPhase { Compact, Expanded }
+    private enum RainbowBurstPhase
+    {
+        /// <summary>The compact burst uses four 8x8 quadrants.</summary>
+        Compact,
+        /// <summary>The expanded burst uses four 16x16 quadrants.</summary>
+        Expanded
+    }
     /// <summary>$86:C436 holds the single 8x8 seed tile $1AD selected by $8D:8276.</summary>
     private const ushort RingSeedFrames = 16;
     /// <summary>$86:C43E holds the single 16x16 ring tile $1A7 selected by $8D:827D.</summary>
@@ -247,6 +269,10 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:C8CA: released drool pose before Sleep; this chosen timing input remains required.</summary>
     private const ushort DroolReleaseFrames = 10;
 
+    /// <summary>Selects the authored display duration for a blue-ring growth stage.</summary>
+    /// <param name="radius">One-based collision radius, from the seed stage through the sixth growth stage.</param>
+    /// <returns>The number of updates to hold the stage before advancing its instruction list.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="radius"/> is outside the supported one-through-six range.</exception>
     private static ushort BlueRingDuration(int radius)
     {
         RingGrowthPhase phase = radius switch
@@ -264,12 +290,20 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Returns the hold duration for a compact or expanded rainbow-impact explosion frame.</summary>
+    /// <param name="frame">Zero-based frame in the five-frame explosion sequence.</param>
     private static ushort RainbowExplosionDuration(int frame)
     {
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
         return phase == RainbowBurstPhase.Compact ? CompactRainbowBurstFrames : ExpandedRainbowBurstFrames;
     }
+    /// <summary>Number of bank-$86 timed mechanics programs represented by <see cref="TimedProgram"/>.</summary>
     internal const int TimedProgramCount = 37;
+
+    /// <summary>Gets the mechanics metadata for one entry in the fixed bank-$86 projectile-program table.</summary>
+    /// <param name="index">Zero-based table index.</param>
+    /// <returns>The program's start address, timed frame count, and terminal control-flow words.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the table.</exception>
     internal static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
         0 => new(MotherBrainBombInitial, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainBombInitial),
@@ -315,6 +349,11 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Resolves a timed frame's gameplay-significant hold from its program and frame position.</summary>
+    /// <param name="program">Initial instruction address identifying a translated timed program.</param>
+    /// <param name="frame">Zero-based frame within that program.</param>
+    /// <returns>The selected number of updates before instruction advancement.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="program"/> has no translated timing definition.</exception>
     private static ushort TimedDuration(ushort program, int frame) => program switch
     {
         MotherBrainBombInitial => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames),
@@ -360,6 +399,9 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         MiscDustShortBigDustCloud => ShortBigDustFrames,
         _ => throw new InvalidDataException($"Unknown timed projectile program ${program:X4}."),
     };
+    /// <summary>Reports whether this translation provides mechanics words for the projectile kind.</summary>
+    /// <param name="kind">Projectile kind being dispatched.</param>
+    /// <returns>True for Mother Brain projectile programs and shared misc-dust effects handled here.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
@@ -375,6 +417,10 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.EyeDoorSmoke or
         RoomEnemyProjectileKind.MiscDustExplosion;
 
+    /// <summary>Maps the cartridge's misc-dust animation selector to its bank-$86 instruction-list address.</summary>
+    /// <param name="animationIndex">Native selector in the inclusive range zero through 29.</param>
+    /// <returns>The initial address of the selected translated animation program.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animationIndex"/> is outside the supported native selector range.</exception>
     internal static ushort MiscDustInitialPointer(ushort animationIndex)
     {
         if (animationIndex >= 30)
@@ -420,9 +466,17 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Reads a translated mechanics word or rejects an address outside the supported program domain.</summary>
+    /// <param name="address">Bank-$86 word address requested by the instruction interpreter.</param>
+    /// <returns>The mechanics opcode, operand, duration, or branch word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a translated mechanics program.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => TryReadMechanicsWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
 
+    /// <summary>Attempts to resolve a bank-$86 address using the translated mechanics-only program data.</summary>
+    /// <param name="address">Word address requested by the instruction interpreter.</param>
+    /// <param name="value">Receives the translated word when the address belongs to a supported program; otherwise zero.</param>
+    /// <returns>True when a mechanics word is defined at <paramref name="address"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - MotherBrainBlueRingInitial;
@@ -471,10 +525,13 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Presentation operands from the translated programs, exposed for installed artwork extraction and lookup.</summary>
     internal static VisualFrameList VisualFrames { get; } = new();
 
+    /// <summary>Enumerates spritemap operands without mixing presentation pointers into mechanics-word resolution.</summary>
     internal sealed class VisualFrameList : IReadOnlyList<EnemyProjectilePresentationFrameDefinition>
     {
+        /// <summary>Gets the number of ring, impact, drool, and timed-program frames in the catalog.</summary>
         public int Count
         {
             get
@@ -484,6 +541,9 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 return count;
             }
         }
+        /// <summary>Gets a frame definition by its position in the same order as enumeration.</summary>
+        /// <param name="index">Zero-based position within the catalog.</param>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the catalog.</exception>
         public EnemyProjectilePresentationFrameDefinition this[int index]
         {
             get
@@ -493,6 +553,8 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 throw new InvalidOperationException("Projectile visual enumeration count disagrees with its programs.");
             }
         }
+        /// <summary>Enumerates ring growth, ring impact, attached/released drool, and timed-program spritemap operands.</summary>
+        /// <returns>An iterator in the stable order used by the indexer and installed-asset definitions.</returns>
         public IEnumerator<EnemyProjectilePresentationFrameDefinition> GetEnumerator()
         {
             for (int frame = 0; frame < 6; frame++)

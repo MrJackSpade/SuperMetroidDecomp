@@ -401,38 +401,45 @@ public sealed partial class SamusProjectileSystem
         if (!link.IsActive)
             return;
 
-        // A primary collision has already converted the owner to `$0800`. Both slow and fast
-        // native branches then clear the invisible link rather than allowing a second quake.
-        if (owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion))
+        short velocity = vertical ? owner.YVelocity : owner.XVelocity;
+        int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
+        bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
+        if (wholeMagnitude < 11)
         {
-            ClearProjectile(link);
+            // `$90:B494`: a slow link clears at once if the owner has already exploded,
+            // otherwise it only follows the owner's center.
+            if (ownerExploded)
+            {
+                ClearProjectile(link);
+                return;
+            }
+            if (vertical)
+                link.YPosition = owner.YPosition;
+            else
+                link.XPosition = owner.XPosition;
             return;
         }
 
-        short velocity = vertical ? owner.YVelocity : owner.XVelocity;
-        int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
+        // `$90:B438-$B467`: a fast link samples ten pixels beyond the owner's previous
+        // position to close the point-collision gap, and does so even when the owner has
+        // just exploded; only then is it cleared. A missile that skips a door cap and
+        // strikes the door behind it still opens the cap through its link.
+        int offset = wholeMagnitude - 10;
         ushort ownerPosition = vertical ? owner.YPosition : owner.XPosition;
-        ushort linkPosition = ownerPosition;
-        if (wholeMagnitude >= 11)
-        {
-            int offset = wholeMagnitude - 10;
-            linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
-        }
-
+        ushort linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
         if (vertical)
             link.YPosition = linkPosition;
         else
             link.XPosition = linkPosition;
-
-        // At <11 px/frame the link only follows the main center. At higher speeds it samples
-        // exactly ten pixels beyond the previous position to close the point-collision gap.
-        if (wholeMagnitude >= 11 && MissilePointReaction(
+        if (MissilePointReaction(
                 bus,
                 level,
                 link,
                 horizontalMovement: !vertical,
                 roomPlms: roomPlms))
             KillMissile(bus, link, sharedProjectiles);
+        if (ownerExploded)
+            ClearProjectile(link);
     }
 
     private void ClearAllSuperMissileLinks()

@@ -2209,6 +2209,49 @@ static void VerifySamusPowerBeamProjectiles()
     AssertTrue(integratedSuperMutations > 0,
         "live Super Missile collision runs CF67 and synthesizes $809F");
 
+    // `$90:B406` runs a fast link's block collision before clearing it for an exploded owner.
+    // An owner moving twenty pixels jumps from column five into the column-seven wall; the
+    // link, ten pixels behind it, still strikes the Super Missile block in column six. The
+    // 13% movie opens a green door cap this way while its missile explodes on the door.
+    var skippedWords = new ushort[width * height];
+    var skippedBehaviors = new byte[skippedWords.Length];
+    for (int y = 0; y < height; y++)
+    {
+        skippedWords[y * width + 6] = 0xc000;
+        skippedBehaviors[y * width + 6] = 10;
+        skippedWords[y * width + 7] = 0x8000;
+    }
+    RoomLevelData skippedWall = new(width, height, skippedWords, skippedBehaviors,
+        new ushort[skippedWords.Length], new byte[8]);
+    var skippedSamus = new SamusState
+    {
+        Pose = rightPose, XPosition = 32, YPosition = 96, SelectedHudItem = 2, SuperMissiles = 1,
+    };
+    var skippedBombs = CreateSyntheticBombs();
+    var skippedProjectiles = CreateSyntheticProjectiles();
+    var skippedPlms = new RoomPlmSystem();
+    for (int frame = 0; frame < 3; frame++)
+    {
+        skippedBombs.StepFrame(bus, skippedWall, skippedSamus, 0, 0);
+        skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0, frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0, 0, skippedBombs, roomPlms: skippedPlms);
+    }
+    SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
+    SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
+    AssertTrue(skippedOwner.PackedType.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
+        "the Super Missile and its link are in flight");
+    skippedOwner.XPosition = skippedLink.XPosition = 0x5c;
+    skippedOwner.XSubposition = 0;
+    skippedOwner.XVelocity = 0x1400;
+    skippedBombs.StepFrame(bus, skippedWall, skippedSamus, 0, 0);
+    skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus, 0, 0, 0, 0, skippedBombs, roomPlms: skippedPlms);
+    AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,
+        "the owner explodes on the column-seven wall");
+    AssertTrue(skippedPlms.ActiveCount > 0,
+        "the link still strikes the column-six Super Missile block before it is cleared");
+    AssertTrue(!skippedLink.IsActive, "the link is cleared after its collision");
+
     Console.WriteLine(
         "  Samus beams/missiles: producers, charge flare, linked supers, trails, all point-block families, motion, collision, and explosions agree.");
 }

@@ -21,12 +21,18 @@ public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <summary>Shared zero-part composition used when an enemy has no visible pieces.</summary>
     internal static EnemySpritemapParts Empty { get; } = new StoredParts([]);
     // The loader transfers its newly compiled, unexposed array to this immutable view.
+    /// <summary>Wraps a newly compiled array whose ownership is transferred to this immutable collection.</summary>
     internal static EnemySpritemapParts FromOwnedArray(EnemySpritemapPart[] parts) => new StoredParts(parts);
+    /// <summary>Array-backed representation for spritemaps that do not need computed parts.</summary>
+    /// <param name="parts">The privately retained parts in native OAM insertion order.</param>
     private sealed class StoredParts(EnemySpritemapPart[] parts) : EnemySpritemapParts
     {
+        /// <summary>Number of retained hardware OBJ parts.</summary>
         public override int Count => parts.Length;
+        /// <summary>Gets one retained part in native OAM draw order.</summary>
         public override EnemySpritemapPart this[int index] => parts[index];
     }
 }

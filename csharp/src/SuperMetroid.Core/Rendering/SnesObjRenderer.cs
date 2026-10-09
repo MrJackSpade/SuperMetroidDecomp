@@ -18,6 +18,7 @@ public static class SnesObjRenderer
     // Bits 7-5 of OBSEL select these small/large OBJ dimensions. Modes 6 and 7 are the
     // rectangular interlace-oriented modes; retaining them keeps the register decoder
     // honest even though ordinary Super Metroid gameplay uses mode 0 (8x8 / 16x16).
+    /// <summary>Small/large OBJ dimensions indexed by the three-bit OBSEL size-mode field.</summary>
     private static readonly (int SmallWidth, int SmallHeight, int LargeWidth, int LargeHeight)[] SizeModes =
     [
         (8, 8, 16, 16),

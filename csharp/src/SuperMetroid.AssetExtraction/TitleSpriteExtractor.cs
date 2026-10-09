@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Decodes the ordered bank-$8C parts selected by the four native title text lists.</summary>
 internal static class TitleSpriteExtractor
 {
+    /// <summary>Collects title text and logo spritemap pointers, verifies fixed coverage, and decodes each frame.</summary>
+    /// <param name="bus">Cartridge address space containing title lists and bank-$8C spritemaps.</param>
+    /// <returns>Decoded title sprite frames ordered by native pointer.</returns>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -50,6 +53,10 @@ internal static class TitleSpriteExtractor
         }).ToArray();
     }
 
+    /// <summary>Decodes one title spritemap into renderer-facing sprite parts.</summary>
+    /// <param name="bus">Cartridge address space containing the spritemap words.</param>
+    /// <param name="pointer">Bank-local spritemap pointer.</param>
+    /// <returns>Parts retaining native offsets, tile identity, size, and attributes.</returns>
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
     {
         int address = (TitleSequenceRomData.Sprites.Bank << 16) | pointer;

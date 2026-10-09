@@ -46,6 +46,10 @@ public static class EscapeTimerPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes one bounded native timer spritemap into renderer-facing parts.</summary>
+    /// <param name="bus">Cartridge address space containing the OAM records.</param>
+    /// <param name="address">Absolute SNES address of the spritemap count word.</param>
+    /// <returns>Parts with signed offsets and their native tile attributes.</returns>
     private static EscapeTimerVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int address)
     {
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

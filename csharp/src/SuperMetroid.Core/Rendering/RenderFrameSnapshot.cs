@@ -27,6 +27,7 @@ public sealed class RenderFrameSnapshot
     public int Width { get; } = SnesPpuLayout.ScreenWidthPixels;
     /// <summary>Native visible output height of 224 physical scanlines, including the HUD where present.</summary>
     public int Height { get; } = SnesPpuLayout.ScreenHeightPixels;
+    /// <summary>Owned ordered post-scene brightness levels, preserving per-pass rounding.</summary>
     private readonly byte[] brightnessPasses;
 
     /// <summary>

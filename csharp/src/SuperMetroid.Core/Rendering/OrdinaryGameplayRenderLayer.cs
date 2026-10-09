@@ -36,8 +36,11 @@ public readonly record struct OrdinaryGameplayRegisters(
 /// </summary>
 public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
+    /// <summary>Owned BG2 horizontal register table for the 192 visible gameplay lines.</summary>
     private readonly ushort[] horizontalScrolls;
+    /// <summary>Owned BG2 vertical register table for the 192 visible gameplay lines.</summary>
     private readonly ushort[] verticalScrolls;
+    /// <summary>Owned per-line main-screen layer replacement table.</summary>
     private readonly ushort[] mainScreenLayersByLine;
     /// <summary>Captured register values for this composition operation; PPU memory and OAM belong to the enclosing render snapshot, not this value.</summary>
     public OrdinaryGameplayRegisters Registers { get; }

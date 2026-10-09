@@ -9,6 +9,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>
 internal static class MapStaticPalettesExtractor
 {
+    /// <summary>Resolves pause, file-select, and per-area active/inactive palette programs into presentation JSON.</summary>
+    /// <param name="bus">Cartridge address space containing palette colors, copy lists, and map-role selectors.</param>
+    /// <returns>Serialized RGB5 palettes keyed by world-map area and UI role.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var pause = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(pause, bus, MapStaticPalettesRomData.PausePalette);
@@ -40,6 +43,9 @@ internal static class MapStaticPalettesExtractor
         MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
         return json.ToArray();
     }
+    /// <summary>Converts CGRAM words into the editable RGB5 palette representation.</summary>
+    /// <param name="palette">Palette colors in SNES packed RGB5 format.</param>
+    /// <returns>Colors with separate five-bit red, green, and blue channels.</returns>
     private static PaletteRgb5[] ToRgb(SnesCgram palette) => palette.Colors.ToArray()
         .Select(word => new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray();
 }

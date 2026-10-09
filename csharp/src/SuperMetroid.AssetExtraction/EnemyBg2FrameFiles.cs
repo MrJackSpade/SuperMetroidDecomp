@@ -11,6 +11,15 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class EnemyBg2FrameFiles
 {
+    /// <summary>Exports ordered BG2 tilemap writes from a family's bounded extended-frame streams.</summary>
+    /// <param name="bus">Cartridge address space containing frame headers and BG2 commands.</param>
+    /// <param name="bank">Bank holding the extended frames and their command streams.</param>
+    /// <param name="definitions">Named frame pointers and their expected order.</param>
+    /// <param name="version">Serialized catalog version.</param>
+    /// <param name="maximumComponents">Family-specific upper bound on component count.</param>
+    /// <param name="family">Family name used in validation diagnostics.</param>
+    /// <param name="allowMixedOam">Whether native roots may also contain ordinary OAM components.</param>
+    /// <returns>Validated JSON containing only visual BG2 write runs.</returns>
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
         EnemyBg2FrameDefinitionSequence definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
@@ -103,6 +112,10 @@ internal static class EnemyBg2FrameFiles
         return json;
     }
 
+    /// <summary>Reads a little-endian cartridge word at an absolute banked address.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit value.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

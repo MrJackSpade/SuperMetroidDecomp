@@ -68,11 +68,19 @@ public static class GameplayHudPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads a native HUD tilemap range and converts each word into a renderer-facing cell.</summary>
+    /// <param name="bus">Cartridge address space containing the HUD words.</param>
+    /// <param name="address">Address of the first little-endian tilemap word.</param>
+    /// <param name="count">Number of cells to read.</param>
+    /// <returns>Decoded cells in native table order.</returns>
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
             .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
             .ToArray();
 
+    /// <summary>Converts one packed background tilemap word into a HUD cell.</summary>
+    /// <param name="raw">Native character, palette, priority, and flip bits.</param>
+    /// <returns>The decoded renderer-facing HUD cell.</returns>
     private static GameplayHudCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -87,6 +95,9 @@ public static class GameplayHudPresentationExtractor
         };
     }
 
+    /// <summary>Converts a row-major HUD index into column and row coordinates.</summary>
+    /// <param name="index">Cell index in the compiled HUD layout.</param>
+    /// <returns>Its map-space presentation point.</returns>
     private static MapLabelPoint Point(int index) =>
         new(index % GameplayHudDefinitions.Width, index / GameplayHudDefinitions.Width);
 }

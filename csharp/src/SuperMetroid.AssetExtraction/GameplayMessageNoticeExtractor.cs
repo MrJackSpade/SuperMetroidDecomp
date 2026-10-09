@@ -102,6 +102,10 @@ public static class GameplayMessageNoticeExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads one fixed-width save-selection row from the native message tilemap.</summary>
+    /// <param name="bus">Cartridge address space containing the selection rows.</param>
+    /// <param name="sourceWord">Word offset of the row within the native selection table.</param>
+    /// <returns>Raw tilemap cells in display order.</returns>
     private static GameplayMessageTitleCell[] ReadSelection(
         ISnesAddressSpace bus,
         int sourceWord)
@@ -117,6 +121,10 @@ public static class GameplayMessageNoticeExtractor
         return result;
     }
 
+    /// <summary>Reads a little-endian word from the cartridge address space.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit tilemap or routine word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

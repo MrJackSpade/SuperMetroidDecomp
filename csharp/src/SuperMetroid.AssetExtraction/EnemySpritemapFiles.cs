@@ -7,6 +7,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports named enemy visual frames, leaving instruction control in code.</summary>
 internal static class EnemySpritemapFiles
 {
+    /// <summary>Exports every named ordinary enemy spritemap as validated visual parts.</summary>
+    /// <param name="bus">Cartridge address space containing the native OAM records.</param>
+    /// <returns>Serialized enemy spritemap catalog bytes.</returns>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -68,6 +71,11 @@ internal static class EnemySpritemapFiles
         return parts;
     }
 
+    /// <summary>Reads a little-endian word within a selected cartridge bank.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="bank">Bank containing the word.</param>
+    /// <param name="address">Bank-local address of the low byte.</param>
+    /// <returns>The decoded word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
         (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
             bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);

@@ -87,5 +87,9 @@ public static class StandardObjectArtworkFiles
     /// <param name="stockDirectory">Installed stock standard OBJ artwork directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Stock provenance and indexed-PNG digest for the standard OBJ atlas.</summary>
+    /// <param name="Version">Standard OBJ artwork manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="PngSha256">SHA-256 of the stock atlas PNG bytes.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256, string PngSha256);
 }

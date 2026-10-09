@@ -46,6 +46,11 @@ public static class SpcUploadStreamReader
             $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
+    /// <summary>Reads and appends one little-endian word while advancing the physical LoROM cursor.</summary>
+    /// <param name="cartridge">Import source containing the upload stream.</param>
+    /// <param name="cursor">Current SNES address, advanced past both bytes.</param>
+    /// <param name="bytes">Receives the exact bytes consumed from the ROM.</param>
+    /// <returns>The decoded upload length or destination word.</returns>
     private static ushort ReadWord(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {
@@ -54,6 +59,11 @@ public static class SpcUploadStreamReader
         return unchecked((ushort)(low | (high << 8)));
     }
 
+    /// <summary>Reads and retains one stream byte, then advances across mapped LoROM banks.</summary>
+    /// <param name="cartridge">Import source containing the upload byte.</param>
+    /// <param name="cursor">Current SNES address, advanced after the read.</param>
+    /// <param name="bytes">Receives the exact byte read.</param>
+    /// <returns>The cartridge byte.</returns>
     private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {

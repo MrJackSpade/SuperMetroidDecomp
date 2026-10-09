@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class RenderPresentationGate
 {
+    /// <summary>Excludes presentation and generation advancement from one another.</summary>
     private readonly SemaphoreSlim sync = new(1, 1);
+    /// <summary>Generation currently permitted to enter the presentation callback.</summary>
     private long generation;
+    /// <summary>Thread currently inside the callback, used to reject callback reentrancy.</summary>
     private int presentingThread;
 
     /// <summary>Creates a presentation gate for an already established positive load/reset generation; only matching frame identities can enter the final presentation callback until the generation is advanced.</summary>
@@ -65,6 +68,8 @@ public sealed class RenderPresentationGate
         finally { sync.Release(); }
     }
 
+    /// <summary>Rejects attempts by a presentation callback to recursively present or advance this gate.</summary>
+    /// <summary>Rejects attempts by a presentation callback to recursively present or advance this gate.</summary>
     private void RejectReentrancy()
     {
         if (Volatile.Read(ref presentingThread) == Environment.CurrentManagedThreadId)

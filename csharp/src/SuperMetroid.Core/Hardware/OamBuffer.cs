@@ -24,7 +24,9 @@ public sealed class OamBuffer
     /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
+    /// <summary>Backing bytes for the 128 four-byte OAM records.</summary>
     private readonly byte[] _lowTable = new byte[LowTableByteCount];
+    /// <summary>Backing bytes for the packed high-X and size bits of all OAM records.</summary>
     private readonly byte[] _highTable = new byte[HighTableByteCount];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>

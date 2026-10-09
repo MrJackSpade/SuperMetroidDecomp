@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class PpuMemorySnapshot
 {
+    /// <summary>Owned full 64-KiB PPU video-memory image.</summary>
     private readonly byte[] vram;
+    /// <summary>Owned 256-entry color-memory image.</summary>
     private readonly ushort[] cgram;
+    /// <summary>Owned 544-byte OAM upload image.</summary>
     private readonly byte[] oam;
 
     /// <summary>Physical VRAM bytes, including Mode 7's interleaved map/characters.</summary>

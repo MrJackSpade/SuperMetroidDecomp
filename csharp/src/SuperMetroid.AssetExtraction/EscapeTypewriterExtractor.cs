@@ -31,6 +31,10 @@ public static class EscapeTypewriterExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes one bounded escape-warning program into text lines and VRAM destinations.</summary>
+    /// <param name="bus">Cartridge address space containing the typewriter command stream.</param>
+    /// <param name="id">Ceres or Zebes program identity selecting its native address.</param>
+    /// <returns>Lines in native order with their word-address destinations.</returns>
     private static EscapeTypewriterLineDocument[] ReadProgram(
         ISnesAddressSpace bus,
         EscapeTypewriterProgramId id)
@@ -67,6 +71,10 @@ public static class EscapeTypewriterExtractor
         throw new InvalidDataException($"Escape typewriter program {id} exceeded sixteen lines.");
     }
 
+    /// <summary>Reads a little-endian word from the escape typewriter command stream.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded command, destination, or header word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

@@ -10,6 +10,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class EnemyExtendedFrameFiles
 {
+    /// <summary>Exports supported extended enemy frames while omitting hitbox and instruction data.</summary>
+    /// <param name="bus">Cartridge address space containing extended-frame component records.</param>
+    /// <returns>Serialized visual-component catalog bytes.</returns>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -103,6 +106,11 @@ internal static class EnemyExtendedFrameFiles
         return components.ToArray();
     }
 
+    /// <summary>Reads a little-endian word from a bank-local extended-frame address.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="bank">Bank containing the word.</param>
+    /// <param name="address">Bank-local address of the low byte.</param>
+    /// <returns>The decoded word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
         (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
             bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);

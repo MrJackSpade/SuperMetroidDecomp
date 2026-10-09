@@ -13,8 +13,11 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public static class SnesMode7Renderer
 {
+    /// <summary>Mode 7's square map has 128 tile numbers along each axis.</summary>
     private const int MapWidthInTiles = 128;
+    /// <summary>Each Mode 7 character is an 8-by-8 pixel cell.</summary>
     private const int CharacterWidth = 8;
+    /// <summary>Ten-bit mask applied to wrapped Mode 7 source pixel coordinates.</summary>
     private const int Mode7CoordinateMask = 0x03ff;
 
     /// <summary>

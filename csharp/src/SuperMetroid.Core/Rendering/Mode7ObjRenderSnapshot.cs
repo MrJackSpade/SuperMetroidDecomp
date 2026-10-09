@@ -31,6 +31,7 @@ public sealed record Mode7ObjRenderSnapshot
     public byte ObjectSelection { get; }
     /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
     public byte Brightness { get; }
+    /// <summary>Owned per-scanline fixed-color controls, or an empty array when title color math is disabled.</summary>
     private readonly Frontend.TitleGradientLine[] gradient;
     /// <summary>
     /// Owned fixed-color controls indexed by visible scanline 0..223, or empty to disable title color math.

@@ -23,9 +23,14 @@ public sealed class EnemyProjectileSpritemapCatalog
             }
         });
 
+    /// <summary>Compiled OAM parts keyed by the native bank-$8D spritemap pointer.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> frames;
+    /// <summary>Compiled OAM parts keyed by the bank-$86 operand address that selects a timed visual frame.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> programFrames;
 
+    /// <summary>Creates a catalog from already compiled pointer-keyed compositions and program frames.</summary>
+    /// <param name="frames">Named composition parts indexed by native bank-$8D spritemap pointer.</param>
+    /// <param name="programFrames">Timed visual parts indexed by their bank-$86 operand addresses.</param>
     private EnemyProjectileSpritemapCatalog(Dictionary<ushort, EnemySpritemapPart[]> frames,
         Dictionary<ushort, EnemySpritemapPart[]> programFrames)
     {
@@ -143,6 +148,9 @@ public sealed class EnemyProjectileSpritemapCatalog
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
     }
 
+    /// <summary>Determines whether an operand belongs to the Alcoon fireball visual-frame program.</summary>
+    /// <param name="operandAddress">Bank-$86 address of a timed program's visual operand.</param>
+    /// <returns><see langword="true"/> when the address identifies a compiled Alcoon fireball frame.</returns>
     private static bool IsAlcoonFireballOperand(ushort operandAddress)
     {
         for (int index = 0;
@@ -156,6 +164,10 @@ public sealed class EnemyProjectileSpritemapCatalog
         return false;
     }
 
+    /// <summary>Validates editable sprite-part geometry and packs each part into hardware OAM words.</summary>
+    /// <param name="name">Composition identity included in validation errors.</param>
+    /// <param name="visual">Ordered authoring parts to convert without changing their draw order.</param>
+    /// <returns>Packed spritemap parts ready for projectile rendering.</returns>
     private static EnemySpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
     {
         if (visual.Length > EnemyProjectileSpritemapDefinitions.MaximumParts)
@@ -186,6 +198,9 @@ public sealed class EnemyProjectileSpritemapCatalog
         return parts;
     }
 
+    /// <summary>Serializes a projectile-presentation document and verifies that the emitted JSON can be loaded.</summary>
+    /// <param name="document">Presentation schema to serialize, excluding executable timing and gameplay data.</param>
+    /// <returns>Indented UTF-8 JSON bytes for the editable projectile composition file.</returns>
     internal static byte[] Write(EnemyProjectileSpritemapDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -193,6 +208,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return json;
     }
 
+    /// <summary>Serializer policy matching the catalog's camel-case JSON schema and rejecting unknown fields.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

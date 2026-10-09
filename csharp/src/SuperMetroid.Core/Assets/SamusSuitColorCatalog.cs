@@ -20,8 +20,13 @@ namespace SuperMetroid.Core.Assets;
 /// their own owners. This exception covers these base inks, not all palettes.</remarks>
 public sealed class SamusSuitColorCatalog
 {
+    /// <summary>Complete Power palette used as the shared baseline for resolving suit colors.</summary>
     private readonly ushort[] power;
+
+    /// <summary>Varia color words stored only for slots that differ from the Power palette.</summary>
     private readonly Dictionary<int, ushort> varia;
+
+    /// <summary>Gravity color words stored only for slots that differ from the Power palette.</summary>
     private readonly Dictionary<int, ushort> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
@@ -37,6 +42,10 @@ public sealed class SamusSuitColorCatalog
         this.gravity = Differences(gravity, power);
     }
 
+    /// <summary>Builds a sparse set of palette words that differ from the Power baseline.</summary>
+    /// <param name="supplied">Complete palette words for a secondary suit.</param>
+    /// <param name="power">Complete Power palette used for same-slot comparisons.</param>
+    /// <returns>Entries keyed by color slot only where the supplied word differs.</returns>
     private static Dictionary<int, ushort> Differences(ushort[] supplied, ushort[] power)
     {
         var differences = new Dictionary<int, ushort>();
@@ -45,6 +54,7 @@ public sealed class SamusSuitColorCatalog
         return differences;
     }
 
+    /// <summary>Configures the stable JSON shape used when reading and writing suit-color documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,6 +124,11 @@ public sealed class SamusSuitColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates one sixteen-color RGB5 palette and packs its channels into SNES RGB555 words.</summary>
+    /// <param name="source">Palette entries to validate; the array must contain exactly sixteen non-null colors.</param>
+    /// <param name="name">Suit name used to identify invalid palette data in the exception message.</param>
+    /// <returns>Packed color words in the same slot order as the source palette.</returns>
+    /// <exception cref="InvalidDataException">The palette is missing, has the wrong length, or contains an invalid RGB5 color.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
@@ -130,6 +145,8 @@ public sealed class SamusSuitColorCatalog
         return result;
     }
 
+    /// <summary>Rejects duplicate JSON property names before the suit-color document is deserialized.</summary>
+    /// <param name="value">Parsed JSON value whose object properties must be unique using ordinal comparison.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus suit color property {name}."));

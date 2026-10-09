@@ -1,6 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One Puromi/Nuclear Waffle sweep geometry definition.</summary>
+/// <param name="StartAngle">Initial radial angle for the first joint in the sweep.</param>
+/// <param name="EndAngle">Final radial angle reached as the sweep advances through its joints.</param>
+/// <param name="SegmentSpacing">Signed angular step between links of the same kind.</param>
+/// <param name="InterleavedSegmentOffset">Signed half-step locating the interleaved links between same-kind links.</param>
+/// <param name="SecondTurnThreshold">Angle threshold that triggers the second turn of the sweep.</param>
+/// <param name="FirstTurnThreshold">Angle threshold that triggers the first turn of the sweep.</param>
 internal readonly record struct NuclearWaffleSweepDefinition(
     ushort StartAngle,
     ushort EndAngle,
@@ -30,6 +36,10 @@ internal static class NuclearWaffleDefinitions
     private const int TurnRadius = 0x40;
     /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
+
+    /// <summary>Calculates the signed endpoints, link spacing, and turn thresholds for one native sweep direction.</summary>
+    /// <param name="direction">Native sweep selector: zero for the forward sweep or one for its mirrored return.</param>
+    /// <returns>Geometry values derived from the cartridge's center, sweep radius, and turn radius.</returns>
     internal static NuclearWaffleSweepDefinition Sweep(byte direction)
     {
         if (direction >= 2)

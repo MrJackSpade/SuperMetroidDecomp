@@ -282,12 +282,19 @@ public static class EndingCreditsRomData
         /// <summary>$8B:DDC1..DDC8: selected following two positive slow steps before the terminal negative step.</summary>
         private const int SlowSecondPositiveRun = 2;
 
+        /// <summary>Number of samples in one complete positive-then-negative fast shake run.</summary>
         private const int FastRunPeriod = FastPositiveRun + FastNegativeRun;
+        /// <summary>Number of complete fast shake runs fitting in the native sixteen-sample pattern.</summary>
         private const int FastCompleteRunCount = PlanetFastPatternLength / FastRunPeriod;
+        /// <summary>Positive samples retained at the end of the fast pattern after its final negative run.</summary>
         private const int FastFinalPositiveRun = PlanetFastPatternLength % FastRunPeriod - FastNegativeRun;
+        /// <summary>Total positive fast-shake samples, including complete runs and the shorter final run.</summary>
         private const int FastPositiveSteps = FastCompleteRunCount * FastPositiveRun + FastFinalPositiveRun;
+        /// <summary>Total positive samples in the two native slow-shake runs.</summary>
         private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
+        /// <summary>Signed fixed-point fast-shake step sized so the selected sixteen-sample pattern sums to the two-pixel cycle displacement.</summary>
         private const int PlanetFastShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * FastPositiveSteps - PlanetFastPatternLength);
+        /// <summary>Signed fixed-point slow-shake step sized so the selected eight-sample pattern sums to the two-pixel cycle displacement.</summary>
         private const int PlanetSlowShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * SlowPositiveSteps - PlanetSlowPatternLength);
         /// <summary>$8B:DD02..DD41: repeated positive/negative shake runs and the shorter final positive run.</summary>
         /// <remarks>Repeated samples, fixed-point sign assembly and amplitudes from the common cycle displacement calculate. The

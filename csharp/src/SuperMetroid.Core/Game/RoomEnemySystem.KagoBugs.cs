@@ -10,10 +10,15 @@ public readonly record struct KagoBugDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Per-frame acceleration added to a bug's vertical 8.8 velocity.</summary>
     private const ushort KagoBugGravity = 0x00e0;
+    /// <summary>Magnitude of the bug's horizontal 8.8 velocity during its jump.</summary>
     private const ushort KagoBugHorizontalSpeed = 0x0200;
+    /// <summary>Minimum horizontal separation from the source Kago before shots can hit its bug.</summary>
     private const ushort KagoBugSourceCollisionEnableDistance = 23;
+    /// <summary>Separation at which a jumping bug homes toward its source instead of using the speed-derived direction bit.</summary>
     private const ushort KagoBugSourceHomingDistance = 48;
+    /// <summary>Library-two sound effect requested when the spawn countdown reaches zero.</summary>
     private const ushort KagoBugSoundEffect = 0x006c;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
@@ -148,6 +153,8 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + KagoBugGravity));
     }
 
+    /// <summary>Switches a rising bug to its falling instruction list and pre-instruction.</summary>
+    /// <param name="projectile">Bug projectile whose vertical motion has entered the falling phase.</param>
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
         projectile.PreInstruction =
@@ -206,6 +213,8 @@ public sealed partial class RoomEnemySystem
             KagoDefinition);
     }
 
+    /// <summary>Reads the current shared random word used by Kago bug timing and jump selection.</summary>
+    /// <returns>The random-number state without advancing it.</returns>
     private ushort ReadKagoRandomNumber() =>
         RequireRandomNumber();
 }

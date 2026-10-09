@@ -34,13 +34,21 @@ public static class CreditsPresentationDefinitions
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
     public const ushort LargePeriodBottom = 0x007e;
 
+    /// <summary>Shared calculator for the fixed ordered role metadata exposed by <see cref="Lines"/>.</summary>
     private static readonly CreditRoles Roles = new();
     /// <summary>Calculated read-only view of all 67 required credit roles in native order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
+    /// <summary>Provides generated role identifiers, font styles, and spacing for the fixed credits sequence.</summary>
     private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
     {
+        /// <summary>Gets the number of required staff-credit roles.</summary>
         public int Count => 67;
+
+        /// <summary>Builds the metadata for one role at its fixed position in the native credits order.</summary>
+        /// <param name="index">Zero-based role position from 0 through 66.</param>
+        /// <returns>The stable role key, heading/name style, and preceding blank-row count.</returns>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the required role sequence.</exception>
         public CreditsLineDefinition this[int index]
         {
             get
@@ -53,6 +61,8 @@ public static class CreditsPresentationDefinitions
                 return new(id, heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, blankRows);
             }
         }
+        /// <summary>Enumerates role definitions in their native scrolling order.</summary>
+        /// <returns>An enumerator yielding each of the 67 calculated role definitions.</returns>
         public IEnumerator<CreditsLineDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -60,6 +70,9 @@ public static class CreditsPresentationDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Maps a fixed credits position to its stable, editable-document role key.</summary>
+    /// <param name="index">Zero-based position in the 67-line role sequence.</param>
+    /// <returns>The case-sensitive key required for that position.</returns>
     private static string RoleId(int index) => index switch
     {
         0 => "staff-heading",
@@ -92,6 +105,9 @@ public static class CreditsPresentationDefinitions
         _ => "general-manager-name",
     };
 
+    /// <summary>Maps one of the eight programming-staff slots to its role-key stem.</summary>
+    /// <param name="index">Zero-based programming slot; values outside the seven named leads select the assistant role.</param>
+    /// <returns>The role-key stem used for the corresponding heading and name.</returns>
     private static string ProgrammingRole(int index) => index switch
     {
         0 => "program-director",

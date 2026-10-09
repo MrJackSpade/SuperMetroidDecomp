@@ -20,8 +20,11 @@ public enum BoyonBounceMovement : ushort
 /// </summary>
 public sealed class BoyonEnemyState
 {
+    /// <summary>Enemy-slot storage for the six native Boyon variable words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Wraps the enemy slot whose variable words hold this Boyon's ordinary runtime state.</summary>
+    /// <param name="slot">Initialized room enemy slot owned by this Boyon instance.</param>
     internal BoyonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Low-byte multiplier selected by parameter-one's low byte.</summary>
@@ -95,10 +98,13 @@ public sealed class BoyonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A2 enemy-definition pointer identifying the Boyon family.</summary>
     internal const ushort BoyonDefinition = 0xcebf;
 
+    /// <summary>Library-two sound effect requested when Boyon begins a bounce.</summary>
     private const ushort BoyonBounceSound = 0x000e;
 
+    /// <summary>Extended per-enemy state entries indexed by room enemy slot number.</summary>
     private readonly BoyonEnemyState?[] _boyonStates =
         new BoyonEnemyState?[MaximumEnemyCount];
 
@@ -271,6 +277,9 @@ public sealed partial class RoomEnemySystem
         return IsNegative16(distance - slot.Parameter2);
     }
 
+    /// <summary>Installs a Boyon instruction list and initializes its first-call and loop timers.</summary>
+    /// <param name="slot">Enemy slot whose active instruction state is changed.</param>
+    /// <param name="instructionList">Bank-$A2 instruction-list pointer to run next.</param>
     private static void SetBoyonInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -278,6 +287,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the extended bounce state created when this enemy slot was initialized as a Boyon.</summary>
+    /// <param name="slot">Room enemy slot whose Boyon state is required.</param>
+    /// <returns>The state associated with <paramref name="slot"/>.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Boyon state.</exception>
     private BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
         _boyonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");

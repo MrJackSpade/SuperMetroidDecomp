@@ -3,12 +3,17 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One suit-dependent row of the fixed quicksand-surface physics table.</summary>
+/// <param name="MovingDisplacement">Unsigned 8.8 displacement applied while Samus moves through the surface reaction.</param>
+/// <param name="StationaryDisplacement">Unsigned 8.8 displacement applied while Samus is stationary in the reaction.</param>
+/// <param name="UpwardSpeedLimit">Unsigned 8.8 velocity threshold used to cap upward movement.</param>
 public readonly record struct QuicksandSurfacePhysics(
     ushort MovingDisplacement,
     ushort StationaryDisplacement,
     ushort UpwardSpeedLimit);
 
 /// <summary>One quicksand PLM header paired with its setup routine and initial list.</summary>
+/// <param name="SetupPointer">Bank-$84 setup routine selected by the room's quicksand PLM header.</param>
+/// <param name="InstructionListPointer">Initial PLM instruction list associated with that setup routine.</param>
 public readonly record struct QuicksandReactionDefinition(
     ushort SetupPointer,
     ushort InstructionListPointer);
@@ -62,9 +67,11 @@ public static class QuicksandDefinitions
                 header,
                 "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
 
+    /// <summary>Surface-physics words selected when Gravity Suit is not equipped.</summary>
     private static readonly QuicksandSurfacePhysics withoutGravitySuit =
         new(0x0200, 0x0120, 0x0280);
 
+    /// <summary>Surface-physics words selected when Gravity Suit is equipped.</summary>
     private static readonly QuicksandSurfacePhysics withGravitySuit =
         new(0x0200, 0x0100, 0x0380);
 }

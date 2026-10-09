@@ -65,8 +65,11 @@ public enum CacatacSpikeDirection : ushort
 /// </summary>
 public sealed class CacatacEnemyState
 {
+    /// <summary>Enemy slot whose native parameter words back the exposed Cacatac state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed state view for an initialized Cacatac enemy slot.</summary>
+    /// <param name="slot">Slot containing the native velocity, direction, and function words.</param>
     internal CacatacEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, the fractional half of rightward velocity.</summary>
@@ -127,10 +130,13 @@ public sealed class CacatacEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition identity used to select the Cacatac initializer and AI.</summary>
     internal const ushort CacatacDefinition = 0xcfff;
 
+    /// <summary>Library-two sound effect queued when a Cacatac spike-release instruction runs.</summary>
     private const ushort CacatacSpikeSound = 0x0034;
 
+    /// <summary>Per-slot typed Cacatac state, populated by initialization and cleared with the room population.</summary>
     private readonly CacatacEnemyState?[] _cacatacStates =
         new CacatacEnemyState?[MaximumEnemyCount];
 
@@ -277,6 +283,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = CacatacSpikeSound;
 
+    /// <summary>Starts a Cacatac instruction list with its native initial timer and clears the slot's secondary timer.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction state.</param>
+    /// <param name="instructionList">Bank-$A2 list pointer to execute.</param>
     private static void SetCacatacInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -284,6 +293,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the typed Cacatac state associated with a slot or reports that initialization was skipped.</summary>
+    /// <param name="slot">Cacatac enemy slot whose state is required.</param>
+    /// <returns>The state created for that slot during Cacatac initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Cacatac state.</exception>
     private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
         _cacatacStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");

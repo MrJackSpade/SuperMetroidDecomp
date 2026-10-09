@@ -16,11 +16,22 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class RoomFxAnimatedTilesState
 {
+    /// <summary>Bank-$87 object-header pointer that identifies this animation's compiled mechanics.</summary>
     private ushort objectPointer;
+
+    /// <summary>Next instruction-list word to process after the current frame delay expires.</summary>
     private ushort instructionPointer;
+
+    /// <summary>Remaining handler passes before the current timed frame is transferred.</summary>
     private ushort instructionTimer;
+
+    /// <summary>Byte length copied from each animation frame into the object's VRAM region.</summary>
     private ushort transferByteCount;
+
+    /// <summary>Encoded destination used by the cartridge's animated-tile VRAM transfer.</summary>
     private ushort encodedVramDestination;
+
+    /// <summary>Compiled header metadata used to resolve allowed instruction words and frame sources.</summary>
     private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
@@ -153,6 +164,11 @@ internal sealed class RoomFxAnimatedTilesState
         compiledMechanics = null;
     }
 
+    /// <summary>Reads an instruction word only when its address belongs to the loaded object's compiled list.</summary>
+    /// <param name="pointer">Bank-$87 address of the mechanics word to fetch.</param>
+    /// <returns>The compiled instruction or duration at that address.</returns>
+    /// <exception cref="InvalidOperationException">No compiled object mechanics are loaded.</exception>
+    /// <exception cref="InvalidDataException">The address is outside the loaded object's compiled mechanics.</exception>
     private ushort ReadMechanicsWord(ushort pointer)
     {
         if (compiledMechanics is null)

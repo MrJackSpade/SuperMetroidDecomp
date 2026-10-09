@@ -6,13 +6,26 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
 public sealed class WorldMapLabelLayout
 {
+    /// <summary>Crateria's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint crateria;
+    /// <summary>Brinstar's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint brinstar;
+    /// <summary>Norfair's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint norfair;
+    /// <summary>Wrecked Ship's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint wreckedShip;
+    /// <summary>Maridia's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint maridia;
+    /// <summary>Tourian's independently authored screen position for its world-map label.</summary>
     private readonly MapLabelPoint tourian;
 
+    /// <summary>Stores the six named area anchors after the asset loader validates their coordinates.</summary>
+    /// <param name="crateria">Validated Crateria label anchor.</param>
+    /// <param name="brinstar">Validated Brinstar label anchor.</param>
+    /// <param name="norfair">Validated Norfair label anchor.</param>
+    /// <param name="wreckedShip">Validated Wrecked Ship label anchor.</param>
+    /// <param name="maridia">Validated Maridia label anchor.</param>
+    /// <param name="tourian">Validated Tourian label anchor.</param>
     private WorldMapLabelLayout(MapLabelPoint crateria, MapLabelPoint brinstar, MapLabelPoint norfair,
         MapLabelPoint wreckedShip, MapLabelPoint maridia, MapLabelPoint tourian)
     {

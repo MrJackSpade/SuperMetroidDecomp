@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One physical X/Y sample in an authored Choot falling path.</summary>
+/// <param name="XOffset">Horizontal whole-pixel displacement encoded as a signed 16-bit path word.</param>
+/// <param name="YOffset">Vertical whole-pixel displacement encoded as a signed 16-bit path word.</param>
 internal readonly record struct ChootFallingPathPoint(ushort XOffset, ushort YOffset)
 {
     /// <summary>The native <c>$8000</c> X sentinel that ends one path loop.</summary>
@@ -39,9 +41,13 @@ internal static class ChootFallingPathDefinitions
     /// </summary>
     internal const ushort VerySlowPointer = 0xdd44;
 
+    /// <summary>Normal-path index after which the positive-offset plateau is repeated in slow variants.</summary>
     private const int PositivePlateauIndex = 28;
+    /// <summary>Normal-path index after which the negative-offset plateau is repeated in slow variants.</summary>
     private const int NegativePlateauIndex = 63;
+    /// <summary>Number of additional repeated physical frames inserted at each plateau by the slow path.</summary>
     private const int SlowPlateauFrames = 10;
+    /// <summary>Number of additional repeated physical frames inserted at each plateau by the very-slow path.</summary>
     private const int VerySlowPlateauFrames = 30;
 
     /// <summary>
@@ -175,6 +181,10 @@ internal static class ChootFallingPathDefinitions
         return new ChootFallingPathPoint(path[wordIndex], path[wordIndex + 1]);
     }
 
+    /// <summary>Maps an expanded slow-path frame index back to its corresponding normal-path sample.</summary>
+    /// <param name="frameIndex">Physical frame index in the selected slow or very-slow path.</param>
+    /// <param name="expandedFrames">Extra copies inserted at each pause, or zero for an unexpanded path.</param>
+    /// <returns>The normal-path frame index corresponding to the supplied physical frame.</returns>
     private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)
     {
         if (frameIndex < 0)

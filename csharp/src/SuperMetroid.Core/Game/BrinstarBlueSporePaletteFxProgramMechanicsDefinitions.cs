@@ -25,20 +25,28 @@ public enum BrinstarBlueSporePaletteOwner
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>Compiled palette program used by ordinary Brinstar rooms without a mini-boss death callback.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition Standard =
         new(BrinstarBlueSporePaletteOwner.StandardRooms);
+    /// <summary>Compiled palette program for Spore Spawn's room, including its area mini-boss death callback.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition SporeSpawn =
         new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
+    /// <summary>Exposes the two room-specific blue-spore programs in their stable catalog order.</summary>
     private sealed class ProgramOwners : IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition>
     {
+        /// <summary>Gets the number of room variants in the catalog.</summary>
         public int Count => 2;
+
+        /// <summary>Gets the standard-room definition at index zero or the Spore Spawn definition at index one.</summary>
+        /// <param name="index">Zero-based position in the standard-room then Spore Spawn catalog order.</param>
         public BrinstarBlueSporePaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Standard,
             1 => SporeSpawn,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates the standard-room program followed by the Spore Spawn program.</summary>
         public IEnumerator<BrinstarBlueSporePaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Standard;
@@ -75,6 +83,8 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 /// <summary>One room-specific entry into the fourteen-frame blue-spore palette loop.</summary>
 public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 {
+    /// <summary>Creates a compiled palette mechanics definition for one supported room family.</summary>
+    /// <param name="owner">Selects ordinary Brinstar rooms or the Spore Spawn room variant.</param>
     internal BrinstarBlueSporePaletteFxProgramDefinition(BrinstarBlueSporePaletteOwner owner)
     {
         if (owner is not (BrinstarBlueSporePaletteOwner.StandardRooms or BrinstarBlueSporePaletteOwner.SporeSpawnRoom))

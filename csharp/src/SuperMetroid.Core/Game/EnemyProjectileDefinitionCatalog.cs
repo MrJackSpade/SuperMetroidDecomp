@@ -17,15 +17,22 @@ internal readonly record struct EnemyProjectileDefinition(
     ushort TouchInstructionList,
     ushort ShotInstructionList)
 {
+    /// <summary>Gets the low byte of <see cref="RadiusWord"/>, used as the projectile's horizontal collision radius.</summary>
     internal byte XRadius => unchecked((byte)RadiusWord);
+    /// <summary>Gets the high byte of <see cref="RadiusWord"/>, used as the projectile's vertical collision radius.</summary>
     internal byte YRadius => unchecked((byte)(RadiusWord >> 8));
+    /// <summary>Gets the damage amount encoded in the low twelve bits of <see cref="Properties"/>.</summary>
     internal ushort Damage => unchecked((ushort)(Properties & 0x0fff));
+    /// <summary>Gets the sprite draw layer selected by bit 12 of <see cref="Properties"/>.</summary>
     internal EnemyProjectileDrawPriority DrawPriority =>
         (Properties & 0x1000) != 0
             ? EnemyProjectileDrawPriority.High
             : EnemyProjectileDrawPriority.Low;
+    /// <summary>Gets whether bit 13 of <see cref="Properties"/> allows the projectile to damage Samus.</summary>
     internal bool CanDamageSamus => (Properties & 0x2000) == 0;
+    /// <summary>Gets whether bit 14 of <see cref="Properties"/> keeps the projectile alive after contact with Samus.</summary>
     internal bool PersistsOnSamusContact => (Properties & 0x4000) != 0;
+    /// <summary>Gets whether bit 15 of <see cref="Properties"/> blocks Samus's projectiles.</summary>
     internal bool BlocksSamusProjectiles => (Properties & 0x8000) != 0;
 }
 

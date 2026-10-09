@@ -35,6 +35,10 @@ internal static class GoldenTorizoHealthPaintDefinitions
     /// <summary>$84:8005-8016: eight native health-selected palette bands; interpolation spans seven intervals.</summary>
     private const int Intervals = 7;
 
+    /// <summary>Compares all eight 16-color palette bands with the authored Golden Torizo paint composition.</summary>
+    /// <param name="rows">Palette bands ordered from low health through full health.</param>
+    /// <param name="rear">Selects the rear-material channel treatment when true.</param>
+    /// <returns>True only when every supplied color matches the composition.</returns>
     internal static bool Matches(ushort[][] rows, bool rear)
     {
         for (int frame = 0; frame <= Intervals; frame++)
@@ -43,6 +47,11 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return true;
     }
 
+    /// <summary>Interpolates one BGR555 color between the low-health and golden endpoint palettes.</summary>
+    /// <param name="frame">Palette band index from 0 through <see cref="Intervals"/>.</param>
+    /// <param name="color">Color slot within the 16-entry palette.</param>
+    /// <param name="rear">Applies the rear-material paint policy when true.</param>
+    /// <returns>The rounded, channel-wise interpolated BGR555 color.</returns>
     internal static ushort Color(int frame, int color, bool rear)
     {
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -55,6 +64,11 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return (ushort)result;
     }
 
+    /// <summary>Builds one endpoint color, applying rear-material shading and selected channel corrections as needed.</summary>
+    /// <param name="gold">Selects the golden-health endpoint when true, otherwise the low-health endpoint.</param>
+    /// <param name="color">Palette slot whose endpoint paint is requested.</param>
+    /// <param name="rear">Selects rear-material lighting adjustments.</param>
+    /// <returns>The endpoint's BGR555 color.</returns>
     private static ushort Endpoint(bool gold, int color, bool rear)
     {
         ushort front = gold ? Gold(color) : Low(color);
@@ -70,6 +84,9 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return result;
     }
 
+    /// <summary>Returns the hand-authored low-health paint for one palette slot.</summary>
+    /// <param name="color">Palette slot in the 16-entry Golden Torizo palette.</param>
+    /// <returns>The low-health endpoint color in BGR555 format.</returns>
     private static ushort Low(int color)
     {
         if (color <= 8)
@@ -94,6 +111,9 @@ internal static class GoldenTorizoHealthPaintDefinitions
         };
     }
 
+    /// <summary>Returns the hand-authored golden armor, cyan core, eye, or contour paint for one palette slot.</summary>
+    /// <param name="color">Palette slot in the 16-entry Golden Torizo palette.</param>
+    /// <returns>The golden-health endpoint color in BGR555 format.</returns>
     private static ushort Gold(int color)
     {
         if (color is >= 9 and <= 11)
@@ -119,7 +139,19 @@ internal static class GoldenTorizoHealthPaintDefinitions
         };
     }
 
+    /// <summary>Adds signed channel deltas while clipping each BGR555 component to its representable five-bit range.</summary>
+    /// <param name="color">Base BGR555 color.</param>
+    /// <param name="red">Signed red-channel adjustment.</param>
+    /// <param name="green">Signed green-channel adjustment.</param>
+    /// <param name="blue">Signed blue-channel adjustment.</param>
+    /// <returns>The adjusted BGR555 color.</returns>
     private static ushort Adjust(ushort color, int red, int green, int blue) =>
         Pack(Math.Clamp((color & 31) + red, 0, 31), Math.Clamp((color >> 5 & 31) + green, 0, 31), Math.Clamp((color >> 10 & 31) + blue, 0, 31));
+
+    /// <summary>Packs three five-bit RGB channels into the SNES BGR555 word layout.</summary>
+    /// <param name="red">Red component, stored in bits 0 through 4.</param>
+    /// <param name="green">Green component, stored in bits 5 through 9.</param>
+    /// <param name="blue">Blue component, stored in bits 10 through 14.</param>
+    /// <returns>The packed BGR555 color word.</returns>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

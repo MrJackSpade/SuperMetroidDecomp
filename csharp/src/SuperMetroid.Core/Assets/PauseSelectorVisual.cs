@@ -12,8 +12,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class PauseSelectorVisual
 {
+    /// <summary>Identifies the selector layout whose native geometry and visitation order are calculated.</summary>
     private readonly int group;
+    /// <summary>Holds a compiled author-supplied composition when the parts do not match a native selector layout.</summary>
     private readonly SpriteComposition? authored;
+
+    /// <summary>Creates a selector renderer backed by either a recognized native layout or a compiled authored composition.</summary>
+    /// <param name="group">Native layout identifier, or a negative value when <paramref name="authored"/> supplies the artwork.</param>
+    /// <param name="authored">Compiled fallback composition for custom parts; null when native selector geometry is used.</param>
     private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
@@ -21,9 +27,11 @@ internal sealed class PauseSelectorVisual
     /// <summary>Original equipment highlight paint order; the middle cells have a distinct non-spatial order.</summary>
     private static ReadOnlySpan<byte> EquipmentOrder => [18, 8, 15, 17, 16, 7, 6, 5, 14, 4, 10, 11, 12, 13, 19, 9, 3, 2, 1, 0];
 
+    /// <summary>Returns the number of sprite parts in a cursor, beam-highlight, or equipment-highlight layout.</summary>
     private static int Count(int group) => group switch
     { 0 => 1, 1 => 12, 2 => 20, _ => throw new ArgumentOutOfRangeException(nameof(group)) };
 
+    /// <summary>Calculates one selector sprite part at its native OAM visitation index.</summary>
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -37,6 +45,10 @@ internal sealed class PauseSelectorVisual
             SnesObjAttributeWord.Create(tile, 0, 3), true);
     }
 
+    /// <summary>
+    /// Recognizes the native selector layouts from their ordered parts, compiling any other
+    /// supplied arrangement as a general sprite composition.
+    /// </summary>
     internal static PauseSelectorVisual Compile(SpriteVisualPart[] parts, string name)
     {
         for (int group = 0; group < 3; group++)
@@ -55,6 +67,7 @@ internal sealed class PauseSelectorVisual
         return new(-1, MenuSpriteCompiler.Compile(parts, name));
     }
 
+    /// <summary>Draws the selector at the requested screen position using the caller's palette bits.</summary>
     internal void DrawOnScreen(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, x, y, paletteBits); return; }

@@ -28,8 +28,11 @@ public enum SparkEnemyFunction : ushort
 /// </summary>
 public sealed class SparkEnemyState
 {
+    /// <summary>Enemy slot whose variables B, E, and F hold Spark's function and timer state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a debugger-facing view over the supplied enemy slot's Spark variables.</summary>
+    /// <param name="slot">Slot that owns the native Spark state words.</param>
     internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable B, the literal bank-$A8 indirect main-function address.</summary>
@@ -62,9 +65,12 @@ public sealed class SparkEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native Wrecked Ship Spark enemy-definition pointer in bank $A8.</summary>
     internal const ushort SparkDefinition = 0xea3f;
+    /// <summary>Native bank-$A8 AI callback used by Spark's falling projectile.</summary>
     internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
+    /// <summary>Per-slot debugger projections created when Spark enemies are initialized.</summary>
     private readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[MaximumEnemyCount];
 
@@ -165,12 +171,19 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));
     }
 
+    /// <summary>Switches the enemy to an instruction list and makes its first command eligible immediately.</summary>
+    /// <param name="slot">Spark enemy slot whose instruction state is updated.</param>
+    /// <param name="pointer">Bank-local pointer to the selected instruction list.</param>
     private static void InstallSparkInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Gets the initialized Spark state associated with an enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose Spark state is required.</param>
+    /// <returns>The state projection created during Spark initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Spark.</exception>
     private SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
         _sparkStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");

@@ -37,8 +37,11 @@ public enum StokeAiFunction : ushort
 /// </summary>
 public sealed class StokeEnemyState
 {
+    /// <summary>Enemy slot whose generic variable words hold this typed Stoke state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Wraps an allocated enemy slot without duplicating its WRAM-backed variables.</summary>
+    /// <param name="slot">Slot initialized as the Stoke actor.</param>
     internal StokeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Fractional half of the positive 16.16 walking displacement.</summary>
@@ -92,10 +95,13 @@ public sealed class StokeEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A0 enemy-definition pointer identifying the shipped Stoke actor.</summary>
     internal const ushort StokeDefinition = 0xceff;
 
+    /// <summary>Two-pixel 16.16 downward probe displacement used to test for floor support.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
+    /// <summary>Per-enemy typed Stoke state, indexed by room slot and absent for other enemies.</summary>
     private readonly StokeEnemyState?[] _stokeStates =
         new StokeEnemyState?[MaximumEnemyCount];
 
@@ -230,6 +236,9 @@ public sealed partial class RoomEnemySystem
             SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
     }
 
+    /// <summary>Selects a Stoke animation list and resets its instruction and enemy timers for the next tick.</summary>
+    /// <param name="slot">Stoke enemy slot whose animation cursor is being changed.</param>
+    /// <param name="instructionList">Bank-$A2 instruction-list address to execute.</param>
     private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -237,6 +246,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the typed state created during Stoke initialization for this enemy slot.</summary>
+    /// <param name="slot">Enemy slot expected to contain an initialized Stoke actor.</param>
+    /// <returns>The typed view backed by the slot's generic variables.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Stoke state.</exception>
     private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
         _stokeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");

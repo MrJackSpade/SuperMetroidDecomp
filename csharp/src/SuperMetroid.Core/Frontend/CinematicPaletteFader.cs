@@ -15,11 +15,22 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
+    /// <summary>8.8 red-channel accumulators for every CGRAM color; the high byte supplies the visible component.</summary>
     private readonly ushort[] currentRed = new ushort[SnesCgram.ColorCount];
+
+    /// <summary>8.8 green-channel accumulators for every CGRAM color; the high byte supplies the visible component.</summary>
     private readonly ushort[] currentGreen = new ushort[SnesCgram.ColorCount];
+
+    /// <summary>8.8 blue-channel accumulators for every CGRAM color; the high byte supplies the visible component.</summary>
     private readonly ushort[] currentBlue = new ushort[SnesCgram.ColorCount];
+
+    /// <summary>Per-update 8.8 red-channel delta, set to one thirty-second of each target component.</summary>
     private readonly ushort[] redStep = new ushort[SnesCgram.ColorCount];
+
+    /// <summary>Per-update 8.8 green-channel delta, set to one thirty-second of each target component.</summary>
     private readonly ushort[] greenStep = new ushort[SnesCgram.ColorCount];
+
+    /// <summary>Per-update 8.8 blue-channel delta, set to one thirty-second of each target component.</summary>
     private readonly ushort[] blueStep = new ushort[SnesCgram.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
@@ -111,6 +122,11 @@ public sealed class CinematicPaletteFader
         }
     }
 
+    /// <summary>Converts a native palette byte offset and count into a checked half-open color-index range.</summary>
+    /// <param name="paletteByteOffset">Even byte offset into the BGR555 palette.</param>
+    /// <param name="colorCount">Number of colors in the requested range; must be nonzero.</param>
+    /// <returns>The first color index and the exclusive end index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The offset is unaligned, the count is zero, or the range exceeds CGRAM.</exception>
     private static (int FirstColor, int ExclusiveEnd) ValidateRange(
         ushort paletteByteOffset,
         ushort colorCount)

@@ -19,6 +19,12 @@ internal static class GrappleConnectionDefinitions
         new(0x7380, GrappleWallContactLeftPose, -8, 16, WallGrabHandler),
     ];
 
+    /// <summary>One authored grapple stop or its facing-reflected collision record.</summary>
+    /// <param name="Angle">Native angular threshold for the rope collision stop.</param>
+    /// <param name="Pose">Samus pose selected when the stop is reached.</param>
+    /// <param name="X">Horizontal position adjustment relative to the collision point.</param>
+    /// <param name="Y">Vertical position adjustment relative to the collision point.</param>
+    /// <param name="Function">Native grapple function invoked for this stop.</param>
     internal readonly record struct SpecialConnection(ushort Angle, byte Pose, short X, short Y, ushort Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
@@ -33,6 +39,10 @@ internal static class GrappleConnectionDefinitions
             (short)-stop.X, stop.Y, stop.Function);
     }
 
+    /// <summary>Maps a supported right-facing grapple pose to its left-facing counterpart, or vice versa.</summary>
+    /// <param name="pose">Pose identity from a special grapple-stop record.</param>
+    /// <returns>The corresponding pose with its facing direction reversed.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is not one of the supported grapple-stop poses.</exception>
     private static byte MirrorPose(byte pose) => pose switch
     {
         GrappleCrouchingDownRightPose => GrappleCrouchingDownLeftPose,

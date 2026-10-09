@@ -6,6 +6,9 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One visual component of an extended enemy frame, without hitbox metadata.</summary>
+/// <param name="OffsetX">Signed whole-pixel horizontal displacement from the enemy anchor.</param>
+/// <param name="OffsetY">Signed whole-pixel vertical displacement from the enemy anchor.</param>
+/// <param name="Parts">The visual OAM pieces drawn at this component's offset; collision and hitbox data are kept elsewhere.</param>
 internal readonly record struct EnemyExtendedDrawComponent(
     short OffsetX, short OffsetY, EnemySpritemapParts Parts);
 
@@ -36,9 +39,14 @@ public sealed class EnemyExtendedFrameCatalog
             }
         });
 
+    /// <summary>Compiled visual components keyed by the bank-qualified physical extended-frame pointer.</summary>
     private readonly Dictionary<int, EnemyExtendedDrawComponent[]> frames;
+    /// <summary>Visual-only bindings from each physical frame identity to the selected display-frame identity.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Creates a catalog from validated frame visuals and their display-selection bindings.</summary>
+    /// <param name="frames">Visual components indexed by the combined bank and native pointer identity.</param>
+    /// <param name="displayFrames">Selected visual frame identities for physical frame identities.</param>
     private EnemyExtendedFrameCatalog(
         Dictionary<int, EnemyExtendedDrawComponent[]> frames,
         Dictionary<int, int> displayFrames)
@@ -47,6 +55,11 @@ public sealed class EnemyExtendedFrameCatalog
         this.displayFrames = displayFrames;
     }
 
+    /// <summary>Finds the editable visual components for a physical extended-frame pointer.</summary>
+    /// <param name="bank">The bank containing the frame pointer.</param>
+    /// <param name="pointer">The bank-local native extended-frame pointer.</param>
+    /// <param name="components">Receives the frame's visual components when found.</param>
+    /// <returns><see langword="true"/> when the pointer is a known empty common frame or has a compiled visual entry.</returns>
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {

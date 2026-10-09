@@ -43,7 +43,9 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
     /// <summary>Falling-phase repetition at86:97B6/97C6/97D6. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
     private const ushort FallingRepeatCount = 4;
 
+    /// <summary>Number of address/value pairs compiled for instruction timing, repetition, control flow, and deletion.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Number of instruction operands that select separately installed projectile artwork.</summary>
     public static int PresentationWordCount => 31;
 
     /// <summary>Shared three-pose loops, counted falling cycles and impact/deletion tails.</summary>
@@ -89,14 +91,27 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
                 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
+    /// <summary>Creates the address/value pair for a frame command in a projectile instruction list.</summary>
+    /// <param name="start">Address of the instruction list's first frame command.</param>
+    /// <param name="frame">Zero-based frame index within that list.</param>
+    /// <param name="duration">Instruction timer value associated with the frame.</param>
+    /// <returns>The compiled mechanics word at the selected frame command.</returns>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
+    /// <summary>Returns one word from a shared three-frame loop, including its backward branch command.</summary>
+    /// <param name="start">Address of the loop's first frame command.</param>
+    /// <param name="word">Word index within the loop's frame and branch sequence.</param>
+    /// <returns>The mechanics address and value for that loop word.</returns>
     private static InstructionMechanicsWord LoopWord(ushort start, int word) =>
         word < 3 ? Frame(start, word, FlamePoseFrames)
             : new((ushort)(start + 12 + (word - 3) * 2),
                 word == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : start);
 
+    /// <summary>Maps a presentation-word ordinal to the address of its spritemap operand in the native instruction lists.</summary>
+    /// <param name="index">Zero-based ordinal among the compiled presentation words.</param>
+    /// <returns>The address of the corresponding artwork-selection operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the compiled presentation-word range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -112,10 +127,17 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
         return (ushort)(DestroyableShot + (index - 27) * 4 + 2);
     }
 
+    /// <summary>Determines whether this program supplies instructions for a Phantoon flame projectile kind.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns>True for destroyable or starting Phantoon flames.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
         RoomEnemyProjectileKind.PhantoonStartingFlame;
 
+    /// <summary>Looks up a compiled instruction mechanics value by its native address.</summary>
+    /// <param name="address">Address of a compiled mechanics word in bank $86.</param>
+    /// <returns>The timer, count, or control-flow operand stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by this compiled program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -6,7 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map-arrow anchors and cosmetic phase durations; no controller bindings.</summary>
 public sealed class MapArrowPresentation
 {
+    /// <summary>Cached visuals for Left, Right, Up, and Down, selected by the matching <see cref="MapScrollDirection"/>.</summary>
     private readonly MapArrowVisual left, right, up, down;
+
+    /// <summary>Creates a presentation with one validated visual for each map-scroll direction.</summary>
+    /// <param name="left">Visual returned for leftward map scrolling.</param>
+    /// <param name="right">Visual returned for rightward map scrolling.</param>
+    /// <param name="up">Visual returned for upward map scrolling.</param>
+    /// <param name="down">Visual returned for downward map scrolling.</param>
     private MapArrowPresentation(MapArrowVisual left, MapArrowVisual right, MapArrowVisual up, MapArrowVisual down)
     { this.left = left; this.right = right; this.up = up; this.down = down; }
 
@@ -49,7 +56,13 @@ public sealed class MapArrowPresentation
 /// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
+    /// <summary>Per-phase delays that differ from the native menu-selector timing defaults.</summary>
     private readonly Dictionary<int, byte>? durationOverrides;
+
+    /// <summary>Creates an arrow visual from its screen anchor and validated phase durations.</summary>
+    /// <param name="x">Horizontal screen-pixel coordinate of the arrow anchor.</param>
+    /// <param name="y">Vertical screen-pixel coordinate of the arrow anchor.</param>
+    /// <param name="durations">Positive update-tick duration for each phase in the visual's cycle.</param>
     internal MapArrowVisual(int x, int y, int[] durations)
     {
         X = (ushort)x;

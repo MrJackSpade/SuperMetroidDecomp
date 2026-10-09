@@ -36,7 +36,10 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpitRockShotDelete = 0x9ca1;
 
+    /// <summary>Number of compiled mechanics operands covering shared poses and the spit-shot program.</summary>
     public static int MechanicsWordCount => 12;
+
+    /// <summary>Number of presentation-word addresses exposed by the shared poses and spit-shot frames.</summary>
     public static int PresentationWordCount => 7;
 
     /// <summary>Two fixed poses end in Sleep. The shot sequence installs its
@@ -67,6 +70,10 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         return (ushort)(index < 2 ? SharedRockAndKagoBug + 6 * index + 2
             : SpitRockShot + 6 + 4 * (index - 2));
     }
+    /// <summary>Determines whether a projectile kind may use one of this catalog's instruction-list addresses.</summary>
+    /// <param name="kind">Projectile identity whose compiled instruction program is being checked.</param>
+    /// <param name="address">Instruction-list address to test against that identity's owned lists.</param>
+    /// <returns><see langword="true"/> when the address belongs to a program assigned to the projectile kind.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => kind switch
     {
         RoomEnemyProjectileKind.KraidSpitRock =>
@@ -78,6 +85,10 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         _ => false,
     };
 
+    /// <summary>Returns the compiled mechanics operand stored at a Kraid-rock instruction address.</summary>
+    /// <param name="address">Address of a mechanics word in one of the compiled Kraid-rock programs.</param>
+    /// <returns>The operand value associated with <paramref name="address"/>.</returns>
+    /// <exception cref="InvalidDataException">The address is not present in the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -99,12 +110,21 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
             "is not compiled.");
     }
 
+    /// <summary>Checks whether an address is an instruction-list entry in the shared rock and Kago-bug program.</summary>
+    /// <param name="address">Instruction-list address to test.</param>
+    /// <returns><see langword="true"/> for the shared program's start or sleep instruction.</returns>
     private static bool IsSharedProgramAddress(ushort address) =>
         address is SharedRockAndKagoBug or SharedRockAndKagoBugSleep;
 
+    /// <summary>Checks whether an address is an instruction-list entry in the rising right-rock program.</summary>
+    /// <param name="address">Instruction-list address to test.</param>
+    /// <returns><see langword="true"/> for the right-rock program's start or sleep instruction.</returns>
     private static bool IsRisingRightProgramAddress(ushort address) =>
         address is RisingRockRight or RisingRockRightSleep;
 
+    /// <summary>Checks whether an address is an instruction word within the Kraid spit-rock shot program.</summary>
+    /// <param name="address">Instruction-list address to test.</param>
+    /// <returns><see langword="true"/> for an odd-byte instruction address from the shot list through its delete command.</returns>
     private static bool IsSpitShotProgramAddress(ushort address) =>
         address >= SpitRockShot && address <= SpitRockShotDelete && (address & 1) != 0;
 }

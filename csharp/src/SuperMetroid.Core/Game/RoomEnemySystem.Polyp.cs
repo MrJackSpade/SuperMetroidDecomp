@@ -18,8 +18,11 @@ public enum PolypEnemyFunction : ushort
 /// <summary>Typed view of Polyp's function and cooldown words.</summary>
 public sealed class PolypEnemyState
 {
+    /// <summary>The room-owned enemy slot whose variable words back this typed Polyp state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over the enemy slot initialized for Polyp behavior.</summary>
+    /// <param name="slot">The room enemy slot that stores the function pointer and cooldown words.</param>
     internal PolypEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c> indirect main-AI pointer.</summary>
@@ -44,11 +47,15 @@ public sealed class PolypEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>$A0:D1FF, the native instruction-list definition used to initialize a Polyp actor.</summary>
     internal const ushort PolypDefinition = 0xd1ff;
 
+    /// <summary>$0040, the strict per-axis distance threshold for switching from waiting to the rock-throw action.</summary>
     private const ushort PolypProximity = 0x0040;
+    /// <summary>$0011, the shared cartridge RNG seed written by each Polyp initializer.</summary>
     private const ushort PolypRandomSeed = 0x0011;
 
+    /// <summary>Typed Polyp state views indexed by room enemy slot; entries are populated when Polyp actors initialize.</summary>
     private readonly PolypEnemyState?[] _polypStates =
         new PolypEnemyState?[MaximumEnemyCount];
 
@@ -140,6 +147,10 @@ public sealed partial class RoomEnemySystem
         return unchecked((short)(magnitude - PolypProximity)) < 0;
     }
 
+    /// <summary>Gets the initialized Polyp state associated with a room enemy slot.</summary>
+    /// <param name="slot">The enemy slot whose Polyp state is required.</param>
+    /// <returns>The state view created during Polyp initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Polyp.</exception>
     private PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
         _polypStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");

@@ -3,11 +3,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile half of Polyp's lava-rock attack.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$86 callback installed on newly allocated Polyp lava-rock projectiles.</summary>
     private const ushort PolypRockPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock;
+    /// <summary>Native function selector for the projectile's upward arc phase at <c>$86:BC16</c>.</summary>
     private const ushort PolypRockRisingFunction = 0xbc16;
+    /// <summary>Native function selector for the projectile's downward arc phase at <c>$86:BC8F</c>.</summary>
     private const ushort PolypRockFallingFunction = 0xbc8f;
+    /// <summary>Two-entry change applied to the quadratic-speed table index on each movement frame.</summary>
     private const ushort PolypRockGravityStep = 2;
+    /// <summary>Maximum speed-table index used to cap the descending projectile's fall.</summary>
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 
     /// <summary>
@@ -60,6 +65,8 @@ public sealed partial class RoomEnemySystem
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
 
+    /// <summary>Advances the upward arc, switches to falling at the apex, and otherwise integrates its two curve samples.</summary>
+    /// <param name="projectile">Projectile state whose velocity, position, scratch word, and phase are updated.</param>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.YVelocity = unchecked((ushort)(
@@ -84,6 +91,8 @@ public sealed partial class RoomEnemySystem
         MovePolypRockHorizontally(projectile);
     }
 
+    /// <summary>Advances the downward arc with capped speed and integrates its two curve samples.</summary>
+    /// <param name="projectile">Projectile state whose velocity, position, and scratch word are updated.</param>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.YVelocity = unchecked((ushort)(

@@ -11,9 +11,13 @@ internal static class MotherBrainBodyVisualDefinitions
     internal const byte Bank = 0xa9;
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
     internal const int MaximumNativeComponents = 10;
+    /// <summary>Total OAM frame identities, including the initial dummy frame omitted from BG2 artwork.</summary>
     internal const int FrameCount = 17;
+    /// <summary>Number of BG2 body frames after excluding the OAM-only initial dummy.</summary>
     internal const int Bg2FrameCount = FrameCount - 1;
+    /// <summary>Schema revision for the editable Mother Brain BG2 frame document.</summary>
     internal const int Bg2Version = 1;
+    /// <summary>Asset filename containing the editable BG2 body-frame streams.</summary>
     internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
 
     /// <summary>$A9:9FA0, standing frame with nine components.</summary>
@@ -26,6 +30,7 @@ internal static class MotherBrainBodyVisualDefinitions
     private const ushort Uncrouching = 0xa28c;
     /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
     private const ushort DeathBeamStart = 0xa384;
+    /// <summary>Provides BG2 frame identities and their matching pose roots, excluding the OAM-only dummy pose.</summary>
     internal static EnemyBg2FrameDefinitionSequence Bg2Frames => new(Bg2FrameCount, Bg2Frame);
 
     /// <summary>Calculates the published OAM identity. Native record strides are
@@ -61,10 +66,19 @@ internal static class MotherBrainBodyVisualDefinitions
         return new(frame.Pointer, frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal));
     }
 
+    /// <summary>Determines whether a native extended-frame root has a corresponding BG2 body stream.</summary>
+    /// <param name="pointer">Bank-$A9 frame pointer to classify.</param>
+    /// <returns><see langword="true"/> for roots in the published standing, walking, crouch-transition, or death-beam runs.</returns>
     internal static bool HasBg2(ushort pointer) => pointer == Standing ||
         InRun(pointer, WalkingStart, 3, 0x52) || InRun(pointer, LaterWalkingStart, 6, 0x4a) ||
         InRun(pointer, Uncrouching, 2, 0x4a) || InRun(pointer, DeathBeamStart, 4, 0x4a);
 
+    /// <summary>Checks whether a pointer is aligned to one of a contiguous run's frame-record starts.</summary>
+    /// <param name="pointer">Candidate frame pointer.</param>
+    /// <param name="start">First frame pointer in the run.</param>
+    /// <param name="count">Number of frames in the run.</param>
+    /// <param name="stride">Byte distance between adjacent frame records.</param>
+    /// <returns><see langword="true"/> when the pointer lies within the run at an exact record boundary.</returns>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;

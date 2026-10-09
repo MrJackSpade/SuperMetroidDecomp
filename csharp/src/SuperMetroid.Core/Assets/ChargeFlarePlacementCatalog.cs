@@ -7,8 +7,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class ChargeFlarePlacementCatalog
 {
     // Source kind comes from the importing file contract, never from supplied pixel/offset values.
+    /// <summary>Selects the native beam or Grapple placement table used when no editable override exists.</summary>
     private readonly bool grapple;
+    /// <summary>Offsets supplied by the resource that differ from the selected native placement table.</summary>
     private readonly Dictionary<int, ChargeFlareOffset> offsets = new();
+    /// <summary>Creates a catalog from the complete set of imported placements, retaining only values that override native defaults.</summary>
+    /// <param name="supplied">Placement values in standing-then-running, direction-indexed order.</param>
+    /// <param name="grapple">Selects Grapple's native placement table as the fallback source.</param>
     private ChargeFlarePlacementCatalog(ChargeFlareOffset[] supplied, bool grapple)
     {
         this.grapple = grapple;
@@ -16,6 +21,7 @@ public sealed class ChargeFlarePlacementCatalog
             if (supplied[index] != CalculatedOffset(index >= ChargeFlarePlacementDefinitions.DirectionCount,
                 index % ChargeFlarePlacementDefinitions.DirectionCount)) offsets.Add(index, supplied[index]);
     }
+    /// <summary>Shared strict JSON settings used to keep placement documents camel-cased and reject unrecognized properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -32,6 +38,10 @@ public sealed class ChargeFlarePlacementCatalog
         return offsets.TryGetValue((running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction, out var supplied)
             ? supplied : CalculatedOffset(running, direction);
     }
+    /// <summary>Gets the native fallback placement for this mode and direction from the catalog's selected source table.</summary>
+    /// <param name="running">Selects the running row when true, otherwise the standing row.</param>
+    /// <param name="direction">Direction index within the native 16-entry row.</param>
+    /// <returns>The beam or Grapple offset defined by the selected native placement contract.</returns>
     private ChargeFlareOffset CalculatedOffset(bool running, int direction) => grapple
         ? ChargeFlarePlacementDefinitions.GrappleOffset(running, direction)
         : ChargeFlarePlacementDefinitions.BeamOffset(running, direction);
@@ -44,6 +54,11 @@ public sealed class ChargeFlarePlacementCatalog
     /// <param name="json">UTF-8 JSON stream containing the same 32-key placement schema for Grapple flare origins.</param>
     /// <returns>The immutable placement catalog interpreted with Grapple's native origin and adjacent-row definitions.</returns>
     public static ChargeFlarePlacementCatalog LoadGrapple(Stream json) => Load(json, true);
+    /// <summary>Parses and validates a complete placement resource, tagging its import kind for native fallback resolution.</summary>
+    /// <param name="json">JSON stream containing the versioned standing and running placement rows.</param>
+    /// <param name="grapple">Uses Grapple-specific native fallback placements when true.</param>
+    /// <returns>A catalog containing imported overrides and the appropriate native fallback source.</returns>
+    /// <exception cref="InvalidDataException">The document is malformed, has duplicate or missing properties, uses an unsupported version, or omits any placement key.</exception>
     private static ChargeFlarePlacementCatalog Load(Stream json, bool grapple)
     {
         ChargeFlarePlacementDocument document;
@@ -78,6 +93,8 @@ public sealed class ChargeFlarePlacementCatalog
         _ = Load(new MemoryStream(bytes));
         return bytes;
     }
+    /// <summary>Rejects duplicate property names throughout an object before JSON deserialization can discard earlier values.</summary>
+    /// <param name="element">Parsed root element to check, including nested objects but not traversing arrays.</param>
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate charge-flare placement property."), descendArrays: false);

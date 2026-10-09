@@ -7,11 +7,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {
+    /// <summary>Supplied colors or the compact independent colors plus the detected gradient endpoint.</summary>
     private readonly ushort[] independentOrSupplied;
+    /// <summary>True when the supplied samples match the palette's calculated seven-step gradient.</summary>
     private readonly bool calculated;
+    /// <summary>True when all sixteen supplied entries exactly match the reviewed stock palette.</summary>
     private readonly bool stockTarget;
+    /// <summary>Number of palette entries exposed to callers, either fifteen or sixteen.</summary>
     internal int Count { get; }
 
+    /// <summary>Stores supplied corpse colors and recognizes stock or independently authored gradient palettes.</summary>
+    /// <param name="colors">Fifteen auxiliary colors or the complete sixteen-entry standalone palette.</param>
+    /// <exception cref="ArgumentException">The input does not contain fifteen or sixteen colors.</exception>
     internal SidehopperCorpsePalette(ushort[] colors)
     {
         Count = colors.Length;
@@ -53,6 +60,10 @@ internal sealed class SidehopperCorpsePalette
         calculated = true;
     }
 
+    /// <summary>Returns one color, expanding the omitted white entry and detected gradient when applicable.</summary>
+    /// <param name="color">Palette slot in the range from zero through <see cref="Count"/> minus one.</param>
+    /// <returns>The resolved RGB5 color word for the requested slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The requested slot is outside this palette.</exception>
     internal ushort Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
@@ -63,6 +74,11 @@ internal sealed class SidehopperCorpsePalette
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
+    /// <summary>Interpolates each RGB5 channel between endpoints using the native seven-interval rounding.</summary>
+    /// <param name="start">RGB5 color at phase zero.</param>
+    /// <param name="end">RGB5 color at phase seven.</param>
+    /// <param name="phase">Interpolation step, from zero through seven inclusive.</param>
+    /// <returns>The channel-wise interpolated RGB5 word.</returns>
     internal static ushort Interpolate(ushort start, ushort end, int phase)
     {
         int result = 0;

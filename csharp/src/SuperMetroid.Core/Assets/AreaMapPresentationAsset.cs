@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Versioned editable map cells; exploration rules are supplied by the application.</summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
+    /// <summary>Row-major packed SNES tile words selected by the editable presentation; each boolean array snapshots the corresponding exploration rule supplied at construction.</summary>
     private readonly MapTileWord[] cells;
+    /// <summary>Per-cell snapshots of discovery eligibility, map-station reveal behavior, and the slope rule that reveals the cell above, respectively.</summary>
     private readonly bool[] discoverable, station, revealsAbove;
     /// <summary>Area shared by the validated presentation document and its separately supplied exploration rules.</summary>
     public AreaId Area { get; }
 
+    /// <summary>Combines validated presentation cells with a snapshot of area exploration rules.</summary>
+    /// <param name="cells">The row-major tile words compiled from the presentation document.</param>
+    /// <param name="rules">The area-matched view whose discovery and map-station rules are copied for every cell.</param>
     private AreaMapPresentationAsset(MapTileWord[] cells, IAreaMapView rules)
     {
         this.cells = cells;
@@ -107,6 +112,10 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }, MapPresentationFormat.JsonOptions);
     }
 
+    /// <summary>Validates logical area-map coordinates and converts them to this asset's row-major storage offset.</summary>
+    /// <param name="x">The zero-based tile column.</param>
+    /// <param name="y">The zero-based tile row.</param>
+    /// <returns>The row-major offset for the validated coordinate.</returns>
     private static int Index(int x, int y)
     {
         _ = AreaMapLayout.GetTilemapWordIndex(x, y); // Shared coordinate validation; storage here is row-major.
@@ -161,6 +170,7 @@ public static class MapPresentationFormat
     public const int FlipXBit = 0x4000;
     /// <summary>$8000, SNES BG character vertical-mirror mask at bit 15, preserved when exporting or compiling map cells.</summary>
     public const int FlipYBit = 0x8000;
+    /// <summary>Serializer settings for the versioned map-presentation JSON schema: camel-case properties, indented output, and rejection of unknown members.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

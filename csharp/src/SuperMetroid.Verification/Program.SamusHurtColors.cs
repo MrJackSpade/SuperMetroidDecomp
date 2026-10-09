@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares extracted hurt and intro palettes and verifies both native flash cycles use installed artwork.</summary>
     private static void VerifySamusHurtColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -47,6 +48,10 @@ internal static partial class Program
         Console.WriteLine("  Samus hurt colors: both native palettes and guarded ordinary/cinematic cycles pass.");
     }
 
+    /// <summary>Checks seven ordinary or cinematic hurt updates against the expected CGRAM source without native-art reads.</summary>
+    /// <param name="rom">Retail address space used only to obtain expected palette values.</param>
+    /// <param name="catalog">Installed hurt and intro colors selected by the production flash handler.</param>
+    /// <param name="cinematic">Selects the intro palette path when <see langword="true"/>.</param>
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         SamusHurtColorCatalog catalog, bool cinematic)
     {
@@ -91,6 +96,11 @@ internal static partial class Program
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
     }
 
+    /// <summary>Verifies edited hurt and intro palette overrides reach CGRAM through their respective flash paths and restore the stock identity when removed.</summary>
+    /// <param name="stock">Directory containing the stock presentation documents.</param>
+    /// <param name="overrides">Directory where the temporary edited hurt-color document is written.</param>
+    /// <param name="baseline">Loaded stock catalog whose content identity is checked before and after the override.</param>
+    /// <param name="rom">Retail address space wrapped to detect fallback reads of native hurt artwork.</param>
     private static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
     {
@@ -136,11 +146,23 @@ internal static partial class Program
         Console.WriteLine("Samus hurt override: edited flash/intro colors reach CGRAM and stock restores.");
     }
 
+    /// <summary>Wraps an address space and rejects reads from the native hurt and intro palette ranges.</summary>
+    /// <param name="inner">Underlying bus for addresses outside the protected artwork ranges and for writes.</param>
     private sealed class ForbiddenHurtColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from protected native palette data.</summary>
         public int ForbiddenReads { get; private set; }
+
+        /// <summary>Routes import-time cartridge reads through the palette-range guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte if the address is outside the protected palette ranges.</returns>
+        /// <exception cref="InvalidOperationException">The importer attempted to read native hurt or intro artwork.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads an unprotected byte from the wrapped bus, counting and rejecting palette-art fallback access.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte for an address outside the protected ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the native hurt or intro color data.</exception>
         public byte ReadByte(int address)
         {
             if (address >= SamusHurtColorFormat.HurtSourceAddress &&
@@ -153,6 +175,9 @@ internal static partial class Program
             return inner.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

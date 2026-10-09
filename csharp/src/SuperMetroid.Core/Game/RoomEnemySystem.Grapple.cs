@@ -9,12 +9,19 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A0 reaction that restores ordinary AI and clears invincibility, freeze, and shake timers.</summary>
     private const ushort GrappleNoInteraction = EnemyAiCodePointers.BankA0.GrappleNoInteraction;
+    /// <summary>Bank-$A0 reaction that attaches the enemy to Samus, respecting freeze state and ordinary hurt timing.</summary>
     private const ushort GrappleAttach = EnemyAiCodePointers.BankA0.GrappleAttach;
+    /// <summary>Bank-$A0 reaction that starts the shared enemy-death sequence with its default explosion variant.</summary>
     private const ushort GrappleKill = EnemyAiCodePointers.BankA0.GrappleKill;
+    /// <summary>Bank-$A0 reaction that yields the enemy to the common grapple handler without performing a normal attach.</summary>
     private const ushort GrappleCancel = EnemyAiCodePointers.BankA0.GrappleCancel;
+    /// <summary>Bank-$A0 attach wrapper that runs the enemy's main AI once before clearing grapple dispatch.</summary>
     private const ushort GrappleAttachWithoutInvincibility = EnemyAiCodePointers.BankA0.GrappleAttachWithoutInvincibility;
+    /// <summary>Bank-$A0 reaction that applies the paralyze marker while starting the enemy's ordinary flash timer.</summary>
     private const ushort GrappleAttachAndParalyze = EnemyAiCodePointers.BankA0.GrappleAttachAndParalyze;
+    /// <summary>Bank-$A0 reaction used when a grapple interaction hurts Samus and leaves the enemy in the shared grapple handler.</summary>
     private const ushort GrappleHurtSamus = EnemyAiCodePointers.BankA0.GrappleHurtSamus;
 
     /// <summary>

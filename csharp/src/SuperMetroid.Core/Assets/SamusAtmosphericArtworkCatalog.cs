@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class SamusAtmosphericArtworkCatalog
 {
+    /// <summary>Sparse replacements for type-one footstep attributes that differ from the calculated stock sequence.</summary>
     private readonly Dictionary<int, ushort> typeOne = new();
+    /// <summary>Sparse replacements for the shared type-four, type-six, and type-seven lava/dust attributes.</summary>
     private readonly Dictionary<int, ushort> sharedTypeFour = new();
 
     /// <summary>Captures selected four-frame attribute lists, retaining independent differences from calculated stock words without retaining caller arrays.</summary>
@@ -63,15 +65,31 @@ public sealed class SamusAtmosphericArtworkCatalog
         return true;
     }
 
+    /// <summary>Gets one frame's packed attributes from the matching override set or calculated stock definition.</summary>
+    /// <param name="footstep"><see langword="true"/> selects the type-one sequence; <see langword="false"/> selects the shared lava/dust sequence.</param>
+    /// <param name="frame">Zero-based position in the four-frame sequence.</param>
+    /// <returns>The packed small-OBJ tile and attribute word for the selected frame.</returns>
     private ushort Resolve(bool footstep, int frame) =>
         (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
             ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
 
+    /// <summary>Read-only four-frame view that resolves values from its owning catalog on demand.</summary>
+    /// <param name="owner">Catalog providing authored replacements and calculated stock words.</param>
+    /// <param name="footstep">Selects type-one footstep values when true, or shared lava/dust values for types 4, 6, and 7 when false.</param>
     private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, bool footstep) : IReadOnlyList<ushort>
     {
+        /// <summary>Gets the number of direct small-OBJ frames in an atmospheric sequence.</summary>
         public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
+
+        /// <summary>Gets the packed attributes for one frame in the selected atmospheric sequence.</summary>
+        /// <param name="index">Zero-based frame index.</param>
+        /// <value>The resolved tile and attribute word.</value>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the four-frame sequence.</exception>
         public ushort this[int index] => (uint)index < Count
             ? owner.Resolve(footstep, index) : throw new ArgumentOutOfRangeException(nameof(index));
+
+        /// <summary>Enumerates the frame words in animation order.</summary>
+        /// <returns>An enumerator over all four resolved small-OBJ attribute words.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int frame = 0; frame < Count; frame++) yield return this[frame];

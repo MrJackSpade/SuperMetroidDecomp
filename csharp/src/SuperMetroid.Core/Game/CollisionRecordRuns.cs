@@ -17,9 +17,14 @@ internal sealed class CollisionRecordRuns<TElement>
     /// <summary>Bytes in one hitbox rectangle (left, top, right, bottom, touch and shot callbacks).</summary>
     internal const int HitboxBytes = 12;
 
+    /// <summary>Byte width of each element stored after a record's count word.</summary>
     private readonly int elementBytes;
+    /// <summary>Ordered contiguous record groups from which pointers are derived.</summary>
     private readonly CollisionRecordRun<TElement>[] runs;
 
+    /// <summary>Initializes the record index and computes the total number of records in all runs.</summary>
+    /// <param name="elementBytes">Byte width of each payload element.</param>
+    /// <param name="runs">Contiguous runs in native pointer order.</param>
     private CollisionRecordRuns(int elementBytes, CollisionRecordRun<TElement>[] runs)
     {
         this.elementBytes = elementBytes;
@@ -35,11 +40,16 @@ internal sealed class CollisionRecordRuns<TElement>
     internal static CollisionRecordRuns<TElement> HitboxLists(params CollisionRecordRun<TElement>[] runs) =>
         new(HitboxBytes, runs);
 
+    /// <summary>Total number of records across the configured runs.</summary>
     internal int Count { get; }
 
     /// <summary>Address of the <paramref name="index"/>th record in run order.</summary>
     internal ushort PointerAt(int index) => Locate(index, out _);
 
+    /// <summary>Finds the record that begins at a native pointer.</summary>
+    /// <param name="pointer">Record start address to locate.</param>
+    /// <param name="elements">Receives the record payload when found, or an empty array otherwise.</param>
+    /// <returns>True when a run contains a record beginning at <paramref name="pointer"/>.</returns>
     internal bool TryGet(ushort pointer, out TElement[] elements)
     {
         foreach (CollisionRecordRun<TElement> run in runs)
@@ -59,6 +69,11 @@ internal sealed class CollisionRecordRuns<TElement>
         return false;
     }
 
+    /// <summary>Maps a flattened run-order index to its native record address and payload.</summary>
+    /// <param name="index">Zero-based record index across all runs.</param>
+    /// <param name="record">Receives the payload at the selected index.</param>
+    /// <returns>The address of the selected record's count word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the flattened record range.</exception>
     private ushort Locate(int index, out TElement[] record)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -78,6 +93,10 @@ internal sealed class CollisionRecordRuns<TElement>
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Advances from one record start past its count word and fixed-width payload.</summary>
+    /// <param name="pointer">Address of the current record's count word.</param>
+    /// <param name="elements">Number of payload elements in the current record.</param>
+    /// <returns>The wrapped 16-bit address immediately after the record.</returns>
     private ushort Next(ushort pointer, int elements) =>
         (ushort)(pointer + sizeof(ushort) + elementBytes * elements);
 }

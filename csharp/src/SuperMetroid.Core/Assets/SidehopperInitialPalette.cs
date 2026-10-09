@@ -11,11 +11,17 @@ internal sealed class SidehopperInitialPalette
     /// <summary>$A9:EBD2/EBD4 and $F8CC/F8CE: cyan body/leg colors3180 and18C0.
     /// The exact shadow halves each RGB5 channel. This selected ratio is reviewed for the standalone target only; the shifted auxiliary disposition is separate.</summary>
     private const int BodyShadowDivisor = 2;
+    /// <summary>Supplied endpoint colors retained for direct lookup or as the independent inputs to calculated palette slots.</summary>
     private readonly ushort[] independentOrSupplied;
+    /// <summary>Whether the input matches the derived white, repeated, and midpoint slot relationships.</summary>
     private readonly bool calculated;
+    /// <summary>Whether the input is the exact 16-color stock target, whose palette is resolved from the reviewed paint definitions.</summary>
     private readonly bool stockTarget;
+    /// <summary>Number of entries in the supplied target palette; supported palettes contain 15 or 16 colors.</summary>
     internal int Count { get; }
 
+    /// <summary>Classifies a supplied Sidehopper target palette as stock, calculated, or independently authored.</summary>
+    /// <param name="colors">Palette words in target-slot order; the array is retained when independent values are required.</param>
     internal SidehopperInitialPalette(ushort[] colors)
     {
         Count = colors.Length;
@@ -38,6 +44,10 @@ internal sealed class SidehopperInitialPalette
         colors.AsSpan(12, 2).CopyTo(independentOrSupplied.AsSpan(7));
     }
 
+    /// <summary>Resolves a target palette slot from reviewed stock paints, retained supplied values, or derived color relationships.</summary>
+    /// <param name="color">The zero-based palette slot to resolve.</param>
+    /// <returns>The SNES RGB5 color word assigned to the requested slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The slot is outside this palette's supported entry count.</exception>
     internal ushort Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
@@ -68,6 +78,9 @@ internal sealed class SidehopperInitialPalette
             result |= (((light >> shift & 31) + (dark >> shift & 31)) / 2) << shift;
         return (ushort)result;
     }
+    /// <summary>Calculates a body-shadow color by halving each RGB5 channel of its light endpoint.</summary>
+    /// <param name="light">The RGB5 source color whose channels are scaled independently.</param>
+    /// <returns>A packed RGB5 word with each channel integer-divided by the reviewed shadow divisor.</returns>
     internal static ushort BodyShadow(ushort light)
     {
         int result = 0;

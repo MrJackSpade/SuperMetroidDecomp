@@ -11,8 +11,26 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class CeresHazeState
 {
-    private enum Phase { Waiting, FadingIn, Holding, FadingOut }
+    /// <summary>Mutually exclusive control stages for the room-owned haze ramp.</summary>
+    private enum Phase
+    {
+        /// <summary>Waits for the room's door fade-in gate before beginning the ramp.</summary>
+        Waiting,
+
+        /// <summary>Publishes fade-in strengths from zero through the final ramp step.</summary>
+        FadingIn,
+
+        /// <summary>Retains the completed fade-in strength until the room fade-out gate arrives.</summary>
+        Holding,
+
+        /// <summary>Publishes fade-out strengths on successive pre-instruction updates.</summary>
+        FadingOut
+    }
+
+    /// <summary>Current stage controlling when the next haze intensity update is published.</summary>
     private Phase _phase;
+
+    /// <summary>Per-phase step index used by fade-in and fade-out, including their distinct endpoint rules.</summary>
     private int _counter;
     /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
     public bool Enabled { get; private set; }

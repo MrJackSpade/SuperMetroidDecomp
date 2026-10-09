@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonHealthPaintDefinitions
 {
+    /// <summary>Number of belly-material colors in each health band.</summary>
     private const int Shades = 4;
+    /// <summary>Number of discrete health levels used to interpolate the belly palette.</summary>
     private const int Bands = 8;
+    /// <summary>Maximum channel value in the five-bit RGB palette format.</summary>
     private const int Maximum = (1 << 5) - 1;
     /// <summary>
     /// $A5:96AF-96B6 (also normal palette slots9..12 at $A5:A289-A290):
@@ -20,8 +23,11 @@ internal sealed class DraygonHealthPaintDefinitions
     /// rule selecting alternate paint. Pixels and health thresholds are separate.
     /// </summary>
     private const int HealthyRedStep = 5, HealthyGreenStep = 6;
+    /// <summary>Sparse authored color replacements keyed by band and shade when they differ from the calculated palette.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Creates the health-paint lookup using authored row values only where they differ from the compiled interpolation.</summary>
+    /// <param name="rows">Eight health bands, each containing the four RGB555 belly shades.</param>
     internal DraygonHealthPaintDefinitions(ushort[][] rows)
     {
         for (int band = 0; band < Bands; band++)
@@ -29,6 +35,10 @@ internal sealed class DraygonHealthPaintDefinitions
                 if (rows[band][shade] != Calculate(band, shade)) edits.Add(band * Shades + shade, rows[band][shade]);
     }
 
+    /// <summary>Gets a belly color from the sparse authored overrides or the interpolated health palette.</summary>
+    /// <param name="band">Zero-based health band.</param>
+    /// <param name="shade">Zero-based belly-material shade within the band.</param>
+    /// <returns>The RGB555 color assigned to that band and shade.</returns>
     internal ushort Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out ushort edited)
         ? edited : Calculate(band, shade);
 
@@ -55,6 +65,11 @@ internal sealed class DraygonHealthPaintDefinitions
         return Calculate(0, shade);
     }
 
+    /// <summary>Linearly blends an RGB5 channel between endpoint values across the eight health bands using nearest-integer rounding.</summary>
+    /// <param name="first">Channel value in the healthiest band.</param>
+    /// <param name="last">Channel value in the critical-health band.</param>
+    /// <param name="band">Zero-based position between the endpoint bands.</param>
+    /// <returns>The rounded channel value for the selected band.</returns>
     private static int Interpolate(int first, int last, int band)
     {
         int delta = last - first;

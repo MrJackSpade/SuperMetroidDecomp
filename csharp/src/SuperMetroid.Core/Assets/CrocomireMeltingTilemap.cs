@@ -13,11 +13,29 @@ internal sealed class CrocomireMeltingTilemap
     private const ushort Blank = 0x0338;
     /// <summary>Both native illustrations use BG palette7 and priority1, with no reflections.</summary>
     private const ushort IllustrationStyle = 0x3c00;
+    /// <summary>
+    /// Number of 8-pixel tile columns in the source atlas used to calculate contiguous strips.
+    /// </summary>
     private const int AtlasColumns = 16;
+    /// <summary>
+    /// Native background row width used to map each linear tilemap index to a row and column.
+    /// </summary>
     private const int BgColumns = 32;
+    /// <summary>
+    /// Selects the exposed-jaw composition when true and the closed-jaw composition otherwise.
+    /// </summary>
     private readonly bool second;
+    /// <summary>
+    /// Stores supplied cells only when they differ from the selected composition's calculated tile.
+    /// </summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>
+    /// Creates a tilemap composition, retaining only authored cells that differ from its
+    /// cartridge-derived default layout.
+    /// </summary>
+    /// <param name="second">Selects the exposed-jaw illustration instead of the closed-jaw illustration.</param>
+    /// <param name="supplied">The 16-by-16 authoring tilemap whose nondefault cells are preserved.</param>
     internal CrocomireMeltingTilemap(bool second, ReadOnlySpan<ushort> supplied)
     {
         this.second = second;
@@ -27,6 +45,9 @@ internal sealed class CrocomireMeltingTilemap
             if (supplied[index] != Calculate(index)) edits.Add(index, supplied[index]);
     }
 
+    /// <summary>
+    /// Builds the complete 16-by-16 tilemap by combining calculated defaults with authored cell edits.
+    /// </summary>
     internal ushort[] Words()
     {
         var words = new ushort[CrocomireMeltingArtworkFormat.TilemapCellCount];
@@ -38,6 +59,9 @@ internal sealed class CrocomireMeltingTilemap
     /// <summary>Increasing atlas rows are contiguous source strips, sixteen tiles apart.</summary>
     private static int Strip(int first, int column, int start) => first + (column - start) * AtlasColumns;
 
+    /// <summary>
+    /// Calculates the native default tile word for one linear cell in the 16-by-16 authoring layout.
+    /// </summary>
     private ushort Calculate(int index)
     {
         int row = index / BgColumns, column = index % BgColumns;

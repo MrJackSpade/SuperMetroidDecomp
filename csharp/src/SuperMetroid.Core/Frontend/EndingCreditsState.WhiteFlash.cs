@@ -4,11 +4,16 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>VRAM word address receiving the currently active post-credits tilemap.</summary>
     private ushort postCreditsUploadWord = EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
+    /// <summary>Height in tilemap rows used when configuring the post-credits background screen.</summary>
     private int postCreditsMapHeight = 32;
+    /// <summary>White component applied during the transition from the final text screen to the logo scene.</summary>
     private byte whiteFlashColor;
+    /// <summary>Logo choreography instance advanced after the lower post-credits screen is prepared.</summary>
     private EndingLogo? endingLogo;
 
+    /// <summary>Restores the final post-credits palette and prepares the two-screen text map for the white flash.</summary>
     private void BeginPostCreditsWhiteFlash()
     {
         postShot = null;
@@ -29,6 +34,7 @@ internal sealed partial class EndingCreditsState
         Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }
 
+    /// <summary>Copies the staged map to the lower screen and starts the ending-logo actors.</summary>
     private void FinishPostCreditsWhiteFlash()
     {
         // E504 copies the same staging map into the lower screen before the logo
@@ -42,6 +48,7 @@ internal sealed partial class EndingCreditsState
         Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 
+    /// <summary>Advances the logo scene and starts item-percentage text after its actors complete.</summary>
     private void StepPostCreditsLogo()
     {
         endingLogo!.Step(cgram, objectArtwork is null

@@ -55,7 +55,10 @@ public static class EndingTextDefinitions
     /// <summary>Gets the centered region containing the final large message.</summary>
     public static EndingTextRegionDefinition FinalMessage => Centered(2, 20, EndingTextStyle.FinalLarge);
 
+    /// <summary>Copyright layout uses four year columns, eight company columns, and a two-column gap.</summary>
     private const int CopyrightYearWidth = 4, CopyrightCompanyWidth = 8, CopyrightGap = 2;
+
+    /// <summary>Centered starting column shared by the year and company regions in the copyright panel.</summary>
     private static int CopyrightStart => CenteredColumn(CopyrightYearWidth + CopyrightGap + CopyrightCompanyWidth);
     /// <summary>Gets the large-glyph region containing the copyright year.</summary>
     public static EndingTextRegionDefinition CopyrightYear => new(0, CopyrightStart, CopyrightYearWidth, EndingTextStyle.CopyrightLarge);
@@ -64,7 +67,16 @@ public static class EndingTextDefinitions
         CopyrightCompanyWidth, EndingTextStyle.CopyrightLarge);
 
     // Odd spare columns leave the extra cell on the right, matching native tilemaps.
+    /// <summary>Chooses the left column for a centered field, assigning an odd spare column to the right.</summary>
+    /// <param name="width">Field width in tile cells.</param>
+    /// <returns>The zero-based starting column within the 32-cell tilemap.</returns>
     private static int CenteredColumn(int width) => (TilemapWidth - width) / 2;
+
+    /// <summary>Builds a centered text region with the requested row, width, and glyph style.</summary>
+    /// <param name="row">Zero-based destination tile row.</param>
+    /// <param name="width">Region width in glyph cells.</param>
+    /// <param name="style">Glyph layout and tile attributes used in the region.</param>
+    /// <returns>The region's row, centered column, width, and style.</returns>
     private static EndingTextRegionDefinition Centered(int row, int width, EndingTextStyle style) =>
         new(row, CenteredColumn(width), width, style);
 
@@ -139,6 +151,11 @@ public static class EndingTextDefinitions
             $"Ending {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }
 
+    /// <summary>Maps an uppercase letter to the split large-font tile groups and applies its row and attribute bits.</summary>
+    /// <param name="letter">Zero-based uppercase alphabet index from 0 through 25.</param>
+    /// <param name="attributes">Tilemap attribute bits applied to the selected tile.</param>
+    /// <param name="bottom">Whether to select the glyph's lower tile row.</param>
+    /// <returns>The packed tilemap word for the selected half of the large glyph.</returns>
     private static ushort CompileLarge(int letter, ushort attributes, bool bottom)
     {
         int tile = letter < LargeSecondGroupFirstLetter

@@ -8,10 +8,19 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native Draygon callback for contact damage, <c>$A5:95EA</c>.</summary>
     private const ushort DraygonTouchAi = EnemyAiCodePointers.BankA5.DraygonTouch;
+
+    /// <summary>Native Draygon callback for ordinary weapon damage, <c>$A5:95F0</c>.</summary>
     private const ushort DraygonShotAi = EnemyAiCodePointers.BankA5.DraygonShot;
+
+    /// <summary>Native Draygon callback for power-bomb damage, <c>$A5:9607</c>.</summary>
     private const ushort DraygonPowerBombAi = EnemyAiCodePointers.BankA5.DraygonPowerBomb;
+
+    /// <summary>Fallback shot callback used by Draygon hitboxes that do not accept shots.</summary>
     private const ushort DraygonDudHitboxShotAi = EnemyAiCodePointers.BankA0.DudShot;
+
+    /// <summary>Fallback touch callback used by Draygon hitboxes with no touch reaction.</summary>
     private const ushort DraygonNoOpHitboxTouchAi = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>
@@ -116,6 +125,8 @@ public sealed partial class RoomEnemySystem
         state.UnusedDeathYSubspeed = unchecked((ushort)yMagnitude);
     }
 
+    /// <summary>Selects the health band for Draygon and refreshes its colors when that band changes.</summary>
+    /// <param name="state">Draygon state holding the body health and currently applied palette band.</param>
     private void UpdateDraygonHealthPalette(DraygonEnemyState state)
     {
         ushort tableByteIndex =
@@ -127,6 +138,8 @@ public sealed partial class RoomEnemySystem
         CopyDraygonHealthColors(state);
     }
 
+    /// <summary>Copies the state's selected health-band colors to the installed CGRAM palette.</summary>
+    /// <param name="state">Draygon state whose health-palette table index selects the colors to apply.</param>
     private void CopyDraygonHealthColors(DraygonEnemyState state)
     {
         (TileArtwork?.DraygonColors ?? throw new InvalidDataException(

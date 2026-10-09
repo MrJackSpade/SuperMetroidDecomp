@@ -9,9 +9,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGraphicsPresentation
 {
+    /// <summary>Stores the encoded title Mode 7 characters, title map, OBJ characters, and baby Metroid characters used by the renderer.</summary>
     private readonly byte[] mode7Characters, mode7Map, objectCharacters, babyCharacters;
+    /// <summary>Maps cartridge-selected spritemap pointers to their validated, compiled OBJ compositions.</summary>
     private readonly Dictionary<ushort, SpriteComposition> sprites;
 
+    /// <summary>Creates a presentation from encoded graphics, a byte-indexed map, and compiled sprite compositions.</summary>
+    /// <param name="mode7Characters">Encoded eight-bit title Mode 7 character data.</param>
+    /// <param name="mode7Map">Byte indexes selecting title Mode 7 characters for each map cell.</param>
+    /// <param name="objectCharacters">Encoded four-bit OBJ character graphics for title sprites.</param>
+    /// <param name="babyCharacters">Encoded eight-bit Mode 7 character data for the baby Metroid page.</param>
+    /// <param name="sprites">Compositions indexed by the native spritemap pointers used to select title frames.</param>
     private TitleGraphicsPresentation(
         byte[] mode7Characters,
         byte[] mode7Map,
@@ -131,6 +139,10 @@ public sealed class TitleGraphicsPresentation
         json.Write(bytes);
     }
 
+    /// <summary>Validates editable sprite frames and compiles their ordered parts into compositions keyed by native pointers.</summary>
+    /// <param name="frames">Sprite-frame records from the map document.</param>
+    /// <returns>Validated compositions for all native-selected title frames.</returns>
+    /// <exception cref="InvalidDataException">The frame set is incomplete, contains invalid parts or duplicate pointers, or omits a required native selector.</exception>
     private static Dictionary<ushort, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
     {
         if (frames is null || frames.Length != TitleGraphicsFormat.SpriteFrameCount)

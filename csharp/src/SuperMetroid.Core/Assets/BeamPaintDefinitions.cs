@@ -13,9 +13,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class BeamPaintDefinitions
 {
+    /// <summary>Largest channel value representable by a five-bit SNES RGB component.</summary>
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
+    /// <summary>Builds one packed SNES RGB555 color for a beam-palette selection and color index.</summary>
+    /// <param name="selection">Combined beam selection used to choose the authored material palette.</param>
+    /// <param name="color">Color slot within the sixteen-color OBJ palette.</param>
+    /// <returns>The packed 15-bit color word, including the explicit clear-target and black-slot values.</returns>
     internal static ushort Color(int selection, int color)
     {
         if (color == 0) return ClearTargetBlue << 10;
@@ -33,6 +38,9 @@ internal static class BeamPaintDefinitions
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>Returns the RGB555 channels for the stock power-beam material at one palette slot.</summary>
+    /// <param name="color">Color slot whose authored channel values are requested.</param>
+    /// <returns>Five-bit red, green, and blue channel values.</returns>
     private static (int Red, int Green, int Blue) Power(int color)
     {
         if (color is >= 2 and <= 4)
@@ -53,6 +61,9 @@ internal static class BeamPaintDefinitions
         };
     }
 
+    /// <summary>Returns the frost-blue material channels for an ice-beam palette slot.</summary>
+    /// <param name="color">Color slot whose authored channel values are requested.</param>
+    /// <returns>Five-bit red, green, and blue channel values.</returns>
     private static (int Red, int Green, int Blue) Ice(int color)
     {
         if (color is >= 2 and <= 4)
@@ -83,6 +94,9 @@ internal static class BeamPaintDefinitions
         };
     }
 
+    /// <summary>Returns the magenta material channels for a wave-beam palette slot.</summary>
+    /// <param name="color">Color slot whose authored channel values are requested.</param>
+    /// <returns>Five-bit red, green, and blue channel values.</returns>
     private static (int Red, int Green, int Blue) Wave(int color)
     {
         if (color is >= 2 and <= 4)
@@ -96,6 +110,9 @@ internal static class BeamPaintDefinitions
         return (level, 0, level);
     }
 
+    /// <summary>Returns the green material channels for a plasma-beam palette slot.</summary>
+    /// <param name="color">Color slot whose authored channel values are requested.</param>
+    /// <returns>Five-bit red, green, and blue channel values.</returns>
     private static (int Red, int Green, int Blue) Plasma(int color)
     {
         if (color is >= 2 and <= 4)
@@ -111,6 +128,9 @@ internal static class BeamPaintDefinitions
         return color switch { 8 => (0, Rgb5Maximum, 0), 15 => (0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
     }
 
+    /// <summary>Returns the gold material channels for a spazer-beam palette slot.</summary>
+    /// <param name="color">Color slot whose authored channel values are requested.</param>
+    /// <returns>Five-bit red, green, and blue channel values.</returns>
     private static (int Red, int Green, int Blue) Spazer(int color)
     {
         if (color is >= 5 and <= 7)

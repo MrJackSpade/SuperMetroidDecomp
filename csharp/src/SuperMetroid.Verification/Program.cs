@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--eye-door-sweat-span-underflow"])
+{
+    Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
+    return 0;
+}
 if (args is ["--drained-spark-crash"])
 {
     Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
@@ -7992,6 +7997,7 @@ Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
 Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
 Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
 Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
+Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

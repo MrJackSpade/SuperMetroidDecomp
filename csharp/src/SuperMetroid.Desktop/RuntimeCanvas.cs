@@ -17,6 +17,7 @@ public sealed class RuntimeCanvas : Control
         if (!value) Invalidate();
     }
 
+    /// <summary>Allows normal background erasure only when GDI, rather than the GPU swapchain, owns presentation.</summary>
     protected override void OnPaintBackground(PaintEventArgs e)
     {
         if (!gpuOwned) base.OnPaintBackground(e);
@@ -28,6 +29,7 @@ public sealed class RuntimeCanvas : Control
     /// </summary>
     public event Action<long>? FramePainted;
 
+    /// <summary>Creates a black, user-painted canvas with GDI double buffering enabled until GPU ownership is selected.</summary>
     public RuntimeCanvas()
     {
         BackColor = Color.Black;
@@ -70,6 +72,7 @@ public sealed class RuntimeCanvas : Control
         Invalidate();
     }
 
+    /// <summary>Draws the retained software bitmap into the aspect-correct viewport and reports elapsed Stopwatch ticks; does nothing in GPU mode.</summary>
     protected override void OnPaint(PaintEventArgs e)
     {
         if (gpuOwned) return;
@@ -107,6 +110,7 @@ public sealed class RuntimeCanvas : Control
         base.OnMouseDown(e);
     }
 
+    /// <summary>Releases the retained GDI bitmap during explicit disposal, then delegates control cleanup to the framework.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

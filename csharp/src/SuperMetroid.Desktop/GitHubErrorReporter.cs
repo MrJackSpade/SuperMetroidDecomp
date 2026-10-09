@@ -44,6 +44,8 @@ public sealed class GitHubErrorReporter : IDisposable
     private readonly Task worker;
     private int disposed;
 
+    /// <summary>Starts a single-reader reporting queue backed by the authenticated GitHub CLI.</summary>
+    /// <param name="repository">Nonblank GitHub repository identifier, in owner/repository form, receiving queued reports.</param>
     public GitHubErrorReporter(string repository)
         : this(repository, new GhCliGitHubIssueClient())
     {
@@ -112,6 +114,7 @@ public sealed class GitHubErrorReporter : IDisposable
         return fingerprint;
     }
 
+    /// <summary>Stops accepting reports and synchronously waits for the existing queue to finish; repeated calls do nothing.</summary>
     public void Dispose()
     {
         if (Interlocked.Exchange(ref disposed, 1) != 0)

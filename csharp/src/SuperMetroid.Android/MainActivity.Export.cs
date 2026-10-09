@@ -31,6 +31,8 @@ public sealed partial class MainActivity
     }
 
 #pragma warning disable CS0672, CS0618 // Paired with the document request above; no AndroidX dependency.
+    /// <summary>Routes document-picker results to cartridge setup, private diagnostic export, debugger-state import, or regular-save import.</summary>
+    /// <remarks>Cancelled cartridge selection returns to setup; cancelled export/import returns to the testing menu. Unknown request codes receive only framework handling.</remarks>
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);

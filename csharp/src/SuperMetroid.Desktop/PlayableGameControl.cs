@@ -917,6 +917,7 @@ public sealed partial class PlayableGameControl : UserControl
         return inputActivation.Filter(input);
     }
 
+    /// <summary>Moves the deactivation subscription to the current containing form so lost host focus releases gameplay input.</summary>
     protected override void OnParentChanged(EventArgs e)
     {
         base.OnParentChanged(e);
@@ -956,6 +957,8 @@ public sealed partial class PlayableGameControl : UserControl
     private void ReleaseInputAfterSessionSwitch() =>
         HostInputDiscontinuity.Release(keyboard, inputActivation);
 
+    /// <summary>Consumes gameplay key-down/up messages above all child controls, updating held keys without allowing dialog navigation.</summary>
+    /// <returns>True for a handled gameplay key message; otherwise the framework's preview result.</returns>
     protected override bool ProcessKeyPreview(ref Message message)
     {
         // ProcessKeyPreview is called while WinForms walks a focused child's parent chain.
@@ -968,6 +971,7 @@ public sealed partial class PlayableGameControl : UserControl
         return base.ProcessKeyPreview(ref message);
     }
 
+    /// <summary>Subscribes once to Windows session-switch input release and queues canvas focus after the native handle exists.</summary>
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
@@ -983,6 +987,8 @@ public sealed partial class PlayableGameControl : UserControl
         BeginInvoke(canvas.Focus);
     }
 
+    /// <summary>Releases host subscriptions, playback timing, audio, and input recording before framework control disposal.</summary>
+    /// <remarks>The GPU worker must already have completed through <see cref="StopRendererAsync"/>; disposal rejects an active worker rather than blocking the UI thread.</remarks>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

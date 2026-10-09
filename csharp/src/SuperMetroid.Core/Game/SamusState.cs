@@ -613,11 +613,9 @@ public sealed partial class SamusState
     /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the cartridge collision routine publishes a distance without moving live Samus.
+    /// The probe carries the pose being installed: `$91:F404` writes it to samus_pose
+    /// before calling `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it.
     /// </remarks>
-    /// <param name="targetPose">
-    /// The pose being installed. `$91:F404` writes it to samus_pose before calling
-    /// `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it, not the source.
-    /// </param>
     private BlockMoveResult ProbeChangedPoseVertical(
         ISnesAddressSpace bus,
         RoomLevelData level,

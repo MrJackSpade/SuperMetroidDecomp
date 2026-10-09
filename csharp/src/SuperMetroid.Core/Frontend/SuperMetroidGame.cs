@@ -1333,11 +1333,14 @@ public sealed partial class SuperMetroidGame
             ceresDeparture.Begin();
             GameState = SuperMetroidGameState.MadeItToCeresElevator;
         }
-        else if (runtime.HasPendingDoorTransition)
+        else if (runtime.HasPendingDoorTransition && !runtime.MessageBox.IsActive)
         {
             // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
             // The already-produced gameplay image remains this frame's image; the
             // following dispatcher call begins state `$09` from that publication.
+            // A message box opened later in the same call (a station's completion
+            // notice in the PLM handler) suspends that call in bank $85 until it
+            // closes, so the door's state waits for the box's final frame.
             GameState = SuperMetroidGameState.HitDoorBlock;
         }
     }

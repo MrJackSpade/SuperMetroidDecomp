@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--released-samus-falls-off-draygon"])
+{
+    Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
+    return 0;
+}
 if (args is ["--draygon-escape-drag"])
 {
     Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
@@ -7956,6 +7961,7 @@ Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProje
 Suite(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge());
 Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
 Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
+Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

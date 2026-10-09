@@ -247,7 +247,7 @@ public sealed partial class RoomEnemySystem
         // The normal route does own one, so invoke the bank-$90 release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {
-            samus.DraygonGrabbed.Release(_bus!, samus);
+            ReleaseSamusDuringEnemyMain(samus);
             // ReleaseSamusFromDraygon publishes bit one, and $A5:9128 immediately clears
             // the complete native grapple-flags word. Consume the host projection here so
             // a later encounter cannot observe a stale owner-release request.
@@ -360,6 +360,16 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         body.FlashTimer = unchecked((ushort)(body.HurtAiTime + 8));
         body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | 2));
+    }
+
+    /// <summary>
+    /// Runs <c>ReleaseSamusFromDraygon</c> ($90:E2DE) from Draygon's AI and publishes it so the
+    /// runtime clears the prospective poses alpha already chose.
+    /// </summary>
+    private void ReleaseSamusDuringEnemyMain(SamusState samus)
+    {
+        samus.DraygonGrabbed.Release(_bus!, samus);
+        SamusReleasedByDraygonThisFrame = true;
     }
 
     private static SamusState RequireDraygonGrabbedSamus(SamusState? samus)

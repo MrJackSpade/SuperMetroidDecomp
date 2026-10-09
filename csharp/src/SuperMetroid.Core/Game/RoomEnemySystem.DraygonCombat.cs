@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
         // The caller then clears the grapple word, including the owner-release signal.
         if (samus is not null)
         {
-            samus.DraygonGrabbed.Release(_bus!, samus);
+            ReleaseSamusDuringEnemyMain(samus);
             samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
             samus.Grapple.Phase = GrapplePhase.Dropped;
         }

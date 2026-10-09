@@ -1292,6 +1292,10 @@ public sealed partial class SuperMetroidRuntime
             // match selected for the old pose to the newly installed one.
             BeginAttractSamusInput();
             byte poseAtFrameStart = Samus.Pose;
+            // Beta dispatches on the pose installed when it runs, which EnemyMain can have
+            // replaced since alpha: Draygon's death releases a sparking Samus to pose $01,
+            // and standing movement runs. `$91:E8B6` then reads that pose's type.
+            byte poseAtBetaMovement = poseAtFrameStart;
             // Ordinary alpha publishes the current pose's live radius before input
             // and collision. Prospective transitions later in beta can retain the
             // previous radius until this point in the following frame. The locked
@@ -1594,6 +1598,8 @@ public sealed partial class SuperMetroidRuntime
                         grapplePreviousY,
                         previousCameraPoint.YSubposition);
                 }
+
+                poseAtBetaMovement = Samus.Pose;
 
                 if (deathOwnsSamus || suitOwnsSamus)
                 {
@@ -2637,17 +2643,17 @@ Landed: true, HitCeiling: false);
                 if (!animationTransitionApplied &&
                     LastGroundedSamusMovement is
                         { Vertical.IsUnobstructedDownwardMovement: true } &&
-                    (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingLandingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingLandingPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
-                     SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
-                     poseAtFrameStart is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
-                     SamusState.IsRanIntoWallPose(poseAtFrameStart) ||
-                     SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
-                     SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
+                    (SamusState.IsRightFacingStandingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingStandingPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingLandingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingLandingPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingRunningPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingRunningPose(poseAtBetaMovement) ||
+                     SamusState.IsMoonwalkingPose(poseAtBetaMovement) ||
+                     poseAtBetaMovement is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
+                     SamusState.IsRanIntoWallPose(poseAtBetaMovement) ||
+                     SamusState.IsRightFacingCrouchingPose(poseAtBetaMovement) ||
+                     SamusState.IsLeftFacingCrouchingPose(poseAtBetaMovement)))
                 {
                     byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
                     Samus.ApplyWalkedOffFloorTransition(_addressSpace,

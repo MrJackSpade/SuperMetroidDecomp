@@ -85,6 +85,13 @@ public sealed partial class SuperMetroidRuntime
                 // behind after the palette handler becomes inactive.
                 Samus!.LoadSuitPalette(_addressSpace, Cgram);
             }
+            if (Enemies.SamusReleasedByDraygonThisFrame)
+            {
+                // `$90:E329-$E332` discards the transitions alpha chose for the old pose,
+                // including the no-input fallback that shares the prospective-pose slot.
+                ProspectiveSamusPose = null;
+                ProspectiveSamusFallbackPose = null;
+            }
             if (!TimeIsFrozen && Enemies.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
             {
                 rainbowBrain.RainbowBeamHdma.PresentationColors = Enemies.MotherBrainRainbowColors;

@@ -210,6 +210,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public bool CeresEscapeStartedThisFrame { get; private set; }
 
+    /// <summary>
+    /// One-frame publication of a Draygon-owned <c>ReleaseSamusFromDraygon</c> ($90:E2DE)
+    /// during EnemyMain. The release writes $FFFF to all three prospective-pose slots, which
+    /// the runtime owns and clears after EnemyMain.
+    /// </summary>
+    public bool SamusReleasedByDraygonThisFrame { get; private set; }
+
     // A door load initializes enemies while the door IRQ scrolls; init AIs that read
     // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
     // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
@@ -308,6 +315,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
         CeresEscapeStartedThisFrame = false;
+        SamusReleasedByDraygonThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;
@@ -623,6 +631,7 @@ public sealed partial class RoomEnemySystem
         LastMetroidSoundEffectLibrary3 = null;
         LastCeresDoorSoundEffectLibrary2 = null;
         CeresEscapeStartedThisFrame = false;
+        SamusReleasedByDraygonThisFrame = false;
         LastBoulderSoundEffect = null;
         LastZebetiteSoundEffect = null;
         LastEtecoonSoundEffect = null;

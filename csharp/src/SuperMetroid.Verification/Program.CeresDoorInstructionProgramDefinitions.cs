@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Ceres-door mechanics, selector, and instruction-flow checks against the retail ROM.</summary>
     private static void VerifyCeresDoorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Validates compiled Ceres-door words and exercises ordinary doors, escape overlays, and the Ridley-room variant.</summary>
+    /// <param name="rom">Retail address space used as the expected instruction and presentation-word source.</param>
     private static void VerifyCeresDoorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -215,6 +218,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled Ceres-door mechanics lookups so the warmed allocation assertion measures steady-state access.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeCeresDoorInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -226,18 +231,31 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the cartridge address space.</summary>
+    /// <param name="bus">Address space supplying the two bytes.</param>
+    /// <param name="address">Address of the low byte, followed by the high byte.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadCeresDoorInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects runtime reads of compiled Ceres-door mechanics and presentation selectors.</summary>
+    /// <param name="source">Underlying address space for reads and writes not rejected by the guard.</param>
     private sealed class CeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempts to read either compiled mechanics bytes or compiled visual-selector bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-import request through the checked byte-read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is not a compiled operand.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and selector reads, delegating other addresses to the wrapped source.</summary>
+        /// <param name="address">Address requested from the SNES address space.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -269,6 +287,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

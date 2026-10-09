@@ -8,6 +8,11 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed file-select assets against ROM extraction, rendering, audio, overrides, and validation rules.</summary>
+    /// <param name="bus">Cartridge address space used for native comparison and asset extraction.</param>
+    /// <param name="stock">Directory containing the extracted stock presentation document.</param>
+    /// <param name="overrides">Directory used to write and load a modified presentation document.</param>
+    /// <param name="original">Map presentation catalog used by the native and installed menus.</param>
     private static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
@@ -179,11 +184,21 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents installed file-select runtime code from reading cartridge-backed presentation assets.</summary>
+    /// <param name="source">Underlying address space for non-presentation reads and memory operations.</param>
     private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge reads through the presentation-asset guard.</summary>
+        /// <param name="address">Cartridge address requested by the menu.</param>
+        /// <returns>The underlying byte when the address is not presentation data.</returns>
+        /// <exception cref="InvalidOperationException">The address points into guarded presentation assets.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects cartridge-backed presentation reads and forwards all other bus reads.</summary>
+        /// <param name="address">Bus address requested by the menu.</param>
+        /// <returns>The underlying byte when the address is outside guarded presentation ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address points into guarded presentation assets.</exception>
         public byte ReadByte(int address)
         {
             if (IsPresentationAddress(address))
@@ -192,18 +207,32 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Reads work RAM from the underlying mutable-memory source.</summary>
+        /// <param name="address">CPU address of the work-RAM byte.</param>
+        /// <returns>The stored byte.</returns>
+        /// <exception cref="InvalidOperationException">The source does not expose work RAM.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "File-select presentation audit source must expose WRAM."))
                 .ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM from the underlying mutable-memory source.</summary>
+        /// <param name="address">CPU address of the save-RAM byte.</param>
+        /// <returns>The stored byte.</returns>
+        /// <exception cref="InvalidOperationException">The source does not expose save RAM.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "File-select presentation audit source must expose SRAM."))
                 .ReadSaveRamByte(address);
 
+        /// <summary>Tests whether an address lies in one of the ROM regions used for file-select presentation.</summary>
+        /// <param name="address">Bus address checked against the guarded asset ranges.</param>
+        /// <returns><see langword="true"/> when the address must be supplied by installed presentation data.</returns>
         private static bool IsPresentationAddress(int address) =>
             In(address, FileSelectMapRomData.InitialMenuBackground,
                 FileSelectMapRomData.TilemapBytes) ||
@@ -219,6 +248,11 @@ internal static partial class Program
                 MenuPpuState.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
                 (0x4d - 0x2c + 1) * sizeof(ushort));
 
+        /// <summary>Tests membership in a half-open address range.</summary>
+        /// <param name="address">Address to check.</param>
+        /// <param name="start">First included address.</param>
+        /// <param name="count">Number of addresses in the range.</param>
+        /// <returns><see langword="true"/> when <paramref name="address"/> is at least <paramref name="start"/> and below its end.</returns>
         private static bool In(int address, int start, int count) =>
             address >= start && address < start + count;
     }

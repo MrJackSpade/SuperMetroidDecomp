@@ -8,6 +8,13 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Ceres Ridley palette extraction, installation overrides, runtime use, legacy migration, and source-read isolation.</summary>
+    /// <param name="stockDirectory">Directory containing the extracted stock presentation manifests.</param>
+    /// <param name="overrideDirectory">Directory where the edited Ridley palette override is written and reloaded.</param>
+    /// <param name="original">Unedited presentation catalog used as the stock baseline.</param>
+    /// <param name="rom">Retail address space used to extract colors and compare native palette behavior.</param>
+    /// <param name="initialPalettes">Initial gameplay palette catalog supplied to the runtime fixture.</param>
+    /// <param name="fixtureAssets">Installed room assets providing the enemy artwork required by Ridley initialization.</param>
     private static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,
@@ -375,11 +382,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects rereads of extracted Ceres Ridley palette bytes while forwarding other cartridge and mutable-memory access.</summary>
+    /// <param name="inner">Wrapped address space used for permitted reads, writes, WRAM, and SRAM access.</param>
+    /// <param name="forbidden">Cartridge byte addresses copied into the installed color catalog.</param>
     private sealed class CeresRidleyColorReadGuard(ISnesAddressSpace inner,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of attempted reads from palette source bytes that should already be installed.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects an address if its palette byte was extracted into the installed catalog.</summary>
+        /// <param name="address">Cartridge byte address being checked.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to the copied Ridley palette data.</exception>
         private void RejectColorSource(int address)
         {
             if (forbidden.Contains(address))
@@ -389,26 +403,45 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Checks for forbidden palette-source reads before forwarding a general address-space read.</summary>
+        /// <param name="address">Cartridge or memory address requested by the runtime.</param>
+        /// <returns>The wrapped byte when the address is not a copied palette source.</returns>
+        /// <exception cref="InvalidOperationException">The address selects an installed Ridley palette source byte.</exception>
         public byte ReadByte(int address)
         {
             RejectColorSource(address);
             return inner.ReadByte(address);
         }
 
+        /// <summary>Rejects copied palette bytes before forwarding an importer-specific cartridge read.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The imported byte when the address is not a copied palette source.</returns>
+        /// <exception cref="InvalidOperationException">The address selects an installed Ridley palette source byte.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectColorSource(address);
             return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads WRAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">WRAM address requested by the caller.</param>
+        /// <returns>The wrapped WRAM byte.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ceres Ridley color guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">Save-RAM address requested by the caller.</param>
+        /// <returns>The wrapped save-RAM byte.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ceres Ridley color guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Cartridge or memory address to write.</param>
+        /// <param name="value">Byte stored at the requested address.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

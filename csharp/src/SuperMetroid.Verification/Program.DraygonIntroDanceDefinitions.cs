@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs the latency, movement-stream, and complete-trajectory checks for the Draygon intro dance.
+    /// </summary>
+    /// <param name="rom">The retail address space used as an independent reference for native movement data.</param>
     private static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
@@ -16,6 +20,10 @@ internal static partial class Program
             "production trajectory passes with migrated ROM reads forbidden.");
     }
 
+    /// <summary>
+    /// Compares the four Evir slot latencies with their signed cartridge words and verifies the accepted slot range.
+    /// </summary>
+    /// <param name="rom">The cartridge address space containing native latency values.</param>
     private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
@@ -37,6 +45,10 @@ internal static partial class Program
         Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
+    /// <summary>
+    /// Compares every reachable compiled movement record with ROM deltas and checks stream-index alignment and bounds.
+    /// </summary>
+    /// <param name="rom">The cartridge address space containing the original Draygon movement stream.</param>
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
@@ -66,6 +78,10 @@ internal static partial class Program
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
+    /// <summary>
+    /// Confirms the compiled route selects exactly the two native sprite-delete records and rejects unaligned or out-of-range offsets.
+    /// </summary>
+    /// <param name="rom">The cartridge address space containing the original command bytes.</param>
     private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
     {
         int commands = 0;
@@ -83,6 +99,10 @@ internal static partial class Program
                 "Draygon command selection preserves alignment and outer bounds");
     }
 
+    /// <summary>
+    /// Advances all four Evir actors through the full intro and compares their production positions, activity, and handoff against the native stream.
+    /// </summary>
+    /// <param name="rom">The retail address space used by the independent trajectory reference.</param>
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -191,11 +211,25 @@ internal static partial class Program
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
+    /// <summary>
+    /// Prevents production code from reading the migrated latency and movement definitions from cartridge memory.
+    /// </summary>
+    /// <param name="source">The underlying address space used for accesses outside those migrated data ranges.</param>
     private sealed class DraygonIntroDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes importer reads through the Draygon intro definition guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The source byte if the address is outside the migrated definition ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from the migrated latency and movement tables and forwards all other reads.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             bool migratedLatency = address is >= 0xa5a19f and < 0xa5a1a7;
@@ -209,6 +243,11 @@ internal static partial class Program
                 : source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

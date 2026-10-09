@@ -9,6 +9,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Kraid upper/lower BG2 maps against cartridge transfers and validates edits and malformed assets.</summary>
+    /// <param name="rom">Cartridge address space used to compare native tilemaps and VRAM output.</param>
+    /// <param name="directory">Directory containing the installed Kraid artwork files.</param>
+    /// <param name="stock">Loaded stock enemy-art catalog used to build Kraid's working map.</param>
     private static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -77,6 +81,10 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
+    /// <summary>Checks all distinct Kraid head frames preserve native working-map and VRAM results, including an editable override.</summary>
+    /// <param name="rom">Cartridge address space containing the native head tilemaps.</param>
+    /// <param name="directory">Directory containing installed head-frame artwork files.</param>
+    /// <param name="stock">Loaded stock enemy-art catalog used for frame transfers.</param>
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -148,6 +156,10 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
     }
 
+    /// <summary>Verifies queued and direct BG3 restoration use installed HUD tiles and preserve pending transfer compatibility.</summary>
+    /// <param name="rom">Cartridge address space used to extract stock HUD art and validate native tile bytes.</param>
+    /// <param name="directory">Directory containing installed enemy artwork and the map-presentation assets.</param>
+    /// <param name="enemyArtwork">Installed enemy-tile catalog bound to Kraid's background restoration.</param>
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
     {
@@ -242,6 +254,12 @@ internal static partial class Program
             "Kraid BG3 uses the current HUD PNG override after catalog reload");
     }
 
+    /// <summary>Runs Kraid's four BG3 restoration transfers through either the pending-write queue or direct VRAM writes.</summary>
+    /// <param name="enemyArtwork">Installed enemy artwork used by the restoration callback.</param>
+    /// <param name="hud">HUD tile atlas supplying the restoration pixels.</param>
+    /// <param name="map">Presentation catalog used to drain queued writes into VRAM.</param>
+    /// <param name="useQueue"><see langword="true"/> to enqueue and drain each transfer as an NMI record.</param>
+    /// <returns>VRAM after all four restoration quarters have been transferred.</returns>
     private static SnesVram RunKraidBg3Restoration(
         EnemyTileArtworkCatalog enemyArtwork,
         HudTileAtlas hud,
@@ -285,6 +303,10 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Compares Kraid's installed room-background tiles with native VRAM and checks override editing and validation.</summary>
+    /// <param name="rom">Cartridge address space containing the source background characters.</param>
+    /// <param name="directory">Directory containing the installed room-background image.</param>
+    /// <param name="stock">Stock enemy-art catalog used for the baseline upload.</param>
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -333,6 +355,9 @@ internal static partial class Program
             "malformed Kraid room-background PNG override fails at load");
     }
 
+    /// <summary>Runs the production room-background upload with the supplied installed artwork and captures its VRAM result.</summary>
+    /// <param name="artwork">Enemy-art catalog providing Kraid's room-background tiles.</param>
+    /// <returns>VRAM after the upload callback completes.</returns>
     private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -347,6 +372,10 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Runs one production Kraid head-tilemap transfer and captures its state and VRAM effects.</summary>
+    /// <param name="artwork">Installed enemy-art catalog supplying the selected head frame.</param>
+    /// <param name="pointer">Native bank-local pointer of the head frame to transfer.</param>
+    /// <returns>The updated Kraid state and resulting VRAM.</returns>
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
         EnemyTileArtworkCatalog artwork, ushort pointer)
     {
@@ -363,6 +392,9 @@ internal static partial class Program
         return (state, vram);
     }
 
+    /// <summary>Initializes Kraid's BG2 working map using the supplied installed tilemap assets.</summary>
+    /// <param name="artwork">Enemy-art catalog providing Kraid's upper and lower background maps.</param>
+    /// <returns>The initialized enemy state containing the prepared tilemap words.</returns>
     private static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -377,6 +409,9 @@ internal static partial class Program
         return state;
     }
 
+    /// <summary>Transfers Kraid's upper and lower working-map pages into a fresh VRAM image.</summary>
+    /// <param name="state">Prepared Kraid state whose two visible tilemap pages are uploaded.</param>
+    /// <returns>VRAM after both page transfers complete.</returns>
     private static SnesVram TransferKraidVisiblePages(KraidEnemyState state)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

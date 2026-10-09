@@ -6,10 +6,13 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs the compiled-mechanics and production-lifecycle checks using the pinned retail ROM.</summary>
     private static void VerifyDownwardGateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native mechanics words, both gate lifecycles, executed visual operands, and allocation behavior.</summary>
+    /// <param name="rom">Retail address space used to compare compiled values with cartridge data.</param>
     private static void VerifyDownwardGateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -186,6 +189,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly resolves compiled mechanics words and returns a checksum to keep the lookups observable.</summary>
+    /// <returns>Checksum accumulated from the moving and closed program entry words.</returns>
     private static int ProbeDownwardGateProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -199,14 +204,27 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Tracks presentation-operand reads and rejects live reads of compiled projectile mechanics.</summary>
+    /// <param name="source">Underlying address space used for reads outside compiled mechanics.</param>
     private sealed class DownwardGateProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses whose bytes production requested from the cartridge.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted cartridge reads from compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Forwards a cartridge read through the mechanics guard and presentation-word tracker.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other reads.</summary>
+        /// <param name="address">Bus address requested by production code.</param>
+        /// <returns>The source byte when the address is not compiled mechanics data.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics.</exception>
         public byte ReadByte(int address)
         {
             if (DownwardGateProjectileInstructionProgramDefinitionsTooling
@@ -241,6 +259,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes directly to the underlying address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

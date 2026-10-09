@@ -5,10 +5,17 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Ceres Ridley projectile mechanics verification.
+    /// </summary>
     private static void VerifyCeresRidleyProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled instruction mechanics with the ROM and exercises Ridley's projectile producers, callbacks, and visual selectors under a read guard.
+    /// </summary>
+    /// <param name="rom">The retail address space used to verify original mechanics words and presentation selectors.</param>
     private static void VerifyCeresRidleyProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -241,6 +248,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly reads compiled fireball and directional-afterburn mechanics words to warm the allocation-measurement path.
+    /// </summary>
+    /// <returns>A non-zero checksum that consumes the lookup results.</returns>
     private static int ProbeCeresRidleyProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -254,14 +265,35 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Audits projectile execution by rejecting reads of compiled Ridley and shared-delete mechanics while tracking presentation-word reads.
+    /// </summary>
+    /// <param name="source">The underlying address space used for all permitted cartridge accesses.</param>
     private sealed class CeresRidleyProjectileInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes an importer read through the Ceres Ridley mechanics guard.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address if it is outside the guarded mechanics ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Gets the presentation-word addresses observed during guarded projectile execution.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read compiled Ceres Ridley or shared-delete mechanics bytes.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Rejects reads of compiled mechanics data, tracks presentation-word reads, and forwards permitted addresses.
+        /// </summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte returned by the wrapped address space for a permitted read.</returns>
         public byte ReadByte(int address)
         {
             if (CeresRidleyProjectileInstructionProgramDefinitionsTooling
@@ -296,6 +328,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its destination or value.
+        /// </summary>
+        /// <param name="address">The destination bus address.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

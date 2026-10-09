@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Chozo footstep and Tourian dust mechanics checks against the retail ROM.</summary>
     private static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Validates compiled instruction words and exercises the real footstep, alternate explosion, and counted Tourian dust programs.</summary>
+    /// <param name="rom">Retail address space used to compare native mechanics and visual selectors.</param>
     private static void VerifyChozoTourianDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -155,6 +158,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats alternating footstep and Tourian-dust mechanics lookups for the warmed allocation assertion.</summary>
+    /// <returns>A checksum that keeps both lookup paths observable.</returns>
     private static int ProbeChozoTourianDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -168,14 +173,24 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled dust mechanics and records access to installed projectile presentation selectors.</summary>
+    /// <param name="source">Underlying address space for reads and writes that pass the guard.</param>
     private sealed class ChozoTourianDustInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$86 presentation operand words observed through the guard.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read mechanics bytes that should come from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-import request through the guard's checked byte-read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records selector accesses, and delegates other addresses to the wrapped source.</summary>
+        /// <param name="address">Address requested from the SNES memory space.</param>
+        /// <returns>The underlying byte for a permitted read.</returns>
         public byte ReadByte(int address)
         {
             if (ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -204,6 +219,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

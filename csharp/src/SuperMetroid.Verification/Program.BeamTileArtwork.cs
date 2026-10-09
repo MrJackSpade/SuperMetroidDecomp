@@ -5,6 +5,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that extracted beam PNGs reproduce cartridge uploads, that edits remain
+    /// isolated to their selected pixel, and that runtime queues resolve the bound artwork.
+    /// </summary>
+    /// <param name="bus">Retail address space used to extract and compare native beam data.</param>
     private static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
@@ -77,6 +82,12 @@ internal static partial class Program
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
+    /// <summary>Loads the selected beam's native graphics and palette into optional fixture targets.</summary>
+    /// <param name="bus">Address space containing the native beam pointer tables and data.</param>
+    /// <param name="vram">Optional VRAM target for copying the selected tile bytes.</param>
+    /// <param name="cgram">CGRAM target that receives the selected beam palette colors.</param>
+    /// <param name="queue">Optional transfer queue that receives the native VRAM upload record.</param>
+    /// <param name="selection">Beam selection index used in the cartridge pointer tables.</param>
     private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
@@ -95,26 +106,57 @@ internal static partial class Program
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Word(colors + i * 2));
     }
+    /// <summary>
+    /// Wraps the bus for artwork-queue checks, rejecting cartridge reads from native beam
+    /// graphics and selection tables while forwarding mutable-memory reads.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads.</param>
     private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes import-time reads through the same graphics and selector guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the forbidden ranges.</returns>
+        /// <exception cref="InvalidDataException">The request targets native beam graphics or selection pointers.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable-memory address space.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
 
+        /// <summary>Forwards an SRAM read to the wrapped mutable-memory address space.</summary>
+        /// <param name="address">SRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>Rejects native beam graphics and selector-pointer reads, forwarding other reads.</summary>
+        /// <param name="address">Absolute address requested by the artwork queue.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidDataException">The address is in bank $9A or the beam selector-pointer table.</exception>
         public byte ReadByte(int address)
         {
             if ((address >> 16) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9)
                 throw new InvalidDataException("Authored beam queue still reads ROM graphics or selection pointers.");
             return source.ReadByte(address);
         }
+
+        /// <summary>Rejects any attempt by the artwork queue to write through the bus.</summary>
+        /// <param name="address">Address the queue attempted to write.</param>
+        /// <param name="value">Byte the queue attempted to write.</param>
+        /// <exception cref="InvalidOperationException">The artwork queue performed a bus write.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Artwork queue wrote the bus.");
     }
 
+    /// <summary>
+    /// Verifies that rebinding beam artwork preserves retained VRAM until an accepted NMI,
+    /// then publishes the current catalog for queued and equipment-selected transfers.
+    /// </summary>
+    /// <param name="bus">Retail address space used to construct the runtime fixture.</param>
+    /// <param name="files">Extracted beam atlas files used to create the edited catalog.</param>
+    /// <param name="stock">Original catalog used as the unedited provider in the fixture.</param>
     private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
     {
         var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), 64, 8);

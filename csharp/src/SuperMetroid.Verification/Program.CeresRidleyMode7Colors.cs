@@ -8,6 +8,12 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ceres Ridley's extracted Mode-7 colors, runtime palette selection, and override behavior.</summary>
+    /// <param name="stockDirectory">Directory containing the extracted stock presentation data.</param>
+    /// <param name="overrideDirectory">Directory where the test writes and reloads its temporary color override.</param>
+    /// <param name="original">Installed stock presentation used to verify rebinding and override removal.</param>
+    /// <param name="rom">Cartridge address space used for extraction and guarded runtime access.</param>
+    /// <param name="initialPalettes">Palette artwork supplied when constructing the runtime.</param>
     private static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes)
@@ -112,11 +118,18 @@ internal static partial class Program
         Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
     }
 
+    /// <summary>Rejects runtime reads of the Ceres Mode-7 color bytes while forwarding other memory access.</summary>
+    /// <param name="inner">Underlying address space that serves allowed reads and writes.</param>
+    /// <param name="forbidden">ROM byte addresses that the runtime must not reread after color extraction.</param>
     private sealed class CeresRidleyMode7ColorReadGuard(ISnesAddressSpace inner,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of attempts to read a byte address reserved for extracted Mode-7 colors.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects a forbidden color-byte address and records the attempted access.</summary>
+        /// <param name="address">CPU-visible byte address about to be read.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to the extracted Mode-7 color table.</exception>
         private void RejectColorSource(int address)
         {
             if (forbidden.Contains(address))
@@ -126,26 +139,41 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Reads a byte after ensuring it is not sourced from the extracted color table.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The byte returned by the wrapped address space.</returns>
         public byte ReadByte(int address)
         {
             RejectColorSource(address);
             return inner.ReadByte(address);
         }
 
+        /// <summary>Reads a cartridge byte while enforcing the same no-reread guard as general reads.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The byte returned by the wrapped cartridge source.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectColorSource(address);
             return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a work-RAM read without applying the cartridge color-table guard.</summary>
+        /// <param name="address">Work-RAM byte address to read.</param>
+        /// <returns>The byte returned by the wrapped mutable-memory source.</returns>
         public byte ReadWorkRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ceres Mode-7 color guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read without applying the cartridge color-table guard.</summary>
+        /// <param name="address">Save-RAM byte address to read.</param>
+        /// <returns>The byte returned by the wrapped mutable-memory source.</returns>
         public byte ReadSaveRamByte(int address) =>
             (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Ceres Mode-7 color guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped mutable-memory source.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
     }
 }

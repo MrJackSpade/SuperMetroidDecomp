@@ -5,6 +5,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Confirms that every native Crocomire tongue visual selector resolves to installed
+    /// artwork without consulting ROM during selector lookup.
+    /// </summary>
+    /// <param name="rom">Retail address space used to read the reference selector words.</param>
+    /// <param name="stock">Installed enemy artwork catalog expected to contain each selected frame.</param>
     private static void VerifyInstalledCrocomireTongueVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -43,6 +49,8 @@ internal static partial class Program
             "editable frames, no ROM reads.");
     }
 
+    /// <summary>Checks the nine compiled frame pointers against their native instruction operands.</summary>
+    /// <param name="rom">Retail address space containing the Crocomire tongue instruction list.</param>
     private static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
@@ -56,6 +64,11 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(9), "tongue frame index past end");
     }
 
+    /// <summary>
+    /// Verifies that every selected frame has one native component with an empty hitbox list
+    /// and that the compiled definitions reject addresses outside those authored cases.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the frame and hitbox records.</param>
     private static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
@@ -77,6 +90,10 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.ComponentAt(frame), "tongue rejects non-frame identity");
         AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(0x8000), "tongue rejects unknown hitbox list");
     }
+    /// <summary>
+    /// Compares native and compiled tongue collision callbacks across all selected frames,
+    /// positions, and shot modes while ensuring the installed collision path never reads ROM.
+    /// </summary>
     private static void VerifyCrocomireTongueCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -157,12 +174,25 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>
+    /// Address-space sentinel for installed Crocomire tongue paths; every cartridge read or
+    /// write fails immediately so the verification can detect any ROM dependency.
+    /// </summary>
     private sealed class CrocomireTongueNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of cartridge reads attempted before the sentinel rejected them.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Rejects an import-time read just like any other cartridge access.</summary>
+        /// <param name="address">Absolute cartridge address requested.</param>
+        /// <returns>This method never returns because the sentinel rejects every read.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read was attempted.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Counts and rejects a cartridge byte read.</summary>
+        /// <param name="address">Absolute cartridge address requested.</param>
+        /// <returns>This method never returns because all reads are forbidden.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read was attempted.</exception>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -170,6 +200,10 @@ internal static partial class Program
                 $"Installed Crocomire tongue read ROM byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because installed collision logic must not mutate cartridge space.</summary>
+        /// <param name="address">Absolute cartridge address targeted by the write.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">A cartridge write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Crocomire tongue wrote ROM byte ${address:X6}.");
     }

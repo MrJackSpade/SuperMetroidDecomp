@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Chozo statue art extraction, validated overrides, compiled program dispatch, and guarded visual reads.</summary>
+    /// <param name="rom">Pinned retail address space used to extract stock art and to back the guarded execution fixture.</param>
     private static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -150,20 +152,38 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps the live address space and fails if Chozo PLM execution rereads compiled program or draw data.</summary>
+    /// <param name="source">Live SNES address space used for permitted reads and mutable-memory access.</param>
     private sealed class ChozoProgramAndDrawReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Provides the source's live work-RAM interface required by the address-space adapter.</summary>
+        /// <exception cref="InvalidOperationException">The wrapped source does not implement mutable SNES memory.</exception>
         private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
             throw new InvalidOperationException("Chozo read guard source has no live WRAM.");
 
+        /// <summary>Forwards work-RAM reads to the wrapped live memory.</summary>
+        /// <param name="cpuAddress">CPU address in work RAM.</param>
+        /// <returns>The byte currently stored at that work-RAM address.</returns>
         public byte ReadWorkRamByte(int cpuAddress) => WorkMemory.ReadWorkRamByte(cpuAddress);
 
+        /// <summary>Forwards save-RAM reads to the wrapped live memory.</summary>
+        /// <param name="cpuAddress">CPU address in save RAM.</param>
+        /// <returns>The byte currently stored at that save-RAM address.</returns>
         public byte ReadSaveRamByte(int cpuAddress) => WorkMemory.ReadSaveRamByte(cpuAddress);
 
+        /// <summary>Counts attempted cartridge reads blocked because they target compiled Chozo PLM programs or draw data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guard before consulting the wrapped address space.</summary>
+        /// <param name="address">Cartridge address requested by PLM execution.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to compiled Chozo program or draw ranges and forwards all other reads.</summary>
+        /// <param name="address">CPU address requested by the code under verification.</param>
+        /// <returns>The source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled Chozo program or draw list.</exception>
         public byte ReadByte(int address)
         {
             if ((address >= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugStart) &&
@@ -191,6 +211,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards mutable-memory writes so executed PLMs retain their normal memory side effects.</summary>
+        /// <param name="address">Address to update in the wrapped mutable memory.</param>
+        /// <param name="value">Byte to store at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

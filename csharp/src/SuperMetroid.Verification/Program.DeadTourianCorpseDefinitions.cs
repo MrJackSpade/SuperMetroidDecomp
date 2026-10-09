@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares every dead Tourian corpse variant's selectors and configuration with the ROM,
+    /// then confirms the compiled definitions through production initialization.
+    /// </summary>
+    /// <param name="rom">The retail address space used as the reference for corpse metadata.</param>
     private static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         (DeadTourianCorpseSpecies Species, ushort EnemyDefinition, int VariantCount,
@@ -49,6 +54,13 @@ internal static partial class Program
             "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");
     }
 
+    /// <summary>
+    /// Verifies the migrated configuration words and derived wrap offset for one species variant.
+    /// </summary>
+    /// <param name="rom">The retail address space containing the native configuration and rotation table.</param>
+    /// <param name="species">The dead corpse family being checked.</param>
+    /// <param name="variantIndex">The selected member within that family's variant table.</param>
+    /// <param name="definition">The compiled configuration expected to match the ROM data.</param>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
@@ -81,6 +93,15 @@ internal static partial class Program
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
+    /// <summary>
+    /// Initializes a real enemy slot for one corpse variant and checks that production installs
+    /// every migrated instruction and configuration value into its runtime state.
+    /// </summary>
+    /// <param name="rom">The retail address space used by the initializer and fixture artwork.</param>
+    /// <param name="species">The expected corpse family recorded in runtime state.</param>
+    /// <param name="enemyDefinition">The enemy definition pointer that selects this corpse family.</param>
+    /// <param name="variantIndex">The variant encoded in the enemy parameter.</param>
+    /// <param name="expected">The compiled metadata expected after initialization.</param>
     private static void VerifyDeadTourianCorpseProductionInitialization(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
@@ -132,23 +153,45 @@ internal static partial class Program
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
+    /// <summary>Reads a little-endian word from two adjacent bytes in the supplied address space.</summary>
+    /// <param name="bus">The address space containing the reference word.</param>
+    /// <param name="address">The absolute address of the word's low byte.</param>
+    /// <returns>The value formed from the addressed byte and the following byte.</returns>
     private static ushort ReadDeadTourianCorpseWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Forwards cartridge access while rejecting reads from metadata migrated into compiled
+    /// dead-corpse definitions.
+    /// </summary>
+    /// <param name="source">The underlying address space used for reads outside migrated metadata and for writes.</param>
     private sealed class DeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes import-time cartridge reads through the migrated-metadata guard.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte when the address remains a permitted cartridge dependency.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated corpse metadata reads and forwards all other reads.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The underlying byte for an address outside the migrated metadata ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to migrated dead-corpse metadata.</exception>
         public byte ReadByte(int address) => IsMigratedAddress(address)
             ? throw new InvalidOperationException(
                 $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Determines whether an address lies in a migrated selector, configuration, or rotation-table range.</summary>
+        /// <param name="address">The absolute cartridge address to classify.</param>
+        /// <returns><see langword="true"/> when the address is owned by compiled corpse metadata.</returns>
         private static bool IsMigratedAddress(int address) =>
             address is >= 0xa9d86a and < 0xa9d876 ||
             address is >= 0xa9d897 and < 0xa9d89f ||

@@ -6,6 +6,12 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that installed HUD assets preserve cartridge output while supporting visual overrides.</summary>
+    /// <param name="bus">Cartridge address space used as the reference for extracted visual bytes.</param>
+    /// <param name="stock">Directory containing the stock HUD presentation asset.</param>
+    /// <param name="overrides">Directory used to write and reload the edited HUD asset.</param>
+    /// <param name="original">Loaded stock map and HUD presentation catalog.</param>
+    /// <param name="initialPalettes">Installed palette catalog used to initialize runtime HUD state.</param>
     private static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -163,9 +169,13 @@ internal static partial class Program
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
     }
 
+    /// <summary>Blocks production reads from cartridge-backed HUD visual tables while forwarding other memory access.</summary>
+    /// <param name="source">Underlying address space and mutable memory used for permitted accesses.</param>
     private sealed class GameplayHudReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Throws when a requested address belongs to a HUD presentation table.</summary>
+        /// <param name="address">Address about to be read from cartridge-backed memory.</param>
         private static void RejectHudSource(int address)
         {
             if (InRange(address, GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowByteCount) ||
@@ -177,27 +187,48 @@ internal static partial class Program
                 throw new InvalidOperationException($"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         }
 
+        /// <summary>Checks the address before forwarding a general memory read.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is outside guarded HUD tables.</returns>
         public byte ReadByte(int address)
         {
             RejectHudSource(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks the address before forwarding through the wrapped cartridge-import source.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded HUD tables.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectHudSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads WRAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">WRAM address requested by the caller.</param>
+        /// <returns>The stored WRAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Gameplay HUD guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Reads SRAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">SRAM address requested by the caller.</param>
+        /// <returns>The stored SRAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Gameplay HUD guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards a memory write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        /// <summary>Tests whether an address falls within a half-open range of HUD presentation bytes.</summary>
+        /// <param name="address">Address to test.</param>
+        /// <param name="start">First address included in the range.</param>
+        /// <param name="length">Number of addresses in the range.</param>
+        /// <returns><see langword="true"/> when the address is at or after <paramref name="start"/> and before the range end.</returns>
         private static bool InRange(int address, int start, int length) =>
             (uint)(address - start) < (uint)length;
     }

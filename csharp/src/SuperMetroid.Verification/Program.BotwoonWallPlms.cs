@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares Botwoon's compiled PLM mechanics and clear-draw data with the pinned retail ROM.</summary>
     private static void VerifyCompiledBotwoonWallPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -95,6 +96,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs either Botwoon wall PLM through its crumble or clear sequence and checks its effects.</summary>
+    /// <param name="clear"><see langword="true"/> to verify immediate block clearing; otherwise verify the timed crumble.</param>
     private static void VerifyBotwoonWall(bool clear)
     {
         const int width = 32;
@@ -163,13 +166,24 @@ internal static partial class Program
             "Botwoon wall reads no migrated program or draw bytes");
     }
 
+    /// <summary>Rejects cartridge reads from the Botwoon and shared shot-block data migrated into compiled definitions.</summary>
+    /// <param name="source">Underlying address space that supplies unguarded reads and receives writes.</param>
     private sealed class BotwoonWallSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of attempted reads from the protected bank-$84 source ranges.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Runs a cartridge read through the same protected-range check as an ordinary bus read.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is outside protected ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address is in a migrated source range.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated Botwoon or shared shot-block data before forwarding other reads.</summary>
+        /// <param name="address">Bus address requested by the PLM or room system.</param>
+        /// <returns>The underlying byte when the address is not protected.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a protected bank-$84 range.</exception>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -190,11 +204,20 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write without applying the cartridge-read guard.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
         // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
+        /// <summary>Reads a work-RAM byte directly from the underlying mutable memory.</summary>
+        /// <param name="cpuAddress">CPU address of the work-RAM byte.</param>
+        /// <returns>The stored byte.</returns>
         public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
 
+        /// <summary>Reads a save-RAM byte directly from the underlying mutable memory.</summary>
+        /// <param name="cpuAddress">CPU address of the save-RAM byte.</param>
+        /// <returns>The stored byte.</returns>
         public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
     }
 }

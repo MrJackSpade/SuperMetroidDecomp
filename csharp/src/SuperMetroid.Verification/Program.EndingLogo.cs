@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled ending-logo actor, instruction, palette, and OAM behavior with the retail implementation.</summary>
+    /// <param name="bus">Retail address space used as the reference while compiled execution is protected by a read guard.</param>
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
@@ -60,6 +62,8 @@ internal static partial class Program
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
     }
 
+    /// <summary>Checks logo sprite selectors and instruction callbacks against the native programs and frame headers.</summary>
+    /// <param name="bus">Retail address space containing the original sprite and instruction data.</param>
     private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
@@ -124,6 +128,12 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
     }
 
+    /// <summary>Compares calculated logo-part relationships with supplied artwork, including ordering, clipping, and independent edits.</summary>
+    /// <param name="bus">Retail source used to extract the selected frame's original sprite parts.</param>
+    /// <param name="frame">Frame index whose relationship rule is being verified.</param>
+    /// <param name="definition">Compiled pointer, part count, and stable asset identity for the frame.</param>
+    /// <param name="upper">Calculated upper-logo composition used by related-part rules.</param>
+    /// <param name="completeRight">Calculated complete right-circle composition used by the wrap selection rule.</param>
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
         EndingLogoSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {
@@ -192,6 +202,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");
     }
 
+    /// <summary>Checks compiled actor initialization metadata and palette-pointer boundaries against the cartridge.</summary>
+    /// <param name="bus">Retail address space containing actor definitions and palette pointer tables.</param>
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
@@ -234,13 +246,22 @@ internal static partial class Program
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }
 
+    /// <summary>Prevents compiled logo execution from rereading its instruction, actor-definition, or palette-pointer tables.</summary>
+    /// <param name="source">Underlying address space for reads and writes outside the compiled definition ranges.</param>
     private sealed class EndingLogoDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from instruction, actor-definition, or palette-pointer bytes owned by compiled definitions.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge import request through the guarded read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside guarded ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled logo tables and delegates other addresses to the wrapped source.</summary>
+        /// <param name="address">Address requested from the wrapped memory.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (address >= 0x8b0000 + EndingLogoInstructionDefinitions.Start &&
@@ -272,6 +293,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

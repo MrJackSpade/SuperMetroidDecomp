@@ -6,6 +6,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that installed corpse artwork reproduces native WRAM initialization and sprite output.</summary>
+    /// <param name="directory">Installed asset directory containing editable enemy artwork.</param>
+    /// <param name="stock">Decoded stock artwork catalog used to initialize corpse graphics.</param>
     private static void VerifyInstalledDeadTourianCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -89,6 +92,8 @@ internal static partial class Program
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
     }
 
+    /// <summary>Compares installed selectors and OAM compositions with native bank-$8C corpse frames.</summary>
+    /// <param name="stock">Installed artwork catalog whose spritemap parts are compared with native rendering.</param>
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
@@ -176,6 +181,10 @@ internal static partial class Program
 
     // Independent copy spans from the pinned sm_a9.c corpse initializers
     // $A9:DEC1-$E052. Keep these separate from the runtime's layout definitions.
+    /// <summary>Replays the native initialization copy spans into WRAM for an independent parity reference.</summary>
+    /// <param name="bus">Address space supplying source graphics and receiving copied WRAM bytes.</param>
+    /// <param name="definition">Dead enemy definition selecting the corpse copy layout.</param>
+    /// <param name="variant">Zero-based visual variant for definitions with multiple corpse poses.</param>
     private static void ReferenceDeadTourianCorpseGraphics(
         SuperMetroidAddressSpace bus, ushort definition, int variant)
     {
@@ -206,6 +215,10 @@ internal static partial class Program
                     bus.ReadByte(0xb7c000 + copy.Source + offset));
     }
 
+    /// <summary>Runs the production dead-Sidehopper initializer with installed artwork and guarded source reads.</summary>
+    /// <param name="bus">Address space whose WRAM receives the initialized corpse graphics.</param>
+    /// <param name="artwork">Installed tile artwork supplied to the enemy system.</param>
+    /// <param name="parameter">Native Sidehopper parameter selecting the corpse variant.</param>
     private static void InitializeDeadSidehopperArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)
     {
@@ -219,6 +232,11 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
     }
 
+    /// <summary>Runs a dead Zoomer, Ripper, or Skree initializer using its installed artwork definition.</summary>
+    /// <param name="bus">Address space whose WRAM receives the initialized corpse graphics.</param>
+    /// <param name="artwork">Installed tile artwork supplied to the enemy system.</param>
+    /// <param name="definition">Dead enemy definition selecting the initializer and graphics layout.</param>
+    /// <param name="variant">Zero-based corpse variant, encoded in the enemy's native parameter field.</param>
     private static void InitializeDeadTourianCorpseArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
         ushort definition, int variant)
@@ -234,17 +252,28 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
     }
 
+    /// <summary>Prevents production corpse initialization from falling back to the installed art's original ROM bytes.</summary>
+    /// <param name="source">Underlying bus used for permitted accesses and all writes.</param>
     private sealed class DeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the ROM-artwork exclusion check.</summary>
+        /// <param name="address">Cartridge address requested by the initializer.</param>
+        /// <returns>The wrapped source byte unless it lies in the forbidden artwork range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the corpse artwork source range and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte at a permitted address in the wrapped bus.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xb7c000 and < 0xb7ce00
                 ? throw new InvalidOperationException(
                     $"Tourian corpse read installed artwork from ROM at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards the initialized WRAM byte to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

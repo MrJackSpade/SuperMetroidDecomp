@@ -5,10 +5,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native enemy-death instruction tables and their compiled, ROM-independent runtime behavior.</summary>
     private static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks real death variants, their shared respawn tail, compiled visuals, and allocation-free mechanics lookup.</summary>
+    /// <param name="rom">Cartridge address space used to compare the extracted instruction data with native bytes.</param>
     private static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -151,6 +154,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and exercises mechanics lookups so the caller can measure their steady-state allocations.</summary>
+    /// <returns>A checksum of the looked-up explosion mechanics words to keep the probe observable.</returns>
     private static int ProbeEnemyDeathInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -164,14 +169,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Tracks presentation-word reads and fails if runtime code reads compiled mechanics bytes from the cartridge.</summary>
+    /// <param name="source">Underlying address space used for permitted cartridge reads.</param>
     private sealed class EnemyDeathInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation word addresses observed while a native death animation executes.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read a mechanics byte that should come from compiled data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guarded byte-read path.</summary>
+        /// <param name="address">Cartridge byte address being read.</param>
+        /// <returns>The underlying byte when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records accesses to presentation operands, then forwards allowed reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The byte returned by the underlying address space when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled enemy-death mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -202,6 +219,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

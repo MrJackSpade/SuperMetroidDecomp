@@ -6,10 +6,13 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs the retail-ROM-backed verification of Golden Torizo's Super Missile instruction programs.</summary>
     private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks both missile facings, their held and flight loops, and impact behavior against compiled data.</summary>
+    /// <param name="rom">Retail cartridge address space used to compare native instruction words and rendered operands.</param>
     private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -205,6 +208,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises repeated mechanics lookups so its caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum of the selected initial and impact mechanics words.</returns>
     private static int ProbeGoldenTorizoSuperMissileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -218,14 +223,26 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects cartridge reads of compiled missile mechanics and records visual operand accesses.</summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and forwarded writes.</param>
     private sealed class GoldenTorizoSuperMissileInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Addresses of compiled presentation words observed during missile instruction execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read a mechanics byte that should be supplied by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-byte requests through the guarded read path.</summary>
+        /// <param name="address">Cartridge byte address to read.</param>
+        /// <returns>The underlying byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics-byte reads, records presentation operands, and forwards other cartridge reads.</summary>
+        /// <param name="address">CPU-visible byte address to read.</param>
+        /// <returns>The byte returned by the underlying address space when permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled missile mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
@@ -255,6 +272,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">CPU-visible byte address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

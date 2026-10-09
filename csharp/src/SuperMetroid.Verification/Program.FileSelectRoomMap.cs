@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks room-map tile visibility, tilemap framing, icon capacity, and area-wide projection against cartridge data.</summary>
     private static void VerifyFileSelectRoomMapGraphics()
     {
         Suite(nameof(VerifyFileSelectStationMarker), () => VerifyFileSelectStationMarker());
@@ -82,6 +83,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies that cancelling the room map preserves the displayed frame until its return transition updates it.</summary>
     private static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -129,6 +131,7 @@ internal static partial class Program
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
+    /// <summary>Checks palette-cycle timing, arrow frame cadence, visibility pauses, and rendering without draw-time advancement.</summary>
     private static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
@@ -208,6 +211,7 @@ internal static partial class Program
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
+    /// <summary>Verifies discovery-gated station, boss, refill, and destination icons, including their OAM order and scrolled positions.</summary>
     private static void VerifyFileSelectMapIcons()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -274,12 +278,15 @@ internal static partial class Program
         AssertEqual(0x3c, defeated.LowTable[7], "defeated boss changes to palette six");
     }
 
+    /// <summary>Runs saved-game frontend checks for both the Zebes map path and the Ceres checkpoint bypass.</summary>
     private static void VerifySavedGameMapFrontend()
     {
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(4));
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(6));
     }
 
+    /// <summary>Exercises title, file selection, map transitions, cancellation, and gameplay loading for one saved area.</summary>
+    /// <param name="savedArea">Saved area index to load; value 6 exercises the Ceres elevator-arrival path.</param>
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -362,6 +369,7 @@ internal static partial class Program
             Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), 256, 224, frame.Pixels);
     }
 
+    /// <summary>Checks map phase transitions, fresh confirmation edges, and native precedence for combined directional and action inputs.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -412,6 +420,7 @@ internal static partial class Program
         AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
+    /// <summary>Checks directional scroll pulse timing, boundary clamping, and sound timing for populated and empty maps.</summary>
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -454,6 +463,7 @@ internal static partial class Program
         AssertEqual(stoppedX, precedence.Horizontal, "held input cannot scroll beyond unavailable arrow");
     }
 
+    /// <summary>Verifies station-marker frame cadence, backing visibility, OAM placement, stable redraws, and invalid station rejection.</summary>
     private static void VerifyFileSelectStationMarker()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

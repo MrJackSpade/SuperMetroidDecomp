@@ -5,10 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Ceres falling-debris mechanics and production instruction checks against the retail ROM.</summary>
     private static void VerifyCeresFallingDebrisInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresFallingDebrisInstructionProgramDefinitions), () => VerifyCeresFallingDebrisInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled Ceres debris mechanics with cartridge words, then exercises both
+    /// projectile variants while observing presentation reads and validating their frames.
+    /// </summary>
+    /// <param name="rom">Retail address space used as the source of native instruction words and selectors.</param>
     private static void VerifyCeresFallingDebrisInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +120,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads the two compiled debris mechanics entries for an allocation measurement.</summary>
     private static int ProbeCeresFallingDebrisInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -127,14 +134,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Wraps cartridge memory to reject compiled mechanics reads and record executed presentation-word reads.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class CeresFallingDebrisInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the presentation words whose bytes production execution requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from compiled mechanics tables.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an imported cartridge read through the same checks as ordinary address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The underlying byte unless the address belongs to a forbidden mechanics table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled mechanics bytes, records presentation-word access, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte read from the wrapped source for permitted addresses.</returns>
         public byte ReadByte(int address)
         {
             if (CeresFallingDebrisInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -166,6 +184,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space without altering it.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -587,6 +587,8 @@ if (args is ["--ridley-pause-page-timing"]) { VerifyRidleyPausePageTiming(); ret
 if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
 if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
 if (args is ["--ridley-full-movie"]) { VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; }
+if (args is ["--lsmv-playthrough-movie", var lowTraceDirectory]) { VerifyLowPercentPlaythroughMovie(lowTraceDirectory); return 0; }
+if (args is ["--lsmv-playthrough-movie", var lowTracedDirectory, "--trace-from", var lowTraceFrom]) { VerifyLowPercentPlaythroughMovie(lowTracedDirectory, int.Parse(lowTraceFrom)); return 0; }
 if (args is ["--full-playthrough-movie", var fullTraceDirectory]) { VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; }
 if (args is ["--full-playthrough-movie", var tracedDirectory, "--trace-from", var traceFrom]) { VerifyFullPlaythroughMovie(tracedDirectory, int.Parse(traceFrom)); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }

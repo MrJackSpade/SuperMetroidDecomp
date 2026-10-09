@@ -7,9 +7,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve-strip artwork and origins, independent of reserve energy and fill selection.</summary>
 public sealed class PauseReserveTankPresentation
 {
+    /// <summary>Only anchor coordinates that differ from their stock positions.</summary>
     private readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
+    /// <summary>Compiled sprite compositions for the reserve strip's ten visual roles.</summary>
     private readonly FrameSet frames;
+    /// <summary>OBJ palette bits applied when reserve-strip sprite parts are drawn.</summary>
     private readonly ushort paletteBits;
+
+    /// <summary>Creates a presentation from validated anchor overrides, sprite frames, and palette selection.</summary>
+    /// <param name="anchorOverrides">Per-anchor coordinates that replace the corresponding stock components.</param>
+    /// <param name="frames">Compiled compositions or stock-frame markers for each reserve visual role.</param>
+    /// <param name="palette">OBJ palette index selected by the presentation document.</param>
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
 
@@ -85,6 +93,16 @@ public sealed class PauseReserveTankPresentation
         return new(anchorOverrides, frames, document.Palette);
     }
     /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
+    /// <param name="Full">Composition for a full reserve tank.</param>
+    /// <param name="EndCap">Composition for the strip's trailing cap.</param>
+    /// <param name="Empty">Composition for an empty tank.</param>
+    /// <param name="Fill1">Composition for the first partial-fill level.</param>
+    /// <param name="Fill2">Composition for the second partial-fill level.</param>
+    /// <param name="Fill3">Composition for the third partial-fill level.</param>
+    /// <param name="Fill4">Composition for the fourth partial-fill level.</param>
+    /// <param name="Fill5">Composition for the fifth partial-fill level.</param>
+    /// <param name="Fill6">Composition for the sixth partial-fill level.</param>
+    /// <param name="Fill7">Composition for the seventh partial-fill level.</param>
     private sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
         SpriteComposition? Fill1, SpriteComposition? Fill2, SpriteComposition? Fill3, SpriteComposition? Fill4,
         SpriteComposition? Fill5, SpriteComposition? Fill6, SpriteComposition? Fill7);

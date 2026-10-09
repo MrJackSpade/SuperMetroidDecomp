@@ -8,16 +8,32 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
+    /// <summary>Validated startup palette words, including the shared door/container colors and Baby palette source.</summary>
     private readonly CeresRidleyStartColorDefinitions start;
+    /// <summary>Validated three-color rows used while the eye fades from full paint to black.</summary>
     private readonly CeresRidleyFadeColorDefinitions eyeFade;
+    /// <summary>Validated eleven-color body fade rows shared by BG and OBJ palette application.</summary>
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
+    /// <summary>Validated health palette rows shared by Ceres and Norfair Ridley health selection.</summary>
     private readonly CeresRidleyHealthPaintDefinitions health;
+    /// <summary>Validated three-color phases for the self-destruct alarm text.</summary>
     private readonly CeresRidleyAlarmColorDefinitions alarm;
+    /// <summary>Supplied retreat BG colors that differ from the body/eye/neutral composition.</summary>
     private readonly Dictionary<int, ushort> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
     private readonly Dictionary<int, ushort> retreatShared = [];
+    /// <summary>Validated private Baby/container draw palette rows.</summary>
     private readonly CeresBabyPaintDefinitions baby;
 
+    /// <summary>Stores validated paint families and retains only retreat entries that need explicit overrides.</summary>
+    /// <param name="start">Compiled startup palette words used for startup and shared retreat colors.</param>
+    /// <param name="eyeFade">Compiled eye-fade rows.</param>
+    /// <param name="bodyFade">Compiled body-fade rows.</param>
+    /// <param name="health">Compiled shared health palette rows.</param>
+    /// <param name="alarm">Compiled self-destruct alarm phases.</param>
+    /// <param name="retreatBg">Supplied retreat BG colors, reduced to entries differing from their calculated composition.</param>
+    /// <param name="retreatShared">Supplied retreat shared colors, reduced to entries differing from startup paint.</param>
+    /// <param name="baby">Compiled Baby/container draw palette rows.</param>
     private CeresRidleyColorCatalog(ushort[] start, CeresRidleyFadeColorDefinitions eyeFade,
         CeresRidleyFadeColorDefinitions bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
         ushort[] retreatBg, ushort[] retreatShared,
@@ -38,6 +54,7 @@ public sealed class CeresRidleyColorCatalog
         this.baby = baby;
     }
 
+    /// <summary>JSON policy shared by catalog loading and writing: camel-case names, strict unknown-property handling, and readable output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -51,6 +68,9 @@ public sealed class CeresRidleyColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatBg.TryGetValue(color, out ushort edited) ? edited : CalculateRetreatBg(color);
     }
+    /// <summary>Composes an unchanged retreat BG entry from body-fade paint, eye-fade paint, or the neutral Mode 7 tail.</summary>
+    /// <param name="color">Zero-based index in the fifteen-color retreat BG sequence.</param>
+    /// <returns>The calculated BGR555 color before any supplied edit is applied.</returns>
     private ushort CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
@@ -183,6 +203,13 @@ public sealed class CeresRidleyColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates the required number of RGB5 rows and compiles each row to BGR555 words.</summary>
+    /// <param name="rows">Optional source rows from the JSON document.</param>
+    /// <param name="count">Required number of rows.</param>
+    /// <param name="colorsPerRow">Required color count in each row.</param>
+    /// <param name="name">Palette family label included in validation errors.</param>
+    /// <returns>Compiled rows with each RGB5 color packed into a BGR555 word.</returns>
+    /// <exception cref="InvalidDataException">The row array is missing or has the wrong row or color dimensions.</exception>
     private static ushort[][] CompileRows(PaletteRgb5[][]? rows, int count,
         int colorsPerRow, string name)
     {
@@ -194,6 +221,12 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
+    /// <summary>Validates and packs one required RGB5 palette sequence into BGR555 words.</summary>
+    /// <param name="colors">Optional source colors from the JSON document.</param>
+    /// <param name="count">Required number of colors.</param>
+    /// <param name="name">Palette family or row label included in validation errors.</param>
+    /// <returns>Packed BGR555 colors in source order.</returns>
+    /// <exception cref="InvalidDataException">The color array has the wrong length or contains a missing color or channel outside 0..31.</exception>
     private static ushort[] Compile(PaletteRgb5[]? colors, int count, string name)
     {
         if (colors is null || colors.Length != count)
@@ -210,6 +243,9 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated property names recursively using the asset's case-sensitive JSON naming policy.</summary>
+    /// <param name="value">Parsed JSON root whose object properties are checked.</param>
+    /// <exception cref="InvalidDataException">A duplicate property is found in the document.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Ceres Ridley color property {name}."));

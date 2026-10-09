@@ -1,7 +1,17 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Mutually exclusive native Tourian statue palette payload domains.</summary>
-internal enum TourianStatuePaintBand { Base, Statue, Eye, Grey }
+internal enum TourianStatuePaintBand
+{
+    /// <summary>Base decoration inks copied into the statue's OBJ palette band.</summary>
+    Base,
+    /// <summary>Gold statue body inks used by the entrance presentation.</summary>
+    Statue,
+    /// <summary>Four boss-specific eye-glow rows installed over the base decoration.</summary>
+    Eye,
+    /// <summary>Grey-transition inks consumed by the statue's release animation.</summary>
+    Grey
+}
 
 /// <summary>
 /// Selected decoration, gold statue, boss-eye and released cool-stone paints.
@@ -14,6 +24,7 @@ internal static class TourianStatuePaintDefinitions
 {
     /// <summary>Native copied transparent-slot word at $AA:D765/D785 and $87:839C.</summary>
     private const ushort TransparentSlotPayload = 0x3800;
+    /// <summary>Largest representable channel value in the five-bit SNES color format.</summary>
     private const int Max = 31;
     /// <summary>$AA:D787: olive base highlight RGB(25,31,9), fading to black at color8.</summary>
     private const int BaseHighlightRed = 25, BaseHighlightBlue = 9;
@@ -47,6 +58,11 @@ internal static class TourianStatuePaintDefinitions
     private const int GreyLightRed = 199, GreyLightGreen = 214, GreyLightBlue = 255,
         GreyDarkRed = 31, GreyDarkGreen = 32, GreyDarkBlue = 39;
 
+    /// <summary>Calculates the packed RGB5 word for one slot in a native palette domain.</summary>
+    /// <param name="band">Palette domain whose stock paint rules are applied.</param>
+    /// <param name="index">Zero-based slot within that domain; eye slots are grouped four per boss row.</param>
+    /// <returns>The SNES color word selected by the domain's paint definition.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The palette domain is not recognized.</exception>
     internal static ushort Color(TourianStatuePaintBand band, int index) => band switch
     {
         TourianStatuePaintBand.Base => Base(index),
@@ -59,13 +75,40 @@ internal static class TourianStatuePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
+    /// <summary>Interpolates an RGB8 channel between endpoint samples and quantizes it to RGB5.</summary>
+    /// <param name="first">RGB8 channel value at the light end of the transition.</param>
+    /// <param name="last">RGB8 channel value at the dark end of the transition.</param>
+    /// <param name="step">Zero-based transition step between the endpoint samples.</param>
+    /// <returns>The quantized five-bit channel value.</returns>
     private static int GreyChannel(int first, int last, int step) => (first * (6 - step) + last * step) / (6 * 8);
+
+    /// <summary>Packs five-bit red, green, and blue channels into a SNES color word.</summary>
+    /// <param name="r">Five-bit red channel.</param>
+    /// <param name="g">Five-bit green channel.</param>
+    /// <param name="b">Five-bit blue channel.</param>
+    /// <returns>The packed BGR555-format color word.</returns>
     private static ushort Pack(int r, int g, int b) => (ushort)(r | g << 5 | b << 10);
+
+    /// <summary>Linearly interpolates between channel endpoints with nearest-integer rounding.</summary>
+    /// <param name="first">Channel value at the beginning of the ramp.</param>
+    /// <param name="last">Channel value at the end of the ramp.</param>
+    /// <param name="step">Zero-based position within the ramp.</param>
+    /// <param name="count">Number of intervals between its endpoints.</param>
+    /// <returns>The rounded channel value at the requested position.</returns>
     private static int Nearest(int first, int last, int step, int count) =>
         (first * (count - step) + last * step + count / 2) / count;
+
+    /// <summary>Interpolates channel endpoints using the catalog's square-root gamma curve.</summary>
+    /// <param name="first">Channel value at the light end of the curve.</param>
+    /// <param name="last">Channel value at the dark end of the curve.</param>
+    /// <param name="step">Zero-based position in the three-sample shading curve.</param>
+    /// <returns>The floored channel value for this gamma-shaded step.</returns>
     private static int GammaShade(int first, int last, int step) =>
         step == 0 ? first : step == 2 ? last : (int)Math.Floor((first + last + 2 * Math.Sqrt(first * last)) / 4);
 
+    /// <summary>Calculates a base-decoration slot, combining the olive fade, Ridley eye colors, and neutral accents.</summary>
+    /// <param name="color">Zero-based slot in the sixteen-color base palette.</param>
+    /// <returns>The packed RGB5 word for that slot.</returns>
     private static ushort Base(int color)
     {
         if (color == 0) return TransparentSlotPayload;
@@ -76,6 +119,9 @@ internal static class TourianStatuePaintDefinitions
         return Pack(neutral, neutral, neutral);
     }
 
+    /// <summary>Calculates the statue-body palette, including its gold facets, shaded lower body, and yellow accent.</summary>
+    /// <param name="color">Zero-based slot in the sixteen-color statue palette.</param>
+    /// <returns>The packed RGB5 word for that slot.</returns>
     private static ushort Statue(int color)
     {
         if (color == 0) return TransparentSlotPayload;
@@ -94,6 +140,10 @@ internal static class TourianStatuePaintDefinitions
         return Pack(yellow, yellow, 0);
     }
 
+    /// <summary>Calculates one boss's four-color eye row using its selected glint and shading ramp.</summary>
+    /// <param name="boss">Zero-based boss row: Phantoon, Ridley, Draygon, or Kraid.</param>
+    /// <param name="color">Zero-based slot within that four-color row.</param>
+    /// <returns>The packed RGB5 word for the requested eye color.</returns>
     private static ushort Eye(int boss, int color)
     {
         if (color == 0) return boss switch

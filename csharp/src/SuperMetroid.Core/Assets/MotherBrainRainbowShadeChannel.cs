@@ -36,11 +36,22 @@ internal static class MotherBrainRainbowShadeDefinitions
 /// </summary>
 internal sealed class MotherBrainRainbowShadeChannel
 {
+    /// <summary>Material profile selecting how head, plate, tissue, and tail channels are reconstructed.</summary>
     private readonly MotherBrainRainbowShadeProfile profile;
+
+    /// <summary>Reads source green-channel samples used by the recovering-green tissue ramp.</summary>
     private readonly Func<int, int> sourceGreen;
+
+    /// <summary>Supplied channel samples retained when a calculated profile does not exactly match the source artwork.</summary>
     private readonly byte[] inputs;
+
+    /// <summary>Whether every channel entry matched the selected formula and can be calculated on demand.</summary>
     private readonly bool calculated;
 
+    /// <summary>Builds the compact channel inputs for a profile, retaining the complete source when formulas differ.</summary>
+    /// <param name="samples">Channel values in palette color order for one rainbow phase.</param>
+    /// <param name="profile">Native phase profile that defines the shade relationships.</param>
+    /// <param name="sourceGreen">Accessor for source artwork's green channel when the recovering ramp reuses it.</param>
     internal MotherBrainRainbowShadeChannel(byte[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         this.profile = profile;
@@ -59,8 +70,13 @@ internal sealed class MotherBrainRainbowShadeChannel
         calculated = true;
     }
 
+    /// <summary>Gets a channel value from its exact supplied input or the matching calculated shade profile.</summary>
+    /// <param name="color">Palette color index within the phase.</param>
     internal byte this[int color] => calculated ? (byte)Calculate(color) : inputs[color];
 
+    /// <summary>Calculates one head, plate, tissue, or tail shade from the selected material profile.</summary>
+    /// <param name="color">Palette color index whose channel value is required.</param>
+    /// <returns>The reconstructed channel component.</returns>
     private int Calculate(int color)
     {
         if (color < Layout.PlateStart)
@@ -94,10 +110,35 @@ internal sealed class MotherBrainRainbowShadeChannel
     }
 
     // Exposed-head outline shares the darkest cortex channel in these native phases.
+    /// <summary>Reports whether a profile derives the exposed-head outline from the darkest cortex channel.</summary>
+    /// <param name="profile">Material profile being checked.</param>
+    /// <returns><see langword="true"/> for phases with the shared dark head and tail value.</returns>
     private static bool SharesDarkHeadTail(MotherBrainRainbowShadeProfile profile) =>
         profile is MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MixedBlue or MotherBrainRainbowShadeProfile.MaximumBlue;
 
-    private enum Rounding { Floor, Ceiling, NearestUp, NearestEven }
+    /// <summary>Integer rounding rules used when interpolating channel values between supplied shade anchors.</summary>
+    private enum Rounding
+    {
+        /// <summary>Discards the fractional part toward the lower integer.</summary>
+        Floor,
+
+        /// <summary>Rounds any nonintegral value to the next higher integer.</summary>
+        Ceiling,
+
+        /// <summary>Rounds to the nearest integer, resolving exact halves upward.</summary>
+        NearestUp,
+
+        /// <summary>Rounds to the nearest integer, resolving exact halves toward an even result.</summary>
+        NearestEven
+    }
+
+    /// <summary>Interpolates between two sampled channel endpoints using the selected integer rounding policy.</summary>
+    /// <param name="first">Channel value at the beginning of the ramp.</param>
+    /// <param name="last">Channel value at the end of the ramp.</param>
+    /// <param name="shade">Zero-based position within the ramp.</param>
+    /// <param name="intervals">Number of steps between the endpoint samples.</param>
+    /// <param name="rounding">Rule used to convert the interpolated rational value to an integer.</param>
+    /// <returns>The interpolated channel component.</returns>
     private static int Interpolate(int first, int last, int shade, int intervals, Rounding rounding)
     {
         int numerator = first * (intervals - shade) + last * shade;

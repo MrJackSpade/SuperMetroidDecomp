@@ -9,6 +9,15 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>Advances an ordinary beam, spawning its timed trail before acceleration and movement, then applies collision and viewport cleanup.</summary>
+    /// <param name="bus">Address space used for trail allocation and collision effects.</param>
+    /// <param name="level">Room collision geometry traversed by the projectile.</param>
+    /// <param name="slot">Beam slot whose motion and lifecycle are updated.</param>
+    /// <param name="layer1X">Camera X origin for the projectile retention window.</param>
+    /// <param name="layer1Y">Camera Y origin for the projectile retention window.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
+    /// <param name="powerBomb">Shared explosion state used when beam collision begins an explosion.</param>
+    /// <returns>Whether the beam collided during this update.</returns>
     private bool RunNoWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -73,6 +82,13 @@ public sealed partial class SamusProjectileSystem
         return collided;
     }
 
+    /// <summary>Advances the Wave Beam trail timer and delegates acceleration and nonlethal terrain response to shared motion.</summary>
+    /// <param name="bus">Address space used to spawn a trail.</param>
+    /// <param name="level">Room collision geometry scanned by the Wave projectile.</param>
+    /// <param name="slot">Wave Beam slot whose timer, position, and velocities are updated.</param>
+    /// <param name="layer1X">Camera X origin used for off-screen cleanup.</param>
+    /// <param name="layer1Y">Camera Y origin used for off-screen cleanup.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block notifications, when available.</param>
     private void RunWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -104,6 +120,13 @@ public sealed partial class SamusProjectileSystem
         RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
     }
 
+    /// <summary>Runs the shared Wave movement for Hyper Beam without creating projectile trails.</summary>
+    /// <param name="bus">Address space used by collision and block-reaction handling.</param>
+    /// <param name="level">Room collision geometry scanned by the beam.</param>
+    /// <param name="slot">Hyper Beam slot whose position and velocity are advanced.</param>
+    /// <param name="layer1X">Camera X origin used for off-screen cleanup.</param>
+    /// <param name="layer1Y">Camera Y origin used for off-screen cleanup.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block notifications, when available.</param>
     private void RunHyperBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -124,6 +147,13 @@ public sealed partial class SamusProjectileSystem
         RunWaveBeamShared(bus, level, slot, layer1X, layer1Y, roomPlms);
     }
 
+    /// <summary>Applies beam acceleration, moves each active axis, scans Wave-style point reactions, and removes shots outside the movement window.</summary>
+    /// <param name="bus">Address space used by movement collision handling.</param>
+    /// <param name="level">Room geometry whose blocks are scanned along the beam path.</param>
+    /// <param name="slot">Beam slot whose velocities and fixed-point position are updated.</param>
+    /// <param name="layer1X">Camera X origin used for off-screen cleanup.</param>
+    /// <param name="layer1Y">Camera Y origin used for off-screen cleanup.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block notifications, when available.</param>
     private void RunWaveBeamShared(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -165,6 +195,15 @@ public sealed partial class SamusProjectileSystem
         DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
     }
 
+    /// <summary>Advances a missile through ignition or powered acceleration, directional point collision, impact, and viewport cleanup.</summary>
+    /// <param name="bus">Address space used for trails, collision, and missile impact effects.</param>
+    /// <param name="level">Room collision geometry traversed by the missile.</param>
+    /// <param name="slot">Missile slot whose motion and lifecycle are updated.</param>
+    /// <param name="layer1X">Camera X origin used for off-screen cleanup.</param>
+    /// <param name="layer1Y">Camera Y origin used for off-screen cleanup.</param>
+    /// <param name="sharedProjectiles">Shared projectile owner used when the missile explodes.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
+    /// <returns>Whether terrain collision occurred during the movement update.</returns>
     private bool RunMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -237,6 +276,16 @@ public sealed partial class SamusProjectileSystem
         return collided;
     }
 
+    /// <summary>Advances a Super Missile and its collision link, preserving horizontal-before-vertical collision ordering.</summary>
+    /// <param name="bus">Address space used for trails, projectile initialization, and collision effects.</param>
+    /// <param name="level">Room collision geometry traversed by the projectile and its link.</param>
+    /// <param name="samus">Active Samus state used to initialize projectile positions.</param>
+    /// <param name="slot">Super Missile owner slot whose motion and lifecycle are updated.</param>
+    /// <param name="layer1X">Camera X origin used for off-screen cleanup.</param>
+    /// <param name="layer1Y">Camera Y origin used for off-screen cleanup.</param>
+    /// <param name="sharedProjectiles">Shared projectile owner used when an impact creates an explosion.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
+    /// <returns>Whether the owner collided with terrain during this update.</returns>
     private bool RunSuperMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -341,6 +390,10 @@ public sealed partial class SamusProjectileSystem
         return true;
     }
 
+    /// <summary>Allocates and initializes the invisible collision companion associated with a Super Missile.</summary>
+    /// <param name="bus">Address space supplying the link's native data and position tables.</param>
+    /// <param name="samus">Active Samus state used by the ordinary muzzle-position initializer.</param>
+    /// <param name="owner">Super Missile slot that stores the allocated link's native byte index.</param>
     private void SpawnSuperMissileLink(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -373,6 +426,8 @@ public sealed partial class SamusProjectileSystem
         ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
     }
 
+    /// <summary>Leaves an ordinary linked projectile stationary and clears all Super Missile links on a lifecycle signal.</summary>
+    /// <param name="link">Collision companion whose packed direction carries the lifecycle state.</param>
     private void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
     {
         // `$90:B075` leaves an ordinary link completely stationary. A high direction nibble
@@ -383,6 +438,13 @@ public sealed partial class SamusProjectileSystem
         ClearAllSuperMissileLinks();
     }
 
+    /// <summary>Moves or collision-tests the Super Missile link on one axis using the owner's speed and explosion state.</summary>
+    /// <param name="bus">Address space used for point collision resolution.</param>
+    /// <param name="level">Room collision geometry sampled by the companion.</param>
+    /// <param name="owner">Super Missile supplying position, velocity, and lifecycle state.</param>
+    /// <param name="vertical">Whether this update uses the vertical axis rather than horizontal.</param>
+    /// <param name="sharedProjectiles">Shared projectile owner used if the link's collision destroys the missile.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
     private void UpdateSuperMissileLinkAxis(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -442,6 +504,7 @@ public sealed partial class SamusProjectileSystem
             ClearProjectile(link);
     }
 
+    /// <summary>Clears every active slot whose projectile type carries the plain Super Missile family payload.</summary>
     private void ClearAllSuperMissileLinks()
     {
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -452,6 +515,12 @@ public sealed partial class SamusProjectileSystem
         }
     }
 
+    /// <summary>Adds horizontal velocity and checks the missile center against the room's horizontal collision point.</summary>
+    /// <param name="bus">Address space used for collision reaction data.</param>
+    /// <param name="level">Room geometry containing the collision point.</param>
+    /// <param name="slot">Missile slot whose X position is advanced.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
+    /// <returns><see langword="true"/> when the point reaction makes the missile collide.</returns>
     private static bool MoveMissileHorizontally(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -473,6 +542,12 @@ public sealed partial class SamusProjectileSystem
             bus, level, slot, horizontalMovement: true, roomPlms: roomPlms);
     }
 
+    /// <summary>Adds vertical velocity and checks the missile center against the room's vertical collision point.</summary>
+    /// <param name="bus">Address space used for collision reaction data.</param>
+    /// <param name="level">Room geometry containing the collision point.</param>
+    /// <param name="slot">Missile slot whose Y position is advanced.</param>
+    /// <param name="roomPlms">Room PLM system receiving shootable-block reactions, when available.</param>
+    /// <returns><see langword="true"/> when the point reaction makes the missile collide.</returns>
     private static bool MoveMissileVertically(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -491,6 +566,13 @@ public sealed partial class SamusProjectileSystem
             bus, level, slot, horizontalMovement: false, roomPlms: roomPlms);
     }
 
+    /// <summary>Resolves the collision category under a missile center and applies its native block-specific reaction.</summary>
+    /// <param name="bus">Address space used for slope data and block reactions.</param>
+    /// <param name="level">Room geometry containing the collision block.</param>
+    /// <param name="slot">Missile or link whose center selects the block and whose type drives PLM reactions.</param>
+    /// <param name="horizontalMovement">Whether this point check follows horizontal movement.</param>
+    /// <param name="roomPlms">Room PLM system receiving projectile hit notifications, when available.</param>
+    /// <returns><see langword="true"/> when the selected block destroys or stops the missile.</returns>
     private static bool MissilePointReaction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -567,6 +649,12 @@ public sealed partial class SamusProjectileSystem
         };
     }
 
+    /// <summary>Tests a missile point against either a pixel-height slope table or a square-slope quadrant.</summary>
+    /// <param name="bus">Address space supplying the native slope definition.</param>
+    /// <param name="block">Slope block whose shape and orientation determine the collision test.</param>
+    /// <param name="slot">Projectile whose within-block coordinates are sampled.</param>
+    /// <param name="horizontalMovement">Whether the point reached the slope during horizontal travel.</param>
+    /// <returns><see langword="true"/> when the sampled slope is solid at the projectile point.</returns>
     private static bool MissileSlopePointReaction(
         ISnesAddressSpace bus,
         RoomCollisionBlock block,

@@ -25,8 +25,11 @@ public enum MochtroidMovementMode : ushort
 /// </summary>
 public sealed class MochtroidEnemyState
 {
+    /// <summary>Common room enemy slot supplying this view's shared velocity and movement-mode words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over the common words of one initialized Mochtroid slot.</summary>
+    /// <param name="slot">Room enemy slot whose common variables hold the Mochtroid state.</param>
     internal MochtroidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the fractional word of the signed horizontal 16.16 velocity.</summary>
@@ -90,10 +93,14 @@ public sealed class MochtroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Number of updates of contact required before an attached Mochtroid applies periodic drain damage.</summary>
     private const ushort MochtroidAttachmentDamagePeriod = 0x0050;
+    /// <summary>Maximum absolute whole-pixel component used by free-flight acceleration.</summary>
     private const int MochtroidMaximumVelocity = 3;
+    /// <summary>One whole pixel represented in signed 16.16 fixed-point velocity units.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
+    /// <summary>Per-slot state views for initialized Mochtroids, including extension words outside the common enemy slot.</summary>
     private readonly MochtroidEnemyState?[] _mochtroidStates =
         new MochtroidEnemyState?[MaximumEnemyCount];
 
@@ -147,6 +154,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies proportional attraction toward Samus, resolves vertical movement before horizontal movement, and restores the free-flight list.</summary>
+    /// <param name="slot">Mochtroid actor whose position and instruction list advance.</param>
+    /// <param name="state">Fixed-point velocity words associated with the actor.</param>
+    /// <param name="samus">Current Samus position used to calculate attraction on each axis.</param>
+    /// <param name="level">Active room collision geometry for the movement passes.</param>
     private void RunMochtroidFreeFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -177,6 +189,9 @@ public sealed partial class RoomEnemySystem
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
+    /// <summary>Limits the signed whole-pixel part of a 16.16 velocity to the native three-pixel range.</summary>
+    /// <param name="velocity">Combined signed fixed-point velocity before clamping.</param>
+    /// <returns>The original fraction with the whole component limited to negative or positive three pixels.</returns>
     private static int ClampMochtroidVelocity(int velocity)
     {
         short whole = unchecked((short)(velocity >> 16));
@@ -187,6 +202,11 @@ public sealed partial class RoomEnemySystem
         return velocity;
     }
 
+    /// <summary>Moves a latched Mochtroid one pixel per axis toward Samus, resolving horizontal movement before vertical movement.</summary>
+    /// <param name="slot">Attached actor whose position is advanced.</param>
+    /// <param name="state">State view receiving the per-axis fixed-point movement values.</param>
+    /// <param name="samus">Current Samus position used to choose each axis direction.</param>
+    /// <param name="level">Active room collision geometry used for movement.</param>
     private void RunMochtroidAttachedFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -212,6 +232,9 @@ public sealed partial class RoomEnemySystem
         MoveEnemyVertically(level, slot, yVelocity);
     }
 
+    /// <summary>Applies the unused four-direction shake offset selected by the timer and returns to free flight when it expires.</summary>
+    /// <param name="slot">Actor position updated by the selected shake offset.</param>
+    /// <param name="state">Shake timer and movement state advanced by this update.</param>
     private static void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
@@ -228,18 +251,28 @@ public sealed partial class RoomEnemySystem
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
+    /// <summary>Splits a signed 16.16 horizontal velocity into the common whole and fractional state words.</summary>
+    /// <param name="state">Mochtroid state receiving the X velocity halves.</param>
+    /// <param name="velocity">Combined signed fixed-point velocity to store.</param>
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
     {
         state.XVelocity = unchecked((short)(velocity >> 16));
         state.XSubvelocity = unchecked((ushort)velocity);
     }
 
+    /// <summary>Splits a signed 16.16 vertical velocity into the common whole and fractional state words.</summary>
+    /// <param name="state">Mochtroid state receiving the Y velocity halves.</param>
+    /// <param name="velocity">Combined signed fixed-point velocity to store.</param>
     private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
     {
         state.YVelocity = unchecked((short)(velocity >> 16));
         state.YSubvelocity = unchecked((ushort)velocity);
     }
 
+    /// <summary>Installs a changed animation list and resets its instruction and general timers for the next dispatch.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction pointer and timer reset.</param>
+    /// <param name="state">State view tracking which list is already installed.</param>
+    /// <param name="instructionList">Native compiled list pointer to select.</param>
     private static void SetMochtroidInstructionList(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -313,6 +346,10 @@ public sealed partial class RoomEnemySystem
         samus.KnockbackTimer = 0;
     }
 
+    /// <summary>Returns the state view created during Mochtroid initialization for the given enemy slot.</summary>
+    /// <param name="slot">Initialized Mochtroid slot whose extension state is required.</param>
+    /// <returns>The cached state view associated with the slot index.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Mochtroid state.</exception>
     private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
         _mochtroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");

@@ -369,6 +369,10 @@ public sealed class BackgroundScrollState
         return requests;
     }
 
+    /// <summary>
+    /// Recomputes BG1 scroll mirrors and derives each scrolling BG2 axis from its configured
+    /// parallax mode, preserving the prior BG2 values for frozen axes.
+    /// </summary>
     private void CalculateGameplayScrolls()
     {
         Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
@@ -389,6 +393,7 @@ public sealed class BackgroundScrollState
         }
     }
 
+    /// <summary>Rebuilds all four PPU scroll mirrors from their current layer positions and offsets.</summary>
     private void CalculateScrollRegisters()
     {
         Bg1HorizontalScroll = unchecked((ushort)(Layer1XPosition + Bg1XOffset));
@@ -397,6 +402,7 @@ public sealed class BackgroundScrollState
         Bg2VerticalScroll = unchecked((ushort)(Layer2YPosition + Bg2YOffset));
     }
 
+    /// <summary>Snapshots all four current source-layer block coordinates for the next crossing check.</summary>
     private void CopyCurrentBlocksToPrevious()
     {
         PreviousLayer1XBlock = Layer1XBlock;
@@ -405,6 +411,10 @@ public sealed class BackgroundScrollState
         PreviousLayer2YBlock = Layer2YBlock;
     }
 
+    /// <summary>
+    /// Detects newly crossed 16-pixel source blocks, advances their previous-block markers,
+    /// and returns the ordered row or column transfers needed to refill the circular tilemaps.
+    /// </summary>
     private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
     {
         CalculateBlockCoordinates();
@@ -497,6 +507,11 @@ public sealed class BackgroundScrollState
         Layer2YBlock = ArithmeticBlock(Layer2YPosition);
     }
 
+    /// <summary>Computes a layer-two coordinate from a layer-one coordinate and the room's scroll mode.</summary>
+    /// <param name="layer1Position">Layer-one pixel coordinate used as the parallax input.</param>
+    /// <param name="scrollMode">Room-header mode: zero copies layer one, one freezes layer two, and other values scale it.</param>
+    /// <param name="result">Receives the copied or scaled coordinate; its value is ignored when the axis is frozen.</param>
+    /// <returns><see langword="false"/> for frozen mode one; otherwise, <see langword="true"/>.</returns>
     private static bool TryCalculateLayer2Position(ushort layer1Position, byte scrollMode, out ushort result)
     {
         if (scrollMode == 1)
@@ -519,8 +534,15 @@ public sealed class BackgroundScrollState
         return true;
     }
 
+    /// <summary>Converts a signed 16-bit pixel coordinate to its sign-extended 16-pixel block coordinate.</summary>
+    /// <param name="position">Wrapped SNES pixel-coordinate word.</param>
+    /// <returns>The coordinate arithmetic-shifted right by four bits.</returns>
     private static ushort ArithmeticBlock(ushort position) => unchecked((ushort)((short)position >> 4));
 
+    /// <summary>Interprets the wrapped 16-bit subtraction of two block coordinates as a signed delta.</summary>
+    /// <param name="left">Current block coordinate.</param>
+    /// <param name="right">Previously recorded block coordinate.</param>
+    /// <returns>The signed 16-bit difference used to distinguish forward and backward crossings.</returns>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }
 
@@ -548,6 +570,12 @@ public enum BackgroundUpdateAxis
 /// The four coordinate words passed through WRAM <c>$16-$1C</c> immediately before one of
 /// the update-level/background-data row/column calls at <c>$80:A413-$80:A4B5</c>.
 /// </summary>
+/// <param name="Layer">Tilemap source: the BG1 level map or the BG2 room-background map.</param>
+/// <param name="Axis">Whether the refill transfers a vertical column or horizontal row.</param>
+/// <param name="SourceXBlock">X coordinate in the source layer's 16-pixel block grid.</param>
+/// <param name="SourceYBlock">Y coordinate in the source layer's 16-pixel block grid.</param>
+/// <param name="VramXBlock">X coordinate in the circular VRAM tilemap block grid.</param>
+/// <param name="VramYBlock">Y coordinate in the circular VRAM tilemap block grid.</param>
 public readonly record struct BackgroundUpdateRequest(
     BackgroundLayer Layer,
     BackgroundUpdateAxis Axis,

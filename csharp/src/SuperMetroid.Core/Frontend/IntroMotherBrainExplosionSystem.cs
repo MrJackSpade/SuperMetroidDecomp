@@ -57,11 +57,19 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
+    /// <summary>One independently timed cinematic sprite object running a native bank-$8B instruction list.</summary>
     private sealed class ExplosionActor
     {
+        /// <summary>Next bank-$8B instruction-list word to interpret.</summary>
         private ushort instructionPointer;
+        /// <summary>Updates remaining before the current list entry is consumed.</summary>
         private ushort instructionTimer;
 
+        /// <summary>Creates one cinematic object with its initial position and list state.</summary>
+        /// <param name="xPosition">Initial room X coordinate.</param>
+        /// <param name="yPosition">Initial room Y coordinate.</param>
+        /// <param name="instructionPointer">Native instruction-list address to begin executing.</param>
+        /// <param name="instructionTimer">Initial delay before reading the first list entry.</param>
         private ExplosionActor(
             ushort xPosition,
             ushort yPosition,
@@ -74,14 +82,21 @@ internal sealed class IntroMotherBrainExplosionSystem
             this.instructionTimer = instructionTimer;
         }
 
+        /// <summary>Room X coordinate used when drawing the current explosion frame.</summary>
         public ushort XPosition { get; }
 
+        /// <summary>Room Y coordinate used when drawing the current explosion frame.</summary>
         public ushort YPosition { get; }
 
+        /// <summary>Native spritemap pointer selected by the current timed list entry, or zero for a blank frame.</summary>
         public ushort SpriteMapPointer { get; private set; }
 
+        /// <summary>Whether the object remains allocated for stepping and presentation.</summary>
         public bool IsActive { get; private set; } = true;
 
+        /// <summary>Creates a large blast actor at the indexed offset and delay from its native initializer tables.</summary>
+        /// <param name="parameter">Initializer-table index for the large explosion.</param>
+        /// <returns>The initialized actor using the large explosion instruction list.</returns>
         public static ExplosionActor CreateBig(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -94,6 +109,9 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Creates a small blast actor at the indexed offset and delay from its native initializer tables.</summary>
+        /// <param name="parameter">Initializer-table index for the small explosion.</param>
+        /// <returns>The initialized actor using the small explosion instruction list.</returns>
         public static ExplosionActor CreateSmall(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -106,6 +124,9 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Consumes a due list command, updates the displayed spritemap, or retires the actor.</summary>
+        /// <param name="bus">Address space required by the actor update contract.</param>
+        /// <param name="introCrossfadeTimer">Page-two crossfade timer; zero schedules native deletion.</param>
         public void Step(ISnesAddressSpace bus, ushort introCrossfadeTimer)
         {
             if (!IsActive)
@@ -158,9 +179,17 @@ internal sealed class IntroMotherBrainExplosionSystem
             }
         }
 
+        /// <summary>Advances a bank-local instruction pointer with native 16-bit wrapping.</summary>
+        /// <param name="pointer">Current bank offset.</param>
+        /// <param name="byteCount">Number of bytes to advance.</param>
+        /// <returns>The wrapped 16-bit bank offset.</returns>
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));
 
+        /// <summary>Adds a signed placement offset to a room coordinate with 16-bit wrapping.</summary>
+        /// <param name="value">Unsigned coordinate before applying the offset.</param>
+        /// <param name="offset">Signed room-pixel displacement.</param>
+        /// <returns>The resulting coordinate represented as an unsigned word.</returns>
         private static ushort AddSigned(ushort value, short offset) =>
             unchecked((ushort)(value + offset));
     }

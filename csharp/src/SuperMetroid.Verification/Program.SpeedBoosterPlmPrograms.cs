@@ -4,9 +4,13 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Returns the five native instruction-list spans and their frame counts for speed-block PLMs.</summary>
+    /// <returns>Start pointer, timed-frame count, and end pointer for each supported list segment.</returns>
     private static (ushort Start, int Frames, ushort End)[] SpeedBlockNativeLayouts() =>
         [(0xc951,7,0xc974),(0xc974,7,0xc997),(0xc997,7,0xc9ba),(0xc9cf,4,0xc9e4),(0xc9e4,4,0xc9f9)];
 
+    /// <summary>Checks the compiled control-word address domain and compares owned words with native ROM.</summary>
+    /// <param name="rom">Cartridge address space used as the native word reference.</param>
     private static void VerifySpeedBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         var controls = new HashSet<ushort> {0xc928,0xc92c};
@@ -41,6 +45,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks every compiled draw operand against the native forward, reverse, and bomb-reveal records.</summary>
+    /// <param name="rom">Cartridge address space used as the native operand reference.</param>
     private static void VerifySpeedBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort> {0xc92a};
@@ -55,6 +61,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the compiled packed sound-byte domain and each native sound value.</summary>
+    /// <param name="rom">Cartridge address space used as the native byte reference.</param>
     private static void VerifySpeedBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xc953,0xc976,0xc999,0xc9d1,0xc9e6];
@@ -67,6 +75,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the bomb-reveal draw pointer, visual identifier, and emitted run against the cartridge.</summary>
+    /// <param name="rom">Cartridge address space used as the native draw reference.</param>
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
@@ -105,12 +115,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks block-behavior selection of the native speed-block PLM header.</summary>
+    /// <param name="rom">Cartridge address space containing the selected PLM records.</param>
     private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: false));
 
+    /// <summary>Checks block-behavior selection of the native speed-block PLM instruction pointer.</summary>
+    /// <param name="rom">Cartridge address space containing the selected PLM records.</param>
     private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: true));
 
+    /// <summary>Validates either the selected PLM header or its instruction pointer across the full BTS/area domain.</summary>
+    /// <param name="rom">Cartridge address space used to read native selection and PLM words.</param>
+    /// <param name="instruction">Selects instruction-pointer validation instead of header validation.</param>
     private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original bank-94 speed-entry locations, independent of named C# results.
@@ -140,6 +157,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies speed-block program definitions and runs contact and bomb-reveal PLMs with source reads guarded.</summary>
     private static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -208,13 +226,22 @@ internal static partial class Program
             "Speed-block PLMs: 74 words/five sound bytes and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
     }
 
+    /// <summary>Rejects runtime reads from the compiled speed-block instruction and draw records.</summary>
+    /// <param name="source">Underlying address space used for all addresses outside the guarded bank-$84 spans.</param>
     private sealed class SpeedBoosterPlmReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from a compiled speed-block source span.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the speed-block source guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the forbidden spans.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects guarded bank-$84 program/draw reads and delegates every other address.</summary>
+        /// <param name="address">CPU bus address requested by the PLM system.</param>
+        /// <returns>The wrapped byte when the address is outside the forbidden spans.</returns>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -232,6 +259,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

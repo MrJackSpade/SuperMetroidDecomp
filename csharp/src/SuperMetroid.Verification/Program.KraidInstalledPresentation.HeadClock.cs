@@ -117,18 +117,35 @@ internal static partial class Program
             $"{callbacks} timed sound callbacks, {collisions} mouth samples; four installed replacements retain native control/VRAM cadence.");
     }
 
+    /// <summary>
+    /// Provides a cartridge-free room-enemy instance and reflected entry points for checking Kraid's
+    /// compiled head animation against installed artwork.
+    /// </summary>
     private sealed class KraidHeadClockFixture
     {
+        /// <summary>Room-enemy system configured with the artwork catalog under verification.</summary>
         internal RoomEnemySystem Enemies { get; }
+        /// <summary>The first enemy slot, which the head animation routines use for Kraid's body state.</summary>
         internal RoomEnemySlot Body => Enemies.Slots[0];
+        /// <summary>Mutable Kraid working state, including the body map and head-animation outputs.</summary>
         internal KraidEnemyState State { get; }
+        /// <summary>VRAM image mutated by the production head-tilemap transfer routine.</summary>
         internal SnesVram Vram { get; } = new();
+        /// <summary>Cartridge-free address space backing the fixture's room-enemy system.</summary>
         internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
             SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Bound production delegate for advancing one Kraid head instruction.</summary>
         private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
+        /// <summary>Production mouth-hitbox query used to check collisions against the selected head frame.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
+        /// <summary>Bound production delegate that transfers a selected head tilemap into VRAM.</summary>
         private readonly Action<KraidEnemyState, ushort> transfer;
 
+        /// <summary>
+        /// Builds Kraid's working map and binds the production animation, transfer, and collision routines
+        /// to a room-enemy system using the supplied artwork.
+        /// </summary>
+        /// <param name="art">Installed artwork catalog used to construct the fixture's Kraid state.</param>
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -145,9 +162,18 @@ internal static partial class Program
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }
 
+        /// <summary>Advances the head instruction processor once for the fixture's body and state.</summary>
         internal ushort Step() => step(Body, State);
+        /// <summary>Transfers the requested compiled head tilemap through the production routine.</summary>
+        /// <param name="pointer">Native tilemap pointer selected by the active head instruction.</param>
         internal void Transfer(ushort pointer) => transfer(State, pointer);
+        /// <summary>Tests a projectile against the production geometry for the selected mouth hitbox.</summary>
+        /// <param name="pointer">Identifier of the vulnerable or invulnerable mouth hitbox.</param>
+        /// <param name="shot">Projectile slot whose position and radii define the tested bounds.</param>
         internal bool Hit(ushort pointer, SamusProjectileSlot shot) => hit(Body, pointer, shot);
+        /// <summary>Applies the expected little-endian tilemap words at the BG2 tilemap VRAM destination.</summary>
+        /// <param name="destination">Full VRAM byte image to update in place.</param>
+        /// <param name="words">Tilemap words expected from one head-frame upload.</param>
         internal static void ExpectedUpload(byte[] destination, ReadOnlySpan<ushort> words)
         {
             for (int word = 0; word < words.Length; word++)

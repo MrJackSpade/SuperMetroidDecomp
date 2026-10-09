@@ -9,12 +9,19 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorWarmTargetPaintDefinitions
 {
+    /// <summary>Maximum channel value in the five-bit SNES RGB color format.</summary>
     private const int Maximum = (1 << 5) - 1;
+    /// <summary>Red-channel decrement per successive gold shade in the target paint ramp.</summary>
     private const int GoldRedStep = 3;
+    /// <summary>Green-channel decrement per successive gold shade in the target paint ramp.</summary>
     private const int GoldGreenStep = 6;
+    /// <summary>Selected blue and red/green channel values used to calculate the six warm target colors.</summary>
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
+    /// <summary>Authored colors that differ from the shared calculated ramp, keyed by target index.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds a compact paint definition by storing channel parameters and only colors that differ from the shared ramp.</summary>
+    /// <param name="colors">The six independently authored target colors in highlight, amber, red, and gold-ramp order.</param>
     internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 6) throw new ArgumentException("Warm target paint requires six colors.", nameof(colors));
@@ -29,12 +36,19 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
     }
 
+    /// <summary>Returns an authored override or the calculated target color at one of the six paint positions.</summary>
+    /// <param name="index">Zero-based target color index from zero through five.</param>
+    /// <returns>The selected 15-bit SNES color word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the six target positions.</exception>
     internal ushort ColorAt(int index)
     {
         if ((uint)index >= 6) throw new IndexOutOfRangeException();
         return edits.TryGetValue(index, out ushort edited) ? edited : Calculate(index);
     }
 
+    /// <summary>Computes the shared highlight, amber, red, or successively darkened gold color for an index.</summary>
+    /// <param name="index">Target color position; callers provide an index from zero through five.</param>
+    /// <returns>The calculated 15-bit SNES color word.</returns>
     private ushort Calculate(int index)
     {
         if (index == 0) return (ushort)(Maximum | Maximum << 5 | highlightBlue << 10);

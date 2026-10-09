@@ -9,11 +9,14 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Projectile callback used by an intro flame until Phantoon's activation flag permits orbiting.</summary>
     private const ushort PhantoonStartingFlameWaitingPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PhantoonStartingFlames;
+    /// <summary>Projectile callback that advances an intro flame's orbit after Phantoon has activated.</summary>
     private const ushort PhantoonStartingFlameOrbitPreInstruction =
         EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated;
 
+    /// <summary>Allocates an intro flame at the requested angular position around Phantoon, if a projectile slot is available.</summary>
     private bool SpawnPhantoonStartingFlame(RoomEnemySlot body, byte directionIndex)
     {
         RoomEnemyProjectileSlot? flame = AllocateEnemyProjectile();
@@ -112,6 +115,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Keeps the intro flame dormant until Phantoon's body activation word becomes nonzero.</summary>
     private void RunPhantoonStartingFlameWaiting(RoomEnemyProjectileSlot flame)
     {
         PhantoonEnemyState? state = _phantoonState;
@@ -122,6 +126,7 @@ public sealed partial class RoomEnemySystem
         flame.YVelocity = 48;
     }
 
+    /// <summary>Rotates an activated intro flame around Phantoon while reducing its radius before removing it.</summary>
     private void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
     {
         if (_phantoonState is not { } state)
@@ -157,6 +162,7 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)flame.YVelocity));
     }
 
+    /// <summary>Accelerates a casual flame downward and changes it into a damaging, shootable floor-bounce actor on impact.</summary>
     private void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -176,6 +182,7 @@ public sealed partial class RoomEnemySystem
         flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
     }
 
+    /// <summary>Waits through the native impact pause, then initializes the flame's bounce velocity and direction.</summary>
     private static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
         ushort nmiFrameCounter)
@@ -197,6 +204,7 @@ public sealed partial class RoomEnemySystem
         flame.XVelocity = (nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
     }
 
+    /// <summary>Runs the casual flame's decreasing bounce sequence and transitions it to a resting instruction list.</summary>
     private void RunPhantoonCasualFlameBouncing(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -218,6 +226,7 @@ public sealed partial class RoomEnemySystem
             RestPhantoonCasualFlame(flame);
     }
 
+    /// <summary>Installs the resting animation and native return callback after the casual flame finishes bouncing.</summary>
     private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
     {
         flame.InstructionPointer =
@@ -226,6 +235,7 @@ public sealed partial class RoomEnemySystem
         flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
     }
 
+    /// <summary>Expands and rotates an enraged flame around Phantoon, deleting it after it leaves the room bounds.</summary>
     private void RunPhantoonEnragedFlame(RoomEnemyProjectileSlot flame)
     {
         if (_phantoonState is not { } state)
@@ -244,6 +254,7 @@ public sealed partial class RoomEnemySystem
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
+    /// <summary>Counts down a rain flame's horizontal launch delay, then drops it vertically and queues its impact sound.</summary>
     private void RunPhantoonRainFlame(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -268,6 +279,7 @@ public sealed partial class RoomEnemySystem
         QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
 
+    /// <summary>Expands and rotates a spiral flame around Phantoon, deleting it after it leaves the room bounds.</summary>
     private void RunPhantoonSpiralFlame(RoomEnemyProjectileSlot flame)
     {
         if (_phantoonState is not { } state)
@@ -286,6 +298,7 @@ public sealed partial class RoomEnemySystem
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
+    /// <summary>Places a flame at the requested angle and radius relative to Phantoon's body using native table math.</summary>
     private static void PositionPhantoonFlameAroundBody(
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
@@ -309,6 +322,7 @@ public sealed partial class RoomEnemySystem
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 
+    /// <summary>Switches a flame to its delete instruction when its whole-pixel position leaves the room's 256-pixel bounds.</summary>
     private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)
     {
         if (unchecked((short)flame.XPosition) < 0 || flame.XPosition >= 256 ||

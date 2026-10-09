@@ -14,19 +14,26 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class KraidPaintDefinitions
 {
+    /// <summary>Largest valid channel component in a five-bit RGB palette entry.</summary>
     private const int Rgb5Maximum = (1 << 5) - 1;
+    /// <summary>Number of health palette bands, including the flash band and both authored endpoints.</summary>
     private const int Bands = KraidPaletteRomData.HealthBandCount;
+    /// <summary>Color entries in each health palette band.</summary>
     private const int BandColors = KraidPaletteRomData.BandColors;
 
     /// <summary>First and last colors of the first health band's hide ramp (colors four to eleven).</summary>
     private static readonly (int Red, int Green, int Blue) RampLight = (26, 19, 4);
+    /// <summary>Dark endpoint of the authored hide ramp in the first health band.</summary>
     private static readonly (int Red, int Green, int Blue) RampDark = (3, 1, 0);
+    /// <summary>First color index included in the first health band's hide ramp.</summary>
     private const int RampFirst = 4;
+    /// <summary>Last color index included in the first health band's hide ramp.</summary>
     private const int RampLast = 11;
 
     /// <summary>The transparent slot after the first normal band: Kraid's room backdrop blue.</summary>
     private static ushort BackdropBlue => Pack(0, 0, 14);
 
+    /// <summary>Returns the authored stock word for one color in the selected Kraid palette source.</summary>
     internal static ushort Color(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPaletteRomData.ColorCount(source))
@@ -61,6 +68,7 @@ internal static class KraidPaintDefinitions
         };
     }
 
+    /// <summary>Resolves a health-band color from authored endpoints, preserving the backdrop slot and interpolating other bands.</summary>
     private static ushort Health(int index)
     {
         if (HealthAuthored(index) is ushort authored) return authored;
@@ -70,6 +78,7 @@ internal static class KraidPaintDefinitions
             : KraidColorCatalog.InterpolateHealth(FirstBand(color), FinalBand(color), band);
     }
 
+    /// <summary>Calculates the first normal health band's hide ramp and its authored hull and detail colors.</summary>
     private static ushort FirstBand(int color)
     {
         if (color is >= RampFirst and <= RampLast)
@@ -90,6 +99,7 @@ internal static class KraidPaintDefinitions
         };
     }
 
+    /// <summary>Returns the authored final health-band color, falling back to the invariant hull colors where applicable.</summary>
     private static ushort FinalBand(int color) => color switch
     {
         0 => BackdropBlue,
@@ -127,6 +137,7 @@ internal static class KraidPaintDefinitions
         _ => FirstBand(color),
     };
 
+    /// <summary>Returns the explicitly painted stock color for one room-backdrop palette index.</summary>
     private static ushort RoomBackdrop(int color) => color switch
     {
         0 or 7 => Pack(0, 0, 1),
@@ -153,11 +164,13 @@ internal static class KraidPaintDefinitions
         _ => 0,
     };
 
+    /// <summary>Interpolates an integer channel between endpoints, rounding each fractional step to the nearest value.</summary>
     private static int Nearest(int start, int end, int step, int steps)
     {
         int delta = end - start;
         return start + Math.Sign(delta) * ((Math.Abs(delta) * step + steps / 2) / steps);
     }
 
+    /// <summary>Packs three five-bit RGB components into the SNES 15-bit color-word layout.</summary>
     private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
 }

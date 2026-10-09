@@ -15,9 +15,12 @@ using SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class SamusProjectileSlotObservation
 {
+    /// <summary>Slot occupancy sampled before the pass so newly allocated projectile slots can be identified afterward.</summary>
     private readonly bool[] _occupied;
+    /// <summary>Live explosion-family state sampled before the pass so projectile-to-explosion conversions can be detected.</summary>
     private readonly bool[] _explosion;
 
+    /// <summary>Captures occupancy and active explosion state for each ordinary projectile slot.</summary>
     internal SamusProjectileSlotObservation(SamusProjectileSystem projectiles)
     {
         ArgumentNullException.ThrowIfNull(projectiles);
@@ -59,6 +62,7 @@ internal sealed class SamusProjectileSlotObservation
         return false;
     }
 
+    /// <summary>Ensures the supplied projectile system has the same slot layout used by this snapshot.</summary>
     private void RequireSameSlots(SamusProjectileSystem projectiles)
     {
         ArgumentNullException.ThrowIfNull(projectiles);
@@ -68,8 +72,10 @@ internal sealed class SamusProjectileSlotObservation
                 $"{projectiles.Slots.Count}.");
     }
 
+    /// <summary>Applies the cartridge allocation convention that a nonzero damage word marks a used projectile slot.</summary>
     private static bool IsOccupied(SamusProjectileSlot slot) => slot.Damage != 0;
 
+    /// <summary>Identifies active beam or missile explosion objects produced when a projectile collides.</summary>
     private static bool IsLiveExplosion(SamusProjectileSlot slot) =>
         slot.IsActive && slot.PackedType.Family is
             SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion;
@@ -77,15 +83,18 @@ internal sealed class SamusProjectileSlotObservation
 
 internal static partial class CoreAccess
 {
+    /// <summary>Stores one frame-to-frame projectile allocation observer per game instance without extending its lifetime.</summary>
     private static readonly ConditionalWeakTable<SuperMetroidGame, GameplayProjectileFireObserver>
         GameplayProjectileFireObservers = new();
 
+    /// <summary>Provides projectile-slot snapshot helpers for verification code without changing the production API.</summary>
     extension(SamusProjectileSystem projectiles)
     {
         /// <summary>Captures slot occupancy and families before an alpha pass.</summary>
         internal SamusProjectileSlotObservation ObserveSlots() => new(projectiles);
     }
 
+    /// <summary>Exposes the latest ordinary projectile allocation inferred from consecutive game-frame observations.</summary>
     extension(SuperMetroidGame game)
     {
         /// <summary>
@@ -100,13 +109,19 @@ internal static partial class CoreAccess
                 .Observe(game);
     }
 
+    /// <summary>Attributes newly occupied projectile slots to a game frame and rejects gaps that make attribution ambiguous.</summary>
     private sealed class GameplayProjectileFireObserver
     {
+        /// <summary>Projectile system associated with the last accepted snapshot.</summary>
         private SamusProjectileSystem? _projectiles;
+        /// <summary>Game frame number represented by the last accepted snapshot.</summary>
         private ushort _frameNumber;
+        /// <summary>Slot occupancy and explosion-family state captured for the last frame.</summary>
         private SamusProjectileSlotObservation? _slots;
+        /// <summary>Allocated slot attributed to the last frame, reused by repeated observations of that frame.</summary>
         private int? _firedSlot;
 
+        /// <summary>Returns the slot newly occupied since the prior consecutive frame, or null when no shot was allocated.</summary>
         internal int? Observe(SuperMetroidGame game)
         {
             SamusProjectileSystem? projectiles = game.RuntimeForVerification?.Projectiles;

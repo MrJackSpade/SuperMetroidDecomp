@@ -13,8 +13,14 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
+    /// <summary>Updates remaining before the current instruction-list entry is consumed.</summary>
     private ushort instructionTimer = 1;
 
+    /// <summary>Creates a cinematic sprite at its initial world position with native palette and list state.</summary>
+    /// <param name="xPosition">Initial whole-pixel world X coordinate.</param>
+    /// <param name="yPosition">Initial whole-pixel world Y coordinate.</param>
+    /// <param name="paletteBits">OBJ attribute palette/priority bits used for emitted sprites.</param>
+    /// <param name="instructionPointer">Bank-$8B list address to interpret on the first due update.</param>
     public IntroDiscoverySprite(
         ushort xPosition,
         ushort yPosition,
@@ -27,21 +33,28 @@ internal sealed class IntroDiscoverySprite
         InstructionPointer = instructionPointer;
     }
 
+    /// <summary>Whether this sprite remains allocated for instruction stepping and drawing.</summary>
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>Whole-pixel world X coordinate before camera subtraction.</summary>
     public ushort XPosition { get; set; }
 
+    /// <summary>Fractional X accumulator used by cinematic motion callbacks.</summary>
     public ushort XSubPosition { get; set; }
 
+    /// <summary>Whole-pixel world Y coordinate before camera subtraction.</summary>
     public ushort YPosition { get; set; }
 
+    /// <summary>Fractional Y accumulator used by cinematic motion callbacks.</summary>
     public ushort YSubPosition { get; set; }
 
+    /// <summary>OBJ palette and attribute bits applied to each drawn sprite component.</summary>
     public ushort PaletteBits { get; private set; }
 
     /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
     public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
 
+    /// <summary>Current native spritemap pointer, or zero when no frame is selected.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>The next list word, matching <c>CinematicSpriteObject_InstListPointers</c>.</summary>
@@ -53,6 +66,8 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
+    /// <summary>Replaces the instruction-list cursor and makes its next entry due immediately.</summary>
+    /// <param name="pointer">New bank-$8B instruction-list address.</param>
     public void Redirect(ushort pointer)
     {
         InstructionPointer = pointer;
@@ -85,6 +100,7 @@ internal sealed class IntroDiscoverySprite
     public void PreInstructionPointerForDiscovery(ushort pointer) =>
         PreInstructionPointer = pointer;
 
+    /// <summary>Deactivates the sprite and clears its current frame and instruction cursor.</summary>
     public void Delete()
     {
         IsActive = false;
@@ -173,6 +189,12 @@ internal sealed class IntroDiscoverySprite
         }
     }
 
+    /// <summary>Emits the active spritemap after camera offset and native screen-edge clipping are applied.</summary>
+    /// <param name="bus">Address space retained by the shared drawing interface; installed artwork supplies the sprite data.</param>
+    /// <param name="oam">Object attribute buffer receiving visible spritemap components.</param>
+    /// <param name="cameraX">Horizontal camera origin subtracted from the world coordinate.</param>
+    /// <param name="cameraY">Vertical camera origin subtracted from the world coordinate.</param>
+    /// <param name="installedArt">Installed presentation that resolves the spritemap pointer.</param>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort cameraX = 0,
         ushort cameraY = 0, IIntroCinematicSpritePresentation? installedArt = null)
     {
@@ -192,6 +214,10 @@ internal sealed class IntroDiscoverySprite
             .Draw(SpriteMapPointer, oam, x, y, PaletteBits, originIsOnScreen);
     }
 
+    /// <summary>Advances a bank-local list cursor with native 16-bit wrapping.</summary>
+    /// <param name="pointer">Current instruction-list offset.</param>
+    /// <param name="bytes">Byte distance to advance.</param>
+    /// <returns>The wrapped bank offset.</returns>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

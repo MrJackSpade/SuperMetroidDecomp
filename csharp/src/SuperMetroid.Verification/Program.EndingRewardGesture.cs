@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks native reward gestures, actor handoffs, and graphics uploads against compiled definitions.</summary>
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -95,13 +96,22 @@ internal static partial class Program
             "ending reward actors never reread compiled definition records");
     }
 
+    /// <summary>Rejects cartridge reads from the reward graphics DMA address tables during upload.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded table range.</param>
     private sealed class EndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the guarded reward graphics address tables.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guarded generic address check.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the forbidden tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects guarded address-table reads and delegates all other reads.</summary>
+        /// <param name="address">CPU bus address requested by the uploader.</param>
+        /// <returns>The byte supplied by the wrapped address space when allowed.</returns>
         public byte ReadByte(int address)
         {
             if (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
@@ -115,6 +125,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
@@ -132,6 +145,8 @@ internal static partial class Program
     private static readonly int[] RewardActorSpawnLoads =
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
+    /// <summary>Checks named reward actor records and initializer operands against their native cartridge bytes.</summary>
+    /// <param name="bus">Cartridge address space containing bank-$8B actor records and initializer code.</param>
     private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
@@ -173,15 +188,25 @@ internal static partial class Program
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
 
+    /// <summary>Rejects reads of compiled reward actor definitions during their runtime gesture and jump.</summary>
+    /// <param name="source">Underlying address space used for addresses outside the native definition records.</param>
     private sealed class EndingRewardDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Native actor-definition bytes that runtime actors must not reread.</summary>
         private static readonly HashSet<int> Forbidden = CreateForbidden();
 
+        /// <summary>Number of attempted reads from a guarded actor-definition byte.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the forbidden-definition check.</summary>
+        /// <param name="address">Cartridge address requested by the runtime actor.</param>
+        /// <returns>The underlying byte when the address is not a guarded definition byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-definition reads and delegates all other address-space reads.</summary>
+        /// <param name="address">CPU bus address requested by the actor.</param>
+        /// <returns>The byte supplied by the wrapped address space when allowed.</returns>
         public byte ReadByte(int address)
         {
             if (Forbidden.Contains(address))
@@ -193,8 +218,13 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Builds the set of native actor-record bytes forbidden to runtime readers.</summary>
+        /// <returns>All three words for each supported reward actor definition.</returns>
         private static HashSet<int> CreateForbidden()
         {
             var result = new HashSet<int>();

@@ -32,12 +32,23 @@ public enum AtomicHorizontalMovement : ushort
 /// </summary>
 public sealed class AtomicEnemyState
 {
+    /// <summary>The room slot supplying Atomic's native variables and index into its parallel speed-word arrays.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot low words of positive X/Y velocity in 16.16 fixed-point form.</summary>
     private readonly ushort[] _speedFractions;
+    /// <summary>Per-slot whole-word components of positive X/Y velocity.</summary>
     private readonly ushort[] _speedWholes;
+    /// <summary>Per-slot ROM-authored low words used for negative X/Y velocity.</summary>
     private readonly ushort[] _negativeSpeedFractions;
+    /// <summary>Per-slot ROM-authored whole-word components used for negative X/Y velocity.</summary>
     private readonly ushort[] _negativeSpeedWholes;
 
+    /// <summary>Connects one room slot to the four native speed words maintained for its index.</summary>
+    /// <param name="slot">The initialized Atomic enemy slot whose variables and index this view exposes.</param>
+    /// <param name="speedFractions">Shared per-slot positive fractional velocity words.</param>
+    /// <param name="speedWholes">Shared per-slot positive whole velocity words.</param>
+    /// <param name="negativeSpeedFractions">Shared per-slot negative fractional words read from the native speed table.</param>
+    /// <param name="negativeSpeedWholes">Shared per-slot negative whole words read from the native speed table.</param>
     internal AtomicEnemyState(
         RoomEnemySlot slot,
         ushort[] speedFractions,
@@ -109,13 +120,19 @@ public sealed class AtomicEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition word <c>$E9FF</c> used to identify Atomic in bank $A8.</summary>
     internal const ushort AtomicDefinition = 0xe9ff;
 
+    /// <summary>Initialized debugger-facing Atomic state for each possible enemy slot.</summary>
     private readonly AtomicEnemyState?[] _atomicStates =
         new AtomicEnemyState?[MaximumEnemyCount];
+    /// <summary>Per-slot positive fractional speed words loaded from Atomic's selected linear-speed record.</summary>
     private readonly ushort[] _atomicSpeedFractions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot positive whole speed words loaded from Atomic's selected linear-speed record.</summary>
     private readonly ushort[] _atomicSpeedWholes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot negative fractional speed words copied from the ROM-generated speed record.</summary>
     private readonly ushort[] _atomicNegativeSpeedFractions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot negative whole speed words copied from the ROM-generated speed record.</summary>
     private readonly ushort[] _atomicNegativeSpeedWholes = new ushort[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
@@ -236,6 +253,9 @@ public sealed partial class RoomEnemySystem
         return (position, subposition);
     }
 
+    /// <summary>Returns the state created by Atomic initialization for a room slot.</summary>
+    /// <param name="slot">The Atomic enemy slot whose initialized state is required.</param>
+    /// <returns>The per-slot movement state, or throws if initialization has not populated it.</returns>
     private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
         _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");

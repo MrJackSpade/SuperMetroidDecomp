@@ -56,8 +56,11 @@ public enum CrocomireFightFunction : ushort
 /// </summary>
 public sealed class CrocomireEnemyState
 {
+    /// <summary>Physical enemy slot whose common words and position form Crocomire's body actor.</summary>
     private readonly RoomEnemySlot _body;
 
+    /// <summary>Creates the typed view over the body slot's fight and death variables.</summary>
+    /// <param name="body">Physical Crocomire body slot.</param>
     internal CrocomireEnemyState(RoomEnemySlot body) => _body = body;
 
     /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; BG2 body artwork follows this actor.</summary>
@@ -111,14 +114,22 @@ public sealed class CrocomireEnemyState
 /// <summary>Literal fight-phase translation for enemy $DDBF and tongue $DDFF.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer identifying Crocomire's body actor.</summary>
     internal const ushort CrocomireDefinition = 0xddbf;
+    /// <summary>Enemy-definition pointer identifying Crocomire's tongue actor.</summary>
     internal const ushort CrocomireTongueDefinition = 0xddff;
 
+    /// <summary>Room X coordinate at which the bridge-collapse sequence begins.</summary>
     private const ushort CrocomireBridgeThreshold = 0x0640;
+    /// <summary>Room X coordinate used by the spike-wall retreat and charge decisions.</summary>
     private const ushort CrocomireSpikeWallThreshold = 0x0300;
+    /// <summary>Typed fight-state projection for the body actor in the active room.</summary>
     private CrocomireEnemyState? _crocomire;
+    /// <summary>Extended state for bridge collapse, melting, and skeleton phases in the active room.</summary>
     private CrocomireDeathState? _crocomireDeath;
+    /// <summary>Ordered bridge and room mutations requested by Crocomire during the current frame.</summary>
     private readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
+    /// <summary>Camera X value captured for evaluating Crocomire's current bridge and BG2 behavior.</summary>
     private ushort _crocomireCameraX;
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
@@ -148,6 +159,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>True after the $640 X threshold starts the native bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
+    /// <summary>Clears Crocomire's active-room state, pending PLMs, scroll outputs, and frame-local requests.</summary>
     private void ResetCrocomireRoomState()
     {
         _crocomire = null;
@@ -352,6 +364,9 @@ public sealed partial class RoomEnemySystem
                 (ushort)0x7fff);
     }
 
+    /// <summary>Installs a Crocomire instruction list and restarts both instruction and enemy timers.</summary>
+    /// <param name="slot">Body or tongue slot receiving the list.</param>
+    /// <param name="pointer">Bank-$A4 instruction-list address to execute.</param>
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
@@ -359,12 +374,19 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the active Crocomire state only when the supplied slot is its body actor.</summary>
+    /// <param name="slot">Enemy slot expected to own the initialized Crocomire body state.</param>
+    /// <returns>The room's Crocomire fight-state projection.</returns>
+    /// <exception cref="InvalidOperationException">No Crocomire body state is initialized for this slot.</exception>
     private CrocomireEnemyState RequireCrocomire(RoomEnemySlot slot) =>
         _crocomire is { } state && ReferenceEquals(state.Body, slot)
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Crocomire body state.");
 
+    /// <summary>Gets the initialized extension state used by Crocomire's death and melting phases.</summary>
+    /// <returns>The current room's Crocomire death state.</returns>
+    /// <exception cref="InvalidOperationException">The death extension has not been initialized for the room.</exception>
     private CrocomireDeathState RequireCrocomireDeath() =>
         _crocomireDeath ?? throw new InvalidOperationException(
             "Crocomire death extension is not initialized for the current room.");

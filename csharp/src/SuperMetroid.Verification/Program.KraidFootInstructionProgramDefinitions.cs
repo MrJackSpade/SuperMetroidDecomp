@@ -4,12 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Kraid-foot instruction verification suite.</summary>
     private static void VerifyKraidFootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native word mappings, visual selectors, program execution, and ROM-free compiled-data access.</summary>
     private static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -126,6 +128,7 @@ internal static partial class Program
             "entries, seven callbacks, and 106 executed cartridge-matching selectors pass.");
     }
 
+    /// <summary>Creates an enemy system with Kraid and its foot initialized for instruction processing from the supplied bus.</summary>
     private static RoomEnemySystem CreateKraidFootInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -146,6 +149,7 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Starts the foot at one instruction-list entry and invokes the production processor the requested number of times.</summary>
     private static void RunKraidFootProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -164,6 +168,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Executes one production instruction update and checks any resulting sprite selector against the native program.</summary>
     private static void InvokeKraidFootInstructionProcessor(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -181,6 +186,7 @@ internal static partial class Program
                 "Kraid foot callback-to-sleep retains its previous sprite");
     }
 
+    /// <summary>Confirms a foot-step callback publishes the native sound effect and earthquake parameters.</summary>
     private static void AssertKraidFootSoundAndQuake(
         RoomEnemySystem enemies,
         string program)
@@ -194,6 +200,7 @@ internal static partial class Program
             $"{program} Kraid foot selects native quake duration");
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
     private static int ProbeKraidFootInstructionAllocation()
     {
         int checksum = 0;
@@ -207,6 +214,7 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from bank $A7 at the supplied bank offset.</summary>
     private static ushort ReadKraidFootInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -214,14 +222,20 @@ internal static partial class Program
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Tracks visual selector reads and rejects runtime reads from compiled Kraid-foot mechanics bytes.</summary>
+    /// <param name="source">Underlying address space that supplies reads and receives writes not otherwise changed by the guard.</param>
     private sealed class KraidFootInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operands observed during execution, used to confirm production selected compiled visuals.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Count of attempted reads from mechanics bytes already represented by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same observation and rejection logic as runtime byte reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation reads, and forwards all other accesses.</summary>
         public byte ReadByte(int address)
         {
             if (KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -250,6 +264,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space; only reads are inspected by this guard.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

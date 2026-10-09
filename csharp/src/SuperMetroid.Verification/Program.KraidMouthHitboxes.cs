@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native Kraid mouth rectangles against collision boundaries and verifies their low-half address mapping.</summary>
+    /// <param name="rom">Cartridge address space containing the authored head instructions and hitbox words.</param>
     private static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
@@ -113,14 +115,29 @@ internal static partial class Program
         Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words, seven low-half boundary bytes, 32768 live address-space starts and 1572864 authored collision probes match; unrelated cartridge pointers reject.");
     }
 
+    /// <summary>Wraps an address space to fail if Kraid mouth collision reads enter the upper LoROM window.</summary>
+    /// <param name="source">Address space used for permitted reads and writes.</param>
     private sealed class KraidMouthLowHalfReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes work-RAM reads through the guard's address validation.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The byte at the address when the read is allowed.</returns>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+        /// <summary>Routes save-RAM reads through the guard's address validation.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The byte at the address when the read is allowed.</returns>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
 
+        /// <summary>Routes cartridge reads through the guard so forbidden upper-ROM accesses are detected.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The byte at the address when the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects upper-LoROM reads from bank $A7 and delegates other addresses to the wrapped bus.</summary>
+        /// <param name="address">Bus address requested by the code under verification.</param>
+        /// <returns>The wrapped bus value for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The read targets the forbidden upper-LoROM window of bank $A7.</exception>
         public byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
@@ -132,20 +149,43 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Delegates a write to the wrapped address space.</summary>
+        /// <param name="address">Bus address to write.</param>
+        /// <param name="value">Byte stored at the address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Restricted low-half LoROM bus used to supply deterministic Kraid hitbox boundary bytes.</summary>
     private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
         ISnesMutableMemory, ISnesCpuPeripheralSource
     {
+        /// <summary>Routes work-RAM reads through the low-half address check.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The deterministic byte associated with the permitted cartridge offset.</returns>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+        /// <summary>Routes save-RAM reads through the low-half address check.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The deterministic byte associated with the permitted cartridge offset.</returns>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
+        /// <summary>Routes peripheral reads through the low-half address check.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The deterministic byte associated with the permitted cartridge offset.</returns>
         public byte ReadPeripheralByte(int address) => ReadByte(address);
 
+        /// <summary>Produces the deterministic fixture byte for a cartridge pointer.</summary>
+        /// <param name="pointer">Lower-LoROM offset used to distinguish boundary addresses.</param>
+        /// <returns>The low byte of the pointer XORed with the fixture pattern.</returns>
         public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
 
+        /// <summary>Routes cartridge reads through the low-half address check.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The deterministic byte associated with the permitted cartridge offset.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Accepts only lower-LoROM addresses in bank $A7 and returns a deterministic value for their offsets.</summary>
+        /// <param name="address">Bus address requested by the collision reader.</param>
+        /// <returns>The fixture value for the mapped cartridge offset.</returns>
+        /// <exception cref="InvalidOperationException">The address is outside bank $A7's lower-LoROM window.</exception>
         public static byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
@@ -157,6 +197,10 @@ internal static partial class Program
             return Value(sourceAddress.Offset);
         }
 
+        /// <summary>Rejects writes because this boundary fixture models a read-only cartridge region.</summary>
+        /// <param name="address">Bus address the caller attempted to modify.</param>
+        /// <param name="value">Byte the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">The fixture is read-only.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Kraid mouth geometry is read-only.");
     }

@@ -3,8 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Native object pointers in the authored order used to enumerate the Tourian statue programs.</summary>
     private static readonly ushort[] OriginalTourianObjects = [0x854c, 0x8552, 0x8558, 0x855e];
 
+    /// <summary>Runs the Tourian statue descriptor checks for object identity and each native descriptor field.</summary>
+    /// <param name="rom">Cartridge address space supplying the original descriptor operands.</param>
     private static void VerifyTourianStatueDescriptorFields(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyTourianStatueObjectDomain), () => VerifyTourianStatueObjectDomain());
@@ -21,6 +24,7 @@ internal static partial class Program
         Suite(nameof(VerifyTourianStatueTargetPalettes), () => VerifyTourianStatueTargetPalettes(rom));
     }
 
+    /// <summary>Checks that exactly the four authored object pointers resolve and all other ushort values remain unsupported.</summary>
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
@@ -37,29 +41,66 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks each descriptor's program start against the native word at its object header.</summary>
+    /// <param name="rom">Cartridge address space containing the statue object headers.</param>
     private static void VerifyTourianStatueProgramStarts(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.ProgramStart, true, 0));
+
+    /// <summary>Checks the encoded graphics transfer byte count at each statue descriptor's native offset.</summary>
+    /// <param name="rom">Cartridge address space containing the statue descriptors.</param>
     private static void VerifyTourianStatueTransferSizes(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.TransferByteCount, true, 2));
+
+    /// <summary>Checks each descriptor's encoded VRAM destination against its native word.</summary>
+    /// <param name="rom">Cartridge address space containing the statue descriptors.</param>
     private static void VerifyTourianStatueVramDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.EncodedVramDestination, true, 4));
+
+    /// <summary>Checks the four native statue state-bit values used to select statue progression state.</summary>
+    /// <param name="rom">Cartridge address space containing the statue descriptor fields.</param>
     private static void VerifyTourianStatueStateBits(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.StatueStateBit, false, 0x02, 0x26, 0x5a, 0x60));
+
+    /// <summary>Checks the statue grey-event operands used by the authored program entries.</summary>
+    /// <param name="rom">Cartridge address space containing the statue descriptor operands.</param>
     private static void VerifyTourianStatueGreyEvents(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.GreyEventNumber, false, 0x06, 0x56));
+
+    /// <summary>Checks the initial animation-frame duration encoded for each relevant statue entry.</summary>
+    /// <param name="rom">Cartridge address space containing the statue descriptor operands.</param>
     private static void VerifyTourianStatueInitialDurations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.FirstFrameDuration, false, 0x0a));
+
+    /// <summary>Checks the packed boss-state test operand in the Tourian statue program.</summary>
+    /// <param name="rom">Cartridge address space containing the statue program data.</param>
     private static void VerifyTourianStatueBossTests(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.PackedBossTest, false, 0x20));
+
+    /// <summary>Checks the byte index used by native statue logic to clear palette state.</summary>
+    /// <param name="rom">Cartridge address space containing the statue program data.</param>
     private static void VerifyTourianStatuePaletteClears(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.ClearPaletteByteIndex, false, 0x36));
+
+    /// <summary>Checks the unlock-effect parameters encoded for the statue programs that trigger those effects.</summary>
+    /// <param name="rom">Cartridge address space containing the statue program data.</param>
     private static void VerifyTourianStatueEffectParameters(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.UnlockEffectParameter, false, 0x42, 0x4a));
+
+    /// <summary>Checks the palette-FX definition pointer selected by the statue program.</summary>
+    /// <param name="rom">Cartridge address space containing the statue program data.</param>
     private static void VerifyTourianStatuePaletteFx(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.PaletteFxDefinition, false, 0x4e));
+
+    /// <summary>Checks the target palette byte index written by the native statue logic.</summary>
+    /// <param name="rom">Cartridge address space containing the statue program data.</param>
     private static void VerifyTourianStatueTargetPalettes(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyTourianStatueDescriptorField), () => VerifyTourianStatueDescriptorField(rom, x => x.TargetPaletteByteIndex, false, 0x64));
 
+    /// <summary>Compares one selected descriptor field and its mechanics-word aliases with the original ROM at the specified offsets.</summary>
+    /// <param name="rom">Cartridge address space containing the object headers and referenced program words.</param>
+    /// <param name="field">Descriptor accessor whose value is checked at the supplied offsets.</param>
+    /// <param name="header">True when offsets are relative to the object pointer; otherwise they are relative to its program start.</param>
+    /// <param name="offsets">Native byte offsets of the field and mechanics words being verified.</param>
     private static void VerifyTourianStatueDescriptorField(ISnesAddressSpace rom,
         Func<TourianStatueAnimatedTileProgramDefinition, ushort> field, bool header, params int[] offsets)
     {

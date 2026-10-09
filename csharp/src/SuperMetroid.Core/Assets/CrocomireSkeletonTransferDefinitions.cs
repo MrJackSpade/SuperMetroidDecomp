@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One native Crocomire skeleton-character upload, with fixed VRAM placement.</summary>
+/// <param name="SourceAddress">The LoROM source address of this frame's planar graphics chunk.</param>
+/// <param name="DestinationOffset">The frame's destination relative to the OBSEL base, measured in VRAM words.</param>
 internal readonly record struct CrocomireSkeletonTransferDefinition(
     int SourceAddress, ushort DestinationOffset);
 
@@ -11,9 +13,13 @@ internal readonly record struct CrocomireSkeletonTransferDefinition(
 /// </summary>
 internal static class CrocomireSkeletonTransferDefinitions
 {
+    /// <summary>Size in bytes of each independently selected native graphics chunk.</summary>
     internal const int ChunkByteCount = 0x0200;
+    /// <summary>Total source bytes occupied by all six contiguous skeleton chunks.</summary>
     internal const int TotalByteCount = ChunkByteCount * FrameCount;
+    /// <summary>Native OBJ character base in VRAM, expressed in SNES VRAM words.</summary>
     internal const int ObselBaseWord = 0x6000;
+    /// <summary>PNG filename used for the editable Crocomire skeleton character atlas.</summary>
     internal const string FileName = "crocomire-skeleton-tiles.png";
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
     internal const int FirstGraphicsSourceAddress = 0xada600;
@@ -26,12 +32,19 @@ internal static class CrocomireSkeletonTransferDefinitions
     private const int SecondAtlasTile = 0x1e0;
     /// <summary>$A4:99D3..99D5 installs two rows at tiles $1E0..$1FF.</summary>
     private const int SecondRegionRows = 2;
+    /// <summary>Byte size of one 4-bpp SNES character tile used to calculate transfer destinations.</summary>
     private const int TileByteCount = 32;
+    /// <summary>Number of adjacent OBJ tiles in each uploaded skeleton row.</summary>
     private const int TilesPerRow = 16;
+    /// <summary>Number of transfer frames covering the two native OBJ atlas regions.</summary>
     internal const int FrameCount = FirstRegionRows + SecondRegionRows;
 
+    /// <summary>Provides indexed access to the six native source-and-destination transfer records.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
 
+    /// <summary>Calculates the source chunk and VRAM destination for one native skeleton upload.</summary>
+    /// <param name="index">Zero-based transfer position in the native six-frame sequence.</param>
+    /// <returns>The source address and destination offset for the selected upload.</returns>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
@@ -59,8 +72,11 @@ internal static class CrocomireSkeletonTransferDefinitions
 }
 
 /// <summary>Calculated source-page and OBJ-placement identities, without stored transfer rows.</summary>
+/// <param name="Length">The number of native transfer records available through this sequence view.</param>
 internal readonly record struct CrocomireSkeletonTransferSequence(int Length)
 {
+    /// <summary>Gets the calculated transfer record at a zero-based sequence position.</summary>
+    /// <param name="index">The transfer position to resolve.</param>
     internal CrocomireSkeletonTransferDefinition this[int index] =>
         CrocomireSkeletonTransferDefinitions.Frame(index);
 }

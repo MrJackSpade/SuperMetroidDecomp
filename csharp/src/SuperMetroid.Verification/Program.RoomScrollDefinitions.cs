@@ -5,6 +5,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Audits compiled explicit and implicit room-scroll grids against retail room states,
+    /// and verifies production Ceres initialization installs the expected grid without native scroll reads.</summary>
     private static void VerifyCompiledRoomScrollDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -117,36 +119,74 @@ internal static partial class Program
             "allocations and Ceres match without native scroll reads.");
     }
 
+    /// <summary>Address-space adapter that forbids cartridge and save reads during compiled grid creation,
+    /// while preserving reads of the prior room's scroll buffer in WRAM.</summary>
+    /// <param name="source">Underlying memory used only for the preserved scroll-buffer reads and writes.</param>
     private sealed class RoomScrollNoReadAddressSpace(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes cartridge access to the rejecting read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <exception cref="InvalidOperationException">Cartridge reads are forbidden during compiled grid creation.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
         // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
+        /// <summary>Reads retained scroll-buffer WRAM and rejects other work-RAM reads.</summary>
+        /// <param name="address">Work-RAM address requested by the caller.</param>
+        /// <returns>The prior buffer byte when the address belongs to the scroll grid.</returns>
         public byte ReadWorkRamByte(int address) =>
             address >= RoomScrollGrid.WorkRamAddress &&
             address < RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount
                 ? ((ISnesMutableMemory)source).ReadWorkRamByte(address)
                 : ReadByte(address);
+        /// <summary>Routes save-RAM access to the rejecting read path.</summary>
+        /// <param name="address">Save-RAM address requested by the caller.</param>
+        /// <exception cref="InvalidOperationException">Save-RAM reads are forbidden during compiled grid creation.</exception>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects any read not handled by the explicit prior-buffer WRAM exception.</summary>
+        /// <param name="address">Address whose access would require a native or unrelated memory read.</param>
+        /// <exception cref="InvalidOperationException">A forbidden address-space read was attempted.</exception>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Compiled room-scroll construction read address ${address:X6}.");
 
+        /// <summary>Forwards memory writes to the wrapped mutable address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space guard that rejects reads from the selected native scroll allocation.</summary>
+    /// <param name="source">Underlying memory for reads outside the guarded range and for all writes.</param>
+    /// <param name="scrollPointer">Native room-scroll pointer whose ROM allocation must not be read.</param>
     private sealed class RoomScrollSourceReadGuard(
         ISnesAddressSpace source,
         ushort scrollPointer) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Routes importer cartridge access through the selected-scroll read guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is outside the selected scroll allocation.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+
+        /// <summary>Forwards work-RAM reads without applying the cartridge allocation guard.</summary>
+        /// <param name="address">Work-RAM address requested by the caller.</param>
+        /// <returns>The byte stored at that work-RAM address.</returns>
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+
+        /// <summary>Forwards save-RAM reads without applying the cartridge allocation guard.</summary>
+        /// <param name="address">Save-RAM address requested by the caller.</param>
+        /// <returns>The byte stored at that save-RAM address.</returns>
         public byte ReadSaveRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
+        /// <summary>First cartridge address of the allocation selected by the room-scroll pointer.</summary>
         private readonly int _start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
 
+        /// <summary>Rejects reads within the selected native scroll allocation and forwards other cartridge reads.</summary>
+        /// <param name="address">Cartridge address requested by the runtime.</param>
+        /// <returns>The wrapped byte when the address is outside the guarded scroll allocation.</returns>
+        /// <exception cref="InvalidOperationException">The address lies within the guarded scroll allocation.</exception>
         public byte ReadByte(int address)
         {
             if (address >= _start && address < _start + RoomScrollGrid.StorageByteCount)
@@ -158,6 +198,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped mutable address space without applying the read guard.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

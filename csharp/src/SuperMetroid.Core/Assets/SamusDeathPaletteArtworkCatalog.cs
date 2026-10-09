@@ -49,14 +49,23 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
     private const ushort WhiteInkColor = 31 | 31 << 5 | 31 << 10;
 
+    /// <summary>Explicit suited RGB5 words that are not represented by shared rows or calculated fade inputs.</summary>
     private readonly Dictionary<int, ushort> suited = new();
+    /// <summary>Per-channel authored differences from calculated eighth-step fades for suited rows.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
+    /// <summary>Explicit suitless RGB5 words retained when they are not derived from another row or artwork rule.</summary>
     private readonly Dictionary<int, ushort> suitless = new();
+    /// <summary>Per-channel authored differences from calculated eighth-step fades for suitless rows.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
+    /// <summary>Independent channel edits for neutral inks whose shared gray color is calculated from the red input.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
+    /// <summary>Authored endpoint and shade-channel differences retained for the calculated suitless warm ramp.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
+    /// <summary>Authored endpoint and shade-channel differences retained for the calculated suitless tint ramp.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
+    /// <summary>Independent overrides for the calculated twenty-two-shade whiteout ramp.</summary>
     private readonly WhiteoutInputs whiteout;
+    /// <summary>Explosion frame selectors that differ from the native frame-to-palette mapping.</summary>
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
@@ -398,8 +407,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// supplied shade remain independent of every other supplied shade.</remarks>
     private sealed class WhiteoutInputs
     {
+        /// <summary>Per-shade channel edits that preserve supplied colors differing from the calculated whiteout.</summary>
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
+        /// <summary>Captures only RGB channels that differ from the default two-rate whiteout ramp.</summary>
+        /// <param name="source">The twenty-two RGB5 shades supplied by the artwork asset.</param>
         internal WhiteoutInputs(ushort[] source)
         {
             for (int index = 0; index < source.Length; index++)
@@ -409,6 +421,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
         }
 
+        /// <summary>Resolves a whiteout shade by applying its independent channel edits to the calculated color.</summary>
+        /// <param name="index">Shade index in the native twenty-two-entry whiteout sequence.</param>
+        /// <returns>The calculated RGB5 shade with any supplied per-channel overrides applied.</returns>
         internal ushort Resolve(int index)
         {
             ushort expected = DefaultWhiteoutColor(index);
@@ -455,6 +470,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
         return explosionPaletteIndices.TryGetValue(frame, out ushort value) ? value : expected;
     }
 
+    /// <summary>Maps an explosion frame to its native foreground palette row, skipping the flash-only row at index one.</summary>
+    /// <param name="frame">Zero-based explosion frame in the nine-entry animation.</param>
+    /// <returns>Palette row zero for the first frame and rows two through nine for subsequent frames.</returns>
+    /// <exception cref="IndexOutOfRangeException">The frame is outside the native explosion sequence.</exception>
     private static ushort DefaultExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new IndexOutOfRangeException();

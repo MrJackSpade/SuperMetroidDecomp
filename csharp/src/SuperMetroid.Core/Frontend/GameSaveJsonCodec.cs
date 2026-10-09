@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Strict deterministic conversion between named JSON saves and cartridge SRAM.</summary>
 public static partial class GameSaveJsonCodec
 {
+    /// <summary>Mask of every defined Samus equipment bit accepted in collected and equipped item fields.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
         Enum.GetValues<SamusEquipmentFlags>().Aggregate((left, right) => left | right);
+    /// <summary>Mask of every defined beam bit accepted in collected and equipped beam fields.</summary>
     private static readonly SamusBeamFlags AllBeamFlags =
         Enum.GetValues<SamusBeamFlags>().Aggregate((left, right) => left | right);
+    /// <summary>Mask of every defined boss flag accepted in per-area progression data.</summary>
     private static readonly BossBits AllBossFlags =
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
@@ -99,6 +102,9 @@ public static partial class GameSaveJsonCodec
         saveRam.SetGameCompleted(document.GameCompleted);
     }
 
+    /// <summary>Maps one decoded SRAM slot into the named JSON sections, including symbolic progression and map data.</summary>
+    /// <param name="slot">Decoded persistent state for a single cartridge save slot.</param>
+    /// <returns>JSON document sections representing that slot's persistent state.</returns>
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
@@ -157,6 +163,9 @@ public static partial class GameSaveJsonCodec
         },
     };
 
+    /// <summary>Converts a validated named JSON slot into the byte-oriented snapshot consumed by the SRAM writer.</summary>
+    /// <param name="slot">JSON data for one cartridge save slot.</param>
+    /// <returns>Snapshot with controller, inventory, resources, time, checkpoint, and decoded progression bytes.</returns>
     private static SuperMetroidSaveSnapshot ToSnapshot(GameSaveSlotJsonDocument slot)
     {
         ValidateSlot(slot, slot.Slot);
@@ -228,6 +237,10 @@ public static partial class GameSaveJsonCodec
         };
     }
 
+    /// <summary>Validates the document schema version, selected slot, slot-array shape, and each present slot.</summary>
+    /// <param name="document">Root JSON save document to validate before serialization or SRAM application.</param>
+    /// <exception cref="ArgumentNullException">The root document is null.</exception>
+    /// <exception cref="InvalidDataException">The schema or any selected-slot data violates the save format.</exception>
     private static void Validate(GameSaveJsonDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -249,6 +262,10 @@ public static partial class GameSaveJsonCodec
         }
     }
 
+    /// <summary>Checks one slot's nested sections, retail value ranges, inventory relationships, and progression encodings.</summary>
+    /// <param name="slot">Slot document whose values are checked.</param>
+    /// <param name="expectedSlot">Array index the slot's own slot identifier must match.</param>
+    /// <exception cref="InvalidDataException">A required section is absent or a value is outside its cartridge domain.</exception>
     private static void ValidateSlot(GameSaveSlotJsonDocument slot, int expectedSlot)
     {
         if (slot.Slot != expectedSlot)
@@ -310,6 +327,8 @@ public static partial class GameSaveJsonCodec
         _ = DecodeExploredAreas(progression.ExploredAreas);
     }
 
+    /// <summary>Creates the strict JSON settings shared by save serialization and deserialization.</summary>
+    /// <returns>Indented camel-case options that reject unknown properties and integer enum values.</returns>
     private static JsonSerializerOptions CreateOptions()
     {
         var options = new JsonSerializerOptions
@@ -322,11 +341,18 @@ public static partial class GameSaveJsonCodec
         return options;
     }
 
+    /// <summary>Turns set event bits into symbolic names, preserving unnamed cartridge bits as hexadecimal values.</summary>
+    /// <param name="bytes">Native event bit plane copied from one save slot.</param>
+    /// <returns>Names or <c>0xNN</c> strings for each set event bit in ascending bit order.</returns>
     private static string[] CaptureEvents(ReadOnlySpan<byte> bytes) =>
         CaptureSetBits(bytes).Select(bit => Enum.IsDefined((EventNumber)bit)
             ? ((EventNumber)bit).ToString()
             : $"0x{bit:X2}").ToArray();
 
+    /// <summary>Resolves symbolic or hexadecimal event entries into the native event bit plane.</summary>
+    /// <param name="events">JSON event names or raw <c>0xNN</c> bit identifiers.</param>
+    /// <returns>Cartridge-sized event bytes reconstructed from the listed bits.</returns>
+    /// <exception cref="InvalidDataException">The array is missing or contains an unknown name or malformed bit value.</exception>
     private static byte[] DecodeEvents(string[] events)
     {
         if (events is null)
@@ -349,6 +375,9 @@ public static partial class GameSaveJsonCodec
         return DecodeSetBits(bits, Bank80SystemState.EventByteCount, "progression.events");
     }
 
+    /// <summary>Lists every set bit in a byte plane as its ascending zero-based bit index.</summary>
+    /// <param name="bytes">Native bytes whose set bits are captured.</param>
+    /// <returns>Strictly increasing bit indexes suitable for the JSON set-bit representation.</returns>
     private static int[] CaptureSetBits(ReadOnlySpan<byte> bytes)
     {
         var result = new List<int>();
@@ -363,6 +392,12 @@ public static partial class GameSaveJsonCodec
         return result.ToArray();
     }
 
+    /// <summary>Rebuilds a fixed-size bit plane from strictly increasing, unique bit indexes.</summary>
+    /// <param name="bits">JSON indexes of bits that must be set.</param>
+    /// <param name="byteCount">Required size of the resulting native byte plane.</param>
+    /// <param name="property">JSON property path used in validation errors.</param>
+    /// <returns>Byte plane with exactly the listed bits set.</returns>
+    /// <exception cref="InvalidDataException">The list is null, contains an out-of-range bit, or is not strictly increasing.</exception>
     private static byte[] DecodeSetBits(int[] bits, int byteCount, string property)
     {
         if (bits is null)
@@ -382,6 +417,9 @@ public static partial class GameSaveJsonCodec
         return result;
     }
 
+    /// <summary>Converts per-area explored-map bit planes into row-major coordinate lists.</summary>
+    /// <param name="bytes">Native explored-map bytes for all cartridge areas.</param>
+    /// <returns>One coordinate document per area, ordered by the cartridge's area index.</returns>
     private static ExploredAreaJsonDocument[] CaptureExploredAreas(ReadOnlySpan<byte> bytes)
     {
         var areas = new ExploredAreaJsonDocument[Bank80SystemState.ExploredMapAreaCount];
@@ -404,6 +442,10 @@ public static partial class GameSaveJsonCodec
         return areas;
     }
 
+    /// <summary>Reconstructs explored-map bit planes from ordered area documents and unique row-major tile coordinates.</summary>
+    /// <param name="areas">JSON coordinate lists, one for each cartridge area in native order.</param>
+    /// <returns>Native explored-map bytes for all areas.</returns>
+    /// <exception cref="InvalidDataException">The area count, order, tile coordinates, or row-major uniqueness is invalid.</exception>
     private static byte[] DecodeExploredAreas(ExploredAreaJsonDocument[] areas)
     {
         if (areas.Length != Bank80SystemState.ExploredMapAreaCount)

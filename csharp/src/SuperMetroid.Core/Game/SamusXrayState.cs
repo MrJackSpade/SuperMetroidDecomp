@@ -19,6 +19,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusXrayState
 {
+    /// <summary>Optional installed visor-color catalog used to resolve X-ray palette frame offsets.</summary>
     [NonSerialized] private SamusVisorColorCatalog? presentationColors;
 
     /// <summary>Host-owned visor colors, excluded from debugger-state serialization.</summary>
@@ -223,6 +224,8 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>Starts beam setup and freezes the independent subsystems after X-ray admission succeeds.</summary>
+    /// <param name="facingLeft">Selects the initial quarter-turn angle for Samus's facing direction.</param>
     private void BeginAdmittedBeam(bool facingLeft)
     {
         // `$91:E217-$E28A` runs inside XraySetup itself, before UpdateSamusPose
@@ -245,6 +248,10 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = false;
     }
 
+    /// <summary>Installs the selected X-ray pose, animation, handler pair, and visor-palette state on Samus.</summary>
+    /// <param name="bus">Address space used to refresh pose-dependent collision data.</param>
+    /// <param name="samus">Actor whose controls and presentation state are transferred to X-ray.</param>
+    /// <param name="targetPose">Standing or crouching X-ray pose selected during admission.</param>
     private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, byte targetPose)
     {
         samus.Pose = targetPose;
@@ -592,6 +599,7 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>Moves the beam aim one angular unit upward while keeping its edge within the facing-side limit.</summary>
     private void MoveAngleUp()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -628,6 +636,7 @@ public sealed class SamusXrayState
             Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
     }
 
+    /// <summary>Moves the beam aim one angular unit downward while keeping its edge within the facing-side limit.</summary>
     private void MoveAngleDown()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -667,6 +676,9 @@ public sealed class SamusXrayState
                 SnesAngle.HalfTurn.TableIndex + AngularWidth);
     }
 
+    /// <summary>Restores Samus's ordinary pose/control state and clears the active beam after the final phase.</summary>
+    /// <param name="bus">Address space used to query movement/facing and refresh pose collision data.</param>
+    /// <param name="samus">Actor whose X-ray handlers and pose are being torn down.</param>
     private void Finish(ISnesAddressSpace bus, SamusState samus)
     {
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
@@ -710,6 +722,10 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = true;
     }
 
+    /// <summary>Applies an X-ray-owned pose transition and commits its collision, animation, and history state.</summary>
+    /// <param name="bus">Address space used for pose-dependent collision data.</param>
+    /// <param name="samus">Actor receiving the transition.</param>
+    /// <param name="targetPose">Pose identifier selected by the X-ray input handler.</param>
     private static void ApplyXrayPoseChange(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -723,6 +739,9 @@ public sealed class SamusXrayState
         samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Maps standing and crouching movement modes to X-ray-compatible posture classes.</summary>
+    /// <param name="movementType">Current movement mode to classify.</param>
+    /// <returns>The supported posture, or disallowed for every other movement mode.</returns>
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch
     {
         SamusMovementType.Standing or
@@ -732,6 +751,12 @@ public sealed class SamusXrayState
         _ => XrayPosture.Disallowed,
     };
 
+    /// <summary>Creates the per-call lifecycle result from the entry phase and completion outcome.</summary>
+    /// <param name="phaseAtStart">Beam phase observed before this call's transition work.</param>
+    /// <param name="angleAtStart">Beam angle sampled at call entry; this lifecycle result does not expose the angle.</param>
+    /// <param name="widthAtStart">Beam width sampled at call entry; this lifecycle result does not expose the width.</param>
+    /// <param name="completed">Whether teardown removed the active X-ray object during this call.</param>
+    /// <returns>The beam phase and completion witness exposed to callers.</returns>
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         SnesAngle angleAtStart,
@@ -740,16 +765,21 @@ public sealed class SamusXrayState
             phaseAtStart,
             completed);
 
+    /// <summary>Rejects handler calls when no X-ray object currently owns Samus's active beam state.</summary>
     private void EnsureActive()
     {
         if (!IsActive)
             throw new InvalidOperationException("X-ray has no installed Samus handler.");
     }
 
+    /// <summary>Movement postures admitted by X-ray setup for pose selection.</summary>
     private enum XrayPosture
     {
+        /// <summary>Movement mode is outside the standing and crouching X-ray admission cases.</summary>
         Disallowed,
+        /// <summary>Samus can enter the standing X-ray pose set.</summary>
         Standing,
+        /// <summary>Samus can enter the crouching X-ray pose set.</summary>
         Crouching,
     }
 }

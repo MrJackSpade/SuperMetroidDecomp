@@ -11,8 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
+    /// <summary>Validated page layouts retained in page-ID order for direct narration lookup.</summary>
     private readonly NarrationPage page1, page2, page3, page4, page5, page6;
 
+    /// <summary>Stores the six validated page layouts and the identity of their source document.</summary>
+    /// <param name="pages">Validated layouts keyed by every supported narration page ID.</param>
+    /// <param name="contentIdentity">SHA-256 identity calculated from the original JSON bytes.</param>
     private IntroNarrationPresentation(
         Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
@@ -132,9 +136,13 @@ public sealed class IntroNarrationPresentation
     /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
     private sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
+        /// <summary>Joined source text used when its calculated wrapping reproduces the supplied lines exactly.</summary>
         private readonly string? text;
+        /// <summary>Original ordered lines retained when calculating from joined text would alter their layout.</summary>
         private readonly IntroNarrationLine[]? supplied;
 
+        /// <summary>Chooses compact joined-text storage only when its layout round-trips without changing the lines.</summary>
+        /// <param name="lines">Validated lines for this page in ascending row order.</param>
         internal NarrationPage(IntroNarrationLine[] lines)
         {
             var candidate = new StringBuilder();
@@ -153,7 +161,11 @@ public sealed class IntroNarrationPresentation
             else supplied = lines.ToArray();
         }
 
+        /// <summary>Number of lines in the retained layout, whether stored directly or calculated from text.</summary>
         public int Count => supplied?.Length ?? CalculateLines(text!).Count();
+
+        /// <summary>Gets a line by zero-based position without changing the page's authored layout.</summary>
+        /// <exception cref="IndexOutOfRangeException">The index is negative or past the final line.</exception>
         public IntroNarrationLine this[int index]
         {
             get
@@ -166,6 +178,9 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Wraps each paragraph to the narration column limit and places successive lines two tilemap rows apart.</summary>
+        /// <param name="text">Page text whose newline characters preserve deliberate paragraph breaks.</param>
+        /// <returns>Lines with calculated row positions and wrapped text segments.</returns>
         private static IEnumerable<IntroNarrationLine> CalculateLines(string text)
         {
             int row = IntroNarrationDefinitions.FirstTextRow;
@@ -185,6 +200,7 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Enumerates this page's lines in display order, using the retained layout or calculated wrapping.</summary>
         public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
             ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
             : CalculateLines(text!).GetEnumerator();

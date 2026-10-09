@@ -11,16 +11,29 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorAnimationPaintDefinitions
 {
+    /// <summary>Maximum intensity of one five-bit SNES RGB channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+    /// <summary>Per-phase channel change used by the mirrored five-level beacon fade.</summary>
     private const int FadeStep = 5;
+    /// <summary>Red and ordinary green increase applied to the brightest gold facets.</summary>
     private const int GoldBrightening = 3;
+    /// <summary>Additional green increase specific to the gold highlight facet.</summary>
     private const int GoldHighlightGreenBrightening = 4;
+    /// <summary>Normal door paint channels used as the shared seed for beacon animation rows.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
+    /// <summary>Blue channel retained from the first authored animation seed.</summary>
     private readonly int firstSeedBlue;
+    /// <summary>Independent red channel used by the dim middle amber animation phase.</summary>
     private readonly int dimMiddleAmberRed;
+    /// <summary>First-row colors that differ from the seed derived from normal target paint.</summary>
     private readonly Dictionary<int, ushort> seedEdits = [];
+    /// <summary>Animation-row colors that differ from the shared fade and facet brightening rules.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Builds the eight-row beacon palette as shared normal-paint channels plus authored exceptions.</summary>
+    /// <param name="rows">Eight ordered animation phases, each containing six RGB555 colors.</param>
+    /// <param name="normal">Normal target paint whose selected colors seed the animation.</param>
+    /// <exception cref="ArgumentException">The animation does not contain exactly eight rows of six colors.</exception>
     internal CeresDoorAnimationPaintDefinitions(ushort[][] rows, CeresDoorNormalPaintDefinitions normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
@@ -36,16 +49,28 @@ internal sealed class CeresDoorAnimationPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * 6 + color, rows[row][color]);
     }
 
+    /// <summary>Returns one base animation color, applying the independently authored first-seed blue when needed.</summary>
+    /// <param name="color">Palette position from zero through five.</param>
+    /// <returns>The seed RGB555 color used by calculated animation phases.</returns>
     private ushort SharedSeed(int color) => color == 0
         ? (ushort)((normal.ColorAt(8) & 0x3ff) | firstSeedBlue << 10)
         : normal.ColorAt(8 + color);
 
+    /// <summary>Returns an authored row override or the calculated beacon color for one phase and palette position.</summary>
+    /// <param name="row">Animation phase index from zero through seven.</param>
+    /// <param name="color">Palette position within the six-color row.</param>
+    /// <returns>The selected RGB555 color word.</returns>
+    /// <exception cref="IndexOutOfRangeException">Either index is outside the authored animation dimensions.</exception>
     internal ushort ColorAt(int row, int color)
     {
         if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
         return edits.TryGetValue(row * 6 + color, out ushort edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Mirrors the row phase, applies the five-level fade, and brightens the gold facets at the highlight phase.</summary>
+    /// <param name="row">Animation phase index from zero through seven.</param>
+    /// <param name="color">Palette position identifying the affected facet.</param>
+    /// <returns>The calculated RGB555 color word before any per-cell override.</returns>
     private ushort Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);

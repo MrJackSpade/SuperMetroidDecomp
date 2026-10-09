@@ -12,6 +12,7 @@ internal static partial class Program
 {
     // Original compiled coordinate table from5b23a2aa, verification-only. Expected
     // outputs are independent literals, not the replacement projection formula.
+    /// <summary>Independent literal map-load anchor coordinates captured from the original implementation.</summary>
     private static readonly (AreaId Area, int Station, ushort X, ushort Y)[] originalMapLoadAnchors =
     [
         (AreaId.Crateria, 0, 216, 40),
@@ -50,6 +51,8 @@ internal static partial class Program
         (AreaId.Tourian, 8, 160, 96),
     ];
 
+    /// <summary>Checks menu-area indices against the native file-select area-order table and invalid-index contract.</summary>
+    /// <param name="bus">Address space containing the native table bytes.</param>
     private static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
     {
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
@@ -60,9 +63,17 @@ internal static partial class Program
                 "unsupported menu area identity is not clamped or narrowed");
     }
 
+    /// <summary>Verifies every supported horizontal map-load anchor against the independent literals and native room data.</summary>
+    /// <param name="bus">Address space used to read native room and station records.</param>
     private static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
+
+    /// <summary>Verifies every supported vertical map-load anchor against the independent literals and native room data.</summary>
+    /// <param name="bus">Address space used to read native room and station records.</param>
     private static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
 
+    /// <summary>Checks one coordinate component for every valid area/station pair and rejects invalid indices.</summary>
+    /// <param name="bus">Address space containing native station and room records.</param>
+    /// <param name="vertical">Selects Y coordinates when true and X coordinates when false.</param>
     private static void VerifyMapLoadAnchorField(ISnesAddressSpace bus, bool vertical)
     {
         int anchors = 0;
@@ -96,6 +107,9 @@ internal static partial class Program
                 "unsupported map-load area remains rejected");
     }
 
+    /// <summary>Compares compiled map anchors with cartridge-derived anchors across map, scroll, and station-menu paths.</summary>
+    /// <param name="bus">Cartridge address space used as the native-data reference.</param>
+    /// <param name="catalog">Compiled map presentation catalog used by the replacement paths.</param>
     private static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
@@ -198,6 +212,11 @@ internal static partial class Program
             (value.Horizontal, value.Vertical, value.MinimumX, value.MaximumX, value.MinimumY, value.MaximumY, value.Direction);
     }
 
+    /// <summary>Computes a saved-station map anchor directly from the native station and room records.</summary>
+    /// <param name="bus">Address space containing cartridge records.</param>
+    /// <param name="area">Area whose station list is selected.</param>
+    /// <param name="station">Station index within that area's list.</param>
+    /// <returns>World-map pixel coordinates derived from the room origin and station offsets.</returns>
     private static FileSelectMapAnchor ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {
         // Independent literal native layout: no production LoadStationEntry or
@@ -212,16 +231,26 @@ internal static partial class Program
             (ushort)((bus.ReadByte(room + 3) + (worldY >> 8) + 1) << 3));
     }
 
+    /// <summary>Wraps memory and rejects reads from cartridge map-load metadata after compiled anchors are selected.</summary>
+    /// <param name="source">Underlying cartridge and mutable memory providers.</param>
     private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Enables rejection of map-load and display-area metadata reads from ROM.</summary>
         public bool BlockReads { get; set; } = true;
+
+        /// <summary>Checks the address before forwarding a generic CPU-bus read.</summary>
+        /// <param name="address">CPU address requested by the caller.</param>
+        /// <returns>The wrapped address-space byte when the address is allowed.</returns>
         public byte ReadByte(int address)
         {
             RejectForbiddenRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Checks the address before forwarding a cartridge-specific read.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The wrapped cartridge byte when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectForbiddenRead(address);
@@ -230,16 +259,24 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a work-RAM read without applying the cartridge metadata guard.</summary>
+        /// <param name="address">CPU address of the work-RAM byte.</param>
+        /// <returns>The wrapped work-RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map metadata audit requires WRAM."))
                 .ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read without applying the cartridge metadata guard.</summary>
+        /// <param name="address">CPU address of the save-RAM byte.</param>
+        /// <returns>The wrapped save-RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map metadata audit requires SRAM."))
                 .ReadSaveRamByte(address);
 
+        /// <summary>Throws when enabled guarding detects a read of map-load or display-area ROM metadata.</summary>
+        /// <param name="address">CPU bus address to check.</param>
         private void RejectForbiddenRead(int address)
         {
             // Bank-$8F room headers/state selection and the bank-$80 load-station
@@ -248,6 +285,9 @@ internal static partial class Program
                 (uint)(address - FileSelectMapRomData.DisplayAreaIndices) < FileSelectMapRomData.AreaCount * 2))
                 throw new InvalidOperationException($"Installed map read load/display metadata from ROM at {address:X6}.");
         }
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

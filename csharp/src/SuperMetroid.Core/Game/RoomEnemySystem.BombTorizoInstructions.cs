@@ -491,6 +491,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Selects the morph-ball branch for a grounded ball 4–39 pixels away when the native facing-sign test is negative.</summary>
+    /// <param name="torizo">Golden Torizo actor whose position and facing are tested.</param>
+    /// <param name="state">Boss state whose decision counter is cleared when the branch is taken.</param>
+    /// <param name="samus">Active player state; absence advances past the branch operands.</param>
+    /// <param name="cursor">Instruction address of the branch opcode.</param>
+    /// <param name="target">Branch target encoded by the first operand.</param>
+    /// <returns>The target when the grounded morph-ball condition passes; otherwise the next instruction.</returns>
     private static ushort SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -513,6 +520,13 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Calls the medium-range attack target when Samus is 32–95 pixels away and the native direction and random tests pass.</summary>
+    /// <param name="torizo">Golden Torizo actor whose position is compared with Samus.</param>
+    /// <param name="state">Boss state receiving the return instruction when the call is taken.</param>
+    /// <param name="samus">Active player state; absence skips the branch.</param>
+    /// <param name="cursor">Instruction address of the conditional call.</param>
+    /// <param name="target">Address of the attack routine to call when its conditions pass.</param>
+    /// <returns>The target for a taken call, or the next instruction when skipped.</returns>
     private ushort SelectGoldenTorizoMediumRangeBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -533,6 +547,14 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Starts a forward jump when Samus is at least 112 pixels away, passes the native direction test, and meets the held-input or Space Jump condition.</summary>
+    /// <param name="torizo">Golden Torizo actor whose facing determines the jump direction.</param>
+    /// <param name="state">Boss state supplying the Space Jump frame counter and receiving movement velocities.</param>
+    /// <param name="samus">Active player state used for range and direction checks.</param>
+    /// <param name="controllerInput">Current controller word tested for held horizontal directions.</param>
+    /// <param name="cursor">Instruction address of the conditional branch.</param>
+    /// <param name="target">Target instruction selected after a qualifying jump begins.</param>
+    /// <returns>The target after starting the jump, or the next instruction when the condition fails.</returns>
     private ushort SelectGoldenTorizoSpaceJumpCounter(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -561,6 +583,13 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Starts a backward jump when the repeat counter permits it or Samus is close and in the native facing relation.</summary>
+    /// <param name="torizo">Golden Torizo actor whose facing selects the jump direction.</param>
+    /// <param name="state">Boss state containing and resetting the repeated-jump decision counter.</param>
+    /// <param name="samus">Active player state used for the close-range and direction checks.</param>
+    /// <param name="cursor">Instruction address of the conditional branch.</param>
+    /// <param name="target">Target instruction selected after starting the jump.</param>
+    /// <returns>The target after the jump starts, or the next instruction when the branch is skipped.</returns>
     private static ushort SelectGoldenTorizoRepeatedJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -582,6 +611,14 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Applies one Golden Torizo walking step, returning to the facing-specific path on collision.</summary>
+    /// <param name="torizo">Actor whose movement and instruction flow are updated.</param>
+    /// <param name="state">Boss state receiving the selected horizontal velocity and transition timer.</param>
+    /// <param name="samus">Optional player state used to begin the airborne transition delay.</param>
+    /// <param name="level">Room collision data for movement and slope alignment.</param>
+    /// <param name="cursor">Instruction address of the walking opcode.</param>
+    /// <param name="tableOffset">Native movement-table offset selecting the walking speed.</param>
+    /// <returns>The facing-specific collision branch address or the next instruction.</returns>
     private ushort ProcessGoldenTorizoWalkInstruction(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -609,6 +646,9 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Initializes the forward jump's facing-dependent horizontal speed and shared vertical arc.</summary>
+    /// <param name="torizo">Actor whose facing chooses the horizontal direction and whose instruction timer is reset.</param>
+    /// <param name="state">Boss state receiving the jump velocities and acceleration.</param>
     private static void StartGoldenTorizoForwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
@@ -621,6 +661,9 @@ public sealed partial class RoomEnemySystem
         torizo.InstructionTimer = 1;
     }
 
+    /// <summary>Initializes the backward jump's faster facing-opposite speed and its vertical arc.</summary>
+    /// <param name="torizo">Actor whose facing determines the backward horizontal direction and timer reset.</param>
+    /// <param name="state">Boss state receiving the jump velocities and acceleration.</param>
     private static void StartGoldenTorizoBackwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
@@ -633,10 +676,18 @@ public sealed partial class RoomEnemySystem
         torizo.InstructionTimer = 1;
     }
 
+    /// <summary>Requires the active player state for instruction branches whose native decision reads Samus.</summary>
+    /// <param name="samus">Player state supplied to the current enemy update.</param>
+    /// <returns>The supplied active player state.</returns>
+    /// <exception cref="InvalidOperationException">No player state was supplied for the Golden Torizo decision.</exception>
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");
 
+    /// <summary>Applies a posture-table displacement to the actor's position in the selected direction.</summary>
+    /// <param name="torizo">Actor whose coordinates are adjusted.</param>
+    /// <param name="tableOffset">Native posture-table offset selecting the displacement.</param>
+    /// <param name="subtract"><see langword="true"/> to reverse the table displacement; otherwise apply it forward.</param>
     private static void ApplyBombTorizoMapOffset(
         RoomEnemySlot torizo,
         ushort tableOffset,
@@ -650,6 +701,16 @@ public sealed partial class RoomEnemySystem
             torizo.YPosition + (subtract ? -displacement.Y : displacement.Y)));
     }
 
+    /// <summary>Moves Bomb Torizo using the selected walking speed and returns a facing-specific branch on collision.</summary>
+    /// <param name="torizo">Actor whose position and instruction flow are updated.</param>
+    /// <param name="state">Boss state receiving the walking speed and air-transition timer.</param>
+    /// <param name="samus">Optional player state used for the proximity transition test.</param>
+    /// <param name="level">Room collision data used by movement and slope alignment.</param>
+    /// <param name="cursor">Instruction address of the walking opcode.</param>
+    /// <param name="tableOffset">Native movement-table offset selecting the speed.</param>
+    /// <param name="collisionFacingRight">Branch target used for collision while facing right.</param>
+    /// <param name="collisionFacingLeft">Branch target used for collision while facing left.</param>
+    /// <returns>The collision branch address or the next instruction.</returns>
     private ushort ProcessBombTorizoWalkInstruction(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -679,6 +740,13 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Calls the close-range branch when Samus is within 56 pixels and lies in front of the actor's facing.</summary>
+    /// <param name="torizo">Actor whose position and facing define the relative direction.</param>
+    /// <param name="state">Boss state receiving the return address when the branch is taken.</param>
+    /// <param name="samus">Active player state; absence skips the branch.</param>
+    /// <param name="cursor">Instruction address of the conditional call.</param>
+    /// <param name="target">Attack routine address selected by the native operand.</param>
+    /// <returns>The target for a taken call, or the next instruction when skipped.</returns>
     private static ushort SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -694,6 +762,13 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Starts a jump away from Samus when she is within 32 pixels and satisfies the native direction test.</summary>
+    /// <param name="torizo">Actor whose facing determines the jump direction.</param>
+    /// <param name="state">Boss state receiving jump velocities and acceleration.</param>
+    /// <param name="samus">Active player state used for range and direction checks.</param>
+    /// <param name="cursor">Instruction address of the conditional branch.</param>
+    /// <param name="target">Instruction target selected after the jump starts.</param>
+    /// <returns>The target when the jump starts, or the next instruction when conditions fail.</returns>
     private static ushort SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -718,6 +793,10 @@ public sealed partial class RoomEnemySystem
         return target;
     }
 
+    /// <summary>Tests whether the actor's facing bit agrees with the sign of Samus X minus enemy X.</summary>
+    /// <param name="torizo">Actor supplying the facing bit and horizontal position.</param>
+    /// <param name="samus">Player supplying the horizontal position.</param>
+    /// <returns><see langword="true"/> when the facing bit matches that signed delta test.</returns>
     private static bool BombTorizoParameterMatchesSamusDelta(
         RoomEnemySlot torizo,
         SamusState samus)
@@ -730,6 +809,10 @@ public sealed partial class RoomEnemySystem
             short.MinValue) == 0;
     }
 
+    /// <summary>Reproduces Torizo_Func_12's sign test using enemy X minus Samus X.</summary>
+    /// <param name="torizo">Actor supplying the facing parameter and horizontal position.</param>
+    /// <param name="samus">Player supplying the horizontal position.</param>
+    /// <returns><see langword="true"/> when the XOR result has a clear sign bit.</returns>
     private static bool BombTorizoFunction12IsNonNegative(
         RoomEnemySlot torizo,
         SamusState samus)

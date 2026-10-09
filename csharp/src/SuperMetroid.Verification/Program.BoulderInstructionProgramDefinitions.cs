@@ -5,10 +5,12 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Returns the sixteen native presentation operands used to select Boulder spritemap frames.</summary>
     private static ushort[] BoulderPresentationOracle() =>
         [0x86a9,0x86ad,0x86b1,0x86b5,0x86b9,0x86bd,0x86c1,0x86c5,
          0x86cd,0x86d1,0x86d5,0x86d9,0x86dd,0x86e1,0x86e5,0x86e9];
 
+    /// <summary>Checks the compiled mechanics words against their native addresses and rejects every unlisted byte range.</summary>
     private static void VerifyBoulderMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -50,6 +52,7 @@ internal static partial class Program
                 "Boulder mechanics ordinal bounds");
     }
 
+    /// <summary>Verifies the compiled list of Boulder visual operands and its bounds behavior.</summary>
     private static void VerifyBoulderPresentationAddresses()
     {
         ushort[] addresses = BoulderPresentationOracle();
@@ -66,6 +69,7 @@ internal static partial class Program
                 "Boulder presentation ordinal bounds");
     }
 
+    /// <summary>Compares each compiled visual selector with the native ROM word and checks gaps are rejected.</summary>
     private static void VerifyBoulderVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = BoulderPresentationOracle();
@@ -89,12 +93,14 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder far invalid visual");
     }
 
+    /// <summary>Loads the retail ROM and runs the full Boulder instruction-program verification.</summary>
     private static void VerifyBoulderInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks both mirrored Boulder programs execute from compiled data without reading owned ROM bytes.</summary>
     private static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -168,6 +174,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly resolves a compiled mechanics operand so the caller can measure warmed lookup allocations.</summary>
     private static int ProbeBoulderInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -179,16 +186,22 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied native address space.</summary>
     private static ushort ReadBoulderInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Forwards cartridge access while detecting attempts to read Boulder bytes owned by compiled definitions.</summary>
+    /// <param name="source">Underlying address space used for reads and writes that are not rejected by the guard.</param>
     private sealed class BoulderInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of reads rejected because they targeted compiled Boulder mechanics or presentation data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same check applied to runtime byte reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects addresses represented by compiled definitions and forwards all other reads to the ROM source.</summary>
         public byte ReadByte(int address)
         {
             if (BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -202,6 +215,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Reports whether an address is either byte of one of the catalogued Boulder presentation words.</summary>
         private static bool IsCompiledPresentationByte(int address)
         {
             if ((address & 0xff0000) == 0xa60000)
@@ -224,6 +238,7 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>Forwards writes to the underlying address space; the guard monitors reads only.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

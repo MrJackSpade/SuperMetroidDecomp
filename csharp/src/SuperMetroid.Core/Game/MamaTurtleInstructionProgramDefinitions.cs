@@ -47,8 +47,15 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
     /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
+
+    /// <summary>Number of presentation operands embedded in the compiled Mama and Baby Turtle programs.</summary>
     public static int PresentationWordCount => 75;
 
+    /// <summary>Gets the bank-local address of the indexed spritemap operand in the compiled instruction streams.</summary>
+    /// <param name="index">Zero-based ordinal among the presentation operands.</param>
+    /// <returns>Address of the word containing that operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The ordinal is outside the presentation operand table.</exception>
+    /// <exception cref="InvalidDataException">The compiled streams do not contain the expected operand.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -59,9 +66,17 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         throw new InvalidDataException("Turtle presentation layout is incomplete.");
     }
 
+    /// <summary>Reads one compiled timing or control word from a Mama or Baby Turtle instruction list.</summary>
+    /// <param name="address">Bank-local instruction address of the word.</param>
+    /// <returns>The compiled word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not an owned instruction word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
         ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
+    /// <summary>Looks up a compiled control or timing word across the supported turtle instruction programs.</summary>
+    /// <param name="address">Bank-local instruction address to classify.</param>
+    /// <param name="value">Receives the compiled word when the address is owned.</param>
+    /// <returns><see langword="true"/> when <paramref name="address"/> maps to a recognized instruction word.</returns>
     internal static bool TryControl(ushort address, out ushort value) =>
         TryCrawl(address, BabyCrawlingLeft, out value) || TryCrawl(address, BabyCrawlingRight, out value) ||
         TrySpin(address, BabySpinning, baby: true, out value) || TrySpin(address, MamaSpinning, baby: false, out value) ||
@@ -75,6 +90,11 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         TryShell(address, BabyLeaveShellRight, ShellProgram.BabyLeave, out value) ||
         TrySleep(address, out value);
 
+    /// <summary>Resolves one word in a baby-turtle crawl list, including its terminal movement check.</summary>
+    /// <param name="address">Word address being queried.</param>
+    /// <param name="start">Start address of the selected crawl list.</param>
+    /// <param name="value">Receives a crawl opcode, frame duration, or terminal command.</param>
+    /// <returns><see langword="true"/> if the address is part of the crawl program.</returns>
     private static bool TryCrawl(ushort address, ushort start, out ushort value)
     {
         value = 0;
@@ -88,6 +108,12 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
+    /// <summary>Resolves a word in a spin list, including sound, stop behavior, and loop control.</summary>
+    /// <param name="address">Word address being queried.</param>
+    /// <param name="start">Start address of the selected spin list.</param>
+    /// <param name="baby">Whether to include the baby-only stoppable command.</param>
+    /// <param name="value">Receives the compiled timing or instruction word.</param>
+    /// <returns><see langword="true"/> if the address belongs to the selected spin list.</returns>
     private static bool TrySpin(ushort address, ushort start, bool baby, out ushort value)
     {
         value = 0;
@@ -103,8 +129,31 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
-    private enum ShellProgram { MamaEnterLeft, MamaEnterRight, BabyHide, MamaLeave, BabyLeave }
+    /// <summary>Shell-entry, hiding, and exit instruction lists whose words share one lookup layout.</summary>
+    private enum ShellProgram
+    {
+        /// <summary>Mama Turtle's shell-entry list when approaching from the left.</summary>
+        MamaEnterLeft,
 
+        /// <summary>Mama Turtle's shell-entry list when approaching from the right.</summary>
+        MamaEnterRight,
+
+        /// <summary>Baby Turtle's hiding list while Mama enters its shell.</summary>
+        BabyHide,
+
+        /// <summary>Mama Turtle's shell-exit list.</summary>
+        MamaLeave,
+
+        /// <summary>Baby Turtle's shell-exit list.</summary>
+        BabyLeave
+    }
+
+    /// <summary>Resolves timing and terminal commands in one shell-entry, hiding, or exit program.</summary>
+    /// <param name="address">Word address being queried.</param>
+    /// <param name="start">Start address of the selected shell program.</param>
+    /// <param name="program">Program variant determining its timing sequence and ending command.</param>
+    /// <param name="value">Receives the compiled word when the address belongs to the program.</param>
+    /// <returns><see langword="true"/> when the address is part of the selected program.</returns>
     private static bool TryShell(ushort address, ushort start, ShellProgram program, out ushort value)
     {
         value = 0;
@@ -137,6 +186,10 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
+    /// <summary>Resolves the two native words in Mama Turtle's asleep instruction list.</summary>
+    /// <param name="address">Word address being queried.</param>
+    /// <param name="value">Receives the wait duration or sleep command.</param>
+    /// <returns><see langword="true"/> when the address is one of the compiled sleep-list words.</returns>
     private static bool TrySleep(ushort address, out ushort value)
     {
         value = 0;

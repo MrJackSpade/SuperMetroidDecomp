@@ -41,6 +41,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     /// <summary><c>RTS_AADAE4</c>, the first adjacent code routine at $AA:DAE4.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;
 
+    /// <summary>Marker emitted for interleaved words supplied by the installed Shaktool presentation.</summary>
     internal const int PresentationOperand = -1;
     /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort AttackTicks = 576;
@@ -62,6 +63,9 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     private const ushort FirstFacingTicks = 0x0774;
     /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeadFallthroughTicks = 1;
+    /// <summary>Recognizes OAM operands interleaved with Shaktool's compiled instruction words.</summary>
+    /// <param name="address">Bank-$AA word address being classified.</param>
+    /// <returns><see langword="true"/> when the address selects an installed presentation value.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         if (address >= SawHandPrimaryPiece && address < ArmPieceAttackBack)
@@ -72,12 +76,19 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         return address == ArmPieceNormal + 2 || address >= HeadAimingLeft && address < FirstAdjacentCodeRoutine &&
             ((address - HeadAimingLeft) & 7) == 2;
     }
+    /// <summary>Returns a compiled mechanics word and rejects addresses that belong to presentation data.</summary>
+    /// <param name="address">Even bank-$AA address of a compiled engine-control operand.</param>
+    /// <returns>The selected instruction or operand word.</returns>
+    /// <exception cref="InvalidDataException">The address is outside compiled Shaktool programs or selects a presentation word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address < SawHandAttackPrimaryPiece || address >= FirstAdjacentCodeRoutine || (address & 1) != 0 || IsPresentationWord(address))
             throw new InvalidDataException($"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
         return (ushort)ProgramWord(address);
     }
+    /// <summary>Semantically selects the compiled instruction word at a bank-$AA address.</summary>
+    /// <param name="address">Address within one of the supported Shaktool instruction lists.</param>
+    /// <returns>The mechanics word, or <see cref="PresentationOperand"/> where the visual stream supplies the operand.</returns>
     internal static int ProgramWord(ushort address)
     {
         if (address < SawHandPrimaryPiece)
@@ -155,6 +166,9 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         aiming.Goto(facing);
         return aiming.Value;
     }
+    /// <summary>Emits the staggered lower-and-raise sequence used by a Shaktool body layer's collision bob.</summary>
+    /// <param name="writer">Selector positioned at the layer's first instruction word.</param>
+    /// <param name="inwardLayer">Layer distance from the outer body, determining its lead-in and lead-out waits.</param>
     private static void Bob(ref WordSelector writer, int inwardLayer)
     {
         ushort lead = (ushort)(inwardLayer * BobStaggerTicks);
@@ -164,16 +178,32 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel);
         if (lead != 0) writer.Wait(lead);
     }
+    /// <summary>Walks a semantic instruction sequence and captures the word at one requested program address.</summary>
+    /// <param name="address">Target bank-relative word address whose emitted value is selected.</param>
+    /// <param name="start">First word address represented by the semantic program writer.</param>
     private struct WordSelector(ushort address, ushort start)
     {
+        /// <summary>Remaining emitted-word offset before the writer reaches the requested address.</summary>
         private int remaining = (address - start) / 2;
+        /// <summary>Selected word value, or the sentinel indicating that no emitted word has reached the target.</summary>
         private int selected = int.MinValue;
+        /// <summary>Gets the selected word once the semantic writer has emitted the target position.</summary>
         public readonly int Value => selected == int.MinValue
             ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : selected;
+        /// <summary>Emits a one-word native instruction at the current semantic position.</summary>
+        /// <param name="command">Instruction word to emit.</param>
         public void Command(ushort command) => Emit(command);
+        /// <summary>Emits an animation duration followed by the presentation-operand marker.</summary>
+        /// <param name="duration">Frame count loaded by the native instruction stream.</param>
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
+        /// <summary>Emits the native wait opcode and its frame-count operand.</summary>
+        /// <param name="duration">Number of frames the instruction stream waits.</param>
         public void Wait(ushort duration) { Emit(CommonEnemyInstructionCodes.WaitFrames); Emit(duration); }
+        /// <summary>Emits a native goto opcode and its target address.</summary>
+        /// <param name="target">Instruction-list address selected by the branch.</param>
         public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
+        /// <summary>Accounts for one semantic word and captures it when the writer reaches the requested address.</summary>
+        /// <param name="value">Mechanics word or presentation marker being emitted.</param>
         private void Emit(int value) { if (remaining-- == 0) selected = value; }
     }
 }

@@ -228,38 +228,67 @@ static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
+/// <summary>Wraps fixture memory to fail if production enemy loading reads tile or palette bytes from cartridge space.</summary>
+/// <param name="source">Fixture address space for permitted room, definition, and mutable-memory operations.</param>
 private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
+    /// <summary>Forwards the fixture's parsed enemy definition record.</summary>
+    /// <param name="pointer">Bank-local pointer to the definition header.</param>
+    /// <returns>The definition stored at that pointer in the fixture.</returns>
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
 
 
+    /// <summary>Forwards the fixture's parsed enemy population.</summary>
+    /// <param name="pointer">Bank-local pointer to the population data.</param>
+    /// <returns>The population definition stored at that pointer.</returns>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);
 
+    /// <summary>Forwards the fixture's parsed enemy graphics set.</summary>
+    /// <param name="pointer">Bank-local pointer to the graphics-set entries.</param>
+    /// <returns>The graphics-set definition stored at that pointer.</returns>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
         source.ReadEnemyGraphicsSet(pointer);
 
+    /// <summary>Rejects cartridge tile-source addresses before forwarding any other bus read.</summary>
+    /// <param name="address">SNES bus address to read.</param>
+    /// <returns>The fixture byte for an address outside installed tile and palette ranges.</returns>
     public byte ReadByte(int address)
     {
         RejectTileSource(address);
         return source.ReadByte(address);
     }
 
+    /// <summary>Applies the tile-source restriction to cartridge reads before forwarding allowed addresses.</summary>
+    /// <param name="address">Cartridge bus address to read.</param>
+    /// <returns>The fixture cartridge byte when the address is permitted.</returns>
     public byte ReadCartridgeByte(int address)
     {
         RejectTileSource(address);
         return source.ReadCartridgeByte(address);
     }
 
+    /// <summary>Forwards a work-RAM read to the fixture memory.</summary>
+    /// <param name="address">Work-RAM address to read.</param>
+    /// <returns>The stored byte.</returns>
     public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
 
+    /// <summary>Forwards a save-RAM read to the fixture memory.</summary>
+    /// <param name="address">Save-RAM address to read.</param>
+    /// <returns>The stored byte.</returns>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
 
+    /// <summary>Forwards a memory write to the fixture address space.</summary>
+    /// <param name="address">SNES bus address to write.</param>
+    /// <param name="value">Byte to store at that address.</param>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+    /// <summary>Fails when a read overlaps fixture tile or palette data that must come from installed artwork.</summary>
+    /// <param name="address">SNES bus address being checked against the forbidden source ranges.</param>
+    /// <exception cref="InvalidDataException">The address belongs to a fixture tile or palette source range.</exception>
     private static void RejectTileSource(int address)
     {
         if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
@@ -268,6 +297,7 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
+/// <summary>Checks room-enemy memory routing and its WRAM bank-wrap behavior without generic cartridge readers.</summary>
 private static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
@@ -694,6 +724,9 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
+/// <summary>Extracts Ceres door visuals from fixture memory and creates an artwork catalog containing those visuals.</summary>
+/// <param name="bus">Fixture address space seeded with the Ceres door graphics and palette sources.</param>
+/// <returns>A catalog with the extracted Ceres door visual assets installed.</returns>
 private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
 {
     using var directoryScratch = new TestTempDirectory("ceres-door-fixture");
@@ -1630,6 +1663,8 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     Word(0);
 }
 
+/// <summary>Writes the native Zebes escape typewriter commands and text into fixture cartridge memory.</summary>
+/// <param name="bus">Fixture address space receiving the warning program bytes.</param>
 static void WriteZebesEscapeWarning(TestAddressSpace bus)
 {
     int cursor = EscapeTypewriterDefinitions.ZebesSourceAddress;
@@ -1685,12 +1720,20 @@ static void WriteEnemyDefinition(
     WriteWord(bus, address + 62, namePointer);
 }
 
+/// <summary>Stores a fixture word as two little-endian bytes.</summary>
+/// <param name="bus">Address space receiving the bytes.</param>
+/// <param name="address">Bus address of the low byte.</param>
+/// <param name="value">Word to write.</param>
 static void WriteWord(TestAddressSpace bus, int address, ushort value)
 {
     bus.WriteByte(address, unchecked((byte)value));
     bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
 }
 
+/// <summary>Stores the low 24 bits of a fixture value in little-endian byte order.</summary>
+/// <param name="bus">Address space receiving the bytes.</param>
+/// <param name="address">Bus address of the least-significant byte.</param>
+/// <param name="value">Value whose low three bytes are written.</param>
 static void WriteLong(TestAddressSpace bus, int address, int value)
 {
     bus.WriteByte(address, unchecked((byte)value));

@@ -3,29 +3,46 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Mutually exclusive crawler animation families with distinct initial tables.</summary>
 internal enum CrawlerAnimationFamily
 {
+    /// <summary>Uses the common initial animation table shared by the first crawler species.</summary>
     Shared,
+    /// <summary>Uses Viola's species-specific initial surface lists.</summary>
     Viola,
+    /// <summary>Uses Sciser's species-specific initial surface lists.</summary>
     Sciser,
+    /// <summary>Uses Zero's species-specific initial surface lists.</summary>
     Zero,
+    /// <summary>Uses the H-Zoomer species-specific initial surface lists.</summary>
     HZoomer,
 }
 
 /// <summary>The four physical surfaces represented by crawler animation lists.</summary>
 internal enum CrawlerSurfaceOrientation : ushort
 {
+    /// <summary>Surface-facing direction used while crawling along a right-facing side.</summary>
     UpsideRight = 0,
+    /// <summary>Surface-facing direction used while crawling along a left-facing side.</summary>
     UpsideLeft = 1,
+    /// <summary>Surface-facing direction used while crawling upside down.</summary>
     UpsideDown = 2,
+    /// <summary>Surface-facing direction used while crawling upright.</summary>
     UpsideUp = 3,
 }
 
 /// <summary>Four surface-oriented instruction lists for one crawler family or species.</summary>
+/// <param name="UpsideRight">Instruction list selected for the right-facing surface orientation.</param>
+/// <param name="UpsideLeft">Instruction list selected for the left-facing surface orientation.</param>
+/// <param name="UpsideDown">Instruction list selected for the upside-down surface orientation.</param>
+/// <param name="UpsideUp">Instruction list selected for the upright surface orientation.</param>
 internal readonly record struct CrawlerAnimationDefinition(
     ushort UpsideRight,
     ushort UpsideLeft,
     ushort UpsideDown,
     ushort UpsideUp)
 {
+    /// <summary>Selects the instruction-list pointer corresponding to a crawler's surface orientation.</summary>
+    /// <param name="orientation">One of the four authored surface directions.</param>
+    /// <returns>The instruction-list address for that direction.</returns>
+    /// <exception cref="InvalidDataException">The orientation value is not one of the four defined directions.</exception>
     internal ushort ForOrientation(CrawlerSurfaceOrientation orientation) => orientation switch
     {
         CrawlerSurfaceOrientation.UpsideRight => UpsideRight,

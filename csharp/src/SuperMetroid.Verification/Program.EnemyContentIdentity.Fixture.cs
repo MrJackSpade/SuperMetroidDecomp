@@ -6,17 +6,30 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Small authored presentation data loaded through production PNG/JSON compilers.</summary>
+    /// <param name="edit">Optional mutation key that changes one generated asset to test content-identity sensitivity.</param>
+    /// <param name="reverse">When true, reverses ordered fixture inputs to test order-independent identity handling.</param>
     private sealed partial class EnemyIdentityFixture(string? edit = null, bool reverse = false)
     {
+        /// <summary>Asset names registered while the fixture creates its generated content.</summary>
         public List<string> Edits { get; } = [];
+        /// <summary>Records an asset identity for later fixture assertions.</summary>
+        /// <param name="name">Stable generated asset key to record once.</param>
         private void Register(string name)
         {
             if (!Edits.Contains(name, StringComparer.Ordinal)) Edits.Add(name);
         }
 
+        /// <summary>Serializes a fixture document using camel-case property names and the selected formatting mutation.</summary>
+        /// <param name="document">Asset document serialized into the returned stream.</param>
+        /// <returns>A readable stream positioned at the serialized JSON's beginning.</returns>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
 
+        /// <summary>Creates a deterministic indexed PNG and registers its resource identity.</summary>
+        /// <param name="name">Asset key used to select the optional content mutation.</param>
+        /// <param name="bytes">Expected decoded tile byte count, used to derive image dimensions.</param>
+        /// <param name="seed">Base pixel variation for distinguishing generated artwork.</param>
+        /// <returns>A readable stream containing the encoded PNG.</returns>
         private MemoryStream Png(string name, int bytes, int seed = 0)
         {
             Register(name);
@@ -32,9 +45,18 @@ internal static partial class Program
             return png;
         }
 
+        /// <summary>Loads generated indexed PNG bytes through the production character-atlas decoder.</summary>
+        /// <param name="name">Asset key used to generate and register the PNG.</param>
+        /// <param name="bytes">Required decompressed character-data length.</param>
+        /// <param name="seed">Base pixel variation for the generated artwork.</param>
+        /// <returns>Decoded room character atlas.</returns>
         private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0) =>
             RoomCharacterAtlas.Load(Png(name, bytes, seed), bytes);
 
+        /// <summary>Builds a generated background tilemap cell array, optionally editing its final tile reference.</summary>
+        /// <param name="name">Asset key used to register the tilemap content.</param>
+        /// <param name="count">Number of cells in the authored page or map.</param>
+        /// <returns>Cells with baseline attributes and the selected optional final-cell edit.</returns>
         private RoomBackgroundTilemapCell[] Cells(string name, int count)
         {
             Register(name);
@@ -45,6 +67,10 @@ internal static partial class Program
             }).ToArray();
         }
 
+        /// <summary>Creates and production-loads a paged background tilemap with the requested byte extent.</summary>
+        /// <param name="name">Asset key prefix used to register generated page contents.</param>
+        /// <param name="bytes">Total byte size represented by the generated pages.</param>
+        /// <returns>The decoded background tilemap atlas.</returns>
         private RoomBackgroundTilemapAtlas Map(string name, int bytes) => RoomBackgroundTilemapAtlas.Load(Json(
             new RoomBackgroundTilemapDocument
             {
@@ -53,6 +79,10 @@ internal static partial class Program
                     new RoomBackgroundTilemapPage { Cells = Cells(name + "-page-" + page, RoomBackgroundTilemapFormat.CellsPerPage) }).ToArray(),
             }), bytes);
 
+        /// <summary>Generates sequential tile words and can toggle the final word for the named mutation.</summary>
+        /// <param name="name">Asset key used to register and select the optional edit.</param>
+        /// <param name="count">Number of words to generate.</param>
+        /// <returns>The generated word array.</returns>
         private ushort[] Words(string name, int count)
         {
             Register(name);
@@ -61,6 +91,11 @@ internal static partial class Program
             return words;
         }
 
+        /// <summary>Generates deterministic RGB5 entries and can alter the last color of the selected asset.</summary>
+        /// <param name="name">Asset key used to register and select the optional edit.</param>
+        /// <param name="count">Number of palette entries to produce.</param>
+        /// <param name="seed">Starting red-channel value before cycling through the five-bit range.</param>
+        /// <returns>The generated color array.</returns>
         private PaletteRgb5[] Colors(string name, int count, int seed = 0)
         {
             Register(name);
@@ -71,6 +106,11 @@ internal static partial class Program
             }).ToArray();
         }
 
+        /// <summary>Generates named palette rows and optionally reverses their order for identity checks.</summary>
+        /// <param name="name">Palette family key used for row identities and the ordering mutation.</param>
+        /// <param name="count">Number of color rows.</param>
+        /// <param name="colors">Number of colors in each row.</param>
+        /// <returns>Generated rows in authored order, or reversed when selected by the fixture mutation.</returns>
         private PaletteRgb5[][] ColorRows(string name, int count, int colors)
         {
             Register(name + "-order");
@@ -79,6 +119,10 @@ internal static partial class Program
             return rows;
         }
 
+        /// <summary>Creates a versioned JSON color document and passes its stream to the selected production loader.</summary>
+        /// <param name="load">Catalog loader that decodes the generated document.</param>
+        /// <param name="fields">Named color arrays or row arrays to include in the document.</param>
+        /// <returns>The loaded color catalog.</returns>
         private T ColorCatalog<T>(Func<Stream, T> load, params (string Name, int Rows, int Colors)[] fields)
         {
             var document = new Dictionary<string, object> { ["version"] = 1 };
@@ -90,9 +134,18 @@ internal static partial class Program
             return load(Json(document));
         }
 
+        /// <summary>Builds a dictionary from ordered entries, optionally reversing enumeration order first.</summary>
+        /// <param name="source">Entries in their canonical fixture order.</param>
+        /// <returns>A dictionary populated in forward or reversed enumeration order.</returns>
         private Dictionary<TKey, TValue> Ordered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> source) where TKey : notnull =>
             (reverse ? source.Reverse() : source).ToDictionary();
 
+        /// <summary>Assembles the complete synthetic enemy-art catalog, using supplied catalogs where specified.</summary>
+        /// <param name="spritemaps">Optional sprite-map catalog overriding the generated default.</param>
+        /// <param name="extendedFrames">Optional extended-frame catalog overriding the generated default.</param>
+        /// <param name="projectileSpritemaps">Optional projectile sprite-map catalog overriding the generated default.</param>
+        /// <param name="motherBrainBodyBg2Frames">Optional Mother Brain BG2 frames overriding the generated default.</param>
+        /// <returns>The production catalog assembled from deterministic fixture assets.</returns>
         public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
@@ -233,6 +286,9 @@ internal static partial class Program
                 ceresEscapeOverlayTilemaps: overlay, auxiliaryColors: auxiliary);
         }
 
+        /// <summary>Creates a Crocomire melting tilemap document with generated cells and the selected mutation.</summary>
+        /// <param name="name">Asset key used to register and select the optional cell edit.</param>
+        /// <returns>A document with the production schema dimensions and generated tile references.</returns>
         private CrocomireMeltingTilemapDocument MeltMap(string name)
         {
             Register(name);

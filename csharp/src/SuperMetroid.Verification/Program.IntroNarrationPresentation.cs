@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted opening narration and font assets, installed rendering behavior, edits, rebinding, and validation.</summary>
+    /// <param name="romPath">Path to the retail ROM used as the extraction and native-data reference.</param>
     private static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -129,6 +131,8 @@ internal static partial class Program
             "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
     }
 
+    /// <summary>Creates a text tilemap initialized entirely to the cartridge's blank tile word.</summary>
+    /// <returns>Tilemap storage sized for the opening cinematic text layer.</returns>
     private static ushort[] CreateBlankIntroTilemap()
     {
         var result = new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
@@ -136,6 +140,10 @@ internal static partial class Program
         return result;
     }
 
+    /// <summary>Dispatches a page identifier to the corresponding English narration start routine.</summary>
+    /// <param name="state">Opening cinematic whose narration page is started.</param>
+    /// <param name="page">One of the six supported English narration pages.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The identifier does not select a supported narration page.</exception>
     private static void StartPage(IntroCinematicObjectSystem state, IntroNarrationPageId page)
     {
         switch (page)
@@ -150,6 +158,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reports whether the selected narration page has reached its input wait or final completion state.</summary>
+    /// <param name="state">Opening cinematic state whose page progress is inspected.</param>
+    /// <param name="page">Page whose completion condition is checked.</param>
+    /// <returns>True when that page has finished its current text sequence.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The identifier does not select a supported narration page.</exception>
     private static bool IsPageComplete(
         IntroCinematicObjectSystem state,
         IntroNarrationPageId page) => page switch
@@ -163,6 +176,11 @@ internal static partial class Program
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
+    /// <summary>Checks deterministic narration extraction, override selection and identity, and rejection of corrupt replacement text.</summary>
+    /// <param name="bus">Cartridge address space used by the narration extractor.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock narration document.</param>
+    /// <param name="overrideDirectory">Directory receiving the edited and malformed narration overrides.</param>
+    /// <param name="stockCatalog">Installed catalog used to confirm that an override changes its content identity.</param>
     private static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -198,6 +216,11 @@ internal static partial class Program
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    /// <summary>Checks deterministic font extraction, editable PNG overrides, installed transfer changes, and corrupt-image rejection.</summary>
+    /// <param name="bus">Cartridge address space used by the font extractor.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock font atlas.</param>
+    /// <param name="overrideDirectory">Directory receiving the edited and malformed font overrides.</param>
+    /// <param name="stockCatalog">Installed catalog used to compare font transfer bytes and content identity.</param>
     private static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -231,10 +254,20 @@ internal static partial class Program
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
+    /// <summary>Rejects runtime reads from the cartridge ranges containing extracted opening narration text.</summary>
+    /// <param name="source">Address space that receives permitted reads and all writes.</param>
     private sealed class IntroNarrationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Applies the narration text guard to a cartridge read before using the wrapped byte reader.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the extracted text ranges.</returns>
+        /// <exception cref="InvalidOperationException">The request addresses narration text that should come from installed data.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks the extracted narration text ranges and forwards all other byte reads.</summary>
+        /// <param name="address">CPU address requested from the wrapped address space.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The request addresses narration text that should come from installed data.</exception>
         public byte ReadByte(int address)
         {
             int bank = address >> 16;
@@ -248,13 +281,26 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU address receiving the value.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Rejects runtime reads from the compressed opening-font cartridge stream after the installed atlas is bound.</summary>
+    /// <param name="source">Address space that receives permitted reads and all writes.</param>
     private sealed class IntroFontReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Applies the font-range guard to a cartridge read before using the wrapped byte reader.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is outside the extracted font range.</returns>
+        /// <exception cref="InvalidOperationException">The request addresses font data that should come from the installed atlas.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks reads from the compressed font stream and forwards all other byte reads.</summary>
+        /// <param name="address">CPU address requested from the wrapped address space.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The request addresses font data that should come from the installed atlas.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x95d089 and < 0x95d713)
@@ -265,6 +311,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU address receiving the value.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -28,15 +28,24 @@ public sealed class ShitroidColorCatalog
             }
         });
 
+    /// <summary>Eight-frame normal-color pulse, using calculated stock fading only when all samples match.</summary>
     private readonly ColorPulse normal;
+    /// <summary>Compiled sixteen-color image for the live Sidehopper victim.</summary>
     private readonly SidehopperInitialPalette sidehopper;
+    /// <summary>Compiled giant Baby Metroid palette, excluding its separately retained transparent-slot word.</summary>
     private readonly BabyMetroidInitialPalette shitroid;
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
     private readonly ushort shitroidTransparentSlot;
+    /// <summary>Compiled sixteen-color image for the drained Sidehopper corpse.</summary>
     private readonly SidehopperCorpsePalette deadSidehopper;
 
+    /// <summary>Creates the compiled target palettes and normal pulse from validated packed color words.</summary>
+    /// <param name="normal">Eight compiled four-color pulse rows.</param>
+    /// <param name="sidehopper">Sixteen packed colors for the live victim target.</param>
+    /// <param name="shitroid">Sixteen packed colors for the Baby Metroid target, including transparent slot zero.</param>
+    /// <param name="deadSidehopper">Sixteen packed colors for the drained victim target.</param>
     private ShitroidColorCatalog(ushort[][] normal, ushort[] sidehopper,
         ushort[] shitroid, ushort[] deadSidehopper)
     {
@@ -47,6 +56,7 @@ public sealed class ShitroidColorCatalog
         this.deadSidehopper = new(deadSidehopper);
     }
 
+    /// <summary>JSON settings that enforce camel-case names, reject unknown properties, and emit indented output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,6 +124,12 @@ public sealed class ShitroidColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates a palette's dimensions and RGB5 channels, then packs its entries into SNES color words.</summary>
+    /// <param name="source">Authored RGB5 entries to validate and encode.</param>
+    /// <param name="required">Exact number of colors required by the target.</param>
+    /// <param name="name">Target name included in validation failures.</param>
+    /// <returns>Packed RGB555 words in source order.</returns>
+    /// <exception cref="InvalidDataException">The source has the wrong size, null entries, or out-of-range channels.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -131,11 +147,17 @@ public sealed class ShitroidColorCatalog
         return compiled;
     }
 
+    /// <summary>Uses a shared calculated normal-color fade when it matches every authored sample; otherwise preserves supplied rows.</summary>
     private sealed class ColorPulse
     {
+        /// <summary>Target-palette colors from which the normal pulse fade is calculated.</summary>
         private readonly BabyMetroidInitialPalette target;
+        /// <summary>Exact authored rows retained when any sample differs from the calculated fade.</summary>
         private readonly ushort[][]? supplied;
 
+        /// <summary>Chooses between the calculated shared fade and the complete authored pulse rows.</summary>
+        /// <param name="frames">Ordered normal-pulse rows used to verify the calculated color sequence.</param>
+        /// <param name="target">Initialization palette supplying the pulse's interior target colors.</param>
         public ColorPulse(ushort[][] frames, BabyMetroidInitialPalette target)
         {
             this.target = target;
@@ -147,6 +169,10 @@ public sealed class ShitroidColorCatalog
                 { supplied = frames; return; }
         }
 
+        /// <summary>Gets one pulse color from the supplied rows or the mirrored calculated fade.</summary>
+        /// <param name="frame">Pulse frame index.</param>
+        /// <param name="color">Normal-palette color index within the frame.</param>
+        /// <returns>Packed RGB555 color for the selected frame and color position.</returns>
         public ushort Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
@@ -168,6 +194,8 @@ public sealed class ShitroidColorCatalog
             return (ushort)result;
         }
     }
+    /// <summary>Rejects duplicate property names throughout the parsed color document.</summary>
+    /// <param name="value">Root JSON element whose object properties are checked recursively.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Shitroid color property {name}."));

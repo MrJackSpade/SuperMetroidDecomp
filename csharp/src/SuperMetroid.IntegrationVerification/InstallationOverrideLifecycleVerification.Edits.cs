@@ -6,6 +6,11 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class InstallationOverrideLifecycleVerification
 {
+    /// <summary>
+    /// Edits representative installed presentation and audio assets, then returns the values
+    /// that the installation loaders should expose from those edits.
+    /// </summary>
+    /// <param name="installation">Installation whose override files and audio manifest are edited in place.</param>
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
@@ -57,6 +62,13 @@ internal static partial class InstallationOverrideLifecycleVerification
             instrument, program.Id, instructionIndex, arguments);
     }
 
+    /// <summary>
+    /// Changes the first indexed pixel in a PNG override and returns its SNES planar tile encoding.
+    /// </summary>
+    /// <param name="path">PNG override file to read and replace.</param>
+    /// <param name="width">Expected image width in pixels.</param>
+    /// <param name="height">Expected image height in pixels.</param>
+    /// <param name="bitsPerPixel">Indexed pixel depth used to wrap the changed palette index and encode tiles.</param>
     private static byte[] EditPng(string path, int width, int height, int bitsPerPixel)
     {
         IndexedPngImage image;
@@ -66,6 +78,15 @@ internal static partial class InstallationOverrideLifecycleVerification
         return SnesPlanarTileEncoder.Encode(image.Pixels, width, height, bitsPerPixel);
     }
 
+    /// <summary>
+    /// Confirms that selection preserves catalog identities and edited override bytes, and that loaders
+    /// return the corresponding graphical, palette, sample, instrument, and sound-program values.
+    /// </summary>
+    /// <param name="installation">Installation whose selected overrides are loaded for comparison.</param>
+    /// <param name="expected">Values captured when the representative overrides were authored.</param>
+    /// <param name="identities">Catalog identity snapshot taken before selection.</param>
+    /// <param name="files">Override-file snapshot taken before selection.</param>
+    /// <param name="phase">Operation label included in assertion messages to identify the lifecycle phase.</param>
     private static void VerifySelected(GameInstallation installation, OverrideExpectations expected,
         Dictionary<string, string> identities, Dictionary<string, string> files, string phase)
     {
@@ -83,6 +104,19 @@ internal static partial class InstallationOverrideLifecycleVerification
             .Arguments.SequenceEqual(expected.SoundArguments), phase + ": actual authored SFX operation");
     }
 
+    /// <summary>
+    /// Captures the encoded and decoded values expected after editing representative installed overrides.
+    /// </summary>
+    /// <param name="StandardObjects">SNES transfer bytes produced from the edited standard-object artwork.</param>
+    /// <param name="Font">SNES transfer bytes produced from the edited intro font artwork.</param>
+    /// <param name="Color">BGR555 word for the changed first entry of the initial gameplay palette.</param>
+    /// <param name="Bank">SNES bank address containing the edited sample and instrument.</param>
+    /// <param name="Source">Source identifier of the sample whose first PCM value was changed.</param>
+    /// <param name="PcmFirstSample">Expected signed first PCM sample after loading the edited WAV file.</param>
+    /// <param name="Instrument">Instrument metadata with the changed pitch base expected from the audio loader.</param>
+    /// <param name="SoundProgram">Identifier of the authored sound program containing the edited PlayNote operation.</param>
+    /// <param name="SoundInstruction">Zero-based instruction index of that PlayNote operation.</param>
+    /// <param name="SoundArguments">Expected argument bytes for the edited PlayNote operation, including its changed duration.</param>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
         int Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
         string SoundProgram, int SoundInstruction, byte[] SoundArguments);

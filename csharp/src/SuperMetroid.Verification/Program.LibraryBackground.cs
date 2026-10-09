@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+/// <summary>Audits retail library-background source operands and checks their compiled inventory and source ownership.</summary>
 static void VerifyLibraryBackgroundSourceInventory()
 {
     ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -50,6 +51,9 @@ static void VerifyLibraryBackgroundSourceInventory()
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }
 
+/// <summary>Checks that installed Kraid HUD artwork reproduces native VRAM output and that edited pixels reach VRAM.</summary>
+/// <param name="bus">Retail cartridge address space containing the native HUD tiles and library-background lists.</param>
+/// <param name="romTransfers">Direct-ROM transfer records discovered by the source inventory.</param>
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundSource> romTransfers)
 {
@@ -103,6 +107,7 @@ static void VerifyKraidLibraryHudArtwork(
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
 }
 
+/// <summary>Exercises compressed background loading, typed source routing, bank-wrapped reads, and the Ceres BG2 clear command.</summary>
 static void VerifyLibraryBackgroundLoader()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -182,34 +187,64 @@ static void VerifyLibraryBackgroundLoader()
         "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
 }
 
+/// <summary>Counts typed cartridge and work-RAM accesses while rejecting the untyped CPU read path.</summary>
+/// <param name="source">Address space supplying the reads and writes allowed by this fixture.</param>
 private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
 {
+    /// <summary>Number of cartridge-byte reads forwarded to the wrapped address space.</summary>
     public int CartridgeReads { get; private set; }
+    /// <summary>Number of work-RAM byte reads forwarded to the wrapped address space.</summary>
     public int WorkRamReads { get; private set; }
 
+    /// <summary>Rejects the generic untyped read path so callers must select an address-space region.</summary>
+    /// <param name="address">Bus address that the untyped path attempted to read.</param>
+    /// <returns>This method always throws.</returns>
+    /// <exception cref="InvalidOperationException">The untyped CPU reader was used.</exception>
     public static byte ReadByte(int address) => throw new InvalidOperationException(
         $"Library background used the untyped CPU reader at ${address:X6}.");
+
+    /// <summary>Counts and forwards a typed cartridge-byte read.</summary>
+    /// <param name="address">Cartridge bus address to read.</param>
+    /// <returns>The byte returned by the wrapped cartridge source.</returns>
     public byte ReadCartridgeByte(int address)
     {
         CartridgeReads++;
         return source.ReadCartridgeByte(address);
     }
+    /// <summary>Counts and forwards a typed work-RAM read, including CPU bank-mirror accesses.</summary>
+    /// <param name="address">Work-RAM address to read.</param>
+    /// <returns>The byte returned by the wrapped memory.</returns>
     public byte ReadWorkRamByte(int address)
     {
         WorkRamReads++;
         return source.ReadWorkRamByte(address);
     }
+    /// <summary>Forwards a save-RAM read to the wrapped mutable memory.</summary>
+    /// <param name="address">Save-RAM address to read.</param>
+    /// <returns>The stored byte.</returns>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+
+    /// <summary>Forwards a bus write to the wrapped mutable memory.</summary>
+    /// <param name="address">SNES bus address to write.</param>
+    /// <param name="value">Byte to store at that address.</param>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
+/// <summary>Writes a 16-bit value to the fixture ROM using the native bank-local byte order.</summary>
+/// <param name="rom">ROM byte array receiving the value.</param>
+/// <param name="pointer">Bank-local pointer of the low byte.</param>
+/// <param name="value">Word written in little-endian order.</param>
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), (byte)(value >> 8));
 }
 
+/// <summary>Writes the low 24 bits of a value to the fixture ROM, advancing the bank-local pointer per byte.</summary>
+/// <param name="rom">ROM byte array receiving the value.</param>
+/// <param name="pointer">Bank-local pointer of the least-significant byte.</param>
+/// <param name="value">Value whose low three bytes are written in little-endian order.</param>
 private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
@@ -217,6 +252,10 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), (byte)(value >> 16));
 }
 
+/// <summary>Writes one bank-$8F byte to its corresponding offset in the fixture ROM array.</summary>
+/// <param name="rom">ROM byte array receiving the value.</param>
+/// <param name="pointer">Bank-local address mapped through the retail ROM layout.</param>
+/// <param name="value">Byte to store.</param>
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);

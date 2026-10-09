@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The opening narration's full, editable native-precision CGRAM image.</summary>
 public sealed class IntroCinematicPalette
 {
+    /// <summary>Compiled row resolvers; empty when the input matches the canonical stock palette.</summary>
     private readonly PaletteRow[] rows;
 
+    /// <summary>Creates row resolvers from the complete little-endian BGR555 CGRAM image.</summary>
+    /// <param name="nativeBytes">The validated 512-byte palette transfer image.</param>
     private IntroCinematicPalette(byte[] nativeBytes)
     {
         if (IntroCinematicPaintDefinitions.Matches(nativeBytes)) { rows = []; return; }
@@ -44,13 +47,24 @@ public sealed class IntroCinematicPalette
         cgram.LoadBytes(Transfer.Span);
     }
 
+    /// <summary>Compact resolver for one sixteen-color row, retaining explicit values when no reviewed relationship matches.</summary>
     private sealed class PaletteRow
     {
+        /// <summary>Base colors from slots zero and one: the background and the foreground repeated by flat rows.</summary>
         private readonly ushort background, foreground;
+        /// <summary>Full authored row retained when its values cannot be represented by a recognized palette rule.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Whether visible entries follow the row's repeating neutral-shade cycle.</summary>
         private readonly bool cycle;
+        /// <summary>Source row used to share the cross-fade's initial visible gradient.</summary>
         private readonly PaletteRow? sharedGradient;
+        /// <summary>Cross-fade slot-zero and endpoint words retained while intermediate blue shades are derived.</summary>
         private readonly ushort[]? crossFadeInputs;
+
+        /// <summary>Chooses a compact stock/shared representation or preserves all supplied row words verbatim.</summary>
+        /// <param name="colors">The sixteen BGR555 entries in this CGRAM row.</param>
+        /// <param name="allowCycle"><see langword="true"/> when this row may use the reviewed neutral cycle rule.</param>
+        /// <param name="crossFadeSource">Optional row whose visible gradient may be shared by a matching cross-fade row.</param>
         internal PaletteRow(ushort[] colors, bool allowCycle, PaletteRow? crossFadeSource)
         {
             if (crossFadeSource is not null && MatchesCrossFade(colors, crossFadeSource))
@@ -72,6 +86,10 @@ public sealed class IntroCinematicPalette
                 break;
             }
         }
+        /// <summary>Checks whether the row's first gradient and blue fade follow the selected shared cross-fade rules.</summary>
+        /// <param name="colors">Candidate row's sixteen BGR555 entries.</param>
+        /// <param name="source">Palette row expected to supply visible entries one through eight.</param>
+        /// <returns><see langword="true"/> when the checked entries match the shared gradient and stepped blue sequence.</returns>
         private static bool MatchesCrossFade(ushort[] colors, PaletteRow source)
         {
             for (int color = 1; color <= 8; color++)
@@ -82,6 +100,9 @@ public sealed class IntroCinematicPalette
                 if (colors[9 + shade] != (blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep) << 10) return false;
             return true;
         }
+        /// <summary>Resolves one row entry from its retained source values or the row's recognized compact rule.</summary>
+        /// <param name="color">CGRAM slot within this row.</param>
+        /// <returns>The selected BGR555 word.</returns>
         internal ushort Resolve(int color)
         {
             if (crossFadeInputs is not null)
@@ -95,6 +116,9 @@ public sealed class IntroCinematicPalette
             return supplied is not null ? supplied[color] :
                 color == 0 ? background : cycle ? CycleColor(color) : foreground;
         }
+        /// <summary>Applies the repeating per-channel decrement used by the neutral material cycle.</summary>
+        /// <param name="color">Visible slot whose cycle phase determines the decrement.</param>
+        /// <returns>The cycled BGR555 color, with each channel clamped at zero.</returns>
         private ushort CycleColor(int color)
         {
             int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *

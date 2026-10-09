@@ -12,23 +12,40 @@ internal static class RoomPlmBombBlockProgramDefinitions
     /// <summary>Projectile-triggered library-two sound at the eight $84:CC3C-$CD3E heads.</summary>
     internal const byte ProjectileBreakSoundId = 0x0a;
 
+    /// <summary>Describes one bomb-block collision/reaction pair and the shared animation tail selected by its shape and persistence mode.</summary>
+    /// <param name="CollisionHead">Native instruction-list address entered when the block is broken by collision.</param>
+    /// <param name="ReactionHead">Native instruction-list address entered when the block reacts to a projectile.</param>
+    /// <param name="Respawns">Whether the tail restores the block after its break animation.</param>
+    /// <param name="Dimension">Shape selector: zero for one block, then horizontal, vertical, or square multi-block layouts.</param>
     private readonly record struct Program(
         ushort CollisionHead, ushort ReactionHead, bool Respawns, int Dimension)
     {
+        /// <summary>True when this shape uses a single PLM block and has no multi-block restoration draw.</summary>
         internal bool SingleBlock => Dimension == 0;
+        /// <summary>Start address of the shared break-animation tail after the reaction-list prefix.</summary>
         internal ushort Tail => checked((ushort)(ReactionHead + 3));
+        /// <summary>Number of timed poses in the shared tail: seven for respawning variants and four for permanent variants.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>Address immediately after the final timed frame in the shared tail.</summary>
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
     }
 
+    /// <summary>Number of shape and persistence variants compiled for collision and projectile entry paths.</summary>
     private const int ProgramCount = 8;
 
     // BTS low bits select size; bit two selects permanent versus respawning.
     // The collision and projectile heads enter the same shape-specific tail.
+    /// <summary>Builds the metadata for one shape and persistence variant from its shared reaction index.</summary>
+    /// <param name="index">Zero-based index among the eight compiled bomb-block variants.</param>
+    /// <returns>Native entry points and animation traits for the selected variant.</returns>
     private static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
         RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
 
+    /// <summary>Resolves a frame or respawn draw-pointer operand to the shape-specific draw definition it selects.</summary>
+    /// <param name="address">Native instruction-stream address of a draw-pointer operand.</param>
+    /// <param name="value">Receives the draw definition pointer when the address belongs to a compiled program.</param>
+    /// <returns>True when the address is a frame draw operand or a multi-block respawn draw operand.</returns>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -57,6 +74,10 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves an instruction or frame-duration word from the compiled bomb-block control streams.</summary>
+    /// <param name="address">Native instruction-stream address to look up.</param>
+    /// <param name="value">Receives the instruction, destination, or frame duration when found.</param>
+    /// <returns>True when the address is a mechanics word in one of the compiled programs.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -111,6 +132,10 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves the collision- or projectile-triggered sound operand at a bomb-block program head.</summary>
+    /// <param name="address">Native instruction-stream byte address to look up.</param>
+    /// <param name="value">Receives the library-two sound identifier when found.</param>
+    /// <returns>True when the address contains a compiled break-sound operand.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

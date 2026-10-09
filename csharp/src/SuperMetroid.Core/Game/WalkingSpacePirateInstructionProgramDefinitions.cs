@@ -23,7 +23,9 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
     internal const ushort LookingFacingRight = 0xfc48;
 
+    /// <summary>Number of engine-control words compiled from the walking Pirate instruction programs.</summary>
     public static int MechanicsWordCount => 92;
+    /// <summary>Number of pose operands whose addresses are supplied by installed presentation data.</summary>
     public static int PresentationWordCount => 50;
 
     /// <summary>Walking Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
@@ -31,12 +33,18 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary>$B2:FBA2/FBAA/FBB2: laser Y offsets 8/2/-8 at the gun barrel of each drawn aim pose. The +/-8 symmetry calculates; the barrel heights are placement attached to the artwork (reviewed under #1165).</summary>
     private const short OuterShotOffset = 8, MiddleShotOffset = 2;
 
+    /// <summary>Returns an engine-control word and its bank-$B2 address by mechanics-table index.</summary>
+    /// <param name="index">Zero-based index within the compiled mechanics words.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="MechanicsWordCount"/>.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
 
+    /// <summary>Returns the instruction-stream address of a pose's presentation operand.</summary>
+    /// <param name="index">Zero-based index within the presentation words.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -86,18 +94,29 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the authored instruction stream while selecting either a mechanics word or pose operand.</summary>
+    /// <param name="requested">Index of the word or presentation operand to capture.</param>
+    /// <param name="visual">Whether the selected result is a pose operand address rather than a mechanics word.</param>
+    /// <param name="start">Bank-$B2 address of the first word in the compiled program.</param>
     private ref struct Layout(int requested, bool visual, ushort start)
     {
+        /// <summary>Address of the next word while traversing the instruction stream.</summary>
         private ushort cursor = start;
+        /// <summary>Current mechanics-word and presentation-operand indexes during traversal.</summary>
         private int mechanics, presentation;
+        /// <summary>The selected word value/address or selected presentation operand address.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
 
+        /// <summary>Consumes one instruction word and captures it when its mechanics index is requested.</summary>
+        /// <param name="value">Native word value at the current stream position.</param>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(cursor, value);
             mechanics++;
             cursor += 2;
         }
+        /// <summary>Consumes a timed pose and, in presentation mode, records the address of its following operand.</summary>
+        /// <param name="duration">Instruction timer loaded for the pose.</param>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -105,11 +124,15 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
             presentation++;
             cursor += 2;
         }
+        /// <summary>Emits the native function-install opcode and the selected walking-Pirate function value.</summary>
+        /// <param name="function">Function pointer value installed by the instruction pair.</param>
         internal void InstallFunction(WalkingSpacePirateFunction function)
         {
             Word(EnemyInstructionCodePointers.Instruction_PirateWalking_FunctionInY);
             Word((ushort)function);
         }
+        /// <summary>Emits a native goto opcode and its target instruction-list pointer.</summary>
+        /// <param name="target">Bank-$B2 instruction address selected by the jump.</param>
         internal void Goto(ushort target)
         {
             Word(CommonEnemyInstructionCodes.Goto);
@@ -117,6 +140,10 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Finds the compiled mechanics word stored at a specific bank-$B2 instruction address.</summary>
+    /// <param name="address">Instruction-stream address to resolve.</param>
+    /// <returns>The mechanics word at the requested address.</returns>
+    /// <exception cref="InvalidDataException">No compiled mechanics word has the supplied address.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0, high = MechanicsWordCount - 1;

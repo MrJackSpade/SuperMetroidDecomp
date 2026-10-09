@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One of the six authored gunship liftoff-dust animation programs.</summary>
+/// <param name="Initial">Instruction address of the program's initial timer setup.</param>
+/// <param name="FirstFrame">Instruction address of the first animated spritemap frame.</param>
+/// <param name="Terminal">Instruction address of the loop's terminal timer operation.</param>
+/// <param name="Durations">Frame timing pattern used before each spritemap operand.</param>
 internal readonly record struct GunshipDustInstructionProgramDefinition(
     ushort Initial,
     ushort FirstFrame,
@@ -8,8 +12,13 @@ internal readonly record struct GunshipDustInstructionProgramDefinition(
     GunshipDustDurations Durations);
 
 /// <summary>Each dust pair adds one tick per two poses, reaching its terminal hold after four poses.</summary>
+/// <param name="Length">Number of animated frames whose timing values belong to this pattern.</param>
+/// <param name="Initial">Starting timer value before the per-pair increments are applied.</param>
 internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
 {
+    /// <summary>Gets the timer value for a zero-based frame in this pattern.</summary>
+    /// <param name="frame">Frame position whose delay is requested.</param>
+    /// <exception cref="IndexOutOfRangeException">The frame is not part of this pattern.</exception>
     internal ushort this[int frame] => (uint)frame < Length
         ? (ushort)(Initial + Math.Min(frame / 2, 2)) : throw new IndexOutOfRangeException();
 }
@@ -38,10 +47,19 @@ internal abstract class GunshipDustInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_IndexA_0</c> at $86:A265.</summary>
     internal const ushort IndexA = 0xa265;
 
+    /// <summary>Number of authored liftoff-dust instruction lists.</summary>
     internal static int ProgramCount => 6;
+
+    /// <summary>Number of compiled mechanics words, excluding extracted spritemap operands.</summary>
     public static int MechanicsWordCount => 76;
+
+    /// <summary>Number of spritemap operand addresses resolved from presentation artwork.</summary>
     public static int PresentationWordCount => 46;
 
+    /// <summary>Returns the native instruction boundaries and timing pattern for one dust list.</summary>
+    /// <param name="index">Zero-based index of one of the six authored lists.</param>
+    /// <returns>The list's timer setup, first frame, terminal instruction, and frame timings.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index does not identify one of the six lists.</exception>
     internal static GunshipDustInstructionProgramDefinition Program(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
@@ -53,6 +71,10 @@ internal abstract class GunshipDustInstructionProgramDefinitions
             new(count, initialDuration));
     }
 
+    /// <summary>Resolves a flattened mechanics-word index across all six lists, omitting artwork-owned spritemap operands.</summary>
+    /// <param name="index">Zero-based index in the compiled mechanics-word sequence.</param>
+    /// <returns>The instruction address and value for that mechanics word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative or outside the compiled sequence.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
@@ -96,6 +118,10 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
+    /// <summary>Resolves a flattened animated-frame index to its spritemap operand address.</summary>
+    /// <param name="index">Zero-based index among all animated frames in list order.</param>
+    /// <returns>The instruction address whose value is supplied by presentation artwork.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative or outside the animated frames.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
@@ -112,6 +138,10 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
+    /// <summary>Looks up the compiled mechanics operand stored at a specific instruction address.</summary>
+    /// <param name="address">Bank-relative instruction address to resolve.</param>
+    /// <returns>The compiled mechanics value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address belongs to no compiled mechanics instruction.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

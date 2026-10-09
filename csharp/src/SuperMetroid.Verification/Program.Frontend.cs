@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+/// <summary>Checks that compressed data remains readable when its stream crosses a LoROM bank boundary.</summary>
 static void VerifyLoRomCrossBankCompressedData()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -31,6 +32,7 @@ static void VerifyLoRomCrossBankCompressedData()
     AssertEqual(0x44, output[3], "cross-bank final literal");
 }
 
+/// <summary>Checks Mode 7 pixel decoding, transform order, and the Ceres scene's mid-frame mode switch.</summary>
 static void VerifyMode7Rendering()
 {
     var vram = new SnesVram();
@@ -141,6 +143,7 @@ static void VerifyMode7Rendering()
         "Ceres Ridley scanline 208 restores Mode-1 BG2 floor");
 }
 
+/// <summary>Checks that transparent layer pixels reveal the opaque CGRAM backdrop while visible pixels replace it.</summary>
 static void VerifyLayerCompositorBackdrop()
 {
     var cgram = new SnesCgram();
@@ -163,6 +166,7 @@ static void VerifyLayerCompositorBackdrop()
     AssertEqual(cgram.GetRgba(1), frame[1], "non-keyed pixel replaces backdrop");
 }
 
+/// <summary>Checks that low- and high-priority tilemap cells are selected into their corresponding render planes.</summary>
 static void VerifyBgPriorityPlaneRendering()
 {
     var vram = new SnesVram();
@@ -187,6 +191,7 @@ static void VerifyBgPriorityPlaneRendering()
     AssertEqual(255, high[8].A, "high-priority BG cell selected");
 }
 
+/// <summary>Checks the fresh-save file-select tilemap and its data-management labels against cartridge-backed data.</summary>
 static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
@@ -417,6 +422,8 @@ static void VerifyFileSelectFreshSaveTilemap()
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
 }
 
+/// <summary>Advances the initial file-select sequence through its native delay and fade into the main menu.</summary>
+/// <param name="menu">The menu state whose updates are advanced and whose resulting phase is asserted.</param>
 static void AdvanceFileSelectToMain(FileSelectMenuState menu)
 {
     // Native indices 0-2 take five updates (two are NMI continuations), then index
@@ -428,6 +435,9 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
+/// <summary>Steps a data-management fade until its target phase is reached or the bounded wait expires.</summary>
+/// <param name="menu">The file-select state being advanced.</param>
+/// <param name="expected">The phase that must be active when the fade completes.</param>
 static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expected)
 {
     // Delay-one native fades: thirty updates out, thirty back in. The data-management
@@ -437,12 +447,16 @@ static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expe
     AssertEqual(expected, menu.Phase, "file-select data-management fade completes");
 }
 
+/// <summary>Feeds one pressed update followed by a released update so the menu observes a single button edge.</summary>
+/// <param name="menu">The file-select state receiving the input updates.</param>
+/// <param name="button">The controller button held for the first update.</param>
 static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
 {
     menu.Step((ushort)button);
     menu.Step(0);
 }
 
+/// <summary>Checks that loading a saved game runs the expected appearance sequence and restores ordinary input.</summary>
 static void VerifySavedGameLoadAppearance()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -520,6 +534,7 @@ static void VerifySavedGameLoadAppearance()
         "  Saved-game appearance: front pose, ROM palette FX, 360-frame lifetime, and save lockout agree.");
 }
 
+/// <summary>Checks the inherited BG1 scroll used by the intro flashback and Mother Brain's alternating shake.</summary>
 static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
     // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
@@ -548,6 +563,7 @@ static void VerifyIntroGameplayFlashbackVerticalScroll()
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
 
+/// <summary>Checks cinematic palette clear offsets, fixed-point fade rounding, and exact fade endpoints.</summary>
 static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];
@@ -584,6 +600,7 @@ static void VerifyCinematicPaletteFader()
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
 
+/// <summary>Checks demo-record timing, held and newly pressed inputs, instruction opcodes, and object callbacks.</summary>
 static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -721,9 +738,16 @@ static void VerifyDemoInputObject()
     Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
 }
 
+/// <summary>Reads one little-endian word from the demo data bank at a bank-relative pointer.</summary>
+/// <param name="bus">The address space containing the demo fixture bytes.</param>
+/// <param name="pointer">The 16-bit offset of the word within the demo data bank.</param>
 static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
     (ushort)(bus.ReadByte(DemoInputRomData.BankBase | pointer) |
         bus.ReadByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
+/// <summary>Stores a little-endian word in a ROM fixture at the physical offset mapped from a SNES address.</summary>
+/// <param name="rom">The ROM image whose bytes are updated.</param>
+/// <param name="snesAddress">The SNES address to translate to a ROM offset.</param>
+/// <param name="value">The 16-bit value to write, least-significant byte first.</param>
 static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);

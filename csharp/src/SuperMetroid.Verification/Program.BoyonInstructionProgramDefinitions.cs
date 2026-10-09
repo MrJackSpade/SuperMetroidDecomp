@@ -5,9 +5,13 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Returns the hand-enumerated ROM addresses of Boyon's ten visual operands.</summary>
+    /// <returns>Presentation-word addresses used as an independent expected sequence.</returns>
     private static ushort[] BoyonPresentationOracle() =>
         [0x86ad,0x86b1,0x86b5,0x86b9,0x86c5,0x86c9,0x86cd,0x86d1,0x86d5,0x86d9];
 
+    /// <summary>Compares compiled Boyon mechanics words with ROM and verifies byte ownership across the full bank address range.</summary>
+    /// <param name="rom">Cartridge address space containing Boyon's instruction list.</param>
     private static void VerifyBoyonMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x86a7,0x86a9,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bd,
@@ -43,6 +47,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index), "Boyon mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the compiled presentation-word count, addresses, membership, and ordinal bounds against the independent oracle.</summary>
     private static void VerifyBoyonPresentationAddresses()
     {
         ushort[] addresses = BoyonPresentationOracle();
@@ -56,6 +61,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Boyon presentation ordinal bounds");
     }
 
+    /// <summary>Checks that Boyon's native visual operands resolve through both frame and shared visual selectors.</summary>
+    /// <param name="rom">Cartridge address space used to read expected operand values.</param>
     private static void VerifyBoyonVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = BoyonPresentationOracle();
@@ -77,12 +84,15 @@ internal static partial class Program
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon distant visual rejected");
     }
+    /// <summary>Loads the retail ROM and registers the production and catalog checks for Boyon instruction definitions.</summary>
     private static void VerifyBoyonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies Boyon's mechanics, visuals, idle/bouncing execution, and allocation behavior while guarding compiled ROM bytes.</summary>
+    /// <param name="rom">Cartridge address space supplying the authored Boyon instruction bytes.</param>
     private static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -170,6 +180,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises repeated compiled mechanics lookups and returns a checksum so the probe consumes their values.</summary>
+    /// <returns>Accumulated checksum of the Boyon idle instruction word.</returns>
     private static int ProbeBoyonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -181,16 +193,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the supplied cartridge bus address.</summary>
+    /// <param name="bus">Address space containing the instruction bytes.</param>
+    /// <param name="address">Bus address of the low byte.</param>
+    /// <returns>The two bytes combined as an unsigned word.</returns>
     private static ushort ReadBoyonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space wrapper that rejects runtime reads of bytes already represented by compiled Boyon definitions.</summary>
+    /// <param name="source">Underlying cartridge address space for reads that are not forbidden.</param>
     private sealed class BoyonInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads of compiled mechanics or presentation bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guard's compiled-byte check.</summary>
+        /// <param name="address">Bus address requested by the runtime.</param>
+        /// <returns>The source byte when the address is not represented by a compiled definition.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled Boyon mechanics and visual bytes, counting each forbidden attempt.</summary>
+        /// <param name="address">Bus address requested by the runtime.</param>
+        /// <returns>The underlying source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address names a byte already compiled into Boyon definitions.</exception>
         public byte ReadByte(int address)
         {
             if (BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -204,6 +230,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Tests whether a bank-$A2 address is either byte of a compiled Boyon visual operand.</summary>
+        /// <param name="address">Bus address to classify.</param>
+        /// <returns><see langword="true"/> when the address belongs to a compiled presentation word.</returns>
         private static bool IsCompiledPresentationByte(int address)
         {
             if ((address & 0xff0000) == 0xa20000)
@@ -226,6 +255,9 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>Forwards writes to the wrapped address space without changing the read guard's accounting.</summary>
+        /// <param name="address">Bus address to write.</param>
+        /// <param name="value">Byte stored at the address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

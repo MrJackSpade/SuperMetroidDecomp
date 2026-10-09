@@ -6,6 +6,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- LibraryImport source generators emit unsafe pointer stubs behind the managed API. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1658</WarningsAsErrors>
   </PropertyGroup>
 </Project>

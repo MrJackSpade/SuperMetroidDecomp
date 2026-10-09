@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable metatile references for one station animation frame.</summary>
+/// <param name="Id">Case-sensitive compiled frame identity for map, energy, missile, save-pod, or left/right station-access artwork.</param>
+/// <param name="Runs">Mutable input arrays in native draw-run/cell order, with the compiled run lengths; words contain only ten-bit 16-by-16 metatile indices and two parent flip bits, not collision data or run offsets.</param>
 public sealed record RoomPlmStationVisualEntry(string Id, ushort[][] Runs);
 
 /// <summary>
@@ -31,6 +33,11 @@ public sealed class RoomPlmStationVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
+    /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining native run geometry, collision, activation, and reward behavior.</summary>
+    /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only words.</param>
+    /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Coverage, uniqueness, frame identity, array shape, or presentation-only word bits are invalid.</exception>
     public RoomPlmStationVisualCatalog(
         IEnumerable<RoomPlmStationVisualEntry> entries)
     {
@@ -71,6 +78,13 @@ public sealed class RoomPlmStationVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves a station cell's selected appearance, using compiled visual bits for an unchanged frame.</summary>
+    /// <param name="drawPointer">Bank-$84 pointer to one of the twenty compiled station draw lists, not an animation instruction-list pointer.</param>
+    /// <param name="runIndex">Zero-based native horizontal draw-run ordinal; geometry is frame-specific, with save-pod runs ordered from floor to cap rather than screen-top downward.</param>
+    /// <param name="wordIndex">Zero-based left-to-right cell within the selected run's compiled length.</param>
+    /// <returns>The twelve-bit metatile/parent-flip reference, without the separately applied physical collision nibble.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> does not identify a compiled station frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside that frame's shape; the reported parameter is <paramref name="wordIndex"/>.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
     {
         if (!RoomPlmStationDrawDefinitions.TryDescribe(drawPointer, out var shape))

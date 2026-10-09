@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One editable Spore Spawn ceiling frame in native draw-run order.</summary>
+/// <param name="Id">Case-sensitive compiled identity: <c>clear-ceiling</c> or <c>crumble-frame-0</c> through <c>crumble-frame-2</c>.</param>
+/// <param name="Blocks">Four mutable input visual words in row-major order across the two-by-two 16-by-16-block square; only the ten-bit metatile index and two parent flip bits are allowed.</param>
 public sealed record RoomPlmSporeSpawnCeilingVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -28,6 +30,11 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates complete coverage of the clear and three crumble frames, capturing edited ceiling appearance without changing compiled geometry or collision.</summary>
+    /// <param name="entries">Each of the four compiled visual identities exactly once, with four valid presentation-only words per frame.</param>
+    /// <remarks>Edited arrays are copied; stock-identical frames use compiled visual words, so later edits to caller arrays cannot change this catalog.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A frame is missing, duplicated, null, unknown, incorrectly shaped, or contains collision bits in its visual words.</exception>
     public RoomPlmSporeSpawnCeilingVisualCatalog(
         IEnumerable<RoomPlmSporeSpawnCeilingVisualEntry> entries)
     {
@@ -57,6 +64,13 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves one visual-only cell from an edited or compiled Spore Spawn ceiling frame.</summary>
+    /// <param name="drawPointer">Bank-$84 pointer $9413 for clear, or $9423/$9433/$9443 for successive crumble frames.</param>
+    /// <param name="runIndex">Horizontal row index: zero for the top row, one for the bottom.</param>
+    /// <param name="blockIndex">Zero-based left-to-right column within that two-cell row.</param>
+    /// <returns>A twelve-bit metatile/parent-flip word without the separately compiled collision nibble.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> is not one of the four compiled frames.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Either cell selector is outside zero through one; the reported parameter is <paramref name="blockIndex"/>.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort stockWord))

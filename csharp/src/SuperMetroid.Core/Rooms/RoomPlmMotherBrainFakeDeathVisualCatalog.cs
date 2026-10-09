@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Editable tile appearance for one Mother Brain fake-death draw.</summary>
+/// <param name="Id">Compiled identity of a wall, escape-door, background-row, or tube-clearing layout, including the two retained unused background rows.</param>
+/// <param name="Blocks">Metatile/flip words flattened in native run order and word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmMotherBrainFakeDeathVisualEntry(
     string Id, ushort[] Blocks);
 
@@ -32,6 +34,10 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
+    /// <summary>Validates all twenty-two fake-death room layouts and copies visual differences while retaining collision words, signed draw offsets, and PLM timing.</summary>
+    /// <param name="entries">One visual-only entry per compiled layout, with the exact flattened count of all its native run words.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmMotherBrainFakeDeathVisualCatalog(
         IEnumerable<RoomPlmMotherBrainFakeDeathVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves a fake-death room block's selected appearance, projecting native run-local indices into its flattened authored layout.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a compiled wall, door, background-row, or tube-clearing draw.</param>
+    /// <param name="runIndex">Zero-based native run ordinal; background rows have one thirteen-word horizontal run, while other layouts retain their own run shapes.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within the run, not a flattened entry index or room coordinate.</param>
+    /// <returns>The authored metatile/flip word, or visual bits from the compiled physical word when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported fake-death layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var background))

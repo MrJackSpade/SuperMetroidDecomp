@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One Mother Brain glass frame's visible blocks in cartridge run order.</summary>
+/// <param name="Id">Compiled identity of an initial, damaged, shifted, shattering, or cleared glass layout.</param>
+/// <param name="Blocks">Metatile/flip words flattened in native run order and word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmMotherBrainGlassVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates all eleven glass layouts and copies visual differences without changing damage thresholds, shards, event timing, physical words, or signed draw offsets.</summary>
+    /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its native run words.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmMotherBrainGlassVisualCatalog(
         IEnumerable<RoomPlmMotherBrainGlassVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one glass-layout visual block by translating native run-local indices into the flattened authored frame.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported glass draw layout.</param>
+    /// <param name="runIndex">Zero-based native run ordinal; supported layouts contain one through four runs.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not a flattened entry index or room coordinate.</param>
+    /// <returns>The authored metatile/flip word, or the compiled physical word's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported glass layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

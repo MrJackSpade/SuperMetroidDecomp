@@ -8,6 +8,8 @@ namespace SuperMetroid.Core.Rooms;
 /// two parent flips. Collision type, draw geometry, timers, and slot effects stay in
 /// <see cref="RoomPlmShotBlockDrawDefinitions"/> and cannot be changed by this catalog.
 /// </remarks>
+/// <param name="DrawPointer">Compiled bank-$84 draw-list identity, not a PLM header or instruction-list pointer.</param>
+/// <param name="Runs">Caller-owned run/word arrays in native draw order, with the compiled one- or two-run shape and one or two words per run; every word contains visual bits 0..11 only.</param>
 public sealed record RoomPlmShotBlockVisualEntry(ushort DrawPointer, ushort[][] Runs);
 
 /// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
@@ -32,6 +34,10 @@ public sealed class RoomPlmShotBlockVisualCatalog
 
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
+    /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists, deep-copying edited runs while retaining calculated stock visuals where supplied words match; native collision words and run placement are never replaced.</summary>
+    /// <param name="entries">Complete, duplicate-free draw identity set with unchanged native run counts/lengths and low-twelve-bit visual words.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
+    /// <exception cref="InvalidDataException">An entry/run is null, a draw identity is unknown/duplicated/missing, the run shape differs, or a word sets a collision/type bit.</exception>
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);

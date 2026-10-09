@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One N00b tube frame's visible blocks in cartridge run order.</summary>
+/// <param name="Id">Compiled identity of an intact, damaged, opened, cleared, or broken-tube layout.</param>
+/// <param name="Blocks">Metatile/flip words flattened in native run order and word order within each run; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmNoobTubeVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -31,6 +33,10 @@ public sealed class RoomPlmNoobTubeVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates all seven N00b-tube layouts and copies visual differences without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
+    /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block native runs.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmNoobTubeVisualCatalog(
         IEnumerable<RoomPlmNoobTubeVisualEntry> entries)
     {
@@ -64,6 +70,13 @@ public sealed class RoomPlmNoobTubeVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one N00b-tube visual block by projecting native run-local indices into the flattened authored layout.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported N00b-tube draw layout.</param>
+    /// <param name="runIndex">Zero-based native run ordinal; layouts contain one, three, or four horizontal runs.</param>
+    /// <param name="blockIndex">Zero-based word ordinal within that run, not a flattened entry index or room coordinate.</param>
+    /// <returns>The authored metatile/flip word, or visual bits from the compiled physical word when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported N00b-tube layout.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
     public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
     {
         if (!NoobTubePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

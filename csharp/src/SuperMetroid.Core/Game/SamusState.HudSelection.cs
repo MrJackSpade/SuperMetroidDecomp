@@ -2,6 +2,15 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
 
+/// <summary>One frame of <c>HandleSwitchingHudSelection</c> ($90:C4B5).</summary>
+/// <param name="Changed">The selected item index differs from the previous frame's.</param>
+/// <param name="ItemHandlerAccepted">
+/// A cancel or select edge ran the switch loop, whose switched-to handler ($90:C545-$C5C3)
+/// accepted the now-selected item. This holds even when the selection lands back on the
+/// same item, such as a cancel with nothing selected.
+/// </param>
+public readonly record struct HudSelectionOutcome(bool Changed, bool ItemHandlerAccepted);
+
 public sealed partial class SamusState
 {
     /// <summary>
@@ -21,8 +30,8 @@ public sealed partial class SamusState
     /// skip unavailable ammo/equipment. Y cancels to zero. Holding Y while pressing Select
     /// records the chosen item for native auto-cancel behavior.
     /// </remarks>
-    /// <returns>True when the selected item index changed on this frame.</returns>
-    public bool HandleHudSelection(
+    /// <returns>Whether the index changed and whether an item's switched-to handler ran.</returns>
+    public HudSelectionOutcome HandleHudSelection(
         ushort controllerInput,
         ushort controllerNewInput,
         SnesButton itemSwitchButton = SnesButton.Select,
@@ -31,6 +40,7 @@ public sealed partial class SamusState
         ushort previousSelection = SelectedHudItem;
         ushort switchMask = (ushort)itemSwitchButton;
         ushort cancelMask = (ushort)itemCancelButton;
+        bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != 0;
 
         if ((controllerNewInput & cancelMask) != 0)
         {
@@ -68,7 +78,7 @@ public sealed partial class SamusState
                 ? (ushort)2
                 : unchecked((ushort)(HudItemChangedThisFrame + 1));
         }
-        return changed;
+        return new HudSelectionOutcome(changed, itemHandlerAccepted);
     }
 
     private bool IsHudItemAvailable(ushort index) => index switch

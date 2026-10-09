@@ -13,7 +13,7 @@ internal static partial class Program
         const ushort cancel = (ushort)SnesButton.Y;
 
         var samus = new SamusState();
-        AssertTrue(!samus.HandleHudSelection(select, select),
+        AssertTrue(!samus.HandleHudSelection(select, select).Changed,
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(0, samus.SelectedHudItem,
             "unavailable six-entry cycle retains Nothing");
@@ -21,19 +21,19 @@ internal static partial class Program
             "unchanged first selector frame advances stabilization counter");
 
         samus.Missiles = 5;
-        AssertTrue(samus.HandleHudSelection(select, select),
+        AssertTrue(samus.HandleHudSelection(select, select).Changed,
             "Select chooses available Missiles");
         AssertEqual(1, samus.SelectedHudItem,
             "Missiles occupy cartridge HUD index one");
         AssertEqual(1, samus.HudItemChangedThisFrame,
             "selection change resets native cover-animation counter");
-        AssertTrue(!samus.HandleHudSelection(0, 0),
+        AssertTrue(!samus.HandleHudSelection(0, 0).Changed,
             "stable HUD selection reports no change");
         AssertEqual(2, samus.HudItemChangedThisFrame,
             "stable selection saturates cover-animation counter at two");
 
         samus.SuperMissiles = 5;
-        AssertTrue(samus.HandleHudSelection(select, select),
+        AssertTrue(samus.HandleHudSelection(select, select).Changed,
             "second Select advances from Missiles to Super Missiles");
         AssertEqual(2, samus.SelectedHudItem,
             "Super Missiles occupy cartridge HUD index two");
@@ -41,17 +41,17 @@ internal static partial class Program
         // Power Bombs are absent, so the next handler returns carry and the native loop
         // continues to the first equipped non-ammo item instead of stopping at index three.
         samus.EquippedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
-        AssertTrue(samus.HandleHudSelection(select, select),
+        AssertTrue(samus.HandleHudSelection(select, select).Changed,
             "selector skips unavailable Power Bombs");
         AssertEqual(4, samus.SelectedHudItem,
             "Grapple occupies cartridge HUD index four");
 
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.XrayScope;
-        AssertTrue(samus.HandleHudSelection(select, select),
+        AssertTrue(samus.HandleHudSelection(select, select).Changed,
             "selector advances from Grapple to equipped X-ray");
         AssertEqual(5, samus.SelectedHudItem,
             "X-ray occupies cartridge HUD index five");
-        AssertTrue(samus.HandleHudSelection(select, select),
+        AssertTrue(samus.HandleHudSelection(select, select).Changed,
             "selector wraps after X-ray");
         AssertEqual(0, samus.SelectedHudItem,
             "six-entry selector wraps to Nothing");
@@ -60,18 +60,26 @@ internal static partial class Program
         // and remembers the chosen item; a later new Y edge cancels both words together.
         AssertTrue(samus.HandleHudSelection(
                 unchecked((ushort)(select | cancel)),
-                select),
+                select).Changed,
             "held item-cancel records Select auto-cancel target");
         AssertEqual(1, samus.SelectedHudItem,
             "held-cancel Select still equips Missiles");
         AssertEqual(1, samus.AutoCancelHudItemIndex,
             "held-cancel Select stores equipped index");
-        AssertTrue(samus.HandleHudSelection(cancel, cancel),
+        AssertTrue(samus.HandleHudSelection(cancel, cancel).Changed,
             "new item-cancel edge deselects current item");
         AssertEqual(0, samus.SelectedHudItem,
             "item-cancel returns to Nothing");
         AssertEqual(0, samus.AutoCancelHudItemIndex,
             "item-cancel clears auto-cancel index");
+
+        // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing
+        // selected changes no index but still clears the charge.
+        HudSelectionOutcome idleCancel = samus.HandleHudSelection(cancel, cancel);
+        AssertTrue(!idleCancel.Changed && idleCancel.ItemHandlerAccepted,
+            "item-cancel with nothing selected runs the Nothing handler");
+        AssertTrue(!samus.HandleHudSelection(cancel, 0).ItemHandlerAccepted,
+            "held item-cancel without a new edge runs no handler");
 
         Console.WriteLine(
             "  Samus HUD selection: availability skipping, wrap, counters, and auto-cancel agree.");

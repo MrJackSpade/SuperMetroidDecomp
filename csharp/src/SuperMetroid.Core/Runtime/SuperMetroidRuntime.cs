@@ -1423,17 +1423,18 @@ public sealed partial class SuperMetroidRuntime
                     // Consequently a Select edge can choose missiles and an X edge can
                     // fire one during this same alpha pass. Input-locked message/elevator
                     // handlers do not execute the normal selection owner.
-                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) && Samus.HandleHudSelection(
-                            Controller1.Current,
-                            Controller1.NewlyPressed))
+                    // The switched-to handler of the item the loop settles on runs on every
+                    // cancel or select edge, even one that leaves the selection unchanged.
+                    // Each clears the charge and restores suit colors, except grapple's
+                    // while a grapple is already active ($90:C59A), which changes nothing.
+                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) &&
+                        Samus.HandleHudSelection(Controller1.Current, Controller1.NewlyPressed).ItemHandlerAccepted &&
+                        (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
+                         Samus.Grapple.Phase == GrapplePhase.Inactive))
                     {
                         Projectiles.CancelChargeForHudSelection();
                         Samus.ProjectileFlareCounter = 0;
-                        // Accepted HUD handlers restore suit colors even without a
-                        // charged beam. An already-active grapple is the native exception.
-                        if (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
-                            Samus.Grapple.Phase == GrapplePhase.Inactive)
-                            Samus.LoadSuitPalette(_addressSpace, Cgram);
+                        Samus.LoadSuitPalette(_addressSpace, Cgram);
                     }
 
                     // The selected scope uses held Run, not Fire. Setup installs its

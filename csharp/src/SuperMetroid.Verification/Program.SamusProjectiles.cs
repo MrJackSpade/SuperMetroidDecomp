@@ -1410,7 +1410,7 @@ static void VerifySamusPowerBeamProjectiles()
     // from `$93:83C1`, never inherit slot history from the missile which occupied slot zero.
     AssertTrue(missileSamus.HandleHudSelection(
             (ushort)SnesButton.Select,
-            (ushort)SnesButton.Select),
+            (ushort)SnesButton.Select).Changed,
         "Select cycles the live HUD selection from missiles to beams");
     AssertEqual(0, missileSamus.SelectedHudItem,
         "Select wrap chooses the ordinary beam producer");

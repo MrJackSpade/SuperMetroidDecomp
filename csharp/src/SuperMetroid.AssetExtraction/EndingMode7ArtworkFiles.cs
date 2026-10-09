@@ -12,6 +12,11 @@ public static class EndingMode7ArtworkFiles
 {
     private const int ManifestVersion = 2;
 
+    /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, verifies native transfer round-trips, and creates their hashed manifest.</summary>
+    /// <param name="bus">Cartridge import source for the compressed Mode-7 map and character streams.</param>
+    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
+    /// <exception cref="InvalidDataException">A decompressed source is too short, has unexpected dimensions, or fails the PNG/JSON transfer round-trip.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -115,6 +120,12 @@ public static class EndingMode7ArtworkFiles
         }
     }
 
+    /// <summary>Checks the complete stock manifest and file digests, then compiles independently selected ending map and character files without cartridge access.</summary>
+    /// <param name="stockDirectory">Stock directory containing all three backdrop pairs, the reward-icon pair, and their provenance/digest manifest.</param>
+    /// <param name="overrideDirectory">Optional directory with per-file replacements; missing map or PNG files independently fall back to verified stock.</param>
+    /// <returns>The selected three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
+    /// <remarks>Backdrop maps are 128x64 tile-index half-maps; the reward icon uses a full 128x128 map, with map and character lanes compiled separately.</remarks>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or selected map/PNG geometry and content is invalid.</exception>
     public static EndingMode7ArtworkCatalog Load(string stockDirectory,
         string? overrideDirectory)
     {
@@ -203,6 +214,8 @@ public static class EndingMode7ArtworkFiles
         }
     }
 
+    /// <summary>Checks all stock Mode-7 file digests and compiles every backdrop and reward-icon pair against its required geometry, ignoring overrides.</summary>
+    /// <param name="directory">Installed stock ending Mode-7 directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
 

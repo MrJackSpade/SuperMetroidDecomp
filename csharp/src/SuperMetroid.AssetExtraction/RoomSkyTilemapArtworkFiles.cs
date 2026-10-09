@@ -12,6 +12,10 @@ public static class RoomSkyTilemapArtworkFiles
 {
     private const int FormatVersion = 1;
 
+    /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to editable BG tile-word JSON and creates their hashed provenance manifest.</summary>
+    /// <param name="bus">Cartridge import source for seven 32x32 tilemap pages beginning at $8A:B180.</param>
+    /// <param name="directory">Destination directory, created if absent; page JSON files and manifest must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -35,6 +39,11 @@ public static class RoomSkyTilemapArtworkFiles
             new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
+    /// <summary>Checks stock provenance, seven-page manifest coverage, and page digests before compiling per-page overrides without cartridge access.</summary>
+    /// <param name="stockDirectory">Stock directory containing the seven sky-page JSON files and their provenance/digest manifest.</param>
+    /// <param name="overrideDirectory">Optional directory with independently selected page replacements; each absent file retains verified stock.</param>
+    /// <returns>The selected contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected page's BG tile-word format and transfer size is invalid.</exception>
     public static RoomSkyTilemapCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -77,6 +86,8 @@ public static class RoomSkyTilemapArtworkFiles
         return new RoomSkyTilemapCatalog(pages);
     }
 
+    /// <summary>Checks stock provenance, all seven page digests, and compilation of every fixed-size scrolling-sky page; ignores overrides.</summary>
+    /// <param name="stockDirectory">Installed stock scrolling-sky directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static readonly JsonSerializerOptions JsonOptions = new()

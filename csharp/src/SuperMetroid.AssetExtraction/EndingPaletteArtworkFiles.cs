@@ -13,6 +13,11 @@ public static class EndingPaletteArtworkFiles
 {
     private const int ManifestVersion = 2;
 
+    /// <summary>Exports all seven ending palette roles to RGB5 JSON and a hashed manifest, verifying native color-byte round-trips and flattening logo fades in destination order.</summary>
+    /// <param name="bus">Cartridge import source for palette words and the logo crossfade's pointer-selected backward copies.</param>
+    /// <param name="directory">Destination directory, created if absent; palette files and manifest must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
+    /// <exception cref="InvalidDataException">A native color has an unrepresentable high bit or palette JSON does not reproduce its native transfer bytes.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -63,6 +68,11 @@ public static class EndingPaletteArtworkFiles
             new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
+    /// <summary>Checks the complete stock palette manifest and file digests, then compiles independently selected RGB5 palette files without cartridge access.</summary>
+    /// <param name="stockDirectory">Stock directory containing all seven palette-role JSON files and their provenance/digest manifest.</param>
+    /// <param name="overrideDirectory">Optional directory with per-role palette replacements; each absent file retains verified stock.</param>
+    /// <returns>The selected ending colors in native transfer order, with palette selection and animation timing unchanged.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected palette's format, count, or RGB5 colors is invalid.</exception>
     public static EndingPaletteCatalog Load(string stockDirectory,
         string? overrideDirectory)
     {
@@ -119,6 +129,8 @@ public static class EndingPaletteArtworkFiles
         }
     }
 
+    /// <summary>Checks stock palette provenance, seven-role coverage and digests, and each role's RGB5 schema and color count; ignores overrides.</summary>
+    /// <param name="directory">Installed stock ending palette directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>

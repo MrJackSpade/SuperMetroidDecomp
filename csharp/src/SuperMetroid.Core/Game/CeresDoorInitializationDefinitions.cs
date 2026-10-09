@@ -3,16 +3,31 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The seven mutually exclusive meanings of Ceres-door population parameter one.</summary>
 internal enum CeresDoorVariant : ushort
 {
+    /// <summary>Standard Ceres door facing right.</summary>
     NormalFacingRight = 0,
+
+    /// <summary>Standard Ceres door facing left.</summary>
     NormalFacingLeft = 1,
+
+    /// <summary>Overlay door program used before the rotating elevator explosion.</summary>
     RotatingElevatorPreExplosionOverlay = 2,
+
+    /// <summary>Door in Ridley's room that faces right and uses its room-specific handler.</summary>
     RidleyRoomFacingRight = 3,
+
+    /// <summary>Invisible wall door variant in the rotating elevator room.</summary>
     RotatingElevatorInvisibleWall = 4,
+
+    /// <summary>Left wall actor used by Ridley's Mode 7 escape sequence.</summary>
     RidleyEscapeMode7LeftWall = 5,
+
+    /// <summary>Right wall actor used by Ridley's Mode 7 escape sequence.</summary>
     RidleyEscapeMode7RightWall = 6,
 }
 
 /// <summary>Initial main-function and instruction-list selection for one Ceres-door actor.</summary>
+/// <param name="MainFunction">Bank-local address of the actor's initial main-function handler.</param>
+/// <param name="InstructionList">Bank-local pointer to the variant's initial instruction program.</param>
 internal readonly record struct CeresDoorInitializationDefinition(
     ushort MainFunction,
     ushort InstructionList);

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled beam-speed rows, indexed initializer reads, and missile trajectories against pinned cartridge data.</summary>
     private static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -107,14 +108,32 @@ internal static partial class Program
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
+    /// <summary>Wraps cartridge memory to reject forbidden projectile-motion ROM reads while retaining fixture writes.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded projectile-motion ranges.</param>
     private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesAddressSpace,
         ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Routes work-RAM reads through the shared override store and guarded address-space read path.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The overridden byte when present, otherwise the source byte.</returns>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+
+        /// <summary>Routes save-RAM reads through the shared override store and guarded address-space read path.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The overridden byte when present, otherwise the source byte.</returns>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
+
+        /// <summary>Routes cartridge reads through the guard that rejects projectile-motion ROM ranges.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The overridden byte when present, otherwise the source byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Stores bytes written by the mutable-memory fixture so later reads observe the local value.</summary>
         private readonly Dictionary<int, byte> _overrides = new();
+
+        /// <summary>Rejects reads from compiled projectile-motion ranges, then checks local overrides before consulting the source.</summary>
+        /// <param name="address">Address requested by the system under verification.</param>
+        /// <returns>The locally written byte or the corresponding byte from the wrapped address space.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c2d1 and < 0x90c37b or
@@ -123,7 +142,15 @@ internal static partial class Program
                 throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
             return _overrides.TryGetValue(address, out byte value) ? value : source.ReadByte(address);
         }
+
+        /// <summary>Records a local byte override without forwarding the write to the wrapped address space.</summary>
+        /// <param name="address">Address whose subsequent reads should return <paramref name="value"/>.</param>
+        /// <param name="value">Byte to retain in the fixture's override map.</param>
         public void WriteByte(int address, byte value) => _overrides[address] = value;
+
+        /// <summary>Writes the low and high bytes of a word into consecutive addresses in little-endian order.</summary>
+        /// <param name="address">Address receiving the low byte.</param>
+        /// <param name="value">Word value to split across the two addresses.</param>
         public void SetWord(int address, ushort value)
         {
             WriteByte(address, (byte)value);

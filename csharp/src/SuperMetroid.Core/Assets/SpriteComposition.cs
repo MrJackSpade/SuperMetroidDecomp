@@ -5,12 +5,24 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition
 {
+    /// <summary>Ordered OAM parts retained for drawing and visual-identity hashing.</summary>
     private readonly IReadOnlyList<CompiledSpritePart> parts;
+
+    /// <summary>Copies compiled parts so later mutations to the caller's array cannot alter this composition.</summary>
+    /// <param name="parts">Ordered visual parts to retain.</param>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
+
+    /// <summary>Stores a calculated view whose immutability is guaranteed by its producer.</summary>
+    /// <param name="parts">Immutable ordered view of calculated visual parts.</param>
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
     /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
     internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
+    /// <summary>Gets the number of ordered visual parts in this composition.</summary>
     internal int PartCount => parts.Count;
+
+    /// <summary>Gets one compiled part by its draw-order index.</summary>
+    /// <param name="index">Zero-based position in the composition.</param>
+    /// <returns>The part used at that position when drawing.</returns>
     internal CompiledSpritePart Part(int index) => parts[index];
 
     /// <summary>Use an immutable calculated view only when every supplied visual field matches.
@@ -55,6 +67,10 @@ public sealed class SpriteComposition
 }
 
 /// <summary>Runtime PPU representation compiled from authored offsets, regions, size and color selection.</summary>
+/// <param name="X">Encoded OAM horizontal position and size bits.</param>
+/// <param name="Y">OAM vertical coordinate byte.</param>
+/// <param name="Attributes">Tile selection, priority, palette, and flip bits for the part.</param>
+/// <param name="InheritPalette">Whether drawing replaces the part's palette bits with its owner's current palette.</param>
 internal readonly record struct CompiledSpritePart(SnesSpritemapXWord X, byte Y, SnesObjAttributeWord Attributes, bool InheritPalette);
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>

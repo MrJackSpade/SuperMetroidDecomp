@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed partial class CeresDestructionCinematicState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Scratch target for rendering one OBJ priority before compositing it over the current frame.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable 256-by-224 output array returned by <see cref="Render"/>.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Composes the current cinematic scene into a reusable 256-by-224 RGBA frame.</summary>
+    /// <returns>The rendered frame buffer, which remains valid until this scene renders again.</returns>
     public Rgba32[] Render()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
@@ -105,10 +109,14 @@ internal sealed partial class CeresDestructionCinematicState
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
+    /// <summary>Captures the station explosion's scanline color-add layer for insertion over the scene.</summary>
+    /// <returns>The explosion layer when its effect is active; otherwise <see langword="null"/>.</returns>
     private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
         SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, stationExplosion,
             layer1X: 0, layer1Y: 0, firstVisibleScanline: 0);
 
+    /// <summary>Draws cinematic actors into a finalized OAM buffer, preserving the phase-specific overlap order.</summary>
+    /// <returns>OAM for the current actors using the installed sprite artwork.</returns>
     private OamBuffer PrepareRenderOam()
     {
         var oam = new OamBuffer();
@@ -123,6 +131,8 @@ internal sealed partial class CeresDestructionCinematicState
         return oam;
     }
 
+    /// <summary>Builds the Mode 7 affine matrix from the cinematic angle and zoom scalar.</summary>
+    /// <returns>The A, B, C, and D matrix coefficients used to transform the background.</returns>
     private (short A, short B, short C, short D) CalculateMatrix()
     {
         short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
@@ -132,11 +142,22 @@ internal sealed partial class CeresDestructionCinematicState
         return (a, b, unchecked((short)-b), a);
     }
 
+    /// <summary>Reads one signed sine-table component for the Mode 7 transform.</summary>
+    /// <param name="index">Table index derived from the cinematic angle.</param>
+    /// <returns>The signed trigonometric component stored at that index.</returns>
     private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
+    /// <summary>Applies the cinematic's fixed-point zoom scalar to a matrix component.</summary>
+    /// <param name="component">Signed sine or cosine coefficient to scale.</param>
+    /// <param name="scalar">Zoom value represented with eight fractional bits.</param>
+    /// <returns>The scaled coefficient after shifting the fixed-point product back to its native range.</returns>
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));
 
+    /// <summary>Renders one OBJ priority into the reusable scratch layer and composites it onto the frame.</summary>
+    /// <param name="pixels">Destination frame receiving this priority layer.</param>
+    /// <param name="oam">Finalized sprite list used to render the layer.</param>
+    /// <param name="priority">OBJ priority value selected for this pass.</param>
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
         Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

@@ -18,14 +18,24 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
 
     // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
     // The repeated program layout derives from those still-independent choices.
+    /// <summary>Number of authored animation pose words in each surface program.</summary>
     internal const int PoseCount = 5;
+    /// <summary>Instruction ticks for which each authored pose remains active.</summary>
     private const ushort PoseHold = 3;
+    /// <summary>Number of surface-specific crawler instruction lists sharing this layout.</summary>
     internal const int SurfaceCount = 4;
+    /// <summary>Byte length of the native setup instructions preceding a pose sequence.</summary>
     internal const int SetupBytes = 4;
+    /// <summary>Byte stride of one pose record, including its timing and spritemap operand.</summary>
     internal const int PoseBytes = 4;
+    /// <summary>Byte length of the native loop instruction following the pose sequence.</summary>
     private const int LoopBytes = 4;
+    /// <summary>Total byte length of one setup, pose sequence, and loop instruction list.</summary>
     internal const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
 
+    /// <summary>Tests whether an address within the shared lists contains an interleaved spritemap operand.</summary>
+    /// <param name="address">Bank-relative instruction-list address to classify.</param>
+    /// <returns><see langword="true"/> only for a pose record's presentation word.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int relative = address - UpsideRight;
@@ -34,6 +44,10 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
         return (uint)offset < PoseCount * PoseBytes && offset % PoseBytes == 2;
     }
 
+    /// <summary>Returns a compiled engine-control or timing word for a valid shared-crawler list address.</summary>
+    /// <param name="address">Bank-relative $A3 address of the word requested by the interpreter.</param>
+    /// <returns>The reconstructed mechanics word; spritemap operands are intentionally excluded.</returns>
+    /// <exception cref="InvalidDataException">The address is outside these lists, unaligned, or identifies presentation data.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int relative = address - UpsideRight;

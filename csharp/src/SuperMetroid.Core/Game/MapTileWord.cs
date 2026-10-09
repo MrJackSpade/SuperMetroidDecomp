@@ -66,6 +66,9 @@ public static class AreaMapLayout
         return unchecked((byte)(0x80 >> (mapX & 7)));
     }
 
+    /// <summary>Rejects coordinates outside the logical 64-by-32 area map before calculating native offsets.</summary>
+    /// <param name="mapX">Zero-based horizontal map coordinate.</param>
+    /// <param name="mapY">Zero-based vertical map coordinate.</param>
     private static void ValidateCoordinate(int mapX, int mapY)
     {
         if ((uint)mapX >= WidthInTiles)
@@ -86,13 +89,21 @@ public static class AreaMapLayout
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
 public readonly record struct MapTileWord(ushort Raw)
 {
+    /// <summary>Selects the ten low bits containing the SNES BG character number.</summary>
     private const ushort CharacterMask = 0x03ff;
+    /// <summary>Selects the three BG palette bits at positions 10 through 12.</summary>
     private const ushort PaletteMask = 0x1c00;
+    /// <summary>Selects the BG priority bit at position 13.</summary>
     private const ushort PriorityMask = 0x2000;
+    /// <summary>Selects the horizontal and vertical flip bits at positions 14 and 15.</summary>
     private const ushort FlipMask = 0xc000;
+    /// <summary>Palette bit cleared by the native pause-map operation to mark a discovered cell explored.</summary>
     private const ushort ExploredPaletteBit = 0x0400;
+    /// <summary>Palette and priority attributes installed by the HUD for explored cells.</summary>
     private const ushort HudExploredAttributes = 0x2800;
+    /// <summary>Palette and priority attributes installed by the HUD for unexplored cells.</summary>
     private const ushort HudUnexploredAttributes = 0x2c00;
+    /// <summary>Palette attributes ORed into the HUD tile while the Samus-location marker blinks.</summary>
     private const ushort HudLocationBlinkAttributes = 0x1c00;
 
     /// <summary>Low ten-bit map character selected by this cell.</summary>

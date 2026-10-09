@@ -17,12 +17,19 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class DoorTransitionState
 {
+    /// <summary>Active source- or destination-palette fade driver for the current coroutine phase.</summary>
     private CartridgePaletteTransition? paletteTransition;
+    /// <summary>Source-room CGRAM snapshot restored after destination loading has written its live palettes.</summary>
     private ushort[]? fadedSourcePalette;
+    /// <summary>Door header captured at transition start and used when the opening scroll begins.</summary>
     private CartridgeDoorHeader? door;
+    /// <summary>Samus fixed-point X position retained across room setup and opening-scroll initialization.</summary>
     private uint sourceSamusXFixed;
+    /// <summary>Samus fixed-point Y position retained across room setup and opening-scroll initialization.</summary>
     private uint sourceSamusYFixed;
+    /// <summary>Source room's CRE selector captured before the destination becomes active.</summary>
     private byte sourceCreBitset;
+    /// <summary>Destination room's CRE selector captured for transition IRQ display setup.</summary>
     private byte destinationCreBitset;
 
     /// <summary>Gets the currently selected native door-transition coroutine phase.</summary>
@@ -299,6 +306,10 @@ public sealed class DoorTransitionState
         }
     }
 
+    /// <summary>Builds the source-room fade target while retaining HUD colors and CRE or escape-timer colors shared with the destination.</summary>
+    /// <param name="runtime">Runtime providing the current CGRAM, source-room header, destination CRE selector, and escape-timer state.</param>
+    /// <returns>A full CGRAM target for the source-room fade.</returns>
+    /// <exception cref="InvalidOperationException">No source room is active when the fade target is requested.</exception>
     private static ushort[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
         var target = new ushort[SnesCgram.ColorCount];
@@ -321,6 +332,9 @@ public sealed class DoorTransitionState
         return target;
     }
 
+    /// <summary>Copies a complete saved CGRAM image back into the live palette before the destination fade is initialized.</summary>
+    /// <param name="cgram">Palette memory receiving the restored color words.</param>
+    /// <param name="colors">Saved color image with one entry for every CGRAM index.</param>
     private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<ushort> colors)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)

@@ -23,9 +23,19 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
     /// <summary>Five irregular final flicker holds at $86:D407-D417. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static ReadOnlySpan<ushort> CrackFlickerTailDurations => [2,3,6,9,8];
 
+    /// <summary>Calculated bank-$86 entry pointers for the ten spawned glass-shard programs.</summary>
     internal static NoobTubeShardProgramSequence ShardInstructionLists => default;
+
+    /// <summary>Number of compiled timer, control-flow, and pre-instruction words across the crack, shards, and released bubbles.</summary>
     public static int MechanicsWordCount => 207;
+
+    /// <summary>Number of compiled spritemap-selector operands embedded in the projectile programs.</summary>
     public static int PresentationWordCount => 90;
+
+    /// <summary>Returns the mechanics address and value at an ordinal in the flattened native program-word sequence.</summary>
+    /// <param name="index">Zero-based ordinal in the 207-word sequence.</param>
+    /// <returns>The bank-relative address and compiled value of that mechanics word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the compiled sequence.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -46,6 +56,10 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         return new((ushort)(ReleasedAirBubble+70),EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
+    /// <summary>Maps a compiled selector ordinal to the address of its spritemap operand.</summary>
+    /// <param name="index">Zero-based ordinal among the 90 presentation words.</param>
+    /// <returns>The bank-relative address of the selected operand in an instruction program.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the presentation-word sequence.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -65,6 +79,9 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         return (ushort)(ReleasedAirBubble+28+4*(index-79));
     }
 
+    /// <summary>Calculates one mechanics word from the crack's 46-word program segment.</summary>
+    /// <param name="index">Zero-based ordinal within the crack segment, from 0 through 45.</param>
+    /// <returns>The bank-relative address and value for the selected timer, control, or pre-instruction word.</returns>
     private static InstructionMechanicsWord CrackWord(int index)
     {
         if (index < 6) return new((ushort)(Crack+4*index),(ushort)Math.Max(6,12-2*index));
@@ -87,6 +104,10 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Calculates one mechanics word within a shard's native program, accounting for the compact ninth entry.</summary>
+    /// <param name="shard">Zero-based shard program ordinal from 0 through 9.</param>
+    /// <param name="index">Zero-based word ordinal within that program, from 0 through 13.</param>
+    /// <returns>The bank-relative address and value of the selected shard mechanics word.</returns>
     private static InstructionMechanicsWord ShardWord(int shard,int index)
     {
         ushort start = ShardInstructionLists[shard];
@@ -118,11 +139,18 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         };
         return new((ushort)(start+offset),value);
     }
+    /// <summary>Determines whether these compiled programs own the crack, shard, or released-air-bubble projectile kind.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for a projectile driven by one of these instruction programs.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.NoobTubeCrack or
         RoomEnemyProjectileKind.NoobTubeShard or
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble;
 
+    /// <summary>Looks up a compiled mechanics word by its bank-relative instruction address.</summary>
+    /// <param name="address">Bank-$86 address of a timer, control-flow, or pre-instruction word.</param>
+    /// <returns>The compiled 16-bit mechanics value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

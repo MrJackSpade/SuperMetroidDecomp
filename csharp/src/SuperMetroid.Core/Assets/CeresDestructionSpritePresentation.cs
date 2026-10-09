@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions unique to the station blast and Zebes reveal.</summary>
 public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Decoded sprite compositions indexed by their bank-relative scene pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(CeresDestructionSpritePresentation), frames);
 
+    /// <summary>Stores the already validated frame map used by scene drawing.</summary>
+    /// <param name="frames">Compiled compositions keyed by the pointers referenced by cinematic sprite instructions.</param>
     private CeresDestructionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -141,7 +144,11 @@ public static class CeresDestructionSpriteFormat
 /// </summary>
 internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Grid coordinates and tile identities for the supplied star composition.</summary>
     private readonly (sbyte X, sbyte Y, ushort Tile)[] placements;
+
+    /// <summary>Captures each supplied star's cell position and tile for grid-based composition matching.</summary>
+    /// <param name="supplied">Compiled star composition whose original placements must be preserved.</param>
     private ZebesStarGridParts(SpriteComposition supplied)
     {
         placements = new (sbyte, sbyte, ushort)[supplied.PartCount];
@@ -152,6 +159,13 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
                 (sbyte)(unchecked((sbyte)part.Y) / 8), (ushort)part.Attributes.TileNumber);
         }
     }
+    /// <summary>
+    /// Reuses the regular star-grid composition for the four star-sheet pointers only when
+    /// its complete visual fields match the supplied editable composition.
+    /// </summary>
+    /// <param name="pointer">Spritemap identity being compiled.</param>
+    /// <param name="supplied">Composition produced from the editable frame definition.</param>
+    /// <returns>The matching calculated composition, or <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer is not (CeresDestructionSpriteDefinitions.UpperLeftStars or
@@ -161,7 +175,12 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         // Full-field matching preserves off-grid and independently edited appearance.
         return supplied.CalculateIfMatching(new ZebesStarGridParts(supplied));
     }
+    /// <summary>Gets the number of star cells captured from the supplied composition.</summary>
     public int Count => placements.Length;
+
+    /// <summary>Gets the compiled OAM part reconstructed for a star-grid cell.</summary>
+    /// <param name="index">Zero-based cell index in the original composition order.</param>
+    /// <returns>A small, unflipped priority-zero sprite part at the cell's native pixel position.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -171,6 +190,8 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
         }
     }
+    /// <summary>Enumerates reconstructed star parts in their original composition order.</summary>
+    /// <returns>An enumerator over the captured star cells.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

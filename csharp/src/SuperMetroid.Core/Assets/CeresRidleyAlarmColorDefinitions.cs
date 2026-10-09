@@ -12,13 +12,21 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyAlarmColorDefinitions
 {
+    /// <summary>Green channel's row-zero value for the bright alarm color.</summary>
     private const int BrightGreen = 22;
+    /// <summary>Fixed red channel retained by the middle alarm shade across the reflected animation.</summary>
     private const int MiddleRed = 23;
+    /// <summary>Green channel's row-zero value for the middle alarm shade before its half-step fade.</summary>
     private const int MiddleGreen = 14;
+    /// <summary>Red channel's row-zero value for the dark alarm shade before its rising transition.</summary>
     private const int DarkRed = 12;
+    /// <summary>Green channel's row-zero value for the dark alarm shade before its slow transition.</summary>
     private const int DarkGreen = 5;
+    /// <summary>Only imported samples that differ from the calculated native trajectory are retained here.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Stores only palette samples whose imported RGB15 words differ from the calculated alarm animation.</summary>
+    /// <param name="rows">Sixteen rows of three native alarm colors in the reflected gold-to-muted-red sequence.</param>
     internal CeresRidleyAlarmColorDefinitions(ushort[][] rows)
     {
         for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
@@ -35,6 +43,11 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return Math.Min(row, CeresRidleyPaletteRomData.AlarmRowCount - row);
     }
 
+    /// <summary>Returns an imported override when present, otherwise calculates the native alarm color for the requested sample.</summary>
+    /// <param name="row">Animation row in the sixteen-step forward-and-reverse sequence.</param>
+    /// <param name="color">Color slot: bright, middle, or dark.</param>
+    /// <returns>The RGB15 word installed for that row and color slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The row or color slot is outside the compiled animation.</exception>
     internal ushort Resolve(int row, int color)
     {
         _ = SourceRow(row);
@@ -44,6 +57,11 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return edits.TryGetValue(key, out ushort value) ? value : Calculate(row, color);
     }
 
+    /// <summary>Calculates the RGB15 channels from the reflected phase using the native per-shade rates.</summary>
+    /// <param name="row">Animation row used to derive the forward-and-reverse phase.</param>
+    /// <param name="color">Color slot whose channel trajectory is calculated.</param>
+    /// <returns>The packed five-bit-per-channel RGB color word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The color slot is not one of the three alarm shades.</exception>
     private static ushort Calculate(int row, int color)
     {
         int phase = SourceRow(row), halfStep = (phase + 1) / 2;

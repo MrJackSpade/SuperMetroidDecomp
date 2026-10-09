@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Pixels by which the player can counter-push a shutter while being carried or manually ejected.</summary>
     private const short HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
@@ -140,6 +141,8 @@ public sealed partial class RoomEnemySystem
         state.PreviousSamusXSubposition = samus.Kinematics.XSubposition;
     }
 
+    /// <summary>Selects the startup behavior encoded by the shutter's validated five-entry function table offset.</summary>
+    /// <param name="state">Initialized shutter state containing the table offset decoded from its trigger mode.</param>
     private static void SelectInitialHorizontalShutterFunction(HorizontalShutterEnemyState state)
     {
         state.Function = state.InitialFunctionTableOffset switch
@@ -153,11 +156,18 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Starts movement in the shutter's configured primary direction.</summary>
+    /// <param name="state">Shutter state whose current function is replaced with its left or right movement function.</param>
     private static void ActivateHorizontalShutter(HorizontalShutterEnemyState state) =>
         state.Function = state.PrimaryDirection == 0
             ? HorizontalShutterFunction.MovingLeft
             : HorizontalShutterFunction.MovingRight;
 
+    /// <summary>Advances the shutter left, carries an overlapping Samus, and applies her opposing right-input adjustment.</summary>
+    /// <param name="slot">Enemy slot whose fixed-point horizontal position is advanced toward the minimum bound.</param>
+    /// <param name="state">Shutter movement state containing left velocity, stop distance, and rest behavior.</param>
+    /// <param name="samus">Player state updated when the shutter overlaps and pushes her leftward.</param>
+    /// <param name="controllerInput">Current controller bitfield used to detect a rightward counter-push.</param>
     private static void MoveHorizontalShutterLeft(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -195,6 +205,11 @@ public sealed partial class RoomEnemySystem
         state.Function = HorizontalShutterFunction.StoppedAfterMovingLeft;
     }
 
+    /// <summary>Advances the shutter right, carries an overlapping Samus, and applies her opposing left-input adjustment.</summary>
+    /// <param name="slot">Enemy slot whose fixed-point horizontal position is advanced toward the maximum bound.</param>
+    /// <param name="state">Shutter movement state containing right velocity, stop distance, and rest behavior.</param>
+    /// <param name="samus">Player state updated when the shutter overlaps and pushes her rightward.</param>
+    /// <param name="controllerInput">Current controller bitfield used to detect a leftward counter-push.</param>
     private static void MoveHorizontalShutterRight(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -232,6 +247,8 @@ public sealed partial class RoomEnemySystem
         state.Function = HorizontalShutterFunction.StoppedAfterMovingRight;
     }
 
+    /// <summary>Counts down the left-end rest period, then resumes rightward travel or waits for proximity when configured.</summary>
+    /// <param name="state">Stopped shutter state whose timer and next function are updated.</param>
     private static void RunHorizontalShutterStoppedAfterLeft(HorizontalShutterEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -243,6 +260,8 @@ public sealed partial class RoomEnemySystem
             : HorizontalShutterFunction.MovingRight;
     }
 
+    /// <summary>Counts down the right-end rest period, then resumes leftward travel or waits for proximity when configured.</summary>
+    /// <param name="state">Stopped shutter state whose timer and next function are updated.</param>
     private static void RunHorizontalShutterStoppedAfterRight(HorizontalShutterEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -254,6 +273,10 @@ public sealed partial class RoomEnemySystem
             : HorizontalShutterFunction.MovingLeft;
     }
 
+    /// <summary>Tests the shutter and Samus axis-aligned collision boxes using their current centers and radii.</summary>
+    /// <param name="slot">Shutter enemy slot supplying its position and collision radii.</param>
+    /// <param name="samus">Player state supplying her position and collision radii.</param>
+    /// <returns><see langword="true"/> when both horizontal and vertical radius intervals overlap.</returns>
     private static bool HorizontalShutterOverlapsSamus(RoomEnemySlot slot, SamusState samus) =>
         RadiusBoxesOverlap(
             slot.XPosition,
@@ -311,6 +334,8 @@ public sealed partial class RoomEnemySystem
             : HorizontalShutterFunction.MovingRight;
     }
 
+    /// <summary>Installs the stationary draw instruction and resets the enemy instruction timers after initialization.</summary>
+    /// <param name="slot">Enemy slot whose current instruction, instruction timer, and main timer are initialized.</param>
     private static void InstallHorizontalShutterInstruction(RoomEnemySlot slot)
     {
         slot.CurrentInstruction = HorizontalShutterInstructionProgramDefinitions.Stationary;

@@ -23,10 +23,16 @@ internal abstract class NorfairRioInstructionProgramDefinitions
 
     // Pose holds are authored animation cadence (reviewed under #1165); program geometry and the
     // callback dispatch below are calculated.
+    /// <summary>Alternating hold durations for the two poses in Rio's idle loop.</summary>
     private static readonly ushort[] IdleHolds = [13, 18];
+
+    /// <summary>Hold durations for the four flight poses used by Rio and its flame loops.</summary>
     private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
+    /// <summary>Number of compiled instruction words across Rio's parent and flame programs.</summary>
     public static int MechanicsWordCount => 65;
+
+    /// <summary>Number of interleaved spritemap operand words selected for extracted presentation frames.</summary>
     public static int PresentationWordCount => 34;
 
     /// <summary>
@@ -46,6 +52,12 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return LoopWord(index - 59, FlamesDescending, 0, false);
     }
 
+    /// <summary>Calculates one mechanics word in a looping program, including its setup, timed poses, and loop control.</summary>
+    /// <param name="index">Zero-based word position within the selected loop's compiled sequence.</param>
+    /// <param name="start">Instruction address at which the loop begins.</param>
+    /// <param name="setup">Optional leading setup callback word, or zero when the loop has none.</param>
+    /// <param name="idle"><see langword="true"/> to use the alternating idle holds; otherwise use flight-pose holds.</param>
+    /// <returns>The address and value compiled for that mechanics word.</returns>
     private static InstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
     {
         int frameStart = start;
@@ -59,6 +71,11 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
     }
 
+    /// <summary>Calculates a transition word with pose callbacks followed by its completion or sleep command.</summary>
+    /// <param name="index">Zero-based word position in the selected transition sequence.</param>
+    /// <param name="start">Instruction address where the transition sequence begins.</param>
+    /// <param name="ascending"><see langword="true"/> for the longer ascending transition and its callback order.</param>
+    /// <returns>The address and value compiled for that transition word.</returns>
     private static InstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
     {
         int poses = ascending ? 8 : 6;
@@ -91,6 +108,10 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
     };
 
+    /// <summary>Maps a presentation-word index to its interleaved spritemap operand address.</summary>
+    /// <param name="index">Zero-based index among the compiled presentation operands.</param>
+    /// <returns>The instruction address containing that spritemap pointer.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the presentation-word range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -103,6 +124,9 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return (ushort)(FlamesDescending + 2 + (index - 30) * 4);
     }
 
+    /// <summary>Determines whether an address contains a spritemap operand rather than mechanics data.</summary>
+    /// <param name="address">Instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address is one of the compiled presentation operands.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -110,6 +134,10 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Looks up the compiled instruction value at a mechanics-word address.</summary>
+    /// <param name="address">Bank-$A2 address of the mechanics word to resolve.</param>
+    /// <returns>The compiled command or timing value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of either compiled Rio program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

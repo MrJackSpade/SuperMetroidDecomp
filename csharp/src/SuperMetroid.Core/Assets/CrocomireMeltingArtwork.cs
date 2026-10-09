@@ -20,11 +20,23 @@ public sealed class CrocomireMeltingArtwork
             content.AppendWords("second-map", secondTilemap.Words());
         });
 
+    /// <summary>Indexed character data used for the first native melt transfer pass.</summary>
     private readonly RoomCharacterAtlas first;
+
+    /// <summary>Indexed character data used for the second, more-eroded melt transfer pass.</summary>
     private readonly RoomCharacterAtlas second;
+
+    /// <summary>Compiled BG2 tile references for the first melt image.</summary>
     private readonly CrocomireMeltingTilemap firstTilemap;
+
+    /// <summary>Compiled BG2 tile references for the second melt image.</summary>
     private readonly CrocomireMeltingTilemap secondTilemap;
 
+    /// <summary>Creates an installed artwork snapshot from both decoded images and tile layouts.</summary>
+    /// <param name="first">Decoded character data for the first transfer pass.</param>
+    /// <param name="second">Decoded character data for the second transfer pass.</param>
+    /// <param name="firstTilemap">Packed tile references compiled from the first layout document.</param>
+    /// <param name="secondTilemap">Packed tile references compiled from the second layout document.</param>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         ushort[] firstTilemap, ushort[] secondTilemap)
     {
@@ -85,6 +97,13 @@ public sealed class CrocomireMeltingArtwork
         json.Write(bytes);
     }
 
+    /// <summary>
+    /// Parses a melt tile-layout document and compiles its ordered cells into packed SNES
+    /// BG2 words after validating the schema and each tile and palette selection.
+    /// </summary>
+    /// <param name="json">Stream containing one versioned 16-by-16 tile-layout document.</param>
+    /// <returns>The 256 packed BG2 words in the document's native linear cell order.</returns>
+    /// <exception cref="InvalidDataException">The JSON, schema dimensions, cell count, or a cell selection is invalid.</exception>
     private static ushort[] ReadTilemap(Stream json)
     {
         CrocomireMeltingTilemapDocument document;
@@ -125,6 +144,7 @@ public sealed class CrocomireMeltingArtwork
         return words;
     }
 
+    /// <summary>Serializer settings for the editable camel-case tile-layout JSON schema.</summary>
     private static readonly JsonSerializerOptions TilemapJsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -133,6 +153,12 @@ public sealed class CrocomireMeltingArtwork
         WriteIndented = true,
     };
 
+    /// <summary>
+    /// Finds the exclusive scratch-buffer end reached by the pass's overlapping native
+    /// copies, including the extra word consumed by each copy operation.
+    /// </summary>
+    /// <param name="pass">Transfer pass whose destination ranges determine the occupied prefix.</param>
+    /// <returns>Number of bytes from the scratch-buffer start that the pass can write.</returns>
     internal static int UsedByteCount(CrocomireMeltingPass pass)
     {
         int end = 0;
@@ -141,6 +167,11 @@ public sealed class CrocomireMeltingArtwork
         return end;
     }
 
+    /// <summary>Ensures the installed image has no nonzero pixels beyond the pass's native write extent.</summary>
+    /// <param name="atlas">Decoded indexed image supplied for the transfer pass.</param>
+    /// <param name="pass">Native transfer ranges that define how much of the image is used.</param>
+    /// <param name="name">Pass label included in the validation error if unused pixels are present.</param>
+    /// <exception cref="InvalidDataException">The image contains nonzero bytes outside the native scratch-image extent.</exception>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingPass pass,
         string name)
     {

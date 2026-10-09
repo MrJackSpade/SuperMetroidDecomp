@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>
+    /// Advances one projectile's bytecode until it reaches a timed frame or deletes the slot.
+    /// </summary>
+    /// <param name="bus">The address space used for projectile instructions and frame metadata.</param>
+    /// <param name="slot">The projectile slot whose timer, animation state, and instruction pointer are advanced.</param>
+    /// <returns><see langword="true"/> if a delete instruction cleared the projectile; otherwise, <see langword="false"/>.</returns>
     internal bool RunProjectileInstructionHandler(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
@@ -61,6 +67,10 @@ public sealed partial class SamusProjectileSystem
         }
     }
 
+    /// <summary>
+    /// Clears a projectile slot and decrements the active projectile count without underflowing it.
+    /// </summary>
+    /// <param name="slot">The projectile slot being removed.</param>
     private void ClearProjectile(SamusProjectileSlot slot)
     {
         slot.ClearFields();
@@ -69,6 +79,17 @@ public sealed partial class SamusProjectileSystem
             : unchecked((ushort)(ProjectileCounter - 1));
     }
 
+    /// <summary>
+    /// Draws a projectile composition when its origin falls within the configured horizontal margin and visible Y range.
+    /// </summary>
+    /// <param name="bus">The address space associated with projectile rendering.</param>
+    /// <param name="oam">The OAM buffer that receives visible projectile sprites.</param>
+    /// <param name="slot">The projectile whose spritemap and world position are rendered.</param>
+    /// <param name="layer1X">The layer-one camera X position subtracted from the projectile position.</param>
+    /// <param name="layer1Y">The layer-one camera Y position subtracted from the projectile position.</param>
+    /// <param name="horizontalMargin">Optional horizontal visibility margin around the 256-pixel screen.</param>
+    /// <param name="compositions">The installed sprite catalog used to resolve and draw the projectile spritemap.</param>
+    /// <exception cref="InvalidOperationException">The sprite composition catalog is unavailable.</exception>
     private static void DrawSlot(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -91,6 +112,10 @@ public sealed partial class SamusProjectileSystem
             .Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
     }
 
+    /// <summary>
+    /// Advances one charge-flare component according to its ROM-authored delay, restart, and rewind entries.
+    /// </summary>
+    /// <param name="component">The flare component whose frame and timer are updated.</param>
     private void AdvanceFlareComponent(int component)
     {
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
@@ -131,6 +156,18 @@ public sealed partial class SamusProjectileSystem
         _flareTimers[component] = delay;
     }
 
+    /// <summary>
+    /// Reads Samus's live shot and pose metadata, then draws a charge-flare component when the shot direction is valid.
+    /// </summary>
+    /// <param name="bus">The address space used to read Samus's shot, movement, pose, and facing state.</param>
+    /// <param name="oam">The OAM buffer that receives the flare sprites.</param>
+    /// <param name="samus">Samus's current gameplay state used to select direction and placement metadata.</param>
+    /// <param name="layer1X">The camera X position used to convert the flare to screen coordinates.</param>
+    /// <param name="layer1Y">The camera Y position used to convert the flare to screen coordinates.</param>
+    /// <param name="component">The flare component whose current animation frame is drawn.</param>
+    /// <param name="mode7Transform">Optional transform applied to Samus's center before pose offsets are added.</param>
+    /// <param name="placement">The installed muzzle-placement catalog for running and direction variants.</param>
+    /// <param name="compositions">The installed sprite catalog for charge-flare animation frames.</param>
     private void DrawFlareComponent(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -152,6 +189,22 @@ public sealed partial class SamusProjectileSystem
             unchecked((byte)samus.ReadGraphicsYOffset(bus)), samus.IsFacingLeft(bus));
     }
 
+    /// <summary>
+    /// Resolves a charge-flare muzzle position and draws the selected frame using already-read pose and direction metadata.
+    /// </summary>
+    /// <param name="oam">The OAM buffer that receives the flare sprites.</param>
+    /// <param name="samus">Samus's position, transformed for the current cinematic rendering mode when applicable.</param>
+    /// <param name="layer1X">The camera X position subtracted from the muzzle location.</param>
+    /// <param name="layer1Y">The camera Y position subtracted from the muzzle location.</param>
+    /// <param name="component">The flare component whose animation frame is drawn.</param>
+    /// <param name="mode7Transform">Optional transform applied to Samus's center before muzzle offsets.</param>
+    /// <param name="placement">The installed catalog that resolves offsets for the movement and direction.</param>
+    /// <param name="compositions">The installed catalog that resolves flare sprite compositions.</param>
+    /// <param name="direction">The validated shot-direction byte read from Samus.</param>
+    /// <param name="running">Whether Samus is in the running movement mode.</param>
+    /// <param name="poseYOffset">The vertical adjustment selected by Samus's current pose.</param>
+    /// <param name="facingLeft">Whether Samus faces left, selecting the corresponding frame-index range.</param>
+    /// <exception cref="InvalidOperationException">A required placement or sprite-composition catalog is unavailable.</exception>
     private void DrawFlareComponentWithMetadata(
         OamBuffer oam, SamusState samus, ushort layer1X, ushort layer1Y, int component,
         SamusMode7Transform? mode7Transform, Assets.ChargeFlarePlacementCatalog? placement,
@@ -193,12 +246,22 @@ public sealed partial class SamusProjectileSystem
             .Draw(tableIndex, oam, screenX, screenY);
     }
 
+    /// <summary>
+    /// Resets all charge-flare component frame indices and delay timers to their initial values.
+    /// </summary>
     private void ClearFlareAnimationState()
     {
         Array.Clear(_flareFrames);
         Array.Clear(_flareTimers);
     }
 
+    /// <summary>
+    /// Loads the normal suit palette selected by equipped items into CGRAM and returns the native table offset.
+    /// </summary>
+    /// <param name="bus">The address space associated with the current projectile-system update.</param>
+    /// <param name="cgram">The color memory receiving the displayed BGR555 palette words.</param>
+    /// <param name="samus">Samus's equipment and suit-color state used to select the palette.</param>
+    /// <returns>The palette-table offset retained for diagnostics.</returns>
     private static ushort LoadNormalSuitPalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
@@ -209,6 +272,11 @@ public sealed partial class SamusProjectileSystem
         return SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.SuitColors);
     }
 
+    /// <summary>
+    /// Resolves the native suit-palette table offset for an equipment bitfield.
+    /// </summary>
+    /// <param name="equippedItems">The current Samus equipment flags.</param>
+    /// <returns>The byte offset of the selected suit-palette entry.</returns>
     private static ushort GetSuitPaletteOffset(ushort equippedItems) =>
         equippedItems.GetSuitPaletteTableOffset();
 

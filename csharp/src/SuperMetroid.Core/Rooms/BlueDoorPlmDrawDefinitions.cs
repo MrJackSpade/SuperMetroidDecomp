@@ -18,9 +18,14 @@ internal static class BlueDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
+    /// <param name="Orientation">Facing index: left, right, up, or down, matching the five-record groups in the native table.</param>
+    /// <param name="Frame">Opening frame from zero through three; minus one selects the pre-opening collision variant that looks like frame zero.</param>
     internal readonly record struct Draw(int Orientation, int Frame)
     {
+        /// <summary>Whether the cap's four cells are arranged as a vertical pair of columns.</summary>
         internal bool Vertical => Orientation < 2;
+
+        /// <summary>Native draw-list direction/count word for the cap's vertical or horizontal layout.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -45,6 +50,10 @@ internal static class BlueDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves an owned native draw-list pointer into its orientation and opening frame.</summary>
+    /// <param name="pointer">Bank-$84 pointer to a twelve-byte blue-cap draw list.</param>
+    /// <param name="draw">Receives the decoded orientation and frame, or the default value when the pointer is not owned.</param>
+    /// <returns><see langword="true"/> when the pointer lies on a record boundary in the blue-cap table.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - (LeftFrame0 - DrawListBytes);
@@ -67,6 +76,9 @@ internal static class BlueDoorPlmDrawDefinitions
             }
         }
     }
+    /// <summary>Maps each pre-opening alias to the matching orientation's frame-zero artwork pointer.</summary>
+    /// <param name="pointer">Native blue-cap draw-list pointer.</param>
+    /// <returns>The frame-zero pointer for a pre-opening alias, or <paramref name="pointer"/> when it is not an alias.</returns>
     internal static ushort VisualSource(ushort pointer) => pointer switch
     {
         LeftFrame0 - DrawListBytes => LeftFrame0,
@@ -77,6 +89,10 @@ internal static class BlueDoorPlmDrawDefinitions
     };
 
     // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds the four-cell draw list represented by an owned native pointer.</summary>
+    /// <param name="pointer">Bank-$84 pointer to a blue-cap draw list.</param>
+    /// <param name="list">Receives the converted draw list, or the default value when the pointer is unrecognized.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> identifies a record in this table.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -87,6 +103,10 @@ internal static class BlueDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Creates the stable facing-and-frame key used to associate blue-cap artwork with its native list.</summary>
+    /// <param name="pointer">Pointer to a described blue-cap draw list.</param>
+    /// <returns>A key such as <c>left-frame-2</c>; pre-opening aliases use frame zero.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not belong to the blue-cap draw table.</exception>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -95,6 +115,10 @@ internal static class BlueDoorPlmDrawDefinitions
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
 
+    /// <summary>Finds the editable draw list whose stable artwork key matches the supplied identifier.</summary>
+    /// <param name="id">Facing-and-frame key produced by <see cref="VisualId(ushort)"/>.</param>
+    /// <param name="list">Receives the matching draw list, or the default value when no key matches.</param>
+    /// <returns><see langword="true"/> when an editable blue-cap frame has the requested key.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (var candidate in Editable)

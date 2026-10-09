@@ -6,6 +6,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>
+/// Verifies that Android sessions bind installed projectile artwork and visual choices across startup, state loads, and restarts.
+/// </summary>
 internal static class ProjectileHostBindingVerification
 {
     /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
@@ -19,6 +22,11 @@ internal static class ProjectileHostBindingVerification
         finally { Directory.Delete(root, recursive: true); }
     }
 
+    /// <summary>
+    /// Checks host bindings against the selected installation, exercises edited overrides across session lifecycles, and rejects invalid content.
+    /// </summary>
+    /// <param name="installation">The temporary game installation whose current projectile assets and overrides are verified.</param>
+    /// <returns>Zero after all binding checks complete successfully.</returns>
     private static int Verify(GameInstallation installation)
     {
         string root = installation.Root;
@@ -119,6 +127,11 @@ internal static class ProjectileHostBindingVerification
         return 0;
     }
 
+    /// <summary>
+    /// Confirms the host has bound the selected catalog of projectile instruction-frame choices.
+    /// </summary>
+    /// <param name="actual">The value retrieved from the host game's frame-binding field.</param>
+    /// <param name="expected">The frame-binding catalog loaded from the selected installation.</param>
     private static void CheckFrameBindings(object? actual, ProjectileFrameBindingCatalog expected)
     {
         if (actual is not ProjectileFrameBindingCatalog catalog ||
@@ -126,6 +139,11 @@ internal static class ProjectileHostBindingVerification
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
+    /// <summary>
+    /// Compares every native projectile composition drawn by the host catalog with the selected installed catalog.
+    /// </summary>
+    /// <param name="actual">The sprite catalog bound to the host game.</param>
+    /// <param name="expected">The sprite catalog loaded from the selected installation.</param>
     private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)
     {
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
@@ -137,6 +155,11 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
+    /// <summary>
+    /// Checks that the host has current projectile-trail tile data and resolves each frame to the selected installed appearance.
+    /// </summary>
+    /// <param name="actual">The trail catalog bound to the host game.</param>
+    /// <param name="expected">The trail catalog loaded from the selected installation.</param>
     private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
@@ -149,6 +172,11 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host bound stale trail appearance.");
     }
 
+    /// <summary>
+    /// Compares charge-flare muzzle placement for both movement modes and every supported shot direction.
+    /// </summary>
+    /// <param name="actual">The placement catalog bound to the host game.</param>
+    /// <param name="expected">The placement catalog loaded from the selected installation.</param>
     private static void CheckFlare(ChargeFlarePlacementCatalog actual, ChargeFlarePlacementCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
@@ -158,6 +186,11 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
 
+    /// <summary>
+    /// Compares every charge-flare selector's rendered OAM output and byte offset between host-bound and installed catalogs.
+    /// </summary>
+    /// <param name="actual">The flare-composition catalog bound to the host game.</param>
+    /// <param name="expected">The flare-composition catalog loaded from the selected installation.</param>
     private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
@@ -170,6 +203,11 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
+    /// <summary>
+    /// Checks that host-bound Grapple tiles, flare placement, swing frames, endpoint style, and segment styles match the installation.
+    /// </summary>
+    /// <param name="actual">The Grapple atlas bound to the host game.</param>
+    /// <param name="expected">The Grapple atlas loaded from the selected installation.</param>
     private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
@@ -188,6 +226,11 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale Grapple PNG content.");
     }
 
+    /// <summary>
+    /// Compares every selected beam image and its loaded CGRAM palette between the host binding and installed assets.
+    /// </summary>
+    /// <param name="actual">The beam tile and palette catalogs bound to the host game.</param>
+    /// <param name="expected">The beam tile and palette catalogs loaded from the selected installation.</param>
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");

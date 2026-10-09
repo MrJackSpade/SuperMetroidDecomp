@@ -2,6 +2,9 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class CeresDestructionCinematicState
 {
+    /// <summary>
+    /// Advances Ceres explosion scheduling, moves active actors, runs their instruction lists, and removes actors that finish.
+    /// </summary>
     private void StepCeresActors()
     {
         explosionSpawnerFrame++;
@@ -64,6 +67,9 @@ internal sealed partial class CeresDestructionCinematicState
         }
     }
 
+    /// <summary>
+    /// Creates the station's final blast and queues the Mode-7 map transfers that prepare the gunship and clear the lower map half.
+    /// </summary>
     private void SpawnFinalCeresExplosion()
     {
         ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - backgroundX));
@@ -97,6 +103,11 @@ internal sealed partial class CeresDestructionCinematicState
             destinationWord: CeresDestructionRomData.Vram.ClearMapDestinationWord);
     }
 
+    /// <summary>
+    /// Creates a delayed Ceres blast actor at the placement's screen-relative offset from the station center.
+    /// </summary>
+    /// <param name="definition">The instruction-list and pre-instruction pair that drives this blast's animation and motion.</param>
+    /// <param name="placement">The spawn offset and first-instruction delay for this blast.</param>
     private void SpawnCeresExplosion(
         CeresExplosionActorDefinition definition,
         CeresExplosionPlacement placement)
@@ -119,6 +130,11 @@ internal sealed partial class CeresDestructionCinematicState
         _ = TryAddCeresActor(actor);
     }
 
+    /// <summary>
+    /// Adds an actor to the highest available cinematic slot while reserving the explosion spawner's slot until its final frame.
+    /// </summary>
+    /// <param name="actor">The cinematic sprite to register in both actor collections.</param>
+    /// <returns><see langword="true"/> if a slot was assigned; otherwise, <see langword="false"/> when the native slot range is full.</returns>
     private bool TryAddCeresActor(IntroDiscoverySprite actor)
     {
         // Native allocation searches the highest free slot. The invisible spawner
@@ -139,6 +155,10 @@ internal sealed partial class CeresDestructionCinematicState
         return false;
     }
 
+    /// <summary>
+    /// Applies the gunship's fixed-point horizontal and vertical velocities to an explosion actor for one update.
+    /// </summary>
+    /// <param name="actor">The explosion sprite whose position and subposition are advanced.</param>
     private static void MoveExplosion(IntroDiscoverySprite actor)
     {
         ushort x = actor.XPosition;
@@ -161,6 +181,10 @@ internal sealed partial class CeresDestructionCinematicState
         actor.YSubPosition = ySub;
     }
 
+    /// <summary>
+    /// Advances the Zebes planet, stars, and title actors, applying slide acceleration and scene-completion handoff when requested.
+    /// </summary>
+    /// <param name="slidingAway">Whether actors should receive their slide pre-instructions and move upward with acceleration.</param>
     private void StepZebesActors(bool slidingAway)
     {
         for (int index = actors.Count - 1; index >= 0; index--)
@@ -212,6 +236,12 @@ internal sealed partial class CeresDestructionCinematicState
         }
     }
 
+    /// <summary>
+    /// Handles the cinematic opcodes that fade the Zebes title or begin the camera flight toward the planet.
+    /// </summary>
+    /// <param name="opcode">The instruction opcode reached by the title actor.</param>
+    /// <param name="cursor">The instruction cursor after the opcode and any operands have been consumed.</param>
+    /// <returns>The cursor to resume for handled no-op title instructions, or <see langword="null"/> when normal actor handling should process the opcode.</returns>
     private ushort? HandleZebesInstruction(ushort opcode, ushort cursor)
     {
         switch (opcode)
@@ -236,6 +266,11 @@ internal sealed partial class CeresDestructionCinematicState
         }
     }
 
+    /// <summary>
+    /// Adds a fractional horizontal displacement and wraps the resulting world X coordinate to the cinematic map width.
+    /// </summary>
+    /// <param name="actor">The sprite whose X position and subposition are updated.</param>
+    /// <param name="fractionalDelta">The unsigned 16-bit fractional displacement to add.</param>
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
         ushort x = actor.XPosition;
@@ -245,6 +280,11 @@ internal sealed partial class CeresDestructionCinematicState
         actor.XSubPosition = sub;
     }
 
+    /// <summary>
+    /// Subtracts an unsigned 8.8 vertical velocity from the actor's 16.16 fixed-point Y position.
+    /// </summary>
+    /// <param name="actor">The sprite whose Y position and subposition are updated.</param>
+    /// <param name="velocity">The 8.8 speed to subtract, including its fractional component.</param>
     private static void SubtractEightEightY(IntroDiscoverySprite actor, ushort velocity)
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into

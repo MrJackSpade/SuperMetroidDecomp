@@ -8,13 +8,37 @@ namespace SuperMetroid.Core.Assets;
 /// to reconstruct the original streaked image. Priority3, no flips, inherited palette.</summary>
 internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpritePart>
 {
-    private enum Row { Body, InnerRays, MiddleRays, OuterRays }
+    /// <summary>Identifies the vertical bands emitted after the silhouette's lower body pieces.</summary>
+    private enum Row
+    {
+        /// <summary>The central body band at the top of the atlas reconstruction.</summary>
+        Body,
 
+        /// <summary>The ray band immediately surrounding the body.</summary>
+        InnerRays,
+
+        /// <summary>The next ray band, extending farther from the body.</summary>
+        MiddleRays,
+
+        /// <summary>The outermost ray band at the top of the silhouette.</summary>
+        OuterRays
+    }
+
+    /// <summary>Uses the reconstructed silhouette only when the supplied spritemap is the native silhouette pose.</summary>
+    /// <param name="pointer">Native spritemap pointer being resolved.</param>
+    /// <param name="supplied">Composition produced by the general sprite resolver.</param>
+    /// <returns>The matching composition with this silhouette's atlas regions, or the original composition when the pointer differs.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Silhouette)
             ? supplied.CalculateIfMatching(new EndingExplosionSilhouetteParts()) : supplied;
 
+    /// <summary>Gets the number of ordered sprite parts that form the silhouette.</summary>
     public int Count => 20;
+
+    /// <summary>Builds one sprite part from the native silhouette's ordered lower pieces and reconstructed atlas rows.</summary>
+    /// <param name="index">Zero-based part position in the 20-part composition.</param>
+    /// <returns>The tile, placement, palette, and priority data for that part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -44,6 +68,8 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3), true);
         }
     }
+    /// <summary>Enumerates all sprite parts in the order expected by the compiled composition.</summary>
+    /// <returns>An enumerator over the 20 silhouette parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

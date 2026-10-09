@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Game;
 /// One target in Crocomire's hidden-wall rumble schedule. Negative targets carry the
 /// cooldown and approach delta loaded when their oscillation completes.
 /// </summary>
+/// <param name="TargetYOffset">The signed target Y offset for this waveform entry; negative values identify an oscillation minimum.</param>
+/// <param name="NextTargetOffset">The byte offset of the next target word or the cursor restored after the terminator.</param>
+/// <param name="Cooldown">The wait loaded after a negative target's oscillation completes.</param>
+/// <param name="Delta">The per-frame approach amount used while moving from this negative target toward the next positive target.</param>
+/// <param name="IsTerminator">Whether this entry represents the native end marker rather than a waveform target.</param>
 internal readonly record struct CrocomireRumbleDefinition(
     short TargetYOffset,
     ushort NextTargetOffset,
@@ -69,9 +74,21 @@ internal static class CrocomireRumbleDefinitions
     /// </summary>
     internal static TargetSequence All => default;
 
+    /// <summary>
+    /// Presents the copied prefix, authored waveform targets, and terminal marker as an indexed read-only sequence.
+    /// </summary>
     internal readonly struct TargetSequence : IReadOnlyList<CrocomireRumbleDefinition>
     {
+        /// <summary>
+        /// Gets the number of target entries, including the two copied prefix words and terminal marker words.
+        /// </summary>
         public int Count => 4 + PhaseCount * 2;
+
+        /// <summary>
+        /// Gets the rumble definition represented by its sequential table-word index.
+        /// </summary>
+        /// <param name="index">The zero-based entry index within the complete target sequence.</param>
+        /// <returns>The decoded target, timing operands, and terminator status for that entry.</returns>
         public CrocomireRumbleDefinition this[int index]
         {
             get
@@ -94,6 +111,10 @@ internal static class CrocomireRumbleDefinitions
             }
         }
 
+        /// <summary>
+        /// Enumerates the prefix, waveform, and terminal entries in their cartridge table order.
+        /// </summary>
+        /// <returns>An enumerator over all computed rumble definitions.</returns>
         public IEnumerator<CrocomireRumbleDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

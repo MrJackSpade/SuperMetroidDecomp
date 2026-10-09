@@ -20,10 +20,18 @@ internal static class IntroScientistSpriteDefinitions
         return (ushort)(Start + arrows * 12 + delivered * 32 + single * 7);
     }
 
+    /// <summary>Ordered definitions for the ten compositions referenced by the scientist lists.</summary>
     internal static IReadOnlyList<IntroScientistSpriteFrameDefinition> Frames { get; } = new FrameList();
+
+    /// <summary>Computes frame definitions on demand from the native record ordering.</summary>
     private sealed class FrameList : IReadOnlyList<IntroScientistSpriteFrameDefinition>
     {
+        /// <summary>Gets the number of published scientist sprite compositions.</summary>
         public int Count => 10;
+
+        /// <summary>Gets the composition definition at its native list position.</summary>
+        /// <param name="index">Zero-based composition index, from 0 through 9.</param>
+        /// <value>The pointer, stable asset key, and stock part count for the selected pose.</value>
         public IntroScientistSpriteFrameDefinition this[int index]
         {
             get
@@ -35,6 +43,9 @@ internal static class IntroScientistSpriteDefinitions
                 return new(pointer, name, index < 3 ? 2 : index < 6 ? 6 : 1);
             }
         }
+
+        /// <summary>Enumerates all ten composition definitions in native record order.</summary>
+        /// <returns>An enumerator over the calculated frame definitions.</returns>
         public IEnumerator<IntroScientistSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -42,5 +53,10 @@ internal static class IntroScientistSpriteDefinitions
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+
+/// <summary>Identifies one scientist sprite composition in the native list and installed artwork catalog.</summary>
+/// <param name="Pointer">Bank-local pointer to the composition's native record.</param>
+/// <param name="Name">Stable asset key used to locate its installed sprite artwork.</param>
+/// <param name="StockPartCount">Number of sprite parts in the stock composition.</param>
 internal readonly record struct IntroScientistSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

@@ -4,6 +4,10 @@ namespace SuperMetroid.Core.Rooms;
 /// The eight palette selector bytes and 256 raw 4bpp character bytes consumed by
 /// bank-$84 instruction <c>$8764</c> for one permanent-item kind.
 /// </summary>
+/// <param name="Kind">Permanent-item kind whose dynamic graphics are uploaded.</param>
+/// <param name="GraphicsPointer">Bank-$89 address of the item's 256-byte graphics block.</param>
+/// <param name="PaletteOffsets">Eight palette selectors, one for each 8x8 tile in the two-frame icon.</param>
+/// <param name="Tiles">Raw 4bpp tile bytes copied by the dynamic graphics upload.</param>
 public sealed record RoomPlmDynamicCollectibleGraphic(
     InWorldCollectibleKind Kind,
     ushort GraphicsPointer,
@@ -16,9 +20,13 @@ public sealed record RoomPlmDynamicCollectibleGraphic(
 /// </summary>
 internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
 {
+    /// <summary>Numeric kind value at which this contiguous dynamic-graphics catalog begins.</summary>
     internal const int FirstKind = (int)InWorldCollectibleKind.Bombs;
+
+    /// <summary>Number of permanent-item kinds with graphics uploaded by the dynamic PLM path.</summary>
     internal const int GraphicCount = RoomPlmHeaders.PermanentCollectibleKindCount - FirstKind;
 
+    /// <summary>Enumerates definitions for every kind handled by the dynamic permanent-item upload path.</summary>
     internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All
     {
         get
@@ -28,6 +36,10 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         }
     }
 
+    /// <summary>Builds the bank-$89 artwork and per-tile palette selectors for one supported item kind.</summary>
+    /// <param name="kind">Permanent-item kind whose upload data is requested.</param>
+    /// <returns>The graphics pointer, eight palette selectors, and decoded tile bytes for the item.</returns>
+    /// <exception cref="InvalidDataException">The kind is outside the contiguous dynamic graphics catalog.</exception>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         int index = (int)kind - FirstKind;
@@ -84,6 +96,10 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     internal static ushort GraphicsPointer(InWorldCollectibleKind kind) =>
         checked((ushort)(0x8000 + (int)GraphicFor(kind) * 0x100));
 
+    /// <summary>Maps each supported item kind to its sequential bank-$89 artwork block.</summary>
+    /// <param name="kind">Permanent-item kind whose graphics block is selected.</param>
+    /// <returns>The catalog entry identifying the item's 256-byte artwork block.</returns>
+    /// <exception cref="InvalidDataException">The kind has no dynamic graphics upload.</exception>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => ItemGraphic.Bombs,

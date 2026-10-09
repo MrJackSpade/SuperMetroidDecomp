@@ -89,6 +89,8 @@ internal static class CeresElevatorArrivalDefinitions
 }
 
 /// <summary>One immutable bank-$86 enemy-projectile header.</summary>
+/// <param name="DefinitionPointer">Bank-$86 address of the projectile's five-word spawn definition.</param>
+/// <param name="InitialInstruction">Bank-$86 address where its instruction program begins.</param>
 internal readonly record struct CeresElevatorProjectileDefinition(
     ushort DefinitionPointer,
     ushort InitialInstruction);
@@ -96,12 +98,21 @@ internal readonly record struct CeresElevatorProjectileDefinition(
 /// <summary>The three operations reachable from the two Ceres arrival programs.</summary>
 internal enum CeresElevatorProjectileOperation
 {
+    /// <summary>Displays the referenced spritemap for its duration, then advances to the next instruction.</summary>
     Frame,
+
+    /// <summary>Ends the projectile's instruction program and removes the projectile.</summary>
     Delete,
+
+    /// <summary>Transfers execution to the instruction address supplied by the command.</summary>
     Goto,
 }
 
 /// <summary>A decoded frame or control transfer from the compiled bank-$86 program.</summary>
+/// <param name="Operation">Action performed by this command: display a frame, delete, or jump.</param>
+/// <param name="NextInstruction">Following instruction for a frame command or jump destination for a goto.</param>
+/// <param name="Duration">Number of ticks to display the frame before advancing; unused by control transfers.</param>
+/// <param name="SpritemapPointer">Bank-$8D address of the frame artwork; used only by frame commands.</param>
 internal readonly record struct CeresElevatorProjectileInstruction(
     CeresElevatorProjectileOperation Operation,
     ushort NextInstruction = 0,

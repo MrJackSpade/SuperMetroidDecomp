@@ -4,17 +4,36 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
+/// <param name="system">Saved exploration and boss state used to select visible map markers.</param>
+/// <param name="area">Area whose map icons and discovered locations are drawn.</param>
 public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
 {
+    /// <summary>Artwork catalog used to resolve map icon sprite IDs into OAM parts.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapSpriteCatalog? sprites;
+
+    /// <summary>Installs the artwork catalog used by subsequent icon drawing.</summary>
+    /// <param name="catalog">Catalog containing the installed map icon sprite artwork, or <see langword="null"/> when unavailable.</param>
     internal void BindSprites(SuperMetroid.Core.Assets.MapSpriteCatalog? catalog) => sprites = catalog;
+
+    /// <summary>Room-layout coordinates for missile, energy, and map station icons.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
+
+    /// <summary>Installs the station-coordinate layout used to position discovered station icons.</summary>
+    /// <param name="layout">Coordinates for this area's map stations, or <see langword="null"/> when unavailable.</param>
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
+
+    /// <summary>Room-layout coordinates for bosses, the gunship, and elevator landmarks.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
+
+    /// <summary>Installs the landmark-coordinate layout used by boss, gunship, and elevator markers.</summary>
+    /// <param name="layout">Coordinates for this area's landmarks, or <see langword="null"/> when unavailable.</param>
     internal void BindLandmarks(SuperMetroid.Core.Assets.MapLandmarkLayout? layout) => landmarks = layout;
     // Reuse the saved exploration owner already retained by these icons. Adding
     // another serialized owner to the menu would invalidate older debugger graphs.
+    /// <summary>Gets the exploration and boss-state owner shared with pause-map rendering.</summary>
     internal Bank80SystemState MapSystem => system;
+
+    /// <summary>Gets the area whose exploration state controls this icon set.</summary>
     internal AreaId MapArea => area;
 
     /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
@@ -98,6 +117,14 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 (ushort)point.X, (ushort)point.Y, scrollX, scrollY, 0);
         }
     }
+    /// <summary>Resolves a map sprite and appends its parts at scroll-adjusted screen coordinates.</summary>
+    /// <param name="oam">OAM buffer receiving the sprite parts.</param>
+    /// <param name="id">Catalog identifier of the map sprite.</param>
+    /// <param name="x">World-space horizontal position of the icon.</param>
+    /// <param name="y">World-space vertical position of the icon.</param>
+    /// <param name="scrollX">Horizontal map scroll offset subtracted from the icon position.</param>
+    /// <param name="scrollY">Vertical map scroll offset subtracted from the icon position.</param>
+    /// <param name="palette">Palette bits supplied to each emitted OAM part.</param>
     private void Add(OamBuffer oam, ushort id, ushort x, ushort y, ushort scrollX, ushort scrollY, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(

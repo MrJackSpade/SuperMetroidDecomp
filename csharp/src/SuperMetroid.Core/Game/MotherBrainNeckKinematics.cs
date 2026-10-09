@@ -1,12 +1,19 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One world-space joint produced by Mother Brain's articulated neck solver.</summary>
+/// <param name="X">Unsigned world-space horizontal pixel coordinate of the joint.</param>
+/// <param name="Y">Unsigned world-space vertical pixel coordinate of the joint.</param>
 public readonly record struct MotherBrainNeckPoint(ushort X, ushort Y);
 
 /// <summary>
 /// The five positions written by <c>$A9:91B8-$92AA</c>. Segment four is the brain's
 /// attachment point; segments one through three also own the encounter's neck hitboxes.
 /// </summary>
+/// <param name="Segment0">First lower-neck position, near the body attachment.</param>
+/// <param name="Segment1">Second lower-neck position used by the articulated neck.</param>
+/// <param name="Segment2">Lower-to-upper junction from which the upper neck is extended.</param>
+/// <param name="Segment3">First upper-neck position between the junction and brain.</param>
+/// <param name="Segment4">Final upper-neck position attached to the brain.</param>
 internal readonly record struct MotherBrainNeckGeometry(
     MotherBrainNeckPoint Segment0,
     MotherBrainNeckPoint Segment1,
@@ -186,6 +193,12 @@ internal static class MotherBrainNeckKinematics
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
+    /// <summary>Places a lower-neck joint relative to the native body reference using the lower angle's signed trig components.</summary>
+    /// <param name="referenceX">Body-relative horizontal reference used by the native position routine.</param>
+    /// <param name="referenceY">Body-relative vertical reference used by the native position routine.</param>
+    /// <param name="angle">High byte of the lower-neck angle.</param>
+    /// <param name="distance">Distance operand whose low byte is interpreted as a signed 8-bit multiplier.</param>
+    /// <returns>The lower-neck joint's wrapped world-space position.</returns>
     private static MotherBrainNeckPoint CalculateLowerSegment(
         ushort referenceX,
         ushort referenceY,
@@ -197,6 +210,11 @@ internal static class MotherBrainNeckKinematics
             unchecked((ushort)(referenceY - 0x0060 +
                 CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance))));
 
+    /// <summary>Extends an upper-neck joint from the lower/upper junction using the upper angle's signed trig components.</summary>
+    /// <param name="segment2">Junction position that anchors the upper-neck chain.</param>
+    /// <param name="angle">High byte of the upper-neck angle.</param>
+    /// <param name="distance">Distance operand whose low byte is interpreted as a signed 8-bit multiplier.</param>
+    /// <returns>The upper-neck joint's wrapped world-space position.</returns>
     private static MotherBrainNeckPoint CalculateUpperSegment(
         MotherBrainNeckPoint segment2,
         byte angle,

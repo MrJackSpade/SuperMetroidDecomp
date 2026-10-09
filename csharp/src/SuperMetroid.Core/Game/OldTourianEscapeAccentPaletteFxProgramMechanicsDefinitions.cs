@@ -38,7 +38,9 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 10;
 
-    /// <summary>One authored flicker pass: neutral hold and optional tint phase held for an extra native tick.</summary>
+    /// <summary>One authored five-phase tint pass, including its neutral hold and optional extended tint tick.</summary>
+    /// <param name="NeutralHold">Number of updates spent on the pass's untinted palette before its four tint stages.</param>
+    /// <param name="ExtendedTintPhase">Tint-stage index held for two updates, or null when every tint stage uses one update.</param>
     private readonly record struct FlickerPass(ushort NeutralHold, int? ExtendedTintPhase);
     /// <summary>$8D:FBC5-FC59/FC63-FCF7: exact neutral holds16/2/32 and extra-tick phases3/none/1 are authored animation choreography. Identical colors receive different holds; regenerating these choices would invent a different rhythm.</summary>
     private static readonly FlickerPass[] AuthoredCadence = [new(16, 3), new(2, null), new(32, 1)];
@@ -49,10 +51,19 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
     /// <summary>$8D:FC5F selects $00AA: palette-five/color-five panels.</summary>
     private const ushort PanelsColorByteIndex = (5 * 16 + 5) * sizeof(ushort);
+    /// <summary>Cached ordered view of the two compiled railing and panel program definitions.</summary>
     private static readonly ProgramDefinitions Definitions = new();
+
+    /// <summary>Provides indexed access and enumeration over the two immutable accent programs without rebuilding the collection.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the number of compiled accent programs.</summary>
         public int Count => 2;
+
+        /// <summary>Gets the accent-program definition at its owner-order index.</summary>
+        /// <param name="index">Zero for the orange railings or one for the yellow panels.</param>
+        /// <returns>The corresponding immutable program definition.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index does not identify either compiled program.</exception>
         public OldTourianEscapeAccentPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
@@ -61,6 +72,8 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
                 YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates the orange-railing and yellow-panel definitions in their stable owner order.</summary>
+        /// <returns>An enumerator over both compiled program definitions.</returns>
         public IEnumerator<OldTourianEscapeAccentPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -84,6 +97,10 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Returns the authored wait duration for one of the fifteen neutral or tint records.</summary>
+    /// <param name="frame">Zero-based record index in the three-pass, five-phase flicker cycle.</param>
+    /// <returns>The number of updates the record remains active.</returns>
+    /// <exception cref="IndexOutOfRangeException">The record index is outside the compiled program.</exception>
     internal static ushort Duration(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
@@ -96,6 +113,11 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete old-Tourian escape accent control program.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
 {
+    /// <summary>Creates the address and palette-selection metadata for one accent color program.</summary>
+    /// <param name="owner">The railing or panel effect that owns the program.</param>
+    /// <param name="definitionPointer">Bank-$8D pointer to the palette-FX definition.</param>
+    /// <param name="programStart">Bank-$8D pointer to the program's color-index setup.</param>
+    /// <param name="colorByteIndex">CGRAM byte offset selected by the setup instruction.</param>
     internal OldTourianEscapeAccentPaletteFxProgramDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         ushort definitionPointer,

@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// One compiled <c>$A9:CA24-$CA63</c> Baby Metroid ceiling-to-Samus route record.
 /// </summary>
+/// <param name="TargetX">Horizontal waypoint coordinate pursued by this route leg.</param>
+/// <param name="TargetY">Vertical waypoint coordinate pursued by this route leg.</param>
+/// <param name="AccelerationDivisorIndex">Index selecting the native acceleration divisor; authored records use zero.</param>
+/// <param name="MovementFunction">Native callback pointer that applies the leg's wrong-way speed adjustment.</param>
+/// <param name="FollowingWord">Word read beyond the record, which supplies the next waypoint X or terminal callback.</param>
 internal readonly record struct BabyMetroidRouteRecord(
     ushort TargetX,
     ushort TargetY,
@@ -43,9 +48,15 @@ internal static class BabyMetroidRouteDefinitions
     /// the final three the extra-$08 callback.
     /// </summary>
     private static ReadOnlySpan<ushort> WaypointX => [0x00a0, 0x0130, 0x00c0, 0x00c0, 0x00e0, 0x00cd, 0x00cc, 0x00cb];
+    /// <summary>Vertical coordinates paired by index with the eight authored ceiling-to-Samus waypoints.</summary>
     private static ReadOnlySpan<ushort> WaypointY => [0x0078, 0x007a, 0x0040, 0x0070, 0x0080, 0x0090, 0x00a0, 0x00b0];
+
+    /// <summary>First route-leg index using the wrong-way extra-$0008 movement callback.</summary>
     private const int FirstExtraEightLeg = 5;
 
+    /// <summary>Assembles one native route record, including its overlapping next-X or terminal-function word.</summary>
+    /// <param name="index">Zero-based index of an authored waypoint.</param>
+    /// <returns>The compiled values consumed by the native route logic for that leg.</returns>
     private static BabyMetroidRouteRecord Record(int index) => new(
         WaypointX[index],
         WaypointY[index],
@@ -76,6 +87,9 @@ internal static class BabyMetroidRouteDefinitions
                 $"Baby route names unknown movement function ${movementFunction:X4}."),
         };
 
+    /// <summary>Creates the data error used when a pointer does not identify an aligned authored route record.</summary>
+    /// <param name="pointer">The bank-relative route pointer that failed validation.</param>
+    /// <returns>An exception describing the unsupported pointer range or alignment.</returns>
     private static InvalidDataException InvalidPointer(ushort pointer) => new(
         $"Baby route pointer ${pointer:X4} is not an authored $A9:CA24-$A9:CA63 record.");
 }

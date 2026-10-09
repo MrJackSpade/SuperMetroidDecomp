@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
+    /// <summary>Validated eye rectangles in the stable blink-selector order.</summary>
     private readonly EyeRectangle[] frames;
 
+    /// <summary>Creates a presentation from the four packed frames after JSON validation and tilemap-word encoding.</summary>
+    /// <param name="frames">Six-word arrays in open, half-open, closed, and deadpan selector order.</param>
     private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select((words, index) => new EyeRectangle(words, index)).ToArray();
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
@@ -26,10 +29,17 @@ public sealed class IntroEyeTilemapPresentation
         return frames[index].Words;
     }
 
+    /// <summary>Provides one 3-by-2 eye frame, calculating atlas-default words unless imported content overrides them.</summary>
     private sealed class EyeRectangle
     {
+        /// <summary>Selector index determining the frame's native tilemap anchor.</summary>
         private readonly int frame;
+        /// <summary>Imported words retained when at least one cell differs from the calculated native rectangle.</summary>
         private readonly ushort[]? supplied;
+
+        /// <summary>Retains an edited word array only when it differs from the native atlas-derived layout.</summary>
+        /// <param name="words">Six row-major BG tilemap words for this rectangle.</param>
+        /// <param name="frame">Zero-based blink-selector index used to calculate default tile identities.</param>
         internal EyeRectangle(ushort[] words, int frame)
         {
             this.frame = frame;
@@ -40,8 +50,13 @@ public sealed class IntroEyeTilemapPresentation
                 break;
             }
         }
+        /// <summary>Calculates one default tilemap word by offsetting from this frame's anchor using the native row stride.</summary>
+        /// <param name="cell">Zero-based row-major cell index within the 3-by-2 rectangle.</param>
+        /// <returns>The packed BG tilemap word for that cell.</returns>
         private ushort Calculate(int cell) => unchecked((ushort)(IntroEyeTilemapFormat.FirstWord(frame) +
             cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.NativeRowStride));
+
+        /// <summary>Gets imported words when the frame contains edits, otherwise materializes the calculated native rectangle.</summary>
         internal ReadOnlySpan<ushort> Words
         {
             get
@@ -143,6 +158,10 @@ public static class IntroEyeTilemapFormat
     private const int ClosedTile = 0x33a;
     /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
     private const int PortraitPalette = 3;
+    /// <summary>Returns the packed tilemap anchor for the open, half-open, closed, or deadpan portrait drawing.</summary>
+    /// <param name="frame">Zero-based selector index from zero through three.</param>
+    /// <returns>The anchor word using the selected portrait palette and native atlas tile.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The selector index is outside the four authored drawings.</exception>
     internal static ushort FirstWord(int frame)
     {
         int tile = frame switch

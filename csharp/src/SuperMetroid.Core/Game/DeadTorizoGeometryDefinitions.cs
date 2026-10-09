@@ -3,6 +3,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One cropped tile row copied from the corpse sheet to its rotting surface.</summary>
+/// <param name="SourceOffset">Byte offset of the row within the source graphics sheet.</param>
+/// <param name="DestinationOffset">Byte offset where the row begins in the compact rotting-surface layout.</param>
+/// <param name="Length">Number of contiguous source bytes copied for this row.</param>
 internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int DestinationOffset, int Length);
 
 /// <summary>
@@ -12,10 +15,16 @@ internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int Des
 /// </summary>
 internal static class DeadTorizoGeometryDefinitions
 {
+    /// <summary>A SNES 4bpp tile occupies 32 bytes and spans 8 pixels per side.</summary>
     private const int TileBytes = 32, TilePixels = 8;
+
+    /// <summary>Number of tile rows in the stationary corpse artwork's bounding union.</summary>
     internal static int Rows => Bounds.Bottom - Bounds.Top;
+
+    /// <summary>Number of tile columns in the stationary corpse artwork's bounding union.</summary>
     internal static int Columns => Bounds.Right - Bounds.Left;
 
+    /// <summary>Inclusive left/top and exclusive right/bottom tile bounds covering every stock corpse part.</summary>
     private static (int Left, int Top, int Right, int Bottom) Bounds
     {
         get
@@ -31,6 +40,9 @@ internal static class DeadTorizoGeometryDefinitions
         }
     }
 
+    /// <summary>Gets a stock corpse part's source tile coordinates and square extent.</summary>
+    /// <param name="index">Zero-based index into the stationary composition's stock parts.</param>
+    /// <returns>The part's source tile column, row, and tile extent.</returns>
     private static (int X, int Y, int Extent) SourcePart(int index)
     {
         DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);

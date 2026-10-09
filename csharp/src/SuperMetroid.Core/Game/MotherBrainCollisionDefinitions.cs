@@ -1,9 +1,18 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>A fixed bank-$A9 Mother Brain component offset and hitbox-list identity.</summary>
+/// <param name="X">Horizontal offset from the enemy origin used to place this collision component.</param>
+/// <param name="Y">Vertical offset from the enemy origin used to place this collision component.</param>
+/// <param name="HitboxPointer">Bank-$A9 address selecting the component's rectangle list.</param>
 internal readonly record struct MotherBrainCollisionComponent(short X, short Y, ushort HitboxPointer);
 
 /// <summary>One native Mother Brain rectangle with its touch and shot callbacks.</summary>
+/// <param name="Left">Left edge relative to the collision component's origin.</param>
+/// <param name="Top">Top edge relative to the collision component's origin.</param>
+/// <param name="Right">Right edge relative to the collision component's origin.</param>
+/// <param name="Bottom">Bottom edge relative to the collision component's origin.</param>
+/// <param name="TouchAi">Bank-$A9 callback selected when the rectangle overlaps Samus during contact checks.</param>
+/// <param name="ShotAi">Bank-$A9 callback selected when a shot overlaps the rectangle.</param>
 internal readonly record struct MotherBrainCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 

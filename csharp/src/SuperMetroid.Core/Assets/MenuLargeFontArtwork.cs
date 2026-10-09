@@ -12,10 +12,17 @@ namespace SuperMetroid.Core.Assets;
 /// Replacing their coordinates with cases would merely recite the artwork.</summary>
 internal sealed class MenuLargeFontArtwork
 {
+    /// <summary>Number of reviewed glyph cells, including the blank tile whose face-mask row is omitted.</summary>
     internal const int TileCount = 43;
+
+    /// <summary>Eight row bitmasks per nonblank reviewed tile; each set bit marks an authored palette-14 ink pixel.</summary>
     private readonly byte[] faces = new byte[(TileCount - 1) * 8];
+
+    /// <summary>Sparse authored pixel values that differ from the generated basis, preserving intentional artwork choices.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Builds ink masks and records the authored exceptions needed to reproduce the reviewed font cells.</summary>
+    /// <param name="image">Indexed source image supplying the authored pixel values for the menu font sheet.</param>
     internal MenuLargeFontArtwork(IndexedPngImage image)
     {
         foreach (int tile in Tiles())
@@ -36,16 +43,22 @@ internal sealed class MenuLargeFontArtwork
     internal static bool Contains(int tile) => tile is >= 0x0a and <= 0x0f or 0x11 or 0x17 or >= 0x1a and <= 0x1f or
         >= 0x21 and <= 0x27 or >= 0x2b and <= 0x2d or 0x2f or 0x30 or 0x31 or
         >= 0x33 and <= 0x3b or >= 0x3e and <= 0x42 or 0x50 or 0x52;
+
+    /// <summary>Enumerates the reviewed tile IDs in ascending order for mask construction and pixel comparison.</summary>
     private static IEnumerable<int> Tiles()
     {
         for (int tile = 0; tile <= 0x52; tile++) if (Contains(tile)) yield return tile;
     }
+
+    /// <summary>Returns the compact face-mask row ordinal, counting earlier reviewed tiles except blank tile0F.</summary>
     private static int Index(int tile)
     {
         int index = 0;
         for (int candidate = 0; candidate < tile; candidate++) if (candidate != 0x0f && Contains(candidate)) index++;
         return index;
     }
+
+    /// <summary>Maps a lower-half glyph tile to the tile supplying ink above its top edge, or -1 when none is shared.</summary>
     private static int UpperHalf(int tile) => tile switch
     {
         0x1a => 0x0a, // A
@@ -73,6 +86,12 @@ internal sealed class MenuLargeFontArtwork
         0x52 => 0x42, // Z
         _ => -1,
     };
+
+    /// <summary>Gets the authored palette index at a reviewed tile coordinate, using the generated basis except at recorded art edits.</summary>
+    /// <param name="tile">Tile ID from the reviewed large-font subset.</param>
+    /// <param name="x">Horizontal pixel coordinate within the 8-by-8 tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the 8-by-8 tile.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is not reviewed or either coordinate is outside the tile; the exception names <paramref name="tile"/> in either case.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -80,6 +99,11 @@ internal sealed class MenuLargeFontArtwork
             ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates the base ink, diagonal shadow, or transparent palette index from this tile's ink mask and adjoining upper glyph.</summary>
+    /// <param name="tile">Reviewed tile whose base pixel is being calculated.</param>
+    /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the tile.</param>
+    /// <returns>Palette index 14 for ink, 13 for a generated shadow, or 0 for transparency.</returns>
     private byte Basis(int tile, int x, int y)
     {
         if (tile == 0x0f) return 0;

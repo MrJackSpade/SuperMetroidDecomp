@@ -5,12 +5,21 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and checks compiled Waver mechanics and instruction programs
+    /// against cartridge behavior.
+    /// </summary>
     private static void VerifyWaverInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Verifies the compiled Waver instruction words, runs each steady and spinning animation
+    /// through its completion callback and terminal sleep, and guards against runtime ROM reads.
+    /// </summary>
+    /// <param name="rom">The retail address space used to compare compiled words and visual selectors.</param>
     private static void VerifyWaverInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -126,6 +135,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly resolves the steady-left mechanics word to measure warmed lookup allocations.
+    /// </summary>
+    /// <returns>A checksum that consumes the values returned by the mechanics lookup.</returns>
     private static int ProbeWaverInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -137,17 +150,36 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian word from two adjacent cartridge bytes.</summary>
+    /// <param name="bus">The address space containing the instruction data.</param>
+    /// <param name="address">The absolute address of the word's low byte.</param>
+    /// <returns>The word formed from the addressed byte and its successor.</returns>
     private static ushort ReadWaverInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps the cartridge bus to reject runtime reads of compiled Waver mechanics and visual
+    /// selectors while the real enemy instruction programs execute.
+    /// </summary>
+    /// <param name="source">The underlying address space used for reads outside the guarded data and for writes.</param>
     private sealed class WaverInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads of installed Waver visual-selector words.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Number of attempted reads of compiled Waver mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's forbidden-read checks.</summary>
+        /// <param name="address">The absolute cartridge address to read.</param>
+        /// <returns>The underlying byte if the address is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled mechanics or visual selectors and forwards other reads.</summary>
+        /// <param name="address">The absolute address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or a visual selector.</exception>
         public byte ReadByte(int address)
         {
             if (WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -179,6 +211,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards the write unchanged to the wrapped address space.</summary>
+        /// <param name="address">The absolute address receiving the write.</param>
+        /// <param name="value">The byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

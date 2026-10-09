@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the four compiled Zoa animation selectors with ROM and optionally runs handoff checks.</summary>
+    /// <param name="rom">Retail address space containing the native selector pointer table.</param>
+    /// <param name="definitionsOnly">When true, checks selector definitions without registering runtime handoff cases.</param>
     private static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int index = 0; index < 4; index++)
@@ -34,6 +37,7 @@ internal static partial class Program
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
     }
 
+    /// <summary>Checks that each selector, including the no-animation state, installs its matching instruction list.</summary>
     private static void VerifyAllZoaAnimationHandoffs()
     {
         MethodInfo setInstruction = typeof(RoomEnemySystem).GetMethod(
@@ -54,6 +58,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Exercises the production wait-to-rise and rise-to-shoot transitions for one facing direction.</summary>
+    /// <param name="rom">Retail address space wrapped to detect animation-pointer reads during execution.</param>
+    /// <param name="facingRight">Whether Samus is placed to the right of Zoa before the live wait callback runs.</param>
     private static void VerifyLiveZoaAnimationHandoffs(
         SuperMetroidAddressSpace rom,
         bool facingRight)
@@ -98,6 +105,8 @@ internal static partial class Program
             facingRight ? "live right-facing Zoa shoot" : "live left-facing Zoa shoot");
     }
 
+    /// <summary>Creates a Zoa slot with nondefault instruction and loop timers for handoff-reset checks.</summary>
+    /// <returns>A slot whose timers reveal whether selector installation resets them.</returns>
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0)
     {
         CurrentInstruction = 0x7777,
@@ -105,6 +114,11 @@ internal static partial class Program
         Timer = 0x3333,
     };
 
+    /// <summary>Checks that the requested selector is recorded and its instruction list and timers are installed.</summary>
+    /// <param name="slot">Enemy slot whose current instruction and timers are inspected.</param>
+    /// <param name="state">Zoa state containing the current and previous selector indices.</param>
+    /// <param name="expected">Selector expected to be active after the handoff.</param>
+    /// <param name="context">Label included in assertion messages to identify the transition being checked.</param>
     private static void AssertZoaAnimationHandoff(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -122,19 +136,39 @@ internal static partial class Program
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
+    /// <summary>Reads one little-endian selector pointer from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the pointer bytes.</param>
+    /// <param name="address">Address of the pointer's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadZoaAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps cartridge access to reject reads from the migrated Zoa animation-selector
+    /// pointer table while forwarding all other memory operations.
+    /// </summary>
+    /// <param name="source">Underlying address space for reads outside the selector table and for writes.</param>
     private sealed class ZoaAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the same animation-table guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped address space's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the migrated Zoa selector table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated selector-table reads and forwards every other address.</summary>
+        /// <param name="address">Address requested by the running game logic.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the Zoa animation-selector pointer table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa3b40d and < 0xa3b415
                 ? throw new InvalidOperationException(
                     $"Zoa attempted migrated animation-selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

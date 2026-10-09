@@ -5,12 +5,18 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Yellow Pipe Bug instruction checks against the installed retail ROM.</summary>
     private static void VerifyYellowPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics and presentation selectors with bank $B3, then exercises
+    /// all four production programs while the guard rejects reads from those ROM tables.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the native Yellow Pipe Bug programs.</param>
     private static void VerifyYellowPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -108,6 +114,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads the flying program's mechanics word for the warmed allocation check.</summary>
+    /// <returns>A checksum that keeps the resolved instruction values observable.</returns>
     private static int ProbeYellowPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -119,17 +127,37 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the supplied cartridge address.</summary>
+    /// <param name="bus">Address space containing the two instruction bytes.</param>
+    /// <param name="address">Absolute address of the word's low byte.</param>
+    /// <returns>The low byte combined with the following byte as the high byte.</returns>
     private static ushort ReadYellowPipeBugInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Rejects runtime reads of compiled Yellow Pipe Bug mechanics and installed visual
+    /// selectors, while forwarding unrelated address-space accesses to the source.
+    /// </summary>
+    /// <param name="source">Underlying address space used for permitted reads and writes.</param>
     private sealed class YellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of rejected attempts to read installed visual selectors.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Gets the number of rejected attempts to read compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
+
+        /// <summary>Routes an import-time cartridge read through the same ROM access guard.</summary>
+        /// <param name="address">Absolute cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is not a guarded mechanics or selector byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled mechanics and presentation tables and forwards others.</summary>
+        /// <param name="address">Absolute address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address identifies a guarded mechanics or presentation byte.</exception>
         public byte ReadByte(int address)
         {
             if (YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -158,6 +186,10 @@ internal static partial class Program
             }
             return source.ReadByte(address);
         }
+
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Absolute destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

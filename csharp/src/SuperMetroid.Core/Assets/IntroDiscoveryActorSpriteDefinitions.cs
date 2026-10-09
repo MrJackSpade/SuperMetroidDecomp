@@ -27,10 +27,26 @@ internal static class IntroDiscoveryActorSpriteDefinitions
         return (ushort)(BabyStart + 7 * frame);
     }
 
+    /// <summary>
+    /// Provides the ordered set of egg, confused-baby, and reused large-baby OAM compositions.
+    /// </summary>
     internal static IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> Frames { get; } = new FrameList();
+
+    /// <summary>
+    /// Computes each visual definition from its ordinal without storing a separate frame array.
+    /// </summary>
     private sealed class FrameList : IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition>
     {
+        /// <summary>
+        /// Gets the number of egg and confused-baby visual definitions in the ordered list.
+        /// </summary>
         public int Count => 20;
+
+        /// <summary>
+        /// Gets a frame definition by list order, mapping the ordinal to its ROM pointer, asset name, and stock part count.
+        /// </summary>
+        /// <param name="index">The zero-based position in the combined visual-definition list.</param>
+        /// <returns>The visual definition represented by that position.</returns>
         public IntroDiscoveryActorSpriteFrameDefinition this[int index]
         {
             get
@@ -43,6 +59,10 @@ internal static class IntroDiscoveryActorSpriteDefinitions
                 return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
             }
         }
+        /// <summary>
+        /// Enumerates all egg and confused-baby definitions in their published list order.
+        /// </summary>
+        /// <returns>An enumerator over the computed frame definitions.</returns>
         public IEnumerator<IntroDiscoveryActorSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -51,5 +71,11 @@ internal static class IntroDiscoveryActorSpriteDefinitions
     }
 }
 
+/// <summary>
+/// Identifies one intro-discovery actor sprite composition and the number of stock OAM parts it contains.
+/// </summary>
+/// <param name="Pointer">The bank-relative ROM pointer to the composition's spritemap data.</param>
+/// <param name="Name">The asset key used to identify this composition in installed presentation data.</param>
+/// <param name="StockPartCount">The number of sprite parts authored in the stock composition.</param>
 internal readonly record struct IntroDiscoveryActorSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

@@ -18,11 +18,18 @@ public sealed class DachoraColorCatalog
             content.AppendWordFrames("shine", Frames(DachoraPalettePhase.Shine));
         });
 
+    /// <summary>The compiled default RGB5 palette used as the basis for calculated animation colors.</summary>
     private readonly ushort[] normal;
     // Speed and shine frames calculate from the normal colors; only supplied deviations are stored.
+    /// <summary>Supplied speed-frame colors that differ from their calculated normal-based values.</summary>
     private readonly Dictionary<int, ushort> speedEdits = new();
+    /// <summary>Supplied shine-frame colors that differ from their calculated normal-based values.</summary>
     private readonly Dictionary<int, ushort> shineEdits = new();
 
+    /// <summary>Stores validated palette data and records only animation colors that need authored overrides.</summary>
+    /// <param name="normal">The compiled sixteen-color default palette.</param>
+    /// <param name="speed">The four compiled speed-boost palettes to compare with calculated frames.</param>
+    /// <param name="shine">The four compiled shine palettes to compare with calculated frames.</param>
     private DachoraColorCatalog(ushort[] normal, ushort[][] speed, ushort[][] shine)
     {
         this.normal = normal;
@@ -71,11 +78,15 @@ public sealed class DachoraColorCatalog
         return (ushort)result;
     }
 
+    /// <summary>Materializes every frame for a calculated speed or shine phase through <see cref="Resolve"/>.</summary>
+    /// <param name="phase">The animated palette phase whose four frames are produced.</param>
+    /// <returns>Four palettes, each containing the phase's resolved RGB5 colors.</returns>
     private ushort[][] Frames(DachoraPalettePhase phase) =>
         Enumerable.Range(0, DachoraColorRomData.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
 
+    /// <summary>Enforces the resource's camel-case property names, strict unknown-property handling, and readable output.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -144,6 +155,11 @@ public sealed class DachoraColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates and compiles the fixed number of RGB5 palettes in an animated phase.</summary>
+    /// <param name="source">The source frame arrays from the JSON document.</param>
+    /// <param name="name">The phase label included in validation errors.</param>
+    /// <returns>Compiled RGB555 words for each frame, preserving frame and color order.</returns>
+    /// <exception cref="InvalidDataException">The source is null or has the wrong number of frames, or a frame is invalid.</exception>
     private static ushort[][] CompileFrames(PaletteRgb5[][]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.AnimatedFrameCount)
@@ -153,6 +169,11 @@ public sealed class DachoraColorCatalog
             .ToArray();
     }
 
+    /// <summary>Validates one palette and packs each RGB5 channel into the corresponding SNES color word.</summary>
+    /// <param name="source">The ordered color entries to compile.</param>
+    /// <param name="name">The palette label included in validation errors.</param>
+    /// <returns>One packed RGB555 word per color entry.</returns>
+    /// <exception cref="InvalidDataException">The palette has the wrong size or contains a null color or channel outside 0..31.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.ColorsPerFrame)
@@ -171,6 +192,9 @@ public sealed class DachoraColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated property names before JSON deserialization can collapse them.</summary>
+    /// <param name="value">The parsed JSON value tree to inspect for duplicate properties.</param>
+    /// <exception cref="InvalidDataException">An object contains the same property name more than once.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Dachora color property {name}."));

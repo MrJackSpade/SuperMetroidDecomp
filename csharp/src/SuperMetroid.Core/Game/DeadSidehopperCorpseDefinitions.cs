@@ -35,6 +35,15 @@ internal static class DeadSidehopperCorpseDefinitions
 }
 
 /// <summary>One immutable native corpse-rotting configuration record.</summary>
+/// <param name="ConfigurationPointer">Bank-$A9 address of the variant's corpse-rotting configuration entry.</param>
+/// <param name="RottingTablePointer">WRAM-relative address of the per-scanline corpse source-offset table.</param>
+/// <param name="VramTransferPointer">Bank-$A9 address of the tile-transfer data used while the corpse rots.</param>
+/// <param name="CopyFunction">Bank-$A9 function address that copies the selected corpse row into its destination.</param>
+/// <param name="MoveFunction">Bank-$A9 function address that advances the corpse's vertical rotting position.</param>
+/// <param name="EntryCount">Number of entries in the rotting table, also used to derive the terminal scanline limit.</param>
+/// <param name="RotationTablePointer">Bank-$A9 address of the row-offset table used to rotate the corpse image.</param>
+/// <param name="FinishFunction">Bank-$A9 function address that completes the rotting sequence.</param>
+/// <param name="WrapOffset">Offset added when source addressing wraps past the end of the rotting data.</param>
 internal readonly record struct DeadSidehopperCorpseDefinition(
     ushort ConfigurationPointer,
     ushort RottingTablePointer,

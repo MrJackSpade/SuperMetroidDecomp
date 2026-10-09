@@ -5,12 +5,21 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the compiled Stoke instruction tables against the retail ROM and exercises
+    /// production walking and attack behavior while rejecting reads of compiled table bytes.
+    /// </summary>
     private static void VerifyStokeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Validates Stoke instruction mechanics and visual selectors against <paramref name="rom"/>,
+    /// then runs the compiled programs through the production enemy instruction processor.
+    /// </summary>
+    /// <param name="rom">Retail address space used to compare extracted instruction words.</param>
     private static void VerifyStokeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -183,6 +192,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Warms and repeatedly reads a compiled Stoke mechanics word so the caller can measure
+    /// whether steady-state table access allocates memory.
+    /// </summary>
     private static int ProbeStokeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -194,17 +207,38 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads one little-endian 16-bit instruction word from the supplied bus.
+    /// </summary>
+    /// <param name="bus">Address space containing the instruction bytes.</param>
+    /// <param name="address">Address of the low byte; the next address supplies the high byte.</param>
+    /// <returns>The two bytes combined with the low byte in the least significant position.</returns>
     private static ushort ReadStokeInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps the imported address space and fails if production execution tries to fetch
+    /// compiled Stoke mechanics or presentation bytes from source memory.
+    /// </summary>
+    /// <param name="source">Underlying address space for reads and writes outside the guarded ranges.</param>
     private sealed class StokeInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from compiled Stoke table bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-source read through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte from the wrapped source, unless the address is forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Reads from the wrapped bus, rejecting addresses occupied by compiled Stoke
+        /// mechanics or presentation data and counting each rejected attempt.
+        /// </summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The wrapped source byte when the address is outside guarded tables.</returns>
         public byte ReadByte(int address)
         {
             if (StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -217,6 +251,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Determines whether an address is either byte of a compiled Stoke presentation word.
+        /// </summary>
+        /// <param name="address">Address to compare with presentation-word locations.</param>
+        /// <returns><see langword="true"/> when the address falls within a listed word in bank $A2.</returns>
         private static bool IsPresentationByte(int address)
         {
             if ((address & 0xff0000) != 0xa20000)
@@ -235,6 +274,9 @@ internal static partial class Program
             return false;
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

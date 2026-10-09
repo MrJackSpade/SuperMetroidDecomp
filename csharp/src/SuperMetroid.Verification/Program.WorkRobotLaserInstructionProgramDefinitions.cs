@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Work Robot laser mechanics and animation checks against the retail ROM in the verification directory.</summary>
     private static void VerifyWorkRobotLaserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with cartridge data and exercises all five laser definitions through their animation and delete paths.</summary>
+    /// <param name="rom">Retail address space used for expected instruction words and presentation operands.</param>
     private static void VerifyWorkRobotLaserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -144,6 +147,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats alternating initial and loop-command lookups for the warmed allocation check.</summary>
+    /// <returns>A checksum that keeps both mechanics lookup paths observable.</returns>
     private static int ProbeWorkRobotLaserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -157,6 +162,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the enemy-projectile code bank.</summary>
+    /// <param name="source">Address space supplying the instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the low byte; the high byte follows with 16-bit address wrapping.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadWorkRobotLaserInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -166,14 +175,24 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects runtime reads of compiled laser mechanics and records reads of installed presentation operands.</summary>
+    /// <param name="source">Underlying address space for permitted reads and forwarded writes.</param>
     private sealed class WorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation word addresses observed through the guard in the enemy-projectile bank.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read mechanics bytes supplied by compiled laser or shared-delete definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the checked byte-read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is not compiled mechanics.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-operand reads, and delegates other addresses.</summary>
+        /// <param name="address">Address requested from the wrapped SNES address space.</param>
+        /// <returns>The underlying byte for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -205,6 +224,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

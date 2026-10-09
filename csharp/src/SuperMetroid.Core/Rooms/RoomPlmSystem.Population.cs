@@ -142,6 +142,11 @@ recordIndex,
         return spawnedRecordCount;
     }
 
+    /// <summary>Reserves the highest available native PLM slot and seeds it with this record's header, location, and initial instruction.</summary>
+    /// <param name="record">Decoded population entry supplying the header identity and room argument.</param>
+    /// <param name="blockIndex">Room-level block index calculated from the record's coordinates.</param>
+    /// <param name="initialInstruction">Instruction-list address selected by the decoded header.</param>
+    /// <returns>The initialized slot, or null when all native PLM slots are active.</returns>
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,
         int blockIndex,
@@ -166,6 +171,8 @@ recordIndex,
         return null;
     }
 
+    /// <summary>Resets every native scalar and translated family reference before a PLM slot is reused or discarded.</summary>
+    /// <param name="slot">Slot whose prior actor identity and runtime state must be cleared.</param>
     private static void ClearSlot(PlmSlot slot)
     {
         // Native PLM arrays contain only scalar words, so allocating an inactive ID
@@ -196,6 +203,19 @@ recordIndex,
         slot.DraygonCannon = null;
     }
 
+    /// <summary>Dispatches a decoded room-population record to its supported PLM setup and reports whether the header was translated.</summary>
+    /// <param name="bus">Address space used by setup routines that access cartridge-backed room data.</param>
+    /// <param name="level">Room geometry and block words modified or queried by the PLM setup.</param>
+    /// <param name="streamer">Background streamer used by setup routines that install room graphics.</param>
+    /// <param name="vram">Video memory receiving setup-owned graphics transfers.</param>
+    /// <param name="system">Shared room and game state used by doors, collectibles, and other PLMs.</param>
+    /// <param name="areaIndex">Area identity used when setup selects area-specific behavior.</param>
+    /// <param name="getSamus">Accessor for the active Samus actor when a setup needs player state.</param>
+    /// <param name="isAreaTorizoDefeated">Query used to select the Bomb Torizo hand's state.</param>
+    /// <param name="record">Decoded record whose header and argument determine the setup branch.</param>
+    /// <param name="slot">Preallocated PLM slot being initialized.</param>
+    /// <param name="placement">Decoded placement data containing auxiliary scroll and graphic payloads.</param>
+    /// <returns>True if a supported header was handled; false when no setup translation matches it.</returns>
     private bool TryRunRoomPopulationSetup(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -321,6 +341,12 @@ recordIndex,
 }
 
 /// <summary>One immutable six-byte record decoded from a bank-$8F room population.</summary>
+/// <param name="RecordIndex">Zero-based ordinal within the decoded population table.</param>
+/// <param name="RecordPointer">Bank-$8F address of this six-byte source record.</param>
+/// <param name="HeaderPointer">Bank-$84 PLM header selected by the record.</param>
+/// <param name="BlockX">Unsigned horizontal room-block coordinate from the record.</param>
+/// <param name="BlockY">Unsigned vertical room-block coordinate from the record.</param>
+/// <param name="RoomArgument">Header-specific word passed through to the PLM setup and runtime state.</param>
 public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     ushort RecordPointer,

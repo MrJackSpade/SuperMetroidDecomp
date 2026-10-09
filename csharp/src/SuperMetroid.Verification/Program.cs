@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--draygon-escape-drag"])
+{
+    Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
+    return 0;
+}
 if (args is ["--draygon-scrolling-speed-cap"])
 {
     Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
@@ -7950,6 +7955,7 @@ Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout()
 Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles());
 Suite(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge());
 Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
+Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

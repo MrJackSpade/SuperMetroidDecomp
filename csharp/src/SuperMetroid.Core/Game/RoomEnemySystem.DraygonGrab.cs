@@ -283,30 +283,21 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Exact owner-position seam at <c>$A5:94A9</c>. Bank-$90 publishes escape as a
-    /// one-shot owner signal after changing Samus back to an ordinary pose; consume that
-    /// signal before asking the grabbed-pose object to accept another owner coordinate.
+    /// <c>MoveSamusWithDraygon</c> ($A5:94A9). It places Samus without checking that she is
+    /// still held, and only then tests the escape bit bank $90 publishes. The first carry
+    /// call after an escape therefore drags the released Samus once more before Draygon
+    /// switches to flying straight up.
     /// </summary>
     private void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
-        if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
-        {
-            state.Function = DraygonAiFunction.FlyStraightUp;
-            return;
-        }
-
-        if (!samus.DraygonGrabbed.IsActive)
-        {
-            state.Function = DraygonAiFunction.FlyStraightUp;
-            return;
-        }
-
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
             state.Body.XPosition,
             state.Body.YPosition,
             state.FacingRight);
         CapSamusScrollingSpeed(samus);
+        if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
+            state.Function = DraygonAiFunction.FlyStraightUp;
     }
 
     /// <summary>

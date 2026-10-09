@@ -89,7 +89,8 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Ports <c>MoveSamusWithDraygon</c> at `$A5:94A9` after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
-    /// pixels right; both place her 40 pixels below the body center.
+    /// pixels right; both place her 40 pixels below the body center. Draygon also places a
+    /// Samus who has just escaped, until it consumes the escape bit right after this placement.
     /// </summary>
     public DraygonOwnerPlacement ApplyOwnerPosition(
         SamusState samus,
@@ -98,7 +99,11 @@ public sealed class SamusDraygonGrabbedState
         bool draygonFacingRight)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        EnsureActiveGrabbedPose(samus);
+        if (!IsActive && !ReleasePublishedToOwner)
+        {
+            throw new InvalidOperationException(
+                "Draygon places only a held Samus or one whose escape it has not yet seen.");
+        }
 
         OwnerXPosition = ownerXPosition;
         OwnerYPosition = ownerYPosition;

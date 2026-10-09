@@ -8,10 +8,21 @@ namespace SuperMetroid.Core.Assets;
 /// atlas seam, including its documented one-cell-left tile mismatch.</summary>
 internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces the supplied sprite composition with the calculated planet band only for its native frame pointer.</summary>
+    /// <param name="pointer">Native bank-$8C spritemap pointer being composed.</param>
+    /// <param name="supplied">Existing composition retained when the pointer is not the planet frame.</param>
+    /// <returns>The composition including calculated band parts for the matching frame, or <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == CeresDestructionSpriteDefinitions.Planet
             ? supplied.CalculateIfMatching(new ZebesPlanetBandParts()) : supplied;
+
+    /// <summary>Number of compiled small- and large-sprite parts covering the planet's band and edge patches.</summary>
     public int Count => 50;
+
+    /// <summary>Builds one compiled OBJ part from the indexed band, rim, or adjoining edge cell.</summary>
+    /// <param name="index">Zero-based part position in the 50-entry composition.</param>
+    /// <returns>Position, atlas tile, and OBJ attributes for the selected part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -87,12 +98,15 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Enumerates all 50 compiled parts in the order expected by the Ceres destruction composition.</summary>
+    /// <returns>An enumerator over the calculated band and edge parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Tile-column anchors and stride calculation for the packed Ceres planet-band atlas.</summary>
 internal static class ZebesPlanetBandAtlas
 {
     /// <summary>Tile00, northwest two-by-two small-cell patch, with empty top-left.</summary>

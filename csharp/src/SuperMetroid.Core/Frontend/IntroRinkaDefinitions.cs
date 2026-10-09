@@ -95,11 +95,16 @@ internal static class IntroRinkaDefinitions
 }
 
 /// <summary>One native six-byte intro-Rinka cinematic-object definition.</summary>
+/// <param name="PreInstruction">Bank-$8B callback pointer run before the object's instruction list advances.</param>
+/// <param name="InstructionList">Bank-$8B pointer to the object's initial instruction stream.</param>
 internal readonly record struct IntroRinkaActorDefinition(
     ushort PreInstruction,
     ushort InstructionList);
 
 /// <summary>One intro Rinka's final origin and signed whole-pixel X velocity component.</summary>
+/// <param name="X">Authored horizontal spawn offset from the Rinka spawner.</param>
+/// <param name="Y">Final authored vertical spawn offset after the native initializer adjustment.</param>
+/// <param name="XWholeVelocity">Signed whole-pixel velocity component combined with the shared half-pixel fraction.</param>
 internal readonly record struct IntroRinkaPhysicalDefinition(
     ushort X,
     ushort Y,

@@ -5,15 +5,20 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Current persisted controller bindings used to resolve Android keys to SNES buttons.</summary>
     private AndroidControllerPreferences controllerPreferences = new();
+
+    /// <summary>Absolute private-app path for the JSON controller-binding preferences file.</summary>
     private string ControllerPreferencesPath => Path.Combine(FilesDir!.AbsolutePath, "controller-bindings.json");
 
+    /// <summary>Loads saved controller bindings from the app's private file when one exists.</summary>
     private void LoadControllerPreferences()
     {
         if (File.Exists(ControllerPreferencesPath))
             controllerPreferences = AndroidControllerPreferences.Parse(File.ReadAllText(ControllerPreferencesPath));
     }
 
+    /// <summary>Opens the dialog for remapping Android controller keys and restoring default bindings.</summary>
     private void ShowControllerSettings()
     {
         menuOpen = true;
@@ -50,6 +55,8 @@ public sealed partial class MainActivity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Persists updated bindings before publishing them and clears queued input from the old mapping.</summary>
+    /// <param name="updated">The complete controller-preference value to save and make active.</param>
     private void SaveControllerPreferences(AndroidControllerPreferences updated)
     {
         // Persist before publishing the new mapping. A failed write cannot leave the

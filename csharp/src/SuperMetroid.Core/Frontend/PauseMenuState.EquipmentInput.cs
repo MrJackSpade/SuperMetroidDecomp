@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class PauseMenuState
 {
+    /// <summary>Applies equipment-page directional navigation and activation, preserving native dispatch-before-movement behavior and refreshing the selected label and wireframe.</summary>
+    /// <param name="pressed">Button edges consumed on this equipment-page update.</param>
+    /// <param name="nmiFrameCounter8">Low NMI frame counter used to animate the reserve arrow when the reserve row is active.</param>
     private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
     {
         int dispatchedCategory = selectedCategory;
@@ -63,6 +66,11 @@ internal sealed partial class PauseMenuState
         UploadEquipmentTilemap();
     }
 
+    /// <summary>Updates one equipment label using the copy length captured for its category and tracks the Plasma overrun presentation case.</summary>
+    /// <param name="categoryIndex">Equipment category whose label is being changed.</param>
+    /// <param name="item">Item index within that category.</param>
+    /// <param name="wordCount">Number of tilemap words to copy for the label.</param>
+    /// <param name="disabled">Whether the label should use its disabled appearance.</param>
     private void UpdateEquipmentLabel(int categoryIndex, int item, int wordCount, bool disabled)
     {
         var category = PauseEquipmentCategories.Get(categoryIndex);
@@ -75,6 +83,11 @@ internal sealed partial class PauseMenuState
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
     }
 
+    /// <summary>Searches a category from the requested item in the given direction and selects the first collected item.</summary>
+    /// <param name="categoryIndex">Category to search.</param>
+    /// <param name="start">First item index considered.</param>
+    /// <param name="step">Index increment applied after each unavailable item.</param>
+    /// <returns><see langword="true"/> when an item is selected; otherwise leaves the current selection unchanged.</returns>
     private bool TrySelectEquipment(int categoryIndex, int start, int step)
     {
         if (categoryIndex == PauseEquipmentCategories.Beams && samus.HyperBeam != 0)
@@ -100,6 +113,8 @@ internal sealed partial class PauseMenuState
         return false;
     }
 
+    /// <summary>Selects the reserve row when Samus has reserve capacity.</summary>
+    /// <returns><see langword="true"/> if reserve energy capacity exists and the row was selected.</returns>
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
@@ -109,6 +124,8 @@ internal sealed partial class PauseMenuState
         return true;
     }
 
+    /// <summary>Moves the equipment-page selection across beam, suit, boot, and reserve categories using the current directional input.</summary>
+    /// <param name="pressed">Directional buttons pressed during this update.</param>
     private void MoveEquipmentSelector(SnesButton pressed)
     {
         bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;

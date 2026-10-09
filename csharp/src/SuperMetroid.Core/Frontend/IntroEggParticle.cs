@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of the six cartridge-authored shell fragments spawned by egg opcode $A918.</summary>
 internal sealed class IntroEggParticle
 {
+    /// <summary>Owns this fragment's position, animation timer, and instruction-list state.</summary>
     private readonly IntroDiscoverySprite sprite;
 
+    /// <summary>Creates a shell fragment using its cartridge-authored initial position and animation.</summary>
+    /// <param name="index">The fragment number selecting its spawn position and instruction list.</param>
     public IntroEggParticle(byte index)
     {
         IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
@@ -26,6 +29,8 @@ internal sealed class IntroEggParticle
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
+    /// <summary>Advances the fragment's gravity-driven motion and executes its current sprite instruction.</summary>
+    /// <param name="bus">The address space used by the sprite instruction handler.</param>
     public void Step(ISnesAddressSpace bus)
     {
         if (!sprite.IsActive)
@@ -59,10 +64,18 @@ internal sealed class IntroEggParticle
         sprite.Step(bus, instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
+    /// <summary>Submits the active fragment sprite to OAM, optionally using installed presentation data.</summary>
+    /// <param name="bus">The address space used to resolve the sprite's graphics.</param>
+    /// <param name="oam">The OAM buffer that receives the sprite entry.</param>
+    /// <param name="installedArt">Optional compiled presentation data for the intro egg effect.</param>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
         sprite.Draw(bus, oam, installedArt: installedArt);
 
+    /// <summary>Adds one signed 16.16 velocity to the selected sprite axis.</summary>
+    /// <param name="sprite">The sprite whose position and subposition are updated.</param>
+    /// <param name="horizontal"><see langword="true"/> selects X; <see langword="false"/> selects Y.</param>
+    /// <param name="velocity">The whole-word and fractional-word velocity to accumulate.</param>
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,

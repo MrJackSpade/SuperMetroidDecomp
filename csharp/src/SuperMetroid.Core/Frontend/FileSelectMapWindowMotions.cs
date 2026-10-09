@@ -3,6 +3,11 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Application-owned signed 16.16 window motion, in left/right/top/bottom order.</summary>
+/// <param name="Timer">Native countdown value before the window-motion sequence completes.</param>
+/// <param name="Left">Signed 16.16 horizontal velocity for the left edge.</param>
+/// <param name="Right">Signed 16.16 horizontal velocity for the right edge.</param>
+/// <param name="Top">Signed 16.16 vertical velocity for the top edge.</param>
+/// <param name="Bottom">Signed 16.16 vertical velocity for the bottom edge.</param>
 internal readonly record struct FileSelectMapWindowMotion(ushort Timer, uint Left, uint Right, uint Top, uint Bottom);
 
 /// <summary>Calculates the native map-window velocities and timer from the stock label origin.</summary>

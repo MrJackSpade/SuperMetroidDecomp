@@ -10,10 +10,20 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
+    /// <summary>Address space passed to the room-map window when the selected area is confirmed.</summary>
     private readonly ISnesAddressSpace bus;
+
+    /// <summary>Saved-game area whose room map this navigation instance prepares.</summary>
     private readonly int area;
+
+    /// <summary>Most recently sampled controller word, used to detect newly pressed buttons.</summary>
     private ushort previousInput;
+
+    /// <summary>Optional world-map label layout supplied to the room-map window.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.WorldMapLabelLayout? labels;
+
+    /// <summary>Sets the label layout that will be passed to a room-map window when it is created.</summary>
+    /// <param name="content">World-map label layout to use, or <see langword="null"/> when labels are unavailable.</param>
     internal void BindLabels(SuperMetroid.Core.Assets.WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>

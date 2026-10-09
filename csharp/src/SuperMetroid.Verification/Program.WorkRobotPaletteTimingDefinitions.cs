@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares native Work Robot palette durations with compiled timing and verifies live presentation playback.</summary>
+    /// <param name="rom">Cartridge address space used to read the six native duration words and other expected data.</param>
     private static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -137,13 +139,24 @@ internal static partial class Program
             bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
     }
 
+    /// <summary>Detects runtime reads of Work Robot palette timers, colors, or the list terminator.</summary>
+    /// <param name="source">Underlying address space that serves reads outside the guarded data and receives writes.</param>
     private sealed class WorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Count of rejected reads from guarded timing, color, or terminator bytes.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source requests through the same guarded read policy as ordinary bus access.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped source byte when the address is outside guarded palette data.</returns>
+        /// <exception cref="InvalidOperationException">The importer requests a guarded timer, color, or terminator byte.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of native palette controls or colors and forwards all other requests.</summary>
+        /// <param name="address">Address requested from the cartridge bus.</param>
+        /// <returns>The wrapped source byte when the address is outside guarded data.</returns>
+        /// <exception cref="InvalidOperationException">The requested byte is a native timer, palette color, or list terminator.</exception>
         public byte ReadByte(int address)
         {
             int relative = address -
@@ -171,6 +184,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged so the playback path can operate on the wrapped bus.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

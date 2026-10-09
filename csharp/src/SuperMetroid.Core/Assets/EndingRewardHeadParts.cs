@@ -6,11 +6,19 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Reward head compositions: atlas rows, shared upper head and packed
 /// jump/helmet caps. Native draw order is preserved independently of tile order.</summary>
+/// <param name="pose">Ending-cinematic pose whose head sprite parts are generated on demand.</param>
 internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Determines whether a cinematic pose is represented by a separately composed head spritemap.</summary>
+    /// <param name="pose">Pose to classify.</param>
+    /// <returns><see langword="true"/> for one of the supported helmeted or suitless head frames.</returns>
     private static bool IsHead(Pose pose) => pose is >= Pose.LargeSamusHelmetFromEndingFrame1 and <= Pose.JumpingSamusHeadFromEnding
         or >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadWithHelmetFromEnding;
 
+    /// <summary>Uses generated head parts when the pointer identifies a supported ending-reward head frame.</summary>
+    /// <param name="pointer">Compiled spritemap pointer to compare with the ending-reward frame catalog.</param>
+    /// <param name="supplied">Composition used to calculate pointers outside the generated head frames.</param>
+    /// <returns>The composition calculated with generated head parts for a match, or the supplied composition's normal result otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (Pose pose = Pose.LargeSamusFromEndingStanding; pose <= Pose.SuitlessSamusLowerBody; pose++)
@@ -19,6 +27,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         return supplied;
     }
 
+    /// <summary>Gets the number of OAM entries in the selected head spritemap.</summary>
     public int Count => pose switch
     {
         Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2 => 5,
@@ -28,6 +37,9 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Gets the generated head part at its native draw-order index.</summary>
+    /// <param name="index">Zero-based OAM entry index for the selected pose.</param>
+    /// <returns>Sprite position, size, and atlas tile attributes for that part.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -72,6 +84,9 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates the generated head parts in the order the native spritemap draws them.</summary>
+    /// <returns>An enumerator that creates each part on demand.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

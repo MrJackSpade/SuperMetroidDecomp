@@ -38,6 +38,11 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>$8B:CE35, exclusive end before the spawner's separate program.</summary>
     internal const ushort StationBlastEnd = 0xce35;
 
+    /// <summary>Produces one byte of a static-frame loop instruction list.</summary>
+    /// <param name="offset">The byte offset within the encoded list.</param>
+    /// <param name="start">The bank-$8B pointer used by the loop instruction.</param>
+    /// <param name="frame">The spritemap frame displayed by the list.</param>
+    /// <returns>The encoded byte at <paramref name="offset"/>.</returns>
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -51,6 +56,9 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Produces one byte of the PLANET ZEBES title and flight-transition sequence.</summary>
+    /// <param name="offset">The byte offset within the title instruction list.</param>
+    /// <returns>The encoded wait, callback, frame, or transition instruction byte.</returns>
     private static byte TitleByte(int offset)
     {
         ushort word = (offset / 2) switch
@@ -71,6 +79,9 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Produces a byte from the looping instruction list for one star-sheet quadrant.</summary>
+    /// <param name="offset">The byte offset across the four adjacent quadrant lists.</param>
+    /// <returns>The encoded byte belonging to the selected quadrant's loop.</returns>
     private static byte StarSheetByte(int offset)
     {
         int quadrant = offset / 8;
@@ -84,6 +95,9 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         };
         return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
     }
+    /// <summary>Reads one compiled instruction byte from the destruction cinematic's owned lists.</summary>
+    /// <param name="pointer">The bank-$8B address of the byte to read.</param>
+    /// <returns>The byte at the address, including bytes delegated to adjacent cinematic lists.</returns>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
@@ -105,6 +119,9 @@ internal static class CeresDestructionSpriteInstructionDefinitions
             $"Ceres destruction instruction $8B:{pointer:X4} leaves its compiled lists.");
     }
 
+    /// <summary>Reads a little-endian instruction word without crossing a compiled-list boundary.</summary>
+    /// <param name="pointer">The bank-$8B address of the word's low byte.</param>
+    /// <returns>The combined 16-bit instruction value.</returns>
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));

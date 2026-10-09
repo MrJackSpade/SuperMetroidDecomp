@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>$82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options heading outlines. Stock bounds follow immutable heading typography;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>
+/// <param name="heading">One supported file-select border or options heading key.</param>
 internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Native heading words on the options BG pages; each uses eight-pixel character cells.</summary>
@@ -33,11 +34,20 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
     /// <summary>$82:D41B: selected shorter center traversal reused on both rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
     private static ReadOnlySpan<byte> SpecialCenter => [0, 1, 4, 3, 2];
 
+    /// <summary>Recalculates a supplied composition with this border layout when the name is one of the supported headings.</summary>
+    /// <param name="name">Heading or border key identifying a compiled stock layout.</param>
+    /// <param name="supplied">Composition retained when the name is not handled here.</param>
+    /// <returns>The supplied composition recalculated for a matching heading, or the original composition otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
         name is "Heading.Primary" or "Heading.Controller" or "Heading.Special" or "Border.Main" or "Border.Copy" or "Border.Clear"
             ? supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(name)) : supplied;
 
+    /// <summary>Gets the number of border sprite parts required to outline the selected heading.</summary>
     public int Count => 2 * (Columns + Rows - 2);
+
+    /// <summary>Maps a native OAM index to the border grid cell occupied by that sprite part.</summary>
+    /// <param name="index">Zero-based position in the authored sprite ordering.</param>
+    /// <returns>The grid column and row for that OAM entry.</returns>
     private (int Column, int Row) Position(int index)
     {
         bool primary = heading == "Heading.Primary";
@@ -101,6 +111,11 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
         index -= OuterRunLength * 2;
         return (leftLength - index, 0);
     }
+
+    /// <summary>Gets the compiled border sprite part at its native OAM index.</summary>
+    /// <param name="index">Zero-based position in this heading's border parts.</param>
+    /// <returns>The tile and centered position for the indexed border cell.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside this layout's sprite parts.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -116,6 +131,9 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
                 SnesObjAttributeWord.Create(tile, 0, 3, default), true);
         }
     }
+
+    /// <summary>Enumerates the border sprite parts in their authored OAM order.</summary>
+    /// <returns>An enumerator that yields every part in the layout.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

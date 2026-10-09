@@ -9,8 +9,13 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class CartridgePaletteTransition
 {
+    /// <summary>Destination BGR555 words copied from the palette supplied when the transition began.</summary>
     private readonly ushort[] target;
+
+    /// <summary>Number of interpolation intervals before the exact destination is installed.</summary>
     private readonly int denominator;
+
+    /// <summary>Shared native counter whose current value selects the transition step.</summary>
     private readonly GradualColorChangeCounter numerator;
 
     /// <param name="target">All 256 destination CGRAM color words in native BGR555 order; copied into the transition's target buffer.</param>
@@ -58,6 +63,7 @@ internal sealed class CartridgePaletteTransition
     /// <summary>Updates the native target buffer without resetting fade progress or current colors.</summary>
     internal void SetTargetColor(int index, ushort color) => target[index] = color;
 
+    /// <summary>Interpolates the red, green, and blue five-bit channels independently for one step.</summary>
     private ushort CalculateColor(int step, ushort current, ushort destination)
     {
         int red = CalculateComponent(step, current & 0x1f, destination & 0x1f);
@@ -66,6 +72,7 @@ internal sealed class CartridgePaletteTransition
         return unchecked((ushort)(red | (green << 5) | (blue << 10)));
     }
 
+    /// <summary>Applies the native fixed-point channel delta, preserving the start and exact final values.</summary>
     private int CalculateComponent(int step, int current, int destination)
     {
         if (step == 0)

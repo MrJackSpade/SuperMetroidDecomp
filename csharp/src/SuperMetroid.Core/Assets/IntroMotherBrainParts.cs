@@ -5,8 +5,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Three-by-three sixteen-pixel grid with shared bottom row and center,
 /// plus five animated cells packed into adjacent atlas patches.</summary>
+/// <param name="frame">Animated frame index selecting the layout of the five changing cells.</param>
 internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses the packed grid layout when the pointer identifies one of the three animated frames.</summary>
+    /// <param name="pointer">Spritemap pointer to match against the intro Mother Brain frames.</param>
+    /// <param name="supplied">Composition decoded from the selected spritemap.</param>
+    /// <returns>A composition with the packed-grid parts for a recognized frame; otherwise, the supplied composition.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -14,7 +19,14 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 return supplied.CalculateIfMatching(new IntroMotherBrainParts(frame));
         return supplied;
     }
+
+    /// <summary>Gets the nine parts that form the three-by-three Mother Brain drawing.</summary>
     public int Count => 9;
+
+    /// <summary>Gets one cell of the three-by-three drawing in spritemap order.</summary>
+    /// <param name="index">Zero-based position of the cell in the composition.</param>
+    /// <returns>The selected cell's screen position and tile from the packed atlas.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the nine-cell composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -55,6 +67,9 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 unchecked((byte)(-24 + 16 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates the nine drawing cells in spritemap order.</summary>
+    /// <returns>An enumerator over the generated sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -62,6 +77,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Identifies the base tile and packed patches used by the intro Mother Brain drawings.</summary>
 internal static class IntroMotherBrainAtlas
 {
     /// <summary>Tile$150, upper-left of the first48x48 drawing. Animated patches

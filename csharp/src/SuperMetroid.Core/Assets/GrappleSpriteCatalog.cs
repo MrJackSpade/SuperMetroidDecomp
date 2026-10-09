@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class GrappleSpriteCatalog
 {
+    /// <summary>Compiled segment words, retained only when at least one authored appearance differs from stock.</summary>
     private readonly ushort[]? segments;
     /// <summary>Selected small-OBJ endpoint attribute word used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies tile $20, palette 5 and priority 3.</summary>
     public ushort Endpoint { get; }
+    /// <summary>Creates the runtime catalog and omits the segment array when every compiled word matches stock.</summary>
+    /// <param name="endpoint">Compiled OBJ attribute word shared by connected and unconnected endpoint drawing.</param>
+    /// <param name="segments">Compiled OBJ attribute words in native timed-record order for the four rope frames.</param>
     private GrappleSpriteCatalog(ushort endpoint, ushort[] segments)
     {
         Endpoint = endpoint;
@@ -26,6 +30,7 @@ public sealed class GrappleSpriteCatalog
             ? segments is null ? GrappleSpriteDefinitions.StockSegment(frame) : segments[frame]
             : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
 
+    /// <summary>Strict camel-case serializer settings shared by grapple appearance loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -55,6 +60,10 @@ public sealed class GrappleSpriteCatalog
         return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
     }
 
+    /// <summary>Validates one editable OBJ appearance and packs its tile, palette, priority, and flip flags.</summary>
+    /// <param name="style">Appearance fields to encode, or null when the document contains a missing style.</param>
+    /// <returns>The native OBJ attribute word used by the grapple drawing paths.</returns>
+    /// <exception cref="InvalidDataException">The style is null or its tile, palette, or priority values fall outside the hardware-supported range.</exception>
     private static ushort Compile(GrappleSpriteStyle? style)
     {
         if (style is null || style.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || style.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows ||
@@ -75,6 +84,9 @@ public sealed class GrappleSpriteCatalog
         return bytes;
     }
 
+    /// <summary>Rejects repeated JSON property names throughout a parsed grapple appearance document.</summary>
+    /// <param name="value">Parsed JSON value whose objects are checked using ordinal, case-sensitive name comparison.</param>
+    /// <exception cref="InvalidDataException">An object in the document contains a duplicate property name.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Grapple sprite property."));

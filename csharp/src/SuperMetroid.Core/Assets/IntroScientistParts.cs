@@ -4,8 +4,13 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Atlas packing and sprite geometry for subtitle arrows, delivered/examined baby and caret.</summary>
+/// <param name="frame">Zero-based frame index: 0–2 select arrows, 3–5 delivered poses, 6–8 examined poses, and 9 the caret.</param>
 internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Adds the matching intro-scientist sprite parts when the pointer selects one of their ten frames.</summary>
+    /// <param name="pointer">Sprite pointer to match against the compiled frame definitions.</param>
+    /// <param name="supplied">Composition accumulated from other matching sprite parts.</param>
+    /// <returns>The supplied composition with the matching frame parts included, or unchanged when no frame matches.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 10; frame++)
@@ -13,7 +18,14 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 return supplied.CalculateIfMatching(new IntroScientistParts(frame));
         return supplied;
     }
+
+    /// <summary>Gets the number of compiled parts for the selected arrow, baby, or caret frame.</summary>
     public int Count => frame < 3 ? 2 : frame < 6 ? 6 : 1;
+
+    /// <summary>Gets one compiled sprite part in the selected frame's native OAM order.</summary>
+    /// <param name="index">Zero-based part index within this frame.</param>
+    /// <returns>The tile, position, size, and flip attributes for the part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside this frame's part range.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -67,6 +79,9 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+
+    /// <summary>Enumerates the selected frame's compiled sprite parts in native OAM order.</summary>
+    /// <returns>An enumerator over each part in the frame.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -74,6 +89,7 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Tile indices for the intro scientist's arrows, baby poses, and blinking caret artwork.</summary>
 internal static class IntroScientistAtlas
 {
     /// <summary>Tile$1A8, first subtitle-arrow half in8C:8CCF.</summary>

@@ -8,14 +8,25 @@ namespace SuperMetroid.Core.Assets;
 /// Font3 large glyphs occupy the OBJ atlas at tile$100 plus their reviewed font index.</summary>
 internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Completion-text reveal frame that determines the visible glyphs and their OAM order.</summary>
     private readonly int frame;
+
+    /// <summary>Creates the sprite-part view for one frame of the completion-text sequence.</summary>
+    /// <param name="frame">Reveal frame from zero through fifty-five.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is outside the authored sequence.</exception>
     internal EndingCompletionTextParts(int frame)
     {
         if ((uint)frame >= 56) throw new ArgumentOutOfRangeException(nameof(frame));
         this.frame = frame;
     }
+
+    /// <summary>Gets the number of top-and-bottom glyph parts visible on this reveal frame.</summary>
     public int Count => frame < 15 ? 2 * (frame + 1) : frame < 36 ? 2 * (frame - 14) : frame < 45 ? 2 * (frame - 35) : 2;
 
+    /// <summary>Gets one glyph half at its position in the frame's native sprite ordering.</summary>
+    /// <param name="index">Zero-based index among the visible top-and-bottom sprite parts.</param>
+    /// <returns>The compiled OAM part for that glyph half.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the parts visible on this frame.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -56,6 +67,9 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+
+    /// <summary>Enumerates the visible glyph halves in their native sprite ordering.</summary>
+    /// <returns>An enumerator that yields each compiled part for this reveal frame.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

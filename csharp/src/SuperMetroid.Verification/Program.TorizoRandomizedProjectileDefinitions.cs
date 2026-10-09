@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies randomized Bomb and Golden Torizo projectile tuples and exercises every production spawn variant.</summary>
+    /// <param name="rom">Cartridge address space containing the original randomized-projectile tuples.</param>
     private static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -98,6 +100,12 @@ internal static partial class Program
             "Torizo randomized projectiles: all forty tuple words, signed-jitter boundaries, and eight real Bomb/Golden orb, egg and eye-beam spawns pass with every tuple forbidden.");
     }
 
+    /// <summary>Invokes one production spawn routine and checks its selected definition, position, and applicable velocity jitter.</summary>
+    /// <param name="guarded">Address space that rejects reads from the migrated projectile tuples.</param>
+    /// <param name="methodName">Room-enemy spawn method to invoke by reflection.</param>
+    /// <param name="facingRight"><see langword="true"/> to initialize the Torizo facing right; otherwise, facing left.</param>
+    /// <param name="expected">Compiled tuple expected for the selected facing.</param>
+    /// <param name="velocityIsReplaced">Whether the spawn routine subsequently replaces the tuple-derived velocities.</param>
     private static void VerifyTorizoRandomizedSpawn(
         ISnesAddressSpace guarded,
         string methodName,
@@ -139,11 +147,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Forwards address-space operations but rejects reads from the compiled randomized-projectile tuples.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class TorizoRandomizedProjectileReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-source byte request through the guarded read operation.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte at the address when it lies outside the compiled tuple ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted byte and rejects access to any migrated randomized-projectile tuple.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The wrapped address space's byte for an address outside the tuple ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled projectile tuple.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x86ac08 and < 0x86ac1c or
                 >= 0x86ac99 and < 0x86acad or
@@ -153,6 +170,9 @@ internal static partial class Program
                     $"Torizo randomized projectile attempted migrated tuple read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

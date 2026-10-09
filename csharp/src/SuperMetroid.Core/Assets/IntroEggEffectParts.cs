@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Assets;
 /// then continues down its first column. Shared OAM fields are calculated.</summary>
 internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Applies the single-tile provider for a matching shell-fragment or slime frame.</summary>
+    /// <param name="pointer">The native frame pointer to match against the intro egg effect sequence.</param>
+    /// <param name="supplied">The composition that receives the provider when the pointer matches.</param>
+    /// <returns>The wrapped composition for a matching frame, or <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 11; frame++)
@@ -15,7 +19,12 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 return supplied.CalculateIfMatching(new IntroEggEffectParts(frame));
         return supplied;
     }
+    /// <summary>Each intro egg effect frame contributes one centered sprite part.</summary>
     public int Count => 1;
+
+    /// <summary>Gets the sole centered tile part represented by this effect frame.</summary>
+    /// <param name="index">The part index; only zero is valid.</param>
+    /// <returns>The part with this frame's atlas tile and OAM palette selection.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -32,10 +41,13 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the single sprite part emitted for this frame.</summary>
+    /// <returns>An enumerator containing the centered effect tile.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Defines the atlas origins used to traverse the intro egg fragment and slime tiles.</summary>
 internal static class IntroEggEffectAtlas
 {
     /// <summary>Tile$105, upper-left of the two-column shell-fragment patch.</summary>

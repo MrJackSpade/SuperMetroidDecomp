@@ -10,7 +10,11 @@ public sealed class BeamPaletteCatalog
 {
     // Reviewed exact material paint and copied target metadata have bounded dispositions;
     // every stock output calculates, while independently supplied words stay exact.
+    /// <summary>Explicit selection/color values that differ from the calculated stock paint; absent keys use the material definition.</summary>
     private readonly Dictionary<int, ushort> palettes = new();
+
+    /// <summary>Builds the immutable lookup from validated rows, retaining only colors that need an explicit value.</summary>
+    /// <param name="rows">Sixteen-color RGB5 rows for each ordinary beam selection.</param>
     private BeamPaletteCatalog(ushort[][] rows)
     {
         for (int selection = 0; selection < rows.Length; selection++)
@@ -19,9 +23,14 @@ public sealed class BeamPaletteCatalog
                 palettes.Add(selection * BeamPaletteDefinitions.ColorCount + color, rows[selection][color]);
     }
 
+    /// <summary>Resolves a palette entry from its explicit override or the calculated stock paint.</summary>
+    /// <param name="selection">Ordinary beam combination index.</param>
+    /// <param name="color">Color index within that selection's sixteen-entry palette.</param>
+    /// <returns>The RGB555 word used by the native palette transfer.</returns>
     private ushort Color(int selection, int color) =>
         palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out ushort supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
+    /// <summary>Strict JSON settings shared by beam palette loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -84,6 +93,8 @@ public sealed class BeamPaletteCatalog
         return bytes;
     }
 
+    /// <summary>Rejects duplicate, case-sensitive property names before deserialization can collapse them.</summary>
+    /// <param name="value">Parsed JSON value whose object properties are checked.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate beam palette property."));

@@ -19,17 +19,25 @@ public sealed class ZebetiteColorCatalog
             }
         });
 
+    /// <summary>RGB5 overrides keyed by pulse-row and color position when values differ from the native symmetric pulse.</summary>
     private readonly Dictionary<int, ushort> edits;
 
+    /// <summary>Creates a catalog backed by the validated set of non-native color edits.</summary>
+    /// <param name="edits">Packed RGB5 overrides indexed by row and color position.</param>
     private ZebetiteColorCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
     private static ushort NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
+    /// <summary>Selects an edited RGB5 value when present, otherwise the corresponding native pulse color.</summary>
+    /// <param name="frame">Zero-based pulse row.</param>
+    /// <param name="color">Color position within the row.</param>
+    /// <returns>The selected packed RGB5 color.</returns>
     private ushort Resolve(int frame, int color) =>
         edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out ushort edited)
             ? edited : NativeColor(frame, color);
 
+    /// <summary>JSON settings for the strict, camel-case Zebetite color asset schema.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -99,6 +107,8 @@ public sealed class ZebetiteColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects duplicate property names anywhere in the parsed color document.</summary>
+    /// <param name="value">Root JSON element whose object properties are checked.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Zebetite color property."));

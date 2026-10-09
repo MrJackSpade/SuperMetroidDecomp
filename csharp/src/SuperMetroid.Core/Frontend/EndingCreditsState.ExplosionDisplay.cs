@@ -5,11 +5,17 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Marks the finale composition with prioritized backgrounds and subscreen color addition as active.</summary>
     private bool explosionFinaleDisplay;
+
+    /// <summary>Marks the earlier explosion-burst composition with eligible object color addition as active.</summary>
     private bool explosionBurstDisplay;
+
+    /// <summary>Indicates that either explosion composition is selected before whiteout and planet-escape rendering.</summary>
     private bool UsesExplosionFinaleDisplay => (explosionFinaleDisplay || explosionBurstDisplay) && !ExplosionWhiteout
         && Phase < EndingCreditsPhase.PlanetEscapeFast;
 
+    /// <summary>Captures the finale's prioritized backgrounds and the winning subscreen pixel with object color math.</summary>
     private LayeredRenderSnapshot CaptureExplosionFinale()
     {
         if (!explosionFinaleDisplay) return CaptureExplosionBurst();
@@ -33,6 +39,7 @@ internal sealed partial class EndingCreditsState
             EndingExplosionDisplayDefinitions.Characters, 0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, 32, 32, high);
     }
 
+    /// <summary>Captures the initial burst map, prioritized object layers, and eligible subscreen color math.</summary>
     private LayeredRenderSnapshot CaptureExplosionBurst()
     {
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and

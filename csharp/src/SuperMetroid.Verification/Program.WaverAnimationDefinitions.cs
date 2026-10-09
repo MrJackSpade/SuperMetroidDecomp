@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all four Waver animation selectors against cartridge pointers and production initialization and handoff behavior.</summary>
+    /// <param name="rom">Cartridge address space containing the native animation selector table.</param>
     private static void VerifyWaverAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -73,19 +75,34 @@ internal static partial class Program
             "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");
     }
 
+    /// <summary>Reads one little-endian word from the cartridge selector table.</summary>
+    /// <param name="bus">Address space providing the two bytes to combine.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The unsigned word formed from the low byte and following high byte.</returns>
     private static ushort ReadWaverAnimationWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects runtime reads from the migrated Waver animation-selector table.</summary>
+    /// <param name="source">Underlying address space for reads outside the protected table and for writes.</param>
     private sealed class WaverAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes a cartridge-byte read through the animation-selector table guard.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte unless the address is in the protected table, in which case the read throws.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte while rejecting accesses to the native Waver animation-selector table.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte when the address is outside the protected table.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa386db and < 0xa386e3
                 ? throw new InvalidOperationException(
                     $"Waver attempted migrated animation-selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

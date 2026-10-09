@@ -19,10 +19,14 @@ public sealed class BotwoonColorCatalog
             }
         });
 
+    /// <summary>Resolves packed color words from the validated, compiled health-band rows.</summary>
     private readonly BotwoonHealthPaintDefinitions health;
 
+    /// <summary>Creates a catalog from rows that have already passed palette shape and RGB5 validation.</summary>
+    /// <param name="rows">Compiled sixteen-color rows in health-band order.</param>
     private BotwoonColorCatalog(ushort[][] rows) => health = new(rows);
 
+    /// <summary>JSON settings shared by Botwoon color loading and serialization.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -82,6 +86,11 @@ public sealed class BotwoonColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates one health band's RGB5 entries and packs them into SNES BGR555 words.</summary>
+    /// <param name="source">Sixteen channel triplets from the editable color document.</param>
+    /// <param name="band">Health-band index used to identify invalid input.</param>
+    /// <returns>Packed palette words in the input color order.</returns>
+    /// <exception cref="InvalidDataException">The row has the wrong length or contains a missing or out-of-range color.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int band)
     {
         if (source is null ||
@@ -101,6 +110,9 @@ public sealed class BotwoonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON property names before schema deserialization can hide duplicate values.</summary>
+    /// <param name="value">Parsed JSON value whose object properties are checked.</param>
+    /// <exception cref="InvalidDataException">An object contains a duplicate property name.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Botwoon color property {name}."));

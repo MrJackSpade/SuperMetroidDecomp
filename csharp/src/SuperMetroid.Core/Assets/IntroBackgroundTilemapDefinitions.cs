@@ -10,6 +10,8 @@ internal static class IntroBackgroundTilemapDefinitions
     /// <summary>$96:FF14: unadorned scene interior blank $3FF.</summary>
     private const ushort SceneBlank = 0x03ff;
 
+    /// <summary>Builds the four native intro background pages from their selected tile compositions.</summary>
+    /// <returns>Page tilemap words concatenated in page order, with each word stored little-endian.</returns>
     internal static byte[] Compile()
     {
         var output = new byte[IntroCinematicArtworkFormat.BackgroundPageCount * IntroCinematicArtworkFormat.BackgroundPageByteCount];
@@ -249,15 +251,38 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(x + 1, y + 1, narrow ? SceneBlank : 0x1e00);
     }
 
+    /// <summary>Writes tilemap words into one page of the compiled intro background buffer.</summary>
+    /// <param name="output">Combined output buffer receiving all page words.</param>
+    /// <param name="page">Zero-based page index selecting the 32-by-32-word region in <paramref name="output"/>.</param>
     private sealed class Page(byte[] output, int page)
     {
+        /// <summary>Stores one tilemap word at a page-local tile coordinate.</summary>
+        /// <param name="x">Horizontal tile coordinate within the page.</param>
+        /// <param name="y">Vertical tile coordinate within the page.</param>
+        /// <param name="word">Tilemap word to write in little-endian order.</param>
         internal void Put(int x, int y, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
             output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + (y * 32 + x) * 2), (ushort)word);
+
+        /// <summary>Fills a rectangular page region with one repeated tilemap word.</summary>
+        /// <param name="x">Left tile coordinate of the region.</param>
+        /// <param name="y">Top tile coordinate of the region.</param>
+        /// <param name="width">Region width in tiles.</param>
+        /// <param name="height">Region height in tiles.</param>
+        /// <param name="word">Tilemap word written to every tile in the region.</param>
         internal void Fill(int x, int y, int width, int height, int word)
         {
             for (int row = 0; row < height; row++)
             for (int column = 0; column < width; column++) Put(x + column, y + row, word);
         }
+
+        /// <summary>Copies a rectangular atlas patch into the page, optionally reflecting it and setting the corresponding tile flip bits.</summary>
+        /// <param name="x">Left tile coordinate where the patch is placed.</param>
+        /// <param name="y">Top tile coordinate where the patch is placed.</param>
+        /// <param name="width">Patch width in tiles.</param>
+        /// <param name="height">Patch height in tiles.</param>
+        /// <param name="word">Atlas word at the patch's unreflected origin.</param>
+        /// <param name="mirrorX"><see langword="true"/> to reverse columns and set horizontal flip on each output word.</param>
+        /// <param name="mirrorY"><see langword="true"/> to reverse rows and set vertical flip on each output word.</param>
         internal void Patch(int x, int y, int width, int height, int word, bool mirrorX = false, bool mirrorY = false)
         {
             for (int row = 0; row < height; row++)

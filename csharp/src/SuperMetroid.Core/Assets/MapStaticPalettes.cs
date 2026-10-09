@@ -7,8 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Named complete presentation palettes; no native offsets, palette programs or selection rules.</summary>
 public sealed class MapStaticPalettes
 {
+    /// <summary>Complete packed RGB555 palettes retained for the pause screen (<c>pause</c>) and file-select screen (<c>fileSelect</c>).</summary>
     private readonly ushort[] pause, fileSelect;
+
+    /// <summary>Complete packed RGB555 world-map palettes indexed by the six Zebes area identifiers.</summary>
     private readonly Dictionary<AreaId, ushort[]> world;
+
+    /// <summary>Stores validated complete palette arrays for direct access by map presentation systems.</summary>
+    /// <param name="pause">The 256 packed colors used by the pause screen.</param>
+    /// <param name="fileSelect">The 256 packed colors used by file select.</param>
+    /// <param name="world">The 256 packed colors for each supported Zebes world map.</param>
     private MapStaticPalettes(ushort[] pause, ushort[] fileSelect, Dictionary<AreaId, ushort[]> world)
     { this.pause = pause; this.fileSelect = fileSelect; this.world = world; }
 
@@ -44,6 +52,11 @@ public sealed class MapStaticPalettes
         return new(Compile(document.Pause, "pause"), Compile(document.FileSelect, "fileSelect"), world);
     }
 
+    /// <summary>Validates a complete RGB5 palette and packs its channels into SNES RGB555 words.</summary>
+    /// <param name="colors">Palette entries to validate and convert.</param>
+    /// <param name="name">Palette label included in validation errors.</param>
+    /// <returns>The entries packed in their original order as 16-bit RGB555 colors.</returns>
+    /// <exception cref="InvalidDataException">The palette is missing, does not contain exactly 256 entries, or has a channel outside the five-bit range.</exception>
     private static ushort[] Compile(PaletteRgb5[]? colors, string name)
     {
         if (colors is null || colors.Length != SnesCgram.ColorCount)

@@ -5,9 +5,18 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Shared thirteen-part vortex drawing embedded in two star-field frames.
 /// Scene placement is authored content; see ceresStarPointContentReview in the lookup review inventory.</summary>
+/// <param name="odd">Selects the odd-frame arrangement, whose tip, core, and total part count differ from the even frame.</param>
+/// <param name="anchorX">Signed horizontal origin shared by the generated tip and core tiles.</param>
+/// <param name="anchorY">Signed vertical origin shared by the generated tip and core tiles.</param>
+/// <param name="stars">The already-selected star parts interleaved with the generated vortex geometry.</param>
 internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces a recognized vortex frame's hard-coded center with generated atlas geometry and selected star parts.</summary>
+    /// <param name="pointer">The native spritemap pointer identifying an even or odd vortex frame.</param>
+    /// <param name="supplied">The decoded frame whose tip, core anchor, and remaining stars are used as source data.</param>
+    /// <param name="reflectionSource">The source composition needed to select reflected stars for the even frame.</param>
+    /// <returns>The generated composition for a recognized, matching vortex frame; otherwise, <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
         if (pointer is not (CeresFlightSpriteDefinitions.VortexEven or CeresFlightSpriteDefinitions.VortexOdd)) return supplied;
@@ -25,7 +34,12 @@ internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IRead
         IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, false) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
         return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchorX, unchecked((sbyte)anchor.Y), selectedStars));
     }
+
+    /// <summary>Gets the number of parts in the selected even or odd vortex frame.</summary>
     public int Count => odd ? 33 : 36;
+
+    /// <summary>Gets the indexed part, synthesizing vortex tiles and drawing the remaining selected stars in source order.</summary>
+    /// <param name="index">Zero-based position in this frame's ordered sprite-part sequence.</param>
     public CompiledSpritePart this[int index]
     {
         get
@@ -52,12 +66,16 @@ internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IRead
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+
+    /// <summary>Enumerates all parts in the order expected by the decoded vortex frame.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+
+/// <summary>Tile indices used by the generated Ceres vortex core and lower edge.</summary>
 internal static class CeresVortexAtlas
 {
     /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed

@@ -4,8 +4,14 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Centered flashes followed by mirrored explosion quadrants in native OAM order.</summary>
+/// <param name="big">Selects the large explosion sequence instead of the small sequence.</param>
+/// <param name="frame">The zero-based frame within the selected six-frame sequence.</param>
 internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces a recognized native explosion frame with its centered flash or generated quadrant composition.</summary>
+    /// <param name="pointer">The native spritemap pointer to test against the twelve explosion frames.</param>
+    /// <param name="supplied">The decoded composition to preserve when the pointer is not an explosion frame.</param>
+    /// <returns>The generated composition for a recognized explosion frame, or <paramref name="supplied"/> unchanged.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int index = 0; index < 12; index++)
@@ -13,7 +19,12 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 return supplied.CalculateIfMatching(new IntroMotherBrainExplosionParts(index >= 6, index % 6));
         return supplied;
     }
+
+    /// <summary>Gets one part for a centered flash frame or four parts for a quadrant frame.</summary>
     public int Count => frame < (big ? 1 : 2) ? 1 : 4;
+
+    /// <summary>Gets an explosion part at its native OAM ordering position, including quadrant mirroring and tile growth.</summary>
+    /// <param name="index">Zero-based part index in this frame's composition.</param>
     public CompiledSpritePart this[int index]
     {
         get
@@ -48,6 +59,8 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+
+    /// <summary>Enumerates the generated flash or quadrant parts in native OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -55,6 +68,7 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Tile indices used by the intro Mother Brain explosion flash and quadrant compositions.</summary>
 internal static class IntroMotherBrainExplosionAtlas
 {
     /// <summary>Tile$53, initial centered small explosion flash in8C:97F7.</summary>

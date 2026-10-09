@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares surface-turn tables with cartridge data and exercises production crawl branches with those tables guarded.</summary>
+    /// <param name="rom">Retail ROM supplying the independent turn-definition words.</param>
     private static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
         (YardMovementFunction Movement, bool Disabled, int Address)[] records =
@@ -64,6 +66,9 @@ internal static partial class Program
             "all 24 real outside/inside crawl branches pass with the complete turn table forbidden.");
     }
 
+    /// <summary>Runs both outside- and inside-turn branches for each listed crawling state using controlled room tiles.</summary>
+    /// <param name="rom">ROM backing the guard that rejects runtime reads of the migrated turn table.</param>
+    /// <param name="records">Movement states and native table addresses used to select each branch's expected instruction.</param>
     private static void VerifyYardTurnProductionBranches(
         SuperMetroidAddressSpace rom,
         IReadOnlyList<(YardMovementFunction Movement, bool Disabled, int Address)> records)
@@ -129,15 +134,26 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Detects runtime reads from the migrated Yard turn-definition table while forwarding other access.</summary>
+    /// <param name="source">Underlying address space used outside the guarded table range.</param>
     private sealed class YardTurnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the guarded byte-read implementation.</summary>
+        /// <param name="address">Cartridge address of the requested byte.</param>
+        /// <returns>The underlying byte when it is outside the guarded table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated turn table and delegates all other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The underlying byte for an address outside the turn table.</returns>
         public byte ReadByte(int address) => address is >= 0xa3cce2 and < 0xa3cd42
             ? throw new InvalidOperationException(
                 $"Yard attempted migrated turn-definition read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the wrapped address space unchanged.</summary>
+        /// <param name="address">Destination address for the byte.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

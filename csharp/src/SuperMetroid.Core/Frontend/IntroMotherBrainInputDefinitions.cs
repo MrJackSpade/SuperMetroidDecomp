@@ -14,9 +14,19 @@ internal static class IntroMotherBrainInputDefinitions
     /// <summary>$91:878A, exclusive end of the object header.</summary>
     internal const ushort HeaderEnd = 0x878a;
 
+    /// <summary>Selects the duration, held-button mask, or newly pressed-button mask for one compiled demo record.</summary>
+    /// <param name="field">Record field index: zero for duration, one for held buttons, or two for pressed buttons.</param>
+    /// <param name="duration">Number of input updates represented by the record.</param>
+    /// <param name="held">Buttons maintained throughout the record.</param>
+    /// <param name="pressed">Buttons reported as newly pressed by the record.</param>
+    /// <returns>The 16-bit value stored in the selected record field.</returns>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, SnesButton pressed = 0) =>
         field == 0 ? duration : (ushort)(field == 1 ? held : pressed);
 
+    /// <summary>Resolves one word in the intro battle's input program, including its terminal control words.</summary>
+    /// <param name="word">Zero-based word index within the compiled list beginning at <see cref="ListStart"/>.</param>
+    /// <returns>The encoded input field, expected end instruction, or delete instruction at that index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="word"/> does not identify a list word.</exception>
     private static ushort ListWord(int word)
     {
         if (word < 51)
@@ -51,6 +61,10 @@ internal static class IntroMotherBrainInputDefinitions
         };
     }
 
+    /// <summary>Resolves one word in the six-byte demo-controller object header.</summary>
+    /// <param name="word">Zero-based header word index: the no-op routine words or the input-list pointer.</param>
+    /// <returns>The routine address or <see cref="ListStart"/> selected by the header.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="word"/> is outside the three-word header.</exception>
     private static ushort HeaderWord(int word) => word switch
     {
         0 or 1 => DemoInputRomData.Routines.NoOp,
@@ -58,6 +72,10 @@ internal static class IntroMotherBrainInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Reads one byte from the compiled bank-$91 demo list or its controller-object header.</summary>
+    /// <param name="pointer">Bank-local byte address inside either compiled region.</param>
+    /// <returns>The low or high byte of the containing word, selected by the address parity.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="pointer"/> is outside both compiled regions.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -77,6 +95,10 @@ internal static class IntroMotherBrainInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads one little-endian word wholly contained in the compiled list or header.</summary>
+    /// <param name="pointer">Bank-local address of the word's low byte.</param>
+    /// <returns>The combined low and high bytes at <paramref name="pointer"/> and the following address.</returns>
+    /// <exception cref="InvalidDataException">The word starts outside a compiled region or would extend past its end.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer >= ListStart && pointer < ListEnd - 1 || pointer >= HeaderStart && pointer < HeaderEnd - 1)

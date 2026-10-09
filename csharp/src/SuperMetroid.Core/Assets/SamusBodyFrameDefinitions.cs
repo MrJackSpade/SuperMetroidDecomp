@@ -16,6 +16,10 @@ internal static class SamusBodyFrameDefinitions
     internal static int NormalFrameCount => FrameExtent(SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose);
     /// <summary>$92:DD18/DD20/DD28/DD30/DD48/DD50/DEB0/DEB8: the shared jump/fall sequences contain two records; the count derives from the adjacent named allocation.</summary>
     internal static int JumpFrameCount => FrameExtent(SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose);
+    /// <summary>Derives a pose list's record count from the byte distance to the next adjacent native list.</summary>
+    /// <param name="first">The pose whose frame-list address begins the measured allocation.</param>
+    /// <param name="next">The immediately following pose list that marks the allocation's end.</param>
+    /// <returns>The number of four-byte frame records between the two list starts.</returns>
     private static int FrameExtent(SamusPoseId first, SamusPoseId next) => (SamusBodyPoseDefinitions.DefaultFrameList((byte)next) - SamusBodyPoseDefinitions.DefaultFrameList((byte)first)) / 4;
 
     /// <summary>
@@ -70,14 +74,18 @@ internal static class SamusBodyFrameDefinitions
     }
     // Resolved once: the alias walk is a pure function of the component index, so render-time
     // lookups never rebuild its pose tables or closures.
+    /// <summary>Canonical earlier component indexes obtained by fully resolving each native frame-component alias chain.</summary>
     private static readonly int[] sourceComponents = ResolveSourceComponents();
 
+    /// <summary>Returns the canonical source component used to draw a compiled body-frame component.</summary>
+    /// <param name="index">Zero-based component index in the compiled Samus body-artwork catalog.</param>
     internal static int SourceComponent(int index)
     {
         if ((uint)index >= (uint)sourceComponents.Length) throw new ArgumentOutOfRangeException(nameof(index));
         return sourceComponents[index];
     }
 
+    /// <summary>Builds the canonical source-index table by following each component's aliases to its final earlier source.</summary>
     private static int[] ResolveSourceComponents()
     {
         var components = new int[SamusBodyArtworkCatalog.FrameCount * 4];
@@ -96,6 +104,9 @@ internal static class SamusBodyFrameDefinitions
         return components;
     }
 
+    /// <summary>Resolves one component's immediate native alias, or returns its own index when no alias applies.</summary>
+    /// <param name="index">Zero-based component index in the compiled body-artwork allocation.</param>
+    /// <returns>The index of the immediate source component or <paramref name="index"/> when the component owns its data.</returns>
     private static int SourceStep(int index)
     {
         if ((uint)index >= SamusBodyArtworkCatalog.FrameCount * 4) throw new ArgumentOutOfRangeException(nameof(index));

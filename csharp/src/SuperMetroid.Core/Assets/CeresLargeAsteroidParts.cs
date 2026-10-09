@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Three atlas-aligned asteroid shapes with independently supplied scene anchors.</summary>
+/// <param name="left">Scene anchor for the six parts composing the left asteroid.</param>
+/// <param name="right">Scene anchor for the seven parts composing the right asteroid.</param>
+/// <param name="lower">Scene anchor for the six parts composing the lower asteroid.</param>
+/// <param name="priority">OBJ priority applied to every generated part in this composition.</param>
 /// <remarks>
 /// The complete original compositions at 8C:909D and 8C:94F7 place three distinct
 /// drawings at (-113,-65), (88,-36), and (0,8). Their local geometry follows atlas
@@ -18,6 +22,10 @@ internal sealed class CeresLargeAsteroidParts(
     (int X, int Y) left, (int X, int Y) right, (int X, int Y) lower, int priority)
     : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Rebuilds a recognized three-asteroid spritemap from its independently supplied scene anchors.</summary>
+    /// <param name="pointer">Native spritemap pointer identifying the under-attack or approach composition.</param>
+    /// <param name="supplied">Composition inspected for anchors and returned unchanged if it cannot be represented safely.</param>
+    /// <returns>The calculated nineteen-part composition when the pointer and anchors are supported; otherwise <paramref name="supplied"/>.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer is not (CeresLargeAsteroidAtlas.UnderAttack or CeresLargeAsteroidAtlas.Approach)
@@ -32,7 +40,13 @@ internal sealed class CeresLargeAsteroidParts(
         return supplied.CalculateIfMatching(new CeresLargeAsteroidParts(left, right, lower,
             pointer == CeresLargeAsteroidAtlas.UnderAttack ? 3 : 0));
     }
+    /// <summary>Gets the number of generated sprite parts across the three asteroid shapes.</summary>
     public int Count => 19;
+
+    /// <summary>Gets one generated sprite part in the original left, right, then lower asteroid ordering.</summary>
+    /// <param name="index">Zero-based index from zero through eighteen.</param>
+    /// <returns>The atlas tile and positioned OBJ attributes for that part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the nineteen-part composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -71,6 +85,8 @@ internal sealed class CeresLargeAsteroidParts(
                 SnesObjAttributeWord.Create(tile + column + 16 * row, 0, priority, 0), true);
         }
     }
+    /// <summary>Enumerates all nineteen generated parts in spritemap order.</summary>
+    /// <returns>An enumerator over the left, right, and lower asteroid parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -78,6 +94,7 @@ internal sealed class CeresLargeAsteroidParts(
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Native spritemap identities and atlas origins used to assemble Ceres's three large asteroids.</summary>
 internal static class CeresLargeAsteroidAtlas
 {
     /// <summary>8C:909D,station-under-attack large asteroids,also exposed by the legacy discovery catalog.</summary>

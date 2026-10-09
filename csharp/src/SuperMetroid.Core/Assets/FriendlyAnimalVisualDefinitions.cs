@@ -21,19 +21,25 @@ internal static class FriendlyAnimalVisualDefinitions
     /// <summary>Twelve selected rescue Dachora compositions at $B3:EB1B..ED3E.</summary>
     internal const int EscapeDachoraFrameCount = 12;
 
+    /// <summary>Returns presentation-word addresses for each selected ordinary Etecoon composition.</summary>
     internal static ushort[] EtecoonOperands() => Enumerable.Range(0,
         EtecoonInstructionProgramDefinitions.PresentationWordCount)
         .Select(EtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Returns presentation-word addresses for each selected ordinary Dachora body and echo composition.</summary>
     internal static ushort[] DachoraOperands() => Enumerable.Range(0,
         DachoraInstructionProgramDefinitions.PresentationWordCount)
         .Select(DachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Returns presentation-word addresses for each selected rescue-sequence Etecoon composition.</summary>
     internal static ushort[] EscapeEtecoonOperands() => Enumerable.Range(0,
         EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount)
         .Select(EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Returns presentation-word addresses for each selected rescue-sequence Dachora composition.</summary>
     internal static ushort[] EscapeDachoraOperands() => Enumerable.Range(0,
         EscapeDachoraInstructionProgramDefinitions.PresentationWordCount)
         .Select(EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Builds the selected ordinary and rescue spritemap definitions for both friendly-animal species.</summary>
+    /// <returns>Definitions for Etecoon, Dachora, and their escape-sequence compositions.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         .. CompiledEnemyCompositionDefinitions.Frames(NormalBank, EtecoonOperands(),

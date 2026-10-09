@@ -82,6 +82,11 @@ internal static class PauseMapIndicatorAnimation
 }
 
 /// <summary>One bank-$82 equipment-category table record used by the pause screen.</summary>
+/// <param name="Category">Native dispatcher selector identifying the equipment category.</param>
+/// <param name="OffsetTableAddress">ROM address of the category's item-offset table, or zero when the category has no such table.</param>
+/// <param name="TilemapPointerTableAddress">ROM address of the category's tilemap-pointer table, or zero when the category has no such table.</param>
+/// <param name="ItemCount">Number of selectable items represented by the category.</param>
+/// <param name="LabelWordCount">Number of tilemap words copied for the category label.</param>
 internal readonly record struct PauseEquipmentCategoryDefinition(
     int Category,
     int OffsetTableAddress,

@@ -12,6 +12,7 @@ internal static class DeadTourianCorpseVisualDefinitions
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Compiled non-Sidehopper corpse selector operands, their selected frames, and stable artwork identities.</summary>
     private static readonly (ushort Operand, ushort Frame, string Name)[] Entries =
     [
         (0xecf7, 0xed79, "dead_zoomer_corpse_0"),
@@ -24,6 +25,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xed21, 0xede1, "dead_skree_corpse_4"),
     ];
 
+    /// <summary>Compiled Sidehopper selector operands and frames, including alternating hop poses and death states.</summary>
     private static readonly (ushort Operand, ushort Frame)[] SidehopperSelectors =
     [
         (0xecae, 0xee3c), (0xecb2, 0xee61),
@@ -34,6 +36,8 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xecf1, 0xed4f),
     ];
 
+    /// <summary>Builds the spritemap definitions referenced by the supported dead-enemy instruction programs.</summary>
+    /// <returns>Artwork identities for Zoomer, Ripper, Skree, and Sidehopper corpse or hop frames.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         .. Entries.Select(entry => new EnemySpritemapDefinition(
@@ -45,6 +49,10 @@ internal static class DeadTourianCorpseVisualDefinitions
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),
     ];
 
+    /// <summary>Resolves a compiled non-Sidehopper corpse selector operand to its spritemap frame.</summary>
+    /// <param name="operandAddress">Bank-$A9 address of the selector operand.</param>
+    /// <returns>The selected spritemap frame pointer.</returns>
+    /// <exception cref="InvalidDataException">The operand is not in the compiled corpse selector table.</exception>
     internal static ushort FrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame, _) in Entries)
@@ -56,6 +64,10 @@ internal static class DeadTourianCorpseVisualDefinitions
             $"Dead Tourian corpse visual selector $A9:{operandAddress:X4} is not compiled.");
     }
 
+    /// <summary>Resolves a compiled Sidehopper selector operand to its hop, idle, or death spritemap frame.</summary>
+    /// <param name="operandAddress">Bank-$A9 address of the Sidehopper selector operand.</param>
+    /// <returns>The selected Sidehopper spritemap frame pointer.</returns>
+    /// <exception cref="InvalidDataException">The operand is not in the compiled Sidehopper selector table.</exception>
     internal static ushort SidehopperFrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame) in SidehopperSelectors)

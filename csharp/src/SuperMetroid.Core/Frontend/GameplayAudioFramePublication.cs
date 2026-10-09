@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
 {
+    /// <summary>Counts room, palette-sound, palette-music, and liquid-sound requests already published for this frame.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
+
+    /// <summary>Records whether the pending HUD selection sound has already been published for this frame.</summary>
     private bool selectionPublished;
 
     /// <summary>

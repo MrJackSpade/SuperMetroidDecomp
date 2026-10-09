@@ -5,6 +5,8 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One immutable cartridge visual-pointer operand and its selected target.</summary>
+/// <param name="Address">Combined bank and operand address used as the lookup key.</param>
+/// <param name="Pointer">Selected spritemap or frame pointer supplied for that operand.</param>
 internal readonly record struct CompiledEnemyVisualSelector(int Address, ushort Pointer);
 
 /// <summary>
@@ -14,6 +16,7 @@ internal readonly record struct CompiledEnemyVisualSelector(int Address, ushort 
 /// </summary>
 internal static partial class CompiledEnemyVisualSelectors
 {
+    /// <summary>Sorted sparse literal selectors searched after calculated selector families have been handled.</summary>
     internal static readonly CompiledEnemyVisualSelector[] Entries =
     [
         .. Bank86,
@@ -31,6 +34,9 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
+    /// <summary>Identifies instruction operands whose visual pointers are derived by a family-specific resolver.</summary>
+    /// <param name="address">Combined bank and operand address to classify.</param>
+    /// <returns><see langword="true"/> when a calculated selector family owns the address.</returns>
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
         0x86 => BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -44,6 +50,11 @@ internal static partial class CompiledEnemyVisualSelectors
         0xb3 => BotwoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
+    /// <summary>Resolves a visual operand through calculated families first, then the sparse literal selector table.</summary>
+    /// <param name="bank">Bank byte containing the instruction operand.</param>
+    /// <param name="operandAddress">Bank-local address of the visual-pointer word.</param>
+    /// <param name="pointer">Receives the selected frame pointer, or zero when no selector is compiled for the operand.</param>
+    /// <returns><see langword="true"/> when a calculated or literal selector supplies a target.</returns>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
         if (bank == 0xa2 && operandAddress == PolypInstructionProgramDefinitions.PresentationWord)

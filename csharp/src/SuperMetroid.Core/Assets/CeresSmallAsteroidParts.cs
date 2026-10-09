@@ -17,6 +17,10 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Rebuilds the recognized Ceres small-asteroid composition from its authored anchors.</summary>
+    /// <param name="pointer">Sprite-definition pointer identifying the composition to specialize.</param>
+    /// <param name="supplied">Composition parsed from the source spritemap.</param>
+    /// <returns>The compiled small-asteroid parts for the matching composition, or <paramref name="supplied"/> when it does not match.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
@@ -30,7 +34,12 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
         if (anchors[2].X > 247 || anchors[3].X > 247 || anchors[5].X > 247 || anchors[6].X > 247) return supplied;
         return supplied.CalculateIfMatching(new CeresSmallAsteroidParts(anchors));
     }
+    /// <summary>Gets the number of compiled sprite parts in the seven-rock composition.</summary>
     public int Count => 16;
+
+    /// <summary>Gets a compiled sprite part by its position in the assembled composition.</summary>
+    /// <param name="index">Zero-based part index, from zero through <see cref="Count"/> minus one.</param>
+    /// <returns>The tile, placement, and reflection data for the requested part.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -70,12 +79,15 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
                 SnesObjAttributeWord.Create(tile, 0, 0, flip ? SnesTileFlipFlags.Vertical : 0), true);
         }
     }
+    /// <summary>Enumerates all compiled parts in spritemap order.</summary>
+    /// <returns>An enumerator over the composition's sixteen sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Names the Tile16 atlas cells reused to assemble the Ceres small-asteroid shapes.</summary>
 internal static class CeresSmallAsteroidAtlas
 {
     /// <summary>Tile16E, top of the overlapping vertical asteroid pair in8C:90FE.</summary>

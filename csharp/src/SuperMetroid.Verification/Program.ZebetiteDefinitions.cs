@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Zebetite generation, health, and spawn data against ROM and exercises the production consumers.</summary>
+    /// <param name="rom">Retail address space supplying the source definition words.</param>
     private static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
     {
         int[] generationTables =
@@ -140,6 +142,11 @@ internal static partial class Program
             "Zebetite definitions: 24 generation words, ten health selectors, both embedded populations, eight initializers, 80 health handoffs and both real respawns pass with all fixed source ranges forbidden.");
     }
 
+    /// <summary>Creates a room enemy system with a guarded bus and destruction events matching one generation index.</summary>
+    /// <param name="bus">Address space used by the system for permitted reads.</param>
+    /// <param name="generation">Three-bit destroyed-state selector controlling the Zebetite event queries.</param>
+    /// <param name="instanceFlags">Reflection flags used to install the test bus and event callback.</param>
+    /// <returns>The configured enemy system used to exercise Zebetite initialization and spawning.</returns>
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ISnesAddressSpace bus,
         ushort generation,
@@ -159,11 +166,17 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Rejects runtime reads from the migrated Zebetite generation, spawn, and health tables.</summary>
+    /// <param name="source">Address space that supplies unrelated reads and accepts writes.</param>
     private sealed class ZebetiteDefinitionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the same table-range guard.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Blocks reads in compiled Zebetite definition ranges and delegates all other addresses.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the migrated tables.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa6fc03 and < 0xa6fc33 or
                 >= 0xa6fce1 and < 0xa6fcf1 or
@@ -173,6 +186,9 @@ internal static partial class Program
                     $"Zebetite attempted migrated definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

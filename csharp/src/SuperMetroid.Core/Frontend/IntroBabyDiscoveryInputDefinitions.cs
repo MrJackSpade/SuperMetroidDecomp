@@ -14,9 +14,17 @@ internal static class IntroBabyDiscoveryInputDefinitions
     /// <summary>$91:8784, exclusive end of the SR388 demo object definition.</summary>
     internal const ushort HeaderEnd = 0x8784;
 
+    /// <summary>Builds one word of the demo's three-word input record, placing duration or button state in its cartridge-defined field.</summary>
+    /// <param name="field">Record word index: zero stores duration, one stores held buttons, and two stores newly pressed buttons.</param>
+    /// <param name="duration">Number of demo updates represented by the record.</param>
+    /// <param name="held">Buttons held during the record.</param>
+    /// <param name="press">Whether the button word represents a press edge instead of a held state.</param>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, bool press = false) =>
         field == 0 ? duration : field == 1 || press ? (ushort)held : (ushort)0;
 
+    /// <summary>Produces the encoded input-list word at an offset, including control-flow words between scripted input sequences.</summary>
+    /// <param name="word">Zero-based word offset from <see cref="ListStart"/>.</param>
+    /// <returns>The bank-$91 word for the requested offset.</returns>
     private static ushort ListWord(int word)
     {
         if (word < 9)
@@ -48,6 +56,8 @@ internal static class IntroBabyDiscoveryInputDefinitions
         };
     }
 
+    /// <summary>Returns one of the three words that define the demo object header.</summary>
+    /// <param name="word">Zero-based word offset from <see cref="HeaderStart"/>.</param>
     private static ushort HeaderWord(int word) => word switch
     {
         0 => DemoInputRomData.Routines.NoOp,
@@ -56,6 +66,10 @@ internal static class IntroBabyDiscoveryInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Reads one little-endian byte from the compiled input list or object header in bank $91.</summary>
+    /// <param name="pointer">Bank-$91 address inside the compiled list or header ranges.</param>
+    /// <returns>The byte stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside both compiled ranges.</exception>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -75,6 +89,10 @@ internal static class IntroBabyDiscoveryInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads a complete little-endian word from the compiled input list or object header in bank $91.</summary>
+    /// <param name="pointer">Bank-$91 address where both bytes lie inside one compiled range.</param>
+    /// <returns>The word beginning at that address.</returns>
+    /// <exception cref="InvalidDataException">The word would extend beyond either compiled range.</exception>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer >= ListStart && pointer < ListEnd - 1 || pointer >= HeaderStart && pointer < HeaderEnd - 1)

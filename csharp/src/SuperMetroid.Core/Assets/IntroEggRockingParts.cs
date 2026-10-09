@@ -4,8 +4,13 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Intact egg and two opposite row-sheared rocking poses.</summary>
+/// <param name="frame">Egg frame index: zero selects the intact pose; one and two select opposite rocking shears.</param>
 internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces a matching egg spritemap with generated parts for its intact or rocking pose.</summary>
+    /// <param name="pointer">Compiled spritemap pointer to compare with the three egg frame pointers.</param>
+    /// <param name="supplied">Composition used to calculate pointers that do not identify an egg frame.</param>
+    /// <returns>The calculated composition using generated egg parts for a match, or the supplied composition's normal result otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -13,7 +18,13 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRockingParts(frame));
         return supplied;
     }
+
+    /// <summary>Gets the part count for the selected egg pose: six for the intact frame and nine for either rocking frame.</summary>
     public int Count => frame == 0 ? 6 : 9;
+
+    /// <summary>Gets one generated egg part in the native spritemap draw order.</summary>
+    /// <param name="index">Zero-based position in this pose's part list.</param>
+    /// <returns>Position, tile, and size data for the selected part.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -55,6 +66,9 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates the generated egg parts in native spritemap order.</summary>
+    /// <returns>An enumerator that creates each part on demand.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -62,6 +76,7 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Tile indices for the top strip and lower patches used to assemble intact and rocking egg frames.</summary>
 internal static class IntroEggRockingAtlas
 {
     /// <summary>Tile$122,start of the intact egg three-tile top strip.</summary>

@@ -4,8 +4,13 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Seven shell-remnant poses: a sixteen-pixel left piece and two small right pieces.</summary>
+/// <param name="frame">Matched shell-remnant pose index selecting the early strip or late patch tiles.</param>
 internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Substitutes remnant parts when the pointer identifies one of the seven shell-remnant poses.</summary>
+    /// <param name="pointer">Native spritemap pointer to match against the remnant frames.</param>
+    /// <param name="supplied">Composition retained when no remnant frame matches.</param>
+    /// <returns>The supplied composition, recalculated with remnant parts on a match.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 7; frame++)
@@ -13,7 +18,14 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRemnantParts(frame));
         return supplied;
     }
+
+    /// <summary>Gets the fixed number of OAM parts that compose a shell remnant.</summary>
     public int Count => 3;
+
+    /// <summary>Gets one shell-remnant part in its left, upper-right, lower-right ordering.</summary>
+    /// <param name="index">Zero-based part position in the three-piece composition.</param>
+    /// <returns>The compiled sprite part with its pose-specific atlas tile and placement.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the three remnant parts.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -36,6 +48,9 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates the three shell-remnant parts in composition order.</summary>
+    /// <returns>An enumerator that yields each compiled sprite part.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -43,6 +58,7 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Atlas tile ranges used for the early-strip and late-patch shell-remnant poses.</summary>
 internal static class IntroEggRemnantAtlas
 {
     /// <summary>Tile$107, first early top-right remnant drawing;left pieces occupy the next atlas row.

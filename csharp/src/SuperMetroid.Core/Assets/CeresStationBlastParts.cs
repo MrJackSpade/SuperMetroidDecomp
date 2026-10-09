@@ -5,8 +5,13 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Six station-blast layouts from 8C:98EE..99D5. Generate reflected
 /// quadrants and peripheral tips in native OAM order; retain no full-part table.</summary>
+/// <param name="frame">Native station-blast frame index selecting the generated part layout.</param>
 internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates the supplied composition with generated station-blast parts when its pointer identifies one of the six native frames.</summary>
+    /// <param name="pointer">Compiled spritemap pointer to check against the station-blast frame table.</param>
+    /// <param name="supplied">Composition whose existing calculation handles nonmatching pointers.</param>
+    /// <returns>The matching composition after station-blast parts are supplied, or the unchanged result for other pointers.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 6; frame++)
@@ -14,7 +19,13 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 return supplied.CalculateIfMatching(new CeresStationBlastParts(frame));
         return supplied;
     }
+
+    /// <summary>Gets the number of sprite parts generated for the selected native frame.</summary>
     public int Count => CeresDestructionSpriteDefinitions.StationPartCount(frame);
+
+    /// <summary>Gets a generated sprite part at its native OAM-order index.</summary>
+    /// <param name="index">Zero-based part index within this frame.</param>
+    /// <returns>The part's position, tile attributes, and size.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -85,6 +96,9 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+
+    /// <summary>Enumerates the generated parts in native OAM order.</summary>
+    /// <returns>An enumerator that creates each part on demand.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -92,6 +106,7 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Atlas tile indices used to compose expanded and detached Ceres station-blast frames.</summary>
 internal static class CeresStationBlastAtlas
 {
     /// <summary>Tile B0, large core quadrant of native frame 8C:9930.</summary>

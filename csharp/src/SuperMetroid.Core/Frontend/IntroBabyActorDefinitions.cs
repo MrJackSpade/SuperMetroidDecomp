@@ -28,6 +28,11 @@ internal static class IntroBabyActorDefinitions
 /// One native six-byte cinematic-object definition together with the fixed position and
 /// OBJ attributes written by its initialization callback.
 /// </summary>
+/// <param name="PreInstruction">The native pre-instruction routine address installed for this actor.</param>
+/// <param name="InstructionList">The native instruction-list address that drives the actor's animation.</param>
+/// <param name="X">The actor's fixed horizontal screen position in pixels.</param>
+/// <param name="Y">The actor's fixed vertical screen position in pixels.</param>
+/// <param name="PaletteBits">The OBJ attribute bits selecting the actor's palette.</param>
 internal readonly record struct IntroBabyActorDefinition(
     ushort PreInstruction,
     ushort InstructionList,

@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bool reflected)
     : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces the matching Ceres star spritemap with its compact point-based representation.</summary>
+    /// <param name="pointer">Spritemap pointer used to identify the Ceres star definition.</param>
+    /// <param name="supplied">Composition produced from the original spritemap.</param>
+    /// <returns>The supplied composition when it is not the expected star definition; otherwise, a composition using the point-based parts when they match.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != CeresFlightSpriteDefinitions.Stars || supplied.PartCount != 25) return supplied;
@@ -15,6 +19,10 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
         var selected = CalculateIfMatching(parts, true);
         return ReferenceEquals(parts, selected) ? supplied : supplied.CalculateIfMatching(selected);
     }
+    /// <summary>Builds point-based parts from the supplied sprite attributes when their calculated values match.</summary>
+    /// <param name="supplied">Parts whose positions and tile numbers provide the source points.</param>
+    /// <param name="reflected">Whether the generated parts should use horizontal tile reflection.</param>
+    /// <returns>The calculated point-based parts if they match the supplied sequence; otherwise, the original sequence.</returns>
     internal static IReadOnlyList<CompiledSpritePart> CalculateIfMatching(IReadOnlyList<CompiledSpritePart> supplied, bool reflected)
     {
         var points = new (int X, byte Y, int Tile)[supplied.Count];
@@ -26,7 +34,13 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
         var calculated = new CeresStarPointParts(points, reflected);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;
     }
+    /// <summary>Gets the number of stored star points, each of which produces one sprite part.</summary>
     public int Count => points.Length;
+
+    /// <summary>Gets the sprite part generated from the point at the specified zero-based position.</summary>
+    /// <param name="index">Zero-based point position to convert into a sprite part.</param>
+    /// <returns>A sprite part with the point's position and tile, applying the configured reflection.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the point sequence.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -37,6 +51,9 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
                 SnesObjAttributeWord.Create(point.Tile, 0, 0, reflected ? SnesTileFlipFlags.Horizontal : 0), true);
         }
     }
+
+    /// <summary>Enumerates the sprite parts generated from the stored points in their original order.</summary>
+    /// <returns>An enumerator over the generated sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

@@ -7,10 +7,21 @@ namespace SuperMetroid.Core.Assets;
 /// and their adjoining cells. Preserve the native publication order.</summary>
 internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Adds the compiled station-under-attack parts only when the sprite pointer selects that spritemap.</summary>
+    /// <param name="pointer">Native spritemap pointer being matched against the station-under-attack definition.</param>
+    /// <param name="supplied">Composition accumulated from the caller's other matching parts.</param>
+    /// <returns>The supplied composition with the station parts included on a pointer match, or unchanged otherwise.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == CeresFlightSpriteDefinitions.StationUnderAttack
             ? supplied.CalculateIfMatching(new CeresStationParts()) : supplied;
+
+    /// <summary>Gets the fixed number of ordered parts in the station-under-attack spritemap.</summary>
     public int Count => 41;
+
+    /// <summary>Gets the compiled spritemap part at its native publication-order index.</summary>
+    /// <param name="index">Zero-based part index from 0 through <see cref="Count"/> minus one.</param>
+    /// <returns>The tile, position, and spritemap attributes for that part.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the published part range.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -95,12 +106,17 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+
+    /// <summary>Enumerates all spritemap parts in the order used by the native publication.</summary>
+    /// <returns>An enumerator over the compiled parts from index zero through the final part.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+
+/// <summary>Names the tile indices and layout helpers used to assemble the Ceres station spritemap from packed atlas strips.</summary>
 internal static class CeresStationAtlas
 {
     /// <summary>TileE6, top strip at Y=-48 in8C:9150.</summary>

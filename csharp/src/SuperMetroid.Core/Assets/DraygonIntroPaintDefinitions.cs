@@ -9,10 +9,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonIntroPaintDefinitions
 {
+    /// <summary>Resolves the first sixteen copied words through Draygon's primary material paint definition.</summary>
     private readonly DraygonMaterialPaintDefinitions primary;
+
+    /// <summary>Resolves the final eight copied words through the escape-door surface paint definition.</summary>
     private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+
+    /// <summary>Optional independent override for the copied clear-target word at index sixteen.</summary>
     private readonly ushort? clearEdit;
 
+    /// <summary>Builds the intro paint view while preserving its shared source identities and editable clear target.</summary>
+    /// <param name="colors">The 25 CGRAM words copied by the Draygon body initializer, in source order.</param>
     internal DraygonIntroPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 25) throw new ArgumentException("Draygon intro requires twenty-five colors.", nameof(colors));
@@ -21,6 +28,9 @@ internal sealed class DraygonIntroPaintDefinitions
         clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];
     }
 
+    /// <summary>Resolves one copied paint word from its primary, clear-target, or escape-surface source.</summary>
+    /// <param name="index">Zero-based index within the 25-word intro paint block.</param>
+    /// <returns>The effective color word, including any installed clear-target edit.</returns>
     internal ushort Color(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));

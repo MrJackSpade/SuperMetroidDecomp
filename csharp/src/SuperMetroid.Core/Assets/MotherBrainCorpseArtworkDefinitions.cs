@@ -58,13 +58,20 @@ public static class MotherBrainCorpseArtworkDefinitions
     public static int InitialCopyLength(int row) => (uint)row < RowCount
         ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new IndexOutOfRangeException();
 
+    /// <summary>Cached row-transfer list exposed as the corpse rotates into view.</summary>
     private static readonly RotTransferList rotTransfers = new();
     /// <summary>$A9:E1F4-$E225: six transfers, recalculated from the visible tile columns per row.</summary>
     public static IReadOnlyList<MotherBrainSpriteTileTransferRequest> RotTransfers => rotTransfers;
 
+    /// <summary>Calculates the six row uploads needed to redraw the visible corpse columns.</summary>
     private sealed class RotTransferList : IReadOnlyList<MotherBrainSpriteTileTransferRequest>
     {
+        /// <summary>The corpse transfer plan contains one request for each of its six tile rows.</summary>
         public int Count => RowCount;
+
+        /// <summary>Gets the VRAM transfer request for one corpse tile row.</summary>
+        /// <param name="row">The zero-based corpse tile row, from zero through five.</param>
+        /// <returns>A transfer sized and positioned for the visible columns in that row.</returns>
         public MotherBrainSpriteTileTransferRequest this[int row]
         {
             get
@@ -77,6 +84,8 @@ public static class MotherBrainCorpseArtworkDefinitions
                     (ushort)(FirstVramPage + row * VramPageWords + (RightFrameColumn + firstColumn) * TileBytes / 2));
             }
         }
+        /// <summary>Enumerates the corpse row transfers in top-to-bottom order.</summary>
+        /// <returns>An enumerator over one request per corpse tile row.</returns>
         public IEnumerator<MotherBrainSpriteTileTransferRequest> GetEnumerator()
         {
             for (int row = 0; row < Count; row++) yield return this[row];

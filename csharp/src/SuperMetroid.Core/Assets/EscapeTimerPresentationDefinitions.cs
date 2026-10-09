@@ -59,6 +59,10 @@ public static class EscapeTimerPresentationDefinitions
 
     /// <summary>Exact ordered native digit/label geometry. Font ink pixels remain owned by EscapeTimerTileAtlas.</summary>
     internal static SpriteComposition DefaultFrame(string name) => SpriteComposition.FromCalculated(DefaultParts(name));
+
+    /// <summary>Builds the calculated part sequence for the TIME label or one supported decimal glyph.</summary>
+    /// <param name="name">The canonical label or digit frame key accepted by this catalog.</param>
+    /// <returns>A lazy sequence describing the selected frame's ordered sprite parts.</returns>
     internal static PartSequence DefaultParts(string name)
     {
         if (name == LabelFrame) return new(-1);
@@ -66,9 +70,16 @@ public static class EscapeTimerPresentationDefinitions
             && (uint)digit < DecimalDigitCount) return new(digit);
         throw new ArgumentOutOfRangeException(nameof(name));
     }
+
+    /// <summary>Lazy ordered geometry for either the five-part TIME label or a two-part decimal glyph.</summary>
+    /// <param name="digit">Use -1 for the label, or 0 through 9 for the selected decimal glyph.</param>
     internal readonly struct PartSequence(int digit) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Gets the part count for the selected label or digit composition.</summary>
         public int Count => digit < 0 ? LabelTileCount + 2 : 2;
+
+        /// <summary>Gets the label, separator, or digit part at its ordered position in the composition.</summary>
+        /// <param name="index">Zero-based position within this sequence.</param>
         public CompiledSpritePart this[int index]
         {
             get
@@ -98,6 +109,8 @@ public static class EscapeTimerPresentationDefinitions
                     SnesObjAttributeWord.Create(tile, 0, TimerPriority), true);
             }
         }
+
+        /// <summary>Enumerates the selected composition's parts in spritemap order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

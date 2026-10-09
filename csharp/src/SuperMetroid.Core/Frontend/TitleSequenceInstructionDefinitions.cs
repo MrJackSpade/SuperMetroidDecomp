@@ -20,6 +20,9 @@ internal static class TitleSequenceInstructionDefinitions
     /// <summary><c>TitleSequenceSpritemaps_METROI</c> at $8C:867D; final lists follow the debug copyright.</summary>
     private const ushort MetroidSixLetters = 0x867d;
 
+    /// <summary>Reads a byte from the compiled bank-$8B title-card instruction stream.</summary>
+    /// <param name="address">The absolute address of a byte within the title-card program.</param>
+    /// <returns>The selected byte from the little-endian instruction words.</returns>
     internal static byte ReadByte(int address)
     {
         if (address < StartAddress || address >= EndAddress)
@@ -28,6 +31,9 @@ internal static class TitleSequenceInstructionDefinitions
         return (byte)(WordAt(offset & ~1) >> ((offset & 1) * 8));
     }
 
+    /// <summary>Reads one little-endian instruction word from the compiled title-card program.</summary>
+    /// <param name="address">The absolute address of the word's low byte.</param>
+    /// <returns>The two adjacent program bytes combined into a 16-bit word.</returns>
     internal static ushort ReadWord(int address)
     {
         if (address < StartAddress || address >= EndAddress - 1)
@@ -36,6 +42,9 @@ internal static class TitleSequenceInstructionDefinitions
     }
 
     // Initial/reveal/final/logo holds 60/8/45/120/32 are the title card's authored timing (see residualScalarInputsReview).
+    /// <summary>Selects the timing, reveal, scene-trigger, or logo word at a program-relative offset.</summary>
+    /// <param name="offset">The byte offset from <see cref="StartAddress"/>.</param>
+    /// <returns>The title-card instruction word encoded at that offset.</returns>
     private static ushort WordAt(int offset)
     {
         if (offset < 4) return (ushort)(offset == 0 ? 60 : 0);
@@ -50,6 +59,13 @@ internal static class TitleSequenceInstructionDefinitions
         return offset == 136 ? (ushort)32 : TitleSequenceRomData.Sprites.SuperMetroidLogo;
     }
 
+    /// <summary>Builds one word of a title-card reveal, including its frame selector and scene handoff.</summary>
+    /// <param name="offset">The byte offset within this card's instruction list.</param>
+    /// <param name="frames">The number of progressive letter frames in the card.</param>
+    /// <param name="finalHold">The duration word used for the final reveal frame.</param>
+    /// <param name="firstLetter">The spritemap pointer for the card's first reveal frame.</param>
+    /// <param name="sceneCommand">The instruction dispatched after the reveal completes.</param>
+    /// <returns>The word encoded at the requested card offset.</returns>
     private static ushort CardWord(int offset, int frames, ushort finalHold, ushort firstLetter, ushort sceneCommand)
     {
         if (offset == frames * 4) return sceneCommand;
@@ -63,6 +79,11 @@ internal static class TitleSequenceInstructionDefinitions
         return (ushort)(ProgressiveFrame(MetroidSixLetters, frame - 5, firstLetterCount: 6) - (frame == 8 ? 10 : 0));
     }
 
+    /// <summary>Calculates the spritemap pointer for a progressive title-card letter frame.</summary>
+    /// <param name="start">The first spritemap pointer in the relevant reveal sequence.</param>
+    /// <param name="frame">The zero-based progressive reveal frame.</param>
+    /// <param name="firstLetterCount">The number of letters visible in the initial frame.</param>
+    /// <returns>The pointer to the frame's encoded spritemap.</returns>
     private static ushort ProgressiveFrame(ushort start, int frame, int firstLetterCount) =>
         // Each list has a two-byte count and two five-byte OAM objects per visible letter.
         (ushort)(start + frame * 2 + 10 * (frame * firstLetterCount + frame * (frame - 1) / 2));

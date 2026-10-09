@@ -6,9 +6,16 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Two suitless standing compositions: shared lower-body regions,
 /// vertical arm strips and independently positioned head/upper-body grids.</summary>
+/// <param name="armsStraight">Selects the arms-straight pose layout instead of the default standing pose.</param>
 internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Shared lower-body grid used by both suitless standing layouts.</summary>
     private readonly EndingRewardSuitlessGridParts lower = new(Pose.SuitlessSamusLowerBody);
+
+    /// <summary>Uses the specialized suitless layout for either standing pose when the pointer matches.</summary>
+    /// <param name="pointer">Frame pointer identifying the standing pose to match.</param>
+    /// <param name="supplied">Composition decoded from the original frame.</param>
+    /// <returns>A composition using the specialized layout for a recognized standing pose; otherwise, the supplied composition.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusStanding))
@@ -17,7 +24,14 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
             return supplied.CalculateIfMatching(new EndingRewardSuitlessStandingParts(true));
         return supplied;
     }
+
+    /// <summary>Gets the fixed number of sprite parts in either suitless standing pose.</summary>
     public int Count => 28;
+
+    /// <summary>Gets the sprite part at its pose-specific position in the 28-part standing composition.</summary>
+    /// <param name="index">Zero-based position within the standing composition.</param>
+    /// <returns>The tile and placement for the selected part in the chosen pose layout.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the composition.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -90,6 +104,9 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+
+    /// <summary>Enumerates all parts of the selected standing pose in composition order.</summary>
+    /// <returns>An enumerator over the 28 generated sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

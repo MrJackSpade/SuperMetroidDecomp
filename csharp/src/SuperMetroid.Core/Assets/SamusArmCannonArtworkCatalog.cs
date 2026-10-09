@@ -8,13 +8,26 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Installed arm-cannon cover placement, OAM attributes, and indexed 8×8 tiles.</summary>
 public sealed class SamusArmCannonArtworkCatalog
 {
+    /// <summary>Pose-to-descriptor overrides retained only where the selected pointer differs from stock.</summary>
     private readonly Dictionary<int, ushort> posePointers = new();
+    /// <summary>Descriptor-byte overrides after stock, reflected, and body-relative coordinates are derived.</summary>
     private readonly Dictionary<int, byte> drawingData = new();
+    /// <summary>Per-direction OBJ attribute words that differ from the native defaults.</summary>
     private readonly Dictionary<int, ushort> attributes = new();
+    /// <summary>Per-direction/frame bank-$9A source identities that differ from the stock tile lists.</summary>
     private readonly Dictionary<int, ushort> tileSources = new();
+    /// <summary>Installed indexed character data used to satisfy the cannon's 32-byte tile DMA requests.</summary>
     private readonly RoomCharacterAtlas tiles;
+    /// <summary>Optional installed body geometry used to derive cannon attachment coordinates not explicitly overridden.</summary>
     private readonly SamusBodyArtworkCatalog? bodyGeometry;
 
+    /// <summary>Builds sparse placement overrides over the stock tables and retains the installed tile sheet.</summary>
+    /// <param name="posePointers">Resolved descriptor pointer for each Samus pose.</param>
+    /// <param name="drawingData">Descriptor bytes selected from authored, stock, or derived placement.</param>
+    /// <param name="attributes">OBJ attribute words for each projectile direction.</param>
+    /// <param name="tileSources">Four tile-source selectors for each projectile direction.</param>
+    /// <param name="tiles">Installed indexed 8×8 cannon characters used for VRAM transfers.</param>
+    /// <param name="bodyGeometry">Optional body catalog supplying attachment coordinates when no cannon-specific source exists.</param>
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
         ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles,
         SamusBodyArtworkCatalog? bodyGeometry = null)
@@ -52,6 +65,9 @@ public sealed class SamusArmCannonArtworkCatalog
         this.tiles = tiles;
     }
 
+    /// <summary>Rebuilds this catalog with body-relative coordinate derivation enabled while preserving its selected tables and tile pixels.</summary>
+    /// <param name="body">Installed body geometry used as the fallback basis for cannon coordinates.</param>
+    /// <returns>A new catalog that includes the supplied body geometry.</returns>
     internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
         Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDrawingData).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
@@ -85,12 +101,25 @@ public sealed class SamusArmCannonArtworkCatalog
 
     // Placement and PNG admission are distinct file boundaries. The installer can
     // identify the failing file without attributing JSON errors to the tile sheet.
+    /// <summary>Validated table payload kept separate from PNG admission so installers can report the failing asset boundary.</summary>
+    /// <param name="PosePointers">Bank-$90 descriptor pointers in pose order.</param>
+    /// <param name="DrawingData">Raw descriptor bytes covering the installed drawing-data address window.</param>
+    /// <param name="Attributes">Packed OBJ attributes indexed by projectile direction.</param>
+    /// <param name="TileSources">Four frame selectors per projectile direction, including the closed-frame sentinel.</param>
     internal sealed record Placement(ushort[] PosePointers, byte[] DrawingData,
         ushort[] Attributes, ushort[][] TileSources);
 
+    /// <summary>Combines validated placement tables with the separately installed character sheet.</summary>
+    /// <param name="placement">Table payload produced by <see cref="LoadPlacement"/>.</param>
+    /// <param name="tiles">Installed indexed cannon tile characters.</param>
+    /// <returns>The resolved runtime catalog used by rendering and VRAM upload.</returns>
     internal static SamusArmCannonArtworkCatalog FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
         new(placement.PosePointers, placement.DrawingData, placement.Attributes, placement.TileSources, tiles);
 
+    /// <summary>Parses and validates the JSON placement tables independently from the PNG character sheet.</summary>
+    /// <param name="json">Stream containing the versioned cannon placement document.</param>
+    /// <returns>Validated table arrays ready to combine with installed tile data.</returns>
+    /// <exception cref="InvalidDataException">The JSON, schema, table dimensions, pointers, or selectors are invalid.</exception>
     internal static Placement LoadPlacement(Stream json)
     {
         SamusArmCannonArtworkDocument document;
@@ -215,14 +244,25 @@ public sealed class SamusArmCannonArtworkCatalog
         return false;
     }
 
+    /// <summary>Checks that one JSON integer fits in an unsigned descriptor byte.</summary>
+    /// <param name="value">Parsed integer value.</param>
+    /// <param name="name">Field label used in the validation failure.</param>
+    /// <returns>The value narrowed to one byte.</returns>
+    /// <exception cref="InvalidDataException">The value is negative or greater than 255.</exception>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue
         ? (byte)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a byte.");
 
+    /// <summary>Checks that one JSON integer fits in an unsigned descriptor word.</summary>
+    /// <param name="value">Parsed integer value.</param>
+    /// <param name="name">Field label used in the validation failure.</param>
+    /// <returns>The value narrowed to a 16-bit word.</returns>
+    /// <exception cref="InvalidDataException">The value is negative or greater than 65535.</exception>
     private static ushort RequireWord(int value, string name) => (uint)value <= ushort.MaxValue
         ? (ushort)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a word.");
 
+    /// <summary>Case-insensitive-free camel-case JSON settings that reject unrecognized document properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -1022,6 +1062,9 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:C663 DrawArmCannon emits one small OBJ and transfers one32-byte4bpp tile: its horizontal footprint is eight pixels.</summary>
     private const int CoverWidthPixels = 8;
 
+    /// <summary>Mirrors a signed horizontal cover offset across Samus's origin, accounting for the cover's eight-pixel width.</summary>
+    /// <param name="coordinate">Native signed byte X offset.</param>
+    /// <returns>The reflected X offset encoded with the cartridge's byte wrapping.</returns>
     internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
 
     /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
@@ -1067,6 +1110,7 @@ public static class SamusArmCannonArtworkFormat
         return selected >= 0;
     }
 
+    /// <summary>Physical bank-$9A character orientation selected by the cannon's directional firing pose.</summary>
     private enum TileOrientation
     {
         /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>

@@ -18,11 +18,20 @@ public sealed class MotherBrainDeathColorCatalog
             corpseFade.AppendIdentity(content, "corpseFade");
         });
 
+    /// <summary>Compiled body and brain death-fade stages, retaining edited colors when they differ from native interpolation.</summary>
     private readonly ColorFade bodyFade;
+    /// <summary>Compiled back-leg death-fade stages, kept independent from the body palette segment.</summary>
     private readonly ColorFade legFade;
+    /// <summary>Compiled detached-head fade stages, interpolating toward the drained gray endpoint.</summary>
     private readonly ColorFade corpseFade;
+    /// <summary>Door palette override; null means the document matches the native palette definition.</summary>
     private readonly ushort[]? explodedDoor;
 
+    /// <summary>Creates the catalog from validated RGB5 images and stores only the data needed to reproduce their colors.</summary>
+    /// <param name="bodyFade">Compiled body/brain images in authored stage order.</param>
+    /// <param name="legFade">Compiled back-leg images in authored stage order.</param>
+    /// <param name="corpseFade">Compiled detached-head images in authored stage order.</param>
+    /// <param name="explodedDoor">Compiled exploded-door palette colors.</param>
     private MotherBrainDeathColorCatalog(ushort[][] bodyFade, ushort[][] legFade,
         ushort[][] corpseFade, ushort[] explodedDoor)
     {
@@ -32,6 +41,7 @@ public sealed class MotherBrainDeathColorCatalog
         this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
 
+    /// <summary>JSON settings that require camel-case properties, reject unmapped fields, and produce readable asset files.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -119,6 +129,13 @@ public sealed class MotherBrainDeathColorCatalog
         return bytes;
     }
 
+    /// <summary>Bounds-checks a requested fade stage and color before resolving its packed palette word.</summary>
+    /// <param name="frames">Compiled fade image to query.</param>
+    /// <param name="frame">Zero-based stage index.</param>
+    /// <param name="color">Zero-based color index.</param>
+    /// <param name="name">Fade label included in an out-of-range diagnostic.</param>
+    /// <returns>The resolved BGR555 color.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Either index is outside the compiled image dimensions.</exception>
     private static ushort Resolve(ColorFade frames, int frame, int color, string name) =>
         (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
             ? frames.Resolve(frame, color)
@@ -135,13 +152,23 @@ public sealed class MotherBrainDeathColorCatalog
     /// </summary>
     private sealed class ColorFade
     {
+        /// <summary>Optional first-stage colors when the document changes the native death-start palette.</summary>
         private readonly ushort[]? first;
+        /// <summary>Whether starting colors come from the separate back-leg segment of the health palette.</summary>
         private readonly bool backLeg;
+        /// <summary>Optional drained corpse endpoint used for the detached-head interpolation.</summary>
         private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
+        /// <summary>Full authored image set retained when any stage differs from calculated interpolation.</summary>
         private readonly ushort[][]? supplied;
+        /// <summary>Gets the number of authored palette stages.</summary>
         internal int FrameCount { get; }
+        /// <summary>Gets the number of colors in each stage.</summary>
         internal int ColorCount { get; }
 
+        /// <summary>Builds a compact fade model and retains authored frames whenever calculated colors do not match exactly.</summary>
+        /// <param name="frames">Compiled RGB5 stage rows in document order.</param>
+        /// <param name="toBlack"><see langword="true"/> fades to black; otherwise the supplied final row is the endpoint.</param>
+        /// <param name="backLeg"><see langword="true"/> selects the back-leg death-start palette segment.</param>
         internal ColorFade(ushort[][] frames, bool toBlack, bool backLeg = false)
         {
             this.backLeg = backLeg;
@@ -162,9 +189,17 @@ public sealed class MotherBrainDeathColorCatalog
             }
         }
 
+        /// <summary>Returns a retained authored color or calculates the corresponding fade value.</summary>
+        /// <param name="frame">Zero-based stage index.</param>
+        /// <param name="color">Zero-based color index within that stage.</param>
+        /// <returns>Packed BGR555 color for the requested stage and color.</returns>
         internal ushort Resolve(int frame, int color) =>
             supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Interpolates one five-bit channel triplet between the selected endpoints using the authored rounding rule.</summary>
+        /// <param name="frame">Zero-based stage index among the fade intervals.</param>
+        /// <param name="color">Zero-based color index within the stage.</param>
+        /// <returns>The packed BGR555 color for this stage.</returns>
         private ushort Calculate(int frame, int color)
         {
             int steps = FrameCount - 1;
@@ -180,6 +215,9 @@ public sealed class MotherBrainDeathColorCatalog
             return (ushort)result;
         }
 
+        /// <summary>Appends the dimensions and resolved stage rows to the selected-presentation identity.</summary>
+        /// <param name="content">Hash accumulator receiving the canonical fade content.</param>
+        /// <param name="label">Stable component label distinguishing this palette image.</param>
         internal void AppendIdentity(SelectedPresentationHash content, string label)
         {
             content.Append(label, FrameCount);
@@ -193,6 +231,13 @@ public sealed class MotherBrainDeathColorCatalog
         }
     }
 
+    /// <summary>Validates the stage count and compiles every palette row into packed BGR555 words.</summary>
+    /// <param name="source">Nullable document rows to validate.</param>
+    /// <param name="frameCount">Required number of stages for this fade.</param>
+    /// <param name="colorCount">Required number of colors in each stage.</param>
+    /// <param name="name">Fade label used in validation errors.</param>
+    /// <returns>Compiled color rows in the original stage order.</returns>
+    /// <exception cref="InvalidDataException">The stage count, row dimensions, or an RGB5 channel is invalid.</exception>
     private static ushort[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)
     {
@@ -203,6 +248,12 @@ public sealed class MotherBrainDeathColorCatalog
             Compile(frame, colorCount, $"{name} frame {index}")).ToArray();
     }
 
+    /// <summary>Validates one RGB5 palette row and packs its channels into SNES BGR555 words.</summary>
+    /// <param name="source">Nullable row of document colors.</param>
+    /// <param name="count">Required number of colors.</param>
+    /// <param name="name">Palette label used in validation errors.</param>
+    /// <returns>Packed BGR555 words in source order.</returns>
+    /// <exception cref="InvalidDataException">The row has the wrong size, a null entry, or a channel outside 0..31.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -221,6 +272,9 @@ public sealed class MotherBrainDeathColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate JSON object properties before schema deserialization.</summary>
+    /// <param name="value">Parsed JSON root value to validate recursively.</param>
+    /// <exception cref="InvalidDataException">An object contains a duplicate property name.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Mother Brain death color property {name}."));

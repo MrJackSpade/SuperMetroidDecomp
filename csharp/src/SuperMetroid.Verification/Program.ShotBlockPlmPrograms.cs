@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Confirms that compiled shot-block operands execute correctly without cartridge reads, including the reported permanent-block case.</summary>
     private static void VerifyShotBlockProgramOperands()
     {
         // #1157: the first draw operand of a permanent 1x1 shot block ($84:CBBC)
@@ -47,6 +48,7 @@ internal static partial class Program
         Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
     }
 
+    /// <summary>Runs cartridge-backed checks for shot-block control, draw, sound, stock visuals, and installed overrides.</summary>
     private static void VerifyShotBlockPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -189,6 +191,8 @@ internal static partial class Program
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
     }
 
+    /// <summary>Compares each respawning shot size selector with its retail instruction-list word and checks rejected sizes.</summary>
+    /// <param name="rom">Imported cartridge address space used as the reference data source.</param>
     private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
@@ -201,6 +205,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
     }
 
+    /// <summary>Compares each permanent shot size selector with its retail instruction-list word and checks rejected sizes.</summary>
+    /// <param name="rom">Imported cartridge address space used as the reference data source.</param>
     private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
@@ -213,11 +219,15 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
     }
 
+    /// <summary>Returns native starting addresses and record lengths for the ordinary and gated shot-block programs.</summary>
+    /// <returns>Program start, frame count, and whether the program contains a restoration word, in catalog order.</returns>
     private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>
         [(0xcadf,7,true),(0xcb02,8,false),(0xcb27,8,false),(0xcb4c,8,false),
          (0xcbb7,4,false),(0xcbcc,4,false),(0xcbe1,4,false),(0xcbf6,4,false),
          (0xcb71,7,true),(0xcb94,7,true),(0xcc0b,4,false),(0xcc20,4,false),(0xcd53,4,false)];
 
+    /// <summary>Checks compiled shot-block control-word addresses and values against the cartridge across the full word domain.</summary>
+    /// <param name="rom">Imported cartridge address space used as the reference data source.</param>
     private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -239,6 +249,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks compiled draw-pointer operands against the cartridge and verifies unowned addresses resolve as absent.</summary>
+    /// <param name="rom">Imported cartridge address space used as the reference data source.</param>
     private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -254,6 +266,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the compiled byte-sized sound operands and their address coverage against the cartridge.</summary>
+    /// <param name="rom">Imported cartridge address space used as the reference data source.</param>
     private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
@@ -268,6 +282,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies stock and imported shot-block visual words, content identity, defensive copies, and bounds behavior.</summary>
+    /// <param name="rom">Imported cartridge address space used to reconstruct native draw-list visuals.</param>
     private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
@@ -327,6 +343,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmShotBlockVisualCatalog(native.Skip(1).Select(pair => new RoomPlmShotBlockVisualEntry(pair.Key, pair.Value))), "shot-block imported stock still requires complete coverage");
     }
 
+    /// <summary>Confirms editable visual words change rendered PLM tiles without changing physical collision data.</summary>
+    /// <param name="rom">Cartridge source passed through the guard during production PLM execution.</param>
+    /// <param name="forbidden">Cartridge byte addresses whose reads must be served by compiled program data instead.</param>
     private static void VerifyShotBlockVisualSeparation(
         ISnesAddressSpace rom, HashSet<int> forbidden)
     {
@@ -398,6 +417,8 @@ internal static partial class Program
             "visual catalog rejects collision bits in editable data");
     }
 
+    /// <summary>Checks extraction, override loading, stock replacement, and validation of installed shot-block visuals.</summary>
+    /// <param name="rom">Cartridge address space used to extract stock visual data.</param>
     private static void VerifyShotBlockVisualInstallation(ISnesAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -465,11 +486,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Small room fixture coupling a level, its background streamer, and the production PLM system.</summary>
+    /// <param name="Level">Synthetic collision and tile data acted on by the PLM program.</param>
+    /// <param name="Streamer">Background update builder associated with the level.</param>
+    /// <param name="Plms">Production room PLM system stepped by the verification.</param>
     private sealed record ShotBlockFixture(
         RoomLevelData Level,
         BackgroundTilemapStreamer Streamer,
         RoomPlmSystem Plms);
 
+    /// <summary>Builds a one-block room and spawns a projectile-shot PLM for the requested BTS behavior.</summary>
+    /// <param name="behavior">Shot-block behavior selector used by the native PLM program.</param>
+    /// <returns>The initialized level, streamer, and PLM system used by operand checks.</returns>
     private static ShotBlockFixture NewShotBlockFixture(byte behavior)
     {
         const int width = 8;
@@ -487,13 +515,24 @@ internal static partial class Program
         return new ShotBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
+    /// <summary>Address-space wrapper that counts and rejects reads from compiled shot-block program operands.</summary>
+    /// <param name="source">Underlying address space for allowed reads and all writes.</param>
+    /// <param name="forbidden">Addresses whose cartridge read indicates production code bypassed compiled data.</param>
     private sealed class ShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guarded CPU-byte path.</summary>
+        /// <param name="address">24-bit cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the underlying source when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Number of attempted reads from addresses prohibited by this guard.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects forbidden operand reads and delegates other reads to the wrapped source.</summary>
+        /// <param name="address">CPU bus address requested by the caller.</param>
+        /// <returns>The byte read from the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The requested address belongs to the guarded compiled-operand set.</exception>
         public byte ReadByte(int address)
         {
             if (forbidden.Contains(address))
@@ -506,6 +545,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a CPU-bus write without applying read restrictions.</summary>
+        /// <param name="address">CPU bus destination.</param>
+        /// <param name="value">Byte written to the underlying source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

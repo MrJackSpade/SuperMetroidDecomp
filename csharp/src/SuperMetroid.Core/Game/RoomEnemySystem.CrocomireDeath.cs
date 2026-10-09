@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Crocomire's 45-entry bridge, melting, skeleton, and completion dispatcher.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Dispatches one entry in Crocomire's native death table, including hops, melt transitions, skeleton breakup, and room completion.</summary>
+    /// <param name="state">Boss state whose death-sequence index and movement counters select the current phase.</param>
+    /// <param name="samus">Optional live Samus state used for acid effects and the wall-wait trigger.</param>
     private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState? samus)
     {
         switch (state.DeathSequenceIndex)
@@ -160,6 +163,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Combines the sinking movement with acid smoke and, for early hops, the periodic acid sound timer.</summary>
+    /// <param name="state">Crocomire state advanced by the sink routine.</param>
+    /// <param name="samus">Optional Samus liquid state used to place acid smoke.</param>
+    /// <param name="tickAcidSound">Whether this phase still emits the periodic acid sound.</param>
     private void RunCrocomireSinkingComposite(
         CrocomireEnemyState state,
         SamusState? samus,
@@ -171,6 +178,10 @@ public sealed partial class RoomEnemySystem
         RunCrocomireSink(state);
     }
 
+    /// <summary>Combines rising movement with acid smoke and the phase-dependent acid sound timer.</summary>
+    /// <param name="state">Crocomire state advanced by the rise routine.</param>
+    /// <param name="samus">Optional Samus liquid state used to place acid smoke.</param>
+    /// <param name="tickAcidSound">Whether this phase still emits the periodic acid sound.</param>
     private void RunCrocomireRisingComposite(
         CrocomireEnemyState state,
         SamusState? samus,
@@ -182,6 +193,7 @@ public sealed partial class RoomEnemySystem
         RunCrocomireRise(state);
     }
 
+    /// <summary>Ticks the submerged acid ambience timer and requests another sound every 32 updates when it expires.</summary>
     private void RunCrocomireAcidSoundTimer()
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -194,6 +206,8 @@ public sealed partial class RoomEnemySystem
         LastCrocomireSoundEffect = 0x0022;
     }
 
+    /// <summary>Counts down a submerged pause before advancing the death phase and starting the next reaction interval.</summary>
+    /// <param name="state">Boss state holding the pause counter and next-phase timer.</param>
     private static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
         if (state.StepCounter != 0)
@@ -285,6 +299,9 @@ public sealed partial class RoomEnemySystem
         body.YPosition = unchecked((ushort)(body.YPosition - yDelta));
     }
 
+    /// <summary>Spawns an acid-smoke sprite at a randomized horizontal offset and the current acid surface.</summary>
+    /// <param name="state">Crocomire state supplying the smoke's horizontal origin.</param>
+    /// <param name="samus">Optional Samus state supplying the room's current liquid surface; defaults to the native fallback height.</param>
     private void SpawnCrocomireAcidSmoke(CrocomireEnemyState state, SamusState? samus)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -305,6 +322,8 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
     }
 
+    /// <summary>Selects the second melt image's row-height instruction list from Crocomire's current Y coordinate.</summary>
+    /// <param name="body">Crocomire body whose instruction list is replaced.</param>
     private static void SelectCrocomireRisingInstruction(RoomEnemySlot body)
     {
         ushort pointer = body.YPosition < 248
@@ -317,6 +336,9 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(body, pointer);
     }
 
+    /// <summary>Runs the last sink phase and, at its terminal index, switches to the river skeleton and arena scroll setup.</summary>
+    /// <param name="state">Boss state advanced through the final sink and river handoff.</param>
+    /// <param name="samus">Optional Samus state used to position the accompanying acid smoke.</param>
     private void RunCrocomireFinalSink(CrocomireEnemyState state, SamusState? samus)
     {
         SelectCrocomireRisingInstruction(state.Body);
@@ -341,6 +363,8 @@ public sealed partial class RoomEnemySystem
         RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
     }
 
+    /// <summary>Moves the flowing skeleton left until it reaches the arena boundary, then returns it to the final-sink start pose.</summary>
+    /// <param name="state">Boss state whose body position and death-sequence index are updated.</param>
     private static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
@@ -357,6 +381,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for Samus to approach the hidden wall, then installs the wall, scroll boundary, and rumble state.</summary>
+    /// <param name="state">Boss state initialized for the wall-rumble phase when the trigger is reached.</param>
+    /// <param name="samus">Current player position; null leaves the phase waiting.</param>
     private void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState? samus)
     {
         if (samus is null || unchecked((short)(samus.XPosition - 640)) >= 0)
@@ -387,6 +414,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Applies one authored wall-rumble target, sound/cooldown step, or the terminal spike-presentation transition.</summary>
+    /// <param name="state">Boss state carrying the rumble-table offset and death-sequence position.</param>
     private void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -427,6 +456,8 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(death.RumbleYOffset + death.RumbleDelta));
     }
 
+    /// <summary>Uploads skeleton character chunks during the delay, then breaks the wall and starts the skeleton fall.</summary>
+    /// <param name="state">Boss state carrying the upload delay and transition counters.</param>
     private void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -461,6 +492,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Moves Crocomire toward the wall during its cooldown, then starts the falling skeleton instruction list.</summary>
+    /// <param name="state">Boss state holding skeleton position, velocity, and death-phase timing.</param>
     private void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -490,6 +523,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Advances the skeleton's ballistic arc and switches to its breakup image after crossing the arena X threshold.</summary>
+    /// <param name="state">Boss state carrying arc velocity and body subpixel position.</param>
     private void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
         (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
@@ -519,6 +554,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Waits for the stable skeleton image, then places the corpse, opens drops, and publishes room cleanup.</summary>
+    /// <param name="state">Boss state whose body animation and completion flags determine the collapse handoff.</param>
     private void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
         if (unchecked((short)(
@@ -557,6 +594,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Restores all four arena scroll regions and removes the temporary invisible wall.</summary>
+    /// <param name="state">Boss state whose death sequence advances after room cleanup.</param>
     private void FinishCrocomireArenaScrolls(CrocomireEnemyState state)
     {
         for (int index = 0; index < 4; index++)
@@ -565,6 +604,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Publishes the defeat/music transition, restores normal camera tracking, and spawns the final dust pair.</summary>
+    /// <param name="state">Boss state whose completion sequence advances.</param>
     private void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         LastCrocomireMusicRequest = new CrocomireMusicRequest(
@@ -578,6 +619,8 @@ public sealed partial class RoomEnemySystem
         state.DeathSequenceIndex += 2;
     }
 
+    /// <summary>Uploads the next editable skeleton character chunk to its fixed native VRAM destination.</summary>
+    /// <param name="death">Death state whose transfer index advances after a defined chunk is copied.</param>
     private void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
@@ -593,6 +636,12 @@ public sealed partial class RoomEnemySystem
         death.TargetHeightOrSkeletonTileIndex += 2;
     }
 
+    /// <summary>Adds a fixed-point acceleration delta and caps the whole-word velocity at its configured maximum.</summary>
+    /// <param name="fraction">Low 16-bit fractional part of the velocity.</param>
+    /// <param name="whole">High 16-bit whole part of the velocity.</param>
+    /// <param name="delta">Unsigned 16.16 acceleration amount to add.</param>
+    /// <param name="maximumWhole">Maximum whole-word speed; at the cap the whole word is clamped and the fractional word is retained.</param>
+    /// <returns>The resulting fractional and whole words in the order used by Crocomire's death state.</returns>
     private static (ushort Fraction, ushort Whole) CalculateCrocomireVelocity(
         ushort fraction,
         ushort whole,
@@ -606,6 +655,12 @@ public sealed partial class RoomEnemySystem
         return ((ushort)fixedValue, (ushort)(fixedValue >> 16));
     }
 
+    /// <summary>Adds a signed-by-caller 16.16 displacement to a wrapped world position.</summary>
+    /// <param name="position">Current whole-pixel coordinate.</param>
+    /// <param name="subposition">Current fractional coordinate.</param>
+    /// <param name="fraction">Low word of the displacement.</param>
+    /// <param name="whole">High word of the displacement.</param>
+    /// <returns>Updated whole and fractional position words.</returns>
     private static (ushort Position, ushort Subposition) CalculateCrocomirePosition(
         ushort position,
         ushort subposition,

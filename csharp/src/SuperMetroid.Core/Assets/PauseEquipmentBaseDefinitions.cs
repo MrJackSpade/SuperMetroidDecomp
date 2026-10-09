@@ -80,7 +80,31 @@ public static class PauseEquipmentBaseDefinitions
     /// <summary>$B6:EB06-EB0F: repeated empty reserve-gauge segment $FC and endcap $FE.</summary>
     private const int EmptyGauge = 0xfc, GaugeEnd = 0xfe;
 
-    private enum PanelKind { Supply, Beam, Suit, Misc, Boots }
+    /// <summary>Equipment-page panels whose stock bounds and title formatting are reconstructed independently.</summary>
+    private enum PanelKind
+    {
+        /// <summary>Reserve-supply panel with its own stock label range and padding.</summary>
+        Supply,
+        /// <summary>Beam inventory panel.</summary>
+        Beam,
+        /// <summary>Suit inventory panel.</summary>
+        Suit,
+        /// <summary>Miscellaneous suit-category inventory panel.</summary>
+        Misc,
+        /// <summary>Boots inventory panel.</summary>
+        Boots
+    }
+
+    /// <summary>Calculated cell bounds and title tile attributes for one stock equipment-page panel.</summary>
+    /// <param name="Left">Inclusive left border column.</param>
+    /// <param name="Top">Inclusive top border row.</param>
+    /// <param name="Right">Inclusive right border column.</param>
+    /// <param name="Bottom">Inclusive bottom border row.</param>
+    /// <param name="TextColumn">First column occupied by the centered title glyphs.</param>
+    /// <param name="TextWidth">Number of title glyph columns.</param>
+    /// <param name="TextTile">First character tile used by the title.</param>
+    /// <param name="TextPalette">Palette index encoded into the title tile words.</param>
+    /// <param name="TextPriority">Whether title tiles use the high OAM/background priority bit.</param>
     private readonly record struct PanelShape(int Left, int Top, int Right, int Bottom,
         int TextColumn, int TextWidth, int TextTile, int TextPalette, bool TextPriority);
 
@@ -90,6 +114,10 @@ public static class PauseEquipmentBaseDefinitions
     private const int GuideBorderJunction = 0x154;
 
     // These title styles and supply padding are the authored composition of this exact page.
+    /// <summary>Returns the stock footprint and title styling for the requested inventory panel.</summary>
+    /// <param name="kind">Panel category selecting the corresponding stock layout.</param>
+    /// <returns>Calculated border bounds and title attributes for that panel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The panel kind is not a supported equipment section.</exception>
     private static PanelShape Panel(PanelKind kind) => kind switch
     {
         PanelKind.Supply => SupplyPanel(),
@@ -100,6 +128,8 @@ public static class PauseEquipmentBaseDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
+    /// <summary>Derives the reserve-supply panel around the stock Mode and Reserve Tank labels.</summary>
+    /// <returns>The supply border bounds and centered title styling.</returns>
     private static PanelShape SupplyPanel()
     {
         int label = PauseReserveUiDefinitions.StockLabelOffset("Mode") / sizeof(ushort);
@@ -109,6 +139,14 @@ public static class PauseEquipmentBaseDefinitions
         return new(left, label / Columns - 1, right, last / Columns + 2,
             (left + right - titleWidth + 1) / 2, titleWidth, SupplyTitle, 3, false);
     }
+    /// <summary>Calculates a panel around the stock label destinations for a contiguous inventory item range.</summary>
+    /// <param name="category">Pause equipment category owning the labels.</param>
+    /// <param name="firstItem">First item whose stock destination defines the panel's left edge.</param>
+    /// <param name="lastItem">Last item whose stock destination defines the panel's bottom edge.</param>
+    /// <param name="titleWidth">Number of title glyphs used to center the heading.</param>
+    /// <param name="titleGlyph">First character tile in the title.</param>
+    /// <param name="titlePalette">Palette index used for title tiles.</param>
+    /// <returns>The panel bounds and title attributes derived from the selected label range.</returns>
     private static PanelShape InventoryPanel(int category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
@@ -189,6 +227,13 @@ public static class PauseEquipmentBaseDefinitions
         return 0;
     }
 
+    /// <summary>Packs a character index and background tile attributes into one SNES tilemap word.</summary>
+    /// <param name="character">Character tile index.</param>
+    /// <param name="palette">Palette index encoded in bits 10 through 12.</param>
+    /// <param name="priority">Whether to set the priority bit used by the equipment-page artwork.</param>
+    /// <param name="flipX">Whether to mirror the tile horizontally.</param>
+    /// <param name="flipY">Whether to mirror the tile vertically.</param>
+    /// <returns>The complete tilemap word combining character, palette, priority, and flip attributes.</returns>
     private static ushort Tile(int character, int palette, bool priority = true, bool flipX = false, bool flipY = false) =>
         (ushort)(character | palette << 10 | (priority ? 0x2000 : 0) | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

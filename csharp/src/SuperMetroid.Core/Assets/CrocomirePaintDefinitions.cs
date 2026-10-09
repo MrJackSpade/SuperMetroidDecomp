@@ -69,6 +69,7 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B92D/B92F/B937: three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
     private const ushort SpikeAccent = 0x0bb1, SpikeWarmAccent = 0x48fb, SpikeCoolAccent = 0x44e5;
 
+    /// <summary>Maps a four-bit body-palette index to the selected Crocomire fight-body color.</summary>
     internal static ushort FightBody(int ink) => ink switch
     {
         0 => 0,
@@ -79,6 +80,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Maps a four-bit index from the initial wall palette to its packed BGR555 paint.</summary>
     internal static ushort InitialWall(int ink) => ink switch
     {
         0 or 16 => Transparent,
@@ -92,6 +94,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Maps a four-bit index from the initial projectile palette to its packed BGR555 paint.</summary>
     internal static ushort InitialProjectile(int ink) => ink switch
     {
         0 or 16 => Transparent,
@@ -109,6 +112,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Maps an arm-palette index to Crocomire's bone, gold-accent, or transparent color.</summary>
     internal static ushort SkeletonArm(int ink) => ink switch
     {
         0 => Transparent, 1 => White, 2 or 7 => BoneHighlight,
@@ -123,6 +127,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Maps a wall-spike palette index to its selected gold, steel, accent, or transparent paint.</summary>
     internal static ushort WallSpikes(int ink) => ink switch
     {
         0 => Transparent,
@@ -134,33 +139,39 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Builds one of the four red-hide contour colors using the selected warm-channel ramp.</summary>
     private static ushort HideShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => HideMiddleRed, 2 => HideDeepRed, _ => HideOutlineRed };
         int green = HideGreenPeak - shade;
         return Rgb(red, green, Math.Min(HideBlueCap, (green + 1) / 2));
     }
+    /// <summary>Interpolates the bone red ramp and combines it with the selected facet blue and warm tint.</summary>
     private static ushort BoneShade(int shade)
     {
         int red = Nearest(BoneLightRed, BoneDarkRed, shade, 3);
         int blue = shade switch { 0 => BoneBlueLight, 1 => BoneBlueMiddle, 2 => BoneBlueDeep, _ => BoneBlueDark };
         return Rgb(red, Math.Max(BoneGreenFloor, red - BoneGreenTint), blue);
     }
+    /// <summary>Produces a violet projectile-rim shade with a constant blue excess over red.</summary>
     private static ushort VioletShade(int shade)
     {
         int red = Nearest(31 - VioletBlueTint, VioletDarkRed, shade, 2);
         return Rgb(red, 0, red + VioletBlueTint);
     }
+    /// <summary>Produces the green projectile ramp, using gamma-two rounding for its middle green value.</summary>
     private static ushort GreenShade(int shade)
     {
         int green = shade switch { 0 => 31, 1 => FloorGammaMidpoint(31, GreenDark), _ => GreenDark };
         return Rgb(0, green, green * GreenBluePeak / 31);
     }
+    /// <summary>Interpolates a neutral projectile shade equally across the three color channels.</summary>
     private static ushort NeutralShade(int shade)
     {
         int value = Nearest(ProjectileNeutralLight, ProjectileNeutralDark, shade, 2);
         return Rgb(value, value, value);
     }
+    /// <summary>Builds a three-step gold spike shade with integer interpolation between selected endpoints.</summary>
     private static ushort GoldShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => SpikeGoldMiddleRed, _ => SpikeGoldDarkRed };
@@ -168,19 +179,25 @@ internal static class CrocomirePaintDefinitions
             (SpikeGoldLightGreen - SpikeGoldDarkGreen) / (31 - SpikeGoldDarkRed);
         return Rgb(red, green, 0);
     }
+    /// <summary>Builds a four-step neutral steel shade with the selected blue-channel tint.</summary>
     private static ushort SteelShade(int shade)
     {
         int level = (SteelLight * (3 - shade) + SteelDark * shade) / 3;
         return Rgb(level, level, level + SteelBlueTint);
     }
+    /// <summary>Interpolates integer channel levels with nearest-integer rounding.</summary>
     private static int Nearest(int from, int to, int step, int count) =>
         (from * (count - step) + to * step + count / 2) / count;
     // Squared midpoint of square-root intensity; endpoints remain their exact RGB5 values.
     // This is the selected material's exact gamma-two shade rule, not a historical-tool claim.
     private static int FloorGammaMidpoint(int from, int to) =>
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
+    /// <summary>Packs three five-bit color channels into the game's BGR555 palette word.</summary>
     private static ushort Rgb(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    /// <summary>Palette word used for the transparent OBJ index-zero color.</summary>
     private static ushort Transparent => Rgb(0, 0, TransparentBlue);
+    /// <summary>Palette word for full intensity in all three five-bit channels.</summary>
     private static ushort White => Rgb(31, 31, 31);
+    /// <summary>Selected light bone paint shared by the body teeth and bone palette.</summary>
     private static ushort BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
 }

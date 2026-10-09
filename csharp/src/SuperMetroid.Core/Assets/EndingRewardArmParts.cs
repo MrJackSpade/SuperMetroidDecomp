@@ -10,13 +10,26 @@ namespace SuperMetroid.Core.Assets;
 /// Shoulder geometry and the split-pose grid are calculated separately.</summary>
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Signed pixel offsets used to position one authored arm piece around a shared origin.</summary>
+    /// <param name="X">Horizontal displacement from the pose's fixed split-arm origin.</param>
+    /// <param name="Y">Vertical displacement from the pose's fixed split-arm origin.</param>
     private readonly record struct Piece(int X, int Y);
+    /// <summary>Supplied arm-piece positions retained when they do not match the fixed split-pose grid.</summary>
     private readonly Piece[]? arm;
+    /// <summary>Reference position used to reconstruct the known three-piece split pose.</summary>
     private readonly Piece splitOrigin;
+    /// <summary>Supplied tile numbers retained when they differ from the stock atlas selection.</summary>
     private readonly int[]? editedTiles;
+    /// <summary>Animation pose that determines stock arm-piece tiles and split geometry.</summary>
     private readonly Pose pose;
+    /// <summary>Supplied shoulder anchor coordinates used to place the generated shoulder pieces.</summary>
     private readonly int shoulderX, shoulderY;
+    /// <summary>Whether this pose uses the three-piece split arm layout.</summary>
     private readonly bool splitArm;
+
+    /// <summary>Captures the supplied composition's arm geometry and shoulder anchor for the matching ending pose.</summary>
+    /// <param name="supplied">Source sprite composition whose arm and shoulder parts are being specialized.</param>
+    /// <param name="pose">Ending pose whose stock tile layout and piece count apply.</param>
     private EndingRewardArmParts(SpriteComposition supplied, Pose pose)
     {
         this.pose = pose;
@@ -49,6 +62,9 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         shoulderY = unchecked((sbyte)shoulder.Y);
     }
 
+    /// <summary>Returns a split-pose piece's fixed offset from its origin, ordered bottom small, top small, then large.</summary>
+    /// <param name="index">Zero-based index of one of the three split-arm pieces.</param>
+    /// <returns>The piece's horizontal and vertical pixel offsets.</returns>
     internal static (int X, int Y) SplitOffset(int index)
     {
         if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
@@ -56,6 +72,10 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         return (index == 2 ? 8 : 0, index == 0 ? 8 : 0);
     }
 
+    /// <summary>Selects the stock atlas tile for an arm piece in one of the eight ending poses.</summary>
+    /// <param name="pose">Ending pose whose arm artwork is being selected.</param>
+    /// <param name="index">Zero-based arm-piece index in that pose.</param>
+    /// <returns>The tile number used by the stock pose artwork.</returns>
     internal static int StockTile(Pose pose, int index)
     {
         int stage = pose - Pose.SamusArmFromEndingFrame1;
@@ -69,6 +89,10 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         int variant = (stage - 2) / 3;
         return EndingRewardArmAtlas.PairedUpper + 2 * variant + (index == 0 ? 32 : 0);
     }
+    /// <summary>Applies the authored arm-and-shoulder projection only to recognized ending-arm frame compositions.</summary>
+    /// <param name="pointer">Native frame pointer used to identify one of the eight ending poses.</param>
+    /// <param name="supplied">Composition to specialize; returned unchanged if the frame or part layout is unsupported.</param>
+    /// <returns>The matching composition with calculated arm pieces, or the original composition when it does not match.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (Pose pose = Pose.SamusArmFromEndingFrame1; pose <= Pose.SamusArmFromEndingFrame8; pose++)
@@ -84,7 +108,12 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         return supplied;
     }
     private int ArmCount => splitArm ? 3 : 2;
+    /// <summary>Total arm and shoulder pieces yielded for the selected pose.</summary>
     public int Count => ArmCount + 3;
+
+    /// <summary>Gets one generated arm or shoulder sprite part in spritemap order.</summary>
+    /// <param name="index">Zero-based part index; arm pieces precede the three shoulder pieces.</param>
+    /// <returns>The compiled sprite part with its pose-specific position and tile.</returns>
     public CompiledSpritePart this[int index]
     {
         get
@@ -117,6 +146,8 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the generated arm pieces followed by the shoulder pieces.</summary>
+    /// <returns>An enumerator over the pose's compiled sprite parts.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
@@ -124,6 +155,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Stock tile numbers used to assemble the eight ending arm poses and the common shoulder.</summary>
 internal static class EndingRewardArmAtlas
 {
     /// <summary>Tile$EE, initial pose's lower large arm piece.</summary>

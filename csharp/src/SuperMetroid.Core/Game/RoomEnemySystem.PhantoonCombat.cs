@@ -8,11 +8,15 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Body instruction list that removes the vulnerable hitbox during hidden and fade phases.</summary>
     private const ushort PhantoonInvulnerableBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
+    /// <summary>Body instruction list that restores Phantoon's full combat hitbox while visible.</summary>
     private const ushort PhantoonFullHitboxBodyInstruction =
         PhantoonInstructionProgramDefinitions.FullHitboxBody;
+    /// <summary>Eye list used to close the eye before selecting another appearance pattern.</summary>
     private const ushort PhantoonEyeCloseInstruction = PhantoonInstructionProgramDefinitions.EyeClose;
+    /// <summary>Eye list that centers the pupil during the flame-rain vulnerable window.</summary>
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
@@ -80,6 +84,11 @@ public sealed partial class RoomEnemySystem
         state.Tentacles!.VariableB = 0;
     }
 
+    /// <summary>Continues the opaque swoop while fading Phantoon out, then enters the post-fade hidden wait.</summary>
+    /// <param name="body">The boss record whose movement, timer, function, and hitbox are updated.</param>
+    /// <param name="state">Phantoon's eye, tentacle, palette, and fade state.</param>
+    /// <param name="samus">The target used by the ongoing nonfatal swoop.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used by the fade cadence.</param>
     private void RunPhantoonFadeOutWhileSwooping(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -95,6 +104,8 @@ public sealed partial class RoomEnemySystem
         body.VariableE = 120;
     }
 
+    /// <summary>Advances the invisible pause after fading out and selects the next appearance when its timer expires.</summary>
+    /// <param name="body">The boss record containing the wait timer and function word.</param>
     private static void RunPhantoonHiddenWait(RoomEnemySlot body)
     {
         if (TickPhantoonFunctionTimer(body))
@@ -131,6 +142,10 @@ public sealed partial class RoomEnemySystem
         state.Eye.VariableF = 0;
     }
 
+    /// <summary>Fades Phantoon in before the second-round figure-eight, then hands control to its movement phase.</summary>
+    /// <param name="body">The boss record receiving the next movement function.</param>
+    /// <param name="state">Eye and palette state used by the fade.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonFadeInBeforeFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -153,6 +168,10 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.FadeInDuringFlameRain;
     }
 
+    /// <summary>Fades Phantoon into the flame-rain attack and opens the timed vulnerable tracking window.</summary>
+    /// <param name="body">The boss record whose collision property, function, and timer change after the fade.</param>
+    /// <param name="state">Eye and palette state for the transition.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonFlameRainFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -167,6 +186,9 @@ public sealed partial class RoomEnemySystem
         body.VariableE = 90;
     }
 
+    /// <summary>Ends the flame-rain vulnerability window, choosing a swoop after damage or fading out otherwise.</summary>
+    /// <param name="body">The boss record whose attack branch and collision property are updated.</param>
+    /// <param name="state">Tentacle damage and eye state used to decide the transition.</param>
     private static void RunPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -191,6 +213,10 @@ public sealed partial class RoomEnemySystem
         state.SemiTransparencyLayerFlags |= 0x4000;
     }
 
+    /// <summary>Fades Phantoon out after a flame-rain window and schedules the next hidden rain pattern.</summary>
+    /// <param name="body">The boss record receiving the next function and delay.</param>
+    /// <param name="state">Eye and palette state used during the fade.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonFlameRainFadeOut(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -204,6 +230,9 @@ public sealed partial class RoomEnemySystem
         body.VariableE = PhantoonTimerDefinitions.RainHiding[_nextRandom!() & 7];
     }
 
+    /// <summary>Selects a randomized rain placement after the hidden delay, then spawns its eight staggered flames.</summary>
+    /// <param name="body">The boss record repositioned for the chosen pattern.</param>
+    /// <param name="state">Eye, mouth, and tentacle state associated with the attack.</param>
     private void RunPhantoonHiddenFlameRain(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -221,6 +250,10 @@ public sealed partial class RoomEnemySystem
         SpawnPhantoonFlameRain(body, pattern);
     }
 
+    /// <summary>Runs the opening rain's fade, figure-eight motion, and casual flame schedule until its countdown expires.</summary>
+    /// <param name="body">The boss record whose opening attack state is advanced.</param>
+    /// <param name="state">Eye, mouth, tentacle, and palette state used by the sequence.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the fade.</param>
     private void RunPhantoonInitialFlameRain(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -240,6 +273,10 @@ public sealed partial class RoomEnemySystem
         SpawnPhantoonFlameRain(body, body.XPosition < 128 ? (ushort)0 : (ushort)2);
     }
 
+    /// <summary>Fades Phantoon out before the enraged appearance and starts the hidden transition timer.</summary>
+    /// <param name="body">The boss record receiving the rage-positioning function and delay.</param>
+    /// <param name="state">Eye and palette state for the fade.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonFadeOutBeforeRage(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -252,6 +289,9 @@ public sealed partial class RoomEnemySystem
         body.VariableE = 120;
     }
 
+    /// <summary>Waits invisibly between rage setup and rage fade-in, then positions Phantoon at the arena top center.</summary>
+    /// <param name="body">The boss record containing the timer and receiving the new position and function.</param>
+    /// <param name="state">The eye state reset as the hidden wait ends.</param>
     private static void RunPhantoonRageHiddenWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -264,6 +304,10 @@ public sealed partial class RoomEnemySystem
         state.Eye!.VariableF = 0;
     }
 
+    /// <summary>Fades Phantoon into the enraged state and initializes the cadence for its radial flame waves.</summary>
+    /// <param name="body">The boss record whose function and wave timer are advanced.</param>
+    /// <param name="state">Eye and palette state used during the fade.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonRageFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -309,6 +353,10 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.FadeOutAfterRage;
     }
 
+    /// <summary>Fades Phantoon out after the final rage wave and schedules its hidden wait.</summary>
+    /// <param name="body">The boss record receiving the next function and delay.</param>
+    /// <param name="state">Eye and palette state used during the fade.</param>
+    /// <param name="nmiFrameCounter8">Frame phase used to advance the palette transition.</param>
     private void RunPhantoonRageFadeOut(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -321,6 +369,9 @@ public sealed partial class RoomEnemySystem
         body.VariableE = 120;
     }
 
+    /// <summary>Initializes tentacle-controlled swoop velocities and starts the 360-update swoop function.</summary>
+    /// <param name="body">The boss record receiving the swoop function and duration.</param>
+    /// <param name="state">Phantoon state whose tentacle velocity words seed the movement.</param>
     private static void BeginPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -403,6 +454,10 @@ public sealed partial class RoomEnemySystem
         "Performance",
         "CA1822:Mark members as static",
         Justification = "Retains instance ownership inside the native Phantoon phase dispatcher without forcing unrelated phase methods static.")]
+    /// <summary>Selects the eye animation for the octant containing Samus relative to Phantoon.</summary>
+    /// <param name="body">The boss position used as the aim origin.</param>
+    /// <param name="eye">The eye record whose animation pointer is replaced.</param>
+    /// <param name="samus">The player position used to select an eye direction.</param>
     private void PointPhantoonEyeAtSamus(
         RoomEnemySlot body,
         RoomEnemySlot eye,
@@ -425,6 +480,10 @@ public sealed partial class RoomEnemySystem
             PhantoonPatternDefinitions.EyeInstruction(direction));
     }
 
+    /// <summary>Applies one palette step toward the hidden target on the native even-frame cadence and marks completion at its endpoint.</summary>
+    /// <param name="state">Phantoon's eye fade counters and installed palette state.</param>
+    /// <param name="denominator">Transition duration scale used to calculate each palette color.</param>
+    /// <param name="nmiFrameCounter8">Caller-supplied frame phase retained by the phase interface; cadence uses the current enemy-frame counter.</param>
     private void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
         ushort denominator,
@@ -455,6 +514,9 @@ public sealed partial class RoomEnemySystem
         eye.VariableE = unchecked((ushort)(numerator + 1));
     }
 
+    /// <summary>Spawns eight destroyable flames across the selected rain row with staggered activation delays.</summary>
+    /// <param name="body">The boss record supplying the flame origin.</param>
+    /// <param name="pattern">Rain placement index selecting the first column.</param>
     private void SpawnPhantoonFlameRain(RoomEnemySlot body, ushort pattern)
     {
         byte column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
@@ -471,6 +533,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Restarts an actor's animation command timer and installs the requested Phantoon instruction list.</summary>
+    /// <param name="slot">The body, eye, or tentacle actor receiving the instruction.</param>
+    /// <param name="instruction">Bank-local instruction-list pointer to install.</param>
     private static void InstallPhantoonInstruction(
         RoomEnemySlot slot,
         ushort instruction)

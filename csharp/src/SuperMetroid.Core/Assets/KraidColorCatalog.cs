@@ -22,12 +22,19 @@ public sealed class KraidColorCatalog
             }
         });
 
+    /// <summary>Room-backdrop colors resolved from stock RGB5 values plus any supplied deviations.</summary>
     private readonly IReadOnlyList<ushort> roomBackdrop;
+    /// <summary>Initial rock-target palette resolved from stock RGB5 values plus any supplied deviations.</summary>
     private readonly IReadOnlyList<ushort> initialTarget;
+    /// <summary>Body health bands, with authored cells and endpoint-driven interpolation.</summary>
     private readonly IReadOnlyList<ushort> health;
+    /// <summary>Sprite health bands, retaining independent supplied colors unless identical to the body bands.</summary>
     private readonly IReadOnlyList<ushort> secondary;
+    /// <summary>Death-arm colors resolved from stock RGB5 values plus any supplied deviations.</summary>
     private readonly IReadOnlyList<ushort> deathArm;
 
+    /// <summary>Compiles the document's five color sources into compact lookup bands.</summary>
+    /// <param name="document">Validated schema containing packed RGB5 source arrays.</param>
     private KraidColorCatalog(KraidColorDocument document)
     {
         roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop,
@@ -67,9 +74,14 @@ public sealed class KraidColorCatalog
     /// </summary>
     private sealed class StockBand : IReadOnlyList<ushort>
     {
+        /// <summary>Palette source whose stock colors supply values omitted from <see cref="deviations"/>.</summary>
         private readonly KraidPaletteSource source;
+        /// <summary>Only supplied indices whose RGB5 value differs from the source's native stock color.</summary>
         private readonly Dictionary<int, ushort> deviations = new();
 
+        /// <summary>Builds a lazy stock-backed palette view from the source's editable colors.</summary>
+        /// <param name="source">Native Kraid palette band represented by this lookup.</param>
+        /// <param name="supplied">Complete source colors from the validated document.</param>
         internal StockBand(KraidPaletteSource source, ushort[] supplied)
         {
             this.source = source;
@@ -78,10 +90,14 @@ public sealed class KraidColorCatalog
                     deviations.Add(index, supplied[index]);
         }
 
+        /// <summary>Gets the native number of colors in this palette source.</summary>
         public int Count => KraidPaletteRomData.ColorCount(source);
+        /// <summary>Gets an edited color when supplied, otherwise the corresponding stock color.</summary>
+        /// <param name="index">Zero-based color position in the source band.</param>
         public ushort this[int index] => deviations.TryGetValue(index, out ushort supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
 
+        /// <summary>Enumerates the full palette band in color-index order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -119,8 +135,11 @@ public sealed class KraidColorCatalog
     /// </summary>
     private sealed class HealthPalette : IReadOnlyList<ushort>
     {
+        /// <summary>Supplied health-band cells that override authored values or endpoint interpolation.</summary>
         private readonly Dictionary<int, ushort> deviations = new();
 
+        /// <summary>Stores authored cell changes first, then deviations from interpolation using the selected endpoints.</summary>
+        /// <param name="supplied">All nine sixteen-color rows from the editable health palette source.</param>
         internal HealthPalette(ushort[] supplied)
         {
             // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
@@ -132,7 +151,10 @@ public sealed class KraidColorCatalog
                     deviations.Add(index, supplied[index]);
         }
 
+        /// <summary>Gets the total number of colors across the flash row and eight health bands.</summary>
         public int Count => KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors;
+        /// <summary>Gets an authored or edited color, or calculates its channelwise health interpolation.</summary>
+        /// <param name="index">Zero-based position across all consecutive palette bands.</param>
         public ushort this[int index]
         {
             get
@@ -143,6 +165,8 @@ public sealed class KraidColorCatalog
             }
         }
 
+        /// <summary>Calculates an authored health cell or interpolates an unedited cell between the selected endpoints.</summary>
+        /// <param name="index">Zero-based color position across the flash and health bands.</param>
         private ushort Calculate(int index)
         {
             if (KraidPaintDefinitions.HealthAuthored(index) is ushort authored)
@@ -155,6 +179,7 @@ public sealed class KraidColorCatalog
             return InterpolateHealth(this[KraidPaletteRomData.BandColors + color], this[finalBand + color], band);
         }
 
+        /// <summary>Enumerates the complete flash and health-band palette in storage order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -198,6 +223,10 @@ public sealed class KraidColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates source length and RGB5 channel bounds, then packs the colors into 16-bit words.</summary>
+    /// <param name="source">Nullable input array for one named palette band.</param>
+    /// <param name="kind">Palette identity used to select its expected length and validation message.</param>
+    /// <exception cref="InvalidDataException">The array is absent, has the wrong length, contains null colors, or has a channel outside RGB5 range.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
     {
         int expected = KraidPaletteRomData.ColorCount(kind);
@@ -216,10 +245,13 @@ public sealed class KraidColorCatalog
         return result;
     }
 
+    /// <summary>Rejects repeated JSON property names case-insensitively before schema deserialization.</summary>
+    /// <param name="value">Parsed JSON root whose object properties are checked.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate Kraid color property {name}."));
 
+    /// <summary>Shared serializer rules for camel-case, case-insensitive input and strict unknown-property rejection.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

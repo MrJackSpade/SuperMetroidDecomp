@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
+    /// <summary>The physical enemy record whose native variables back this debugger-facing state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the face block's common enemy-variable words.</summary>
+    /// <param name="slot">The room enemy record for this face-block actor.</param>
     internal BlueBrinstarFaceBlockEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -41,27 +44,41 @@ public sealed class BlueBrinstarFaceBlockEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy header for the stationary Blue Brinstar face-block actor.</summary>
     internal const ushort BlueBrinstarFaceBlockDefinition = 0xea7f;
+    /// <summary>Native bank-$A8 shot callback that leaves these blocks undamaged and pass-through.</summary>
     internal const ushort BlueBrinstarFaceBlockShotAi =
         EnemyAiCodePointers.BankA8.BlueBrinstarFaceBlockShot;
 
+    /// <summary>Collected-items bit that enables face-block proximity activation and palette animation.</summary>
     private const ushort BlueBrinstarFaceBlockMorphBallItemMask = 0x0004;
+    /// <summary>Frames between successive shared palette-animation updates.</summary>
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
+    /// <summary>Number of palette frames in the looping face-block color sequence.</summary>
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
+    /// <summary>Number of consecutive OBJ colors replaced by each palette-animation frame.</summary>
     private const int BlueBrinstarFaceBlockAnimatedColorCount = 4;
+    /// <summary>First CGRAM index reserved for OBJ palettes.</summary>
     private const int FirstObjPaletteColor = 128;
+    /// <summary>Number of CGRAM color entries in one OBJ palette.</summary>
     private const int ColorsPerObjPalette = 16;
+    /// <summary>Color offset within the selected OBJ palette where the animated face-block colors begin.</summary>
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
+    /// <summary>Per-slot activation state for face-block actors loaded in the room.</summary>
     private readonly BlueBrinstarFaceBlockEnemyState?[] _blueBrinstarFaceBlockStates =
         new BlueBrinstarFaceBlockEnemyState?[MaximumEnemyCount];
 
     // The cartridge stores this animation in the shared enemy-graphics-drawn hook words,
     // not per enemy. Multiple blocks repeatedly select the same graphics-set palette during
     // main AI, and whichever eligible block runs last therefore owns this one shared base.
+    /// <summary>Whether the room-global graphics-drawn palette callback has been enabled by an eligible actor.</summary>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
+    /// <summary>Countdown until the shared palette callback writes its next four colors.</summary>
     private ushort _blueBrinstarFaceBlockPaletteTimer;
+    /// <summary>Current index in the eight-frame shared palette cycle.</summary>
     private ushort _blueBrinstarFaceBlockPaletteFrame;
+    /// <summary>First CGRAM entry updated by the palette callback for the last eligible actor processed.</summary>
     private int _blueBrinstarFaceBlockPaletteDestination;
 
     /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
@@ -146,6 +163,9 @@ public sealed partial class RoomEnemySystem
         _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
     }
 
+    /// <summary>Checks the cartridge's collected-items flag that gates face-block activation.</summary>
+    /// <param name="samus">Current player state, if available.</param>
+    /// <returns><see langword="true"/> only when a player exists and has collected Morph Ball.</returns>
     private static bool HasCollectedMorphBall(SamusState? samus) =>
         samus is not null &&
         (samus.CollectedItems & BlueBrinstarFaceBlockMorphBallItemMask) != 0;
@@ -157,6 +177,8 @@ public sealed partial class RoomEnemySystem
     private static ushort AbsoluteFaceBlockDelta(ushort delta) =>
         unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
 
+    /// <summary>Enables the room-global palette animation and selects color nine of this actor's OBJ palette as its write origin.</summary>
+    /// <param name="slot">Eligible face-block record whose palette selects the shared CGRAM destination.</param>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
@@ -204,6 +226,10 @@ public sealed partial class RoomEnemySystem
             (BlueBrinstarFaceBlockPaletteFrameCount - 1)));
     }
 
+    /// <summary>Returns the state view initialized for a face-block enemy slot.</summary>
+    /// <param name="slot">The physical room enemy record whose state is required.</param>
+    /// <returns>The initialized activation state for that actor.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized face-block state.</exception>
     private BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
         RoomEnemySlot slot) =>
         _blueBrinstarFaceBlockStates[slot.SlotIndex] ?? throw new InvalidOperationException(

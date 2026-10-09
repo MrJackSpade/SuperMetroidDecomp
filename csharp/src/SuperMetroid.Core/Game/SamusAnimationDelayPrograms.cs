@@ -39,8 +39,20 @@ internal enum SamusAnimationCommand : byte
 /// <remarks>Command operands are semantic: back distances derive from the repeat target and pose bytes are pose identities.</remarks>
 internal sealed class SamusAnimationSegment
 {
+    /// <summary>Per-frame delay bytes emitted before this segment's control opcode and operands.</summary>
     private readonly byte[] delays;
 
+    /// <summary>Describes one native animation byte run and the semantic operands encoded by its ending command.</summary>
+    /// <param name="address">Bank-$91 start address assigned to the segment.</param>
+    /// <param name="delays">Frame delay bytes preceding the command.</param>
+    /// <param name="command">Control opcode that terminates the segment.</param>
+    /// <param name="repeatTarget">Address selected by a repeat command, when applicable.</param>
+    /// <param name="item">Equipment mask tested by item-dependent transition commands.</param>
+    /// <param name="unequippedGrounded">Grounded pose selected without the required item.</param>
+    /// <param name="unequippedAirborne">Airborne pose selected without the required item.</param>
+    /// <param name="equippedGrounded">Grounded pose selected when the item is equipped.</param>
+    /// <param name="equippedAirborne">Airborne pose selected when the item is equipped.</param>
+    /// <param name="wordPose">Whether a transition operand retains its source's two-byte pose encoding.</param>
     internal SamusAnimationSegment(ushort address, byte[] delays, SamusAnimationCommand command,
         ushort repeatTarget = 0, SamusEquipmentFlags item = 0,
         SamusPoseId unequippedGrounded = 0, SamusPoseId unequippedAirborne = 0,
@@ -58,7 +70,9 @@ internal sealed class SamusAnimationSegment
         EquippedAirborne = equippedAirborne;
     }
 
+    /// <summary>Bank-$91 address of the first delay byte in this segment.</summary>
     internal ushort Address { get; }
+    /// <summary>Opcode interpreted immediately after this segment's delay bytes.</summary>
     internal SamusAnimationCommand Command { get; }
 
     /// <summary>Address of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
@@ -69,8 +83,11 @@ internal sealed class SamusAnimationSegment
 
     /// <summary>Pose for an unequipped item at rest, and the only pose of <c>$F8</c>/<c>$FD</c>.</summary>
     internal SamusPoseId UnequippedGrounded { get; }
+    /// <summary>Airborne pose selected when an item-dependent transition's item is absent.</summary>
     internal SamusPoseId UnequippedAirborne { get; }
+    /// <summary>Grounded pose selected when the required item is equipped.</summary>
     internal SamusPoseId EquippedGrounded { get; }
+    /// <summary>Airborne pose selected when the required item is equipped.</summary>
     internal SamusPoseId EquippedAirborne { get; }
 
     /// <summary>
@@ -79,8 +96,10 @@ internal sealed class SamusAnimationSegment
     /// </summary>
     internal bool WordPose { get; }
 
+    /// <summary>Bank-$91 address of the command byte following the frame delays.</summary>
     internal ushort CommandAddress => (ushort)(Address + delays.Length);
 
+    /// <summary>Total encoded byte length, including the opcode and command-specific operands.</summary>
     internal int Length => delays.Length + 1 + Command switch
     {
         SamusAnimationCommand.Transition => WordPose ? 2 : 1,
@@ -133,6 +152,7 @@ internal static class SamusAnimationDelayPrograms
 {
     // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
     // so start addresses are laid out from the stream start rather than stored.
+    /// <summary>Contiguous animation segments in native bank-$91 address order.</summary>
     private static readonly SamusAnimationSegment[] segments = Layout(
         (ushort)(SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue),
     [
@@ -301,6 +321,10 @@ internal static class SamusAnimationDelayPrograms
     /// <summary>Builds one segment at its laid-out address; <c>earlier</c> holds the preceding segments.</summary>
     private delegate SamusAnimationSegment Placement(ushort address, IReadOnlyList<SamusAnimationSegment> earlier);
 
+    /// <summary>Assigns each segment the address immediately after its predecessor, preserving native stream order.</summary>
+    /// <param name="start">Address of the first animation stream byte.</param>
+    /// <param name="placements">Segment factories in the order they appear in the native data.</param>
+    /// <returns>The constructed segments with contiguous addresses.</returns>
     private static SamusAnimationSegment[] Layout(ushort start, Placement[] placements)
     {
         var laidOut = new List<SamusAnimationSegment>(placements.Length);
@@ -314,6 +338,10 @@ internal static class SamusAnimationDelayPrograms
         return [.. laidOut];
     }
 
+    /// <summary>Creates a run of identical frame-delay bytes for compact authored sequences.</summary>
+    /// <param name="delay">Delay byte copied into each frame entry.</param>
+    /// <param name="count">Number of delay entries in the run.</param>
+    /// <returns>A new array containing the repeated delay.</returns>
     private static byte[] Repeat(byte delay, int count)
     {
         byte[] run = new byte[count];
@@ -321,22 +349,37 @@ internal static class SamusAnimationDelayPrograms
         return run;
     }
 
+    /// <summary>Creates a segment placement ending in the command that restarts animation at frame zero.</summary>
+    /// <param name="delays">Frame durations before the loop opcode.</param>
+    /// <returns>A placement factory for the loop segment.</returns>
     private static Placement Loop(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Loop);
 
+    /// <summary>Creates a segment placement ending in the native no-op hold command.</summary>
+    /// <param name="delays">Frame durations before the hold opcode.</param>
+    /// <returns>A placement factory for the hold segment.</returns>
     private static Placement Hold(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Hold);
 
+    /// <summary>Creates a segment that loops normally unless low energy selects the following drained frames.</summary>
+    /// <param name="delays">Frame durations before the conditional-loop opcode.</param>
+    /// <returns>A placement factory for the conditional-loop segment.</returns>
     private static Placement LoopUnlessLowEnergy(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy);
 
+    /// <summary>Creates a segment that installs the drained-fall handler and continues past its command.</summary>
+    /// <param name="delays">Frame durations before the handler command.</param>
+    /// <returns>A placement factory for the drained-fall segment.</returns>
     private static Placement InstallDrainedFall(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.InstallDrainedFall);
 
+    /// <summary>Creates a segment that selects the ordinary or powered wall-jump frame sequence.</summary>
+    /// <param name="delays">Frame durations before the wall-jump selection opcode.</param>
+    /// <returns>A placement factory for the wall-jump selection segment.</returns>
     private static Placement WallJumpSelect(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.WallJumpSelect);
@@ -351,10 +394,18 @@ internal static class SamusAnimationDelayPrograms
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(earlier[^segmentsBack].Address + frame));
 
+    /// <summary>Creates a turn transition with its single final pose operand.</summary>
+    /// <param name="delays">Frame durations before the transition command.</param>
+    /// <param name="pose">Final grounded pose unless auto-jump supersedes the turn.</param>
+    /// <returns>A placement factory for the turn-transition segment.</returns>
     private static Placement TurnTransition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.TurnTransition, unequippedGrounded: pose);
 
+    /// <summary>Creates a standard transitional pose segment.</summary>
+    /// <param name="delays">Frame durations before the transition command.</param>
+    /// <param name="pose">Pose identity encoded as the transition operand.</param>
+    /// <returns>A placement factory for the transition segment.</returns>
     private static Placement Transition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose);
@@ -364,12 +415,26 @@ internal static class SamusAnimationDelayPrograms
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose, wordPose: true);
 
+    /// <summary>Creates a grounded transition whose final pose depends on whether the selected item is equipped.</summary>
+    /// <param name="delays">Frame durations before the item-transition command.</param>
+    /// <param name="item">Equipment flag tested by the command.</param>
+    /// <param name="unequipped">Grounded pose selected when the item is absent.</param>
+    /// <param name="equipped">Grounded pose selected when the item is present.</param>
+    /// <returns>A placement factory for the item-transition segment.</returns>
     private static Placement ItemTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequipped, SamusPoseId equipped) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.ItemTransition, item: item,
             unequippedGrounded: unequipped, equippedGrounded: equipped);
 
+    /// <summary>Creates an item-dependent transition with separate grounded and airborne pose choices.</summary>
+    /// <param name="delays">Frame durations before the item-transition command.</param>
+    /// <param name="item">Equipment flag tested by the command.</param>
+    /// <param name="unequippedGrounded">Grounded pose selected when the item is absent.</param>
+    /// <param name="unequippedAirborne">Airborne pose selected when the item is absent.</param>
+    /// <param name="equippedGrounded">Grounded pose selected when the item is present.</param>
+    /// <param name="equippedAirborne">Airborne pose selected when the item is present.</param>
+    /// <returns>A placement factory for the item-and-motion transition segment.</returns>
     private static Placement ItemAirborneTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequippedGrounded, SamusPoseId unequippedAirborne,
         SamusPoseId equippedGrounded, SamusPoseId equippedAirborne) =>

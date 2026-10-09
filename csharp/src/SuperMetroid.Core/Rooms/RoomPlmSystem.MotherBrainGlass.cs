@@ -11,15 +11,24 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Bytecode pre-instruction installed by the glass PLM to count qualifying projectile hits.</summary>
     private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
+    /// <summary>Bank-$86 definition pointer used for each shard request emitted by the glass program.</summary>
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
+    /// <summary>Shard spawn requests emitted during the current PLM-handler pass.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
+    /// <summary>Optional query for the area-boss bit tested by the glass destruction program.</summary>
     private Func<BossBits, bool>? _motherBrainHasAreaBossBit;
+    /// <summary>Optional query for story events tested by the glass destruction program.</summary>
     private Func<EventNumber, bool>? _hasEvent;
+    /// <summary>Optional writer invoked when the glass program sets its destroyed event.</summary>
     private Action<EventNumber>? _setEvent;
+    /// <summary>Physical PLM pool index of the glass slot, or -1 when no loaded slot is tracked.</summary>
     private int _motherBrainGlassSlotIndex = -1;
+    /// <summary>Whether Mother Brain's room setup has installed the glass PLM.</summary>
     private bool _motherBrainGlassWasLoaded;
+    /// <summary>Last room-argument value retained when the glass slot is not currently active.</summary>
     private ushort _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
@@ -78,8 +87,10 @@ public sealed partial class RoomPlmSystem
                 _motherBrainGlassLastRoomArgument + 1));
     }
 
+    /// <summary>Clears projectile requests so the next PLM pass exposes only its own shard spawns.</summary>
     private void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
+    /// <summary>Clears room-specific glass state and pending shard requests during room teardown.</summary>
     private void ResetMotherBrainGlassState()
     {
         _motherBrainGlassProjectileRequests.Clear();
@@ -90,6 +101,8 @@ public sealed partial class RoomPlmSystem
         _motherBrainGlassRoomWidth = 0;
     }
 
+    /// <summary>Counts qualifying missile hits in the glass slot's room argument and clears its projectile-family timer.</summary>
+    /// <param name="slot">PLM slot whose header, projectile type, and hit counter are inspected.</param>
     private static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
         if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass || slot.PreInstruction == 0)
@@ -108,6 +121,11 @@ public sealed partial class RoomPlmSystem
         slot.LoopTimer = 0;
     }
 
+    /// <summary>Handles the glass program's custom branches, event updates, and shard emission opcodes.</summary>
+    /// <param name="bus">Address space used to read instruction operands from the native PLM stream.</param>
+    /// <param name="slot">Glass PLM slot whose instruction pointer and room argument are updated.</param>
+    /// <param name="instruction">Opcode already fetched by the shared PLM interpreter.</param>
+    /// <returns>True when this instruction belongs to the translated glass program.</returns>
     private bool TryExecuteMotherBrainGlassInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -198,8 +216,12 @@ public sealed partial class RoomPlmSystem
         return EventNumber.MotherBrainGlassDestroyed;
     }
 
+    /// <summary>Room width in blocks used to recover the glass PLM's block coordinates from its slot index.</summary>
     private int _motherBrainGlassRoomWidth;
 
+    /// <summary>Finds the active glass PLM at its tracked pool index and verifies its family header.</summary>
+    /// <param name="slot">Receives the active glass slot, or null when its index is stale or inactive.</param>
+    /// <returns>True only when the tracked slot is active and still belongs to the glass PLM family.</returns>
     private bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
     {
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slots.Length)
@@ -215,6 +237,8 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Retains the glass hit counter and clears its family marker before the deleted PLM slot can be reused.</summary>
+    /// <param name="slot">PLM slot that has just been deleted by the shared interpreter.</param>
     private void OnPlmDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
@@ -229,7 +253,11 @@ public sealed partial class RoomPlmSystem
 
 }
 
-/// <summary>One <c>SpawnEprojWithRoomGfx($CEFC, parameter)</c> emitted by glass bytecode.</summary>
+/// <summary>One shard spawn emitted by Mother Brain glass bytecode for the shared enemy-projectile pool.</summary>
+/// <param name="DefinitionPointer">Bank-$86 projectile definition requested for allocation; glass shards use <c>$CEFC</c>.</param>
+/// <param name="Parameter">Native shard placement-table index, restricted by the consumer to 0, 2, or 4.</param>
+/// <param name="PlmBlockX">Zero-based room block column of the glass PLM that emitted the shard.</param>
+/// <param name="PlmBlockY">Zero-based room block row of the glass PLM that emitted the shard.</param>
 public readonly record struct MotherBrainGlassProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,

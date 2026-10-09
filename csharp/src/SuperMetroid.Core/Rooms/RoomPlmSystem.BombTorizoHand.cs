@@ -17,12 +17,17 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Bank-$86 projectile definition used for the hand's statue-breaking fragments.</summary>
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
+    /// <summary>VRAM table entries emitted by the hand's instruction list in the current PLM pass.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
+    /// <summary>Statue-fragment spawn requests emitted by the hand in the current PLM pass.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
+    /// <summary>Music commands emitted by the hand in the current PLM pass.</summary>
     private readonly List<PlmMusicRequest> _musicRequests = [];
+    /// <summary>Supplies the room's live Samus inventory to the hand's bomb-trigger pre-instruction.</summary>
     private Func<SamusState?>? _bombTorizoSamus;
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
@@ -60,6 +65,7 @@ public sealed partial class RoomPlmSystem
         _bombTorizoHandRoomWidth = level.WidthInBlocks;
     }
 
+    /// <summary>Starts a PLM pass with empty output queues for the Bomb Torizo hand.</summary>
     private void BeginBombTorizoHandFrame()
     {
         _vramWriteRequests.Clear();
@@ -67,6 +73,7 @@ public sealed partial class RoomPlmSystem
         _musicRequests.Clear();
     }
 
+    /// <summary>Clears queued hand outputs and releases room-specific inputs during teardown.</summary>
     private void ResetBombTorizoHandState()
     {
         BeginBombTorizoHandFrame();
@@ -100,6 +107,11 @@ public sealed partial class RoomPlmSystem
         slot.PreInstruction = 0;
     }
 
+    /// <summary>Executes a recognized hand instruction and records its external work as requests.</summary>
+    /// <param name="bus">Address space containing the hand's bank-$84 instruction operands.</param>
+    /// <param name="slot">PLM slot whose header, cursor, and block position identify the hand instance.</param>
+    /// <param name="instruction">Opcode already fetched by the shared PLM instruction dispatcher.</param>
+    /// <returns><see langword="true"/> when this hand opcode was handled and its cursor advanced.</returns>
     private bool TryExecuteBombTorizoHandInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -154,8 +166,11 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Room width used to convert the hand slot's linear block index into tile coordinates.</summary>
     private int _bombTorizoHandRoomWidth;
 
+    /// <summary>Clears the hand header and pre-instruction when its bytecode deletes the PLM.</summary>
+    /// <param name="slot">PLM slot to clear if it currently represents the Bomb Torizo hand.</param>
     private static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
@@ -166,12 +181,19 @@ public sealed partial class RoomPlmSystem
 }
 
 /// <summary>One packed VRAM write-table record emitted by bank-$84 PLM bytecode.</summary>
+/// <param name="SizeInBytes">Number of source bytes to transfer into video memory.</param>
+/// <param name="SourceAddress">24-bit SNES bus address from which the transfer reads.</param>
+/// <param name="EncodedVramDestination">Encoded destination word consumed by the native VRAM write routine.</param>
 public readonly record struct PlmVramWriteRequest(
     ushort SizeInBytes,
     int SourceAddress,
     ushort EncodedVramDestination);
 
 /// <summary>One <c>SpawnEprojWithRoomGfx($A993, parameter)</c> hand fragment.</summary>
+/// <param name="DefinitionPointer">Projectile definition selected for the statue fragment.</param>
+/// <param name="Parameter">Instruction-list operand forwarded to the projectile spawner.</param>
+/// <param name="PlmBlockX">Horizontal room-block coordinate of the hand PLM.</param>
+/// <param name="PlmBlockY">Vertical room-block coordinate of the hand PLM.</param>
 public readonly record struct BombTorizoStatueProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,
@@ -179,6 +201,8 @@ public readonly record struct BombTorizoStatueProjectileRequest(
     byte PlmBlockY);
 
 /// <summary>One delayed music request made by a room PLM instruction.</summary>
+/// <param name="Command">Track-selection command to pass to the music system.</param>
+/// <param name="Delay">Frame delay associated with the queued command.</param>
 public readonly record struct PlmMusicRequest(
     MusicCommand Command,
     MusicCommandDelay Delay);

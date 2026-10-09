@@ -67,13 +67,23 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
     /// <summary>$B2:F208/F3F6 queue library-two spin sound $3F.</summary>
     private const ushort SpinSound = 0x3f;
 
+    /// <summary>Number of compiled control, operand, timer, and sound words addressable as mechanics data.</summary>
     public static int MechanicsWordCount => 308;
+    /// <summary>Number of timed pose-duration words retained as presentation data rather than gameplay mechanics.</summary>
     public static int PresentationWordCount => 140;
+    /// <summary>Calculates a mechanics word by its stable ordinal across the facing-paired instruction programs.</summary>
+    /// <param name="index">Zero-based index in the mechanics-word sequence.</param>
+    /// <returns>The native address and compiled instruction or operand at that index.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the mechanics-word sequence.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Returns the native address of a pose-duration word excluded from the compiled mechanics values.</summary>
+    /// <param name="index">Zero-based index in the presentation-word sequence.</param>
+    /// <returns>Bank-$B2 address of the selected timed pose operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the presentation-word sequence.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -175,40 +185,66 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the selected instruction programs while capturing one requested mechanics or pose word.</summary>
+    /// <param name="requested">Zero-based ordinal of the word to capture in the selected output category.</param>
+    /// <param name="visual">Whether the requested ordinal counts pose-duration presentation words.</param>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Current bank-$B2 instruction address as the program walk advances.</summary>
         internal ushort Cursor { get; private set; }
+        /// <summary>Ordinals tracking visited mechanics words and timed pose words across the programs.</summary>
         private int mechanics, presentation;
+        /// <summary>Captured address/value pair for the requested ordinal.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Starts a native instruction list at its bank-local address.</summary>
+        /// <param name="address">Instruction-list start pointer.</param>
         internal void Begin(ushort address) => Cursor = address;
+        /// <summary>Records a non-pose word when selected and advances the program address by one word.</summary>
+        /// <param name="value">Instruction opcode or operand at the current cursor.</param>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Accounts for one timed pose word, retaining its address with a zero value when it is selected as presentation data.</summary>
+        /// <param name="duration">Authored pose hold encoded at the current instruction address.</param>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Walks a run of consecutive pose-duration words with the same authored hold.</summary>
+        /// <param name="count">Number of pose words in the run.</param>
+        /// <param name="duration">Hold value encoded into each pose word.</param>
         internal void Poses(int count, ushort duration)
         {
             for (int pose = 0; pose < count; pose++) Pose(duration);
         }
+        /// <summary>Emits the native function-setting opcode and its function operand.</summary>
+        /// <param name="function">Ninja Space Pirate function selected by the operand.</param>
         internal void Function(NinjaSpacePirateFunction function)
         {
             Word(SpacePirateInstructionCodes.Instruction_PirateWall_FunctionInY); Word((ushort)function);
         }
+        /// <summary>Emits the palette-selection opcode and palette attribute operand.</summary>
+        /// <param name="palette">Palette bits encoded by the instruction.</param>
         internal void Palette(ushort palette)
         {
             Word(SpacePirateInstructionCodes.Instruction_PirateNinja_PaletteIndexInY); Word(palette);
         }
+        /// <summary>Emits the library-two sound-queue opcode and sound identifier.</summary>
+        /// <param name="sound">Sound effect identifier queued by the instruction.</param>
         internal void Sound(ushort sound)
         {
             Word(SpacePirateInstructionCodes.Instruction_PirateNinja_QueueSoundInY_Lib2_Max6); Word(sound);
         }
+        /// <summary>Emits the common goto opcode and target address.</summary>
+        /// <param name="address">Bank-local destination instruction address.</param>
         internal void Goto(ushort address) { Word(CommonEnemyInstructionCodes.Goto); Word(address); }
+        /// <summary>Walks one claw-release sequence, preserving the facing-specific ordering of pose and sound words.</summary>
+        /// <param name="right">Whether this sequence uses the right-facing throw operands.</param>
+        /// <param name="second">Whether this is the second claw release with its distinct spawn offset.</param>
         internal void Claw(bool right, bool second)
         {
             Poses(5, AttackWindupHold); Pose(ClawReleaseHold);
@@ -223,6 +259,10 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             Poses(right && second ? 2 : 3, ClawReleaseHold);
         }
     }
+    /// <summary>Resolves an exact compiled mechanics-word address using the generated address ordering.</summary>
+    /// <param name="address">Bank-$B2 address of an instruction, operand, timer, or sound word.</param>
+    /// <returns>The compiled word value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

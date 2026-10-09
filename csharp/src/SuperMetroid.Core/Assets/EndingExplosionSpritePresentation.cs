@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 16 Zebes-explosion visual frames.</summary>
 public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled sprite compositions indexed by their bank-$8C spritemap pointer.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Creates a presentation from the validated pointer-to-composition map.</summary>
+    /// <param name="frames">All installed explosion frames, keyed by the pointer consumed by cinematic actors.</param>
     private EndingExplosionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -104,14 +107,29 @@ public static class EndingExplosionSpriteDefinitions
     /// <summary>Mutually exclusive poses in the published explosion frame order.</summary>
     internal enum Pose
     {
-        DamageFirst, Glow = 10, SupernovaFirst = 11, SupernovaSecond = 12, Stars = 13, Silhouette = 14, Afterglow = 15,
+        /// <summary>First of the ten small planet-damage, flash, and lava records.</summary>
+        DamageFirst,
+        /// <summary>First glow composition following the small planet records.</summary>
+        Glow = 10,
+        /// <summary>First expanded supernova composition.</summary>
+        SupernovaFirst = 11,
+        /// <summary>Second expanded supernova composition.</summary>
+        SupernovaSecond = 12,
+        /// <summary>Independent starfield spritemap outside the planet record chain.</summary>
+        Stars = 13,
+        /// <summary>Planet silhouette composition after the supernova records.</summary>
+        Silhouette = 14,
+        /// <summary>Final explosion afterglow composition.</summary>
+        Afterglow = 15,
     }
     /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
     /// contain four damage poses, four flash poses and two lava poses.</summary>
     private const ushort PlanetFirst = 0xa396;
     /// <summary>$8C:A28B, ZebesBoomStarryBackground, independent of the planet record chain.</summary>
     private const ushort Starfield = 0xa28b;
+    /// <summary>OAM-part counts for the initial planet/lava, first glow, and expanded supernova/silhouette spritemap records, respectively.</summary>
     private const int SmallParts = 4, GlowParts = 12, SupernovaParts = 20;
+    /// <summary>Total number of named visual frames in the ending sequence.</summary>
     private const int FrameCount = 16;
 
     /// <summary>Ordered asset identities, calculated on demand without a stored frame array.</summary>
@@ -140,6 +158,10 @@ public static class EndingExplosionSpriteDefinitions
         };
     }
 
+    /// <summary>Calculates the stable name, native pointer, and stock part count for one ordered frame index.</summary>
+    /// <param name="index">Zero-based position in the published sixteen-frame sequence.</param>
+    /// <returns>The identity and expected cartridge shape for that frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the frame sequence.</exception>
     private static EndingExplosionSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -164,12 +186,25 @@ public static class EndingExplosionSpriteDefinitions
         };
     }
 
+    /// <summary>Computes the byte length of a counted spritemap containing the given number of OAM parts.</summary>
+    /// <param name="parts">Number of five-byte sprite records following the two-byte count.</param>
+    /// <returns>The total record-chain size in bytes.</returns>
     private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
 
+    /// <summary>Calculates ending-explosion frame definitions in published order without materializing a backing array.</summary>
     private sealed class FrameView : IReadOnlyList<EndingExplosionSpriteFrameDefinition>
     {
+        /// <summary>Number of named compositions in the ending sequence.</summary>
         public int Count => FrameCount;
+
+        /// <summary>Calculates the frame definition at the requested sequence position.</summary>
+        /// <param name="index">Zero-based frame position.</param>
+        /// <returns>The matching name, bank pointer, and expected OAM part count.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the sequence.</exception>
         public EndingExplosionSpriteFrameDefinition this[int index] => Get(index);
+
+        /// <summary>Enumerates calculated frame definitions in cinematic order.</summary>
+        /// <returns>An iterator over all sixteen frame definitions.</returns>
         public IEnumerator<EndingExplosionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);

@@ -28,8 +28,11 @@ public enum ShaktoolPreInstruction : ushort
 /// </summary>
 public sealed class ShaktoolSegmentState
 {
+    /// <summary>Enemy record supplying the native variable words exposed by this state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over one initialized Shaktool segment record.</summary>
+    /// <param name="slot">Enemy slot whose variables A through F store this segment's state.</param>
     internal ShaktoolSegmentState(RoomEnemySlot slot) => _slot = slot;
     /// <summary>Native <c>facingAngle</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the chain's target heading, also advanced during straightening and used by attack movement instructions; one wrapped 16-bit turn is <c>$10000</c>.</summary>
     public ushort TargetAngle
@@ -69,11 +72,15 @@ public sealed class ShaktoolSegmentState
     }
 }
 
+/// <summary>Composable parameter-one bits shared across the seven Shaktool records to track chain reversal and motion mode.</summary>
 [Flags]
 internal enum ShaktoolMotionFlags : ushort
 {
+    /// <summary>Records that the chain has completed its first collision-driven endpoint reversal.</summary>
     ReversedOnce = 0x2000,
+    /// <summary>Marks the convergence phase in which each segment straightens toward the shared target angle.</summary>
     Straightening = 0x4000,
+    /// <summary>Selects clockwise rather than counter-clockwise angular convergence and endpoint orientation.</summary>
     Clockwise = 0x8000,
 }
 
@@ -85,15 +92,21 @@ internal enum ShaktoolMotionFlags : ushort
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$AA enemy definition pointer for the seven-record Shaktool chain.</summary>
     internal const ushort ShaktoolDefinition = 0xf07f;
+    /// <summary>Native bank-$AA touch callback used by Shaktool's segment hitboxes.</summary>
     internal const ushort ShaktoolTouchAi = EnemyAiCodePointers.BankAA.ShaktoolTouch;
+    /// <summary>Native bank-$AA shot callback that handles ordinary hits and fatal chain deletion.</summary>
     internal const ushort ShaktoolShotAi = EnemyAiCodePointers.BankAA.ShaktoolShot;
 
+    /// <summary>Number of consecutive enemy records that make up one Shaktool body and saw chain.</summary>
     private const int ShaktoolSegmentCount = 7;
 
+    /// <summary>Initialized typed state views indexed by enemy-slot index for the current room.</summary>
     private readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[MaximumEnemyCount];
 
+    /// <summary>Clears cached segment views when a room reset invalidates the previous enemy population.</summary>
     private void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
 
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>.</summary>
@@ -306,6 +319,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Handles the tail's collision response: first collision swaps chain endpoints, later collision reverses rotation.</summary>
+    /// <param name="slot">Tail segment whose movement encountered the collision.</param>
+    /// <param name="state">Tail state used to find the chain owner and update its orientation fields.</param>
+    /// <param name="previousX">Whole-pixel X position to restore before the initial endpoint reversal.</param>
+    /// <param name="previousY">Whole-pixel Y position to restore before the initial endpoint reversal.</param>
     private void ReverseShaktoolAfterCollision(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -382,6 +400,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Swaps a mirrored pair of orbital angles, applying the half-turn and discarding fractional angle bytes.</summary>
+    /// <param name="left">Segment receiving the mirrored angle from the right segment.</param>
+    /// <param name="right">Segment receiving the mirrored angle from the left segment.</param>
     private void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
@@ -415,12 +436,18 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Writes one target heading to every initialized member of the chain.</summary>
+    /// <param name="anySegment">Any segment whose stored owner index identifies the chain.</param>
+    /// <param name="target">Wrapped 16-bit turn angle adopted by all segments.</param>
     private void SetShaktoolGroupTargetAngle(RoomEnemySlot anySegment, ushort target)
     {
         foreach (RoomEnemySlot segment in GetShaktoolGroup(anySegment))
             RequireShaktoolState(segment).TargetAngle = target;
     }
 
+    /// <summary>Copies the shared chain motion flags into parameter one of all seven segments.</summary>
+    /// <param name="anySegment">Any segment used to resolve the chain's first record.</param>
+    /// <param name="flags">Combined reversal, straightening, and rotation-direction bits.</param>
     private void SetShaktoolGroupMotionFlags(
         RoomEnemySlot anySegment,
         ShaktoolMotionFlags flags)
@@ -429,6 +456,10 @@ public sealed partial class RoomEnemySystem
             segment.Parameter1 = (ushort)flags;
     }
 
+    /// <summary>Resolves and validates the seven consecutive enemy records belonging to a Shaktool chain.</summary>
+    /// <param name="anySegment">Initialized segment whose native owner index points to the chain's first record.</param>
+    /// <returns>All seven initialized slots in head-to-tail order.</returns>
+    /// <exception cref="InvalidDataException">The owner index is misaligned, exceeds the slot array, or a segment lacks state.</exception>
     private RoomEnemySlot[] GetShaktoolGroup(RoomEnemySlot anySegment)
     {
         ShaktoolSegmentState state = RequireShaktoolState(anySegment);
@@ -457,6 +488,10 @@ public sealed partial class RoomEnemySystem
         return group;
     }
 
+    /// <summary>Returns the next physical record, which is the orbit center for a non-tail segment.</summary>
+    /// <param name="slot">Current segment in slot order.</param>
+    /// <returns>The immediately following enemy slot.</returns>
+    /// <exception cref="InvalidDataException">The slot array has no record after the supplied segment.</exception>
     private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot)
     {
         if (slot.SlotIndex + 1 >= _slots.Length)
@@ -467,12 +502,21 @@ public sealed partial class RoomEnemySystem
         return _slots[slot.SlotIndex + 1];
     }
 
+    /// <summary>Returns the state view created by Shaktool initialization for a slot.</summary>
+    /// <param name="slot">Enemy slot expected to belong to the active Shaktool population.</param>
+    /// <returns>The view backed by the slot's native variables.</returns>
+    /// <exception cref="InvalidOperationException">No Shaktool state was initialized for the slot.</exception>
     private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
         _shaktoolSegments[slot.SlotIndex] is { } state
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
+    /// <summary>Adds signed fixed-point displacement to a 16.16 position with native unchecked wrapping.</summary>
+    /// <param name="position">Whole-pixel part of the starting coordinate.</param>
+    /// <param name="subposition">Fractional 16-bit part of the starting coordinate.</param>
+    /// <param name="displacement">Signed fixed-point movement amount.</param>
+    /// <returns>The wrapped whole and fractional coordinate after the movement.</returns>
     private static (ushort Position, ushort Subposition) AddShaktoolFixed(
         ushort position,
         ushort subposition,
@@ -565,6 +609,9 @@ public sealed partial class RoomEnemySystem
             yVelocity);
     }
 
+    /// <summary>Reads the signed sine displacement corresponding to an index in the decompiler's 320-word table view.</summary>
+    /// <param name="fullTableIndex">Full-view index, where entries 64 through 319 alias the cartridge's 256-sample table.</param>
+    /// <returns>The signed table sample represented as its unchecked 16-bit word.</returns>
     private static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(fullTableIndex - 64)));
 

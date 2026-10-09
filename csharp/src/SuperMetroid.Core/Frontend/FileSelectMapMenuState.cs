@@ -15,23 +15,41 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed partial class FileSelectMapMenuState
 {
+    /// <summary>CPU address space used to initialize map data and resolve station destinations.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Audio owner receiving map navigation and animation sound requests.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>Selected Zebes area whose station map and room transitions are displayed.</summary>
     private readonly int area;
+    /// <summary>Native used-save-station bitfields for all areas, copied from the selected save slot.</summary>
     private readonly ushort[] usedStations = new ushort[FileSelectMapRomData.AreaCount];
+    /// <summary>Compiled area-map graphics and palettes for the selected area.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
+    /// <summary>Compiled room-map graphics, collision metadata, and PPU state for the selected area.</summary>
     private readonly FileSelectRoomMapGraphics roomGraphics;
+    /// <summary>Current room-map scroll position and limits anchored to the saved station.</summary>
     private FileSelectMapScroll scroll;
+    /// <summary>Draws and animates the selected save-station marker in room view.</summary>
     private FileSelectStationMarker marker;
+    /// <summary>Native save-station index used as the initial map anchor and load destination.</summary>
     private readonly ushort stationIndex;
+    /// <summary>Whether the marker has already been advanced for the current room frame.</summary>
     private bool markerDrawn;
+    /// <summary>Arrow and palette-cycle animation state for room-map navigation.</summary>
     private readonly FileSelectMapAnimations animations;
+    /// <summary>Whether directional scrolling arrows should be composed in the current room phase.</summary>
     private bool drawArrows;
+    /// <summary>Input and window-transition owner for area, room, return, and load navigation.</summary>
     private readonly FileSelectMapNavigation navigation;
+    /// <summary>Initial entry reveal and fade owner, which completes before navigation begins.</summary>
     private readonly FileSelectMapEntry entry;
+    /// <summary>Optional clipped room-to-area return window while the return transition is underway.</summary>
     private FileSelectMapWindow? returnWindow;
+    /// <summary>Phase-local delay counter for return setup and load handoff timing.</summary>
     private int pendingFrames;
+    /// <summary>Current master brightness applied after menu-layer composition.</summary>
     private byte brightness = 15;
+    /// <summary>Optional installed map artwork and layout catalog rebound after state restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
@@ -97,6 +115,9 @@ public sealed partial class FileSelectMapMenuState
         marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
+    /// <summary>Creates room-map scrolling state using the current area graphics and saved-station anchor.</summary>
+    /// <returns>Scroll owner configured for the selected area's map bounds.</returns>
+    /// <exception cref="InvalidOperationException">The map presentation catalog is not installed.</exception>
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
         var typedArea = (AreaId)area;
@@ -175,6 +196,7 @@ public sealed partial class FileSelectMapMenuState
     }
 
     // Final frame for composed phases; a returned frame is valid until this menu renders again.
+    /// <summary>Reusable composed output buffer overwritten by the next render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
@@ -208,5 +230,7 @@ public sealed partial class FileSelectMapMenuState
         return pixels;
     }
 
+    /// <summary>Queues a map-menu sound through the shared cartridge audio owner.</summary>
+    /// <param name="sound">Sound identity requested by the current navigation or animation transition.</param>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, maximumQueued: 6);
 }

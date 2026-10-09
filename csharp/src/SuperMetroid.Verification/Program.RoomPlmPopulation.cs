@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the elevator platform's compiled controller, animation loop, draw lists, and room effects against cartridge data.</summary>
+    /// <param name="rom">Cartridge address space supplying the original elevator platform definitions.</param>
     private static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
@@ -18,9 +20,17 @@ internal static partial class Program
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
     }
 
+    /// <summary>Checks fallback door headers for every byte value, including rejection of directions outside the native table.</summary>
+    /// <param name="rom">Cartridge address space used as the source of expected headers.</param>
     private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
+
+    /// <summary>Checks fallback initial instruction lists and the zero-list case for directions without a door actor.</summary>
+    /// <param name="rom">Cartridge address space used as the source of expected door data.</param>
     private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
 
+    /// <summary>Compares the selected fallback door field with cartridge data and verifies invalid directions fail.</summary>
+    /// <param name="rom">Cartridge address space containing the native door header and list data.</param>
+    /// <param name="list">When <see langword="true"/>, checks initial instruction lists; otherwise checks header pointers.</param>
     private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
@@ -45,6 +55,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks fallback and resident door-closing PLM definitions, including the compiled escape-room cases.</summary>
+    /// <param name="rom">Cartridge address space used to compare source definitions with their compiled replacements.</param>
+    /// <param name="fallbackOnly">When <see langword="true"/>, restricts the checks to fallback definitions.</param>
     private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
@@ -198,6 +211,8 @@ internal static partial class Program
             "nonresident blue-door collision header is outside resident closing domain");
     }
 
+    /// <summary>Checks the Speed Booster escape controller, stage geometry and velocity data, and terminal event on a sparse bus.</summary>
+    /// <param name="rom">Cartridge address space supplying native definitions used as verification expectations.</param>
     private static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -1065,13 +1080,22 @@ internal static partial class Program
             "Mother Brain escape gate never rereads compiled programs or physical draws");
     }
 
+    /// <summary>Wraps an address space and rejects reads of the compiled Mother Brain gate programs and physical draw data.</summary>
+    /// <param name="source">Underlying address space for all reads and writes outside the protected source ranges.</param>
     private sealed class MotherBrainEscapeGateReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from source ranges that must be served by compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads an import-source byte through the guarded address-space path.</summary>
+        /// <param name="address">SNES address requested by the importer.</param>
+        /// <returns>The byte returned by the underlying address space, unless the address is forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte while rejecting access to the compiled gate programs and draw payloads.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The byte at <paramref name="address"/> when it is outside the protected ranges.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x84bb34 and <= 0x84bb51 or
@@ -1084,9 +1108,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">SNES address to update.</param>
+        /// <param name="value">Byte value written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Checks the compiled instruction and draw definitions used by the Mother Brain escape gate.</summary>
+    /// <param name="rom">Cartridge address space used to verify the gate's native definitions.</param>
     private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -1097,6 +1126,10 @@ internal static partial class Program
         Suite(nameof(VerifyEscapeGateDrawVisuals), () => VerifyEscapeGateDrawVisuals(rom));
     }
 
+    /// <summary>Writes a vertical PLM draw list with the supplied level words and a zero terminator.</summary>
+    /// <param name="bus">Synthetic address space receiving the encoded draw list.</param>
+    /// <param name="pointer">Bank-$84 pointer where the draw-list command begins.</param>
+    /// <param name="levelWords">Ordered block words encoded as the list's vertical draw payload.</param>
     private static void WriteVerticalPlmDraw(
         TestAddressSpace bus,
         ushort pointer,
@@ -1301,6 +1334,9 @@ internal static partial class Program
             "Shaktool controller deletes itself when the path event is set");
     }
 
+    /// <summary>Loads map, missile, and save station PLMs together and checks their setup, activation, and presentation behavior.</summary>
+    /// <param name="bus">Synthetic address space seeded with the room population and station instruction data.</param>
+    /// <param name="visuals">Optional station artwork catalog used when exercising presentation-backed station draws.</param>
     private static void VerifyOtherStationFamilies(TestAddressSpace bus,
         RoomPlmStationVisualCatalog? visuals = null)
     {
@@ -1452,6 +1488,10 @@ internal static partial class Program
             "locked save station cannot reopen until room re-entry");
     }
 
+    /// <summary>Checks that save-station electricity advances through its compiled projectile program and normal draw path.</summary>
+    /// <param name="bus">Synthetic address space containing the enemy and projectile program fixture.</param>
+    /// <param name="level">Room geometry used to load and draw the station effect.</param>
+    /// <param name="saveBlockIndex">Room block occupied by the save station, used to position the effect.</param>
     private static void VerifySaveStationElectricity(
         TestAddressSpace bus,
         RoomLevelData level,
@@ -1538,6 +1578,8 @@ internal static partial class Program
             "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 
+    /// <summary>Checks that unsupported room-population headers fail with the originating record's diagnostic context.</summary>
+    /// <param name="bus">Synthetic address space containing one deliberately unsupported population record.</param>
     private static void VerifyUnsupportedPopulationContext(TestAddressSpace bus)
     {
         const ushort population = 0x9400;
@@ -1582,6 +1624,8 @@ internal static partial class Program
             "unsupported PLM failure includes population/header/record/coordinate/argument context");
     }
 
+    /// <summary>Checks the save prompt's shared yes/no selection, input cadence, confirmation result, and default choice.</summary>
+    /// <param name="bus">Synthetic address space used to execute the message-box program and its presentation data.</param>
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
         GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
@@ -1684,6 +1728,8 @@ internal static partial class Program
             "save confirmation defaults to yes and publishes acceptance");
     }
 
+    /// <summary>Seeds the sparse bank-$84 PLM data required by the combined room-population fixture.</summary>
+    /// <param name="bus">Synthetic address space that receives the header fields and elevator fixture data.</param>
     private static void SeedRoomPlmPopulationRom(TestAddressSpace bus)
     {
         SeedPoseOneSamusData(bus);
@@ -1702,6 +1748,12 @@ internal static partial class Program
         WriteWord(bus, 0x84afc8, 0xafb6);
     }
 
+    /// <summary>Encodes a sequence of timed draw entries and their one-block draw payloads into the test address space.</summary>
+    /// <param name="bus">Synthetic address space receiving the instruction entries and draw data.</param>
+    /// <param name="list">Pointer to the first timed draw entry.</param>
+    /// <param name="timer">Frame delay placed in each entry.</param>
+    /// <param name="frameCount">Number of consecutive draw entries to encode.</param>
+    /// <param name="firstDraw">Pointer assigned to the first generated one-block draw payload.</param>
     private static void SeedTimedDrawLoop(
         TestAddressSpace bus,
         ushort list,

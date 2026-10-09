@@ -4,8 +4,12 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Exercises ROM import validation, extraction repair, ROM-free startup, and audio parity scenarios.</summary>
 internal static class AssetImportVerification
 {
+/// <summary>Runs input validation and, when a ROM path is supplied, the full install and integration verification flow.</summary>
+/// <param name="romPath">Optional retail ROM path; null limits the run to input-validation scenarios.</param>
+/// <returns>Zero when every verification succeeds; failures propagate as exceptions to the process boundary.</returns>
 public static int Run(string? romPath)
 {
 string temporary = Directory.CreateTempSubdirectory("SuperMetroid-import-verification-").FullName;
@@ -193,40 +197,73 @@ finally
 
 }
 
+/// <summary>Fails the verification with the supplied description when an expected condition is false.</summary>
+/// <param name="value">Condition that must hold.</param>
+/// <param name="description">Failure text and successful console label.</param>
+/// <param name="quiet">When true, suppresses the success line while retaining failure behavior.</param>
 static void Check(bool value, string description, bool quiet = false)
 {
     if (!value) throw new InvalidDataException(description);
     if (!quiet) Console.WriteLine("PASS " + description);
 }
+/// <summary>Runs an action and fails unless it throws the expected exception type.</summary>
+/// <typeparam name="T">Exception type required for the action to count as rejected.</typeparam>
+/// <param name="action">Operation expected to fail with <typeparamref name="T"/>.</param>
 static void Reject<T>(Action action) where T : Exception
 {
     try { action(); }
     catch (T) { return; }
     throw new InvalidDataException($"Expected {typeof(T).Name}.");
 }
+/// <summary>Adapts a callback to the progress interface used by installation cancellation scenarios.</summary>
+/// <param name="report">Callback invoked for each reported installation message.</param>
 sealed class InlineProgress(Action<string> report) : IProgress<string>
 {
+    /// <summary>Forwards an installation progress message to the configured callback.</summary>
+    /// <param name="value">Progress message reported by the installer.</param>
     public void Report(string value) => report(value);
 }
+/// <summary>Read-only stream wrapper that disables seeking and caps each read to exercise bounded streaming input.</summary>
+/// <param name="bytes">Input data exposed through the non-seekable wrapper.</param>
 sealed class NonSeekableStream(byte[] bytes) : Stream
 {
+    /// <summary>Underlying in-memory source used for the bounded reads.</summary>
     private readonly MemoryStream inner = new(bytes);
+    /// <summary>Cumulative number of bytes returned to callers.</summary>
     public int BytesRead { get; private set; }
+    /// <summary>Indicates that input reads are supported.</summary>
     public override bool CanRead => true;
+    /// <summary>Indicates that seeking is intentionally unavailable.</summary>
     public override bool CanSeek => false;
+    /// <summary>Indicates that writes are intentionally unavailable.</summary>
     public override bool CanWrite => false;
+    /// <summary>Seeking is unsupported for this test stream.</summary>
     public override long Length => throw new NotSupportedException();
+    /// <summary>Seeking and position assignment are unsupported for this test stream.</summary>
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+    /// <summary>Reads at most 8191 bytes and tracks the total bytes consumed from the input.</summary>
+    /// <param name="buffer">Destination for the bytes read.</param>
+    /// <param name="offset">Starting destination offset.</param>
+    /// <param name="count">Maximum requested number of bytes.</param>
+    /// <returns>Number of bytes copied to the destination.</returns>
     public override int Read(byte[] buffer, int offset, int count)
     {
         int read = inner.Read(buffer, offset, Math.Min(count, 8191));
         BytesRead += read;
         return read;
     }
+    /// <summary>Writing is unsupported because the wrapper is a read-only input source.</summary>
     public override void Flush() => throw new NotSupportedException();
+    /// <summary>Seeking is unsupported because the wrapper exposes a forward-only input stream.</summary>
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+    /// <summary>Changing the input length is unsupported.</summary>
     public override void SetLength(long value) => throw new NotSupportedException();
+    /// <summary>Writing is unsupported because the wrapper is a read-only input source.</summary>
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+    /// <summary>Disposes the in-memory source when requested, then releases the base stream resources.</summary>
+    /// <param name="disposing">True when called by <see cref="Dispose()"/> rather than finalization.</param>
     protected override void Dispose(bool disposing) { if (disposing) inner.Dispose(); base.Dispose(disposing); }
 }
 }

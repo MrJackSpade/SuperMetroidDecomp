@@ -49,8 +49,11 @@ public enum HopperEnemyFunction : ushort
 /// </summary>
 public sealed class HopperEnemyState
 {
+    /// <summary>Common enemy slot that backs the hopper's four native AI variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed state view over a hopper's common enemy-slot storage.</summary>
+    /// <param name="slot">Enemy slot containing the hopper's shared variables.</param>
     internal HopperEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>The current bank-$A3 hopper dispatcher pointer, backed by the owning slot's VariableA and advanced one setup stage per AI call.</summary>
@@ -109,18 +112,29 @@ public sealed class HopperEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition word for a standard Sidehopper.</summary>
     internal const ushort SidehopperDefinition = 0xd93f;
+    /// <summary>Enemy definition word for a standard Dessgeega.</summary>
     internal const ushort DessgeegaDefinition = 0xd97f;
+    /// <summary>Enemy definition word for the large Sidehopper variant.</summary>
     internal const ushort LargeSidehopperDefinition = 0xd9bf;
+    /// <summary>Enemy definition word for the Tourian Sidehopper palette and vulnerability variant.</summary>
     internal const ushort TourianSidehopperDefinition = 0xd9ff;
+    /// <summary>Enemy definition word for the large Dessgeega variant.</summary>
     internal const ushort LargeDessgeegaDefinition = 0xda3f;
 
+    /// <summary>Seed installed in the shared RNG when a hopper is initialized.</summary>
     private const ushort HopperRandomSeed = 0x0025;
+    /// <summary>Largest quadratic-speed record index used at the return phase's terminal speed.</summary>
     private const ushort MaximumHopperYSpeedTableIndex = 0x0040;
 
+    /// <summary>Typed extension state by enemy slot; null entries have not been initialized as hoppers.</summary>
     private readonly HopperEnemyState?[] _hopperStates =
         new HopperEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Tests whether a native definition pointer belongs to one of the five shared hopper variants.</summary>
+    /// <param name="definitionPointer">Enemy definition word to classify.</param>
+    /// <returns><see langword="true"/> for Sidehopper, Dessgeega, or one of their listed variants.</returns>
     private static bool IsHopperDefinition(ushort definitionPointer) => definitionPointer is
         SidehopperDefinition or
         DessgeegaDefinition or
@@ -238,12 +252,18 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Requires room collision data before executing a hopper movement phase.</summary>
+    /// <param name="level">Room level supplied by the current enemy update.</param>
+    /// <exception cref="InvalidOperationException">No room level is available.</exception>
     private static void RequireHopperLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Hopper movement requires room level data.");
     }
 
+    /// <summary>Loads the selected small- or big-hop speed index and advances to orientation-specific direction selection.</summary>
+    /// <param name="state">Hopper state receiving its initial arc index, step, and horizontal speed.</param>
+    /// <param name="bigHop"><see langword="true"/> selects the higher arc and four-record step.</param>
     private static void PrepareHopperHop(HopperEnemyState state, bool bigHop)
     {
         state.YSpeedTableIndexDelta = bigHop ? (ushort)4 : (ushort)3;
@@ -256,6 +276,12 @@ public sealed partial class RoomEnemySystem
             : HopperEnemyFunction.ChooseDirectionUpsideUp;
     }
 
+    /// <summary>Selects the forward or backward start routine by comparing Samus's X coordinate to the hopper.</summary>
+    /// <param name="slot">Hopper slot whose position determines left versus right selection.</param>
+    /// <param name="state">State whose dispatcher function receives the selected hop direction.</param>
+    /// <param name="samus">Active Samus position used for the direction comparison.</param>
+    /// <param name="upsideDown">Whether the hopper is attached to the ceiling.</param>
+    /// <exception cref="InvalidOperationException">Samus is unavailable during direction selection.</exception>
     private static void ChooseHopperDirection(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -275,6 +301,11 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Starts the chosen floor or ceiling hop, reversing horizontal velocity for the backward branch.</summary>
+    /// <param name="slot">Hopper slot whose animation instruction list is installed.</param>
+    /// <param name="state">Movement state whose direction and dispatch function are updated.</param>
+    /// <param name="upsideDown">Whether this hop starts from a ceiling attachment.</param>
+    /// <param name="backward">Whether the hop moves leftward from its initial positive X velocity.</param>
     private static void StartHopperJump(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -297,6 +328,9 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Restores the appropriate idle animation list and waits for its ready instruction to authorize another hop.</summary>
+    /// <param name="slot">Hopper slot whose idle animation is installed.</param>
+    /// <param name="state">State moved to the instruction-driven wait function.</param>
     private static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
         SetHopperInstructionList(slot, state, ReadHopperInstructionList(
@@ -304,6 +338,11 @@ public sealed partial class RoomEnemySystem
         state.Function = HopperEnemyFunction.WaitToHop;
     }
 
+    /// <summary>Advances the quadratic hop arc with vertical collision resolved before horizontal motion.</summary>
+    /// <param name="slot">Hopper slot receiving axis movement.</param>
+    /// <param name="state">Arc index, direction, phase, and horizontal velocity.</param>
+    /// <param name="level">Room collision data for floor, ceiling, and wall checks.</param>
+    /// <param name="upsideDown">Whether the actor's attachment surface and vertical table halves are inverted.</param>
     private void RunHopperMovement(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -371,6 +410,11 @@ public sealed partial class RoomEnemySystem
             : MaximumHopperYSpeedTableIndex;
     }
 
+    /// <summary>Finds the first quadratic table index whose accumulated height reaches the requested hop height.</summary>
+    /// <param name="jumpHeight">Unsigned accumulated-height threshold for the desired hop.</param>
+    /// <param name="tableIndexDelta">Index increment per iteration, selected by the hop size.</param>
+    /// <returns>The first table index at or above the height threshold.</returns>
+    /// <exception cref="InvalidDataException">The bounded index walk does not reach the requested height.</exception>
     private static ushort CalculateInitialHopperYSpeedTableIndex(
         ushort jumpHeight,
         ushort tableIndexDelta)
@@ -394,6 +438,11 @@ public sealed partial class RoomEnemySystem
             "Hopper initial-speed calculation did not reach its ROM jump height.");
     }
 
+    /// <summary>Selects the idle or jumping instruction list for the hopper's variant and attachment orientation.</summary>
+    /// <param name="state">State supplying the definition's variant-table offset.</param>
+    /// <param name="upsideDown">Whether to choose the ceiling-attached list.</param>
+    /// <param name="jumping">Whether to choose a jumping list rather than an idle list.</param>
+    /// <returns>The native instruction-list address for that combination.</returns>
     private static ushort ReadHopperInstructionList(
         HopperEnemyState state,
         bool upsideDown,
@@ -401,6 +450,10 @@ public sealed partial class RoomEnemySystem
         HopperAnimationDefinitions.InstructionList(
             (ushort)(state.VariantTableOffset >> 1), upsideDown, jumping);
 
+    /// <summary>Installs a selected instruction list and resets the slot's animation timers.</summary>
+    /// <param name="slot">Hopper slot whose instruction interpreter is updated.</param>
+    /// <param name="state">State tracking the installed list identity.</param>
+    /// <param name="instructionList">Native instruction-list address to install.</param>
     private static void SetHopperInstructionList(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -412,6 +465,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the extension state created for an initialized hopper slot.</summary>
+    /// <param name="slot">Enemy slot whose hopper state is required.</param>
+    /// <returns>The state associated with the slot index.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized hopper state.</exception>
     private HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
         _hopperStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");

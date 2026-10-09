@@ -31,15 +31,20 @@ public enum EnemyPickupKind : ushort
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Pre-instruction pointer that ages pickups and checks grapple or Samus contact.</summary>
     private const ushort EnemyPickupPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup;
+    /// <summary>Number of gameplay updates a spawned pickup remains collectible before entering its dormant tail.</summary>
     private const ushort EnemyPickupLifetime = 400;
+    /// <summary>Initial lifetime decrements during which a pickup cannot be collected by the grapple endpoint.</summary>
     private const ushort EnemyPickupGrappleDelay = 16;
 
 
     // $7E:0E1E is intentionally stateful in the 30..49 energy grace band. Starting false
     // matches cleared WRAM; room transitions do not reset it on the cartridge.
+    /// <summary>Hysteresis bit for the low-energy drop table, retained while combined health is between 30 and 49.</summary>
     private bool _criticalEnergyDropBias;
+    /// <summary>Live Samus state used by enemy-drop selection and death callbacks that require player inventory.</summary>
     private SamusState? _samusForEnemyDrops;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
@@ -114,11 +119,16 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
+    /// <summary>Returns the native scratch value that records whether the dying enemy should respawn.</summary>
+    /// <param name="enemy">Enemy whose property word is sampled before the common death routine clears it.</param>
+    /// <returns>The respawn property bit when set; otherwise zero.</returns>
     private static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
             ? (ushort)EnemyProperties.RespawnIfKilled
             : (ushort)0;
 
+    /// <summary>Replaces a cleared respawning enemy's cached definition with the placeholder until its pickup restores it.</summary>
+    /// <param name="enemy">Cleared physical slot retained for respawn by the death pickup.</param>
     private void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
         // The cartridge reads the header through the new pointer on every dispatch.
@@ -128,6 +138,11 @@ public sealed partial class RoomEnemySystem
         enemy.AiBank = enemy.Definition.Bank;
     }
 
+    /// <summary>Selects the normal-shot death animation, including the native Super Missile upgrade and Pirate override.</summary>
+    /// <param name="enemy">Enemy whose definition supplies the default death-animation selector.</param>
+    /// <param name="projectileType">Projectile type word containing the native cause-of-death nibble.</param>
+    /// <param name="forcePirateBigExplosion">When true, selects the large Pirate explosion regardless of the header.</param>
+    /// <returns>The death-animation index consumed by the explosion program.</returns>
     private static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         ushort projectileType,
@@ -169,6 +184,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Spawns a requested number of pickups at RNG-offset positions centered around an actor.</summary>
+    /// <param name="enemyHeaderPointer">Enemy definition used to select each pickup from its drop-chance table.</param>
+    /// <param name="count">Number of independent pickup allocations to attempt.</param>
+    /// <param name="originX">Whole-pixel horizontal center for the scatter.</param>
+    /// <param name="originY">Whole-pixel vertical center for the scatter.</param>
     private void SpawnEnemyDropScatterAround(
         ushort enemyHeaderPointer,
         int count,
@@ -238,6 +258,8 @@ public sealed partial class RoomEnemySystem
         return pickup;
     }
 
+    /// <summary>Runs the direct pickup initializer, making slot zero and no-drop results enter the dormant tail.</summary>
+    /// <param name="pickup">Allocated projectile slot initialized from the enemy-pickup definition.</param>
     private void InitializeDirectEnemyPickup(RoomEnemyProjectileSlot pickup)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
@@ -273,6 +295,9 @@ public sealed partial class RoomEnemySystem
         BeginEnemyPickup(projectile, kind);
     }
 
+    /// <summary>Starts the selected collectible animation, initializes its lifetime, and installs the contact pre-instruction.</summary>
+    /// <param name="projectile">Pickup projectile receiving the animation and lifetime state.</param>
+    /// <param name="kind">Resolved collectible kind encoded by the native drop selector.</param>
     private static void BeginEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         EnemyPickupKind kind)
@@ -289,6 +314,8 @@ public sealed partial class RoomEnemySystem
         projectile.PersistsOnSamusContact = false;
     }
 
+    /// <summary>Disables pickup collisions and enters the shared tail that later respawns or deletes the projectile.</summary>
+    /// <param name="projectile">Collected, expired, or no-drop projectile to make inert.</param>
     private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile)
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
@@ -415,6 +442,9 @@ public sealed partial class RoomEnemySystem
         return EnemyPickupKind.NoDrop;
     }
 
+    /// <summary>Finds the bank-$B4 chance table, honoring specialized caller overrides and cleared-header behavior.</summary>
+    /// <param name="projectile">Pickup carrying either an explicit table override or its killed enemy identity.</param>
+    /// <returns>The chance-table pointer selected for this pickup, or zero when the native cleared-header path has none.</returns>
     private ushort ResolveEnemyDropChancesPointer(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.ItemDropChancesPointerOverride != 0)
@@ -424,6 +454,9 @@ public sealed partial class RoomEnemySystem
         return ResolveRoomEnemyDefinition(_bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
+    /// <summary>Decrements pickup lifetime and collects on eligible grapple-endpoint or strict Samus hitbox overlap.</summary>
+    /// <param name="projectile">Pickup whose timer and contact state are advanced.</param>
+    /// <param name="samus">Active player state, or null when gameplay has no live Samus actor.</param>
     private void RunEnemyPickupPreInstruction(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
@@ -462,6 +495,9 @@ public sealed partial class RoomEnemySystem
         CollectEnemyPickup(projectile, samus);
     }
 
+    /// <summary>Applies the selected resource amount, publishes its library-two sound, and retires the pickup.</summary>
+    /// <param name="projectile">Pickup whose encoded kind determines the resource restored.</param>
+    /// <param name="samus">Player state whose inventory receives the collectible.</param>
     private void CollectEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -498,6 +534,9 @@ public sealed partial class RoomEnemySystem
         MakeEnemyPickupDormant(projectile);
     }
 
+    /// <summary>Restores energy up to health capacity, carries overflow into reserve energy, and enables reserve mode when needed.</summary>
+    /// <param name="samus">Player inventory receiving energy.</param>
+    /// <param name="amount">Energy supplied by the pickup before capacity and reserve handling.</param>
     private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Health + amount));
@@ -515,6 +554,9 @@ public sealed partial class RoomEnemySystem
         samus.Health = samus.MaxHealth;
     }
 
+    /// <summary>Restores missiles and transfers overflow into the reserve-missile count with its native capacity limit.</summary>
+    /// <param name="samus">Player inventory receiving missiles.</param>
+    /// <param name="amount">Missiles supplied by the pickup.</param>
     private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Missiles + amount));
@@ -532,6 +574,9 @@ public sealed partial class RoomEnemySystem
         samus.Missiles = samus.MaxMissiles;
     }
 
+    /// <summary>Restores super missiles without allowing the inventory to exceed its configured capacity.</summary>
+    /// <param name="samus">Player inventory receiving super missiles.</param>
+    /// <param name="amount">Super missiles supplied by the pickup.</param>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.SuperMissiles + amount));
@@ -543,6 +588,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Restores power bombs without allowing the inventory to exceed its configured capacity.</summary>
+    /// <param name="samus">Player inventory receiving power bombs.</param>
+    /// <param name="amount">Power bombs supplied by the pickup.</param>
     private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.PowerBombs + amount));
@@ -554,6 +602,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Computes the magnitude of a coordinate difference after signed 16-bit wraparound.</summary>
+    /// <param name="left">First unsigned room coordinate.</param>
+    /// <param name="right">Second unsigned room coordinate.</param>
+    /// <returns>Absolute signed difference of the wrapped subtraction.</returns>
     private static int AbsoluteWrappedDelta(ushort left, ushort right) =>
         Math.Abs((int)unchecked((short)(left - right)));
 }

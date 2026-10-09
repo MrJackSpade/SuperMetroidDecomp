@@ -20,12 +20,36 @@ internal static class EyeDoorPlmDrawDefinitions
     /// <summary>Right-facing eye animation begins at $84:9C5B.</summary>
     private const ushort RightEyeFirst = 0x9c5b;
 
-    internal enum Component { Eye, Middle, Bottom, Clear }
+    /// <summary>Physical piece represented by one eye-door draw record.</summary>
+    internal enum Component
+    {
+        /// <summary>Animated eye blocks, including closed, vulnerable, hit-flash, and solid-open frames.</summary>
+        Eye,
+        /// <summary>Middle body block that changes tile across its three animation frames.</summary>
+        Middle,
+        /// <summary>Bottom body block that changes tile across its three animation frames.</summary>
+        Bottom,
+        /// <summary>Four-block clearing draw used while the eye door opens.</summary>
+        Clear
+    }
 
+    /// <summary>Decoded bank-$84 draw pointer and the component/frame/orientation needed to rebuild its block words.</summary>
+    /// <param name="Pointer">Native instruction-list draw pointer represented by this record.</param>
+    /// <param name="Part">Eye, body, or clearing component encoded at that pointer.</param>
+    /// <param name="Frame">Zero-based animation frame within the selected component.</param>
+    /// <param name="Left">Whether the draw belongs to the left-facing eye door.</param>
     internal readonly record struct Draw(ushort Pointer, Component Part, int Frame, bool Left)
     {
+        /// <summary>Whether the component's block run is arranged vertically rather than horizontally.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;
+
+        /// <summary>Number of packed block words emitted for this draw; zero marks an absent pointer.</summary>
         internal int WordCount => Pointer == 0 ? 0 : Part == Component.Clear ? 4 : Part == Component.Eye ? 2 : 1;
+
+        /// <summary>Builds the packed tile/collision word for one block in this component frame.</summary>
+        /// <param name="cell">Zero-based block position in the component's emitted run.</param>
+        /// <returns>Block word combining collision, facing/bottom flags, and tile index.</returns>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="cell"/> is outside the emitted run.</exception>
         internal ushort WordAt(int cell)
         {
             if ((uint)cell >= (uint)WordCount) throw new IndexOutOfRangeException();
@@ -54,6 +78,7 @@ internal static class EyeDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Enumerates all left- and right-facing eye, body, and clear draw lists in native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -82,9 +107,16 @@ internal static class EyeDoorPlmDrawDefinitions
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
         All.Where(draw => draw.Pointer != MirroredOpeningClear);
 
+    /// <summary>Maps the mirrored opening-clear pointer to its canonical left-eye visual source.</summary>
+    /// <param name="pointer">Native eye-door draw pointer.</param>
+    /// <returns>The source pointer used to retain the shared visual identity.</returns>
     internal static ushort VisualSource(ushort pointer) =>
         pointer == MirroredOpeningClear ? LeftEyeClear : pointer;
 
+    /// <summary>Decodes a recognized eye-door draw address into its component, frame, and facing.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to classify.</param>
+    /// <param name="draw">Receives the decoded descriptor on success; otherwise the default value.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a compiled eye-door draw.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (pointer is MirroredOpeningClear or LeftEyeClear)
@@ -109,6 +141,10 @@ internal static class EyeDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Builds the packed PLM block list for a recognized eye-door draw pointer.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to materialize.</param>
+    /// <param name="list">Receives the generated draw list on success; otherwise the default value.</param>
+    /// <returns><see langword="true"/> when the pointer has a compiled component/frame description.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         if (!TryDescribe(pointer, out var draw)) { list = default; return false; }
@@ -121,6 +157,10 @@ internal static class EyeDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Produces the stable editable-asset identifier for a left- or right-facing eye-door frame.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer whose component and frame are named.</param>
+    /// <returns>Identifier such as <c>right-eye-frame-2</c>.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not align with a compiled component frame.</exception>
     internal static string VisualId(ushort pointer)
     {
         if (pointer == LeftEyeClear) return "left-eye-clear";
@@ -140,6 +180,10 @@ internal static class EyeDoorPlmDrawDefinitions
         return $"{(right ? "right" : "left")}-{component}-frame-{offset / stride}";
     }
 
+    /// <summary>Finds an editable eye-door draw list by its stable visual identifier.</summary>
+    /// <param name="id">Identifier returned by <see cref="VisualId"/> for an editable frame.</param>
+    /// <param name="list">Receives the matching draw list on success; otherwise the default value.</param>
+    /// <returns><see langword="true"/> when the identifier belongs to a non-aliased editable frame.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

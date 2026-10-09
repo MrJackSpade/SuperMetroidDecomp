@@ -28,13 +28,24 @@ public sealed class SporeSpawnColorCatalog
                     .Select(color => ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
+    /// <summary>Per-ink spore colors that differ from the healthy boss row, keyed by palette index.</summary>
     private readonly Dictionary<int, ushort> spores = new();
+    /// <summary>Healthy-to-critical boss rows with painted intermediate inks and calculated shell/glow colors.</summary>
     private readonly HealthRows health;
     // Endpoint colors remain required inputs; intermediate entries store independent edits only.
+    /// <summary>Authored sprite-death samples keyed by frame and ink, including endpoints and calculation overrides.</summary>
     private readonly Dictionary<int, ushort> deathSprite = new();
+    /// <summary>Authored level-palette samples keyed by frame and ink that differ from final-row-derived colors.</summary>
     private readonly Dictionary<int, ushort> deathLevel = new();
+    /// <summary>Authored background-palette samples keyed by frame and ink that differ from the final-row fade.</summary>
     private readonly Dictionary<int, ushort> deathBackground = new();
 
+    /// <summary>Builds compact color storage from validated rows, retaining required endpoints and only independent intermediate edits.</summary>
+    /// <param name="spores">Sixteen selected spore colors, compared with the healthy health row for sparse storage.</param>
+    /// <param name="health">Four healthy-to-critical rows used for authored paint and interpolated colors.</param>
+    /// <param name="deathSprite">Eight sprite-death rows whose middle samples may be calculated from the endpoint colors.</param>
+    /// <param name="deathLevel">Seven level-palette death rows, calculated from the supplied final row where supported.</param>
+    /// <param name="deathBackground">Seven background-palette death rows, calculated from their supplied final row.</param>
     private SporeSpawnColorCatalog(ushort[] spores, ushort[][] health,
         ushort[][] deathSprite, ushort[][] deathLevel, ushort[][] deathBackground)
     {
@@ -70,6 +81,7 @@ public sealed class SporeSpawnColorCatalog
         }
     }
 
+    /// <summary>Strict serializer settings shared by catalog loading and writing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,13 +118,21 @@ public sealed class SporeSpawnColorCatalog
     /// </summary>
     private sealed class HealthRows
     {
+        /// <summary>First color index whose shell/glow value is interpolated between the endpoint rows.</summary>
         private const int FirstInterpolatedColor = 9;
+        /// <summary>Last color index kept as authored paint in intermediate health rows.</summary>
         private const int LastPaintedColor = 8;
+        /// <summary>Healthy endpoint row used by the health-bar palette.</summary>
         private readonly ushort[] healthy;
+        /// <summary>Critical endpoint row, also supplying the transparent index in intermediate rows.</summary>
         private readonly ushort[] critical;
+        /// <summary>Authored intermediate inks one through eight, stored without their omitted transparent slot.</summary>
         private readonly ushort[][] intermediatePaint;
+        /// <summary>Intermediate calculated-color overrides keyed by flattened frame and ink index.</summary>
         private readonly Dictionary<int, ushort> intermediateEdits = new();
 
+        /// <summary>Separates the two endpoint rows, authored paint, and any supplied deviations from interpolation.</summary>
+        /// <param name="supplied">Validated four-row health palette, each row containing all sixteen packed RGB5 colors.</param>
         internal HealthRows(ushort[][] supplied)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -128,6 +148,10 @@ public sealed class SporeSpawnColorCatalog
             }
         }
 
+        /// <summary>Returns an endpoint, authored paint sample, explicit edit, or calculated health-row color as appropriate.</summary>
+        /// <param name="frame">Validated zero-based health row.</param>
+        /// <param name="color">Validated ink index in that row.</param>
+        /// <returns>The selected packed RGB5 color.</returns>
         internal ushort Resolve(int frame, int color)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -138,8 +162,15 @@ public sealed class SporeSpawnColorCatalog
                 ? edit : Calculate(frame, color);
         }
 
+        /// <summary>Identifies the transparent slot and shell/glow inks derived from endpoint colors.</summary>
+        /// <param name="color">Ink index within a sixteen-color row.</param>
+        /// <returns><see langword="true"/> for color zero or colors nine through fifteen.</returns>
         private static bool IsCalculated(int color) => color == 0 || color >= FirstInterpolatedColor;
 
+        /// <summary>Interpolates one RGB5 color channel-wise between the healthy and critical endpoints.</summary>
+        /// <param name="frame">Intermediate row index between the endpoints.</param>
+        /// <param name="color">Ink index to interpolate.</param>
+        /// <returns>The packed color rounded to the nearest integer over the health-row intervals.</returns>
         private ushort Calculate(int frame, int color)
         {
             if (color == 0) return critical[0];
@@ -264,9 +295,20 @@ public sealed class SporeSpawnColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates and returns a zero-based frame index for a palette row set.</summary>
+    /// <param name="frame">Requested frame index.</param>
+    /// <param name="count">Number of rows available to the corresponding palette layer.</param>
+    /// <returns>The unchanged index when it falls within the row set.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative or at least the row count.</exception>
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));
 
+    /// <summary>Checks a layer's exact frame count and packs each sixteen-color RGB5 row.</summary>
+    /// <param name="source">Nullable frame array decoded from the editable document.</param>
+    /// <param name="count">Required number of rows for this palette layer.</param>
+    /// <param name="name">Layer label included in validation errors.</param>
+    /// <returns>Rows packed into native 15-bit color words.</returns>
+    /// <exception cref="InvalidDataException">The layer is absent, has the wrong row count, or contains an invalid color.</exception>
     private static ushort[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -275,6 +317,11 @@ public sealed class SporeSpawnColorCatalog
             .ToArray();
     }
 
+    /// <summary>Validates one palette row and packs each RGB5 color into a 15-bit word.</summary>
+    /// <param name="source">Nullable array of authored color channels.</param>
+    /// <param name="name">Row label included in validation errors.</param>
+    /// <returns>A packed sixteen-color row.</returns>
+    /// <exception cref="InvalidDataException">The row has the wrong size or a color channel is outside zero through 31.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SporeSpawnColorRomData.ColorsPerFrame)
@@ -293,6 +340,9 @@ public sealed class SporeSpawnColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated property names throughout the decoded JSON value tree.</summary>
+    /// <param name="value">Root value whose objects are checked using ordinal property-name comparison.</param>
+    /// <exception cref="InvalidDataException">A JSON object contains a duplicate property name.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Spore Spawn color property {name}."));

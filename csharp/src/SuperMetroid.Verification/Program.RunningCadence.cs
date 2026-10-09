@@ -5,6 +5,9 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Verifies bounded ordinary and boosted running cadence data, live stage-five aliases, and command-stage transitions.</summary>
+    /// <param name="rom">Retail address space supplying expected cadence bytes and pointer words.</param>
+    /// <param name="definitionsOnly">When true, verifies catalog boundaries and pointer data without the exhaustive command-state sweep.</param>
     private static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
@@ -136,6 +139,8 @@ internal static partial class Program
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
     }
 
+    /// <summary>Compares the ordinary running delay-list pointer and its two ROM bytes with the compiled catalog.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
@@ -143,13 +148,32 @@ internal static partial class Program
             SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
     }
 
+    /// <summary>Checks the eleven-byte ordinary running animation stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyOrdinaryRunningStream(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5d3, 11);
+
+    /// <summary>Checks the first boosted running delay stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningStream0(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5e8, 11);
+
+    /// <summary>Checks the second boosted running delay stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningStream1(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5f3, 11);
+
+    /// <summary>Checks the third boosted running delay stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningStream2(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5fe, 11);
+
+    /// <summary>Checks the fourth boosted running delay stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningStream3(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b609, 11);
+
+    /// <summary>Checks the fifth boosted running delay stream against its retail ROM range.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningStream4(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b614, 11);
 
+    /// <summary>Verifies all six stage pointer words and rejects unsupported boosted-stage selections.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5de, 10));
@@ -163,6 +187,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer((byte)selection), "Pointer unsupported stage");
     }
 
+    /// <summary>Verifies all six counter-reset words, including the native pose-zero alias, and rejects unsupported selections.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
     private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b61f, 12));
@@ -176,17 +202,32 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadResetWord((byte)selection), "Reset unsupported stage");
     }
 
+    /// <summary>Compares a bounded cadence byte range in the compiled catalog with retail ROM.</summary>
+    /// <param name="rom">Retail address space used as the byte-for-byte reference.</param>
+    /// <param name="start">First bank-$91 address in the range.</param>
+    /// <param name="count">Number of consecutive cadence bytes to compare.</param>
     private static void VerifyCadenceBytes(SuperMetroidAddressSpace rom, int start, int count)
     {
         for (int address = start; address < start + count; address++)
             AssertEqual(rom.ReadByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
+    /// <summary>Address-space test double that rejects ROM reads from compiled cadence and models reachable aliases.</summary>
+    /// <param name="source">Underlying cartridge memory used for reads and writes outside the guarded ranges.</param>
     private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Mutable value returned for the native stage-five delay alias at $91:0303.</summary>
         public byte MutableDelay = 0x35;
+
+        /// <summary>Reads cartridge data through the same guard that forbids direct ROM access to compiled cadence bytes.</summary>
+        /// <param name="address">Bus address requested by the importer.</param>
+        /// <returns>The byte routed by <see cref="ReadByte"/>.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled cadence bytes and routes all other addresses to the uncompiled mapping.</summary>
+        /// <param name="address">Bus address requested by the cadence reader.</param>
+        /// <returns>The byte supplied by the guarded fallback mapping.</returns>
+        /// <exception cref="InvalidOperationException">The request tries to read a cadence byte that must come from compiled data.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x91b5d1 and < 0x91b62b)
@@ -195,14 +236,31 @@ internal static partial class Program
         }
         // Restored indexes can reach unimplemented hardware. A constructed address
         // signature checks exact fallback routing, not native I/O-register semantics.
+        /// <summary>Supplies the mutable delay alias and deterministic bytes for the test's reachable fallback window.</summary>
+        /// <param name="address">Bus address requested outside the compiled cadence range.</param>
+        /// <returns>The staged delay, synthetic fallback byte, or underlying cartridge value.</returns>
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
             address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ (address >> 8))) : source.ReadByte(address);
+
+        /// <summary>Reads WRAM while exposing the test's mutable delay word at its aliased address.</summary>
+        /// <param name="address">Bus address requested from work RAM.</param>
+        /// <returns>The mutable delay alias or the underlying WRAM byte.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space has no mutable-memory implementation.</exception>
         public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay :
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Running-cadence guard requires WRAM.")).ReadWorkRamByte(address);
+
+        /// <summary>Forwards save-RAM reads to the underlying mutable cartridge address space.</summary>
+        /// <param name="address">Bus address requested from save RAM.</param>
+        /// <returns>The underlying save-RAM byte.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped address space has no mutable-memory implementation.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Running-cadence guard requires SRAM.")).ReadSaveRamByte(address);
+
+        /// <summary>Forwards cartridge writes without changing the guard's read routing.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -10,21 +10,35 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class GameOverMenuState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Scratch pixels for OBJ compositing, reused across renders and cleared before the scene's objects are drawn.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Scene-owned row-major RGBA output storage returned by <see cref="Render"/> and overwritten by the next render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Address-space context used to construct and rebind the menu's PPU presentation.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Shared cartridge-style music and sound queue advanced by the game-over menu.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>PPU memory and register state used to render the menu's BG1 and OBJ layers.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Per-frame object attribute entries for the Baby, egg, and answer cursor.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Input edge history used to distinguish newly pressed menu buttons from held buttons.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Master PPU brightness applied to rendered pixels; menu fades change it by one level per update.</summary>
     private int brightness;
+    /// <summary>Remaining updates before the animated cursor advances to its next missile frame.</summary>
     private int missileTimer = 1;
+    /// <summary>Current cursor missile frame, cycled through the installed animation sequence.</summary>
     private int missileFrame;
+    /// <summary>Pointer into the compiled Baby instruction sequence, with zero denoting an uninitialized sequence.</summary>
     private ushort babyInstructionPointer;
+    /// <summary>Updates remaining in the current compiled Baby instruction.</summary>
     private ushort babyInstructionTimer;
+    /// <summary>Native spritemap address corresponding to the currently selected Baby animation frame.</summary>
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    /// <summary>Installed artwork and timing data used to draw this scene; rebound after host presentation restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
@@ -195,6 +209,7 @@ public sealed class GameOverMenuState
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
+    /// <summary>Builds the current frame's object list from the Baby animation, egg, and selected-answer cursor.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -215,6 +230,7 @@ public sealed class GameOverMenuState
         StepCompiledBabyMetroid();
     }
 
+    /// <summary>Advances the compiled Baby instruction timer, queues completed-instruction sounds, and applies its frame and palette.</summary>
     private void StepCompiledBabyMetroid()
     {
         if (babyInstructionTimer == 0)
@@ -242,6 +258,8 @@ public sealed class GameOverMenuState
         mapPresentation!.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 
+    /// <summary>Translates a compiled Baby sound marker to its cartridge effect and queues it on the shared audio state.</summary>
+    /// <param name="sound">Sound marker emitted when a Baby animation instruction completes.</param>
     private void QueueCompiledBabySound(GameOverBabySound sound)
     {
         SoundEffectId effect = sound switch
@@ -254,6 +272,7 @@ public sealed class GameOverMenuState
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
 
+    /// <summary>Counts down the cursor animation interval and advances its frame when the interval expires.</summary>
     private void StepMissileAnimation()
     {
         if (--missileTimer != 0)

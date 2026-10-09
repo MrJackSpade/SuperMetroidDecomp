@@ -3,17 +3,30 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The eight mutually exclusive directions used by Mother Brain's room turrets.</summary>
 internal enum MotherBrainTurretDirection : byte
 {
+    /// <summary>Turret pose aimed horizontally toward screen left.</summary>
     Left = 0,
+    /// <summary>Turret pose aimed diagonally down and left.</summary>
     DownLeft = 1,
+    /// <summary>Turret pose aimed vertically down.</summary>
     Down = 2,
+    /// <summary>Turret pose aimed diagonally down and right.</summary>
     DownRight = 3,
+    /// <summary>Turret pose aimed horizontally toward screen right.</summary>
     Right = 4,
+    /// <summary>Turret pose aimed diagonally up and right.</summary>
     UpRight = 5,
+    /// <summary>Turret pose aimed vertically up.</summary>
     Up = 6,
+    /// <summary>Turret pose aimed diagonally up and left.</summary>
     UpLeft = 7,
 }
 
 /// <summary>Fixed placement and rotation policy for one of the twelve room turrets.</summary>
+/// <param name="X">Whole-pixel horizontal placement in the room.</param>
+/// <param name="Y">Whole-pixel vertical placement in the room.</param>
+/// <param name="AllowedRotationPointer">Bank-$86 pointer to this turret's eight-byte direction-allowance row.</param>
+/// <param name="InitialDirection">Direction selected by the room initializer.</param>
+/// <param name="AllowedDirectionMask">Bit mask of directions accepted by the native rotation policy.</param>
 internal readonly record struct MotherBrainTurretDefinition(
     ushort X,
     ushort Y,
@@ -22,6 +35,11 @@ internal readonly record struct MotherBrainTurretDefinition(
     byte AllowedDirectionMask);
 
 /// <summary>Animation selector and physical bullet launch for one turret direction.</summary>
+/// <param name="InstructionPointer">Bank-$86 address of the timed pose program for this direction.</param>
+/// <param name="BulletXOffset">Horizontal muzzle displacement from the turret origin in pixels.</param>
+/// <param name="BulletYOffset">Vertical muzzle displacement from the turret origin in pixels.</param>
+/// <param name="BulletXVelocity">Signed horizontal projectile velocity in 8.8 fixed-point units.</param>
+/// <param name="BulletYVelocity">Signed vertical projectile velocity in 8.8 fixed-point units.</param>
 internal readonly record struct MotherBrainTurretDirectionDefinition(
     ushort InstructionPointer,
     short BulletXOffset,
@@ -141,6 +159,10 @@ internal static class MotherBrainTurretDefinitions
         return (ForTurret((ushort)(pointerOffset / DirectionCount)).AllowedDirectionMask & (1 << directionIndex)) != 0;
     }
 
+    /// <summary>Builds a contiguous inclusive direction mask for one turret's allowed rotation sector.</summary>
+    /// <param name="first">First allowed direction in the enum's octant ordering.</param>
+    /// <param name="last">Last allowed direction in the inclusive sector.</param>
+    /// <returns>One bit for each direction from <paramref name="first"/> through <paramref name="last"/>.</returns>
     private static byte Sector(MotherBrainTurretDirection first, MotherBrainTurretDirection last) =>
         (byte)(((1 << ((int)last - (int)first + 1)) - 1) << (int)first);
 }

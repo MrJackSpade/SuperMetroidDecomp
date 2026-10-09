@@ -5,12 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Beetom instruction-program verification suite against the installed retail ROM.</summary>
     private static void VerifyBeetomInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks Beetom mechanics, presentation selectors, and production instruction execution against ROM data.</summary>
+    /// <param name="rom">Retail address space used as the reference for compiled Beetom words.</param>
+    /// <param name="artwork">Optional installed artwork; when present, production visual-selector reads are forbidden.</param>
     private static void VerifyBeetomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -143,6 +147,8 @@ internal static partial class Program
               "mechanics while visual-selector reads are forbidden.");
     }
 
+    /// <summary>Compares every compiled Beetom mechanics word and ownership byte with its native bank-$A8 address.</summary>
+    /// <param name="rom">Reference ROM supplying the expected mechanics words.</param>
     private static void VerifyBeetomMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xb696,0xb698,0xb69c,0xb6a0,0xb6a4,0xb6a8,0xb6aa,
@@ -179,6 +185,9 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.MechanicsWord(index), "Beetom mechanics ordinal bounds");
     }
 
+    /// <summary>Creates a Beetom actor and binds its distant-action selector to the supplied deterministic RNG source.</summary>
+    /// <param name="nextRandom">Function returning the next random word consumed by the selector.</param>
+    /// <returns>The initialized enemy system, its Beetom state, and the bound action-selection delegate.</returns>
     private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
@@ -196,6 +205,8 @@ internal static partial class Program
         return (enemies, enemies.BeetomStates[0]!, choose);
     }
 
+    /// <summary>Checks the distant-action table for every possible RNG word and verifies selection side effects.</summary>
+    /// <param name="rom">Reference ROM containing the native pointer table.</param>
     private static void VerifyBeetomDistantActionMapping(SuperMetroidAddressSpace rom)
     {
         ushort random = 0;
@@ -218,6 +229,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that Beetom's distant-action direction uses only the low bit of each random word.</summary>
     private static void VerifyBeetomDistantDirectionMapping()
     {
         ushort random = 0;
@@ -231,6 +243,8 @@ internal static partial class Program
             AssertEqual((ushort)(value % 2), fixture.State.Direction, "Beetom direction preserves native low-bit mapping independently of selected action");
         }
     }
+    /// <summary>Validates the compiled visual-selector operands and rejects gaps or unrelated bank-$A8 addresses.</summary>
+    /// <param name="rom">Reference ROM supplying the expected spritemap pointers and entry counts.</param>
     private static void VerifyBeetomVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
@@ -261,6 +275,7 @@ internal static partial class Program
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt(address), "Beetom distant invalid operand");
     }
+    /// <summary>Checks the ordered set and membership of Beetom instruction operands that select visual presentation.</summary>
     private static void VerifyBeetomPresentationMapping()
     {
         ushort[] expected = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
@@ -276,6 +291,11 @@ internal static partial class Program
         foreach (int index in new[] {int.MinValue, -1, 32, int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Beetom operand ordinal bounds");
     }
+    /// <summary>Invokes the production hop-start routine for the requested direction.</summary>
+    /// <param name="startHop">Reflected production method that initializes a Beetom hop.</param>
+    /// <param name="slot">Physical enemy slot whose instruction program is changed.</param>
+    /// <param name="state">Beetom state passed to the hop routine.</param>
+    /// <param name="left">Selects the leftward hop when true.</param>
     private static void StartBeetomHop(
         MethodInfo startHop,
         RoomEnemySlot slot,
@@ -283,6 +303,14 @@ internal static partial class Program
         bool left) =>
         startHop.Invoke(null, [slot, state, (ushort)0, left, false]);
 
+    /// <summary>Processes a compiled Beetom loop until its goto returns to the first repeated frame.</summary>
+    /// <param name="enemies">Enemy system owning the instruction interpreter.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="arguments">Argument array reused for each reflected interpreter call.</param>
+    /// <param name="slot">Beetom slot whose instruction pointer and timer are advanced.</param>
+    /// <param name="entry">Expected address at which the loop program begins.</param>
+    /// <param name="loop">Address of the loop's repeated frame sequence.</param>
+    /// <param name="callsThroughGoto">Number of instruction calls required to reach the first loop frame.</param>
     private static void RunBeetomLoop(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -302,6 +330,14 @@ internal static partial class Program
             "Beetom program completes its native goto and first repeated frame");
     }
 
+    /// <summary>Advances a compiled hop program through its timed frames and verifies its terminal sleep address.</summary>
+    /// <param name="enemies">Enemy system owning the instruction interpreter.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="arguments">Argument array reused for each reflected interpreter call.</param>
+    /// <param name="slot">Beetom slot whose instruction pointer and timer are advanced.</param>
+    /// <param name="entry">Expected address of the hop program's first frame.</param>
+    /// <param name="sleep">Expected address of the terminal sleep command.</param>
+    /// <param name="timedFrames">Number of timed frames that precede the sleep command.</param>
     private static void RunBeetomSleepProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -323,6 +359,8 @@ internal static partial class Program
             "Beetom hop program reaches terminal sleep");
     }
 
+    /// <summary>Exercises compiled mechanics lookups repeatedly and returns a checksum that consumes their values.</summary>
+    /// <returns>A nonzero checksum over the selected mechanics words.</returns>
     private static int ProbeBeetomInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -342,6 +380,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian mechanics word from bank $A8 at its native 16-bit address.</summary>
+    /// <param name="source">ROM address space supplying the two bytes.</param>
+    /// <param name="address">Bank-$A8 address of the low byte.</param>
+    /// <returns>The assembled 16-bit word.</returns>
     private static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -349,14 +391,25 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Wraps a cartridge address space to observe presentation reads and reject reads of compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and all writes.</param>
+    /// <param name="forbidPresentation">When true, rejects visual-selector reads as well as compiled mechanics reads.</param>
     private sealed class BeetomInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation words observed through this guard when such reads are allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of forbidden mechanics or presentation read attempts intercepted.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Adapts the import-source read API to the same guarded byte path.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the guarded underlying source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects forbidden compiled-byte reads, records allowed presentation reads, and delegates all others.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The byte returned by the underlying source when the read is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -393,6 +446,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying cartridge address space.</summary>
+        /// <param name="address">Cartridge address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

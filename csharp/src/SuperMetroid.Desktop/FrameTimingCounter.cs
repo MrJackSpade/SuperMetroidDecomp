@@ -8,6 +8,13 @@ namespace SuperMetroid.Desktop;
 /// cartridge frames; paint FPS measures completed WinForms canvas paints. Keeping the two
 /// rates separate makes a slow translation distinguishable from a slow presentation path.
 /// </summary>
+/// <param name="EmulatedFramesPerSecond">Completed emulated frames divided by the interval's elapsed wall time.</param>
+/// <param name="PaintedFramesPerSecond">Completed canvas paints divided by the interval's elapsed wall time.</param>
+/// <param name="AverageEmulationMilliseconds">Mean host time spent advancing one emulated frame during the interval.</param>
+/// <param name="WorstEmulationMilliseconds">Longest measured host time for a single emulated frame during the interval.</param>
+/// <param name="AveragePaintMilliseconds">Mean host time spent painting one canvas frame during the interval.</param>
+/// <param name="WorstPaintMilliseconds">Longest measured canvas paint duration during the interval.</param>
+/// <param name="LateFrames">Fractional count of wall-clock frames discarded by catch-up limits.</param>
 public readonly record struct FrameTimingSnapshot(
     double EmulatedFramesPerSecond,
     double PaintedFramesPerSecond,
@@ -44,15 +51,25 @@ public sealed class FrameTimingCounter
     internal event Action<long>? EmulatedFrameMeasured;
     /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
     internal event Action<double>? LateFramesRecorded;
+    /// <summary>Clock ticks per second used to convert elapsed measurements into wall time.</summary>
     private readonly long timestampFrequency;
+    /// <summary>Minimum elapsed clock ticks required before an interval can be published.</summary>
     private readonly long reportingIntervalTicks;
+    /// <summary>Timestamp at which the current reporting interval began or was last published.</summary>
     private long intervalStarted;
+    /// <summary>Sum of host ticks spent advancing emulated frames in the current interval.</summary>
     private long emulationTicks;
+    /// <summary>Longest single emulated-frame duration recorded in the current interval.</summary>
     private long worstEmulationTicks;
+    /// <summary>Sum of host ticks spent painting frames in the current interval.</summary>
     private long paintTicks;
+    /// <summary>Longest single canvas-paint duration recorded in the current interval.</summary>
     private long worstPaintTicks;
+    /// <summary>Number of emulated frames completed in the current interval.</summary>
     private int emulatedFrames;
+    /// <summary>Number of canvas paints completed in the current interval.</summary>
     private int paintedFrames;
+    /// <summary>Accumulated fractional catch-up frames discarded since the last snapshot.</summary>
     private double lateFrames;
 
     /// <summary>Creates an empty UI-thread counter using Stopwatch ticks and the host's one-second reporting interval.</summary>
@@ -138,11 +155,19 @@ public sealed class FrameTimingCounter
         return true;
     }
 
+    /// <summary>Converts an accumulated tick duration to mean milliseconds per observation.</summary>
+    /// <param name="ticks">Total clock ticks across the observations.</param>
+    /// <param name="observations">Number of measured events represented by <paramref name="ticks"/>.</param>
+    /// <returns>Average milliseconds, or zero when no events were recorded.</returns>
     private double ToAverageMilliseconds(long ticks, int observations) =>
         observations == 0 ? 0 : ToMilliseconds(ticks) / observations;
 
+    /// <summary>Converts clock ticks to milliseconds using the injected or Stopwatch clock frequency.</summary>
+    /// <param name="ticks">Elapsed clock ticks.</param>
+    /// <returns>The equivalent duration in milliseconds.</returns>
     private double ToMilliseconds(long ticks) => ticks * 1000.0 / timestampFrequency;
 
+    /// <summary>Clears interval-local frame counts, duration totals, maxima, and discarded-frame observations.</summary>
     private void ClearObservations()
     {
         emulationTicks = 0;

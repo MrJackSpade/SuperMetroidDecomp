@@ -29,8 +29,11 @@ public enum EscapeEtecoonPreInstruction : ushort
 /// </summary>
 public sealed class EscapeEtecoonEnemyState
 {
+    /// <summary>Room slot whose common variables hold this animal's translated state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over an initialized escape Etecoon room slot.</summary>
+    /// <param name="slot">The live slot storing the animal's cartridge variables.</param>
     internal EscapeEtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A, a signed 8.8 horizontal speed consumed by <c>$B3:E680</c>.</summary>
@@ -56,8 +59,11 @@ public sealed class EscapeEtecoonEnemyState
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {
+    /// <summary>Room slot identifying this Dachora's live instruction-list state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed marker associated with the Dachora's room slot.</summary>
+    /// <param name="slot">The live slot whose instruction list determines the animal's behavior.</param>
     internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 }
 
@@ -70,18 +76,32 @@ public sealed class EscapeDachoraEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$B3 enemy definition pointer for the escape Etecoon population record.</summary>
     internal const ushort EscapeEtecoonDefinition = 0xf2d3;
+
+    /// <summary>Bank-$B3 enemy definition pointer for the escape Dachora population record.</summary>
     internal const ushort EscapeDachoraDefinition = 0xf313;
 
+    /// <summary>Empty bank-$B3 spritemap installed by the Dachora initializer before its scripted animation begins.</summary>
     private const ushort EmptyBankB3Spritemap = 0x804d;
 
+    /// <summary>Horizontal displacement applied by each Dachora sprint callback, in pixels.</summary>
     private const ushort EscapeDachoraPixelsPerCallback = 6;
+
+    /// <summary>Lava or acid Y threshold used by both escape-animal conditional instruction branches.</summary>
     private const ushort EscapeAnimalLavaBranchY = 0x00ce;
+
+    /// <summary>One-pixel downward fixed-point probe used to settle the Etecoon against room collision.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
+
+    /// <summary>Horizontal fixed-point displacement for the Etecoon's uncollided escape exit.</summary>
     private const int EscapeEtecoonUncollidedExitSpeed = 0x00038000;
 
+    /// <summary>Per-slot views of initialized Etecoon variables; entries are cleared on room reset.</summary>
     private readonly EscapeEtecoonEnemyState?[] _escapeEtecoonStates =
         new EscapeEtecoonEnemyState?[MaximumEnemyCount];
+
+    /// <summary>Per-slot markers for initialized Dachoras whose behavior remains in their ROM instruction lists.</summary>
     private readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
         new EscapeDachoraEnemyState?[MaximumEnemyCount];
 
@@ -286,16 +306,27 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Returns whether the persistent event recording the animals' escape has been set.</summary>
     private bool HasCrittersEscaped() => RequireEvent(EventNumber.CrittersEscaped);
 
+    /// <summary>Gets Samus's lava or acid surface coordinate, using the native branch's non-triggering sentinel when absent.</summary>
+    /// <param name="samus">Current Samus state, or <see langword="null"/> when no player state is available.</param>
+    /// <returns>The liquid surface Y coordinate, or <see cref="ushort.MaxValue"/> when Samus has no liquid state.</returns>
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
+    /// <summary>Reads the 16-bit operand immediately following the current escape-animal instruction opcode.</summary>
+    /// <param name="slot">Enemy slot providing the instruction-list context.</param>
+    /// <param name="instructionCursor">Pointer to the opcode whose operand is being read.</param>
+    /// <returns>The operand word stored two bytes after <paramref name="instructionCursor"/>.</returns>
     private ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
         ReadEnemyInstructionMechanicsWord(
             slot,
             unchecked((ushort)(instructionCursor + 2)));
 
+    /// <summary>Adds a fixed-point horizontal displacement while preserving subpixel movement in the room slot.</summary>
+    /// <param name="slot">Enemy slot whose integer and fractional X positions are updated.</param>
+    /// <param name="displacement">Signed 16.16 fixed-point movement to add.</param>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
         uint fixedPosition = ((uint)slot.XPosition << 16) | slot.XSubposition;
@@ -304,6 +335,10 @@ public sealed partial class RoomEnemySystem
         slot.XSubposition = unchecked((ushort)fixedPosition);
     }
 
+    /// <summary>Gets the initialized Etecoon state associated with a slot or reports a lifecycle violation.</summary>
+    /// <param name="slot">Escape Etecoon slot whose typed state is required.</param>
+    /// <returns>The state view created by the Etecoon initializer.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as an escape Etecoon.</exception>
     private EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
         _escapeEtecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized escape-Etecoon state.");

@@ -12,25 +12,36 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition word identifying Mother Brain's body population record.</summary>
     private const ushort MotherBrainBodyDefinition = 0xec7f;
+    /// <summary>Enemy definition word identifying Mother Brain's head and collision record.</summary>
     private const ushort MotherBrainHeadDefinition = 0xec3f;
+    /// <summary>Enemy definition word for the falling tube created during the fake-death sequence.</summary>
     private const ushort MotherBrainFallingTubeDefinition =
         EnemyDefinitionPointers.MotherBrainFallingTube;
+    /// <summary>Initial brain instruction list installed when the head population record is initialized.</summary>
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
 
+    /// <summary>Shared multipart encounter state created by the body initializer and completed by the head initializer.</summary>
     private MotherBrainEnemyState? _motherBrain;
+    /// <summary>Callback that advances the room's Mother Brain glass-event argument when its native trigger runs.</summary>
     private Action? _incrementMotherBrainGlassRoomArgument;
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain => _motherBrain;
 
+    /// <summary>Gets the installed corpse tile atlas required to seed the future rotting effect during room load.</summary>
     private RoomCharacterAtlas MotherBrainCorpseArtwork =>
         TileArtwork?.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
+    /// <summary>Recognizes the body and head definition words that share one Mother Brain encounter state.</summary>
+    /// <param name="definition">Enemy definition word to classify.</param>
+    /// <returns><see langword="true"/> for the Mother Brain body or head record.</returns>
     private static bool IsMotherBrainDefinition(ushort definition) =>
         definition is MotherBrainBodyDefinition or MotherBrainHeadDefinition;
 
+    /// <summary>Clears the shared encounter state when the Mother Brain room population is reset.</summary>
     private void ResetMotherBrainRoomState() => _motherBrain = null;
 
     /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
@@ -77,6 +88,7 @@ public sealed partial class RoomEnemySystem
         SpawnMotherBrainInitialTurrets();
     }
 
+    /// <summary>Applies the installed room-entry palette colors for glass shards and tube projectiles.</summary>
     private void LoadMotherBrainRoomEntryColors()
     {
         (MotherBrainRoomColors ?? throw new InvalidOperationException(
@@ -139,6 +151,11 @@ public sealed partial class RoomEnemySystem
             ResolveMotherBrainSamusCollision(state, samus);
     }
 
+    /// <summary>Dispatches the active body function to first-phase, fake-death, or phase-two behavior.</summary>
+    /// <param name="state">Shared body/head state containing the native function pointer.</param>
+    /// <param name="samus">Active player state used by collision and phase transitions, when available.</param>
+    /// <param name="sharedProjectiles">Bomb-projectile owner used by phase-two attack interactions, when available.</param>
+    /// <exception cref="InvalidDataException">The body function word has no translated behavior.</exception>
     private void RunMotherBrainBodyFunction(
         MotherBrainEnemyState state,
         SamusState? samus,
@@ -268,6 +285,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for the glass event, then arms fake death and its wall, effect, and delayed phase transition.</summary>
+    /// <param name="state">Encounter state updated when the glass event and exit conditions are met.</param>
+    /// <param name="samus">Active player position used by the first-phase exit condition, when available.</param>
     private void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
     {
         // Before PLM `$D6DE` finishes the nineteen missile increments and its 48-frame tail,
@@ -417,9 +437,20 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Four-frame horizontal displacement pattern indexed by the native shake phase bits.</summary>
     private static readonly short[] MotherBrainShakeXOffsets = [0, -1, 0, 1];
+    /// <summary>Four-frame vertical displacement pattern paired with the horizontal brain and neck shake.</summary>
     private static readonly short[] MotherBrainShakeYOffsets = [0, 1, -1, 1];
 
+    /// <summary>Draws a bank-$A9 world spritemap after applying the private hook's above-screen center cull.</summary>
+    /// <param name="oam">OAM buffer receiving visible map entries.</param>
+    /// <param name="spritemapPointer">Native spritemap address in the Mother Brain graphics bank.</param>
+    /// <param name="worldX">World-space horizontal center of the map.</param>
+    /// <param name="worldY">World-space vertical center of the map.</param>
+    /// <param name="paletteIndex">Palette selection applied to emitted entries.</param>
+    /// <param name="vramTilesIndex">VRAM tile base used to resolve the map's tile indices.</param>
+    /// <param name="cameraX">Layer-one camera X coordinate used for screen conversion.</param>
+    /// <param name="cameraY">Layer-one camera Y coordinate used for screen conversion and culling.</param>
     private void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
         ushort spritemapPointer,
@@ -447,6 +478,10 @@ public sealed partial class RoomEnemySystem
             vramTilesIndex);
     }
 
+    /// <summary>Consumes the dedicated main-shake countdown when active, otherwise samples the head's flash or shake timer.</summary>
+    /// <param name="state">Encounter state containing the main-shake countdown.</param>
+    /// <param name="head">Head slot supplying its hurt-flash and ordinary shake timers.</param>
+    /// <returns>Horizontal and vertical pixel offsets for the current shake phase.</returns>
     private static (short X, short Y) GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
         RoomEnemySlot head)
@@ -466,6 +501,9 @@ public sealed partial class RoomEnemySystem
         return (MotherBrainShakeXOffsets[index], MotherBrainShakeYOffsets[index]);
     }
 
+    /// <summary>Advances articulated neck angles when enabled and recomputes all five segment points.</summary>
+    /// <param name="state">Encounter state containing neck angles, lengths, and resulting segment coordinates.</param>
+    /// <param name="samus">Player position used by the cartridge neck-angle update.</param>
     private static void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
     {
         if (state.NeckMovementEnabled)
@@ -927,12 +965,20 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Returns the sequence required by head bytecode that executes the live rainbow/Baby encounter.</summary>
+    /// <param name="slot">Mother Brain body or head slot entering the sequence-dependent routine.</param>
+    /// <returns>The initialized rainbow-beam attack sequence.</returns>
+    /// <exception cref="InvalidDataException">The encounter state is incomplete or has no live rainbow/Baby sequence.</exception>
     private MotherBrainRainbowBeamAttackSequence RequireLiveMotherBrainRainbowSequence(
         RoomEnemySlot slot) =>
         RequireCompleteMotherBrainState(slot).RainbowBeamSequence ??
         throw new InvalidDataException(
             "Mother Brain head bytecode requires the live rainbow/Baby sequence.");
 
+    /// <summary>Returns the shared encounter state after confirming both population records and the caller slot belong to it.</summary>
+    /// <param name="slot">Enemy slot entering a Mother Brain dispatcher.</param>
+    /// <returns>The initialized multipart encounter state.</returns>
+    /// <exception cref="InvalidDataException">The shared state is absent, its head is missing, or the slot is unrelated.</exception>
     private MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrain ??

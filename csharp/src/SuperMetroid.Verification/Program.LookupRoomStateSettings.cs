@@ -6,6 +6,7 @@ internal static partial class Program
 {
     // Original identities captured from f2e63273eef07b384814af455e129d560fb8e109.
     // Field expectations come from original bank-$8F bytes via the import-only reader.
+    /// <summary>Sorted bank-$8F room-state pointers from the pinned original revision, used to compare imported fields with compiled definitions.</summary>
     private static readonly ushort[] OriginalRoomStatePointers =
     [
         0x9213, 0x922D, 0x9247, 0x9261, 0x92C5, 0x92DF, 0x9314, 0x932E, 0x9348, 0x93B7, 0x93E2, 0x940B,
@@ -37,6 +38,8 @@ internal static partial class Program
         0xDF71, 0xDF9F, 0xDFB9, 0xDFE9, 0xE003, 0xE033, 0xE04D, 0xE07D, 0xE097, 0xE0C7, 0xE0E1,
     ];
 
+    /// <summary>Runs the focused verification suites for room-state identities and each compiled settings field.</summary>
+    /// <param name="rom">Original cartridge address space used as the source for imported room-state expectations.</param>
     private static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
@@ -57,6 +60,7 @@ internal static partial class Program
         Suite(nameof(VerifyRoomStateSetupCodePointer), () => VerifyRoomStateSetupCodePointer(rom));
     }
 
+    /// <summary>Checks the complete sorted pointer domain, exact 323-entry count, and rejection of every interior or unknown pointer.</summary>
     private static void VerifyRoomStateIdentities()
     {
         var original = OriginalRoomStatePointers.ToHashSet();
@@ -74,6 +78,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares each compiled compressed-level address and the unique layout-source view with imported cartridge states.</summary>
+    /// <param name="rom">Original cartridge address space used to load expected state records.</param>
     private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress"));
@@ -84,15 +90,35 @@ internal static partial class Program
         AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
             "Layout-source view is repeatable after complete enumeration");
     }
+    /// <summary>Verifies that the compiled graphics-set selector matches every imported room-state record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateGraphicsSet(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.GraphicsSet, "GraphicsSet");
+    /// <summary>Verifies each compiled music-data index against its imported room-state record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateMusicDataIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicDataIndex, "MusicDataIndex");
+    /// <summary>Verifies each compiled music-track index against its imported room-state record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateMusicTrackIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicTrackIndex, "MusicTrackIndex");
+    /// <summary>Verifies the compiled room-effects pointer against each imported state.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
+    /// <summary>Verifies each room's compiled enemy-population pointer against its imported record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyPopulationPointer, "EnemyPopulationPointer");
+    /// <summary>Verifies each room's compiled enemy-tileset pointer against its imported record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyTilesetPointer, "EnemyTilesetPointer");
+    /// <summary>Verifies each compiled layer-two horizontal scroll setting against its imported record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2ScrollX, "Layer2ScrollX");
+    /// <summary>Verifies each compiled layer-two vertical scroll setting against its imported record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2ScrollY, "Layer2ScrollY");
+    /// <summary>Verifies each room's compiled scroll-data pointer against its imported record.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
+    /// <summary>Checks compiled X-ray pointers and confirms the source view contains every distinct nonzero imported pointer in order.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
@@ -103,11 +129,23 @@ internal static partial class Program
         AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
             "X-ray source view is repeatable after complete enumeration");
     }
+    /// <summary>Verifies each room's compiled main-code pointer against the cartridge import.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MainCodePointer, "MainCodePointer");
+    /// <summary>Verifies each room's compiled PLM-list pointer against the cartridge import.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStatePlmPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.PlmPointer, "PlmPointer");
+    /// <summary>Verifies each room's compiled background-data pointer against the cartridge import.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateBackgroundDataPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
+    /// <summary>Verifies each room's compiled setup-code pointer against the cartridge import.</summary>
+    /// <param name="rom">Original cartridge address space supplying expected values.</param>
     private static void VerifyRoomStateSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.SetupCodePointer, "SetupCodePointer");
 
+    /// <summary>Compares one selected compiled field with the cartridge-imported value for every known room-state pointer and enumeration position.</summary>
+    /// <param name="rom">Original cartridge address space used to import expected records.</param>
+    /// <param name="field">Projection selecting the state value under verification.</param>
+    /// <param name="name">Field label included in assertion diagnostics.</param>
     private static void VerifyRoomStateField(SuperMetroidAddressSpace rom,
         Func<CartridgeRoomState, int> field, string name)
     {

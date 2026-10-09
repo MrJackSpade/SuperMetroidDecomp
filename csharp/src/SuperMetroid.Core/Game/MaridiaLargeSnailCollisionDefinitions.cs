@@ -1,6 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One immutable Oum rectangle with its native touch and shot callbacks.</summary>
+/// <param name="Left">Left edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Top">Top edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Right">Right edge of the rectangle relative to the enemy origin.</param>
+/// <param name="Bottom">Bottom edge of the rectangle relative to the enemy origin.</param>
+/// <param name="TouchAi">Bank-$A2 touch callback selected for this collision component.</param>
+/// <param name="ShotAi">Shot callback selected for this collision component.</param>
 internal readonly record struct MaridiaLargeSnailCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
@@ -20,9 +26,13 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     private const ushort LastFrame = 0xcca9;
     /// <summary>Each native one-component extended frame occupies ten bytes.</summary>
     private const int FrameStride = 10;
+    /// <summary>Native touch callback used while Oum's body is damaging Samus.</summary>
     private const ushort DamageTouch = EnemyAiCodePointers.BankA2.MaridiaLargeSnailDamagingTouch;
+    /// <summary>Native touch callback used by non-damaging Oum frames.</summary>
     private const ushort SafeTouch = EnemyAiCodePointers.BankA2.MaridiaLargeSnailNonDamagingTouch;
+    /// <summary>Native shot callback assigned to the collision component that can be hit.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot;
+    /// <summary>Native no-op callback assigned where a component does not accept shots.</summary>
     private const ushort NoShot = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>First consecutive hitbox record, Hitbox_Oum_FacingLeft_0 at $A2:D034.</summary>
@@ -67,12 +77,16 @@ internal static class MaridiaLargeSnailCollisionDefinitions
             [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 0, SafeTouch, Shot), new(0, 0, 16, 16, SafeTouch, NoShot)],
         ]));
 
+    /// <summary>Enumerates the contiguous extended-frame addresses represented by this collision catalog.</summary>
     internal static FramePointerSequence FramePointers => default;
 
+    /// <summary>Determines whether an address is one of Oum's aligned extended-frame records.</summary>
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame <= LastFrame &&
         (frame - FirstFrame) % FrameStride == 0;
 
+    /// <summary>Returns the hitbox-list pointer paired with a compiled Oum extended frame.</summary>
+    /// <exception cref="InvalidDataException">The address is not one of the catalog's extended frames.</exception>
     internal static ushort HitboxListAt(ushort frame)
     {
         if (!HasFrame(frame))
@@ -80,6 +94,8 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         return Lists.PointerAt((frame - FirstFrame) / FrameStride);
     }
 
+    /// <summary>Gets the rectangle components stored at a compiled Oum hitbox-list address.</summary>
+    /// <exception cref="InvalidDataException">The address is not one of the catalog's hitbox lists.</exception>
     internal static ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out MaridiaLargeSnailCollisionHitbox[] hitboxes)
             ? hitboxes
@@ -89,11 +105,19 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     /// <summary>Consecutive ten-byte one-component frame identities at $A2:CB87-$CCA9.</summary>
     internal readonly struct FramePointerSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Number of extended-frame pointers in the sequence.</summary>
         public int Count => (LastFrame - FirstFrame) / FrameStride + 1;
+        /// <summary>Alias for <see cref="Count"/> used by span-oriented callers.</summary>
         public int Length => Count;
+
+        /// <summary>Gets the extended-frame address at the requested zero-based sequence position.</summary>
+        /// <param name="index">Zero-based position between zero and <see cref="Count"/> minus one.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the sequence.</exception>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstFrame + index * FrameStride)
             : throw new IndexOutOfRangeException();
+
+        /// <summary>Creates an enumerator that yields each extended-frame address in order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

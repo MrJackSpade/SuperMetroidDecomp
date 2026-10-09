@@ -75,20 +75,34 @@ public static partial class RenderFrameSnapshotCodec
     }
 
     /// <summary>Forwards writes and counts them, so any destination gets the packet size bound.</summary>
+    /// <param name="inner">Destination stream receiving packet bytes; this wrapper does not own or close it.</param>
     private sealed class CountingStream(Stream inner) : Stream
     {
+        /// <summary>Total bytes successfully forwarded to the destination.</summary>
         public long Written { get; private set; }
+        /// <summary>Always false because packet serialization does not read from the destination.</summary>
         public override bool CanRead => false;
+        /// <summary>Always false because packet serialization does not reposition the destination.</summary>
         public override bool CanSeek => false;
+        /// <summary>Always true; writes are forwarded to the wrapped destination.</summary>
         public override bool CanWrite => true;
+        /// <summary>Unsupported because the wrapper only tracks bytes written.</summary>
         public override long Length => throw new NotSupportedException();
+        /// <summary>Unsupported because the wrapper does not expose destination position.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Forwards a flush request to the destination.</summary>
         public override void Flush() => inner.Flush();
+        /// <summary>Unsupported because this stream is a write-only packet counter.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Unsupported because this stream does not seek.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Unsupported because the wrapper cannot alter destination length.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
+        /// <summary>Forwards a byte-array write and adds its length to the packet byte count.</summary>
         public override void Write(byte[] buffer, int offset, int count) { inner.Write(buffer, offset, count); Written += count; }
+        /// <summary>Forwards a span write and adds its length to the packet byte count.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) { inner.Write(buffer); Written += buffer.Length; }
+        /// <summary>Forwards a single byte and increments the packet byte count.</summary>
         public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
     }
 
@@ -150,6 +164,9 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
+    /// <summary>Writes VRAM, little-endian CGRAM words, OAM upload bytes, and modeled sprite count in packet order.</summary>
+    /// <param name="writer">Packet writer receiving the memory payload.</param>
+    /// <param name="memory">PPU memory image to serialize.</param>
     private static void WriteMemory(BinaryWriter writer, PpuMemorySnapshot memory)
     {
         writer.Write(memory.Vram);
@@ -158,6 +175,9 @@ public static partial class RenderFrameSnapshotCodec
         writer.Write(memory.ModeledSpriteCount);
     }
 
+    /// <summary>Reads the fixed-size PPU memory payload and modeled sprite count from a packet.</summary>
+    /// <param name="reader">Reader positioned at the first VRAM byte.</param>
+    /// <returns>Reconstructed VRAM, CGRAM, and OAM snapshot.</returns>
     private static PpuMemorySnapshot ReadMemory(BinaryReader reader)
     {
         byte[] vram = ReadExact(reader, SnesPpuLayout.VramByteCount);
@@ -167,6 +187,11 @@ public static partial class RenderFrameSnapshotCodec
         return new(vram, cgram, oam, reader.ReadInt32());
     }
 
+    /// <summary>Reads exactly the requested number of bytes from the packet stream.</summary>
+    /// <param name="reader">Packet reader supplying the bytes.</param>
+    /// <param name="count">Required byte count.</param>
+    /// <returns>The complete byte sequence.</returns>
+    /// <exception cref="EndOfStreamException">The packet ends before the requested count is available.</exception>
     private static byte[] ReadExact(BinaryReader reader, int count)
     {
         byte[] result = reader.ReadBytes(count);
@@ -174,6 +199,10 @@ public static partial class RenderFrameSnapshotCodec
         return result;
     }
 
+    /// <summary>Writes an operation count after enforcing the format's configured maximum.</summary>
+    /// <param name="writer">Packet writer receiving the 32-bit count.</param>
+    /// <param name="count">Number of encoded operations.</param>
+    /// <exception cref="InvalidDataException">The count exceeds the packet format limit.</exception>
     private static void WriteCount(BinaryWriter writer, int count)
     {
         if (count > RenderPacketFormat.MaximumOperations)
@@ -181,6 +210,10 @@ public static partial class RenderFrameSnapshotCodec
         writer.Write(count);
     }
 
+    /// <summary>Reads and validates a nonnegative operation count from the packet.</summary>
+    /// <param name="reader">Packet reader positioned at the count.</param>
+    /// <returns>The validated count.</returns>
+    /// <exception cref="InvalidDataException">The encoded count is negative or above the supported maximum.</exception>
     private static int ReadCount(BinaryReader reader)
     {
         int count = reader.ReadInt32();
@@ -189,6 +222,10 @@ public static partial class RenderFrameSnapshotCodec
         return count;
     }
 
+    /// <summary>Reads a canonical one-byte boolean, rejecting values outside zero and one.</summary>
+    /// <param name="reader">Packet reader positioned at the boolean byte.</param>
+    /// <returns>The decoded boolean value.</returns>
+    /// <exception cref="InvalidDataException">The encoded byte is not zero or one.</exception>
     private static bool ReadBoolean(BinaryReader reader) => reader.ReadByte() switch
     {
         0 => false,
@@ -196,6 +233,11 @@ public static partial class RenderFrameSnapshotCodec
         _ => throw new InvalidDataException("Noncanonical display boolean."),
     };
 
+    /// <summary>Reads Mode 7 transform and overflow fields, applying compatibility rules for the packet version.</summary>
+    /// <param name="reader">Packet reader positioned at the register payload.</param>
+    /// <param name="version">Format version that determines whether wrap overflow is supported.</param>
+    /// <returns>The decoded Mode 7 register state.</returns>
+    /// <exception cref="InvalidDataException">The overflow mode is unknown or uses wrap in a version that predates support.</exception>
     private static Mode7RenderRegisters ReadMode7Registers(BinaryReader reader, ushort version)
     {
         short a = reader.ReadInt16(), b = reader.ReadInt16(), c = reader.ReadInt16(), d = reader.ReadInt16();

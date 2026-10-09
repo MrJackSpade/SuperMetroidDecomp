@@ -6,10 +6,24 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored condition gates for bank-$84's grey door family.</summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Progression-state owner used by resident grey doors to inspect events and persist successful openings.</summary>
     private Bank80SystemState? _greyDoorSystem;
+    /// <summary>Area whose boss and miniboss flags satisfy area-scoped grey-door conditions.</summary>
     private AreaId _greyDoorArea;
+    /// <summary>Live query for the Tourian statue sequence's completion condition.</summary>
     private Func<bool>? _isTourianStatueFinished;
 
+    /// <summary>Advances one resident grey-door PLM, consuming locked hits or handing active instruction lists to the shared interpreter.</summary>
+    /// <param name="bus">Address space used to read authored PLM instruction operands.</param>
+    /// <param name="level">Room collision data modified when an already-open door becomes a blue door.</param>
+    /// <param name="streamer">Background streamer used by the door's initial or conversion draw.</param>
+    /// <param name="slot">Resident PLM slot and its condition-gated door state.</param>
+    /// <param name="layer1XPosition">Current horizontal layer-one position for draw placement.</param>
+    /// <param name="layer1YPosition">Current vertical layer-one position for draw placement.</param>
+    /// <param name="bg1XOffset">BG1 horizontal offset used by the draw routine.</param>
+    /// <param name="enemyDeaths">Current room enemy-death count.</param>
+    /// <param name="enemyDeathQuota">Room-configured count required by quota-gated doors.</param>
+    /// <returns>True when this pre-pass consumed the actor for the frame; false when the shared interpreter should process its list.</returns>
     private bool TryStepGreyDoor(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -144,6 +158,11 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Evaluates the selected progression, room-quota, statue, or critter condition for a resident grey door.</summary>
+    /// <param name="condition">Native condition-table entry attached during room setup.</param>
+    /// <param name="enemyDeaths">Current room enemy-death count for quota conditions.</param>
+    /// <param name="enemyDeathQuota">Required death count for quota conditions.</param>
+    /// <returns>True only when the configured condition currently allows the door to unlock.</returns>
     private bool IsGreyDoorConditionSatisfied(
         GreyDoorCondition condition,
         ushort enemyDeaths,
@@ -170,6 +189,9 @@ public sealed partial class RoomPlmSystem
         };
     }
 
+    /// <summary>Applies the shared grey-door/colored-door collision setup while preserving the block's visual payload.</summary>
+    /// <param name="level">Room level whose collision and behavior planes are updated.</param>
+    /// <param name="blockIndex">Block changed to a resident-PLM projectile trigger.</param>
     private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
@@ -221,6 +243,10 @@ public sealed partial class RoomPlmSystem
             wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
     }
 
+    /// <summary>Recognizes a native grey-door header and decodes its orientation, including the Bomb Torizo alias.</summary>
+    /// <param name="header">PLM header pointer read from the room's authored PLM list.</param>
+    /// <param name="orientation">Receives the matched facing when the header is a supported grey door.</param>
+    /// <returns>True when the header identifies a grey-door orientation.</returns>
     private static bool TryIdentifyGreyDoor(
         ushort header,
         out ColoredDoorOrientation orientation)
@@ -283,6 +309,15 @@ public enum GreyDoorPhase : byte
     Closing,
 }
 
+/// <summary>Resident per-door state retaining native list pointers and the condition/opening lifecycle.</summary>
+/// <param name="orientation">Facing that determines the closed blue-door behavior value.</param>
+/// <param name="condition">Progression condition polled while the door is locked.</param>
+/// <param name="initialList">Native closed-grey instruction list and return target after room-entry closing.</param>
+/// <param name="closedBlueList">Native list used to draw and convert an already-open door to blue.</param>
+/// <param name="closedGreyDraw">Native draw instruction for the initial closed-grey appearance.</param>
+/// <param name="flashList">Native repeating list entered when the lock condition becomes satisfied.</param>
+/// <param name="openingList">Native opening sequence entered after a successful post-unlock hit.</param>
+/// <param name="phase">Initial lifecycle state selected during room setup.</param>
 internal sealed class GreyDoorPlmState(
     ColoredDoorOrientation orientation,
     GreyDoorCondition condition,
@@ -293,15 +328,26 @@ internal sealed class GreyDoorPlmState(
     ushort openingList,
     GreyDoorPhase phase)
 {
+    /// <summary>Physical facing of the door used when selecting its blue-door BTS value.</summary>
     public ColoredDoorOrientation Orientation { get; } = orientation;
+    /// <summary>Progression or room condition checked before the door begins flashing.</summary>
     public GreyDoorCondition Condition { get; } = condition;
+    /// <summary>Closed-grey instruction list and target restored after the resident closing list completes.</summary>
     public ushort InitialList { get; } = initialList;
+    /// <summary>Instruction list that applies the closed blue cap for a door already opened in an earlier visit.</summary>
     public ushort ClosedBlueList { get; } = closedBlueList;
+    /// <summary>Instruction pointer for drawing the closed grey cap when the resident actor first runs.</summary>
     public ushort ClosedGreyDraw { get; } = closedGreyDraw;
+    /// <summary>Instruction list that repeats the unlocked flashing animation until a projectile hit.</summary>
     public ushort FlashList { get; } = flashList;
+    /// <summary>Instruction list for the shared-interpreter opening sound, draws, and deletion sequence.</summary>
     public ushort OpeningList { get; } = openingList;
+    /// <summary>Current locked, flashing, opening, conversion, or room-entry closing lifecycle phase.</summary>
     public GreyDoorPhase Phase { get; set; } = phase;
+    /// <summary>Prevents the initial closed-grey draw from being applied more than once.</summary>
     public bool InitialDrawCompleted { get; set; }
+    /// <summary>Whether a projectile hit is pending for the current condition or flashing check.</summary>
     public bool HasPendingHit { get; set; }
+    /// <summary>Projectile category retained with a pending hit until the native hit path consumes it.</summary>
     public SamusProjectileTypeWord PendingProjectileType { get; set; }
 }

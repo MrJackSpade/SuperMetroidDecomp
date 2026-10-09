@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One contiguous, tile-aligned visual source for Torizo $814B uploads.</summary>
+/// <param name="SourceAddress">ROM byte address from which the native upload reads this tile page.</param>
+/// <param name="ByteCount">Exact byte length of the contiguous, tile-aligned source region.</param>
+/// <param name="FileName">Installed PNG asset that supplies the page's replacement characters.</param>
 internal readonly record struct TorizoInstructionTileSheetDefinition(
     int SourceAddress, int ByteCount, string FileName);
 
@@ -50,16 +53,37 @@ internal static class TorizoInstructionVramArtworkDefinitions
     /// <summary>Mutually exclusive artwork roles in the installed manifest and content-hash order.</summary>
     private enum PageRole
     {
-        SharedDeath, StatueCrumble, LeftAttack, RightAttack,
-        GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
+        /// <summary>Shared death and recovery tiles used by both Torizo variants.</summary>
+        SharedDeath,
+        /// <summary>Alternating tile frames used while the statue crumbles.</summary>
+        StatueCrumble,
+        /// <summary>Bomb Torizo's left-facing attack and death tile page.</summary>
+        LeftAttack,
+        /// <summary>Bomb Torizo's right-facing attack and death tile page.</summary>
+        RightAttack,
+        /// <summary>Golden Torizo's initial awakening tile upload.</summary>
+        GoldenAwakening,
+        /// <summary>Golden Torizo's alternate left-facing attack page.</summary>
+        GoldenLeftAttack,
+        /// <summary>Golden Torizo's alternate right-facing attack page.</summary>
+        GoldenRightAttack,
+        /// <summary>Chozo fragments uploaded by the statue-crumble PLM.</summary>
+        ChozoDebris,
     }
 
+    /// <summary>Eight fixed artwork pages in the order expected by manifests and content identity.</summary>
     internal static PageSequence All => default;
 
+    /// <summary>Read-only ordered view of the eight Torizo instruction tile pages.</summary>
     internal readonly struct PageSequence : IReadOnlyList<TorizoInstructionTileSheetDefinition>
     {
+        /// <summary>Gets the fixed number of upload pages.</summary>
         public int Count => 8;
+        /// <summary>Gets the page count for callers using sequence terminology.</summary>
         public int Length => Count;
+        /// <summary>Gets a tile-page definition by its stable artwork role.</summary>
+        /// <param name="index">Zero-based position in the upload and content-hash order.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the eight defined roles.</exception>
         public TorizoInstructionTileSheetDefinition this[int index] => (PageRole)index switch
         {
             PageRole.SharedDeath => SharedDeath,
@@ -72,6 +96,7 @@ internal static class TorizoInstructionVramArtworkDefinitions
             PageRole.ChozoDebris => ChozoDebris,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Enumerates tile-page definitions in their stable upload order.</summary>
         public IEnumerator<TorizoInstructionTileSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -94,8 +119,13 @@ public sealed class TorizoInstructionVramArtwork
                 content.Append("tiles", page.Transfer.Span);
         });
 
+    /// <summary>Loaded replacement atlases paired with the definitions in <see cref="TorizoInstructionVramArtworkDefinitions.All"/> order.</summary>
     private readonly RoomCharacterAtlas[] pages;
 
+    /// <summary>Creates the artwork set after verifying that every required page has its exact native byte count.</summary>
+    /// <param name="pages">Loaded character atlases in the fixed definition order.</param>
+    /// <exception cref="ArgumentNullException">The array is null.</exception>
+    /// <exception cref="InvalidDataException">A required page is missing or has a transfer length different from its source definition.</exception>
     internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)
     {
         ArgumentNullException.ThrowIfNull(pages);
@@ -111,6 +141,11 @@ public sealed class TorizoInstructionVramArtwork
         this.pages = [.. pages];
     }
 
+    /// <summary>Resolves a requested source range wholly contained in one installed tile page.</summary>
+    /// <param name="sourceAddress">ROM byte address at the start of the requested character range.</param>
+    /// <param name="byteCount">Positive number of bytes requested from that address.</param>
+    /// <param name="characters">Receives a memory slice from the matching page, or the default value on failure.</param>
+    /// <returns>True when the complete byte range is within a known Torizo upload page.</returns>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {

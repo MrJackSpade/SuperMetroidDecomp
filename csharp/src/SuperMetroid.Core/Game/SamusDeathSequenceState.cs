@@ -253,6 +253,15 @@ public sealed class SamusDeathSequenceState
                 "Samus death spritemap requires installed artwork."));
     }
 
+    /// <summary>Advances explosion timing, palette changes, and the optional room whiteout for one game-state call.</summary>
+    /// <param name="bus">Address space supplied by the game-state caller; palette changes are written through <paramref name="cgram"/>.</param>
+    /// <param name="samus">Samus state used to select the equipped-suit palette.</param>
+    /// <param name="cgram">CGRAM receiving explosion palette and whiteout colors.</param>
+    /// <param name="applyWhiteoutFirst">Whether to apply the current whiteout shade before advancing the explosion timer.</param>
+    /// <param name="paletteChanged">Set to <see langword="true"/> when this call writes an explosion palette pair.</param>
+    /// <param name="whiteoutChanged">Set to <see langword="true"/> when this call changes room palette colors.</param>
+    /// <param name="artwork">Palette data required for explosion frames and whiteout shades.</param>
+    /// <returns><see langword="true"/> when the caller should draw the current explosion frame.</returns>
     private bool StepSuitExplosion(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -289,6 +298,11 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
+    /// <summary>Applies the current whiteout shade to room palettes while preserving Samus and suitless colors.</summary>
+    /// <param name="bus">Address-space context supplied by the death-sequence caller; this operation updates <paramref name="cgram"/> directly.</param>
+    /// <param name="cgram">Palette memory whose eligible colors are replaced.</param>
+    /// <param name="artwork">Table supplying the shade for the current whiteout index.</param>
+    /// <returns><see langword="true"/> when a shade was written; index zero leaves CGRAM unchanged.</returns>
     private bool ApplyWhiteout(ISnesAddressSpace bus, SnesCgram cgram,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
@@ -315,6 +329,12 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
+    /// <summary>Writes one death-flash or explosion palette pair for the equipped suit and the suitless Samus palette.</summary>
+    /// <param name="bus">Address-space context supplied by the death-sequence caller; colors are written through <paramref name="cgram"/>.</param>
+    /// <param name="samus">Samus equipment state used to choose the suited palette family.</param>
+    /// <param name="cgram">CGRAM receiving the selected palette colors.</param>
+    /// <param name="paletteIndex">Palette frame selected by the death sequence.</param>
+    /// <param name="artwork">Artwork tables containing suited and suitless color values.</param>
     private static void WritePalettePair(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -340,6 +360,9 @@ public sealed class SamusDeathSequenceState
         throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
 
+    /// <summary>Adds one death-animation tile segment to the NMI-drained VRAM queue and records its index.</summary>
+    /// <param name="vramWrites">Queue that receives the segment's source and VRAM destination.</param>
+    /// <param name="segmentIndex">Zero-based index into the death sequence's tile-segment table.</param>
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {
         var segments =
@@ -375,6 +398,10 @@ public enum SamusDeathSequencePhase
 public readonly record struct SamusDeathSequenceStartResult();
 
 /// <summary>One native death game-state call, including draw and NMI-transfer requests.</summary>
+/// <param name="PhaseAfterStep">Phase that owns the sequence after this call has completed.</param>
+/// <param name="DrawPose">Whether the normal death-pose sprite should be drawn for this call.</param>
+/// <param name="DrawExplosion">Whether the explosion spritemap should be drawn for this call.</param>
+/// <param name="Completed">Whether the terminal whiteout frame has transferred ownership to the room fade.</param>
 public readonly record struct SamusDeathSequenceStepResult(
     SamusDeathSequencePhase PhaseAfterStep,
     bool DrawPose,

@@ -1,6 +1,13 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Fixed initialization metadata for one of Shaktool's seven linked segments.</summary>
+/// <param name="PropertyMask">Native properties word selected for the segment's role as an end saw or internal piece.</param>
+/// <param name="OwnerNativeOffset">Byte offset from Shaktool's owner record to this segment's native enemy record.</param>
+/// <param name="InitialOrbitAngle">Wrapped 16-bit turn angle assigned when the segment is initialized.</param>
+/// <param name="InitialInstruction">Native instruction-list address that starts this segment's animation.</param>
+/// <param name="Layer">Native layer-control value used to place the saw/head or arm piece.</param>
+/// <param name="PreInstruction">Callback role that updates the segment before its instruction list runs.</param>
+/// <param name="AngularVelocity">Initial angular increment used to keep the segment synchronized with the orbit target.</param>
 internal readonly record struct ShaktoolSegmentDefinition(
     ushort PropertyMask,
     ushort OwnerNativeOffset,
@@ -17,6 +24,9 @@ internal static class ShaktoolSegmentDefinitions
     // Integrated symmetric joint increments 1,2,3,4,3,2. The first arm uses
     // triangular numbers; the other arm subtracts the remaining triangle from 16.
     // ForIndex validates the physical segment domain 0..6 before this calculation.
+    /// <summary>Maps a validated segment index to its cumulative symmetric joint step along Shaktool's linked body.</summary>
+    /// <param name="index">Physical segment position from 0 through 6.</param>
+    /// <returns>The accumulated joint increment for that position, rising to the center and then mirroring back.</returns>
     private static int IntegratedJointStep(int index) => index <= 4
         ? index * (index + 1) / 2
         : 16 - (7 - index) * (8 - index) / 2;

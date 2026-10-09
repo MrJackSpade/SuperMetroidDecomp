@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class BackgroundTilemapStreamer
 {
+    /// <summary>Retained row-major BG1 level words used when camera updates expand metatiles.</summary>
     private readonly ushort[] _levelEntries;
+    /// <summary>Retained row-major BG2 words, including any source tail required by streaming requests.</summary>
     private readonly ushort[] _backgroundEntries;
+    /// <summary>Combined CRE and area block definitions encoded as four little-endian tile words per metatile.</summary>
     private readonly byte[] _blockDefinitions;
 
     /// <summary>Copies BG1/BG2 source allocations and the combined metatile table used to produce camera-stream and PLM redraw descriptors; construction does not write VRAM.</summary>
@@ -140,6 +143,9 @@ public sealed class BackgroundTilemapStreamer
         };
     }
 
+    /// <summary>Expands a camera column into staging words and ordered DMA slices, including ring-buffer wrap.</summary>
+    /// <param name="request">Layer, source block, and VRAM ring coordinates for the requested update.</param>
+    /// <returns>Column transfer segments in the order consumed by NMI.</returns>
     private TilemapStreamUpdate BuildColumn(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -191,6 +197,9 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Expands a camera row into staging words and ordered DMA slices, including horizontal ring wrap.</summary>
+    /// <param name="request">Layer, source block, and VRAM ring coordinates for the requested update.</param>
+    /// <returns>Row transfer segments in the order consumed by NMI.</returns>
     private TilemapStreamUpdate BuildRow(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -245,6 +254,9 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Selects the retained level-word array corresponding to a BG layer.</summary>
+    /// <param name="layer">Layer whose block entries will be expanded.</param>
+    /// <returns>The row-major source words for the requested layer.</returns>
     private ReadOnlySpan<ushort> SelectSource(BackgroundLayer layer) => layer switch
     {
         BackgroundLayer.Level => _levelEntries,
@@ -252,6 +264,10 @@ public sealed class BackgroundTilemapStreamer
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
+    /// <summary>Computes the cartridge-style row-major source offset for a block coordinate.</summary>
+    /// <param name="x">Horizontal block coordinate, added as a full 16-bit value.</param>
+    /// <param name="y">Vertical block coordinate, narrowed to the native eight-bit row multiplier.</param>
+    /// <returns>The wrapped source-array index used by the bank-$80 streamer.</returns>
     private int SourceIndex(ushort x, ushort y)
     {
         // $80:A9E5/$80:AB7F use the SNES 8x8 multiplier for Y*roomWidth, then add the
@@ -259,6 +275,12 @@ public sealed class BackgroundTilemapStreamer
         return unchecked((byte)y * RoomWidthInBlocks + x);
     }
 
+    /// <summary>Reads one layer entry and reports an invalid request if its computed source index is outside the retained data.</summary>
+    /// <param name="source">Selected layer words.</param>
+    /// <param name="index">Computed row-major offset to validate and read.</param>
+    /// <param name="request">Request details included in the diagnostic if the index is invalid.</param>
+    /// <returns>The packed metatile entry at <paramref name="index"/>.</returns>
+    /// <exception cref="InvalidDataException">The computed index falls outside the source array.</exception>
     private static ushort ReadSource(
         ReadOnlySpan<ushort> source,
         int index,

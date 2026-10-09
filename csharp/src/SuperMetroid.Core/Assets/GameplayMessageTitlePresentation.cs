@@ -10,8 +10,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageTitlePresentation
 {
+    /// <summary>Validated title text and palette compiled from the authored message-name entries.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledTitle> titles;
 
+    /// <summary>Creates the runtime presentation from already validated title entries and border words.</summary>
+    /// <param name="titles">Per-message strings and palette selectors used to build title rows.</param>
+    /// <param name="border">The 32 native BG3 words copied to the top and bottom rows.</param>
+    /// <param name="contentIdentity">Uppercase SHA-256 identity of the exact source JSON bytes.</param>
     private GameplayMessageTitlePresentation(
         Dictionary<GameplayMessageId, CompiledTitle> titles,
         ushort[] border,
@@ -22,6 +27,7 @@ public sealed class GameplayMessageTitlePresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Native border words reused for both outer rows of every built message tilemap.</summary>
     private ushort[] Border { get; }
     /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including formatting and property order rather than only compiled title content.</summary>
     public string ContentIdentity { get; }
@@ -136,6 +142,11 @@ public sealed class GameplayMessageTitlePresentation
         output.Write(bytes);
     }
 
+    /// <summary>Encodes one supported title character as a BG3 tile word with the requested palette.</summary>
+    /// <param name="character">Uppercase letter, space, hyphen, period, or question mark to encode.</param>
+    /// <param name="palette">BG palette selector in the range 0 through 7.</param>
+    /// <returns>Tile word containing the native character index, palette, and priority bit.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="character"/> is not a supported title glyph.</exception>
     internal static ushort CompileGlyph(char character, int palette)
     {
         int characterIndex = character switch
@@ -152,6 +163,10 @@ public sealed class GameplayMessageTitlePresentation
             GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
     }
 
+    /// <summary>Decodes a BG3 tile word's character index into a supported title glyph.</summary>
+    /// <param name="word">Tile word whose low ten bits contain the character index.</param>
+    /// <returns>The uppercase letter or punctuation represented by the character index.</returns>
+    /// <exception cref="InvalidDataException">The character index does not belong to the supported title alphabet.</exception>
     internal static char DecodeGlyph(ushort word)
     {
         int character = word & 0x03ff;
@@ -169,6 +184,9 @@ public sealed class GameplayMessageTitlePresentation
         };
     }
 
+    /// <summary>Validated runtime title data retained after the mutable JSON document is compiled.</summary>
+    /// <param name="Text">Nonempty, supported title glyphs to place in the message's title row.</param>
+    /// <param name="Palette">BG palette selector applied to each encoded glyph.</param>
     private sealed record CompiledTitle(string Text, int Palette);
 }
 

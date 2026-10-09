@@ -158,6 +158,9 @@ public sealed class EscapeTimer
         return unchecked((byte)result);
     }
 
+    /// <summary>Clears the timer, loads a whole-minute countdown, and enters the initial active delay state.</summary>
+    /// <param name="minutesBcd">Packed-BCD minute value for the newly started sequence.</param>
+    /// <returns><see langword="false"/> because loading the initial time cannot expire the timer.</returns>
     private bool Start(byte minutesBcd)
     {
         // Both start functions clear all timer RAM, set a whole-minute value through the
@@ -168,6 +171,8 @@ public sealed class EscapeTimer
         return false;
     }
 
+    /// <summary>Advances the startup counter until the native initial delay selects the movement-delay state.</summary>
+    /// <returns><see langword="false"/> because this state does not decrement or expire the timer.</returns>
     private bool ProcessInitialDelay()
     {
         IncrementXLowByte();
@@ -178,6 +183,9 @@ public sealed class EscapeTimer
         return false;
     }
 
+    /// <summary>Counts down at the initial display position while advancing the aliased X-byte delay counter.</summary>
+    /// <param name="nmiFrameCounter">Global NMI counter used to select this frame's centisecond correction.</param>
+    /// <returns>Whether the countdown reached zero during this update.</returns>
     private bool ProcessMovementDelay(ushort nmiFrameCounter)
     {
         IncrementXLowByte();
@@ -192,6 +200,9 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
+    /// <summary>Moves the timer display toward pixel (220, 48), clamps each axis, and then applies the frame's countdown.</summary>
+    /// <param name="nmiFrameCounter">Global NMI counter used to select this frame's centisecond correction.</param>
+    /// <returns>Whether the countdown reached zero during this update.</returns>
     private bool ProcessMovement(ushort nmiFrameCounter)
     {
         int axesInPosition = 0;
@@ -225,6 +236,9 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
+    /// <summary>Subtracts the cadence-selected centiseconds from packed-BCD time and propagates borrows through seconds and minutes.</summary>
+    /// <param name="nmiFrameCounter">Global NMI frame count used by the native centisecond cadence.</param>
+    /// <returns><see langword="true"/> when centiseconds, seconds, and minutes are all zero after the update.</returns>
     private bool Decrement(ushort nmiFrameCounter)
     {
         byte correction = EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter);
@@ -258,18 +272,24 @@ public sealed class EscapeTimer
         return (CentisecondsBcd | SecondsBcd | MinutesBcd) == 0;
     }
 
+    /// <summary>Increments the X fixed-point low byte used as the startup counter while preserving the pixel coordinate.</summary>
     private void IncrementXLowByte()
     {
         byte nextCounter = unchecked((byte)((byte)XPositionFixed + 1));
         XPositionFixed = (ushort)((XPositionFixed & 0xff00) | nextCounter);
     }
 
+    /// <summary>Advances the low-byte state-table index without changing status flags in the high byte.</summary>
     private void IncrementStatusLowByte()
     {
         byte nextState = unchecked((byte)((byte)RawStatus + 1));
         RawStatus = (ushort)((RawStatus & 0xff00) | nextState);
     }
 
+    /// <summary>Rejects a byte whose two nibbles do not each encode a decimal digit.</summary>
+    /// <param name="value">Packed-BCD byte to validate.</param>
+    /// <param name="parameterName">Name reported if the byte contains an invalid digit.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> contains a nibble greater than nine.</exception>
     private static void ValidateBcd(byte value, string parameterName)
     {
         if ((value & 0x0f) > 9 || ((value >> 4) & 0x0f) > 9)

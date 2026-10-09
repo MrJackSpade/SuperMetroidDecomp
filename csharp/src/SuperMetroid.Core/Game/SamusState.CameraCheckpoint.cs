@@ -2,14 +2,21 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class SamusState
 {
+    /// <summary>Absolute previous-Y checkpoint written by collision correction, when one has occurred this frame.</summary>
     private ushort? _poseCollisionPreviousYPosition;
+    /// <summary>Accumulated previous-Y shift caused by bottom alignment after pose changes.</summary>
     private int _poseAlignmentPreviousYDelta;
+    /// <summary>Pending whole-word write to the previous X checkpoint.</summary>
     private ushort? _previousXPositionWrite;
     // Pending writes to the previous fractions ($0B12/$0B16): bits set in a mask are replaced
     // by the matching value bits when the checkpoint is applied. A zero mask means no write.
+    /// <summary>Bits of the previous X fraction word that should be replaced at checkpoint application.</summary>
     private ushort _previousXSubpositionWriteMask;
+    /// <summary>Replacement bits paired with <see cref="_previousXSubpositionWriteMask"/>.</summary>
     private ushort _previousXSubpositionWriteValue;
+    /// <summary>Bits of the previous Y fraction word that should be replaced at checkpoint application.</summary>
     private ushort _previousYSubpositionWriteMask;
+    /// <summary>Replacement bits paired with <see cref="_previousYSubpositionWriteMask"/>.</summary>
     private ushort _previousYSubpositionWriteValue;
 
     /// <summary>
@@ -37,6 +44,11 @@ public sealed partial class SamusState
         _previousYSubpositionWriteMask |= mask;
     }
 
+    /// <summary>Replaces only the masked bits of a checkpoint word, preserving all other bits.</summary>
+    /// <param name="mask">Bits selected for replacement.</param>
+    /// <param name="value">Replacement bits, aligned to their positions in the word.</param>
+    /// <param name="word">Original checkpoint word.</param>
+    /// <returns>The word with selected bits taken from <paramref name="value"/>.</returns>
     private static ushort ApplyBits(ushort mask, ushort value, ushort word) =>
         (ushort)((word & ~mask) | value);
 

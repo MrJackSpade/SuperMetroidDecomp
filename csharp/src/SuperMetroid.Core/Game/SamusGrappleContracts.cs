@@ -284,6 +284,10 @@ public readonly record struct GrapplePendingConnection(
     ushort PreviousY);
 
 /// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
+/// <param name="X">Horizontal world-pixel coordinate of the sampled point.</param>
+/// <param name="Y">Vertical world-pixel coordinate of the sampled point.</param>
+/// <param name="BlockX">Horizontal room-block index containing the point.</param>
+/// <param name="BlockY">Vertical room-block index containing the point.</param>
 internal readonly record struct GrappleCollisionPoint(
     ushort X,
     ushort Y,
@@ -294,6 +298,8 @@ internal readonly record struct GrappleCollisionPoint(
 /// Result of the six-point angular body sweep. DistanceFromFeet retains the native countdown:
 /// six is the point nearest the hand and one is the point furthest beyond Samus.
 /// </summary>
+/// <param name="Collided">Whether any sample in the angular body sweep collided with terrain.</param>
+/// <param name="DistanceFromFeet">Native countdown identifying the colliding point's position in the sweep.</param>
 internal readonly record struct GrappleSwingCollisionResult(bool Collided, int DistanceFromFeet);
 
 /// <summary>
@@ -301,4 +307,6 @@ internal readonly record struct GrappleSwingCollisionResult(bool Collided, int D
 /// Carry means collision; overflow distinguishes a supported grapple connection from the
 /// ordinary solid result that cancels the extending beam.
 /// </summary>
+/// <param name="Carry">Whether the block-reaction routine reported a collision.</param>
+/// <param name="Overflow">Whether that collision supports a grapple connection rather than cancelling the beam.</param>
 internal readonly record struct GrappleBlockReaction(bool Carry, bool Overflow);

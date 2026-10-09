@@ -87,6 +87,10 @@ public sealed partial class RoomEnemySystem
         state.GoopProjectilesSpawned++;
     }
 
+    /// <summary>Stores unsigned fixed-point velocity magnitudes and the angle used to apply their signs during flight.</summary>
+    /// <param name="projectile">Projectile slot receiving the direction and split fixed-point velocity values.</param>
+    /// <param name="angle">Cartridge angle whose sine and cosine determine horizontal and vertical speed.</param>
+    /// <param name="speed">Magnitude multiplied by the angle's sine components.</param>
     private static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
         byte angle,
@@ -101,6 +105,8 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = unchecked((ushort)yMagnitude);
     }
 
+    /// <summary>Advances a Draygon projectile by its signed fixed-point velocity and clears it after leaving the room.</summary>
+    /// <param name="projectile">Projectile slot whose position and lifetime are updated.</param>
     private static void RunDraygonProjectileFlight(RoomEnemyProjectileSlot projectile)
     {
         int xMagnitude = unchecked((projectile.XVelocity << 16) | projectile.Variable0);
@@ -124,6 +130,9 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
+    /// <summary>Runs airborne goop deletion, movement, room-boundary handling, and Samus-contact transition.</summary>
+    /// <param name="goop">Flying goop slot being updated.</param>
+    /// <param name="samus">Samus state used for power-bomb and contact checks, when available.</param>
     private void RunFlyingDraygonGoop(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
@@ -145,6 +154,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the goop's movement slowdown and configures its slot to follow Samus until detached.</summary>
+    /// <param name="goop">Goop projectile slot to attach.</param>
+    /// <param name="samus">Samus state whose speed divisor and damage timers are updated, when available.</param>
     private void AttachDraygonGoopToSamus(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
@@ -169,6 +181,9 @@ public sealed partial class RoomEnemySystem
         samus.KnockbackTimer = 0;
     }
 
+    /// <summary>Follows Samus with attached goop until contact damage or its countdown removes the attachment.</summary>
+    /// <param name="goop">Attached goop slot being updated.</param>
+    /// <param name="samus">Samus state followed by the goop, when available.</param>
     private void RunAttachedDraygonGoop(
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
@@ -190,6 +205,9 @@ public sealed partial class RoomEnemySystem
             RemoveAttachedDraygonGoop(goop, samus);
     }
 
+    /// <summary>Clears an attached goop slot and releases one unit of its contribution to Samus's slowdown.</summary>
+    /// <param name="goop">Attached projectile slot to clear.</param>
+    /// <param name="samus">Samus state whose speed divisor is reduced without underflow.</param>
     private static void RemoveAttachedDraygonGoop(
         RoomEnemyProjectileSlot goop,
         SamusState samus)
@@ -224,10 +242,18 @@ public sealed partial class RoomEnemySystem
             samus.XSpeedDivisor = 0;
     }
 
+    /// <summary>Tests whether a projectile position is outside the encounter's 512-by-512 coordinate bounds.</summary>
+    /// <param name="projectile">Projectile whose signed coordinates are checked.</param>
+    /// <returns><see langword="true"/> if either coordinate is negative or at least 512.</returns>
     private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>
         unchecked((short)projectile.XPosition) < 0 || projectile.XPosition >= 0x0200 ||
         unchecked((short)projectile.YPosition) < 0 || projectile.YPosition >= 0x0200;
 
+    /// <summary>Adds a signed displacement to a 16.16 projectile position using cartridge-style wrapping arithmetic.</summary>
+    /// <param name="position">Integer portion of the current coordinate.</param>
+    /// <param name="subposition">Fractional portion of the current coordinate.</param>
+    /// <param name="displacement">Signed fixed-point distance to add.</param>
+    /// <returns>The updated integer and fractional coordinate words.</returns>
     private static (ushort Position, ushort Subposition) AddDraygonProjectileFixed(
         ushort position,
         ushort subposition,

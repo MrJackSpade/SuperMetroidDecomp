@@ -8,10 +8,17 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     // Native digit/label identities select a typeface; they do not generate its selected contours.
     // The reviewed original basis is275 fill sites plus their blank complement and four edge choices.
     // Independent PNG edits remain separate from calculated defaults and shared pixel relationships.
+    /// <summary>Explicitly filled root pixels without a calculated default fill value.</summary>
     private readonly HashSet<int> fillPixels;
+
+    /// <summary>Supplied fill states that override calculated defaults at root pixels.</summary>
     private readonly Dictionary<int, bool> fillOverrides;
+
+    /// <summary>Supplied pixel values that override source aliases or calculated outline pixels.</summary>
     private readonly Dictionary<int, byte> pixelOverrides;
 
+    /// <summary>Builds independent fill and pixel overrides from the indexed artwork buffer.</summary>
+    /// <param name="pixels">Row-major palette indices read from the escape-timer PNG.</param>
     private EscapeTimerTileAtlas(byte[] pixels)
     {
         fillPixels = new HashSet<int>();
@@ -35,6 +42,9 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
                 pixelOverrides.Add(index, pixels[index]);
     }
 
+    /// <summary>Resolves whether a pixel is filled, following its source relationship unless explicitly edited.</summary>
+    /// <param name="index">Row-major atlas pixel index.</param>
+    /// <returns><see langword="true"/> when the pixel selects the fill ink.</returns>
     private bool IsFill(int index)
     {
         int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
@@ -42,9 +52,15 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
             ? value == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
     }
 
+    /// <summary>Resolves fill state for a root pixel from supplied overrides, calculated defaults, or stored fills.</summary>
+    /// <param name="index">Root pixel index with no source alias.</param>
+    /// <returns>The fill state used to derive that pixel's ink.</returns>
     private bool BasisFill(int index) => fillOverrides.TryGetValue(index, out bool supplied) ? supplied :
         EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
 
+    /// <summary>Resolves one palette index, applying direct edits before deriving aliased or outlined pixels.</summary>
+    /// <param name="index">Row-major atlas pixel index.</param>
+    /// <returns>The four-bit pixel value used for planar encoding.</returns>
     private byte Pixel(int index)
     {
         if (pixelOverrides.TryGetValue(index, out byte value)) return value;
@@ -53,6 +69,8 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
     }
 
+    /// <summary>Encodes the resolved atlas pixels in SNES planar OBJ tile order.</summary>
+    /// <returns>The complete planar byte strip used by the two native VRAM transfers.</returns>
     private byte[] Transfer() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
         EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height, EscapeTimerTileAtlasFormat.BitsPerPixel);

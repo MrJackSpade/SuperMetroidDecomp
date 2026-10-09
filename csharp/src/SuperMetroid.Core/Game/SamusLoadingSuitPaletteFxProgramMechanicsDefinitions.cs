@@ -108,6 +108,7 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxProgramDefinition Gravity =
         new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e);
+    /// <summary>Read-only ordered view of the Power, Varia, and Gravity program definitions.</summary>
     private static readonly IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
@@ -117,9 +118,16 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// Native header words and all program ownership are independently checked for1165.</remarks>
     public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All => Programs;
 
+    /// <summary>Fixed-size view exposing the three suit program definitions in cartridge order.</summary>
     private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
     {
+        /// <summary>Number of suit programs in the ordered view.</summary>
         public int Count => 3;
+
+        /// <summary>Gets the suit program at its Power, Varia, or Gravity position.</summary>
+        /// <param name="index">Zero-based position in cartridge definition order.</param>
+        /// <returns>The selected program definition.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is not 0, 1, or 2.</exception>
         public SamusLoadingSuitPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Power,
@@ -127,6 +135,8 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
             2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates the Power, Varia, and Gravity definitions in that order.</summary>
+        /// <returns>An enumerator over the three installed suit programs.</returns>
         public IEnumerator<SamusLoadingSuitPaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Power;
@@ -172,7 +182,10 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Samus-loading palette control program.</summary>
 public sealed class SamusLoadingSuitPaletteFxProgramDefinition
 {
+    /// <summary>Byte offset of the final one-frame palette record from the selected program's start.</summary>
     private const ushort FinalFrameOffset = 0x0140;
+
+    /// <summary>Byte offset of the terminal delete command from the selected program's start.</summary>
     private const ushort DeleteInstructionOffset = 0x0164;
 
     internal SamusLoadingSuitPaletteFxProgramDefinition(

@@ -7,11 +7,20 @@ namespace SuperMetroid.Core.Assets;
 /// Replacing those strokes with coordinate cases would merely disguise the font.</summary>
 internal sealed class MenuShoulderButtonArtwork
 {
+    /// <summary>Number of nonblank tiles used to compose the left and right shoulder-button pills.</summary>
     internal const int TileCount = 4;
+
+    /// <summary>Four-by-four palette-4 glyph masks captured from the L and R artwork for their respective button labels.</summary>
     private readonly ushort leftLetter, rightLetter;
+
+    /// <summary>Sparse source pixels that differ from the procedural pill and glyph basis.</summary>
     private readonly Dictionary<int, byte>? edits;
+
+    /// <summary>Identifies the four tiles that contribute pixels to the shoulder-button graphic.</summary>
     internal static bool Contains(int tile) => tile is >= 0x28 and <= 0x2a or 0x2e;
 
+    /// <summary>Captures the L/R glyph masks and records authored pixels that the procedural button shape does not reproduce.</summary>
+    /// <param name="image">Indexed source atlas containing the shoulder-button tiles and their letter artwork.</param>
     internal MenuShoulderButtonArtwork(IndexedPngImage image)
     {
         leftLetter = ReadLetter(0x29);
@@ -37,12 +46,22 @@ internal sealed class MenuShoulderButtonArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
     }
 
+    /// <summary>Gets the final palette index for one button tile pixel, preserving recorded artwork over the generated basis.</summary>
+    /// <param name="tile">Tile ID belonging to the shoulder-button graphic.</param>
+    /// <param name="x">Horizontal coordinate within the 8-by-8 tile.</param>
+    /// <param name="y">Vertical coordinate within the 8-by-8 tile.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is outside the button set or either coordinate is outside the tile.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates the rounded pill fill, edge shading, and captured L/R glyph from the tile-local coordinates.</summary>
+    /// <param name="tile">Button tile whose portion of the pill is being generated.</param>
+    /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the tile.</param>
+    /// <returns>Palette index 3 for the pill fill, 4 for its edge or letter, or 0 for transparency.</returns>
     private byte Basis(int tile, int x, int y)
     {
         if (y == 7) return 0;

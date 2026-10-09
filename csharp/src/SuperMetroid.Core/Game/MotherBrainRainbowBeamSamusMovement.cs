@@ -142,6 +142,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             nativeCarry: reachedVerticalBoundary);
     }
 
+    /// <summary>Derives the vertical 8.8 velocity component from beam angle and movement speed.</summary>
+    /// <param name="speed">Unsigned 8.8 movement speed whose magnitude is projected onto the sine axis.</param>
+    /// <param name="angle">Current low-byte beam angle used to select the perpendicular sine-table component.</param>
+    /// <returns>The signed vertical component in the same 8.8 representation as <paramref name="speed"/>.</returns>
     private static ushort CalculateYVelocity(
         ushort speed,
         SnesAngle angle)
@@ -152,6 +156,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
     }
 
+    /// <summary>Applies native vertical movement, clamps at the arena ceiling or floor, and synchronizes previous-position words.</summary>
+    /// <param name="samus">Samus state whose current and previous vertical coordinates are updated.</param>
+    /// <param name="velocity">Signed 8.8 vertical displacement applied for this call.</param>
+    /// <returns><see langword="true"/> when the candidate position reaches either hardcoded vertical boundary.</returns>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         ushort velocity)
@@ -185,6 +193,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
+    /// <summary>Applies native horizontal movement and clamps Samus at the rainbow-beam arena wall.</summary>
+    /// <param name="samus">Samus state whose current and previous horizontal coordinates are updated.</param>
+    /// <param name="velocity">16-bit 8.8 horizontal displacement; its high byte is interpreted as signed.</param>
+    /// <returns><see langword="true"/> when the candidate position reaches or passes the wall at X <c>$00EB</c>.</returns>
     private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
     {
         ushort candidate = AddNativeEightEightVelocity(
@@ -210,6 +222,12 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
+    /// <summary>Reproduces the native byte-wise 8.8 addition while preserving the untouched low subposition byte.</summary>
+    /// <param name="wholePosition">Current whole-pixel coordinate.</param>
+    /// <param name="subposition">Current 16-bit fractional coordinate; only its high byte participates in movement.</param>
+    /// <param name="velocity">Signed 8.8 displacement encoded as a 16-bit word.</param>
+    /// <param name="newSubposition">Receives the updated fraction with its low byte copied unchanged from <paramref name="subposition"/>.</param>
+    /// <returns>The wrapped 16-bit whole-pixel coordinate after applying velocity and fractional carry.</returns>
     private static ushort AddNativeEightEightVelocity(
         ushort wholePosition,
         ushort subposition,
@@ -228,12 +246,24 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return unchecked((ushort)(wholePosition + wholeDelta));
     }
 
+    /// <summary>Captures the four Samus position words that the forced-movement result reports as its starting point.</summary>
+    /// <param name="samus">State from which whole and fractional X/Y coordinates are read.</param>
+    /// <returns>A snapshot of Samus's current camera-space position words.</returns>
     private static SamusCameraPoint Capture(SamusState samus) => new(
         samus.XPosition,
         samus.Kinematics.XSubposition,
         samus.YPosition,
         samus.Kinematics.YSubposition);
 
+    /// <summary>Builds the per-call witness returned by the public forced-movement operations.</summary>
+    /// <param name="before">Position snapshot captured before this movement operation.</param>
+    /// <param name="samus">Samus state after the operation, used to capture the resulting position.</param>
+    /// <param name="xVelocity">Horizontal component supplied for this helper call; it does not affect the returned witness.</param>
+    /// <param name="yVelocity">Vertical component supplied for this helper call; it does not affect the returned witness.</param>
+    /// <param name="reachedWall">Wall-clamp outcome supplied by the caller; it does not affect the returned witness.</param>
+    /// <param name="reachedVerticalBoundary">Vertical-clamp outcome supplied by the caller; it does not affect the returned witness.</param>
+    /// <param name="nativeCarry">Carry state selected by the native helper sequence and stored in the witness.</param>
+    /// <returns>The starting position and selected native carry outcome.</returns>
     private static MotherBrainForcedSamusMovementResult CreateResult(
         SamusCameraPoint before,
         SamusState samus,
@@ -247,6 +277,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 }
 
 /// <summary>One-call witness for Mother Brain's forced Samus coordinate helpers.</summary>
+/// <param name="Before">Samus camera-space position immediately before the forced movement step.</param>
+/// <param name="NativeCarry">Carry flag outcome observed by the native caller; its meaning depends on the selected helper path.</param>
 public readonly record struct MotherBrainForcedSamusMovementResult(
     SamusCameraPoint Before,
     bool NativeCarry);

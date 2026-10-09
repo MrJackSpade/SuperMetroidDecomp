@@ -266,6 +266,15 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Classifies one horizontal sweep block, dispatching slope and spike behavior after resolving extensions.</summary>
+    /// <param name="level">Room level and its native allocation backing collision data.</param>
+    /// <param name="slot">Enemy whose vertical span and spike response are evaluated.</param>
+    /// <param name="nativeIndex">Wrapped block index produced by the bank-$A0 horizontal scan.</param>
+    /// <param name="targetEdge">Pixel coordinate of the moving enemy edge being tested.</param>
+    /// <param name="remaining">Number of scan rows remaining after this probe.</param>
+    /// <param name="spanMinusOne">Last scan-row index, used to preserve endpoint-specific slope tests.</param>
+    /// <param name="treatNonSquareSlopesAsWalls">Whether non-square slopes collide as walls for this movement mode.</param>
+    /// <returns><see langword="true"/> when this probe blocks movement or reacts as a solid spike block.</returns>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -307,6 +316,16 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Classifies one vertical sweep block, including square or non-square slope response.</summary>
+    /// <param name="level">Room level and its native allocation backing collision data.</param>
+    /// <param name="slot">Enemy whose horizontal span and vertical position may be tested or adjusted.</param>
+    /// <param name="nativeIndex">Wrapped block index produced by the bank-$A0 vertical scan.</param>
+    /// <param name="targetCenter">Enemy center after applying the candidate vertical displacement.</param>
+    /// <param name="targetEdge">Leading edge pixel coordinate used for the collision probe.</param>
+    /// <param name="movingUp">Whether the candidate displacement moves toward the ceiling.</param>
+    /// <param name="remaining">Number of scan columns remaining after this probe.</param>
+    /// <param name="spanMinusOne">Last scan-column index, used to preserve endpoint-specific slope tests.</param>
+    /// <returns><see langword="true"/> when the probe blocks movement or triggers a solid spike response.</returns>
     private bool EnemyVerticalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -392,6 +411,11 @@ public sealed partial class RoomEnemySystem
             $"Enemy collision BTS chain from native block {nativeIndex} is cyclic.");
     }
 
+    /// <summary>Reads a mover collision block beyond the logical room plane from the native level allocation tail.</summary>
+    /// <param name="level">Room level whose backing allocation supplies the out-of-plane level word.</param>
+    /// <param name="blockIndex">Wrapped block index outside the authored room plane.</param>
+    /// <returns>A collision block using the tail level word and no BTS behavior.</returns>
+    /// <exception cref="NotSupportedException">The tail word denotes a slope, extension, or spike block requiring unavailable BTS data.</exception>
     private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
     {
         var block = new RoomCollisionBlock(
@@ -453,6 +477,13 @@ public sealed partial class RoomEnemySystem
             $"Enemy collision BTS chain from block ({blockX},{blockY}) is cyclic.");
     }
 
+    /// <summary>Tests square-slope quadrants intersected by a horizontal mover edge using the native half-tile rules.</summary>
+    /// <param name="slot">Enemy footprint whose top and bottom span the slope block.</param>
+    /// <param name="targetEdge">Horizontal leading-edge pixel coordinate used to select the slope half.</param>
+    /// <param name="bts">Slope shape and orientation encoded by the block's BTS value.</param>
+    /// <param name="remaining">Rows remaining in the horizontal footprint scan.</param>
+    /// <param name="spanMinusOne">Last row index in that scan, distinguishing its far endpoint.</param>
+    /// <returns><see langword="true"/> when either relevant slope quadrant has a solid probe bit.</returns>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -478,6 +509,13 @@ public sealed partial class RoomEnemySystem
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
     }
 
+    /// <summary>Tests square-slope quadrants intersected by a vertical mover edge using the native half-tile rules.</summary>
+    /// <param name="slot">Enemy footprint whose left and right span the slope block.</param>
+    /// <param name="targetEdge">Vertical leading-edge pixel coordinate used to select the slope half.</param>
+    /// <param name="bts">Slope shape and orientation encoded by the block's BTS value.</param>
+    /// <param name="remaining">Columns remaining in the vertical footprint scan.</param>
+    /// <param name="spanMinusOne">Last column index in that scan, distinguishing its far endpoint.</param>
+    /// <returns><see langword="true"/> when either relevant slope quadrant has a solid probe bit.</returns>
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -503,6 +541,13 @@ public sealed partial class RoomEnemySystem
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
     }
 
+    /// <summary>Applies pixel-height collision and position correction for a non-square slope during vertical movement.</summary>
+    /// <param name="level">Room dimensions used to ensure the slope block aligns with the enemy's column.</param>
+    /// <param name="slot">Enemy whose vertical position may be adjusted to the slope surface.</param>
+    /// <param name="block">Resolved non-square slope block and its orientation data.</param>
+    /// <param name="targetCenter">Candidate enemy center after vertical displacement.</param>
+    /// <param name="movingUp">Whether movement approaches the slope from below.</param>
+    /// <returns><see langword="true"/> when the slope stops movement and adjusts the enemy position.</returns>
     private bool NonSquareVerticalSlopeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -570,6 +615,13 @@ public sealed partial class RoomEnemySystem
         return adjustedFloor || adjustedCeiling;
     }
 
+    /// <summary>Adjusts the enemy center when a selected floor or ceiling edge penetrates a non-square slope.</summary>
+    /// <param name="level">Room level containing the candidate slope block.</param>
+    /// <param name="slot">Enemy whose vertical center is adjusted when alignment is required.</param>
+    /// <param name="x">Horizontal pixel coordinate of the edge sample.</param>
+    /// <param name="y">Vertical pixel coordinate of the edge sample.</param>
+    /// <param name="underside">Whether to test the slope underside rather than its floor surface.</param>
+    /// <returns><see langword="true"/> when the sample penetrated the slope and changed the enemy center.</returns>
     private bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -604,6 +656,10 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Looks up a non-square slope's pixel height at a horizontal position within its tile.</summary>
+    /// <param name="bts">Slope shape and flip orientation.</param>
+    /// <param name="xWithinBlock">Pixel column within the 16-pixel block, after horizontal flip handling.</param>
+    /// <returns>Surface height in pixels for the selected slope column.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "Keep this table-only migration from changing the reflection-visible instance signatures of its many transitive diagnostic entry points.")]
     private int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>

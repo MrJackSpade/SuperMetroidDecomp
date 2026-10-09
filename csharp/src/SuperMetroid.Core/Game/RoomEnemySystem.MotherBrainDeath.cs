@@ -111,6 +111,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Loads one installed fade frame into the body, brain, and leg palette regions.</summary>
+    /// <param name="frame">Zero-based fade-frame index selected by the death-sequence counter.</param>
     private void LoadMotherBrainDeathBodyFade(int frame)
     {
         if (TileArtwork?.MotherBrainDeathColors is { } colors)
@@ -128,6 +130,8 @@ public sealed partial class RoomEnemySystem
         throw new InvalidOperationException("Mother Brain death requires installed fade colors.");
     }
 
+    /// <summary>Loads one installed fade frame into the corpse palette region.</summary>
+    /// <param name="frame">Zero-based corpse-fade frame index selected by the death-sequence counter.</param>
     private void LoadMotherBrainDeathCorpseFade(int frame)
     {
         if (TileArtwork?.MotherBrainDeathColors is { } colors)
@@ -140,6 +144,7 @@ public sealed partial class RoomEnemySystem
         throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
     }
 
+    /// <summary>Sets the brain palette entries to the installed colors for the exploded escape door.</summary>
     private void LoadMotherBrainDeathDoorPalette()
     {
         if (TileArtwork?.MotherBrainDeathColors is { } colors)
@@ -152,6 +157,9 @@ public sealed partial class RoomEnemySystem
         throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");
     }
 
+    /// <summary>Allocates and initializes a body-relative death explosion from its projectile request.</summary>
+    /// <param name="request">Offsets, instruction parameter, and other spawn data emitted by the death sequence.</param>
+    /// <remarks>If the shared projectile pool is full, the requested explosion is dropped.</remarks>
     private void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
         ushort instructionList =
@@ -166,6 +174,9 @@ public sealed partial class RoomEnemySystem
         RunMotherBrainDeathExplosion(projectile);
     }
 
+    /// <summary>Recomputes an explosion's position from the current Mother Brain body position and stored offsets.</summary>
+    /// <param name="projectile">Death-explosion slot whose velocity fields hold body-relative offsets.</param>
+    /// <exception cref="InvalidOperationException">No Mother Brain body owns the relative explosion.</exception>
     private void RunMotherBrainDeathExplosion(RoomEnemyProjectileSlot projectile)
     {
         var body = _motherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
@@ -173,6 +184,9 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(body.YPosition + projectile.YVelocity));
     }
 
+    /// <summary>Allocates a door fragment and initializes its position, velocity, and lifetime from its variant.</summary>
+    /// <param name="parameter">Fragment selector used to obtain the authored motion definition.</param>
+    /// <remarks>If the shared projectile pool is full, no fragment is created.</remarks>
     private void SpawnMotherBrainDoorFragment(ushort parameter)
     {
         MotherBrainDoorFragmentDefinition definition =
@@ -187,6 +201,8 @@ public sealed partial class RoomEnemySystem
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
     }
 
+    /// <summary>Applies drag and gravity to a door fragment, advances it, and emits dust when its lifetime expires.</summary>
+    /// <param name="fragment">Active door-fragment projectile whose motion and lifetime are updated.</param>
     private void RunMotherBrainDoorFragment(RoomEnemyProjectileSlot fragment)
     {
         bool negative = unchecked((short)fragment.XVelocity) < 0;
@@ -204,6 +220,8 @@ public sealed partial class RoomEnemySystem
         SpawnRoomGraphicsDustExplosion(x, y, MotherBrainDeathRomData.DoorDustParameter);
     }
 
+    /// <summary>Stops the escape subtitle projectile and places it at its fixed screen position.</summary>
+    /// <param name="subtitle">Projectile slot used to render the pinned escape subtitle.</param>
     private static void PinMotherBrainEscapeSubtitle(RoomEnemyProjectileSlot subtitle)
     {
         subtitle.XVelocity = subtitle.YVelocity = 0;

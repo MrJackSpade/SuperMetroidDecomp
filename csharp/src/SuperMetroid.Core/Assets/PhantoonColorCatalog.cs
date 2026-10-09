@@ -28,10 +28,19 @@ public sealed class PhantoonColorCatalog
             content.AppendWordFrames("healthBands", frames);
         });
 
+    /// <summary>Loaded health-band words keyed by band and color, stored only when they differ from compiled defaults.</summary>
     private readonly Dictionary<int, ushort> healthEdits = [];
+
+    /// <summary>Loaded fade-out target words keyed by color; omitted entries resolve to black.</summary>
     private readonly Dictionary<int, ushort> fadeOutEdits = [];
+
+    /// <summary>Loaded powered-ship words keyed by color, stored only when they differ from compiled defaults.</summary>
     private readonly Dictionary<int, ushort> powerEdits = [];
 
+    /// <summary>Retains only color words that override the compiled health, fade-out, or ship-power values.</summary>
+    /// <param name="healthBands">Validated RGB5 words for each Phantoon health palette.</param>
+    /// <param name="fadeOut">Validated RGB5 words for the fade-to-black target.</param>
+    /// <param name="powerOn">Validated RGB5 words for the powered Wrecked Ship palettes.</param>
     private PhantoonColorCatalog(ushort[][] healthBands, ushort[] fadeOut, ushort[] powerOn)
     {
         for (int band = 0; band < healthBands.Length; band++)
@@ -44,6 +53,7 @@ public sealed class PhantoonColorCatalog
             if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
 
+    /// <summary>Strict camel-case JSON settings used to parse and serialize the color asset.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -121,12 +131,22 @@ public sealed class PhantoonColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates a health-band index before it is used to select a color row.</summary>
+    /// <param name="band">Zero-based health-band index.</param>
+    /// <returns>The validated index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the eight health bands.</exception>
     private static int CheckBand(int band) =>
         (uint)band < PhantoonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
 
+    /// <summary>Validates an RGB5 source row and packs its channels into SNES color words.</summary>
+    /// <param name="source">Nullable color array read from the document.</param>
+    /// <param name="count">Required number of colors in this source.</param>
+    /// <param name="name">Source label included in validation errors.</param>
+    /// <returns>A packed 15-bit color word for each source entry.</returns>
+    /// <exception cref="InvalidDataException">The source has the wrong length or contains a missing or out-of-range color.</exception>
     private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -144,6 +164,8 @@ public sealed class PhantoonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate JSON property names before document values are interpreted.</summary>
+    /// <param name="value">Root JSON element whose object properties must be unique.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Phantoon color property {name}."));

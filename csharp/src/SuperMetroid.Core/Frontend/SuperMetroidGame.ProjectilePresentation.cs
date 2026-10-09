@@ -4,7 +4,9 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Current projectile sprite compositions retained for runtime and intro rebinding.</summary>
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
+    /// <summary>Current animation-frame mappings used to resolve projectile artwork in active and future scenes.</summary>
     [NonSerialized] private ProjectileFrameBindingCatalog? projectileFrameBindings;
 
     /// <summary>Supplies current visual frame bindings to live, restored and future runtimes.</summary>
@@ -14,7 +16,9 @@ public sealed partial class SuperMetroidGame
         if (runtime is not null) runtime.ProjectileFrameBindings = catalog;
         if (intro is not null) intro.ProjectileFrameBindings = catalog;
     }
+    /// <summary>Beam tile artwork supplied to the active intro or subsequent runtime instances.</summary>
     [NonSerialized] private BeamTileCatalog? beamArtwork;
+    /// <summary>Editable enemy character sheets retained while rooms and runtimes are replaced.</summary>
     [NonSerialized] private EnemyTileArtworkCatalog? enemyTileArtwork;
 
     /// <summary>Supplies editable ordinary enemy character sheets across room and state loads.</summary>
@@ -28,9 +32,13 @@ public sealed partial class SuperMetroidGame
                 catalog?.ProjectileSpritemaps);
         }
     }
+    /// <summary>Projectile trail appearance retained for active and future runtime or intro scenes.</summary>
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+    /// <summary>Placement offsets for charge-flare parts, preserved separately from animation state.</summary>
     [NonSerialized] private ChargeFlarePlacementCatalog? chargeFlarePlacement;
+    /// <summary>Charge-flare sprite parts rebound into the active and future runtime instances.</summary>
     [NonSerialized] private ChargeFlareSpriteCatalog? chargeFlareCompositions;
+    /// <summary>Grapple endpoint and rope tile artwork supplied to the active or next runtime.</summary>
     [NonSerialized] private GrappleTileAtlas? grappleArtwork;
 
     /// <summary>Supplies current endpoint/rope PNG content to live and future runtimes.</summary>

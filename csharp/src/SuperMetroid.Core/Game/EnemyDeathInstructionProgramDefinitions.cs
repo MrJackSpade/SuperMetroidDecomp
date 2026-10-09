@@ -44,8 +44,14 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort ContactDeathPoseDuration = 2;
+
+    /// <summary>Gets the number of spritemap operands embedded in the compiled death programs.</summary>
     public static int PresentationWordCount => 31;
 
+    /// <summary>Maps an ordered presentation-operand index to its native bank-$86 address.</summary>
+    /// <param name="index">Zero-based index among all compiled death-program spritemap operands.</param>
+    /// <returns>The address of the selected operand in the native instruction stream.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the compiled operand list.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -60,17 +66,33 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Calculates the spritemap operand offset for a four-byte frame, including an inserted sound word.</summary>
+    /// <param name="frame">Zero-based frame number within the animation sequence.</param>
+    /// <param name="framesBeforeSound">Number of frames emitted before the sound command shifts subsequent offsets.</param>
+    /// <returns>Byte offset of that frame's presentation operand from the program start.</returns>
     private static int FrameVisualOffset(int frame, int framesBeforeSound) =>
         frame * 4 + 2 + (frame >= framesBeforeSound ? 2 : 0);
 
+    /// <summary>Determines whether a projectile kind may execute a compiled generic-death word at this address.</summary>
+    /// <param name="kind">Projectile category requesting the instruction word.</param>
+    /// <param name="address">Bank-relative instruction address.</param>
+    /// <returns>True when the kind/address pair belongs to a compiled death or respawn program word.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind == RoomEnemyProjectileKind.EnemyDeathExplosion ||
          (kind == RoomEnemyProjectileKind.EnemyDeathPickup && address >= RespawnTail && address < BigExplosion)) &&
         TryWord(address, out _);
 
+    /// <summary>Returns the compiled mechanics word at a valid address, rejecting presentation operands and gaps.</summary>
+    /// <param name="address">Bank-relative address requested by the projectile interpreter.</param>
+    /// <returns>The reconstructed native instruction or timing word.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
 
+    /// <summary>Tries to reconstruct a word owned by one of the generic death or respawn programs.</summary>
+    /// <param name="address">Bank-relative address to inspect.</param>
+    /// <param name="value">Receives the compiled word, or zero when the address is not owned.</param>
+    /// <returns>True when the address is an aligned mechanics word; presentation operands and unowned gaps return false.</returns>
     internal static bool TryWord(ushort address, out ushort value)
     {
         ushort? result = null;
@@ -98,6 +120,10 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     // Big and Mini-Kraid deaths repeat two or three sprite spawns, one blank frame,
     // sound and timer/goto control before becoming a pickup.
+    /// <summary>Reconstructs one mechanics word in the repeated big-explosion or Mini-Kraid program.</summary>
+    /// <param name="offset">Byte offset from the selected program's starting address.</param>
+    /// <param name="miniKraid">Selects the Mini-Kraid sequence when true, otherwise the big-explosion sequence.</param>
+    /// <returns>The native instruction or timing value at the offset, or null for presentation data and gaps.</returns>
     private static ushort? RepeatedExplosionWord(int offset, bool miniKraid)
     {
         int firstFrameOffset = miniKraid ? 16 : 12;
@@ -122,6 +148,11 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     // Six normal/small frames or sixteen contact frames, with one sound command
     // inserted before the second phase and the same pickup/delete tail.
+    /// <summary>Reconstructs one mechanics word in a normal, small, or Samus-contact death animation.</summary>
+    /// <param name="offset">Byte offset from the selected animation program's start.</param>
+    /// <param name="small">Selects the small-explosion frame cadence when true.</param>
+    /// <param name="contact">Selects the longer Samus-contact sequence and its sound command when true.</param>
+    /// <returns>The native mechanics word at the offset, or null when it is presentation data or a gap.</returns>
     private static ushort? AnimatedExplosionWord(int offset, bool small, bool contact)
     {
         int sound = contact ? 28 : 12;

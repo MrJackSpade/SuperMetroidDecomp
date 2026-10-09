@@ -3,6 +3,8 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>A cosmetic elevator label attached to a fixed map destination identity.</summary>
+/// <param name="Id">Stable presentation key for the source area's elevator label.</param>
+/// <param name="Destination">Physical area reached by the elevator represented by the label.</param>
 public readonly record struct MapElevatorLabel(string Id, AreaId Destination);
 
 /// <summary>Landmark identities, native slot order and eligibility remain application-owned.</summary>
@@ -33,8 +35,15 @@ public static class MapLandmarkDefinitions
     /// <summary>$82:C83B/C89D/C90B/C981/C9DB/CA9B are Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres boss slots.</summary>
     public readonly struct BossSequence : IReadOnlyList<string?>
     {
+        /// <summary>Area whose native boss-slot identities are exposed by this sequence.</summary>
         private readonly AreaId area;
+
+        /// <summary>Number of native boss slots consumed, including reserved slots without a landmark.</summary>
         private readonly int count;
+
+        /// <summary>Creates a view of the area's fixed boss-slot list without allocating an array.</summary>
+        /// <param name="area">Area selecting the native slot identities.</param>
+        /// <param name="count">Number of slots to expose, including reserved entries.</param>
         internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of native boss slots consumed by the area.</summary>
         public int Count => count;
@@ -77,8 +86,15 @@ public static class MapLandmarkDefinitions
     /// </summary>
     public readonly struct ElevatorSequence : IReadOnlyList<MapElevatorLabel>
     {
+        /// <summary>Source area whose native elevator records determine the sequence.</summary>
         private readonly AreaId area;
+
+        /// <summary>Number of elevator records present for the source area.</summary>
         private readonly int count;
+
+        /// <summary>Creates a view of the source area's fixed elevator-label records without allocating an array.</summary>
+        /// <param name="area">Area whose native records select the ordered destination labels.</param>
+        /// <param name="count">Number of destination records to expose.</param>
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;

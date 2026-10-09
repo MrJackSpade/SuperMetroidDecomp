@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessagePanelPresentation
 {
+    /// <summary>Validated compiled title and content-row data indexed by supported gameplay message.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledPanel> panels;
+
+    /// <summary>Thirty-two copied BG3 words reused as the panel's top and bottom border rows.</summary>
     private readonly ushort[] border;
 
     private GameplayMessagePanelPresentation(
@@ -155,6 +158,11 @@ public sealed class GameplayMessagePanelPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Immutable title settings and raw tile words retained after document validation.</summary>
+    /// <param name="Title">Validated title text inserted into the panel's first content row.</param>
+    /// <param name="Palette">Palette index used when compiling title glyphs.</param>
+    /// <param name="Column">Absolute tile column where the title begins.</param>
+    /// <param name="Template">Copied four-row BG3 template, with transparent outer title-row cells.</param>
     private sealed record CompiledPanel(
         string Title,
         int Palette,

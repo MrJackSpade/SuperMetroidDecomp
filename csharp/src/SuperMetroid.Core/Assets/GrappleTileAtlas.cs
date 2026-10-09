@@ -8,11 +8,23 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)
     /// or independently supplied multicolor pixels. Their spur layout is visual content, not beam collision geometry.</summary>
     private readonly byte[] independentTiles;
+
+    /// <summary>Indicates that rope orientations can be regenerated from the shared single-ink coverage mask.</summary>
     private readonly bool singleInk;
+
+    /// <summary>Optional custom bytes for the first endpoint character when it differs from the canonical pattern.</summary>
     private readonly byte[]? firstPoint;
+
+    /// <summary>Optional custom bytes for the second endpoint character when it differs from the canonical pattern.</summary>
     private readonly byte[]? secondPoint;
+
+    /// <summary>Optional custom bytes for the third endpoint character when it differs from the canonical pattern.</summary>
     private readonly byte[]? thirdPoint;
+
+    /// <summary>Optional custom bytes for the fourth endpoint character when it differs from the canonical pattern.</summary>
     private readonly byte[]? fourthPoint;
+
+    /// <summary>Optional prebuilt vertical rope tiles when they differ from the derived orientation.</summary>
     private readonly byte[]? verticalSegments;
 
     /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
@@ -23,6 +35,11 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
     public GrappleSwingFrameCatalog? SwingFrames { get; }
+    /// <summary>Stores encoded grapple tiles and retains only the custom patterns needed beyond the canonical generators.</summary>
+    /// <param name="tiles">Encoded sixteen-character atlas from the indexed Grapple image.</param>
+    /// <param name="sprites">Optional installed endpoint and beam sprite compositions.</param>
+    /// <param name="flarePlacement">Optional installed offsets for charge-flare rendering.</param>
+    /// <param name="swingFrames">Optional installed mapping from angle ranges to swing artwork frames.</param>
     private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
     {
         Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
@@ -68,6 +85,9 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
             _ => SegmentBytes(transfer.AtlasOffset - 128),
         };
     }
+    /// <summary>Returns one rope-orientation transfer, encoding shared coverage or slicing independent pixel data as appropriate.</summary>
+    /// <param name="offset">Byte offset within the independent rope-tile atlas region.</param>
+    /// <returns>The 128-byte transfer for that orientation.</returns>
     private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk
         ? GrappleBeamTilePatterns.EncodeInk(independentTiles.AsSpan(offset / 4, 32))
         : independentTiles.AsMemory(offset, 128);

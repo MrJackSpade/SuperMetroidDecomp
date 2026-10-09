@@ -553,6 +553,12 @@ public static partial class SamusGrappleMovement
             RopeLengthBlocked: ropeLengthBlocked);
     }
 
+    /// <summary>Maintains the frozen grapple pose while Shoot remains held and its stored anchor is valid.</summary>
+    /// <param name="level">Room collision data used to validate a block-supported endpoint.</param>
+    /// <param name="samus">Samus and grapple state whose anchor and release transition may be updated.</param>
+    /// <param name="controllerInput">Current controller state, including the held Shoot button.</param>
+    /// <param name="enemyCollision">Optional live enemy query for grapple anchors attached to actors.</param>
+    /// <returns>A movement result that retains the lock or queues grapple cancellation when it ends.</returns>
     private static GrappleMovementResult StepLocked(
         RoomLevelData level,
         SamusState samus,
@@ -647,6 +653,12 @@ public static partial class SamusGrappleMovement
             knockbackTimer: 5);
     }
 
+    /// <summary>Keeps a wall-grab pose during a valid held connection or starts its timed release window.</summary>
+    /// <param name="level">Room collision data used to validate a block-supported endpoint.</param>
+    /// <param name="samus">Samus and grapple state whose anchor or wall-grab timer may be updated.</param>
+    /// <param name="controllerInput">Current controller state, including the held Shoot button.</param>
+    /// <param name="enemyCollision">Optional live enemy query for grapple anchors attached to actors.</param>
+    /// <returns>A movement result describing the retained wall grab or transition to wall-grab release.</returns>
     private static GrappleMovementResult StepWallGrab(
         RoomLevelData level,
         SamusState samus,
@@ -674,6 +686,12 @@ public static partial class SamusGrappleMovement
             grapple.Phase);
     }
 
+    /// <summary>Counts down the wall-grab grace window and accepts a fresh Jump press against a wall.</summary>
+    /// <param name="bus">Address space used to read Samus's facing direction.</param>
+    /// <param name="level">Room and enemy collision data for the directional wall probe.</param>
+    /// <param name="samus">Samus and grapple state updated when the probe accepts a wall jump or times out.</param>
+    /// <param name="newlyPressedInput">Controller buttons newly pressed this frame; Jump must be a fresh edge.</param>
+    /// <returns>A movement result indicating whether the wall-jump completion or drop path was selected.</returns>
     private static GrappleMovementResult StepWallGrabRelease(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -721,6 +739,12 @@ public static partial class SamusGrappleMovement
             grapple.Phase);
     }
 
+    /// <summary>Completes the deferred grapple wall-jump handoff after ejecting Samus from the wall.</summary>
+    /// <param name="bus">Address space used by Samus's wall-jump state transition.</param>
+    /// <param name="level">Room collision data used to eject Samus from the contacted wall.</param>
+    /// <param name="samus">Samus state receiving the wall-jump movement and pose changes.</param>
+    /// <param name="grapple">Active grapple state cleared after the wall jump begins.</param>
+    /// <returns>A result marking grapple inactive and the wall jump as started.</returns>
     private static GrappleMovementResult CompleteGrappleWallJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -738,6 +762,15 @@ public static partial class SamusGrappleMovement
             WallJumpStarted: true);
     }
 
+    /// <summary>Finishes grapple teardown, clears movement speeds, and applies or defers Samus's drop pose.</summary>
+    /// <param name="bus">Address space used to read movement and pose information.</param>
+    /// <param name="level">Room collision data used to eject Samus from the grapple surface.</param>
+    /// <param name="samus">Samus state whose speeds, pose transition, and grapple data are updated.</param>
+    /// <param name="grapple">Grapple state cleared once the endpoint is released.</param>
+    /// <param name="nmiFrameCounter">Frame counter passed through to an immediate drop-pose transition.</param>
+    /// <param name="plms">Optional room PLM system used by the immediate pose transition.</param>
+    /// <param name="deferPoseChange">Whether to return the target pose for a later transition instead of applying it now.</param>
+    /// <returns>A result describing grapple teardown, movement ownership, and any deferred target pose.</returns>
     private static GrappleMovementResult CompleteDropped(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -764,6 +797,10 @@ public static partial class SamusGrappleMovement
             PendingDropPose: deferPoseChange ? targetPose : null);
     }
 
+    /// <summary>Selects the standing or compact pose used when Samus drops a grapple connection.</summary>
+    /// <param name="bus">Address space used to resolve Samus's facing direction for sentinel shot directions.</param>
+    /// <param name="samus">Current pose, collision radius, and shot direction used to choose the drop pose.</param>
+    /// <returns>The pose identifier matching the grapple drop rule for the current body configuration.</returns>
     private static byte SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)
     {
         // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
@@ -788,6 +825,14 @@ public static partial class SamusGrappleMovement
         return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.YRadius < 17);
     }
 
+    /// <summary>Matches the current beam angle to a special connection record and installs its collision pose.</summary>
+    /// <param name="bus">Address space used to refresh collision radii and animation for a matched pose.</param>
+    /// <param name="samus">Samus state repositioned from the grapple anchor when a record matches.</param>
+    /// <param name="grapple">Current angle and anchor coordinates used for the record lookup and placement.</param>
+    /// <param name="previousXPosition">Pre-adjustment X position used to limit the camera's apparent horizontal jump.</param>
+    /// <param name="previousYPosition">Pre-adjustment Y position used to limit the camera's apparent vertical jump.</param>
+    /// <param name="result">Receives the selected phase and camera-adjusted previous positions on a match; otherwise receives the default result.</param>
+    /// <returns><see langword="true"/> if an exact special-angle record was found and applied.</returns>
     private static bool TryHandleSpecialAngle(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -835,6 +880,10 @@ public static partial class SamusGrappleMovement
         return false;
     }
 
+    /// <summary>Limits a previous coordinate to at most twelve pixels from the current coordinate.</summary>
+    /// <param name="current">New coordinate installed by the special grapple connection.</param>
+    /// <param name="previous">Prior coordinate used by camera tracking before that installation.</param>
+    /// <returns>The prior coordinate unchanged within the limit, or the nearest twelve-pixel boundary.</returns>
     private static ushort ClampPreviousPosition(ushort current, ushort previous)
     {
         short displacement = unchecked((short)(current - previous));

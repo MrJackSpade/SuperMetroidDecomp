@@ -6,9 +6,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
+    /// <summary>Validated Ceres warning program selected from the loaded catalog.</summary>
     private readonly EscapeTypewriterProgram ceres;
+
+    /// <summary>Validated Zebes warning program selected from the loaded catalog.</summary>
     private readonly EscapeTypewriterProgram zebes;
 
+    /// <summary>Stores the validated scenario programs and identity of the source document.</summary>
+    /// <param name="programs">The loaded Ceres and Zebes programs keyed by scenario identity.</param>
+    /// <param name="contentIdentity">Uppercase SHA-256 identity computed from the exact source document bytes.</param>
     private EscapeTypewriterPresentation(
         Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs,
         string contentIdentity)
@@ -100,14 +106,29 @@ public sealed class EscapeTypewriterPresentation
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Projects authored line replacements over the compiled stock sequence without copying unchanged lines.</summary>
+    /// <param name="id">Scenario whose unchanged lines are supplied by the compiled definitions.</param>
+    /// <param name="count">Number of lines exposed by this sequence.</param>
+    /// <param name="differences">Authored replacements keyed by line index.</param>
     private sealed class LineSequence(EscapeTypewriterProgramId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
+        /// <summary>Authored line replacements; absent indexes fall back to the scenario's compiled stock text.</summary>
         private readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
+
+        /// <summary>Number of ordered lines in the selected warning program.</summary>
         public int Count => count;
+
+        /// <summary>Gets an authored line when present, otherwise the compiled line at the same position.</summary>
+        /// <param name="index">Zero-based line position in the warning.</param>
+        /// <returns>The selected authored or compiled line.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside this sequence.</exception>
         public EscapeTypewriterLine this[int index] => (uint)index < Count
             ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)
             : throw new ArgumentOutOfRangeException(nameof(index));
+
+        /// <summary>Enumerates warning lines in display order, resolving authored replacements as they are requested.</summary>
+        /// <returns>An enumerator over each selected line in sequence order.</returns>
         public IEnumerator<EscapeTypewriterLine> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

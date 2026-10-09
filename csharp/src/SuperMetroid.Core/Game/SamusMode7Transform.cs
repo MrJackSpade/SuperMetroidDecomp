@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Game;
 /// The five live PPU Mode 7 words consumed by <c>Samus_CalcPos_Mode7</c> at
 /// <c>$8B:8A52</c> while Ceres status has its high bit set.
 /// </summary>
+/// <param name="MatrixA">Signed 8.8 coefficient used for both diagonal terms by the cartridge routine.</param>
+/// <param name="MatrixB">Signed 8.8 coefficient applied to the vertical distance for the horizontal output.</param>
+/// <param name="MatrixC">Signed 8.8 coefficient applied to the horizontal distance for the vertical output.</param>
+/// <param name="CenterX">Horizontal world-coordinate origin used to form and restore the transformed point.</param>
+/// <param name="CenterY">Vertical world-coordinate origin; the routine measures vertical distance upward from this value.</param>
 /// <remarks>
 /// This is deliberately a presentation value, not part of Samus's kinematics. Retail
 /// temporarily replaces <c>$0AF6/$0AFA</c> with the transformed point, calculates the
@@ -47,6 +52,10 @@ public readonly record struct SamusMode7Transform(
             unchecked((ushort)(CenterY - transformedVerticalDistance)));
     }
 
+    /// <summary>Multiplies signed 8.8 words and returns the product shifted right eight bits with 16-bit truncation.</summary>
+    /// <param name="left">First coefficient or distance, interpreted as a signed 16-bit fixed-point value.</param>
+    /// <param name="right">Second coefficient or distance, interpreted as a signed 16-bit fixed-point value.</param>
+    /// <returns>The low 16 bits of the signed product after the cartridge's arithmetic shift.</returns>
     private static ushort MultiplySigned8Point8(ushort left, ushort right)
     {
         int product = unchecked((short)left) * unchecked((short)right);
@@ -55,4 +64,6 @@ public readonly record struct SamusMode7Transform(
 }
 
 /// <summary>A transformed temporary world point returned by <see cref="SamusMode7Transform"/>.</summary>
+/// <param name="X">Horizontal coordinate after applying the temporary Mode 7 transform.</param>
+/// <param name="Y">Vertical coordinate after applying the temporary Mode 7 transform.</param>
 public readonly record struct SamusMode7Point(ushort X, ushort Y);

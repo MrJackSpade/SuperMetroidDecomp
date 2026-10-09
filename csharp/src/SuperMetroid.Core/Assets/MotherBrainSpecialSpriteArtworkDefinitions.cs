@@ -3,6 +3,10 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One contiguous source sheet used by a fixed Mother Brain OBJ transfer list.</summary>
+/// <param name="FileName">Installed artwork filename that supplies the sheet's tile bytes.</param>
+/// <param name="SourceAddress">First cartridge address occupied by this contiguous sheet.</param>
+/// <param name="PageCount">Number of native $200-byte transfer pages in the sheet.</param>
+/// <param name="FirstDestinationWord">OBJ VRAM word address receiving the first page.</param>
 public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
     string FileName, int SourceAddress, int PageCount, ushort FirstDestinationWord)
 {
@@ -78,9 +82,17 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
         definition = default;
         return false;
     }
+
+    /// <summary>Provides indexed access to the four fixed transfer sheets in their catalog order.</summary>
     private sealed class SheetList : IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition>
     {
+        /// <summary>Number of fixed Mother Brain transfer sheets.</summary>
         public int Count => 4;
+
+        /// <summary>Gets a sheet by its catalog position.</summary>
+        /// <param name="index">Zero-based index ordered as legs, Baby Metroid, attack, then exploded door.</param>
+        /// <returns>The sheet definition at that position.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the four-sheet catalog.</exception>
         public MotherBrainSpecialSpriteSheetDefinition this[int index] => index switch
         {
             0 => Legs,
@@ -89,6 +101,9 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
             3 => ExplodedDoor,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+
+        /// <summary>Enumerates the four sheet definitions in catalog order.</summary>
+        /// <returns>An iterator over the legs, Baby Metroid, attack, and exploded-door sheets.</returns>
         public IEnumerator<MotherBrainSpecialSpriteSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

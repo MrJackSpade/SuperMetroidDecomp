@@ -6,10 +6,16 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Runs the compiled Torizo sonic-boom instruction checks against the retail ROM.</summary>
     private static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>
+    /// Compares compiled mechanics with native words, exercises both Torizo variants and
+    /// facings, and verifies launch, wall-impact, collision, timing, and deletion behavior.
+    /// </summary>
+    /// <param name="rom">Retail address space used to verify mechanics and presentation selectors.</param>
     private static void VerifyTorizoSonicBoomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -218,6 +224,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeats compiled launch and wall-impact mechanics lookups for the allocation measurement.</summary>
     private static int ProbeTorizoSonicBoomInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -231,14 +238,25 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Rejects production reads from compiled sonic-boom mechanics while tracking presentation-word access.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class TorizoSonicBoomInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the presentation words whose bytes production execution requested.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets the number of attempted reads from the compiled sonic-boom mechanics range.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an imported cartridge read through the same checks as an address-space read.</summary>
+        /// <param name="address">Cartridge address requested by production code.</param>
+        /// <returns>The wrapped byte unless the address is a compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the wrapped source for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (TorizoSonicBoomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -267,6 +285,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Destination address.</param>
+        /// <param name="value">Byte to store at the destination.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

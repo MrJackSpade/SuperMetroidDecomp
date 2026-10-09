@@ -55,7 +55,9 @@ internal abstract class PhantoonInstructionProgramDefinitions
     /// <summary>Mouth preparation dwell at A7:CCEB/CCEF. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort MouthPreparationFrames = 5;
 
+    /// <summary>Gets the number of address/value entries in the compiled Phantoon mechanics instruction stream.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Gets the number of visual frame operands embedded in the compiled instruction programs.</summary>
     public static int PresentationWordCount => 27;
 
     /// <summary>Calculates control positions from named sleep, transition, callback and loop layouts.</summary>
@@ -108,12 +110,26 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return SleepWord(InitialMouth, index - 56);
     }
 
+    /// <summary>Builds one four-byte animation record that holds a frame for the supplied duration.</summary>
+    /// <param name="start">Address of the instruction list containing the record.</param>
+    /// <param name="frame">Zero-based frame slot within that list.</param>
+    /// <param name="duration">Authored number of updates to display the frame.</param>
+    /// <returns>The record's native address and duration operand.</returns>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
+    /// <summary>Builds an instruction word for the first one-update pause or the shared sleep command in a list.</summary>
+    /// <param name="start">Address of the instruction list containing the word.</param>
+    /// <param name="word">Zero-based word position in that list's two-word pause record.</param>
+    /// <returns>The address and either the initial one-update duration or the native sleep opcode.</returns>
     private static InstructionMechanicsWord SleepWord(ushort start, int word) =>
         new((ushort)(start + word * 4), word == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
 
+    /// <summary>Compiles a closed-eye transition record, optionally invoking the callback that selects the next attack pattern.</summary>
+    /// <param name="start">Address of the close-eye instruction list.</param>
+    /// <param name="word">Zero-based word position within the list.</param>
+    /// <param name="pickPattern">Whether the list calls the pattern-selection callback before looping.</param>
+    /// <returns>The native address and value for the selected transition word.</returns>
     private static InstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
     {
         if (word < 2) return Frame(start, word, word == 0 ? (ushort)1 : EyeTransitionFrames);
@@ -167,13 +183,24 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return PhantoonBg2FrameDefinitions.MouthPose(0);
     }
 
+    /// <summary>Determines whether an instruction address contains a compiled visual frame operand.</summary>
+    /// <param name="address">Address to look up in the presentation operand table.</param>
+    /// <returns><see langword="true"/> when the address selects one of Phantoon's authored visual frames.</returns>
     internal static bool IsPresentationWord(ushort address) => PresentationIndex(address) >= 0;
+
+    /// <summary>Resolves a compiled visual operand address to its installed Phantoon frame identity.</summary>
+    /// <param name="address">Address of a visual operand in the bank-$A7 instruction data.</param>
+    /// <returns>The frame identity used for that operand.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled presentation operands.</exception>
     internal static ushort FrameAt(ushort address)
     {
         int index = PresentationIndex(address);
         return index >= 0 ? PresentationFrame(index)
             : throw new InvalidDataException($"Phantoon visual operand $A7:{address:X4} is not compiled.");
     }
+    /// <summary>Finds the ordinal of an exact visual operand address in the sorted presentation table.</summary>
+    /// <param name="address">Instruction address to search for.</param>
+    /// <returns>The zero-based operand ordinal, or -1 when the address is not a visual operand.</returns>
     private static int PresentationIndex(ushort address)
     {
         int low = 0, high = PresentationWordCount - 1;

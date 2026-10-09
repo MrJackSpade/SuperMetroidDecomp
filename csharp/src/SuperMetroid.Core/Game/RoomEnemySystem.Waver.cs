@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WaverEnemyState
 {
+    /// <summary>Common enemy-slot storage that holds Waver's translated state words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a named Waver-state view over the slot allocated by enemy initialization.</summary>
+    /// <param name="slot">The enemy slot whose variable words back this state view.</param>
     internal WaverEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Low 16 bits of the signed horizontal 16.16 displacement.</summary>
@@ -61,11 +64,15 @@ public sealed class WaverEnemyState
 /// <summary>Literal translation of Waver enemy AI <c>$A3:8687-$881D</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition word for Waver, referenced by the room's enemy spawn data.</summary>
     internal const ushort WaverDefinition = 0xd63f;
 
+    /// <summary>Magnitude of Waver's horizontal 16.16 velocity: 1.5 pixels per frame.</summary>
     private const int WaverHorizontalSpeedFixed = 0x00018000;
+    /// <summary>Amplitude, in pixels, of Waver's vertical sine-wave movement.</summary>
     private const int WaverVerticalRadius = 4;
 
+    /// <summary>Per-slot views of the initialized Waver state; null entries are not active Wavers.</summary>
     private readonly WaverEnemyState?[] _waverStates =
         new WaverEnemyState?[MaximumEnemyCount];
 
@@ -157,6 +164,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs the requested facing or spin program and restarts its instruction timers when it changes.</summary>
+    /// <param name="slot">The enemy slot whose instruction pointer and timers are updated.</param>
+    /// <param name="state">Waver's current and requested animation selectors.</param>
     private static void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverAnimationSelector requested = state.RequestedInstructionListIndex;
@@ -169,6 +179,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the state view created for this slot during Waver initialization.</summary>
+    /// <param name="slot">The slot whose initialized Waver state is required.</param>
+    /// <returns>The state view associated with <paramref name="slot"/>.</returns>
+    /// <exception cref="InvalidOperationException">No Waver state has been initialized for the slot.</exception>
     private WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
         _waverStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");

@@ -113,6 +113,8 @@ public enum MotherBrainBrainFunction : ushort
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
+    /// <summary>Creates shared Mother Brain state anchored to its physical body enemy slot.</summary>
+    /// <param name="body">Slot zero containing the Mother Brain body record.</param>
     internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Physical slot zero, enemy definition <c>$EC7F</c>.</summary>
@@ -466,16 +468,23 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public ushort OnionRingsTargetAngle { get; internal set; }
 
+    /// <summary>Ordered initializer parameters for the twelve turret requests recorded during encounter setup.</summary>
     private readonly ushort[] _initialTurretParameters = new ushort[12];
+
+    /// <summary>Music commands emitted during the current enemy frame and consumed by the owning room system.</summary>
     private readonly List<MotherBrainMusicRequest> _musicRequests = new();
+
+    /// <summary>Room PLM spawn requests emitted during the current enemy frame, retained in request order.</summary>
     private readonly List<MotherBrainPlmRequest> _plmRequests = new();
 
+    /// <summary>Captures the twelve initial turret parameter words in the order used by Mother Brain's setup path.</summary>
     internal void RecordInitialTurretRequests()
     {
         for (ushort parameter = 0; parameter < _initialTurretParameters.Length; parameter++)
             _initialTurretParameters[parameter] = parameter;
     }
 
+    /// <summary>Clears per-frame audio, PLM, drop, Baby, and rainbow-beam requests before the next AI update.</summary>
     internal void BeginFrame()
     {
         _musicRequests.Clear();
@@ -490,9 +499,16 @@ public sealed class MotherBrainEnemyState
         LastRainbowBeamExplosion = null;
     }
 
+    /// <summary>Queues one typed music command with its native consumption delay.</summary>
+    /// <param name="command">Stop, data-load, or track-selection command emitted by Mother Brain AI.</param>
+    /// <param name="delay">Delay applied before the room system consumes the command.</param>
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
+    /// <summary>Queues one room PLM spawn at block coordinates using the requested bank-$84 header.</summary>
+    /// <param name="blockX">Horizontal room-block coordinate.</param>
+    /// <param name="blockY">Vertical room-block coordinate.</param>
+    /// <param name="header">PLM definition-header pointer in fixed bank $84.</param>
     internal void RequestPlm(byte blockX, byte blockY, ushort header) =>
         _plmRequests.Add(new MotherBrainPlmRequest(blockX, blockY, header));
 }

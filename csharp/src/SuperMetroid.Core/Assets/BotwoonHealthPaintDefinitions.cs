@@ -13,17 +13,30 @@ internal sealed class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
     private const ushort EarlyBandTransparentTarget = 0x2003;
+
+    /// <summary>Painted palette entries that differ from the deterministic health-ramp calculation.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Captures authored color exceptions while deriving the remaining entries from healthy and damaged endpoints.</summary>
+    /// <param name="rows">Eight ordered health bands, each containing the sixteen copied palette colors.</param>
     internal BotwoonHealthPaintDefinitions(ushort[][] rows)
     {
         for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             if (rows[band][color] != Calculate(band, color)) edits.Add(band * 16 + color, rows[band][color]);
     }
 
+    /// <summary>Returns a retained painted value when present, otherwise computes the color for the requested health band.</summary>
+    /// <param name="band">Zero-based position among the eight health palette bands.</param>
+    /// <param name="color">Index of the color within the sixteen-entry palette row.</param>
+    /// <returns>The authored override or calculated BGR555 color word.</returns>
     internal ushort Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out ushort value)
         ? value : Calculate(band, color);
 
+    /// <summary>Interpolates a palette entry between healthy and damaged endpoints, preserving the separately copied transparent slot.</summary>
+    /// <param name="band">Zero-based health-ramp row, from the healthy endpoint through the damaged endpoint.</param>
+    /// <param name="color">Palette index whose packed BGR555 value is calculated.</param>
+    /// <returns>The calculated color word for that band and palette slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="color"/> is not a supported palette index.</exception>
     private static ushort Calculate(int band, int color)
     {
         if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : (ushort)0;
@@ -37,6 +50,11 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (ushort)result;
     }
 
+    /// <summary>Selects an authored healthy or damaged endpoint color from the appropriate Botwoon artwork ramp.</summary>
+    /// <param name="damaged"><see langword="true"/> for the damaged endpoint; otherwise selects the healthy endpoint.</param>
+    /// <param name="color">Palette slot whose endpoint is being constructed.</param>
+    /// <returns>The endpoint packed as a BGR555 word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="color"/> is outside the copied palette row.</exception>
     private static ushort Endpoint(bool damaged, int color)
     {
         (int red, int green, int blue) = color switch
@@ -51,6 +69,10 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>Returns the authored RGB5 channel values for one shade of Botwoon's eye ramp.</summary>
+    /// <param name="damaged"><see langword="true"/> selects the damaged eye palette.</param>
+    /// <param name="shade">Offset within the four eye-color slots.</param>
+    /// <returns>Red, green, and blue channel values used to pack the palette word.</returns>
     private static (int Red, int Green, int Blue) Eye(bool damaged, int shade)
     {
         if (!damaged)
@@ -64,6 +86,10 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
+    /// <summary>Builds one jaw shade from the healthy or damaged authored channel ramps.</summary>
+    /// <param name="damaged"><see langword="true"/> selects the damaged jaw palette.</param>
+    /// <param name="shade">Offset within the four jaw-color slots.</param>
+    /// <returns>Red, green, and blue RGB5 channel values for the selected shade.</returns>
     private static (int Red, int Green, int Blue) Jaw(bool damaged, int shade)
     {
         static int Ramp(int peak, int floor, int phase) => (peak * (3 - phase) + floor * phase) / 3;
@@ -73,6 +99,10 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
+    /// <summary>Builds one skin shade while retaining the distinct healthy and damaged red/green progression.</summary>
+    /// <param name="damaged"><see langword="true"/> selects the damaged skin palette.</param>
+    /// <param name="shade">Offset within the five skin-color slots.</param>
+    /// <returns>Red, green, and blue RGB5 channel values for the selected shade.</returns>
     private static (int Red, int Green, int Blue) Skin(bool damaged, int shade)
     {
         int healthyGreen = shade == 4 ? 1 : 18 - 4 * shade;

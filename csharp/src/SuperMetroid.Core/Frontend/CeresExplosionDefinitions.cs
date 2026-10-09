@@ -187,12 +187,20 @@ internal static class CeresExplosionDefinitions
 }
 
 /// <summary>One native six-byte bank-$8B cinematic sprite-object definition.</summary>
+/// <param name="PreInstruction">Bank-$8B routine pointer invoked before the actor's instruction list advances.</param>
+/// <param name="InstructionList">Bank-$8B pointer to the actor's timed sprite-instruction sequence.</param>
 internal readonly record struct CeresExplosionActorDefinition(
     ushort PreInstruction,
     ushort InstructionList);
 
 /// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
+/// <param name="X">Signed horizontal screen-space offset from the scrolling origin, in pixels.</param>
+/// <param name="Y">Signed vertical screen-space offset from the scrolling origin, in pixels.</param>
+/// <param name="DelayFrames">Instruction-timer delay before the actor's first instruction, in frames.</param>
 internal readonly record struct CeresExplosionPlacement(short X, short Y, ushort DelayFrames);
 
 /// <summary>Ordered spawner events; repeating and final waves may occur on the same call.</summary>
+/// <param name="Initial">Whether this frame starts the initial group of five explosions.</param>
+/// <param name="Repeating">Whether the repeating countdown expires and schedules a burst on this frame.</param>
+/// <param name="Final">Whether this frame is the spawner's last frame and starts the final wave.</param>
 internal readonly record struct CeresExplosionSpawnEvents(bool Initial, bool Repeating, bool Final);

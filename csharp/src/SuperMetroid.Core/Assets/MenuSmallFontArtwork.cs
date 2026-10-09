@@ -14,10 +14,15 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuSmallFontArtwork
 {
+    /// <summary>Defines the first tile and number of consecutive tiles represented by this menu-font artwork.</summary>
     internal const int FirstTile = 0x60, TileCount = 41;
+    /// <summary>Stores each tile row's authored foreground pixels as an eight-bit mask.</summary>
     private readonly byte[] faces = new byte[TileCount * 8];
+    /// <summary>Stores source pixels that differ from the generated face-and-shadow basis; null means no overrides exist.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Builds compact face masks and preserves source pixels that the generated shading rules cannot reproduce.</summary>
+    /// <param name="image">Indexed PNG containing the font tiles in tile-number order.</param>
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {
         for (int tile = FirstTile; tile < FirstTile + TileCount; tile++)
@@ -34,7 +39,16 @@ internal sealed class MenuSmallFontArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
     }
 
+    /// <summary>Determines whether a tile number falls in the contiguous menu-font artwork range.</summary>
+    /// <param name="tile">Tile number to test.</param>
+    /// <returns><see langword="true"/> when the tile is represented by this artwork.</returns>
     internal static bool Contains(int tile) => tile >= FirstTile && tile < FirstTile + TileCount;
+
+    /// <summary>Returns the indexed color for one pixel, using authored exceptions or the generated face-and-shadow basis.</summary>
+    /// <param name="tile">Tile number within the represented font range.</param>
+    /// <param name="x">Horizontal pixel coordinate, from 0 through 7.</param>
+    /// <param name="y">Vertical pixel coordinate, from 0 through 7.</param>
+    /// <returns>The palette index assigned to the requested pixel.</returns>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -42,6 +56,11 @@ internal sealed class MenuSmallFontArtwork
             ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Computes the base palette index from authored foreground masks and the font's one-pixel shadow rules.</summary>
+    /// <param name="tile">Tile whose generated pixel is requested.</param>
+    /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+    /// <param name="y">Vertical pixel coordinate within the tile.</param>
+    /// <returns>Index 14 for foreground, 13 for shadow, or 0 for an untouched pixel.</returns>
     private byte Basis(int tile, int x, int y)
     {
         int row = (tile - FirstTile) * 8 + y;

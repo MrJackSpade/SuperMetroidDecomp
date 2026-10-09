@@ -15,9 +15,17 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
     internal const ushort Hidden = 0xe8f3;
     /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>
     internal const ushort Spit = 0xebae;
+
+    /// <summary>Number of spritemap operands selected by the compiled Botwoon projectile programs.</summary>
     public static int PresentationWordCount => 46;
+
+    /// <summary>Number of body and tail instruction programs represented by this catalog.</summary>
     internal const int BodyProgramCount = 17;
 
+    /// <summary>Maps the catalog's body/tail index to its native instruction-list pointer.</summary>
+    /// <param name="index">Zero-based index among the seventeen articulated body and tail programs.</param>
+    /// <returns>The native bank-$86 instruction-list address for that program.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled program set.</exception>
     internal static ushort BodyProgram(int index)
     {
         if ((uint)index >= BodyProgramCount) throw new IndexOutOfRangeException();
@@ -27,6 +35,10 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
             : (ushort)(TailUpFacingRight + 6 * (index - 8));
     }
 
+    /// <summary>Returns the native address of one spritemap operand across body, tail, and spit programs.</summary>
+    /// <param name="index">Zero-based index in the compiled presentation-word sequence.</param>
+    /// <returns>The bank-$86 address of the operand word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the 46 compiled presentation operands.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -35,9 +47,16 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
         return (ushort)(Spit + 4 * (index - 41) + 2);
     }
 
+    /// <summary>Determines whether this instruction catalog supplies the projectile's program definitions.</summary>
+    /// <param name="kind">Projectile kind selected by the runtime.</param>
+    /// <returns><see langword="true"/> for Botwoon body or spit projectiles.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit;
 
+    /// <summary>Resolves a compiled delay, control-flow, or target word from Botwoon's native instruction programs.</summary>
+    /// <param name="address">Bank-$86 address of the requested instruction word.</param>
+    /// <returns>The mechanics word that replaces the corresponding cartridge read.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryBodyOffset(address, out int offset))
@@ -60,6 +79,9 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
             $"Botwoon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Identifies addresses occupied by spritemap operands rather than compiled mechanics words.</summary>
+    /// <param name="address">Bank-$86 instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address selects presentation artwork.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         if (TryBodyOffset(address, out int offset)) return offset < 16 && offset % 4 == 2;
@@ -69,6 +91,10 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
         return (uint)spit < 20 && spit % 4 == 2;
     }
 
+    /// <summary>Finds the offset within an articulated body instruction record for a body-program address.</summary>
+    /// <param name="address">Bank-$86 address to test.</param>
+    /// <param name="offset">Receives the address's offset within its 20-byte record.</param>
+    /// <returns><see langword="true"/> for one of the compiled body records; the unused fourth physical slot is excluded.</returns>
     internal static bool TryBodyOffset(ushort address, out int offset)
     {
         int relative = address - BodyUpLeft;

@@ -120,7 +120,15 @@ internal static class CeresFlightActorDefinitions
     private const int VortexHorizontalDelta = -0x2000;
 }
 
-/// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>
+/// <summary>Native callback, instruction-list, position, timing, and horizontal-motion data for a Ceres flight actor.</summary>
+/// <param name="ActivePreInstruction">Callback pointer installed on the actor before it steps its instruction list.</param>
+/// <param name="InstructionList">Bank-$8B list pointer that initializes the actor's scripted animation.</param>
+/// <param name="X">Initial horizontal screen coordinate supplied to the cinematic sprite.</param>
+/// <param name="Y">Initial vertical screen coordinate supplied to the cinematic sprite.</param>
+/// <param name="Attributes">Initial SNES object attributes, including the actor's palette and priority settings.</param>
+/// <param name="InitialTimer">Instruction countdown initialized before the actor begins its scripted frames.</param>
+/// <param name="HorizontalDelta">Fractional fixed-point increment applied to the actor's horizontal position.</param>
+/// <param name="WrapX">Whether the flight update wraps horizontal position to the cinematic world range.</param>
 internal readonly record struct CeresFlightActorDefinition(
     ushort ActivePreInstruction,
     ushort InstructionList,

@@ -28,8 +28,11 @@ public enum OwtchBehaviorState : ushort
 /// </summary>
 public sealed class OwtchEnemyState
 {
+    /// <summary>Enemy slot whose ordinary parameter words store this typed view's state and velocities.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view backed by the supplied enemy slot's native fields.</summary>
+    /// <param name="slot">Initialized or initializing Owtch slot that owns the ordinary state words.</param>
     internal OwtchEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, fractional half of positive 16.16 speed.</summary>
@@ -87,11 +90,16 @@ public sealed class OwtchEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer for the Maridia Owtch spiky shell.</summary>
     internal const ushort OwtchDefinition = 0xd03f;
+
+    /// <summary>Native bank-$A2 callback selected when an Owtch accepts an ordinary shot.</summary>
     internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
+    /// <summary>Maximum burial displacement in world pixels before Owtch begins its underground wait.</summary>
     private const ushort OwtchMaximumBurialDepth = 16;
 
+    /// <summary>Per-slot typed state views created by Owtch initialization.</summary>
     private readonly OwtchEnemyState?[] _owtchStates =
         new OwtchEnemyState?[MaximumEnemyCount];
 
@@ -279,6 +287,9 @@ public sealed partial class RoomEnemySystem
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         unchecked((short)((ushort)state.Behavior - 1)) < 0;
 
+    /// <summary>Selects an Owtch animation list and resets its instruction and general timers.</summary>
+    /// <param name="slot">Enemy slot whose instruction state is changed.</param>
+    /// <param name="instructionList">Bank-relative instruction-list address to install.</param>
     private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -286,6 +297,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the initialized Owtch state associated with a slot.</summary>
+    /// <param name="slot">Enemy slot whose state is required.</param>
+    /// <returns>The typed state view created during Owtch initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as an Owtch.</exception>
     private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
         _owtchStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");

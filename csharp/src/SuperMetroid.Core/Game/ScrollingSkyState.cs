@@ -15,6 +15,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
     public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
 
+    /// <summary>Unsigned 8.8 horizontal positions for the sky's fixed HDMA data slots.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
     /// <summary>
@@ -94,6 +95,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         return result;
     }
 
+    /// <summary>Applies each section's fixed-point velocity and keeps the final, stationary slot at zero.</summary>
     private void AdvanceHorizontalScrolls()
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
@@ -109,6 +111,10 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
     }
 
+    /// <summary>Queues the two tilemap rows above and the two below the visible screen from the selected chunk table.</summary>
+    /// <param name="layer1YPosition">Camera layer-1 Y position used to locate source chunks and circular BG2 destinations.</param>
+    /// <param name="writes">VRAM queue receiving the four tilemap-row transfers.</param>
+    /// <param name="pointerTable">Cartridge pointer-table address for the selected sky's chunks.</param>
     private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, int pointerTable)
     {
         // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
@@ -157,6 +163,9 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
                 lowerDestination + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount)));
     }
 
+    /// <summary>Finds the sky scroll section whose vertical world range contains the requested position.</summary>
+    /// <param name="worldY">Unsigned world-space Y coordinate to map to a section.</param>
+    /// <returns>The matching section index, or -1 when the coordinate lies outside all defined sections.</returns>
     private static int FindSection(ushort worldY)
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
@@ -172,6 +181,10 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
 }
 
 /// <summary>One eight-byte row from the ROM table at <c>$88:AEC1</c>.</summary>
+/// <param name="TopPosition">Inclusive world-space Y coordinate where this section begins.</param>
+/// <param name="Subspeed">Fractional byte of the section's unsigned 8.8 horizontal scroll velocity.</param>
+/// <param name="Speed">Integer byte of the section's unsigned 8.8 horizontal scroll velocity.</param>
+/// <param name="DataSlot">Index of the HDMA scroll-position slot used while this section is active.</param>
 public readonly record struct SkyScrollSection(
     ushort TopPosition,
     ushort Subspeed,

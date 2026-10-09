@@ -23,10 +23,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuCompactLetteringArtwork
 {
+    /// <summary>Number of eight-by-eight tile identities included in the compact lettering resource.</summary>
     internal const int TileCount = 34;
+
+    /// <summary>Six-row authored glyph silhouettes packed as one bit per glyph pixel.</summary>
     private readonly Dictionary<char, uint> glyphs = [];
+
+    /// <summary>Imported pixel values that differ from the generated lettering and outline basis.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Determines whether a tile identity is one of the compact lettering strips or labels represented here.</summary>
+    /// <param name="tile">Tile identity to test.</param>
+    /// <returns><see langword="true"/> when the atlas defines that tile.</returns>
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
         0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or >= 0xa5 and <= 0xaa or 0xb7;
 
@@ -61,6 +69,12 @@ internal sealed class MenuCompactLetteringArtwork
         _ => tile - start - (gap >= 0 && tile > gap ? 1 : 0),
     };
 
+    /// <summary>Maps a logical lettering column back to its physical tile, accounting for special order and skipped stems.</summary>
+    /// <param name="column">Zero-based column within the logical strip.</param>
+    /// <param name="start">First tile identity of the strip's layout.</param>
+    /// <param name="gap">Skipped tile identity, or a negative value when the strip is contiguous.</param>
+    /// <returns>The physical tile whose pixels provide the requested column.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The column does not exist in the special Tourian or EXIT mapping.</exception>
     private static int SourceTile(int column, int start, int gap)
     {
         if (start == 8) return column switch { 0 => 8, 1 => 9, 2 => 0x20, 3 => 0x32, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
@@ -69,6 +83,8 @@ internal sealed class MenuCompactLetteringArtwork
         return gap >= 0 && tile >= gap ? tile + 1 : tile;
     }
 
+    /// <summary>Extracts shared glyph masks from the indexed sheet and stores authored pixels that differ from the generated basis.</summary>
+    /// <param name="image">The validated indexed PNG image containing the compact menu lettering tiles.</param>
     internal MenuCompactLetteringArtwork(IndexedPngImage image)
     {
         for (int tile = 0; tile <= 0xb7; tile++)
@@ -108,12 +124,23 @@ internal sealed class MenuCompactLetteringArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Width + tile % 16 * 8 + x];
     }
 
+    /// <summary>Returns the selected pixel, preferring an authored deviation over the generated tile basis.</summary>
+    /// <param name="tile">Tile identity in the compact lettering set.</param>
+    /// <param name="x">Horizontal pixel coordinate within the tile, from zero through seven.</param>
+    /// <param name="y">Vertical pixel coordinate within the tile, from zero through seven.</param>
+    /// <returns>The indexed pixel value used to render the lettering artwork.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The tile is not part of the compact lettering set or either coordinate is outside the tile.</exception>
     internal byte Pixel(int tile, int x, int y)
     {
         if (!Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + y * 8 + x, out byte pixel) ? pixel : Basis(tile, x, y);
     }
 
+    /// <summary>Calculates stock lettering, outline, and shadow ink before imported pixel deviations are applied.</summary>
+    /// <param name="tile">Tile identity whose lettering row is being rendered.</param>
+    /// <param name="x">Horizontal coordinate within the tile.</param>
+    /// <param name="y">Vertical coordinate within the tile.</param>
+    /// <returns>The generated indexed pixel value for the requested location.</returns>
     private byte Basis(int tile, int x, int y)
     {
         var row = Layout(tile);

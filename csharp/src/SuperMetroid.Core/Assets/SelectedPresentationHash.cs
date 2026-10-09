@@ -10,10 +10,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SelectedPresentationHash
 {
+    /// <summary>Incremental SHA-256 state receiving length-framed labels and payloads.</summary>
     private readonly IncrementalHash hash;
 
+    /// <summary>Continues appending canonical content to an existing incremental digest.</summary>
+    /// <param name="hash">SHA-256 state owned and finalized by the creating operation.</param>
     private SelectedPresentationHash(IncrementalHash hash) => this.hash = hash;
 
+    /// <summary>Creates a SHA-256 identity scoped by a domain label and caller-supplied content fields.</summary>
+    /// <param name="domain">Stable name separating this hash from other presentation domains.</param>
+    /// <param name="append">Writes the selected content fields into the canonical hash stream.</param>
+    /// <returns>Uppercase hexadecimal SHA-256 of the framed domain and appended data.</returns>
     public static string Create(string domain, Action<SelectedPresentationHash> append)
     {
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -23,6 +30,12 @@ internal sealed class SelectedPresentationHash
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
+    /// <summary>Hashes a shared transfer and source-keyed transfers in key order, independent of dictionary insertion order.</summary>
+    /// <param name="domain">Stable name separating this catalog's identity.</param>
+    /// <param name="sources">Selected transfer sources keyed by their canonical integer identifiers.</param>
+    /// <param name="transfer">Extracts the byte span contributed by each selected source.</param>
+    /// <param name="shared">Additional shared bytes included before the keyed transfers.</param>
+    /// <returns>Uppercase hexadecimal SHA-256 of the framed shared and keyed transfer data.</returns>
     public static string FromTransfers<T>(string domain, IReadOnlyDictionary<int, T> sources,
         Func<T, ReadOnlyMemory<byte>> transfer, ReadOnlyMemory<byte> shared = default) =>
         Create(domain, content =>
@@ -46,6 +59,9 @@ internal sealed class SelectedPresentationHash
             }
         });
 
+    /// <summary>Appends a labeled byte payload with length prefixes for both label and content.</summary>
+    /// <param name="label">Field name identifying the payload in the canonical stream.</param>
+    /// <param name="bytes">Payload bytes to include in the digest.</param>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
         byte[] name = Encoding.UTF8.GetBytes(label);
@@ -55,6 +71,9 @@ internal sealed class SelectedPresentationHash
         hash.AppendData(bytes);
     }
 
+    /// <summary>Appends a labeled 32-bit integer encoded in little-endian order.</summary>
+    /// <param name="label">Field name identifying the integer in the canonical stream.</param>
+    /// <param name="value">Integer value to encode and hash.</param>
     public void Append(string label, int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];
@@ -62,6 +81,9 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Appends labeled 16-bit words after encoding each word in little-endian byte order.</summary>
+    /// <param name="label">Field name identifying the word sequence in the canonical stream.</param>
+    /// <param name="words">Ordered tile or transfer words to encode and hash.</param>
     public void AppendWords(string label, ReadOnlySpan<ushort> words)
     {
         var bytes = new byte[checked(words.Length * sizeof(ushort))];
@@ -106,6 +128,8 @@ internal sealed class SelectedPresentationHash
             Append("attributes", part.Attributes.Raw);
         }
     }
+    /// <summary>Writes a 32-bit little-endian byte count to delimit the next framed component.</summary>
+    /// <param name="value">Nonnegative number of bytes in the component being framed.</param>
     private void AppendLength(int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];

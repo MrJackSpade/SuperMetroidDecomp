@@ -15,8 +15,11 @@ public static class GrappleTileDefinitions
     public const ushort PointDestination = 0x6200;
     /// <summary>$9B:C02B selects VRAM word $6210 for the four segment characters.</summary>
     public const ushort SegmentDestination = 0x6210;
+    /// <summary>Asset identity for the four-character horizontal rope segment group.</summary>
     private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
+    /// <summary>Asset identity for the four-character diagonal rope segment group.</summary>
     private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
+    /// <summary>Asset identity for the four-character vertical rope segment group.</summary>
     private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
     /// <summary>
     /// $9A:8A00, the $9B:C344 exclusive end pointer. Builds before a988015bc read the begin/end pair
@@ -29,6 +32,7 @@ public static class GrappleTileDefinitions
     private const int PointSourceStride = 0x200;
     /// <summary>Horizontal, diagonal and vertical beam groups occupy $800-byte source strides.</summary>
     private const int SegmentSourceStride = 0x800;
+    /// <summary>Computes the ordered endpoint and rope-segment upload descriptors exposed by <see cref="Transfers"/>.</summary>
     private static readonly TransferList transfers = new();
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
     public static IReadOnlyList<GrappleTileTransfer> Transfers => transfers;
@@ -71,9 +75,16 @@ public static class GrappleTileDefinitions
         return transfers[index];
     }
 
+    /// <summary>Provides the seven Grapple upload descriptors in endpoint-frame order followed by horizontal, diagonal, and vertical segment groups.</summary>
     private sealed class TransferList : IReadOnlyList<GrappleTileTransfer>
     {
+        /// <summary>Gets the number of endpoint and segment-group descriptors in the native upload order.</summary>
         public int Count => 7;
+
+        /// <summary>Gets the upload descriptor at an ordinal in the four-frame endpoint sequence followed by the three segment orientations.</summary>
+        /// <param name="index">Zero-based position in the descriptor sequence.</param>
+        /// <value>The source address and atlas slice for that endpoint frame or segment group.</value>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the seven available descriptors.</exception>
         public GrappleTileTransfer this[int index]
         {
             get
@@ -94,6 +105,8 @@ public static class GrappleTileDefinitions
                     128 * (orientation + 1), 128);
             }
         }
+        /// <summary>Enumerates the four endpoint-frame descriptors, then the horizontal, diagonal, and vertical segment descriptors.</summary>
+        /// <returns>An enumerator that yields each computed transfer descriptor in upload order.</returns>
         public IEnumerator<GrappleTileTransfer> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)

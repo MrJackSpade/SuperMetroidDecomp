@@ -7,6 +7,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts only trail-owned tiles, omitting the intervening missile/explosion graphics.</summary>
 public static class ProjectileTrailAtlasExtractor
 {
+    /// <summary>Imports eight ice/wave trail characters followed by four missile-family characters, excluding the unrelated native tile gap.</summary>
+    /// <param name="bus">Cartridge-import-capable address space supplying the two four-bit planar trail-character spans.</param>
+    /// <returns>New 96x8 indexed PNG bytes preserving the twelve characters' pixel indices 0..15; diagnostic PNG colors do not select runtime palettes.</returns>
+    /// <remarks>Recompiles the PNG and verifies both native character spans before returning; no filesystem output is written.</remarks>
+    /// <exception cref="InvalidDataException">PNG validation fails or recompilation changes either native character span.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), ProjectileTrailAtlasDefinitions.IceWaveSource, ProjectileTrailAtlasDefinitions.IceWaveByteCount);

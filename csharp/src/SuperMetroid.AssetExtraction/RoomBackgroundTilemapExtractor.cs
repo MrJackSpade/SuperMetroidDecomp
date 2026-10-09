@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports compressed library-background tilemaps as editable ordered tile references.</summary>
 public static class RoomBackgroundTilemapExtractor
 {
+    /// <summary>Decompresses every compiled retail library-background source and exports its ordered BG tilemap pages.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
+    /// <returns>A new filename-keyed collection of UTF-8 JSON byte arrays, each preserving one or two 32x32 pages of tile references and BG attributes.</returns>
+    /// <remarks>Verifies the retail source count and exact native-word roundtrips. Page order is retained without inferring room geometry, and files are not written.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Source coverage, decompression, page size, or tilemap roundtrip validation fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

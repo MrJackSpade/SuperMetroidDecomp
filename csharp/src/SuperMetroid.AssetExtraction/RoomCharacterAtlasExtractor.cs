@@ -8,6 +8,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts the shared CRE and all distinct retail room-character sources as indexed PNGs.</summary>
 public static class RoomCharacterAtlasExtractor
 {
+    /// <summary>Imports shared CRE characters, every distinct room graphics-set character source, and the uncompressed Tourian-statue ghost span.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost artwork.</param>
+    /// <returns>A new filename-keyed collection of indexed PNG byte arrays preserving ordered four-bit planar characters with pixel indices 0..15.</returns>
+    /// <remarks>Shared sources produce one atlas. PNGs use at most 32 characters per row, zero-fill unused cells, and use diagnostic colors; recompilation must reproduce the exact source bytes.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A source is invalid, has an unsupported character count, or fails the PNG-to-planar roundtrip.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

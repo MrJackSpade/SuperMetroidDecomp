@@ -8,6 +8,11 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts timed-projectile visual parts only; physical fields and instruction programs stay compiled.</summary>
 public static class ProjectileSpriteExtractor
 {
+    /// <summary>Decodes all catalogued bank-$93 Samus-projectile OAM compositions and validates the resulting visual catalog.</summary>
+    /// <param name="bus">Cartridge-import-capable address space containing the native projectile spritemaps.</param>
+    /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, priorities, and flips.</returns>
+    /// <remarks>Physical projectile fields, animation timing, and instruction programs are not exported.</remarks>
+    /// <exception cref="InvalidDataException">A native frame exceeds the OAM part limit or its extracted composition fails catalog validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         byte[] json = ExtractFrames(bus, default, useProjectilePointers: true);

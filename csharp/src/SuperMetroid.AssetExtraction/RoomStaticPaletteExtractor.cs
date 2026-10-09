@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts exactly the base CGRAM colors consumed by room graphics loading.</summary>
 public static class RoomStaticPaletteExtractor
 {
+    /// <summary>Imports the first 128 base BG colors from each distinct room graphics-set palette source.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the compressed native room palettes.</param>
+    /// <returns>A new filename-keyed collection of UTF-8 JSON byte arrays containing RGB5 channels in CGRAM 0..127 order.</returns>
+    /// <remarks>Discards the unused high color bit and trailing source data, then verifies equivalent CGRAM colors after recompilation. Shared sources are deduplicated; files are not written.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="InvalidDataException">A source is invalid, contains fewer than 256 palette bytes, or fails palette or CGRAM roundtrip validation.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

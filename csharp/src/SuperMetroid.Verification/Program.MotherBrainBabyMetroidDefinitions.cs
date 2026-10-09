@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the embedded Baby Metroid spawn record and exercises production allocation with that ROM record read forbidden.</summary>
+    /// <param name="rom">Cartridge address space used to compare the embedded population record and delegate unrelated reads.</param>
     private static void VerifyMotherBrainBabyMetroidDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -87,17 +89,29 @@ internal static partial class Program
             "Mother Brain Baby definition: all eight population words and the real allocation, initialization AI, palette load, spawn snapshot and duplicate guard pass with the embedded record forbidden.");
     }
 
+    /// <summary>Prevents runtime code from rereading the embedded Mother Brain Baby population record.</summary>
+    /// <param name="source">Address space used for reads and writes outside the protected population-record range.</param>
     private sealed class MotherBrainBabyPopulationReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an imported-cartridge byte read through the population-record guard.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is outside the protected record.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a mapped byte unless it belongs to the embedded spawn-population record.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within the protected population-record range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa9be28 and < 0xa9be38
                 ? throw new InvalidOperationException(
                     $"Mother Brain Baby attempted migrated population read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

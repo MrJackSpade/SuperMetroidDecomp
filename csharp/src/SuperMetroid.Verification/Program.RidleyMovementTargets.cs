@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares Ridley's movement-target and divisor tables with native words, then checks that carry, pogo, ground, release, and grab motion use the selected values without migrated table reads.</summary>
+    /// <param name="rom">Cartridge address space supplying the native movement tables and allowed reads during the grab-approach check.</param>
     private static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
         ushort[] Table(int address, Func<int, ushort> compiled, int count = 3)
@@ -125,12 +127,26 @@ internal static partial class Program
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
+    /// <summary>Wraps an address space to reject reads of migrated grab-divisor words and all bus writes during the Ridley approach check.</summary>
+    /// <param name="source">Underlying address space for reads outside the blocked divisor range.</param>
     private sealed class RidleyGrabDivisorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the grab-divisor guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is outside the blocked divisor range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the migrated grab-divisor table and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is in the blocked bank-$A6 grab-divisor range.</exception>
         public byte ReadByte(int address) => address is >= 0xa6bb4e and < 0xa6bb56
             ? throw new InvalidOperationException("Unexpected migrated Ridley grab divisor read.") : source.ReadByte(address);
+
+        /// <summary>Rejects every bus write because the approach verification must not mutate its address space.</summary>
+        /// <param name="address">Address the caller attempted to write.</param>
+        /// <param name="value">Byte the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Ridley target bus write.");
     }
 }

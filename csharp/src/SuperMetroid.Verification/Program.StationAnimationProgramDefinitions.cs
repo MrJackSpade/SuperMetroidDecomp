@@ -4,6 +4,9 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs the station-animation and related station-data checks against the pinned retail ROM revision.
+    /// </summary>
     private static void VerifyStationAnimationProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -29,9 +32,23 @@ internal static partial class Program
             "Station animations: all 15 frame records, 20 draw lists, and 12 access selections match ROM; sparse-bus station activation and save animation use compiled data.");
     }
 
+    /// <summary>
+    /// Compares each compiled station-animation duration with its corresponding retail ROM word.
+    /// </summary>
+    /// <param name="rom">Address space containing the station animation records.</param>
     private static void VerifyStationAnimationDurations(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, false);
+
+    /// <summary>
+    /// Compares each compiled station-animation draw pointer with its corresponding retail ROM word.
+    /// </summary>
+    /// <param name="rom">Address space containing the station animation records.</param>
     private static void VerifyStationAnimationDraws(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, true);
 
+    /// <summary>
+    /// Validates the exact station animation list and frame domains, then compares either durations or draw pointers.
+    /// </summary>
+    /// <param name="rom">Address space used to read the native station animation words.</param>
+    /// <param name="draw">When <see langword="true"/>, compare draw pointers; otherwise compare frame durations.</param>
     private static void VerifyStationAnimationField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] lists = [0xad66,0xad76,0xadc6,0xae50,0xafe8,0xaffa,0xaffe];
@@ -60,6 +77,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Reads a little-endian word from bank $84 at the supplied 16-bit ROM offset.
+    /// </summary>
+    /// <param name="rom">Address space supplying the cartridge bytes.</param>
+    /// <param name="address">16-bit offset within bank $84.</param>
+    /// <returns>The two bytes at the offset, combined low byte first.</returns>
     private static ushort ReadStationRomWord(SuperMetroidAddressSpace rom, int address) =>
         unchecked((ushort)(rom.ReadByte(0x840000 | address) |
             rom.ReadByte(0x840000 | (address + 1)) << 8));

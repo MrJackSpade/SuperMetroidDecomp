@@ -9,6 +9,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the installed equipment-page base against ROM and checks edits, transitions, live-state rebinding, and guarded rendering.</summary>
+    /// <param name="bus">Cartridge address space supplying native tilemap words and permitted game reads.</param>
+    /// <param name="stock">Directory containing the stock pause-equipment base presentation.</param>
+    /// <param name="overrides">Directory used to write and reload the edited presentation override.</param>
+    /// <param name="original">Loaded map presentation whose stock equipment base is checked against the cartridge.</param>
     private static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
@@ -134,13 +139,23 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space adapter that rejects runtime reads of the migrated pause-equipment base tilemap.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class PauseEquipmentBaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the equipment-base read guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated tilemap range and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte at a permitted address.</returns>
         public byte ReadByte(int address) => address >= PauseEquipmentBaseDefinitions.Source &&
             address < PauseEquipmentBaseDefinitions.Source + PauseEquipmentBaseDefinitions.Cells * sizeof(ushort)
             ? throw new InvalidOperationException($"Installed pause read equipment base at {address:X6}.") : source.ReadByte(address);
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

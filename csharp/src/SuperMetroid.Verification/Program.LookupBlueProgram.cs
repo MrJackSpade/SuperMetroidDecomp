@@ -3,11 +3,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the Blue door program's control operands against cartridge bytes and the shared room-PLM reader.</summary>
     private static void VerifyBlueProgramControls(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 0);
+
+    /// <summary>Checks the Blue door program's draw operands against cartridge bytes and the shared room-PLM reader.</summary>
     private static void VerifyBlueProgramDraws(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 1);
+
+    /// <summary>Checks the Blue door program's sound operands against cartridge bytes and the shared room-PLM reader.</summary>
     private static void VerifyBlueProgramSounds(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 2);
+
+    /// <summary>Checks the Blue door program's block-type operands against cartridge bytes and the shared room-PLM reader.</summary>
     private static void VerifyBlueProgramBts(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 3);
 
+    /// <summary>Validates one Blue door instruction field against independently located cartridge operands across the full address domain.</summary>
+    /// <param name="rom">Cartridge address space supplying the expected operand bytes.</param>
+    /// <param name="field">Field selector: 0 for control, 1 for draw, 2 for sound, or 3 for block-type operands.</param>
     private static void VerifyBlueProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.

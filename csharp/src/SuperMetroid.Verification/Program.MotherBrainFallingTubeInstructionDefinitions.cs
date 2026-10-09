@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares each falling-tube frame, visual selector, and sleep opcode with native ROM, then executes the lists through the normal enemy interpreter while their source bytes are blocked.</summary>
     private static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -70,17 +71,29 @@ internal static partial class Program
             "and guarded ordinary-enemy execution pass.");
     }
 
+    /// <summary>Wraps an address space to reject runtime reads from the cartridge bytes compiled as falling-tube instruction lists.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class MotherBrainFallingTubeReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the falling-tube source-byte guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte supplied by the wrapped address space when it lies outside the blocked instruction-list range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled falling-tube instruction lists and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address lies in the blocked bank-$A9 source range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa98c69 and <= 0xa98c86
                 ? throw new InvalidOperationException(
                     $"Mother Brain tube reread compiled source ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

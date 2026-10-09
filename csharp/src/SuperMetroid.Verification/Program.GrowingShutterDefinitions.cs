@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares growing-shutter dispatch, speed tables, and wrapped section origins with native data across selector and speed inputs.</summary>
+    /// <param name="rom">Cartridge address space supplying the native dispatch and speed words used as expectations.</param>
     private static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
@@ -42,6 +44,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GrowingShutterDefinitions.Speed(24), "Shutter speed outside authored records");
         Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and wrapped section origins match without a bus.");
     }
+    /// <summary>Checks each compiled initial-function selector against its native pointer and confirms invalid selectors are rejected.</summary>
+    /// <param name="rom">Cartridge address space containing the four native initial-function pointers.</param>
     private static void VerifyGrowingShutterInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -56,12 +60,19 @@ internal static partial class Program
                 "growing shutter initial selector rejects invalid full-width inputs");
     }
 
+    /// <summary>Verifies signed whole-speed values and their aliases against the corresponding native table words.</summary>
+    /// <param name="rom">Cartridge address space containing the native whole-speed table.</param>
     private static void VerifyGrowingShutterWholeSpeed(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: false));
 
+    /// <summary>Verifies unsigned fractional-speed values and their aliases against the corresponding native table words.</summary>
+    /// <param name="rom">Cartridge address space containing the native fractional-speed table.</param>
     private static void VerifyGrowingShutterFractionalSpeed(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: true));
 
+    /// <summary>Checks one half of each speed record for all 24 authored indices, all high-byte aliases, and invalid low-byte indices.</summary>
+    /// <param name="rom">Cartridge address space containing the native speed records.</param>
+    /// <param name="fractional"><see langword="true"/> to check the unsigned fractional half; <see langword="false"/> to check the signed whole half.</param>
     private static void VerifyGrowingShutterSpeedField(SuperMetroidAddressSpace rom, bool fractional)
     {
         for (int index = 0; index < 24; index++)

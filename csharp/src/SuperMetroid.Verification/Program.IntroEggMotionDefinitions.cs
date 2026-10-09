@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled egg motion tables with ROM and checks particle and slime trajectories against the native curves.</summary>
+    /// <param name="rom">ROM address space for native table comparisons and the guarded runtime actor simulation.</param>
     private static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -75,10 +77,18 @@ internal static partial class Program
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
+    /// <summary>Address-space wrapper that fails if runtime actors read motion data already compiled into definitions.</summary>
+    /// <param name="source">Underlying address space for reads outside the compiled motion tables and for writes.</param>
     private sealed class EggMotionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the same physical-table restriction as runtime reads.</summary>
+        /// <param name="address">Full SNES address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the compiled motion tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled egg position and velocity tables while forwarding other addresses.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x8ba97c and < 0x8ba994 or
@@ -90,6 +100,10 @@ internal static partial class Program
             }
             return source.ReadByte(address);
         }
+
+        /// <summary>Forwards writes to the wrapped address space; the guard applies only to reads.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

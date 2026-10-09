@@ -222,21 +222,35 @@ internal static partial class Program
             "affect only rendering, survive repair, and reject collision bits.");
     }
 
+    /// <summary>Ensures room-loading code obtains level bytes from the compiled corpus rather than rereading the native compressed source.</summary>
+    /// <param name="source">Address space used for permitted cartridge reads and writes.</param>
+    /// <param name="levelSource">Full address of the compressed level allocation that must not be read.</param>
     private sealed class RoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects the native level-source address, then forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">SNES address requested by the room loader.</param>
+        /// <returns>The source byte when the address is not the guarded level-source address.</returns>
+        /// <exception cref="InvalidOperationException">The requested address is the native compressed-level source.</exception>
         public byte ReadByte(int address)
         {
             RejectLevelSource(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Applies the level-source guard before forwarding a cartridge import read.</summary>
+        /// <param name="address">SNES address requested through the cartridge import interface.</param>
+        /// <returns>The imported source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The requested address is the native compressed-level source.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectLevelSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Throws when a room load attempts to read its native compressed-level source.</summary>
+        /// <param name="address">SNES address being checked.</param>
+        /// <exception cref="InvalidOperationException">The address equals the guarded level-source address.</exception>
         private void RejectLevelSource(int address)
         {
             if (address == levelSource)
@@ -244,6 +258,9 @@ internal static partial class Program
                     $"Installed room reread native level source ${address:X6}.");
         }
 
+        /// <summary>Forwards writes to the wrapped address space.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

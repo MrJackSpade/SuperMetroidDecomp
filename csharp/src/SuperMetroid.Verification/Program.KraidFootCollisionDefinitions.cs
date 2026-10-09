@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed Kraid-foot collision results with native hitboxes and ensures runtime probes avoid ROM reads.</summary>
     private static void VerifyKraidFootCollisionDefinitions()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -138,11 +139,17 @@ internal static partial class Program
         ];
     }
 
+    /// <summary>Address-space sentinel that records and rejects every cartridge read or write.</summary>
     private sealed class KraidFootCollisionNoReadBus : ISnesAddressSpace,
         IImportCartridgeSource
     {
+        /// <summary>Number of forbidden cartridge-byte read attempts observed by this sentinel.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Records a cartridge read attempt and rejects it to prove the installed path is ROM-free.</summary>
+        /// <param name="address">The cartridge address the caller attempted to read.</param>
+        /// <returns>No value is returned because every read attempt is rejected.</returns>
+        /// <exception cref="InvalidOperationException">Always thrown after the attempt counter is incremented.</exception>
         public byte ReadCartridgeByte(int address)
         {
             ReadAttempts++;
@@ -150,6 +157,10 @@ internal static partial class Program
                 $"Installed Kraid-foot collision read ROM byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because this sentinel is only used to assert that collision probing has no bus effects.</summary>
+        /// <param name="address">The address the caller attempted to modify.</param>
+        /// <param name="value">The byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">Always thrown because this sentinel does not permit writes.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException(
                 $"Installed Kraid-foot collision wrote byte ${address:X6}.");

@@ -10,6 +10,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted and edited flare offsets affect Grapple visuals without changing mechanics or runtime ROM access.</summary>
+    /// <param name="rom">Retail cartridge address space used for reference data and runtime fixtures.</param>
     private static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
@@ -124,17 +126,29 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
+    /// <summary>Wraps gameplay memory and rejects reads from the native Grapple flare-origin tables.</summary>
+    /// <param name="bus">Underlying address space for permitted reads and all writes.</param>
     private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace,
         IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the guard's ROM-read check.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The wrapped byte when the address is outside the migrated flare-origin tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from either native flare-origin table and forwards other reads.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The byte at an address outside the guarded tables.</returns>
+        /// <exception cref="InvalidOperationException">The runtime attempts to read a native flare origin from ROM.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2)
                 throw new InvalidOperationException("Grapple still reads visual flare origins from ROM.");
             return bus.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
     }
 }

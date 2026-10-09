@@ -8,10 +8,14 @@ internal static partial class Program
     /// <summary>A flag whose peak working set, or a suite whose allocation, exceeds this is marked over budget.</summary>
     private const long MemoryBudgetBytes = 1L << 30;
 
+    /// <summary>Current nesting level used to indent suite timing reports and identify outermost failures.</summary>
     private static int suiteDepth;
     // Elapsed time of suites nested directly inside each open suite, so a bundle's own work
     // (its self time) can be told apart from the sum of the suites it runs.
+    /// <summary>Accumulated elapsed time of direct child suites for each active suite.</summary>
     private static readonly Stack<TimeSpan> nestedSuiteTime = new();
+
+    /// <summary>Accumulated allocations of direct child suites for each active suite.</summary>
     private static readonly Stack<long> nestedSuiteAllocation = new();
 
     /// <summary>Outermost suites that failed during this run, in the order they failed.</summary>
@@ -70,7 +74,10 @@ internal static partial class Program
         return $"peak {peak / (1024.0 * 1024.0):0} MB" + (peak > MemoryBudgetBytes ? "  [over 1 GB: reduce]" : "");
     }
 
+    /// <summary>Measures elapsed time from the most recent timing checkpoint.</summary>
     private static readonly Stopwatch checkpointWatch = Stopwatch.StartNew();
+
+    /// <summary>Total allocated-byte count captured at the preceding checkpoint.</summary>
     private static long checkpointAllocated;
 
     /// <summary>

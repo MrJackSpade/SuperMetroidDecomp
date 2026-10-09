@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four native jump velocities and exhaustively verifies production RNG selection while forbidding reads from their source table.</summary>
+    /// <param name="rom">Retail cartridge address space used for the expected velocity words and unrelated enemy reads.</param>
     private static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -59,16 +61,27 @@ internal static partial class Program
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
+    /// <summary>Wraps an address space and fails if the production enemy path reads the migrated lava-jump velocity table.</summary>
+    /// <param name="source">Address space that supplies all reads outside the guarded velocity-table range and receives writes.</param>
     private sealed class NorfairLavaJumpReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the velocity-table guard.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded velocity table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated velocity-table range and delegates other addresses to the source.</summary>
+        /// <param name="address">Address of the byte to read.</param>
+        /// <returns>The byte supplied by the wrapped address space outside the guarded range.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa2be86 and < 0xa2be8e
                 ? throw new InvalidOperationException(
                     $"Norfair lava jumper attempted migrated velocity read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

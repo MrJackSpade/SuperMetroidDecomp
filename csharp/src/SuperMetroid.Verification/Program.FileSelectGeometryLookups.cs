@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks file-select cursor and helmet geometry against the supported cartridge revision and extracted presentation.</summary>
     private static void VerifyFileSelectGeometryLookups()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -22,6 +23,7 @@ internal static partial class Program
         Console.WriteLine("File select geometry: six main rows, both four-row data views, three helmet anchors, extracted output and bounds pass.");
     }
 
+    /// <summary>Compares all six main-menu cursor rows with their cartridge table words and extracted presentation positions.</summary>
     private static void VerifyFileSelectMainCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
         AssertEqual(6, FileSelectLayout.MainSelectionCount, "main selection count");
@@ -35,6 +37,7 @@ internal static partial class Program
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.MainSelectionY, 6));
     }
 
+    /// <summary>Compares both four-row data-menu cursor tables with the shared layout lookup and extracted presentation positions.</summary>
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
         AssertEqual(4, FileSelectLayout.DataSelectionCount, "data selection count");
@@ -49,6 +52,7 @@ internal static partial class Program
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.DataSelectionY, 4));
     }
 
+    /// <summary>Checks the three helmet-anchor Y values against the cartridge instructions and extracted presentation data.</summary>
     private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectPresentationDocument document)
     {
         AssertEqual(3, FileSelectLayout.SaveSlotCount, "helmet slot count");
@@ -65,6 +69,7 @@ internal static partial class Program
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.HelmetY, 3));
     }
 
+    /// <summary>Confirms a geometry lookup rejects indices below zero and at or beyond its supported entry count.</summary>
     private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)
     {
         foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })

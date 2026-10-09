@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native gunship-dust offsets and instruction selections through the production spawner without reading migrated tables.</summary>
+    /// <param name="rom">Cartridge address space supplying native dust-table words and the shared vertical offset for comparison.</param>
     private static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -61,12 +63,27 @@ internal static partial class Program
         Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
     }
 
+    /// <summary>Address-space proxy that rejects reads from migrated gunship-dust tables while forwarding other reads and forbidding writes.</summary>
+    /// <param name="source">Underlying address space for reads outside the dust-table range.</param>
     private sealed class GunshipDustReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the dust-table read guard.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte unless the request targets a migrated dust table.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read targets the migrated dust-table range.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated dust-table range and forwards other byte requests.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte returned by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the migrated dust-table range.</exception>
         public byte ReadByte(int address) => address is >= 0x86a2d6 and < 0x86a2ee
             ? throw new InvalidOperationException("Unexpected migrated gunship dust table read.") : source.ReadByte(address);
+
+        /// <summary>Rejects every write through this verification guard.</summary>
+        /// <param name="address">Address the caller attempted to write.</param>
+        /// <param name="value">Byte value the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write is attempted through the guard.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected gunship dust bus write.");
     }
 }

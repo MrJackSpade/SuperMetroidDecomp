@@ -4,6 +4,10 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native impulse constants and checks bomb-jump and knockback launches against their cartridge tables.
+    /// </summary>
+    /// <param name="rom">Address space supplying the native impulse reference values and permitted pose data.</param>
     private static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
@@ -80,13 +84,35 @@ internal static partial class Program
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");
     }
 
+    /// <summary>
+    /// Limits impulse verification reads to bank $91, where the remaining pose and animation data resides.
+    /// </summary>
+    /// <param name="source">Address space that serves the allowed bank $91 reads.</param>
     private sealed class ImpulsePoseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Sends cartridge-import requests through the same bank restriction as bus reads.
+        /// </summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte at an allowed address.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Reads permitted bank $91 pose or animation data and rejects every other address.
+        /// </summary>
+        /// <param name="address">Address to read from the SNES bus.</param>
+        /// <returns>The source byte when the address is in bank $91.</returns>
+        /// <exception cref="InvalidOperationException">The read is outside bank $91.</exception>
         public byte ReadByte(int address) => address >> 16 == 0x91
             ? source.ReadByte(address)
             : throw new InvalidOperationException($"Impulse test permits only remaining pose/animation reads, got ${address:X6}.");
+
+        /// <summary>
+        /// Rejects writes because impulse verification should not mutate the address space.
+        /// </summary>
+        /// <param name="address">Address that the test attempted to write.</param>
+        /// <param name="value">Byte that the test attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A bus write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected impulse bus write.");
     }
 }

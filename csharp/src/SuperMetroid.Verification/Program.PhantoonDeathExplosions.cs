@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the thirteen native death-explosion records, frame-exact scheduling, animation selection, and full-projectile-pool behavior.</summary>
+    /// <param name="rom">Cartridge address space supplying the native record bytes and explosion animation pointers for comparison.</param>
     private static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 13; i++)
@@ -68,12 +70,27 @@ internal static partial class Program
         Console.WriteLine("Phantoon death: 52 native bytes and six frame-exact 29-request sequences preserve timing, positions, animation and full-pool behavior with schedule reads forbidden.");
     }
 
+    /// <summary>Address-space proxy that rejects runtime reads of the migrated Phantoon death-explosion schedule.</summary>
+    /// <param name="source">Underlying address space for all reads outside the compiled schedule range.</param>
     private sealed class PhantoonDeathReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the death-schedule guard.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte unless the request targets a migrated schedule record.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read targets the compiled death schedule.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled schedule range and forwards all other byte requests.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte returned by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the migrated schedule range.</exception>
         public byte ReadByte(int address) => address is >= 0xa7da1d and < 0xa7da51
             ? throw new InvalidOperationException("Unexpected migrated death schedule read.") : source.ReadByte(address);
+
+        /// <summary>Rejects every write through this verification guard.</summary>
+        /// <param name="address">Address the caller attempted to write.</param>
+        /// <param name="value">Byte value the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write is attempted through the guard.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected death schedule bus write.");
     }
 }

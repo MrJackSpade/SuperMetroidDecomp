@@ -6,6 +6,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies compiled map-scroll button bindings preserve native input precedence, movement, and sound timing.</summary>
+    /// <param name="bus">Cartridge address space used for the native reference behavior.</param>
+    /// <param name="catalog">Installed area-map presentation data used by both scroll implementations.</param>
     private static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         var buttons = new ushort[MapScrollControls.DirectionCount];
@@ -50,10 +53,19 @@ internal static partial class Program
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 
+    /// <summary>Wraps an address space and rejects reads of navigation bindings embedded in visual arrow records.</summary>
+    /// <param name="source">Underlying address space for permitted reads and all writes.</param>
     private sealed class MapScrollControlReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the navigation-binding guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the guarded binding fields.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of controller masks and direction order stored in arrow records.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The byte at an address outside the guarded fields.</returns>
+        /// <exception cref="InvalidOperationException">The read targets a controller binding field in the visual arrow table.</exception>
         public byte ReadByte(int address)
         {
             int offset = address - FileSelectMapRomData.ScrollArrows;
@@ -61,6 +73,9 @@ internal static partial class Program
                 throw new InvalidOperationException("Map navigation read controller bindings from the visual arrow ROM records.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

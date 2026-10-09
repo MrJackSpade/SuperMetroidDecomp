@@ -3,11 +3,25 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the complete collectible pointer domain and verifies each exported draw retains the native one-cell geometry.</summary>
+    /// <param name="rom">Cartridge address space containing the original collectible draw records.</param>
     private static void VerifyCollectibleDrawGeometry(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
+
+    /// <summary>Verifies that each exported collectible preserves the collision bits from its native draw record.</summary>
+    /// <param name="rom">Cartridge address space containing the original collectible draw records.</param>
     private static void VerifyCollectibleDrawCollision(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
+
+    /// <summary>Verifies that each exported collectible preserves the visual attribute bits from its native draw record.</summary>
+    /// <param name="rom">Cartridge address space containing the original collectible draw records.</param>
     private static void VerifyCollectibleDrawVisuals(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
+
+    /// <summary>Verifies collectible pointer-to-name ordering, reverse lookup, and rejection of unsupported IDs.</summary>
+    /// <param name="rom">Cartridge address space used to check each original collectible pointer.</param>
     private static void VerifyCollectibleDrawIdentity(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
 
+    /// <summary>Checks exported collectible identities and the selected geometry, collision, visual, or name contract against native data.</summary>
+    /// <param name="rom">Cartridge address space containing the original draw records.</param>
+    /// <param name="field">Selects geometry (0), collision bits (1), visual bits (2), or published identity (3).</param>
     private static void VerifyCollectibleDrawField(SuperMetroidAddressSpace rom, int field)
     {
         // Original exported pointer/name contract; physical values come from the ROM.

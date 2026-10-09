@@ -61,6 +61,10 @@ internal static partial class Program
             "retail population load pass without reading 128 source bytes.");
     }
 
+    /// <summary>Decodes the cartridge's complete enemy-definition record for comparison with the compiled Mama Turtle headers.</summary>
+    /// <param name="bus">Cartridge address space containing the native enemy-definition bank.</param>
+    /// <param name="pointer">Bank-relative header pointer to decode.</param>
+    /// <returns>The room enemy definition represented by the native header bytes.</returns>
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
         SuperMetroidAddressSpace bus,
         ushort pointer)
@@ -83,11 +87,18 @@ internal static partial class Program
             Word(58), Word(60), Word(62));
     }
 
+    /// <summary>Address-space adapter that rejects reads from the two compiled Mama Turtle source headers.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class MamaTurtleDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the source-header guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated header range and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte at a permitted address.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress and
@@ -101,6 +112,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

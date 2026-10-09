@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled sprite and sound choices against ROM and verifies all random/inherited handoffs through the production spawner.</summary>
+    /// <param name="rom">Cartridge address space used to compare the source tables and wrapped by the table-read guard.</param>
     private static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
@@ -63,17 +65,29 @@ internal static partial class Program
             "Zebes escape explosion definitions: sixteen native bytes and all 128 random/inherited selection handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Prevents the production escape-explosion path from rereading its native sprite and sound tables.</summary>
+    /// <param name="source">Address space used for reads and writes outside the guarded table range.</param>
     private sealed class ZebesEscapeExplosionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an imported-cartridge byte request through the escape-table read guard.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is outside the guarded tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a mapped byte unless it belongs to the native escape-explosion sprite or sound table.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the guarded sprite or sound table range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x8fc1d6 and < 0x8fc1e6
                 ? throw new InvalidOperationException(
                     $"Zebes escape explosion attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

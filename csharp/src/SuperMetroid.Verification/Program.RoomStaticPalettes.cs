@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Audits extracted room palettes against native CGRAM data and verifies that installed RGB5 edits
+    /// reach runtime room loading without rereading the cartridge palette source.
+    /// </summary>
     private static void VerifyRoomStaticPaletteExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -90,11 +94,19 @@ internal static partial class Program
             "and RGB5 edits reach room CGRAM.");
     }
 
+    /// <summary>
+    /// Wraps room-loading address access so reads from the replaced base-palette source fail, while
+    /// forwarding all other reads and writes to the underlying cartridge address space.
+    /// </summary>
+    /// <param name="source">Address space receiving all permitted reads and writes.</param>
+    /// <param name="paletteSource">Cartridge address of the palette that installed palette art replaces.</param>
     private sealed class RoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Checks the cartridge-read path against the replaced palette address.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects the replaced palette source and forwards every other byte read.</summary>
         public byte ReadByte(int address)
         {
             if (address == paletteSource)
@@ -103,6 +115,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped cartridge address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

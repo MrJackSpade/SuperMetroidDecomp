@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Verifies legacy room-FX sheet dimensions, stock-tail inheritance, input-position preservation, and rewind requirements.</summary>
     private static void VerifyRoomFxLegacySheetSelection()
     {
         // Pre-conversion widths at1fefba07, independently fixed compatibility contract.
@@ -48,10 +49,22 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Memory-backed test stream that exposes data sequentially while refusing all seek operations.</summary>
+    /// <param name="bytes">PNG bytes available to forward-only readers.</param>
     private sealed class FxAtlasForwardOnlyStream(byte[] bytes) : MemoryStream(bytes)
     {
+        /// <summary>Always reports false so consumers can detect that this stream cannot be rewound.</summary>
         public override bool CanSeek => false;
+
+        /// <summary>Seeking by position is unsupported for this forward-only test stream.</summary>
+        /// <exception cref="NotSupportedException">The position is read or changed.</exception>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+        /// <summary>Rejects attempts to reposition the stream.</summary>
+        /// <param name="offset">Relative or absolute offset requested by the caller.</param>
+        /// <param name="loc">Origin from which the offset would be applied.</param>
+        /// <returns>This method never returns.</returns>
+        /// <exception cref="NotSupportedException">Seeking is not supported.</exception>
         public override long Seek(long offset, SeekOrigin loc) => throw new NotSupportedException();
     }
 }

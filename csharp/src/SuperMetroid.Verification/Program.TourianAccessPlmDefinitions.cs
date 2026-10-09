@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks native clear/crumble PLM identities, selected header and instruction pointers, and the resulting room spawn slot.</summary>
+    /// <param name="rom">Cartridge address space containing the native Tourian access spawn records.</param>
     private static void VerifyTourianAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessHeaderSelection), () => VerifyTourianAccessHeaderSelection(rom));
@@ -44,12 +46,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares compiled access-PLM header selection with the two native clear-state spawn records.</summary>
+    /// <param name="rom">Cartridge address space supplying the native spawn operands.</param>
     private static void VerifyTourianAccessHeaderSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, false));
 
+    /// <summary>Compares compiled access-PLM instruction-list selection with the pointers stored in the native headers.</summary>
+    /// <param name="rom">Cartridge address space supplying the native spawn and header words.</param>
     private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
+    /// <summary>Checks the selected native spawn operand, its optional header instruction pointer, and fixed spawn coordinates.</summary>
+    /// <param name="rom">Cartridge address space containing the native spawn records and PLM headers.</param>
+    /// <param name="instruction">When <see langword="true"/>, compare the header's instruction-list pointer; otherwise compare the header pointer.</param>
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Native spawn operands: completed descent crumbles; already-unlocked room clears.
@@ -66,6 +75,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads a little-endian 16-bit word from the cartridge address space.</summary>
+    /// <param name="bus">Address space containing the word.</param>
+    /// <param name="address">Full SNES address of the first byte.</param>
+    /// <returns>The two bytes combined with the lower-address byte as the low byte.</returns>
     private static ushort ReadTourianAccessWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

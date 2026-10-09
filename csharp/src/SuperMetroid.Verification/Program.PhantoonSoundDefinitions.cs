@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the three native materialization sounds and verifies two production callback cycles without reading their source table.</summary>
+    /// <param name="rom">Retail cartridge address space used for expected sound words and unrelated enemy reads.</param>
     private static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;
@@ -56,15 +58,26 @@ internal static partial class Program
             "Phantoon sound definitions: all three native selections and two complete production callback cycles pass with the source table forbidden.");
     }
 
+    /// <summary>Wraps an address space and fails if Phantoon reads the migrated materialization-sound table.</summary>
+    /// <param name="source">Address space used outside the guarded sound-table range and as the destination for writes.</param>
     private sealed class PhantoonSoundReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the materialization-sound table guard.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded sound table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated sound-table range and delegates other addresses to the wrapped source.</summary>
+        /// <param name="address">Address of the byte to read.</param>
+        /// <returns>The wrapped source's byte for an address outside the guarded range.</returns>
         public byte ReadByte(int address) => address is >= 0xa7cded and < 0xa7cdf3
             ? throw new InvalidOperationException(
                 $"Phantoon attempted migrated materialization sound read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards the byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks additive OBJ composition, transparency and compatibility with packets written before additive OBJ support.</summary>
     private static void VerifyObjSubscreenAddition()
     {
         Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
@@ -39,6 +40,7 @@ internal static partial class Program
             "legacy packets retain replacing OBJ composition");
     }
 
+    /// <summary>Verifies Mode-7 BG1 color addition respects BG opacity, OBJ priority and palette eligibility.</summary>
     private static void VerifyMode7Bg1Addition()
     {
         foreach (bool opaqueBg in new[] { false, true })
@@ -70,6 +72,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks Mode-7 subtraction against OBJ pixels, including component clamping and transparent-OBJ behavior.</summary>
     private static void VerifyMode7ObjSubtraction()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
@@ -94,6 +97,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
     }
 
+    /// <summary>Verifies fixed-color addition on OBJ pixels obeys palette eligibility and priority while preserving legacy packets.</summary>
     private static void VerifyObjFixedColor()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
@@ -137,6 +141,7 @@ internal static partial class Program
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
+    /// <summary>Checks four-bit BG4 subscreen decoding and priority selection before color addition to BG and OBJ pixels.</summary>
     private static void VerifyBg4SubscreenAddition()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled rain, eye, and shot-pattern data with the cartridge and checks production Phantoon pattern selection across its inputs.</summary>
+    /// <param name="rom">Cartridge address space supplying native pattern records and reference bytes.</param>
     private static void VerifyCompiledPhantoonPatterns(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -111,10 +113,19 @@ internal static partial class Program
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
+    /// <summary>Prevents production pattern-selection paths from reading Phantoon data that has been compiled into definitions.</summary>
+    /// <param name="source">Address space supplying reads outside the migrated Phantoon tables.</param>
     private sealed class PhantoonPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the same migrated-table guard as normal reads.</summary>
+        /// <param name="address">SNES address requested from the cartridge source.</param>
+        /// <returns>The wrapped source byte when the address is outside the guarded tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of compiled shot markers, rain data, and eye-direction pointers, forwarding other reads.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The wrapped source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within a migrated Phantoon pattern-data range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0xa7cda5 and < 0xa7cded or
@@ -123,6 +134,11 @@ internal static partial class Program
                 throw new InvalidOperationException($"Migrated Phantoon pattern ROM read at {address:X6}.");
             return source.ReadByte(address);
         }
+
+        /// <summary>Rejects writes because the guarded production paths must not modify the cartridge address space.</summary>
+        /// <param name="address">SNES address that the caller attempted to write.</param>
+        /// <param name="value">Byte that the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write is attempted through the verification guard.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected rain initialization bus write.");
     }
 }

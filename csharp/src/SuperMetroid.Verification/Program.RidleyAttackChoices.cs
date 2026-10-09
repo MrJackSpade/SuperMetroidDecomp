@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled attack distributions against all native table entries and verifies production selection consumes RNG and starts the chosen action on the same frame.</summary>
+    /// <param name="rom">Cartridge address space used to compare the compiled choices and wrapped by the native-table read guard.</param>
     private static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
         RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
@@ -81,12 +83,25 @@ internal static partial class Program
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
+    /// <summary>Prevents the production selector from rereading Ridley's native attack-choice table.</summary>
+    /// <param name="source">Address space used for reads and writes outside the attack-choice table.</param>
     private sealed class RidleyAttackReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an imported-cartridge byte request through the attack-table read guard.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is outside the guarded table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a mapped byte unless it belongs to the native Ridley attack-choice table.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the guarded attack-choice table.</exception>
         public byte ReadByte(int address) => address is >= 0xa6b38c and < 0xa6b3ec
             ? throw new InvalidOperationException("Unexpected migrated Ridley attack-choice read.") : source.ReadByte(address);
+
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

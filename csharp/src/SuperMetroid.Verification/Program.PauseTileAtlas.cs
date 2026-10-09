@@ -9,6 +9,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies pause-tile resource provenance, PNG overrides, and rendered map/equipment behavior while forbidding runtime reads of installed pause artwork.</summary>
+    /// <param name="bus">Address space used to compare the stock pause atlas with its native cartridge bytes.</param>
+    /// <param name="stock">Directory containing the stock presentation resources.</param>
+    /// <param name="overrides">Directory used for temporary pause-atlas override fixtures.</param>
+    /// <param name="original">Area-map presentation catalog used as the unedited rendering baseline.</param>
     private static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
@@ -78,12 +83,25 @@ internal static partial class Program
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");
     }
 
+    /// <summary>Rejects reads of the native pause-atlas byte range so rendering must use installed artwork.</summary>
+    /// <param name="source">Address space used for reads and writes outside the protected pause-atlas range.</param>
     private sealed class PauseArtworkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an imported-cartridge byte request through the pause-atlas read guard.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is outside the protected atlas.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a mapped byte unless it belongs to the native pause-atlas data range.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within the protected pause-atlas range.</exception>
         public byte ReadByte(int address) => (uint)(address - PauseTileAtlasFormat.SourceAddress) < PauseTileAtlasFormat.ByteCount
             ? throw new InvalidOperationException($"Installed pause read UI artwork at {address:X6}.") : source.ReadByte(address);
+
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies retail metatile extraction, installed room loading without source reads, and visual-only edits.</summary>
     private static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -113,11 +114,22 @@ internal static partial class Program
             "byte-exactly; a visual edit changes one child without changing collision/BTS.");
     }
 
+    /// <summary>Address-space proxy that rejects direct reads of selected area and CRE metatile sources.</summary>
+    /// <param name="source">Underlying address space used for room data and all unguarded reads.</param>
+    /// <param name="areaSource">Tileset block-definition address that installed room loading must not reread.</param>
     private sealed class RoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the guarded read path.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte when the address is not a protected metatile source.</returns>
+        /// <exception cref="InvalidOperationException">The address is the protected area or CRE block-definition source.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the selected area source and shared CRE source while forwarding other bytes.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte returned by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address matches <paramref name="areaSource"/> or the CRE block-definition source.</exception>
         public byte ReadByte(int address)
         {
             if (address == areaSource ||
@@ -127,6 +139,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space without applying the read guard.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies compiled physical projectile origins against cartridge data across poses and direction words.</summary>
+    /// <param name="rom">Cartridge address space supplying the native origin and pose-correction values.</param>
     private static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
@@ -52,10 +54,19 @@ internal static partial class Program
         Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover all direction words, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
     }
 
+    /// <summary>Guards physical-origin reads while substituting distinct values for presentation-only origin data.</summary>
+    /// <param name="source">Underlying address space for permitted reads and all writes.</param>
     private sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the physical-origin guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The guarded byte for the requested address.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects physical-origin table access, substitutes the test presentation bytes, and forwards other reads.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The substituted presentation byte or the underlying byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">Runtime code attempts to read a compiled physical projectile origin.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c204 and < 0x90c28f)
@@ -64,6 +75,9 @@ internal static partial class Program
             if (address is >= 0x90c1a8 and < 0x90c204) return 0x5a;
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

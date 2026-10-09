@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks native projectile-frame mappings, gameplay handlers, visible OAM changes, override loading, and invalid resources.</summary>
+    /// <param name="rom">Cartridge address space supplying stock frame references and the source for guarded runtime reads.</param>
     private static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
@@ -149,14 +151,26 @@ internal static partial class Program
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }
 
+    /// <summary>Address-space adapter that rejects runtime reads of timed-record spritemap-reference bytes.</summary>
+    /// <param name="source">Underlying address space used for allowed reads and all writes.</param>
+    /// <param name="blocked">Exact cartridge addresses of sprite-reference bytes that installed handlers must not read.</param>
     private sealed class ProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte access through the blocked-address check.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of blocked sprite-reference bytes and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte at an address not listed in <paramref name="blocked"/>.</returns>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}.")
             : source.ReadByte(address);
+
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

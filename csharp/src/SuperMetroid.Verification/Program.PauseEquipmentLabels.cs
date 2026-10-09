@@ -8,6 +8,11 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Verifies stock pause-label rendering with ROM sources blocked, editable label rebinding, native Plasma/Varia overrun behavior, and strict asset validation.</summary>
+    /// <param name="bus">Address space used by the pause state and wrapped to reject reads from the cartridge-resident label source.</param>
+    /// <param name="stock">Directory containing the installed stock equipment-label document.</param>
+    /// <param name="overrides">Writable directory used to save and reload the edited label document.</param>
+    /// <param name="original">Baseline presentation catalog used to render before the edited catalog is bound.</param>
     private static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original)
     {
@@ -124,13 +129,26 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Wraps the pause address space to reject runtime reads from the cartridge-resident equipment-label source.</summary>
+    /// <param name="source">Underlying address space for allowed reads and all writes.</param>
     private sealed class PauseEquipmentLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the guarded bus read.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte supplied by the wrapped address space when it is outside the blocked label-source range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the native equipment-label source range and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the blocked cartridge-label range.</exception>
         public byte ReadByte(int address) => address is >= 0x82bf32 and < 0x82c0b2
             ? throw new InvalidOperationException($"Installed pause equipment label read native source ${address:X6}.")
             : source.ReadByte(address);
+
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

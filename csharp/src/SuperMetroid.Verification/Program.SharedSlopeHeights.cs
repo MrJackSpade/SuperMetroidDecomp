@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all compiled slope samples, invalid lookup bounds, and collision consumers while rejecting runtime reads from the slope table.</summary>
+    /// <param name="rom">Cartridge address space supplying the native slope-height bytes used as the verification reference.</param>
     private static void VerifyCompiledSlopeHeights(SuperMetroidAddressSpace rom)
     {
         byte[] native = new byte[512];
@@ -71,11 +73,22 @@ internal static partial class Program
         Console.WriteLine("Shared slopes: 512 native heights, 12288 Samus samples and 55296 cross-consumer collision/alignment cases pass with ROM reads forbidden.");
     }
 
+    /// <summary>Address-space sentinel that fails if a runtime slope consumer attempts a bus read or write.</summary>
     private sealed class SlopeHeightNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads to the rejecting address-space read.</summary>
+        /// <param name="address">Cartridge address whose read would indicate an unexpected table dependency.</param>
+        /// <returns>This method always throws because no bus read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every bus read so tests can prove consumers use compiled slope data.</summary>
+        /// <param name="address">Address that the caller attempted to read.</param>
+        /// <returns>This method never returns.</returns>
         public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected slope ROM read at {address:X6}.");
+
+        /// <summary>Rejects every bus write because the slope-data verification path is read-only.</summary>
+        /// <param name="address">Address that the caller attempted to write.</param>
+        /// <param name="value">Byte the caller attempted to store.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected slope bus write.");
     }
 }

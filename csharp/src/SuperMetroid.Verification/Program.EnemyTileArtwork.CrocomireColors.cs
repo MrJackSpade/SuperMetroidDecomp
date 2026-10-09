@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks Crocomire's compiled color bands against ROM and verifies overrides drive the boss's live CGRAM writes.</summary>
+    /// <param name="rom">ROM address space used to compare native palette words and to guard runtime palette reads.</param>
+    /// <param name="stockDirectory">Directory containing installed enemy artwork and the stock Crocomire color document.</param>
+    /// <param name="stock">Installed enemy artwork catalog whose Crocomire colors are checked and later overridden.</param>
     private static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -161,11 +165,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space adapter that rejects cartridge reads from Crocomire's migrated palette tables.</summary>
+    /// <param name="source">Underlying address space for allowed reads and all writes.</param>
     private sealed class CrocomirePaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Applies the palette read guard to cartridge-import requests as well as runtime requests.</summary>
+        /// <param name="address">Full SNES address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the migrated palette tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Forwards allowed addresses and throws if code tries to read a migrated Crocomire palette word.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed address.</returns>
         public byte ReadByte(int address) =>
             address >= CrocomirePaletteRomData.FightBodySource &&
             address < CrocomirePaletteRomData.WallSpikesSource +
@@ -174,6 +186,9 @@ internal static partial class Program
                     $"Crocomire accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Passes writes through to the wrapped address space without applying the palette read restriction.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

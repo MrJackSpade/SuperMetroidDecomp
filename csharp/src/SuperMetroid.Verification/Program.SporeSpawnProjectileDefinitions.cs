@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares Spore Spawn's spawn geometry and wrapped movement vectors with native data, then verifies production spawns and mirrored motion while compiled table reads are blocked.</summary>
+    /// <param name="rom">Cartridge address space supplying the native geometry and movement bytes used as expectations.</param>
     private static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -92,10 +94,19 @@ internal static partial class Program
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Wraps an address space to reject runtime reads from the compiled Spore Spawn geometry and movement tables.</summary>
+    /// <param name="source">Underlying address space for reads outside those table ranges and for writes.</param>
     private sealed class SporeSpawnProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the projectile-definition table guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte supplied by the wrapped address space when it is outside a blocked table range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled stalk, emitter, and movement tables and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address lies within a blocked Spore Spawn definition-table range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x86dcb9 and < 0x86dcc1 or
                 >= 0x86dce6 and < 0x86dcee or
@@ -104,6 +115,9 @@ internal static partial class Program
                     $"Spore Spawn attempted migrated projectile-definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

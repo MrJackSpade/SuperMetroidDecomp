@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the two exported Mother Brain boundary records match native PLM runs, ownership, offsets, and record boundaries.</summary>
+    /// <param name="rom">Cartridge address space containing the native room PLM data.</param>
     private static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
         var exports = MotherBrainFakeDeathPlmDrawDefinitions.All.Take(2).ToArray();
@@ -51,15 +53,24 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the collision-relevant high bits of every Mother Brain wall and door boundary cell.</summary>
+    /// <param name="rom">Cartridge address space used as the native cell-data reference.</param>
     private static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
 
+    /// <summary>Checks the visual cell values in the left wall boundary PLM record.</summary>
+    /// <param name="rom">Cartridge address space used as the native cell-data reference.</param>
     private static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
 
+    /// <summary>Checks the visual cell values in the right door boundary PLM record.</summary>
+    /// <param name="rom">Cartridge address space used as the native cell-data reference.</param>
     private static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
 
+    /// <summary>Compares selected native boundary-cell fields with both the runtime geometry and exported draw descriptor.</summary>
+    /// <param name="rom">Cartridge address space containing the native boundary records.</param>
+    /// <param name="field">Field selector: zero checks collision bits; one checks the wall's visual word; two checks the door's visual word.</param>
     private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)
     {
         foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})

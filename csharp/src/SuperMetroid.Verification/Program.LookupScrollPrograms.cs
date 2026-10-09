@@ -4,11 +4,25 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the ordered set of compiled scroll-program pointers against the retail ROM and verifies selector rejection behavior.</summary>
+    /// <param name="rom">Retail cartridge address space containing the native scroll-program bytes.</param>
     private static void VerifyScrollProgramIdentities(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,0);
+
+    /// <summary>Checks each scroll pair's storage index against the ordered writes produced by the compiled program.</summary>
+    /// <param name="rom">Retail cartridge address space containing the native scroll-program bytes.</param>
     private static void VerifyScrollProgramIndices(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,1);
+
+    /// <summary>Checks each scroll pair's state byte against the state applied by the compiled program.</summary>
+    /// <param name="rom">Retail cartridge address space containing the native scroll-program bytes.</param>
     private static void VerifyScrollProgramStates(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,2);
+
+    /// <summary>Checks that each encoded scroll program ends at its native terminator after exactly its ordered writes.</summary>
+    /// <param name="rom">Retail cartridge address space containing the native scroll-program bytes.</param>
     private static void VerifyScrollProgramTermination(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,3);
 
+    /// <summary>Compares selected compiled scroll-program fields with ROM bytes and verifies aggregate program, pair, and byte counts.</summary>
+    /// <param name="rom">Retail cartridge address space used as the independent source of encoded scroll-program bytes.</param>
+    /// <param name="field">Field to validate: 0 checks pointer identities, 1 pair indices, 2 pair states, or 3 termination and encoded length.</param>
     private static void VerifyScrollProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Original generated owner at 8de735494b5027ed7ff3609760fd8ed982e96f08; expected operands come from ROM.

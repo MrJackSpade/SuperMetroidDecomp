@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Phantoon's compiled spawn tables and checks that real flame initialization uses the imported definitions.
+    /// </summary>
+    /// <param name="rom">Address space containing the cartridge tables used as the verification reference.</param>
     private static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)
@@ -47,16 +51,37 @@ internal static partial class Program
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 
+    /// <summary>
+    /// Wraps the game bus to fail if Phantoon flame initialization reads a spawn table that has already been imported.
+    /// </summary>
+    /// <param name="source">Underlying bus used for permitted reads outside the migrated spawn-table ranges.</param>
     private sealed class PhantoonFlameSpawnReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Routes an import-time cartridge read through the same table-read guard used for ordinary bus reads.
+        /// </summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the migrated Phantoon spawn tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from the imported Phantoon spawn tables and delegates every other address to the wrapped bus.
+        /// </summary>
+        /// <param name="address">Address to read from the SNES bus.</param>
+        /// <returns>The byte supplied by the wrapped bus for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a migrated Phantoon spawn table.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981)
                 throw new InvalidOperationException($"Migrated Phantoon spawn table read at {address:X6}.");
             return source.ReadByte(address);
         }
+        /// <summary>
+        /// Rejects bus writes because flame initialization is expected to be read-only in this verification.
+        /// </summary>
+        /// <param name="address">Address that the initialization attempted to write.</param>
+        /// <param name="value">Byte that the initialization attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A bus write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected flame initialization bus write.");
     }
 }

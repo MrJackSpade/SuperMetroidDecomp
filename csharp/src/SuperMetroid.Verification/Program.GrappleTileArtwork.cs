@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted and edited Grapple artwork against native transfer mappings, draw output, and state preservation while blocking production ROM reads.</summary>
+    /// <param name="bus">Cartridge address space used for native reference data and draws.</param>
     private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
@@ -82,11 +84,20 @@ internal static partial class Program
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
     }
 
+    /// <summary>Rejects gameplay reads from Grapple tile-pointer and tile-pixel ROM ranges while forwarding other accesses.</summary>
+    /// <param name="source">Address space used to service permitted reads and writes.</param>
     private sealed class GrappleTileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
         IImportCartridgeSource
     {
+        /// <summary>Routes cartridge import reads through the same Grapple visual-data guard as normal reads.</summary>
+        /// <param name="address">SNES address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded Grapple visual ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of the Grapple segment-pointer table and transferred tile pixels.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The wrapped source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address falls in a guarded Grapple tile-pointer or tile-pixel range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x9bc342 and < 0x9bc3c6) throw new InvalidOperationException("Grapple still reads tile pointer ROM.");
@@ -95,6 +106,10 @@ internal static partial class Program
                     throw new InvalidOperationException("Grapple still reads tile pixel ROM.");
             return source.ReadByte(address);
         }
+
+        /// <summary>Forwards a memory write to the wrapped address space.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

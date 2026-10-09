@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed gameplay-message titles with cartridge tilemaps and verifies live presentation edits without ROM access.</summary>
+    /// <param name="romPath">Path to the ROM used to extract stock title presentation and reference tilemap rows.</param>
     private static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -69,13 +71,21 @@ internal static partial class Program
             $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>Address-space test double that fails immediately if installed gameplay-message code accesses cartridge memory.</summary>
     private sealed class ForbiddenGameplayMessageBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests to the rejecting address-space read.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every cartridge read to ensure title rendering uses installed presentation data.</summary>
+        /// <param name="address">Address whose access would indicate a forbidden cartridge dependency.</param>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed gameplay-message title read cartridge address ${address:X6}.");
 
+        /// <summary>Rejects every cartridge write during the installed-title verification.</summary>
+        /// <param name="address">Address whose modification would violate the read-only verification contract.</param>
+        /// <param name="value">Byte that the caller attempted to write.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed gameplay-message title wrote cartridge address ${address:X6}.");
     }

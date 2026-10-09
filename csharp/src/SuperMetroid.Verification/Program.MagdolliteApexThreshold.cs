@@ -8,6 +8,7 @@ internal static partial class Program
     // before Y is loaded from the growth index, so it compares the arm height against
     // MagdolliteArmHeightThreshold + EnemyIndex ($A0:9073). In the 100% movie the Crateria
     // arm in slot two reads $AE9D there and grows one final pillar segment at the apex.
+    /// <summary>Verifies apex growth uses the enemy-indexed threshold read and does not read migrated data at runtime.</summary>
     private static void VerifyMagdolliteApexThreshold()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -65,15 +66,26 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps an address space and rejects runtime reads from the migrated Magdollite definition-data range.</summary>
+    /// <param name="source">The underlying address space for reads outside the protected range and for writes.</param>
     private sealed class MagdolliteApexReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the protected-range check.</summary>
+        /// <param name="address">The address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the protected range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects runtime reads from migrated definition data and delegates other reads.</summary>
+        /// <param name="address">The address to read.</param>
+        /// <returns>The underlying byte when the read is permitted.</returns>
         public byte ReadByte(int address) => address is >= 0xa8af55 and < 0xa8b717
             ? throw new InvalidOperationException(
                 $"Magdollite attempted a migrated threshold read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">The destination address.</param>
+        /// <param name="value">The byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

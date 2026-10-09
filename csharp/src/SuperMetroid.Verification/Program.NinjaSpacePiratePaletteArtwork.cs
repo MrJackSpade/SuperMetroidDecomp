@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the installed shared gold-Pirate palette matches native CGRAM and that edits persist without changing ninja placement.</summary>
+    /// <param name="bus">Cartridge address space used for native palette and enemy-definition data.</param>
+    /// <param name="stockDirectory">Directory containing the extracted stock enemy artwork files.</param>
+    /// <param name="stock">Loaded stock catalog used for the initial palette comparison.</param>
     private static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -95,10 +99,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents ninja palette initialization from reading its migrated color range or writing to the cartridge bus.</summary>
+    /// <param name="source">Address space used to service permitted reads.</param>
     private sealed class NinjaPaletteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge import reads through the palette source guard.</summary>
+        /// <param name="address">SNES address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the migrated palette range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated shared gold-Pirate palette range and forwards other reads.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The wrapped source byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the migrated palette color bytes.</exception>
         public byte ReadByte(int address)
         {
             if (address >= NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource &&
@@ -108,6 +121,10 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Rejects writes because palette initialization is expected to update CGRAM without modifying the bus.</summary>
+        /// <param name="address">SNES address that the caller attempted to write.</param>
+        /// <param name="value">Byte that the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write is attempted through this read-only verification guard.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Ninja palette initialization wrote the bus.");
     }

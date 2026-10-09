@@ -6,11 +6,19 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class StereoPcmContinuityMeter
 {
+    /// <summary>Indicates whether a preceding nonempty observation supplied a frame for boundary comparisons.</summary>
     private bool hasPreviousFrame;
+
+    /// <summary>Left-channel sample from the most recently observed stereo frame.</summary>
     private short previousLeft;
+
+    /// <summary>Right-channel sample from the most recently observed stereo frame.</summary>
     private short previousRight;
 
+    /// <summary>Largest absolute same-channel sample step between adjacent frames in one submitted buffer.</summary>
     public int MaximumWithinBufferDelta { get; private set; }
+
+    /// <summary>Largest absolute same-channel step from the last frame of one buffer to the first of the next.</summary>
     public int MaximumBoundaryDelta { get; private set; }
 
     /// <summary>

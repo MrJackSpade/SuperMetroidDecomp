@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled projectile instruction words, trail-frame ownership and projectile/bomb execution against ROM data.</summary>
+    /// <param name="rom">ROM address space used as the independent instruction-stream reference.</param>
     private static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
     {
         ushort[] entries =
@@ -167,16 +169,29 @@ internal static partial class Program
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
+    /// <summary>Address-space adapter that rejects reads from instruction mechanics words compiled into the projectile catalog.</summary>
+    /// <param name="source">Underlying address space for accesses outside compiled mechanics words and for writes.</param>
+    /// <param name="words">Full SNES addresses of compiled instruction words whose bytes must not be fetched at runtime.</param>
     private sealed class ProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import requests through the same mechanics-word read check as runtime requests.</summary>
+        /// <param name="address">Full SNES address requested by the importer.</param>
+        /// <returns>The wrapped source byte when the address is outside the compiled mechanics words.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of either byte of a compiled mechanics word and forwards all other reads.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed address.</returns>
         public byte ReadByte(int address)
         {
             if (words.Contains(address) || words.Contains(address - 1))
                 throw new InvalidDataException($"Projectile instruction still reads mechanics ROM ${address:X6}.");
             return source.ReadByte(address);
         }
+
+        /// <summary>Forwards writes to the wrapped address space; only reads of compiled words are forbidden.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

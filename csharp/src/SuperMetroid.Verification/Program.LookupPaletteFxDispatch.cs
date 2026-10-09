@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Enumerates the 63 native bank-$8D palette-FX object pointers in their three declared physical regions.</summary>
     private static IEnumerable<ushort> OriginalPaletteFxObjects()
     {
         // Independent physical regions from pinned bank8D object declarations.
@@ -11,6 +12,7 @@ internal static partial class Program
                 yield return (ushort)pointer;
     }
 
+    /// <summary>Checks that palette-FX lookup accepts every native object pointer and rejects all other 16-bit values.</summary>
     private static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
@@ -26,6 +28,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares each compiled setup callback with the word stored in its native bank-$8D object header.</summary>
+    /// <param name="rom">ROM address space containing the palette-FX object headers.</param>
     private static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -33,6 +37,8 @@ internal static partial class Program
                 RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
     }
 
+    /// <summary>Compares each compiled initial instruction-list pointer with the second word of its native object header.</summary>
+    /// <param name="rom">ROM address space containing the palette-FX object headers.</param>
     private static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -40,6 +46,8 @@ internal static partial class Program
                 RoomPaletteFxDefinitions.Get(pointer).InitialInstructionList, "Native palette-FX initial program");
     }
 
+    /// <summary>Runs domain and header checks, then verifies dispatch-created effects without allowing reads of compiled definitions.</summary>
+    /// <param name="rom">ROM address space used for native header comparisons and guarded effect dispatch.</param>
     private static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());

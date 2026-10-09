@@ -6,6 +6,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native Torizo VRAM-transfer descriptors, installed tile bytes, production uploads, and Golden Torizo asset overrides.</summary>
+    /// <param name="rom">Retail cartridge address space supplying descriptor and tile bytes for comparison.</param>
+    /// <param name="stockDirectory">Directory containing the installed enemy tile artwork files.</param>
+    /// <param name="stock">Loaded stock artwork catalog whose transfer sources are checked against cartridge data.</param>
     private static void VerifyTorizoInstructionVramArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -156,13 +160,23 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Address-space sentinel that fails if a compiled Torizo transfer reads or writes through the CPU bus.</summary>
     private sealed class ForbiddenTorizoRomBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects cartridge-source reads to ensure transfers use installed tile artwork.</summary>
+        /// <param name="address">Cartridge address that the transfer attempted to read.</param>
+        /// <returns>This method always throws because the transfer must not read the cartridge.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every bus read during a compiled Torizo tile transfer.</summary>
+        /// <param name="address">Address that the transfer attempted to read.</param>
+        /// <returns>This method never returns.</returns>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Torizo transfer reread cartridge byte ${address:X6}.");
 
+        /// <summary>Rejects CPU-bus writes because the transfer should write directly to VRAM.</summary>
+        /// <param name="address">Address that the transfer attempted to write.</param>
+        /// <param name="value">Byte that the transfer attempted to write.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Torizo transfer wrote CPU bus byte ${address:X6}.");
     }

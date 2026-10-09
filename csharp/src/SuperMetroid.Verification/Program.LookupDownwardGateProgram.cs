@@ -3,13 +3,24 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the downward gate's command and timing words against the cartridge and composed reader.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM program.</param>
     private static void VerifyDownwardGateProgramControls(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 0);
+
+    /// <summary>Verifies the downward gate's draw-duration words and their ownership boundaries.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM program.</param>
     private static void VerifyDownwardGateProgramDraws(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 1);
+
+    /// <summary>Verifies the downward gate's draw operands and their ownership boundaries.</summary>
+    /// <param name="rom">Cartridge address space containing the native PLM program.</param>
     private static void VerifyDownwardGateProgramOperands(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 2);
 
+    /// <summary>Checks one category of exported gate words against native bytes and the complete address-domain readers.</summary>
+    /// <param name="rom">Cartridge address space used to read expected instruction words.</param>
+    /// <param name="field">Category selector: zero for controls, one for draw durations, or two for draw operands.</param>
     private static void VerifyDownwardGateProgramField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] controls = [0xbc13,0xbc17,0xbc19,0xbc1d,0xbc1f,0xbc23,0xbc27,
@@ -48,6 +59,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the gate's two sound bytes against the cartridge and checks exact byte ownership.</summary>
+    /// <param name="rom">Cartridge address space containing the native sound operands.</param>
     private static void VerifyDownwardGateProgramSounds(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbc29,0xbc4c];

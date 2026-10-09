@@ -10,6 +10,7 @@ internal static partial class Program
     /// dispatcher through every glass-break threshold without permitting a ROM
     /// read of the compiled control bytes.
     /// </summary>
+    /// <param name="rom">Cartridge address space used to compare the compiled PLM list and seed its executable fixture bytes.</param>
     private static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
         VerifyGlassControls(rom);
@@ -88,13 +89,24 @@ internal static partial class Program
         Console.WriteLine("  Mother Brain glass PLM: all program bytes match ROM; full shatter runs without ROM instruction reads.");
     }
 
+    /// <summary>Address-space proxy that counts and rejects runtime reads from the compiled Mother Brain glass PLM program.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class MotherBrainGlassProgramReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the guarded read path.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The byte read from the underlying address space when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The request targets a compiled PLM program byte.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Number of attempted reads rejected because they targeted compiled glass-program bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Forwards permitted byte reads and rejects accesses to the compiled PLM control range.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte from the underlying address space when it is outside the guarded range.</returns>
+        /// <exception cref="InvalidOperationException">The address is within the compiled glass-program range; the rejected attempt is counted.</exception>
         public byte ReadByte(int address)
         {
             if (address >= 0x84d202 && address <= 0x84d2f8)
@@ -106,6 +118,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards byte writes to the underlying address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

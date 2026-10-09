@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted Grapple visual metadata against cartridge data and verifies editable artwork through the production beam renderer.</summary>
+    /// <param name="bus">Cartridge-backed address space used to extract the stock artwork and compare native rendering.</param>
     private static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
@@ -88,16 +90,29 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents production beam rendering from reading native Grapple visual records while forwarding other address-space access.</summary>
+    /// <param name="bus">Address space used for accesses outside the guarded native visual-record ranges.</param>
     private sealed class GrappleSpriteReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an imported-cartridge read through the native-visual read guard.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is outside the guarded visual records.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a mapped byte unless it belongs to a native Grapple visual record.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped bus when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address is within a native visual-record range that must come from installed artwork.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x94b13d and <= 0x94b13e or >= 0x94b17d and <= 0x94b17e or >= 0x94b18b and <= 0x94b19e)
                 throw new InvalidOperationException("Grapple still reads native visual records.");
             return bus.ReadByte(address);
         }
+
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => bus.WriteByte(address, value);
     }
 }

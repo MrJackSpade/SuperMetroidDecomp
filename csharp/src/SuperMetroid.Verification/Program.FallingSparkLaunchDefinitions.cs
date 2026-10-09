@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies all RNG-selected falling-spark launch velocities, production spawning, and wrapped horizontal movement without launch-table reads.</summary>
+    /// <param name="rom">Cartridge address space supplying the native whole- and fractional-velocity table words used for comparison.</param>
     private static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -57,12 +59,27 @@ internal static partial class Program
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
 
+    /// <summary>Address-space proxy that rejects falling-spark launch-table reads while forwarding other reads and disallowing writes.</summary>
+    /// <param name="source">Underlying address space used for reads outside the migrated launch tables.</param>
     private sealed class FallingSparkLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the launch-table read guard.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>The underlying byte unless the address is in a migrated falling-spark launch table.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read targets either migrated launch table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated launch-table reads and forwards other byte requests to the wrapped address space.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte returned by the underlying address space.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a migrated falling-spark launch table.</exception>
         public byte ReadByte(int address) => address is >= 0x86f3d4 and < 0x86f3f4
             ? throw new InvalidOperationException("Unexpected migrated falling-spark launch read.") : source.ReadByte(address);
+
+        /// <summary>Rejects all writes so the verification cannot mutate its wrapped bus through the guard.</summary>
+        /// <param name="address">Address the caller attempted to write.</param>
+        /// <param name="value">Byte value the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A write is attempted through this read-only verification guard.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected falling-spark bus write.");
     }
 }

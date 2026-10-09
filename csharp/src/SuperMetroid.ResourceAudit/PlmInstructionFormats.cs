@@ -68,6 +68,7 @@ internal sealed record PlmInstructionFormat(int Length, int[] Words, int[] Bytes
         SamusEaterPlmRomData.DamageInstruction or
         SamusEaterPlmRomData.ReleaseImmunityInstruction or
         EscapeAnimalPlmRomData.SetEscapedEventInstruction or
+        CrateriaMainstreetEscapePassagePlmDefinitions.MoveRightFourBlocks or
         ChozoStatuePlmRomData.TransformSpikesToSlopes or
         ChozoStatuePlmRomData.RevertSlopesToSpikes or
         ChozoStatuePlmRomData.SetLoweredAcidHeight or

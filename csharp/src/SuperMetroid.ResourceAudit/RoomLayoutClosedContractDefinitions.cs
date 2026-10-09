@@ -6,9 +6,9 @@ internal static class RoomLayoutClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog", "room-layout-complete-required-source-installation", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs", "086D9777CCEAC6E4EC4DCD1D472E5DEB3460A77938173368B02301FC8F3B2379"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutSourceDefinitions.cs", "0EDE39808D016A2893ACC65E1CF3D9C397713BD9E91BF549C16EBA62DFD9C266"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "62A0435AE18B4C24973F36620FC79500DE554A06F73077794BDD66F3D98DFB53"),
-             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "456E784B457DC4B8361279DDA9069B6B039AA160EF819498EF60DF7F410A1D4B")]),
+            [new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs", "6AC93B76892997E7BC708D2E10CD127E68AAC855B3ED6C9D831F4615CB5DB77E"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutSourceDefinitions.cs", "7565C39F5976EADE518FEB6642B1342B23FFE3A16EDBB445CC602548D5DEA241"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "93A78AC57BDA8AB714CA6D250C9A3CA7008EF1F254D2047BA4277ACB1A9AEFD6"),
+             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs", "42868C1BEC2CBEAEADDB79C45774FA21152564E70BB5FFD6F4D8A57B39DA53CB")]),
     ];
 }

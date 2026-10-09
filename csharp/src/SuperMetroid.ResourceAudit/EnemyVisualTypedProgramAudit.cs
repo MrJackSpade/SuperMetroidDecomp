@@ -13,7 +13,7 @@ internal static class EnemyVisualTypedProgramAudit
     {
         const string ceresSource = "csharp/src/SuperMetroid.Core/Game/CeresElevatorArrivalDefinitions.cs";
         EnemyVisualProgramSpecializations.GuardSource(root, ceresSource,
-            "34EB4625AAA6B2EDBEEDF28C6C63C1607A02885707758F4D7CE3E705BD5892D0");
+            "B77B61FC101DF0A017E158E60848A0FBA7E88052E333C24C8BCEB4F778A972A3");
         SyntaxTree tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == ceresSource);
         SemanticModel model = compilation.GetSemanticModel(tree);
         MethodDeclarationSyntax reader = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
@@ -38,7 +38,7 @@ internal static class EnemyVisualTypedProgramAudit
         // this is a closed provider proof, not an independently duplicated pointer list.
         EnemyVisualProgramSpecializations.GuardSource(root,
             "csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs",
-            "684564292FA2DEAE104D897E1B7210F65CC55B6799F1970C5A654E2E41968E9B");
+            "255CA0175D81599BBB9B2E58072637946E4158FF506412EF48EC9FBDE1623DD0");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

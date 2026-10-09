@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -172,8 +170,7 @@ internal static class VramDmaAudit
         var value = call.Arguments.Single(argument => argument.Parameter?.Name == name).Value.ConstantValue;
         return value is { HasValue: true, Value: not null } ? Convert.ToInt32(value.Value) : null;
     }
-    internal static string Hash(SyntaxNode node) => Convert.ToHexString(SHA256.HashData(
-        Encoding.UTF8.GetBytes(node.NormalizeWhitespace().ToFullString().Replace("\r\n", "\n"))));
+    internal static string Hash(SyntaxNode node) => SourceFingerprint.Of(node);
     private static string Location(SyntaxNode node) => node.SyntaxTree.FilePath + ":" +
         (node.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
 }

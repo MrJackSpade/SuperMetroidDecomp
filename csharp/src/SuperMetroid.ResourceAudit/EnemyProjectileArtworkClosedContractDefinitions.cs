@@ -7,11 +7,11 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.EnemyProjectileSpritemapCatalog", "installed-enemy-projectile-direct-and-program-frames",
             ["Get", "GetProgramFrame"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs", "6D196AA19D6C4437F62AAE5729601A586516D153A33328324F2F9EF35A89191D"),
-             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectilePresentationFrameDefinitions.cs", "EFED0B48AC4007EDA5128A805A7E2987861E25E2B04A676111859E0B88985923"),
-             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs", "79B33AA469AD0E76EDBC930E5F25901983341230E494FE8B39676B726D90CC2E"),
-             new("csharp/src/SuperMetroid.Core/Game/SmallExplosionAnimationDefinitions.cs", "64CBF66FDA0E75FDF85665C3AD832FD96C7CF20B368FF2D5595DB6B1DCCE62C4"),
-             new("csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs", "5E0D21D99117FFFE15492CDABAD5C6A2A0E9022E43F91514E323075EAD4F8B52"),
-             new("csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs", "1D2E4DB442FED52CAA82DEEB84E6067FBC63DDB77A7A9081A2628FAA09629B81")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs", "3836079A8EAAF3C71752B766807BA5E4EFEFEE2F0384278123ADABE7AF7F6F8D"),
+             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectilePresentationFrameDefinitions.cs", "A56656C6C5E6D3F907D86949D59CF70EC5704873DEEC55F15CBD7FC4F38A5AC6"),
+             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs", "41024DA1E04784F6A7A50F3142384BDD15988EFF363B8056CC04DA51FEC8EF1F"),
+             new("csharp/src/SuperMetroid.Core/Game/SmallExplosionAnimationDefinitions.cs", "1ECA8C8290466E0582186CF82F9E104A32B0101E030E482364F3DDE7B1DB81C3"),
+             new("csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs", "C42A00F643F7A4ECAAC4B60F85966476E29DB4BB19B44FC510093E8322039896"),
+             new("csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs", "F6A75E543F74E7390731BB6B1FFF3D148BE71A70AA79CD41818F1A5AEC8C0C6E")]),
     ];
 }

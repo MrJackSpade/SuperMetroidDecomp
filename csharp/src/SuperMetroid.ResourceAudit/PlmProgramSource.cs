@@ -1,6 +1,4 @@
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -158,8 +156,7 @@ internal sealed class PlmProgramSource
                 report.Findings.Add(new("unresolved-source", key, 0, "Guarded production method was removed."));
     }
 
-    internal static string TokenHash(MethodDeclarationSyntax method) => Convert.ToHexString(
-        SHA256.HashData(Encoding.UTF8.GetBytes(string.Join(" ", method.DescendantTokens().Select(token => token.Text)))));
+    internal static string TokenHash(MethodDeclarationSyntax method) => SourceFingerprint.Of(method);
 
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or

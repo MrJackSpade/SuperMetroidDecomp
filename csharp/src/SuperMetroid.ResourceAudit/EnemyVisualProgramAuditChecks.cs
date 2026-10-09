@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Assets;
@@ -73,10 +71,16 @@ internal static class EnemyVisualProgramAuditChecks
             PolypRockInstructionProgramDefinitions.PresentationWord, null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
         Require(missingProjectile.Findings.Count == 1, "missing projectile binding/selector is rejected");
 
-        const string reviewed = "control-only\n";
-        string hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(reviewed)));
-        Require(EnemyVisualProgramSpecializations.SourceMatches("control-only\r\n", hash), "line endings preserve a disposition");
-        Require(!EnemyVisualProgramSpecializations.SourceMatches(reviewed + "new frame", hash), "changed custom/control-only source revokes its disposition");
+        const string reviewed = "static class Program\n{\n    const ushort Frame = 0x8000;\n}\n";
+        string hash = SourceFingerprint.Of(reviewed);
+        Require(EnemyVisualProgramSpecializations.SourceMatches(reviewed.Replace("\n", "\r\n"), hash), "line endings preserve a disposition");
+        Require(EnemyVisualProgramSpecializations.SourceMatches(
+            "/// <summary>Documented.</summary>\n" + reviewed.Replace("0x8000;", "0x8000; // $80:8000"), hash),
+            "documentation and comments preserve a disposition");
+        Require(!EnemyVisualProgramSpecializations.SourceMatches(reviewed.Replace("0x8000", "0x8002"), hash),
+            "changed custom/control-only source revokes its disposition");
+        Require(!EnemyVisualProgramSpecializations.SourceMatches("#define NEW_FRAME\n" + reviewed, hash),
+            "a new preprocessor directive revokes its disposition");
         Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, projectile binding, and disposition revocation pass.");
     }
 

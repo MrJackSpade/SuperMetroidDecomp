@@ -9,6 +9,12 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class CartridgePaletteImporter
 {
+    /// <summary>Copies native little-endian color words from a cartridge, WRAM, or SRAM DMA source into a bounded CGRAM range during asset import.</summary>
+    /// <param name="destination">Mutable CGRAM receiving decoded BGR555 words.</param>
+    /// <param name="bus">Import address space; WRAM or SRAM sources additionally require mutable-memory access.</param>
+    /// <param name="sourceAddress">Initial SNES bus address, advanced within its bank for each source byte.</param>
+    /// <param name="colorCount">Number of consecutive color words to copy.</param>
+    /// <param name="destinationIndex">First zero-based CGRAM color slot to replace.</param>
     public static void LoadToCgram(
         SnesCgram destination,
         ISnesAddressSpace bus,

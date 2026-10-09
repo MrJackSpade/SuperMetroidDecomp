@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Copies a supplied ROM and extracts runtime resources into an app-owned installation.</summary>
 public static partial class GameAssetInstaller
 {
+    /// <summary>Default per-user Desktop installation root beneath Local Application Data.</summary>
     public static string DesktopRoot => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SuperMetroid");
 

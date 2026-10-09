@@ -7,6 +7,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Reads native 64-byte bank-$A0 enemy headers during cartridge import.</summary>
 public static class RoomEnemyDefinitionImporter
 {
+    /// <summary>Decodes one fixed 64-byte bank-$A0 enemy definition from cartridge data.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="pointer">Bank-$A0 pointer to the native enemy definition.</param>
+    /// <returns>The decoded enemy definition.</returns>
     public static RoomEnemyDefinition Load(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);

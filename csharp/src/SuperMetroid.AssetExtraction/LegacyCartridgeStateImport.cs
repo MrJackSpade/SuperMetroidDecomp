@@ -6,6 +6,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class LegacyCartridgeStateImport
 {
+    /// <summary>Validates and drains a retired whole-ROM debugger-state payload without allocating a cartridge image, caching, or exposing its bytes.</summary>
+    /// <param name="source">State stream positioned at the first legacy cartridge byte.</param>
+    /// <param name="byteCount">Complete LoROM payload length, limited to the retired maximum and aligned to native banks.</param>
     public static void DiscardPayload(Stream source, int byteCount)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -27,6 +30,8 @@ public static class LegacyCartridgeStateFormat
 {
     /// <summary>The original address-space constructor accepted up to 128 complete LoROM banks.</summary>
     public const int MaximumRomByteCount = 0x400000;
+    /// <summary>Byte size of one complete LoROM data bank used to validate retired debugger payload lengths.</summary>
     public const int BankByteCount = 0x8000;
+    /// <summary>Stack-buffer size used while draining legacy payload bytes without retaining cartridge content.</summary>
     public const int DiscardBufferByteCount = 8192;
 }

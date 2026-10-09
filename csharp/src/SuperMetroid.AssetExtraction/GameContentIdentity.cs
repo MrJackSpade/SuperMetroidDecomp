@@ -39,6 +39,8 @@ public sealed record GameContentIdentity(
         AdditionalContentSha256.All(pair => other.AdditionalContentSha256.TryGetValue(pair.Key,
             out string? value) && pair.Value == value);
 
+    /// <summary>Combines the fixed primary identity fields; dictionary-aware equality remains authoritative for additional presentation domains.</summary>
+    /// <returns>A process-local hash of the primary fields; equal identities produce equal hashes, while differing additional-domain dictionaries may share a hash.</returns>
     public override int GetHashCode() => HashCode.Combine(FormatVersion, SourceCartridgeSha256,
         CompiledDefinitionsBuildId, AudioContentSha256, MapContentSha256, ProjectileContentSha256, CompositeSha256);
 

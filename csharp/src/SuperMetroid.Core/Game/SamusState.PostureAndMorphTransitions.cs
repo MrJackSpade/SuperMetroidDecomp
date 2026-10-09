@@ -9,6 +9,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusState
 {
+    /// <summary>Applies the crouch input tables' direct same-facing exits ($27/$71/$73/$85 to $01, or $28/$72/$74/$86 to $02) after larger-pose collision admits the standing body.</summary>
+    /// <param name="bus">Address space passed to native pose metadata, collision, and animation helpers.</param>
+    /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
+    /// <param name="targetPose">Final standing-right $01 or standing-left $02 pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
+    /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
+    /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
+    /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
+    /// <remarks>These six-byte input records bypass animated $F7–$FC stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching $91:FDAE's previous-pose radius publication.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="level"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
     public bool TryApplyDirectCrouchToStandingTransition(
         ISnesAddressSpace bus,
         RoomLevelData level,

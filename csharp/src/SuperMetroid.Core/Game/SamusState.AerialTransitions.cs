@@ -143,6 +143,17 @@ public sealed partial class SamusState
         return true;
     }
 
+    /// <summary>Applies a normal-jump or falling turn, selecting aim-preserving art through $91:F9D6/$F9E0 after the shared larger-pose collision pass.</summary>
+    /// <param name="bus">Address space passed to pose metadata, animation, and collision helpers.</param>
+    /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
+    /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
+    /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
+    /// <param name="plms">Optional live PLM owner for those collision reactions.</param>
+    /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
+    /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="level"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
+    /// <exception cref="InvalidDataException">The source pose's shot-direction metadata is outside zero through nine.</exception>
     public bool TryApplyAerialTurn(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -278,10 +289,13 @@ public sealed partial class SamusState
     /// Applies `$91:EABE`, solid-collision command five, and `$90:9949` after the block
     /// wall test succeeds. The launch values are read from the cartridge's dry-air tables.
     /// </summary>
+    /// <param name="bus">Address space passed to wall-jump pose, launch, animation, and dust helpers.</param>
     /// <param name="level">
     /// Live collision geometry supplied by gameplay. Null is reserved for isolated
     /// launch-value/particle diagnostics that explicitly model unobstructed space.
     /// </param>
+    /// <param name="nmiFrameCounter">Native NMI counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
+    /// <param name="plms">Optional PLM owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
     public void ApplyWallJumpTrigger(
         ISnesAddressSpace bus,
         RoomLevelData? level = null,

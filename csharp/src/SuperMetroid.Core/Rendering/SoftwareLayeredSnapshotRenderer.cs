@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Reference composition from immutable state, without scene or ROM access.</summary>
 public static class SoftwareLayeredSnapshotRenderer
 {
+    /// <summary>Composites the captured layers in descriptor order from copied PPU memory, resolving OBJ precedence once where needed and applying master brightness after composition; does not access or advance simulation state.</summary>
+    /// <param name="snapshot">Immutable memory, layer, OBJ-selection, and brightness packet for one captured frame.</param>
+    /// <param name="gameplayOutputBuffer">Optional caller-owned 256-by-224 row-major output array, overwritten and reused by backdrop or gameplay rendering; null requests an independently allocated result.</param>
+    /// <returns>The completed RGBA frame, normally the supplied output array when nonnull; internal scratch arrays are never returned.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="snapshot"/> is null.</exception>
+    /// <exception cref="ArgumentException">A supplied output buffer has an invalid pixel count.</exception>
+    /// <exception cref="InvalidDataException">A captured layer is not supported by this software consumer.</exception>
     public static Rgba32[] Render(LayeredRenderSnapshot snapshot, Rgba32[]? gameplayOutputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);

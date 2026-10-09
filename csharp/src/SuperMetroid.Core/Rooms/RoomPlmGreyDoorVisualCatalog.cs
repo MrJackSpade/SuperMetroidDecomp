@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Visual-only blocks for a grey-door cap or shared door-clear frame.</summary>
+/// <param name="Id">Compiled clear or grey-door frame identity, including orientation.</param>
+/// <param name="Blocks">Four metatile/flip words in native run order; changed arrays are copied by the catalog.</param>
 public sealed record RoomPlmGreyDoorVisualEntry(string Id, ushort[] Blocks);
 
 /// <summary>
@@ -26,6 +28,10 @@ public sealed class RoomPlmGreyDoorVisualCatalog
 
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
+    /// <summary>Validates all twenty clear/grey-door frames and copies visual differences while retaining compiled collision, run direction, animation timing, and handoff behavior.</summary>
+    /// <param name="entries">Exactly one four-word visual-only entry for each compiled orientation and frame identity.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
     public RoomPlmGreyDoorVisualCatalog(IEnumerable<RoomPlmGreyDoorVisualEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -54,6 +60,12 @@ public sealed class RoomPlmGreyDoorVisualCatalog
         if (selected.Count != 0) customBlocks = selected;
     }
 
+    /// <summary>Resolves one selected cap block without changing its physical collision word or door mechanics.</summary>
+    /// <param name="drawPointer">Bank-$84 identity of a supported clear or grey-door draw frame.</param>
+    /// <param name="blockIndex">Zero-based word ordinal 0..3 along the frame's native run.</param>
+    /// <returns>The authored metatile/flip word, or the compiled stock word's visual bits when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported frame.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..3.</exception>
     public ushort GetWord(ushort drawPointer, int blockIndex)
     {
         if (!GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))

@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Observational reference consumer; all scratch state belongs to this call.</summary>
 public static class SoftwareMode7ObjSnapshotRenderer
 {
+    /// <summary>Renders a captured backdrop and optional Mode-7 BG1 followed by winning OBJ pixels, then optional title-gradient color math and final master brightness; all hardware-reader scratch is private to this call.</summary>
+    /// <param name="snapshot">Immutable PPU image, signed Mode-7 registers, OBJ selection, and optional 224-line fixed-color controls; no simulation or cartridge access is required.</param>
+    /// <param name="outputBuffer">Optional caller-owned 256-by-224 row-major pixel array, completely overwritten; null allocates a new output array.</param>
+    /// <returns>The completed RGBA frame in the supplied array when nonnull, otherwise a new array; disposing scratch does not invalidate the pixels.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="snapshot"/> is null.</exception>
+    /// <exception cref="ArgumentException">A supplied output buffer does not contain exactly 57344 pixels.</exception>
     public static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);

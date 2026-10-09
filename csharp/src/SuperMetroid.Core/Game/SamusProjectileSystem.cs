@@ -89,6 +89,7 @@ public sealed partial class SamusProjectileSystem
 
     /// <summary>Last impact's quake request; runtime requests also write the shared room owner immediately.</summary>
     public ushort EarthquakeType { get; private set; }
+    /// <summary>Duration of the most recent Super Missile impact quake request, not a ticking countdown; cleared by <see cref="ResetForRoomTransition"/> and published immediately to the shared room earthquake owner when bound.</summary>
     public ushort EarthquakeTimer { get; private set; }
 
     private readonly ushort[] _flareFrames = new ushort[3];
@@ -327,11 +328,22 @@ public sealed partial class SamusProjectileSystem
     /// <summary>
     /// Runs the power-beam HUD producer and then handles all allocated ordinary slots.
     /// </summary>
+    /// <param name="bus">Address space passed to native pose, projectile, and collision helpers.</param>
+    /// <param name="level">Live room block geometry used for muzzle and moving-projectile collisions.</param>
+    /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
+    /// <param name="controllerInput">Held controller word after the runtime's action-binding normalization.</param>
+    /// <param name="controllerNewInput">Current normalized press-edge word for firing decisions.</param>
+    /// <param name="layer1X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="layer1Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as bank $90 does.
     /// </param>
+    /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; existing ordinary slots still run when this is false, subject to live X-ray freeze.</param>
+    /// <param name="roomPlms">Optional live PLM owner receiving projectile block-reaction effects.</param>
+    /// <param name="controllerPreviousNewInput">Previous normalized press-edge latch, independently consulted by native beam/missile firing rather than recomputed from held input.</param>
+    /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
     public SamusProjectileFrameResult StepFrame(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -687,10 +699,15 @@ public sealed partial class SamusProjectileSystem
     /// Runs and draws <c>$90:B6A9</c>'s eighteen projectile-trail slots after the ordinary
     /// projectile pass. Each side owns its own timer, instruction pointer, position, and OBJ.
     /// </summary>
+    /// <param name="bus">Address space passed to the trail instruction and draw helpers.</param>
+    /// <param name="oam">Mutable OBJ destination appended in descending trail-slot order, left side before right.</param>
+    /// <param name="layer1X">Whole-pixel room camera X origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="layer1Y">Whole-pixel room camera Y origin subtracted from trail coordinates when drawing.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
+    /// <param name="artwork">Installed trail frame artwork; required by a trail side when it resolves a timed display record.</param>
     public void HandleTrailsAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,

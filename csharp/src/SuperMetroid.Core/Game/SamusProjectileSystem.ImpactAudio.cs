@@ -9,6 +9,8 @@ public sealed partial class SamusProjectileSystem
     [NonSerialized] private List<SamusSoundRequest>? _impactSoundRequests;
     [NonSerialized] private bool _cinematicImpactAudioSuppressed;
 
+    /// <summary>Borrowed current-owner-frame missile impact requests for library two with queue limit six; reading the list does not consume or play them.</summary>
+    /// <remarks>The backing list is cleared by <see cref="BeginImpactAudioFrame"/> and is not a snapshot. Cinematic suppression omits requests; an active Power Bomb is recorded in each request's sound-suppression flag for native queue handling.</remarks>
     public IReadOnlyList<SamusSoundRequest> ImpactSoundRequests =>
         _impactSoundRequests is { } requests ? requests : Array.Empty<SamusSoundRequest>();
 

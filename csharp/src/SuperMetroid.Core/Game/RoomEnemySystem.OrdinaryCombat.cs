@@ -907,6 +907,12 @@ public sealed partial class RoomEnemySystem
                 }
 
                 bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
+                // `$A0:9BA6` returns before testing any projectile while the enemy shows
+                // the empty extended frame. Its point hitbox remains live for Samus and
+                // bombs, whose extended passes have no such check.
+                if (usesExtendedHitboxes &&
+                    enemy.SpritemapPointer == CommonEnemyEmptyExtendedFrameDefinitions.Frame)
+                    continue;
                 if (usesExtendedHitboxes &&
                     IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
                 {

@@ -13,7 +13,9 @@ internal static partial class Program
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
         var collide = typeof(SamusProjectileSystem).GetMethod("RunInitialBeamCollision",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var system = new SamusProjectileSystem();
+        var powerBomb = new SamusPowerBombExplosionState();
         int cursor = 0, mismatches = 0;
         for (int tileX = 63; tileX <= 65; tileX++)
         {
@@ -25,7 +27,7 @@ internal static partial class Program
                 Direction = (ushort)SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {
-                collide.Invoke(null, [bus, level, shot, plms, true]);
+                collide.Invoke(system, [bus, level, shot, plms, true, powerBomb]);
                 int owner = plms.ActiveCount == 0 ? 0 : plms.PopulationSlots[0].BlockIndex * 2;
                 string actual = $"{tileX},{call},{plms.ActiveCount},{owner:X4},{level.GetCollisionBlockByIndex(tileX).LevelWord:X4},{level.GetCollisionBlockByIndex(tileX + 1).LevelWord:X4}";
                 string expected = native[cursor++];

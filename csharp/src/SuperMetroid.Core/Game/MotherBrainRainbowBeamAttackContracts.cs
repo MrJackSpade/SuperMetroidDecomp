@@ -189,6 +189,10 @@ public enum MotherBrainProjectileType
 /// <summary>
 /// One native seven-byte sprite-tile transfer entry consumed by `$A9:C5BE`.
 /// </summary>
+/// <param name="EntryIndex">Zero-based entry in the native transfer table.</param>
+/// <param name="Size">Transfer byte count encoded for the DMA request.</param>
+/// <param name="SourceAddress">24-bit source address of the sprite tile data.</param>
+/// <param name="VramDestination">Destination word address in VRAM.</param>
 public readonly record struct MotherBrainSpriteTileTransferRequest(
     ushort EntryIndex,
     ushort Size,
@@ -196,11 +200,17 @@ public readonly record struct MotherBrainSpriteTileTransferRequest(
     ushort VramDestination);
 
 /// <summary>One requested beam explosion projectile and its native sound number.</summary>
+/// <param name="XOffset">Signed horizontal displacement from the beam's target origin.</param>
+/// <param name="YOffset">Signed vertical displacement from the beam's target origin.</param>
 public readonly record struct MotherBrainRainbowExplosionRequest(
     short XOffset,
     short YOffset);
 
 /// <summary>One projectile in a simultaneous `$A9:B03E` death-explosion batch.</summary>
+/// <param name="XOffset">Signed horizontal displacement from Mother Brain.</param>
+/// <param name="YOffset">Signed vertical displacement from Mother Brain.</param>
+/// <param name="ProjectileParameter">Native parameter word passed to the projectile spawner.</param>
+/// <param name="SoundEffect">Sound identifier requested with this explosion.</param>
 public readonly record struct MotherBrainDeathExplosionRequest(
     short XOffset,
     short YOffset,
@@ -208,6 +218,10 @@ public readonly record struct MotherBrainDeathExplosionRequest(
     ushort SoundEffect);
 
 /// <summary>One periodic misc-dust projectile emitted around the escape door by `$A9:B346`.</summary>
+/// <param name="XPosition">Room-space horizontal spawn coordinate.</param>
+/// <param name="YPosition">Room-space vertical spawn coordinate.</param>
+/// <param name="ProjectileParameter">Native projectile parameter selecting the dust effect.</param>
+/// <param name="SoundEffect">Sound identifier requested with the dust spawn.</param>
 public readonly record struct MotherBrainEscapeDoorExplosionRequest(
     ushort XPosition,
     ushort YPosition,
@@ -215,15 +229,51 @@ public readonly record struct MotherBrainEscapeDoorExplosionRequest(
     ushort SoundEffect);
 
 /// <summary>One of eight `$86:CB21` door-fragment allocation attempts from `$A9:B3A3`.</summary>
+/// <param name="Parameter">Native spawn parameter identifying the fragment attempt.</param>
 public readonly record struct MotherBrainEscapeDoorParticleSpawnRequest(ushort Parameter);
 
 /// <summary>The hardcoded room-object request made after the escape door fragments spawn.</summary>
+/// <param name="BlockX">Room block column for the replacement object.</param>
+/// <param name="BlockY">Room block row for the replacement object.</param>
+/// <param name="PlmEntry">Native PLM entry pointer requested for the door.</param>
 public readonly record struct MotherBrainEscapeDoorPlmRequest(
     byte BlockX,
     byte BlockY,
     ushort PlmEntry);
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
+/// <param name="PhaseBefore">Attack phase selected when the body function began.</param>
+/// <param name="PhaseAfter">Attack phase after this function call completes.</param>
+/// <param name="Movement">Optional forced Samus movement produced by this call.</param>
+/// <param name="SoundQueued">Whether the call queued its ordinary attack sound.</param>
+/// <param name="PaletteRequested">Whether the beam palette presentation was requested.</param>
+/// <param name="Explosion">Optional beam explosion emitted by the call.</param>
+/// <param name="ChargeSoundQueued">Whether a charge sound was queued.</param>
+/// <param name="BodyWalkRequested">Whether body walking was requested from the body owner.</param>
+/// <param name="HeadInstructionListRequested">Whether a head animation list was installed.</param>
+/// <param name="BodyPostureRequested">Whether a body posture transition was requested.</param>
+/// <param name="SpriteTileTransfer">Optional sprite-tile DMA requested during the call.</param>
+/// <param name="BabySpawnRequested">Whether the Baby Metroid actor was requested.</param>
+/// <param name="FinalBeamSoundQueued">Whether the final-beam sound was queued.</param>
+/// <param name="DeathExplosions">Death-sequence explosion projectiles emitted by the call.</param>
+/// <param name="CorpseRottingVramTransfers">VRAM tile transfers used while the corpse decays.</param>
+/// <param name="CorpseDustRequests">Dust projectiles emitted during corpse decay.</param>
+/// <param name="MusicStopQueued">Whether the current music stop request was issued.</param>
+/// <param name="EscapeMusicQueued">Whether escape music startup was requested.</param>
+/// <param name="EscapeSequenceTileTransfers">Tile uploads requested for the escape sequence.</param>
+/// <param name="ExplodedDoorPaletteRequested">Whether the exploded-door palette was requested.</param>
+/// <param name="EscapeMusicTrackQueued">Whether the escape music track was queued.</param>
+/// <param name="EscapePaletteFxRequests">Palette-effect requests emitted during escape setup.</param>
+/// <param name="EscapeTypewriterSetupRequested">Whether the escape-warning typewriter was initialized.</param>
+/// <param name="TimeBombSetSubtitleSpawnRequested">Whether the TIME BOMB SET subtitle object was requested.</param>
+/// <param name="EscapeDoorExplosion">Optional escape-door explosion request.</param>
+/// <param name="TimerHandlingEnableRequested">Whether escape timer handling was enabled.</param>
+/// <param name="MotherBrainEscapeTimerStartRequested">Whether the Mother Brain escape timer was started.</param>
+/// <param name="MotherBrainBossBitRequested">Whether the boss-completed state bit was requested.</param>
+/// <param name="ZebesTimebombEventRequested">Whether the Zebes time-bomb event was requested.</param>
+/// <param name="EscapeDoorParticleSpawns">Door-fragment spawn attempts from this call.</param>
+/// <param name="EscapeDoorPlm">Optional replacement PLM request for the exploded door.</param>
+/// <param name="EarthquakeTimerRefreshed">Whether the earthquake timer was refreshed.</param>
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainRainbowBeamAttackPhase PhaseBefore,
     MotherBrainRainbowBeamAttackPhase PhaseAfter,

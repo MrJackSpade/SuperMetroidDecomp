@@ -5,6 +5,9 @@ namespace SuperMetroid.Desktop;
 /// <summary>Shared stable method identities for debugger delegates, independent of compiler token order.</summary>
 internal static class DebuggerDelegateIdentity
 {
+    /// <summary>Writes a method's stable signature components without compiler metadata tokens.</summary>
+    /// <param name="writer">State stream receiving the identity.</param>
+    /// <param name="method">Delegate target method to serialize.</param>
     public static void Write(BinaryWriter writer, MethodInfo method)
     {
         writer.Write(method.Name);
@@ -18,6 +21,12 @@ internal static class DebuggerDelegateIdentity
         foreach (ParameterInfo parameter in parameters) writer.Write(parameter.ParameterType.AssemblyQualifiedName!);
     }
 
+    /// <summary>Resolves one serialized signature to its unique compatible method on a declaring type.</summary>
+    /// <param name="reader">State stream containing the method signature.</param>
+    /// <param name="declaringType">Type whose declared methods are searched.</param>
+    /// <param name="resolveType">Resolver for serialized return, generic-argument, and parameter types.</param>
+    /// <returns>The unique method matching the serialized signature.</returns>
+    /// <exception cref="InvalidDataException">The serialized signature count is invalid or the method is not unique.</exception>
     public static MethodInfo Read(BinaryReader reader, Type declaringType, Func<string, Type> resolveType)
     {
         string name = reader.ReadString();
@@ -52,6 +61,9 @@ internal static class DebuggerDelegateIdentity
             $"Debugger delegate {declaringType.FullName}.{name} has {matches.Count} compatible methods in this build.");
     }
 
+    /// <summary>Reads a nonnegative signature-element count from the state stream.</summary>
+    /// <param name="reader">Stream positioned at the count.</param>
+    /// <returns>The validated count.</returns>
     private static int ReadCount(BinaryReader reader)
     {
         int count = reader.ReadInt32();

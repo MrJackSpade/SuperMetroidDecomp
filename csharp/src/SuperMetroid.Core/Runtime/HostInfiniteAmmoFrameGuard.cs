@@ -15,8 +15,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class HostInfiniteAmmoFrameGuard
 {
+    /// <summary>Prevents the frame's borrowed ammunition unit from being reconciled twice.</summary>
     private bool _completed;
 
+    /// <summary>Captures the actor receiving any temporary counter loans and which counters were buffered.</summary>
     private HostInfiniteAmmoFrameGuard(
         SamusState? actor,
         bool missilesBuffered,
@@ -29,9 +31,13 @@ internal sealed class HostInfiniteAmmoFrameGuard
         PowerBombsBuffered = powerBombsBuffered;
     }
 
+    /// <summary>Exact actor whose counters were prepared, so room replacement cannot redirect reconciliation.</summary>
     private SamusState? Actor { get; }
+    /// <summary>Whether the missile counter received a temporary firing buffer.</summary>
     private bool MissilesBuffered { get; }
+    /// <summary>Whether the super-missile counter received a temporary firing buffer.</summary>
     private bool SuperMissilesBuffered { get; }
+    /// <summary>Whether the power-bomb counter received a temporary firing buffer.</summary>
     private bool PowerBombsBuffered { get; }
 
     /// <summary>Prepares the three counters before any frame logic can observe them.</summary>
@@ -93,6 +99,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
             PowerBombsBuffered);
     }
 
+    /// <summary>Prepares one unlocked counter and reports whether a removable loan was added.</summary>
     private static bool PrepareCounter(
         ushort current,
         ushort maximum,
@@ -113,6 +120,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
         return true;
     }
 
+    /// <summary>Reconciles a counter after gameplay while preserving the unlocked one-unit floor.</summary>
     private static ushort CompleteCounter(ushort current, ushort maximum, bool buffered)
     {
         if (maximum == 0)

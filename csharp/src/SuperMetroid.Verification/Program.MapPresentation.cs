@@ -10,6 +10,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Confirms editable map colors project into HUD and pause views without changing compiled reveal rules.</summary>
     private static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
@@ -88,18 +89,27 @@ internal static partial class Program
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
     }
 
+    /// <summary>Supplies fixed discovery and reveal answers for map-presentation fixture cells.</summary>
     private sealed class PresentationMapRules : IAreaMapView
     {
+        /// <summary>Area represented by the deterministic map-rule fixture.</summary>
         public AreaId Area => AreaId.Crateria;
+        /// <summary>Returns the fixture's neutral tile word; art is supplied by the document under test.</summary>
         public MapTileWord GetTile(int x, int y) => MapTileWords.PauseBlank;
+        /// <summary>Marks only the two fixture cells used to confirm discovery remains rule-owned.</summary>
         public bool IsDiscoverable(int x, int y) => x == 5 && y is 5 or 6;
+        /// <summary>Marks the fixture's station-revealed test cell.</summary>
         public bool IsRevealedByMapStation(int x, int y) => x == 5 && y == 6;
+        /// <summary>Marks the fixture's slope-like cell that reveals the tile above.</summary>
         public bool RevealsCellAbove(int x, int y) => x == 5 && y == 6;
     }
 
+    /// <summary>Address space that makes any attempted map-presentation bus access fail immediately.</summary>
     private sealed class ForbiddenMapBus : ISnesAddressSpace
     {
+        /// <summary>Fails the test if live presentation attempts any cartridge read.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected map ROM read {address:X6}.");
+        /// <summary>Fails the test if a read-only map presentation attempts a bus write.</summary>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected map bus write.");
     }
 
@@ -110,22 +120,38 @@ internal static partial class Program
     /// </summary>
     private sealed class MapPresentationInstalledRoomAssets
     {
+        /// <summary>Installed object-character graphics required to initialize real rooms.</summary>
         private readonly RoomCharacterAtlas standardObjects;
+        /// <summary>Per-room character graphics bound to the runtime.</summary>
         private readonly RoomCharacterAtlasCatalog roomCharacters;
+        /// <summary>Per-room palette data bound to the runtime.</summary>
         private readonly RoomStaticPaletteCatalog roomPalettes;
+        /// <summary>Room metatile definitions used during room setup.</summary>
         private readonly RoomMetatileCatalog roomMetatiles;
+        /// <summary>Room-specific visual layout data.</summary>
         private readonly RoomVisualLayoutCatalog visualLayouts;
+        /// <summary>Installed background tilemaps used by room rendering.</summary>
         private readonly RoomBackgroundTilemapCatalog backgrounds;
+        /// <summary>Installed sky tilemaps used by room rendering.</summary>
         private readonly RoomSkyTilemapCatalog skies;
+        /// <summary>Enemy sprite tile artwork required by active-room initialization.</summary>
         private readonly EnemyTileArtworkCatalog enemyTiles;
+        /// <summary>Beam projectile tiles required by the enemy presentation.</summary>
         private readonly BeamTileCatalog beamTiles;
+        /// <summary>Samus body artwork required by room startup.</summary>
         private readonly SamusBodyArtworkCatalog samusBody;
+        /// <summary>PLM elevator-platform visual catalog required by room population.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
+        /// <summary>Installed gameplay base palette bound for HUD and room initialization.</summary>
         public GameplayBasePaletteCatalog InitialPalettes { get; }
+        /// <summary>Enemy tile catalog used by room-entry checks.</summary>
         public EnemyTileArtworkCatalog EnemyTiles => enemyTiles;
+        /// <summary>Samus body catalog used by room-entry checks.</summary>
         public SamusBodyArtworkCatalog SamusBody => samusBody;
 
+        /// <summary>Loads the installed graphics and palette resources needed for real-room verification.</summary>
+        /// <param name="installation">Installation that owns the extracted asset catalogs.</param>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
@@ -142,6 +168,8 @@ internal static partial class Program
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
 
+        /// <summary>Attaches the installed room resources to a runtime before initializing its room.</summary>
+        /// <param name="runtime">Runtime whose rendering owners need the extracted catalogs.</param>
         public void Bind(SuperMetroidRuntime runtime)
         {
             runtime.StandardObjectArt = standardObjects;
@@ -158,6 +186,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks map-catalog round trips, override identity, and live content rebind behavior.</summary>
     private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
     {
         using var temporaryDirectory = new TestTempDirectory("map-catalog");
@@ -285,11 +314,15 @@ internal static partial class Program
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
+    /// <summary>Rejects cartridge reads while recording the expected writes from installed palette data.</summary>
     private sealed class PaletteReadForbiddenBus : ISnesAddressSpace
     {
+        /// <summary>Captures writes to the native trailing-word destination for verification.</summary>
         public Dictionary<int, byte> Writes { get; } = new();
+        /// <summary>Fails because installed Mother Brain palette presentation must not consult cartridge ROM.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.");
+        /// <summary>Records the expected trailing-word write and rejects writes to any other address.</summary>
         public void WriteByte(int address, byte value)
         {
             if (address is not (MotherBrainDrainedPaletteRomData.TrailingWordWram or
@@ -299,6 +332,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that an installed Mother Brain rainbow-palette edit changes the active presentation.</summary>
     private static void VerifyMotherBrainRainbowPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -585,6 +619,7 @@ internal static partial class Program
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
 
+    /// <summary>Checks that an installed Mother Brain health-palette edit reaches runtime CGRAM.</summary>
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -677,6 +712,7 @@ internal static partial class Program
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
     }
 
+    /// <summary>Checks installed room palette-FX overrides against live room palette output.</summary>
     private static void VerifyRoomPaletteFxOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1065,6 +1101,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that edited title gradient data changes rendered title scanlines.</summary>
     private static void VerifyTitleGradientOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1102,6 +1139,7 @@ internal static partial class Program
         Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks edited title colors in ordinary and skip-copyright presentation paths.</summary>
     private static void VerifyTitlePaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1201,6 +1239,7 @@ internal static partial class Program
         Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks that replacement Mode 7 tile art changes the production title render.</summary>
     private static void VerifyTitleGraphicsOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1244,6 +1283,7 @@ internal static partial class Program
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks title sprite-layout edits change OAM while preserving native sequence timing.</summary>
     private static void VerifyTitleSpriteCompositionOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1292,6 +1332,7 @@ internal static partial class Program
         Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");
     }
 
+    /// <summary>Checks current map-content rebinding and room startup against a bus that rejects map-ROM reads.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
@@ -1331,6 +1372,7 @@ internal static partial class Program
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
+    /// <summary>Checks file-select rendering, edited tilemap rebinding, and graphics-state restoration.</summary>
     private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
@@ -1359,9 +1401,14 @@ internal static partial class Program
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
+    /// <summary>Address-space wrapper that rejects cartridge reads from map assets while forwarding unrelated access.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and writes.</param>
+    /// <param name="maps">Cartridge map ranges that must remain unread during live presentation checks.</param>
     private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Throws when an address falls within a map or other installed-presentation source range.</summary>
+        /// <param name="address">Bus address about to be read.</param>
         private void RejectMapSource(int address)
         {
             if ((address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
@@ -1384,26 +1431,31 @@ internal static partial class Program
                 throw new InvalidOperationException($"Live presentation read map ROM at {address:X6}.");
         }
 
+        /// <summary>Rejects forbidden presentation ranges, then forwards the ordinary address-space read.</summary>
         public byte ReadByte(int address)
         {
             RejectMapSource(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Rejects forbidden presentation ranges, then forwards an import-capable cartridge read.</summary>
         public byte ReadCartridgeByte(int address)
         {
             RejectMapSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read without applying cartridge map-range checks.</summary>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-data guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Forwards an SRAM read without applying cartridge map-range checks.</summary>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-data guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Forwards a bus write to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

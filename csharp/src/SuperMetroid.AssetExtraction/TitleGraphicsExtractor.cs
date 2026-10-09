@@ -8,6 +8,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Expands title graphics and OBJ compositions into indexed PNG/JSON assets.</summary>
 internal static class TitleGraphicsExtractor
 {
+    /// <summary>Extracts the title sequence's graphics atlases and Mode 7 map presentation files.</summary>
+    /// <param name="bus">Address space containing the imported cartridge data.</param>
+    /// <returns>Named PNG and JSON file contents for the title graphics assets.</returns>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);

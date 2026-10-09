@@ -7,35 +7,46 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class KraidArmCollisionDefinitions
 {
+    /// <summary>LoROM bank containing the native Kraid arm frame and hitbox records.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Four non-body component offsets for normalized arm pose 0, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase0 =
         [new(-36, -33), new(-28, -24),
          new(-36, -40), new(-28, -31)];
+    /// <summary>Four non-body component offsets for normalized arm pose 1, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase1 =
         [new(-38, -33), new(-30, -26),
          new(-36, -40), new(-28, -31)];
+    /// <summary>Four non-body component offsets for normalized arm pose 2, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase2 =
         [new(-48, -13), new(-38, -13),
          new(-45, -27), new(-37, -19)];
+    /// <summary>Four non-body component offsets for normalized arm pose 3, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase3 =
         [new(-46, -13), new(-37, -13),
          new(-45, -19), new(-36, -18)];
+    /// <summary>Four non-body component offsets for normalized arm pose 4, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase4 =
         [new(-45, 8), new(-38, 2),
          new(-46, 3), new(-39, -3)];
+    /// <summary>Four non-body component offsets for normalized arm pose 5, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase5 =
         [new(-44, 8), new(-37, 2),
          new(-46, 4), new(-39, -2)];
+    /// <summary>Four non-body component offsets for normalized arm pose 6, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase6 =
         [new(-39, 10), new(-38, 0),
          new(-43, 10), new(-41, -2)];
+    /// <summary>Four non-body component offsets for normalized arm pose 7, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase7 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
+    /// <summary>Four non-body component offsets for normalized arm pose 8, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase8 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
+    /// <summary>Four non-body component offsets for normalized arm pose 9, in actor component order.</summary>
     private static readonly KraidArmComponentPosition[] Phase9 =
         [new(-39, 10), new(-38, 0),
          new(-42, 9), new(-42, -2)];
@@ -46,7 +57,9 @@ internal static class KraidArmCollisionDefinitions
     private const ushort FirstSingleComponentFrame = 0x92a1;
     /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
     private const ushort SecondSingleComponentFrame = 0x92ab;
+    /// <summary>Byte stride of each five-component general arm frame, including its two-byte frame header.</summary>
     private const int GeneralFrameBytes = 2 + 5 * 8;
+    /// <summary>Native rectangle bounds in list order; sequence starts and lengths index this geometry table.</summary>
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),
@@ -98,6 +111,10 @@ internal static class KraidArmCollisionDefinitions
         return EnemyAiCodePointers.BankA7.KraidArmShot;
     }
 
+    /// <summary>Builds one ordered rectangle with the touch and shot callbacks selected for its native role.</summary>
+    /// <param name="index">Zero-based index in the compiled 24-rectangle geometry table.</param>
+    /// <returns>The bounds and callback identities consumed by collision handling.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled rectangle table.</exception>
     internal static KraidArmCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
@@ -167,6 +184,10 @@ internal static class KraidArmCollisionDefinitions
         KraidArmComponentPosition position = positions[component < 2 ? component : component - 1];
         return new(position.X, position.Y, hitbox);
     }
+    /// <summary>Resolves a supported extended-frame pointer to its normalized pose and component count.</summary>
+    /// <param name="pointer">Native bank-$A7 extended-frame pointer.</param>
+    /// <param name="components">Receives the normalized pose view on success, or the default value otherwise.</param>
+    /// <returns>True for the twenty general frames and two single-component frames compiled here.</returns>
     internal static bool TryGetComponents(ushort pointer,
         out KraidArmComponentSequence components)
     {
@@ -222,13 +243,30 @@ internal static class KraidArmCollisionDefinitions
         };
 }
 
+/// <summary>A physical arm component positioned relative to Kraid and linked to its native hitbox list.</summary>
+/// <param name="X">Signed horizontal offset from the enemy origin.</param>
+/// <param name="Y">Signed vertical offset from the enemy origin.</param>
+/// <param name="HitboxPointer">Native bank-$A7 list selected for this component's pose.</param>
 internal readonly record struct KraidArmCollisionComponent(short X, short Y, ushort HitboxPointer);
+
+/// <summary>One hitbox rectangle with the native touch and shot callback identities attached.</summary>
+/// <param name="Left">Signed left edge relative to Kraid's origin.</param>
+/// <param name="Top">Signed top edge relative to Kraid's origin.</param>
+/// <param name="Right">Signed right edge relative to Kraid's origin.</param>
+/// <param name="Bottom">Signed bottom edge relative to Kraid's origin.</param>
+/// <param name="TouchAi">Native touch callback chosen for this rectangle's arm or background role.</param>
+/// <param name="ShotAi">Native shot callback used by the selected arm rectangle.</param>
 internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
 /// <summary>Ordered rectangle view that attaches calculated callbacks without storing them per record.</summary>
+/// <param name="Start">Zero-based first rectangle in the shared geometry table.</param>
+/// <param name="Length">Number of consecutive rectangles selected for this native shape.</param>
 internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
 {
+    /// <summary>Gets one rectangle from this ordered shape, calculating its callback identities on access.</summary>
+    /// <param name="index">Zero-based position within this selected rectangle slice.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside this sequence.</exception>
     internal KraidArmCollisionHitbox this[int index]
     {
         get
@@ -237,11 +275,18 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
             return KraidArmCollisionDefinitions.Rectangle(Start + index);
         }
     }
+    /// <summary>Creates an enumerator starting before the first rectangle.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Iterates a selected slice of native Kraid arm rectangles.</summary>
+    /// <param name="sequence">The ordered rectangle slice traversed by this enumerator.</param>
     internal struct Enumerator(KraidArmHitboxSequence sequence)
     {
+        /// <summary>Index of the next rectangle to visit.</summary>
         private int next;
+        /// <summary>Advances to the next rectangle, returning false after the selected slice ends.</summary>
+        /// <returns>True when a current rectangle is available.</returns>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Gets the rectangle selected by the most recent successful <see cref="MoveNext"/> call.</summary>
         public KraidArmCollisionHitbox Current => sequence[next - 1];
     }
 }
@@ -251,8 +296,13 @@ internal readonly record struct KraidArmCollisionGeometry(short Left, short Top,
 internal readonly record struct KraidArmComponentPosition(short X, short Y);
 
 /// <summary>Ordered physical component view with calculated hitbox selectors.</summary>
+/// <param name="Pose">Normalized arm pose ordinal used to select component offsets and hitbox lists.</param>
+/// <param name="Length">Number of components present in that pose.</param>
 internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
 {
+    /// <summary>Gets one physical component in actor order for the selected pose.</summary>
+    /// <param name="index">Zero-based component ordinal within the pose.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside this pose's component count.</exception>
     internal KraidArmCollisionComponent this[int index]
     {
         get
@@ -261,11 +311,18 @@ internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
             return KraidArmCollisionDefinitions.Component(Pose, index);
         }
     }
+    /// <summary>Creates an enumerator starting before the first physical component.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Iterates the components present in one normalized arm pose.</summary>
+    /// <param name="sequence">The pose and component count traversed by this enumerator.</param>
     internal struct Enumerator(KraidArmComponentSequence sequence)
     {
+        /// <summary>Index of the next component to visit.</summary>
         private int next;
+        /// <summary>Advances to the next component, returning false after the pose's components end.</summary>
+        /// <returns>True when a current component is available.</returns>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Gets the component selected by the most recent successful <see cref="MoveNext"/> call.</summary>
         public KraidArmCollisionComponent Current => sequence[next - 1];
     }
 }

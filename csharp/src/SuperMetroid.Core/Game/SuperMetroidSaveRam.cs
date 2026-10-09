@@ -24,8 +24,11 @@ public sealed class SuperMetroidSaveRam
     /// <summary>The global SRAM offset of the selected-slot word used by the file-select menu.</summary>
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
+    /// <summary>Immutable stock map rules needed to pack sparse exploration data into SRAM.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Address space used for cartridge-compatible SRAM writes.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Mutable memory view used to read the backing SRAM image.</summary>
     private readonly ISnesMutableMemory mutableMemory;
 
     /// <summary>Creates an SRAM codec over a mutable SNES address space.</summary>
@@ -41,6 +44,7 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
 
+    /// <summary>Supplies the immutable map rules used by explored-map packing and unpacking.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
     /// <summary>
@@ -340,6 +344,7 @@ public sealed class SuperMetroidSaveRam
         return slot < SlotCount && unchecked((ushort)~slot) == complement ? slot : 0;
     }
 
+    /// <summary>Adds every little-endian word in one slot payload using native 16-bit wraparound.</summary>
     private ushort CalculateChecksum(int slotOffset)
     {
         ushort checksum = 0;
@@ -348,30 +353,36 @@ public sealed class SuperMetroidSaveRam
         return checksum;
     }
 
+    /// <summary>Copies one checksum-directory word between corresponding slot entries.</summary>
     private void CopyDirectoryWord(int directoryOffset, int sourceSlot, int destinationSlot) =>
         WriteSramWord(
             directoryOffset + destinationSlot * 2,
             ReadSramWord(directoryOffset + sourceSlot * 2));
 
+    /// <summary>Returns the payload base after validating a retail slot index.</summary>
     private static int GetSlotOffset(int slot)
     {
         ValidateSlot(slot);
         return SaveRamLayout.SlotOffset(slot);
     }
 
+    /// <summary>Restricts slot indexes to the three cartridge save files.</summary>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
+    /// <summary>Reads one byte at a global SRAM offset through the SNES bank mapping.</summary>
     private byte ReadSramByte(int offset) =>
         mutableMemory.ReadSaveRamByte((int)new SnesAddress(
             SaveRamLayout.SramBank, (ushort)(offset & SaveRamLayout.SramOffsetMask)));
 
+    /// <summary>Reads a little-endian 16-bit word from consecutive SRAM bytes.</summary>
     private ushort ReadSramWord(int offset) => unchecked((ushort)(
         ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));
 
+    /// <summary>Copies a contiguous SRAM range into a managed byte array.</summary>
     private byte[] ReadSramBytes(int offset, int count)
     {
         var bytes = new byte[count];
@@ -380,15 +391,18 @@ public sealed class SuperMetroidSaveRam
         return bytes;
     }
 
+    /// <summary>Writes one byte at a global SRAM offset using the cartridge bank window.</summary>
     private void WriteSramByte(int offset, byte value) =>
         bus.WriteByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)), value);
 
+    /// <summary>Writes a 16-bit word to SRAM in little-endian byte order.</summary>
     private void WriteSramWord(int offset, ushort value)
     {
         WriteSramByte(offset, unchecked((byte)value));
         WriteSramByte(offset + 1, unchecked((byte)(value >> 8)));
     }
 
+    /// <summary>Packs area exploration bytes into the sparse native SRAM map field.</summary>
     private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {
         int expectedByteCount =
@@ -419,6 +433,7 @@ public sealed class SuperMetroidSaveRam
         return compressed;
     }
 
+    /// <summary>Expands sparse SRAM map bytes into the full per-area exploration layout.</summary>
     private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
         if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
@@ -445,6 +460,7 @@ public sealed class SuperMetroidSaveRam
         return explored;
     }
 
+    /// <summary>Writes one little-endian word into a slot payload buffer.</summary>
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);
@@ -453,6 +469,38 @@ public sealed class SuperMetroidSaveRam
 }
 
 /// <summary>Decoded debugger view of the player fields and checkpoint in one valid slot.</summary>
+/// <param name="Slot">Zero-based file-select slot index.</param>
+/// <param name="EquippedItems">Item-bit word currently equipped by Samus.</param>
+/// <param name="CollectedItems">Persistent collected item-bit word.</param>
+/// <param name="EquippedBeams">Beam-bit word currently equipped by Samus.</param>
+/// <param name="CollectedBeams">Persistent collected beam-bit word.</param>
+/// <param name="ReserveMode">Native reserve-tank mode word.</param>
+/// <param name="Health">Current energy value.</param>
+/// <param name="MaxHealth">Maximum energy capacity.</param>
+/// <param name="Missiles">Current missile count.</param>
+/// <param name="MaxMissiles">Maximum missile capacity.</param>
+/// <param name="SuperMissiles">Current super-missile count.</param>
+/// <param name="MaxSuperMissiles">Maximum super-missile capacity.</param>
+/// <param name="PowerBombs">Current power-bomb count.</param>
+/// <param name="MaxPowerBombs">Maximum power-bomb capacity.</param>
+/// <param name="HudItem">Selected HUD item word.</param>
+/// <param name="MaxReserveEnergy">Maximum reserve-energy capacity.</param>
+/// <param name="ReserveEnergy">Stored reserve-energy amount.</param>
+/// <param name="GameTimeFrames">Subsecond game-time frame counter.</param>
+/// <param name="GameTimeSeconds">Saved game-time seconds.</param>
+/// <param name="GameTimeMinutes">Saved game-time minutes.</param>
+/// <param name="GameTimeHours">Saved game-time hours.</param>
+/// <param name="EventBytes">Persistent event flags in native byte order.</param>
+/// <param name="BossBytes">Per-area boss flags in native byte order.</param>
+/// <param name="RoomChozoBytes">Room Chozo-statue flags in the SRAM bit-table layout.</param>
+/// <param name="CollectedItemBytes">Persistent item-location flags.</param>
+/// <param name="OpenedDoorBytes">Persistent opened-door flags.</param>
+/// <param name="UsedSaveStationBytes">Save-station and elevator-use flags.</param>
+/// <param name="MapStationBytes">Per-area map-station activation flags.</param>
+/// <param name="ExploredMapBytes">Expanded per-area exploration bits, before SRAM packing.</param>
+/// <param name="LoadingGameState">Saved game-state word used when loading the slot.</param>
+/// <param name="SaveStation">Native save-station identifier.</param>
+/// <param name="Area">Native area identifier associated with the checkpoint.</param>
 public sealed record SuperMetroidSaveSlot(
     int Slot,
     ushort EquippedItems,

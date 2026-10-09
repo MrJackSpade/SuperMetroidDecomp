@@ -17,43 +17,76 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public sealed partial class PlayableGameControl : UserControl
 {
+    /// <summary>Optional installed projectile artwork source used to keep its catalog available while the host is reconstructed.</summary>
     private SuperMetroid.Core.Assets.EnemyTileArtworkCatalog? enemyTileArtwork;
+    /// <summary>Human-readable installed save file used for battery-backed SRAM persistence.</summary>
     private readonly string saveFilePath;
+    /// <summary>Legacy raw SRAM path checked during one-time save migration.</summary>
     private readonly string legacySaveRamPath;
+    /// <summary>Host options held constant across restarts and save-state restoration.</summary>
     private readonly SuperMetroidGameOptions gameOptions;
+    /// <summary>Optional immutable input timeline; when present it replaces live controller sampling.</summary>
     private readonly ControllerInputRecording? replay;
+    /// <summary>Optional reporter for recoverable frame-boundary failures.</summary>
     private readonly GitHubErrorReporter? errorReporter;
+    /// <summary>Applies the host's audio recovery policy around rendering completed gameplay frames.</summary>
     private readonly AudioFrameRecovery audioFrameRecovery = new();
+    /// <summary>Game image surface receiving published software or GPU frames.</summary>
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
+    /// <summary>Toolbar text and timing/error details for the active session.</summary>
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
+    /// <summary>UI timer that samples elapsed wall time to schedule translated frames.</summary>
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
+    /// <summary>Measures wall time between playback timer callbacks independently of emulated frames.</summary>
     private readonly Stopwatch playbackClock = new();
+    /// <summary>Collects emulation, painting, and late-frame measurements for the toolbar.</summary>
     private readonly FrameTimingCounter frameTimings = new();
+    /// <summary>Tracks currently held host keyboard controls and converts them to the SNES port word.</summary>
     private readonly HostKeyboardInputState keyboard = new();
+    /// <summary>Prevents stale non-neutral input from resuming after a focus or session boundary.</summary>
     private readonly HostInputActivationGate inputActivation = new();
+    /// <summary>Polls the selected Windows gamepad and translates its state to SNES controls.</summary>
     private readonly WindowsGamepadInput gamepad = new();
+    /// <summary>Fractional number of gameplay frames owed by elapsed playback time.</summary>
     private double pendingPlaybackFrames;
+    /// <summary>Active installed runtime memory and cartridge address space.</summary>
     private SuperMetroidAddressSpace addressSpace = null!;
+    /// <summary>Translated game dispatcher for the current playback generation.</summary>
     private SuperMetroidGame game = null!;
+    /// <summary>SPC player and command renderer for the current audio-enabled session.</summary>
     private SpcAudioEngine? audioEngine;
+    /// <summary>Optional directory overriding the audio assets bundled with the installation.</summary>
     private readonly string? installedAudioDirectory;
+    /// <summary>Root of the installed game data and per-user playback artifacts.</summary>
     private readonly string playerDataDirectory;
+    /// <summary>Identity of the extracted content currently bound to this host.</summary>
     private GameContentIdentity? installedContentIdentity;
+    /// <summary>Recovering native audio endpoint, absent when audio is disabled.</summary>
     private RecoveringAudioOutput? audioDevice;
+    /// <summary>Live controller recorder for the current game or post-state continuation.</summary>
     private ControllerInputRecorder? inputRecorder;
+    /// <summary>Installed-game debugger state slots bound to the current content identity.</summary>
     private DebuggerSaveStateStore stateStore = null!;
+    /// <summary>Index of the next controller word to consume from an optional replay.</summary>
     private int replayFrameIndex;
+    /// <summary>Room pointer currently represented in the host window caption.</summary>
     private ushort? displayedRoomPointer;
+    /// <summary>Most recent completed timing sample used by status and diagnostic text.</summary>
     private FrameTimingSnapshot? latestFrameTiming;
+    /// <summary>Latest recoverable runtime or audio error shown in the status tooltip.</summary>
     private string? lastRecoverableError;
+    /// <summary>Containing form whose deactivation releases potentially latched gameplay input.</summary>
     private Form? inputLifecycleForm;
+    /// <summary>Tracks whether the process-wide Windows session-switch handler is subscribed.</summary>
     private bool sessionSwitchAttached;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
     // cadence; accumulating elapsed time avoids the old integer `1000 / 60 = 16ms` loop,
     // which actually advanced the game at 62.5 frames per second.
+    /// <summary>Target translated update frequency used to convert elapsed wall time to gameplay frames.</summary>
     private const double TargetFramesPerSecond = 60.0;
+    /// <summary>Maximum updates one timer callback may run, bounding catch-up after scheduler delays.</summary>
     private const int MaximumCatchUpFrames = 4;
 
     /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
@@ -174,6 +207,8 @@ public sealed partial class PlayableGameControl : UserControl
         SetPlaying(playing: true);
     }
 
+    /// <summary>Loads audio data from the configured override directory or the installed content package.</summary>
+    /// <returns>Validated audio assets for constructing the SPC engine.</returns>
     private ExtractedAudioAssetCatalog LoadAudioAssets()
     {
         var installation = new GameInstallation(playerDataDirectory);
@@ -185,6 +220,7 @@ public sealed partial class PlayableGameControl : UserControl
         return ExtractedAudioAssetCatalog.Load(installedAudioDirectory);
     }
 
+    /// <summary>Restarts synchronously when no GPU generation is active; active GPU sessions must use the asynchronous boundary.</summary>
     private void Restart()
     {
         if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
@@ -192,6 +228,7 @@ public sealed partial class PlayableGameControl : UserControl
         RestartCore();
     }
 
+    /// <summary>Recreates runtime memory, dispatcher, audio, and recording state while retaining the host's original options.</summary>
     private void RestartCore()
     {
         keyboard.Clear();
@@ -390,6 +427,9 @@ public sealed partial class PlayableGameControl : UserControl
         canvas.Focus();
     }
 
+    /// <summary>Persists the current complete emulation state in the selected manual debugger slot.</summary>
+    /// <param name="slot">Debugger slot index; automatic door-recovery storage is not a manual save destination.</param>
+    /// <exception cref="InvalidOperationException">A replay is active, for which interactive state saves are disabled.</exception>
     private void SaveDebuggerState(int slot)
     {
         if (replay is not null)
@@ -402,6 +442,9 @@ public sealed partial class PlayableGameControl : UserControl
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
+    /// <summary>Loads a debugger slot, drains the old display generation, restores game/audio state, and resumes prior playback.</summary>
+    /// <param name="slot">Manual or automatic debugger slot selected in the toolbar.</param>
+    /// <returns>A task that completes after the display boundary and state restoration finish.</returns>
     private async Task LoadDebuggerState(int slot)
     {
         if (replay is not null)
@@ -539,6 +582,9 @@ public sealed partial class PlayableGameControl : UserControl
         SetPlaying(resumePlayback);
     }
 
+    /// <summary>Formats room and room-state addresses for debugger save/load status text.</summary>
+    /// <param name="room">Optional bank-$8F room header pointer.</param><param name="state">Optional bank-$8F selected room-state pointer.</param>
+    /// <returns>Both addresses when available, or the frontend/no-room label otherwise.</returns>
     private static string FormatStateRoom(ushort? room, ushort? state) =>
         room is ushort roomPointer && state is ushort statePointer
             ? $"room $8F:{roomPointer:X4}/state $8F:{statePointer:X4}"
@@ -562,6 +608,8 @@ public sealed partial class PlayableGameControl : UserControl
         replay.InitialSaveRam.CopyTo(addressSpace.SaveRam);
     }
 
+    /// <summary>Creates the save-state slot store associated with this installation and its content identity.</summary>
+    /// <returns>A store rooted in the installed player's data directory.</returns>
     private DebuggerSaveStateStore CreateStateStore()
     {
         return DebuggerSaveStateStore.ForInstalledGame(
@@ -571,6 +619,8 @@ public sealed partial class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
+    /// <summary>Starts a controller recording seeded with the current SRAM and installation compatibility metadata.</summary>
+    /// <returns>The active recording writer for subsequent live input words.</returns>
     private ControllerInputRecorder StartInputRecorder()
     {
         return ControllerInputRecorder.StartInstalled(
@@ -581,6 +631,8 @@ public sealed partial class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
+    /// <summary>Writes compatibility warnings when the replay's extracted content differs from this installation.</summary>
+    /// <exception cref="InvalidOperationException">No replay or installed content identity is available.</exception>
     private void ReportReplayContentCompatibility()
     {
         if (replay is null)
@@ -624,8 +676,12 @@ public sealed partial class PlayableGameControl : UserControl
         GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
             mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
 
+    /// <summary>Checks whether audio output has capacity for another completed gameplay frame.</summary>
+    /// <returns>True when audio is disabled or the recovering output can accept a frame.</returns>
     private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
 
+    /// <summary>Advances at most one translated frame and immediately refreshes its presentation when available.</summary>
+    /// <param name="forcedInput">Optional exact controller word; null uses replay or merged live host input.</param>
     private void StepFrame(ushort? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
@@ -805,6 +861,8 @@ public sealed partial class PlayableGameControl : UserControl
             audioDevice.Reset();
     }
 
+    /// <summary>Updates the canvas, room caption, and timing/error status from a completed frame.</summary>
+    /// <param name="frame">Completed gameplay frame to present and describe.</param>
     private void RefreshFrame(FrontendFrame frame)
     {
         RefreshDisplay(frame);
@@ -908,6 +966,8 @@ public sealed partial class PlayableGameControl : UserControl
         _ => "Room",
     };
 
+    /// <summary>Merges keyboard and polled gamepad controls, then applies activation gating before recording or execution.</summary>
+    /// <returns>One cartridge-format controller input word for the next frame.</returns>
     private ushort BuildControllerWord()
     {
         // Keyboard and gamepad are two host producers for the same physical SNES port.
@@ -924,6 +984,8 @@ public sealed partial class PlayableGameControl : UserControl
         AttachInputLifecycleForm(FindForm());
     }
 
+    /// <summary>Moves the focus-loss input release subscription to the form currently containing this control.</summary>
+    /// <param name="form">New containing form, or null to remove the previous subscription.</param>
     private void AttachInputLifecycleForm(Form? form)
     {
         if (ReferenceEquals(inputLifecycleForm, form))
@@ -935,6 +997,8 @@ public sealed partial class PlayableGameControl : UserControl
             inputLifecycleForm.Deactivate += OnInputHostDeactivated;
     }
 
+    /// <summary>Clears held keyboard state and requires neutral input when host focus is lost.</summary>
+    /// <param name="sender">Form whose deactivation was observed.</param><param name="e">Deactivation event arguments.</param>
     private void OnInputHostDeactivated(object? sender, EventArgs e)
     {
         // A deactivated WinForms/RDP window is not guaranteed to receive the matching
@@ -943,6 +1007,8 @@ public sealed partial class PlayableGameControl : UserControl
         HostInputDiscontinuity.Release(keyboard, inputActivation);
     }
 
+    /// <summary>Queues an input release on the UI thread after a Windows lock or remote-session boundary.</summary>
+    /// <param name="sender">Windows system-event source.</param><param name="e">Session-switch reason.</param>
     private void OnWindowsSessionSwitch(object sender, SessionSwitchEventArgs e)
     {
         // Remote disconnect/lock can leave the WinForms window technically active, so its
@@ -954,6 +1020,7 @@ public sealed partial class PlayableGameControl : UserControl
         BeginInvoke(ReleaseInputAfterSessionSwitch);
     }
 
+    /// <summary>Releases held input after the queued Windows session-switch notification reaches the UI thread.</summary>
     private void ReleaseInputAfterSessionSwitch() =>
         HostInputDiscontinuity.Release(keyboard, inputActivation);
 

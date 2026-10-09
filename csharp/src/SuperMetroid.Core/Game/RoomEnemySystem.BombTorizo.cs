@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TorizoEnemyState
 {
+    /// <summary>Creates the extended state bound to the room enemy slot and selected Torizo variant.</summary>
+    /// <param name="slot">Owning slot whose shared combat and position fields remain authoritative.</param>
+    /// <param name="isGolden">True when this state models Golden Torizo rather than Bomb Torizo.</param>
     internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
     {
         Slot = slot;
@@ -97,17 +100,29 @@ public readonly record struct TorizoOrbDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer for Bomb Torizo in bank $AA.</summary>
     internal const ushort BombTorizoDefinition = 0xeeff;
+    /// <summary>Enemy definition pointer for Golden Torizo in bank $AA.</summary>
     internal const ushort GoldenTorizoDefinition = 0xef7f;
+    /// <summary>Native touch callback used by Bomb Torizo's definition.</summary>
     internal const ushort BombTorizoTouchAi = EnemyAiCodePointers.BankAA.BombTorizoTouch;
+    /// <summary>Native damage callback for Bomb Torizo and the shared Golden Torizo hit path.</summary>
     internal const ushort BombTorizoShotAi = EnemyAiCodePointers.BankAA.BombTorizoShot;
+    /// <summary>Transitional stand-up/sit-down shot callback used by Golden Torizo.</summary>
     internal const ushort TorizoStandUpSitDownShotAi = EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot;
+    /// <summary>Golden Torizo's main projectile-family-capturing shot callback.</summary>
     internal const ushort GoldenTorizoShotAi = EnemyAiCodePointers.BankAA.GoldenTorizoShot;
+    /// <summary>Instruction-list entry that interrupts the active sequence with low-health head damage.</summary>
     private const ushort BombTorizoLowHealthInterruptInstruction = 0xb0e5;
+    /// <summary>Instruction-list entry that recovers from the low-health core burst.</summary>
     private const ushort BombTorizoLowHealthRecoveryInstruction = 0xb155;
+    /// <summary>Instruction-list entry for the shared Bomb and Golden Torizo death sequence.</summary>
     private const ushort BombTorizoDeathInstruction = 0xb1c8;
+    /// <summary>Initial extended spritemap used before the actor's ordinary body animation takes over.</summary>
     private const ushort BombTorizoInitialExtendedSpritemap = 0x87d0;
+    /// <summary>Room PLM identity whose removal releases Bomb Torizo's awakening wait.</summary>
     private const ushort BombTorizoHandTriggerPlm = 0xd6ea;
+    /// <summary>Native sentinel placed in the shot guard while awakening rejects projectile damage.</summary>
     private const ushort BombTorizoShotGuardValue = 0x7777;
 
     /// <summary>
@@ -172,27 +187,47 @@ public sealed partial class RoomEnemySystem
         if (torizo.Health == 0)
             BeginBombTorizoDeath(torizo, state);
     }
+    /// <summary>Health threshold below which the native main routine interrupts for the head explosion.</summary>
     private const ushort BombTorizoHeadExplosionHealth = 350;
+    /// <summary>Health threshold below which the native main routine enters the core-burst recovery.</summary>
     private const ushort BombTorizoCoreExplosionHealth = 100;
+    /// <summary>Native main-function pointer for the dormant idle state.</summary>
     private const ushort TorizoFunctionIdle = 0xc6ab;
+    /// <summary>Native main-function pointer applying falling movement.</summary>
     private const ushort TorizoFunctionFalling = 0xc6bf;
+    /// <summary>Native main-function pointer waiting for the hand-trigger PLM to disappear.</summary>
     private const ushort TorizoFunctionWaitForHandTrigger = 0xc6c6;
+    /// <summary>Native main-function pointer dispatching active Torizo behavior.</summary>
     private const ushort TorizoFunctionActive = 0xc6ff;
+    /// <summary>Golden Torizo main-function pointer that waits for Samus to enter its wake-up region.</summary>
     private const ushort GoldenTorizoFunctionWaitForSamus = 0xd5c2;
+    /// <summary>Golden Torizo main-function pointer applying gravity during its initial fall.</summary>
     private const ushort GoldenTorizoFunctionGravity = 0xd5df;
+    /// <summary>Golden Torizo main-function pointer dispatching its selected pre-instruction.</summary>
     private const ushort GoldenTorizoFunctionPreInstruction = 0xd5e6;
 
+    /// <summary>Native callback that leaves the actor's current movement unchanged.</summary>
     private const ushort TorizoPreInstructionIdle = 0xc95e;
+    /// <summary>Native callback for timed airborne facing/landing transitions.</summary>
     private const ushort TorizoPreInstructionAirTransition = 0xc752;
+    /// <summary>Native callback that applies vertical gravity and collision response.</summary>
     private const ushort TorizoPreInstructionGravity = 0xc828;
+    /// <summary>Native callback that applies horizontal jump movement followed by vertical motion.</summary>
     private const ushort TorizoPreInstructionJump = 0xc82c;
+    /// <summary>Golden Torizo callback for its timed sixteen-frame facing transition.</summary>
     private const ushort GoldenTorizoPreInstructionAirTransition = 0xd5f1;
+    /// <summary>Golden Torizo callback that shares the common gravity implementation.</summary>
     private const ushort GoldenTorizoPreInstructionGravity = 0xd5ed;
 
+    /// <summary>Extended state for the Torizo slot currently owned by this room enemy system.</summary>
     private TorizoEnemyState? _torizoState;
+    /// <summary>Pickup-scatter events requested by Torizo death and orb shooting callbacks.</summary>
     private readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
+    /// <summary>Optional query for whether a room PLM identity remains present.</summary>
     private Func<ushort, bool>? _isRoomPlmPresent;
+    /// <summary>Optional query for the area's persistent Torizo defeat bit.</summary>
     private Func<bool>? _isAreaTorizoDefeated;
+    /// <summary>Optional action that persists the area's Torizo defeat bit when death completes.</summary>
     private Action? _setAreaTorizoDefeated;
 
     /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
@@ -205,6 +240,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
+    /// <summary>Clears per-room Torizo state and pending sound/music requests before another room is initialized.</summary>
     private void ResetBombTorizoRoomState()
     {
         _torizoState = null;
@@ -281,6 +317,7 @@ public sealed partial class RoomEnemySystem
             LoadBombTorizoPalette();
     }
 
+    /// <summary>Copies the shared Torizo auxiliary palette rows into both body CGRAM ranges.</summary>
     private void LoadTorizoSharedPaletteRows()
     {
         ReadOnlySpan<ushort> rows = TorizoPaletteDefinitions.SharedRows;
@@ -292,27 +329,37 @@ public sealed partial class RoomEnemySystem
     }
 
     // Palette rows nine and ten are used by the two extended-spritemap halves of the body.
+    /// <summary>Installs Bomb Torizo's two initial body palette rows into the active CGRAM ranges.</summary>
     private void LoadBombTorizoPalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.BombInitial[..16], TorizoPaletteDefinitions.BombInitial[16..]);
 
     // Later hurt frames use bank $84's health-indexed gradient; keeping this initial write
     // separate mirrors the cartridge's target-palette setup before the first live damage callback.
+    /// <summary>Installs Golden Torizo's initial base palette before health-indexed hurt colors are applied.</summary>
     private void LoadGoldenTorizoBasePalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.GoldenInitial[..16], TorizoPaletteDefinitions.GoldenInitial[16..]);
 
+    /// <summary>Targets the normal body colors used during the Torizo death flash.</summary>
     private void LoadTorizoDeathPalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.Normal[..16], TorizoPaletteDefinitions.Normal[16..]);
 
+    /// <summary>Gets or creates the palette fade state backed by the current CGRAM color array.</summary>
+    /// <param name="state">Torizo lifecycle state that owns the transition accumulator.</param>
+    /// <returns>The transition reused by later target updates.</returns>
     private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new CartridgePaletteTransition(
             _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator, GradualColorChange);
 
+    /// <summary>Sets each supplied body color as the destination for the Torizo palette fade.</summary>
+    /// <param name="state">Lifecycle state whose transition receives the targets.</param><param name="colors">Ordered colors beginning at the first body color slot.</param>
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<ushort> colors)
     {
         var transition = GetTorizoPaletteTransition(state);
         for (int color = 0; color < colors.Length; color++)
             transition.SetTargetColor(TorizoPaletteDefinitions.FirstBodyColor + color, colors[color]);
     }
+    /// <summary>Selects and copies Golden Torizo's health-indexed body and belly palette rows.</summary>
+    /// <param name="health">Current health value; its native high health bits select a clamped palette row.</param>
     private void LoadGoldenTorizoHealthPalette(ushort health)
     {
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
@@ -337,6 +384,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Copies two sixteen-color source rows into the body and belly CGRAM destinations.</summary>
+    /// <param name="rowNine">Colors for the first body palette range.</param><param name="rowTen">Colors for the second body palette range.</param>
     private void LoadTorizoBodyPalette(
         ReadOnlySpan<ushort> rowNine,
         ReadOnlySpan<ushort> rowTen)
@@ -413,6 +462,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Updates Golden Torizo's space-jump counter and dispatches its shared main-function state.</summary>
+    /// <param name="torizo">Enemy slot whose native fields are advanced.</param><param name="state">Golden Torizo extended variables.</param><param name="samus">Current Samus state used by wake and jump logic, when available.</param><param name="level">Room collision layer required by movement states.</param>
     private void RunGoldenTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -428,6 +479,8 @@ public sealed partial class RoomEnemySystem
         RunBombTorizoMain(torizo, state, samus, level);
     }
 
+    /// <summary>Checks low-health instruction interruptions before running the actor's selected movement pre-instruction.</summary>
+    /// <param name="torizo">Active Torizo enemy slot.</param><param name="state">Extended variables including interrupted and return instructions.</param><param name="level">Collision layer for movement callbacks.</param>
     private void RunBombTorizoActiveState(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -460,6 +513,8 @@ public sealed partial class RoomEnemySystem
         RunBombTorizoPreInstruction(torizo, state, level);
     }
 
+    /// <summary>Dispatches the native movement callback selected in the Torizo state.</summary>
+    /// <param name="torizo">Enemy slot being moved.</param><param name="state">State containing the pre-instruction pointer and velocity words.</param><param name="level">Room collision layer required by movement callbacks.</param>
     private void RunBombTorizoPreInstruction(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -502,6 +557,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves vertically by the current fixed-point velocity and applies landing impact or gravity acceleration.</summary>
+    /// <param name="torizo">Enemy slot whose position and landing response are updated.</param><param name="state">Torizo velocity state.</param><param name="level">Collision layer used by vertical movement.</param>
     private void ApplyBombTorizoGravity(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -523,6 +580,8 @@ public sealed partial class RoomEnemySystem
         state.VerticalVelocity = unchecked((ushort)(state.VerticalVelocity + 40));
     }
 
+    /// <summary>Applies horizontal jump motion, slope alignment, and vertical movement until landing selects the return list.</summary>
+    /// <param name="torizo">Enemy slot being moved.</param><param name="state">Jump velocities, acceleration, and landing instruction.</param><param name="level">Collision layer used by movement and slope checks.</param>
     private void RunBombTorizoJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -551,6 +610,8 @@ public sealed partial class RoomEnemySystem
             state.VerticalVelocity + state.VerticalAcceleration));
     }
 
+    /// <summary>Runs Bomb Torizo's timed air-facing transition and switches to airborne animation when the floor probe clears.</summary>
+    /// <param name="torizo">Enemy slot whose instruction and position may change.</param><param name="state">Transition timer and movement velocities.</param><param name="level">Collision layer used by the downward probe.</param>
     private void RunBombTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -588,6 +649,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Runs Golden Torizo's sixteen-frame facing transition and its variant-specific landing list selection.</summary>
+    /// <param name="torizo">Enemy slot whose instruction and position may change.</param><param name="state">Transition timer and movement velocities.</param><param name="level">Collision layer used by the downward probe.</param>
     private void RunGoldenTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -622,6 +685,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Uses the translated random-number mask to occasionally spawn low-health Torizo drool.</summary>
+    /// <param name="torizo">Actor whose health gates the effect and whose position anchors the spawn.</param>
     private void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)
     {
         if (torizo.Health == 0 || torizo.Health >= BombTorizoHeadExplosionHealth)
@@ -654,6 +719,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Enters the shared death instruction stream once and removes the actor from Samus collision.</summary>
+    /// <param name="torizo">Dying enemy slot.</param><param name="state">Lifecycle latch and function state that prevent duplicate death entry.</param>
     private static void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
@@ -669,6 +736,8 @@ public sealed partial class RoomEnemySystem
         torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
+    /// <summary>Persists the area defeat flag, requests the variant-specific pickup scatter, and queues the victory track.</summary>
+    /// <param name="state">Torizo state supplying the variant and one-shot drop latch.</param>
     private void FinishBombTorizoDeath(TorizoEnemyState state)
     {
         RequireSetAreaTorizoDefeated();
@@ -690,10 +759,16 @@ public sealed partial class RoomEnemySystem
             MusicCommandDelay.EightFrames);
     }
 
+    /// <summary>Requires the active room collision layer for Torizo movement callbacks.</summary>
+    /// <param name="level">Optional room layer supplied by the caller.</param><returns>The non-null collision layer.</returns>
+    /// <exception cref="InvalidOperationException">Movement was requested without a loaded room layer.</exception>
     private static RoomLevelData RequireBombTorizoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Bomb Torizo movement requires the active room collision layer.");
 
+    /// <summary>Returns the extended state only when it is initialized for the exact enemy slot being processed.</summary>
+    /// <param name="torizo">Enemy slot requiring Torizo-specific state.</param><returns>The state owned by this slot.</returns>
+    /// <exception cref="InvalidOperationException">The slot does not own the initialized Torizo state.</exception>
     private TorizoEnemyState RequireBombTorizoState(RoomEnemySlot torizo) =>
         _torizoState is not null && ReferenceEquals(_torizoState.Slot, torizo)
             ? _torizoState

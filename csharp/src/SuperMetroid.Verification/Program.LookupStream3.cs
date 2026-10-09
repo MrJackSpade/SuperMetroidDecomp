@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the falling-tube room's authored PLM population and expected tile layout.</summary>
     private static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
     {
         ushort[] expected = [0x8ae5, 0x8af5, 0x8b05, 0x8b15, 0x8b25];
@@ -23,6 +24,7 @@ internal static partial class Program
         Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(rom));
         Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
     }
+    /// <summary>Checks intro palette rows against native source words and their presentation mapping.</summary>
     private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
@@ -62,6 +64,7 @@ internal static partial class Program
             return IntroCinematicPalette.Load(json);
         }
     }
+    /// <summary>Checks intro eye-animation rectangle geometry and the native rectangle sequence.</summary>
     private static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
@@ -137,6 +140,7 @@ internal static partial class Program
             return IntroEyeTilemapPresentation.Load(json);
         }
     }
+    /// <summary>Checks the intro divider's graphics bounds and tile placement.</summary>
     private static void VerifyStream3IntroDivider(ISnesAddressSpace rom)
     {
         var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
@@ -179,6 +183,7 @@ internal static partial class Program
             return IntroFinalLineTilemap.Load(json);
         }
     }
+    /// <summary>Checks hand-beam body frame layout and the tile geometry used to assemble each pose.</summary>
     private static void VerifyStream3HandBeamBodyLayout()
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
@@ -193,6 +198,7 @@ internal static partial class Program
         Suite(nameof(VerifyMotherBrainHandBeamBodyInstructionDefinitions), () => VerifyMotherBrainHandBeamBodyInstructionDefinitions());
         Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
     }
+    /// <summary>Checks options-menu border graphics against imported artwork and native transfer layout.</summary>
     private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -262,6 +268,7 @@ internal static partial class Program
             Confirm(Load(expanded)[name], expanded.Sprites[name]);
         }
     }
+    /// <summary>Checks file-select border graphics and imported patch data at native destinations.</summary>
     private static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -331,6 +338,7 @@ internal static partial class Program
             Confirm(Load(expanded)[name], expanded.Sprites[name]);
         }
     }
+    /// <summary>Checks grapple tile transfer patterns and their source and destination geometry.</summary>
     private static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
     {
         byte[] planar = transfers.SelectMany(transfer => Enumerable.Range(0, transfer.ByteCount)
@@ -379,6 +387,7 @@ internal static partial class Program
         Check(stock);
         AssertTrue(!stock.TryResolve(transfers[0].SourceAddress, 31, out _), "stream 3 Grapple rejects partial transfer");
     }
+    /// <summary>Checks intro narration layout against native text data and the editable presentation.</summary>
     private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -435,6 +444,7 @@ internal static partial class Program
         ConfirmEdit();
         document.Pages["Page6"] = sixth;
     }
+    /// <summary>Checks Mochtroid visual frames and tile data against native graphics records.</summary>
     private static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
         EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
@@ -465,6 +475,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks menu sprite dimensions and placement in the authored menu layout.</summary>
     private static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -566,6 +577,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks enemy frame registration links against native frame and graphics tables.</summary>
     private static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
         // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
@@ -594,6 +606,7 @@ internal static partial class Program
         AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
+    /// <summary>Checks hopper instruction operands and their screen-space coordinate interpretation.</summary>
     private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -616,6 +629,7 @@ internal static partial class Program
             AssertEqual(operand, HopperInstructionProgramDefinitions.PresentationWordAddress(index++),
                 "hopper calculated selector position matches native program structure");
     }
+    /// <summary>Checks file-select patch ownership and native data preservation in the imported presentation.</summary>
     private static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -687,6 +701,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks game-over text content, glyph mapping, and tilemap placement.</summary>
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
@@ -721,6 +736,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks options-menu panel geometry and the native coordinates used to draw it.</summary>
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
         ushort LookupWord(ISnesAddressSpace source, int address) => (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
@@ -846,6 +862,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Runs this partial's stream-three checks against the supplied cartridge address space.</summary>
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
@@ -1286,6 +1303,7 @@ internal static partial class Program
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
 
+    /// <summary>Checks death-animation selector values and the animation each selector dispatches.</summary>
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1344,6 +1362,7 @@ internal static partial class Program
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
+    /// <summary>Checks painful-walking animation timing and state-dependent frame selection.</summary>
     private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1372,6 +1391,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks escape-sequence actor geometry against native coordinates and movement limits.</summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1420,6 +1440,7 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    /// <summary>Checks corpse sprite geometry and placement for the authored death poses.</summary>
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1497,6 +1518,7 @@ internal static partial class Program
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
 
+    /// <summary>Checks the Shitroid palette pulse sequence, including native frame cadence and colors.</summary>
     private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1621,6 +1643,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(0, invalid), "stream 3 Shitroid pulse color bounds");
     }
 
+    /// <summary>Checks energy-drain fade programs and palette values applied over their timed steps.</summary>
     private static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1904,6 +1927,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks Baby Metroid fade timing, selected palette rows, and destination colors.</summary>
     private static void VerifyStream3BabyFade(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -1995,6 +2019,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
     }
 
+    /// <summary>Checks Mother Brain fade programs and their authored palette transitions.</summary>
     private static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2113,6 +2138,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(0, invalid), "stream 3 corpse fade color bounds");
     }
 
+    /// <summary>Checks enemy palette loops that share uniform timing and color-step rules.</summary>
     private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions());
@@ -2167,6 +2193,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks Ripper palette mappings against native actor and color identities.</summary>
     private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions());
@@ -2215,6 +2242,7 @@ internal static partial class Program
             "stream 3 Ripper rejects foreign enemy");
     }
 
+    /// <summary>Checks Choot control-state selection and its associated palette behavior.</summary>
     private static void VerifyStream3ChootControl(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2264,6 +2292,7 @@ internal static partial class Program
                 "stream 3 Choot visual bounds");
     }
 
+    /// <summary>Checks pickup and Fireflea palette programs against native instruction timing and output.</summary>
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2369,6 +2398,7 @@ internal static partial class Program
                 "stream 3 Fireflea visual bounds");
     }
 
+    /// <summary>Checks work-robot palette colors and the native selection used by its actor states.</summary>
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
     {
         var words = new ushort[6][];
@@ -2441,6 +2471,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
                 "stream 3 Work Robot color bounds");
     }
+    /// <summary>Checks health-tint palette calculations and the exact CGRAM entries affected.</summary>
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(rom);
@@ -2514,6 +2545,7 @@ internal static partial class Program
                         }
                     }
     }
+    /// <summary>Checks recovery-room light palette transitions and their frame timing.</summary>
     private static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2606,6 +2638,7 @@ internal static partial class Program
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "stream 3 legacy room override reuses calculated stock recovery");
         }
     }
+    /// <summary>Checks room-flash palette effects, control values, and color output.</summary>
     private static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2683,6 +2716,10 @@ internal static partial class Program
                     }
                 }
     }
+    /// <summary>Runs a door-scroll scenario through the room update path for focused verification.</summary>
+    /// <param name="bus">Address space supplying the room and native door-scroll instructions.</param>
+    /// <param name="pointer">Bank-$8F callback entry to execute.</param>
+    /// <param name="scrolls">Mutable scroll storage receiving callback writes.</param>
     private static void ExecuteStream3DoorScroll(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -2743,6 +2780,11 @@ internal static partial class Program
             $"Door callback $8F:{pointer:X4} did not return within 32 instructions.");
     }
 
+    /// <summary>Builds the diagnostic for a door-scroll callback opcode the focused interpreter cannot model.</summary>
+    /// <param name="pointer">Callback entry whose instruction was rejected.</param>
+    /// <param name="opcode">Unsupported instruction byte.</param>
+    /// <param name="opcodeAddress">Address at which the unsupported opcode was read.</param>
+    /// <returns>An exception identifying the callback and rejected instruction location.</returns>
     private static InvalidDataException UnsupportedStream3DoorScroll(
         ushort pointer,
         byte opcode,
@@ -2750,6 +2792,7 @@ internal static partial class Program
         new(
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
+    /// <summary>Checks the phase-two rear-leg pose, its native frame data, and resulting geometry.</summary>
     private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -2786,6 +2829,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks auxiliary palette records and their room-specific destinations.</summary>
     private static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
     {
         EnemyAuxiliaryPaletteDefinition[] definitions =
@@ -2863,6 +2907,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
     }
+    /// <summary>Checks reflected Baby Metroid sprite coordinates and frame selection.</summary>
     private static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -2978,6 +3023,7 @@ internal static partial class Program
         }
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
+    /// <summary>Checks hand-beam animation lists and their body-part tile arrangement.</summary>
     private static void VerifyStream3HandBeamLayout()
     {
         ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
@@ -3018,6 +3064,7 @@ internal static partial class Program
         foreach (int index in new[] { -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
     }
+    /// <summary>Checks Baby Metroid instruction-list boundaries and native branch targets.</summary>
     private static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
     {
         ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
@@ -3042,6 +3089,7 @@ internal static partial class Program
         foreach (int index in new[] { -1,9,int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
+    /// <summary>Checks Mother Brain attack palette values and the state selecting each color set.</summary>
     private static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -3091,6 +3139,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks final-room palette paints and preservation of unrelated color entries.</summary>
     private static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -3155,6 +3204,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks room-entry palette initialization against native values and destination ranges.</summary>
     private static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
@@ -3252,6 +3302,7 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Checks initial Baby Metroid palette paints before its animated fade sequence begins.</summary>
     private static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
         var babyDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom))!;
@@ -3310,6 +3361,7 @@ internal static partial class Program
             AssertEqual(identity, catalog.ContentIdentity, "Baby initial canonical content identity preserved");
         }
     }
+    /// <summary>Checks the initial narration text-to-tile mapping used by the intro presentation.</summary>
     private static void VerifyStream3InitialNarrationMap()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "initial-narration-" + Guid.NewGuid().ToString("N")));
@@ -3372,6 +3424,7 @@ internal static partial class Program
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
     }
+    /// <summary>Checks file-select sprite frames, native source identities, and tile destinations.</summary>
     private static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
@@ -3452,6 +3505,7 @@ internal static partial class Program
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }
     }
+    /// <summary>Checks intro font glyph data and the character transfer layout consumed by narration.</summary>
     private static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3501,6 +3555,7 @@ internal static partial class Program
         Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
     }
 
+    /// <summary>Checks imported background maps for native dimensions and tile ordering.</summary>
     private static void VerifyStream3BackgroundMaps()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "background-maps-" + Guid.NewGuid().ToString("N")));
@@ -3562,6 +3617,7 @@ internal static partial class Program
     }
 
 
+    /// <summary>Checks work-robot registry entries and their stable native identities.</summary>
     private static void VerifyStream3WorkRobotRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3590,6 +3646,7 @@ internal static partial class Program
         Console.WriteLine("Work Robot registry: 27 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
+    /// <summary>Checks Shaktool registry entries and the frame identities available to its actor.</summary>
     private static void VerifyStream3ShaktoolRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3611,6 +3668,7 @@ internal static partial class Program
         Console.WriteLine("Shaktool registry: 15 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
+    /// <summary>Checks Nintendo-screen fade entries and their native palette program identities.</summary>
     private static void VerifyStream3NintendoFadeEntries()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3650,6 +3708,7 @@ internal static partial class Program
         Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
     }
 
+    /// <summary>Checks portrait-map entries, source ordering, and destination tile placement.</summary>
     private static void VerifyStream3PortraitMap()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "portrait-map-" + Guid.NewGuid().ToString("N")));

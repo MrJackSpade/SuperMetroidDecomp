@@ -13,6 +13,10 @@ namespace SuperMetroid.Desktop;
 /// the addition omits every field of the group; restoration applies <see cref="Initialize"/> after
 /// all saved fields are set, and the warning names what the old capture cannot supply.
 /// </summary>
+/// <param name="TypeName">Serialized identity of the type whose old layout omitted fields.</param>
+/// <param name="Fields">Complete field-name group introduced together in a later layout.</param>
+/// <param name="Warning">Optional compatibility warning emitted once when the group is initialized.</param>
+/// <param name="Initialize">Optional initializer run after saved fields have been restored.</param>
 internal sealed record DebuggerFieldIntroduction(
     string TypeName, string[] Fields, string? Warning, Action<object>? Initialize = null);
 
@@ -24,8 +28,10 @@ internal sealed record DebuggerFieldIntroduction(
 /// </summary>
 internal static class DebuggerStateFieldMigrations
 {
+    /// <summary>Shared warning explaining that legacy captures cannot recover producer-time sound suppression.</summary>
     private const string Suppression = "lacks producer-time sound suppression; retaining its previous unsuppressed publication behavior.";
 
+    /// <summary>Explicit complete groups of fields known to have been added in later debugger layouts.</summary>
     internal static readonly DebuggerFieldIntroduction[] Introductions =
     [
         new(typeof(SuperMetroidGameOptions).FullName!, ["<DoorTransitionAutosave>k__BackingField"], null,
@@ -445,6 +451,7 @@ internal static class DebuggerStateFieldMigrations
             }),
     ];
 
+    /// <summary>Groups declared introductions by serialized type identity for omission matching.</summary>
     private static readonly Dictionary<string, DebuggerFieldIntroduction[]> introductionsByType =
         Introductions.GroupBy(introduction => introduction.TypeName).ToDictionary(group => group.Key, group => group.ToArray());
 
@@ -563,14 +570,25 @@ internal static class DebuggerStateFieldMigrations
         Set(enemies, "<CameraDistanceIndex>k__BackingField", (CameraDistanceMode)index);
     }
 
+    /// <summary>Reads a named instance field through the inheritance hierarchy.</summary>
+    /// <param name="instance">Object containing the field.</param>
+    /// <param name="field">Exact field name.</param>
+    /// <returns>The current field value.</returns>
     private static object? Get(object instance, string field) =>
         FindField(instance.GetType(), field).GetValue(instance);
 
     // $1A57 IntroSamusDisplayFlag values; the Core enum that names them is internal.
+    /// <summary>Native display value meaning the intro hides Samus and its objects.</summary>
     private const short IntroSamusDisplayHidden = 0;
+    /// <summary>Native display value drawing the intro objects before Samus.</summary>
     private const short IntroSamusDisplayObjectsFirst = 1;
+    /// <summary>Native display value drawing Samus before the intro objects.</summary>
     private const short IntroSamusDisplaySamusFirst = -1;
 
+    /// <summary>Writes a native intro display value through the current field's enum type.</summary>
+    /// <param name="instance">Intro state instance receiving the display mode.</param>
+    /// <param name="field">Exact serialized field name.</param>
+    /// <param name="value">Native signed display value.</param>
     private static void SetIntroSamusDisplay(object instance, string field, short value) =>
         Set(instance, field, Enum.ToObject(FindField(instance.GetType(), field).FieldType, value));
 
@@ -655,9 +673,18 @@ internal static class DebuggerStateFieldMigrations
         Set(system, "slots", slots);
     }
 
+    /// <summary>Writes a named field on an instance, including nonpublic inherited fields.</summary>
+    /// <param name="instance">Object receiving the value.</param>
+    /// <param name="field">Exact field name.</param>
+    /// <param name="value">Value assigned to the field.</param>
     private static void Set(object instance, string field, object? value) =>
         FindField(instance.GetType(), field).SetValue(instance, value);
 
+    /// <summary>Finds a field by exact name while walking from the concrete type through its bases.</summary>
+    /// <param name="type">Concrete object type.</param>
+    /// <param name="field">Field name to locate.</param>
+    /// <returns>The matching reflected field.</returns>
+    /// <exception cref="InvalidDataException">The current type hierarchy no longer contains the field.</exception>
     private static FieldInfo FindField(Type type, string field)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -666,6 +693,8 @@ internal static class DebuggerStateFieldMigrations
         throw new InvalidDataException($"Legacy migration field {type.FullName}.{field} no longer exists.");
     }
 
+    /// <summary>Reconstructs the selected presentation page from a legacy file-select phase and slot state.</summary>
+    /// <param name="fileSelect">Restored file-select menu instance.</param>
     private static void RestoreLegacyFileSelectPresentationPage(FileSelectMenuState fileSelect)
     {
         FileSelectPhase displayedPhase = fileSelect.Phase == FileSelectPhase.FadeInFromDataManagement
@@ -686,11 +715,17 @@ internal static class DebuggerStateFieldMigrations
         Set(fileSelect, "currentPresentationPage", page);
     }
 
+    /// <summary>Selects the legacy copy or clear page from the pending data-management mode.</summary>
+    /// <param name="fileSelect">Restored file-select menu instance.</param>
+    /// <returns>Presentation page identity used by the current menu.</returns>
     private static string LegacyDataManagementPage(FileSelectMenuState fileSelect) =>
         string.Equals(Get(fileSelect, "pendingDataMode")?.ToString(), "Copy", StringComparison.Ordinal)
             ? FileSelectPresentationDefinitions.CopySourcePage
             : FileSelectPresentationDefinitions.ClearSelectionPage;
 
+    /// <summary>Selects the legacy main file-select page according to whether save data exists.</summary>
+    /// <param name="fileSelect">Restored file-select menu instance.</param>
+    /// <returns>Empty-slot or populated main-page identity.</returns>
     private static string LegacyMainPage(FileSelectMenuState fileSelect)
     {
         var slots = (Array)(Get(fileSelect, "saveSlots")

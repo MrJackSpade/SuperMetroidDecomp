@@ -7,14 +7,29 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Mother Brain fake-death room flash and phase-two initial colors.</summary>
 public sealed class MotherBrainRoomColorPresentation
 {
+    /// <summary>Compiled fourteen-row fake-death room palette program.</summary>
     internal readonly RoomFlash flash;
+    /// <summary>Compiled final room palette used as the basis for related color ramps.</summary>
     private readonly FinalRoomPalette finalRoom;
+    /// <summary>Phase-two Mother Brain attack sprite colors.</summary>
     private readonly AttackPalette phaseTwoAttack;
+    /// <summary>Optional authored rear-leg colors; null selects the stock room-compatible palette.</summary>
     private readonly ushort[]? phaseTwoRearLeg;
+    /// <summary>Room-entry glass-shard palette, calculated from the room where it matches.</summary>
     private readonly GlassPalette initialGlassShard;
+    /// <summary>Room-entry tube-projectile palette, calculated from the room where it matches.</summary>
     private readonly TubePalette initialTubeProjectile;
+    /// <summary>Seven-frame light recovery palette program after the Baby Metroid scene.</summary>
     private readonly RecoveryLightFade recoveryLights;
 
+    /// <summary>Stores compiled palette data and selects calculated or supplied colors by exact equality.</summary>
+    /// <param name="flash">Fourteen compiled rows for the native fake-death palette program.</param>
+    /// <param name="finalRoom">Compiled final room colors used by derived palettes.</param>
+    /// <param name="phaseTwoAttack">Compiled phase-two attack sprite colors.</param>
+    /// <param name="phaseTwoRearLeg">Compiled rear-leg colors, compared with stock before retention.</param>
+    /// <param name="initialGlassShard">Room-entry shard palette.</param>
+    /// <param name="initialTubeProjectile">Room-entry tube-projectile palette.</param>
+    /// <param name="recoveryLights">Compiled post-cutscene room-light frames.</param>
     private MotherBrainRoomColorPresentation(ushort[][] flash, FinalRoomPalette finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
         GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
@@ -122,6 +137,9 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>Writes final room colors into their two CGRAM ranges and mirrors the second range.</summary>
+    /// <param name="cgram">Destination color memory.</param>
+    /// <param name="colors">Palette providing the two source slices.</param>
     private static void ApplyRoom(SnesCgram cgram, FinalRoomPalette colors)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -175,18 +193,29 @@ public sealed class MotherBrainRoomColorPresentation
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
+    /// <summary>Provides final room colors from supplied artwork or its exact RGB5 paint calculation.</summary>
     internal sealed class FinalRoomPalette
     {
+        /// <summary>Explicit color words retained when at least one supplied value differs from the formula.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Number of room colors available through the indexer.</summary>
         public int Length { get; }
+        /// <summary>Checks whether the complete supplied palette matches the calculated room paint.</summary>
+        /// <param name="colors">Compiled RGB5 words in room-palette order.</param>
         public FinalRoomPalette(ushort[] colors)
         {
             Length = colors.Length;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Gets a room color, calculating it when the authored palette exactly matches the formula.</summary>
+        /// <param name="color">Index in the room palette.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="Length"/>.</exception>
         public ushort this[int color] => (uint)color < Length
             ? supplied is null ? Calculate(color) : supplied[color] : throw new IndexOutOfRangeException();
+        /// <summary>Calculates one wall, recess, metal, lens, or accent color from reviewed paint endpoints.</summary>
+        /// <param name="color">Room palette index to calculate.</param>
+        /// <returns>The packed RGB5 color at that index.</returns>
         private static ushort Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.RoomShadowFirst)
@@ -220,6 +249,13 @@ public sealed class MotherBrainRoomColorPresentation
             };
         }
     }
+    /// <summary>Interpolates packed RGB5 channels independently, with an optional ceiling rule for red.</summary>
+    /// <param name="start">Color at the beginning of the ramp.</param>
+    /// <param name="end">Color at the end of the ramp.</param>
+    /// <param name="step">Current zero-based position in the ramp.</param>
+    /// <param name="intervals">Number of steps between endpoints.</param>
+    /// <param name="ceilingRed">When set, rounds the red channel upward to match the authored sequence.</param>
+    /// <returns>The interpolated packed RGB5 color.</returns>
     private static ushort InterpolateRgb5(ushort start, ushort end, int step, int intervals, bool ceilingRed = false)
     {
         int result = 0;
@@ -229,15 +265,25 @@ public sealed class MotherBrainRoomColorPresentation
     }
     // Shared shades use their definitions only after the installed output matches.
     // The shared recovery highlight is reviewed paint; supplied edits remain independent.
+    /// <summary>Provides phase-two attack colors, retaining the supplied array if any value differs from the paint formula.</summary>
     private sealed class AttackPalette
     {
+        /// <summary>Explicit colors retained when the full array does not match calculated paint.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Tests whether all attack colors match their calculated representation.</summary>
+        /// <param name="colors">Compiled nontransparent attack colors.</param>
         public AttackPalette(ushort[] colors)
         {
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Gets one supplied or calculated attack color.</summary>
+        /// <param name="color">Index in the phase-two attack palette.</param>
+        /// <returns>The packed RGB5 color.</returns>
         public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates the attack palette's ring, flame, tissue, and casing colors.</summary>
+        /// <param name="color">Index in the nontransparent attack palette.</param>
+        /// <returns>The packed RGB5 color at that index.</returns>
         private static ushort Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.AttackFlameFirst)
@@ -258,6 +304,12 @@ public sealed class MotherBrainRoomColorPresentation
                 - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
                 MotherBrainRoomColorRomData.AttackGrayLast - MotherBrainRoomColorRomData.AttackGrayFirst - 1);
         }
+        /// <summary>Interpolates each RGB5 channel between the attack palette's shade endpoints.</summary>
+        /// <param name="first">Highlight color at the start of the shade ramp.</param>
+        /// <param name="last">Edge color at the end of the shade ramp.</param>
+        /// <param name="shade">Current zero-based shade position.</param>
+        /// <param name="intervals">Number of steps between endpoint colors.</param>
+        /// <returns>The interpolated packed RGB5 shade.</returns>
         private static ushort InterpolateShade(ushort first, ushort last, int shade, int intervals)
         {
             int result = 0;
@@ -267,17 +319,29 @@ public sealed class MotherBrainRoomColorPresentation
             return (ushort)result;
         }
     }
+    /// <summary>Derives the entry glass-shard ramp from final room colors and reviewed highlights.</summary>
     private sealed class GlassPalette
     {
+        /// <summary>Room palette supplying the shard's gray and dark-gray colors.</summary>
         private readonly FinalRoomPalette room;
+        /// <summary>Explicit shard colors retained if any entry differs from the derived ramp.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Chooses calculated colors only when the supplied shard palette fully matches them.</summary>
+        /// <param name="colors">Compiled room-entry shard colors.</param>
+        /// <param name="room">Final room palette used for shared gray colors.</param>
         public GlassPalette(ushort[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Gets one supplied or room-derived shard color.</summary>
+        /// <param name="color">Index in the nontransparent shard palette.</param>
+        /// <returns>The packed RGB5 color.</returns>
         public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates a shard color from the room grays, glass highlight, and stock fallback.</summary>
+        /// <param name="color">Index in the nontransparent shard palette.</param>
+        /// <returns>The packed RGB5 color at that index.</returns>
         private ushort Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.GlassRampFirst)
@@ -293,17 +357,29 @@ public sealed class MotherBrainRoomColorPresentation
             };
         }
     }
+    /// <summary>Derives the room-entry tube projectile colors from shared highlights and the room outline.</summary>
     private sealed class TubePalette
     {
+        /// <summary>Room palette supplying the outline used in the tube's dark ramp.</summary>
         private readonly FinalRoomPalette room;
+        /// <summary>Explicit tube colors retained if any entry differs from the derived colors.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Chooses calculated colors only when the supplied tube palette fully matches them.</summary>
+        /// <param name="colors">Compiled room-entry tube-projectile colors.</param>
+        /// <param name="room">Final room palette used for the dark ramp.</param>
         public TubePalette(ushort[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Gets one supplied or room-derived tube color.</summary>
+        /// <param name="color">Index in the nontransparent tube palette.</param>
+        /// <returns>The packed RGB5 color.</returns>
         public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates a tube color from the shared neutral, black, or room-outline color.</summary>
+        /// <param name="color">Index in the nontransparent tube palette.</param>
+        /// <returns>The packed RGB5 color at that index.</returns>
         private ushort Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
             ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
                 ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color)
@@ -312,11 +388,17 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     internal sealed class RoomFlash
     {
+        /// <summary>Final room palette used as the source image for each flash frame.</summary>
         private readonly FinalRoomPalette basis;
+        /// <summary>Explicit flash rows retained when any row differs from calculated colors.</summary>
         private readonly ushort[][]? supplied;
 
+        /// <summary>Number of timed palette rows in the fake-death flash program.</summary>
         public int FrameCount { get; }
 
+        /// <summary>Uses calculated rows only when every supplied flash color matches the formula.</summary>
+        /// <param name="rows">Fourteen compiled flash images, each containing the two room palette slices.</param>
+        /// <param name="finalRoom">Final room palette used as the flash source.</param>
         public RoomFlash(ushort[][] rows, FinalRoomPalette finalRoom)
         {
             FrameCount = rows.Length;
@@ -327,8 +409,16 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Gets one color from a supplied or calculated flash image.</summary>
+        /// <param name="frame">Timed flash row index.</param>
+        /// <param name="color">Color index within that row.</param>
+        /// <returns>The packed RGB5 color.</returns>
         public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Applies the native flash strength to the room basis or warm highlight.</summary>
+        /// <param name="frame">Timed flash row whose authored strength is applied.</param>
+        /// <param name="color">Color index in the room palette slices.</param>
+        /// <returns>The packed RGB5 color for that frame and index.</returns>
         private ushort Calculate(int frame, int color)
         {
             int strength = MotherBrainRoomPaletteProgramDefinitions.FlashStrength(frame);
@@ -352,9 +442,14 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
     private sealed class RecoveryLightFade
     {
+        /// <summary>Final room palette supplying the recovery fade's room-colored endpoints.</summary>
         private readonly FinalRoomPalette finalRoom;
+        /// <summary>Explicit recovery images retained when any supplied color differs from the ramp.</summary>
         private readonly ushort[][]? supplied;
 
+        /// <summary>Uses calculated intensity steps only when every supplied recovery color matches.</summary>
+        /// <param name="rows">Seven ordered recovery images containing two destination slices per frame.</param>
+        /// <param name="finalRoom">Final room palette used for the fade endpoints.</param>
         public RecoveryLightFade(ushort[][] rows, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
@@ -364,8 +459,16 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Gets one supplied or calculated recovery-light color.</summary>
+        /// <param name="frame">Recovery image index in playback order.</param>
+        /// <param name="color">Color index within the destination slices.</param>
+        /// <returns>The packed RGB5 color.</returns>
         public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Scales the selected room or doorway endpoint for one recovery image.</summary>
+        /// <param name="frame">Recovery image index, from darkest to brightest.</param>
+        /// <param name="color">Index in the combined recovery palette slices.</param>
+        /// <returns>The packed RGB5 color at that point in the fade.</returns>
         private ushort Calculate(int frame, int color)
         {
             ushort endpoint = color switch
@@ -384,6 +487,10 @@ public sealed class MotherBrainRoomColorPresentation
             return (ushort)result;
         }
     }
+    /// <summary>Validates and packs all seven recovery images into native RGB15 words.</summary>
+    /// <param name="frames">Authored rows, each containing both fourteen-color destination slices.</param>
+    /// <returns>Compiled words indexed by frame and color.</returns>
+    /// <exception cref="InvalidDataException">The frame count or any frame's color count or components are invalid.</exception>
     private static ushort[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
         if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)
@@ -396,6 +503,12 @@ public sealed class MotherBrainRoomColorPresentation
         return compiled;
     }
 
+    /// <summary>Checks an authored palette's dimensions and RGB5 channels, then packs each color as RGB15.</summary>
+    /// <param name="colors">Palette entries to validate and compile.</param>
+    /// <param name="expectedCount">Required number of entries.</param>
+    /// <param name="name">Palette label included in validation errors.</param>
+    /// <returns>Packed color words in the same order as the input.</returns>
+    /// <exception cref="InvalidDataException">The array has the wrong size or an entry is null or outside RGB5 range.</exception>
     private static ushort[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
     {
         if (colors is null || colors.Length != expectedCount)

@@ -12,6 +12,22 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
+    /// <summary>Creates the mutable trajectory from its initial registers and retained final destinations.</summary>
+    /// <param name="direction">Native door orientation in the range zero through three.</param>
+    /// <param name="samusStep">Unsigned 16.16 displacement applied to Samus on each moving call.</param>
+    /// <param name="remainingFrames">Number of IRQ trajectory calls still required.</param>
+    /// <param name="cameraX">Initial layer-one horizontal scroll register.</param>
+    /// <param name="cameraY">Initial layer-one vertical scroll register.</param>
+    /// <param name="layer2X">Initial layer-two horizontal scroll register.</param>
+    /// <param name="layer2Y">Initial layer-two vertical scroll register.</param>
+    /// <param name="samusXFixed">Initial Samus horizontal 16.16 position.</param>
+    /// <param name="samusYFixed">Initial Samus vertical 16.16 position.</param>
+    /// <param name="finalCameraX">Destination layer-one horizontal register after the last call.</param>
+    /// <param name="finalCameraY">Destination layer-one vertical register after the last call.</param>
+    /// <param name="finalLayer2X">Expected endpoint of the layer-two horizontal trajectory.</param>
+    /// <param name="finalLayer2Y">Expected endpoint of the layer-two vertical trajectory.</param>
+    /// <param name="finalSamusXFixed">Final Samus horizontal fixed-point position.</param>
+    /// <param name="finalSamusYFixed">Final Samus vertical fixed-point position.</param>
     private DoorOpeningScrollState(
         int direction,
         uint samusStep,
@@ -46,23 +62,49 @@ internal sealed class DoorOpeningScrollState
         FinalSamusYFixed = finalSamusYFixed;
     }
 
+    /// <summary>Native orientation selecting the horizontal or vertical IRQ branch.</summary>
     public int Direction { get; }
+    /// <summary>Fixed-point Samus displacement per moving trajectory call.</summary>
     public uint SamusStep { get; }
+    /// <summary>Number of trajectory calls remaining.</summary>
     public int RemainingFrames { get; private set; }
+    /// <summary>Current layer-one horizontal scroll register.</summary>
     public ushort CameraX { get; private set; }
+    /// <summary>Current layer-one vertical scroll register.</summary>
     public ushort CameraY { get; private set; }
+    /// <summary>Current layer-two horizontal scroll register.</summary>
     public ushort Layer2X { get; private set; }
+    /// <summary>Current layer-two vertical scroll register.</summary>
     public ushort Layer2Y { get; private set; }
+    /// <summary>Current Samus horizontal 16.16 position.</summary>
     public uint SamusXFixed { get; private set; }
+    /// <summary>Current Samus vertical 16.16 position.</summary>
     public uint SamusYFixed { get; private set; }
+    /// <summary>Exact layer-one horizontal destination retained for the final snap.</summary>
     public ushort FinalCameraX { get; }
+    /// <summary>Exact layer-one vertical destination retained for the final snap.</summary>
     public ushort FinalCameraY { get; }
+    /// <summary>Expected horizontal endpoint of layer two.</summary>
     public ushort FinalLayer2X { get; }
+    /// <summary>Expected vertical endpoint of layer two.</summary>
     public ushort FinalLayer2Y { get; }
+    /// <summary>Final Samus horizontal 16.16 destination.</summary>
     public uint FinalSamusXFixed { get; }
+    /// <summary>Final Samus vertical 16.16 destination.</summary>
     public uint FinalSamusYFixed { get; }
+    /// <summary>Whether room background streaming should run after the latest advance.</summary>
     public bool ShouldStreamAfterAdvance { get; private set; } = true;
 
+    /// <summary>Creates the native directional trajectory from a loaded door and its source/destination positions.</summary>
+    /// <param name="door">Loaded cartridge door header selecting orientation and movement distance.</param>
+    /// <param name="sourceSamusXFixed">Samus source X position in unsigned 16.16 form.</param>
+    /// <param name="sourceSamusYFixed">Samus source Y position in unsigned 16.16 form.</param>
+    /// <param name="finalCameraX">Destination layer-one horizontal scroll value.</param>
+    /// <param name="finalCameraY">Destination layer-one vertical scroll value.</param>
+    /// <param name="finalLayer2X">Layer-two horizontal trajectory endpoint.</param>
+    /// <param name="finalLayer2Y">Layer-two vertical trajectory endpoint.</param>
+    /// <param name="finalSamusXFixed">Destination Samus X position in unsigned 16.16 form.</param>
+    /// <param name="finalSamusYFixed">Destination Samus Y position in unsigned 16.16 form.</param>
     public static DoorOpeningScrollState Create(
         CartridgeDoorHeader door,
         uint sourceSamusXFixed,
@@ -265,4 +307,7 @@ internal sealed class DoorOpeningScrollState
 }
 
 /// <summary>A door loader's deferred write of Samus's whole position.</summary>
+/// <param name="EnemySlot">Loader enemy slot whose initialization triggers the placement.</param>
+/// <param name="XPosition">Whole-pixel horizontal position written by the loader.</param>
+/// <param name="YPosition">Whole-pixel vertical position written by the loader.</param>
 internal readonly record struct LoaderSamusPlacement(int EnemySlot, ushort XPosition, ushort YPosition);

@@ -58,16 +58,24 @@ public enum ShitroidAiFunction : ushort
 }
 
 /// <summary>One hardcoded bank-$84 wall mutation emitted by Shitroid's room script.</summary>
+/// <param name="BlockX">Horizontal block coordinate receiving the PLM.</param>
+/// <param name="BlockY">Vertical block coordinate receiving the PLM.</param>
+/// <param name="Header">Native PLM header pointer selected by the encounter.</param>
 public readonly record struct ShitroidPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>One delayed music command emitted by the Shitroid encounter.</summary>
+/// <param name="Command">Music operation requested by the encounter state.</param>
+/// <param name="Delay">Gameplay-frame delay before the command is applied.</param>
 public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
 public sealed class ShitroidEnemyState
 {
+    /// <summary>Separate target palette words retained for encounter palette updates.</summary>
     private readonly ushort[] _targetPalette = new ushort[256];
 
+    /// <summary>Creates projected Shitroid state backed by one physical enemy slot.</summary>
+    /// <param name="slot">Native enemy slot containing Shitroid's common variables.</param>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 
     /// <summary>Gets the physical enemy slot that owns the projected common words.</summary>
@@ -133,6 +141,7 @@ public sealed class ShitroidEnemyState
     /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
     public ushort VictimActivationFlag { get; internal set; }
+    /// <summary>Mutable target-color words used by the encounter's palette routines.</summary>
     internal Span<ushort> MutableTargetPalette => _targetPalette;
 }
 
@@ -142,15 +151,23 @@ public sealed partial class RoomEnemySystem
     /// <summary>Bank-$A9 enemy-definition pointer identifying the retail Shitroid actor.</summary>
     public const ushort ShitroidDefinition = 0xeebf;
 
+    /// <summary>WRAM address of the shared scratch buffer cleared during initialization.</summary>
     private const int ShitroidWorkBufferAddress = 0x7e2000;
+    /// <summary>Number of scratch-buffer bytes cleared by the encounter initializer.</summary>
     private const int ShitroidWorkBufferSize = 0x1000;
 
+    /// <summary>Four-step horizontal shake offsets used while holding Samus.</summary>
     private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
+    /// <summary>Vertical shake offsets paired by index with the horizontal sequence.</summary>
     private static ReadOnlySpan<short> ShitroidShakeY => [0, 1, -1, 1];
 
+    /// <summary>Wall PLM requests produced during the current encounter frame.</summary>
     private readonly List<ShitroidPlmRequest> _shitroidPlmRequests = [];
+    /// <summary>Typed state for the room's single Shitroid actor, when initialized.</summary>
     private ShitroidEnemyState? _shitroid;
+    /// <summary>Camera X retained for callbacks that resume the encounter main routine.</summary>
     private ushort _shitroidCameraX;
+    /// <summary>Camera Y retained for callbacks that resume the encounter main routine.</summary>
     private ushort _shitroidCameraY;
 
     /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
@@ -165,6 +182,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
     public ShitroidMusicRequest? LastShitroidMusicRequest { get; private set; }
 
+    /// <summary>Clears actor state and observable outputs when leaving the encounter room.</summary>
     private void ResetShitroidRoomState()
     {
         _shitroid = null;
@@ -176,6 +194,7 @@ public sealed partial class RoomEnemySystem
         _shitroidCameraY = 0;
     }
 
+    /// <summary>Clears frame-local PLM, sound, scroll, and music outputs before encounter processing.</summary>
     private void BeginShitroidFrame()
     {
         _shitroidPlmRequests.Clear();
@@ -236,6 +255,7 @@ public sealed partial class RoomEnemySystem
             ShitroidColorRomData.DeadSidehopperTarget, destinationColor: 0xf0);
     }
 
+    /// <summary>Copies an authored target palette into retained state and current CGRAM colors.</summary>
     private void CopyShitroidTargetPalette(
         ShitroidEnemyState state,
         ShitroidColorTarget target,
@@ -276,6 +296,7 @@ public sealed partial class RoomEnemySystem
             StepShitroidNormalPalette(state);
     }
 
+    /// <summary>Executes the active bank-$A9 state, preserving same-update state fallthrough.</summary>
     private void DispatchShitroidState(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -499,6 +520,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Waits for the scripted camera position before starting the entrance sequence.</summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state)
     {
         if (unchecked((short)(_shitroidCameraX - 513)) >= 0)
@@ -514,6 +536,7 @@ public sealed partial class RoomEnemySystem
         state.CryEnabled = 1;
     }
 
+    /// <summary>Requests matching scroll states for both horizontal layer-one boundaries.</summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
         RoomScrollState scroll0 = RequireReadRoomScrollState(0);
@@ -524,12 +547,14 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(3, highState);
     }
 
+    /// <summary>Queues the encounter's paired wall PLMs at their authored block coordinates.</summary>
     private void QueueShitroidWallPlms(ushort header)
     {
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x30, 0x03, header));
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x1f, 0x03, header));
     }
 
+    /// <summary>Attaches Shitroid to the physical slot-one victim and begins feeding.</summary>
     private void AttachShitroidToSidehopper(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
@@ -553,6 +578,7 @@ public sealed partial class RoomEnemySystem
         state.StateTimer = 320;
     }
 
+    /// <summary>Advances victim drain timing and palette progression until the corpse transition.</summary>
     private void DrainShitroidVictim(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
@@ -570,6 +596,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Maintains the scripted hover near Samus and begins pursuit at the state boundary.</summary>
     private void HoverShitroidNearSamus(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -593,6 +620,7 @@ public sealed partial class RoomEnemySystem
             0x0400);
     }
 
+    /// <summary>Selects the hover height while tracking consecutive horizontal alignment.</summary>
     private ushort SelectShitroidHoverY(ShitroidEnemyState state, ushort followedY)
     {
         if (state.HoverTimer != 0)
@@ -605,6 +633,7 @@ public sealed partial class RoomEnemySystem
         return 80;
     }
 
+    /// <summary>Controls attached Samus position, drain timing, and release-input handling.</summary>
     private void DrainSamusWithShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -654,6 +683,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
     }
 
+    /// <summary>Tracks Samus after release and reports when the follow sequence should advance.</summary>
     private bool FollowReleasedSamus(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -674,6 +704,7 @@ public sealed partial class RoomEnemySystem
             unchecked((short)(samus.XPosition - 128)) < 0;
     }
 
+    /// <summary>Counts consecutive frames of horizontal alignment, clearing the count after drift.</summary>
     private static void UpdateShitroidHorizontalLock(
         ShitroidEnemyState state,
         ushort currentX,
@@ -693,6 +724,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Accelerates both velocity axes toward their targets under the native speed cap.</summary>
     private void GraduallyAccelerateShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -712,6 +744,7 @@ public sealed partial class RoomEnemySystem
             slot.YPosition, targetY, state.YVelocity, divisor);
     }
 
+    /// <summary>Tests the actor against the active camera's visible bounds.</summary>
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
         if (unchecked((short)slot.YPosition) < 0)
@@ -725,6 +758,7 @@ public sealed partial class RoomEnemySystem
         return screenX < 0 || screenX >= 288;
     }
 
+    /// <summary>Moves signed velocity toward a target by one bounded acceleration step.</summary>
     private static bool AccelerateShitroidExactly(
         ShitroidEnemyState state,
         ushort acceleration,
@@ -746,6 +780,7 @@ public sealed partial class RoomEnemySystem
         return xArrived && yArrived;
     }
 
+    /// <summary>Applies one axis acceleration step while preserving native word wrapping.</summary>
     private static (bool Arrived, ushort Velocity) AccelerateShitroidAxis(
         ushort current,
         ushort target,
@@ -770,12 +805,14 @@ public sealed partial class RoomEnemySystem
         return (crossed, velocityWord);
     }
 
+    /// <summary>Checks actor overlap using their native positions and collision extents.</summary>
     private static bool ShitroidActorsOverlap(RoomEnemySlot left, RoomEnemySlot right) =>
         Math.Abs(unchecked((short)(right.XPosition - left.XPosition))) <
             left.XRadius + right.XRadius + 1 &&
         Math.Abs(unchecked((short)(right.YPosition - left.YPosition))) <
             left.YRadius + right.YRadius + 1;
 
+    /// <summary>Checks whether the actor bounds intersect an encounter-scripted rectangle.</summary>
     private static bool ShitroidOverlapsRectangle(
         RoomEnemySlot slot,
         ushort x,
@@ -878,6 +915,7 @@ public sealed partial class RoomEnemySystem
             state.Function = ShitroidAiFunction.BeginExit;
     }
 
+    /// <summary>Advances normal palette timing, periodic cry cadence, and CGRAM colors.</summary>
     private void StepShitroidNormalPalette(ShitroidEnemyState state)
     {
         byte timer = unchecked((byte)(state.PaletteTimerAndPhase >> 8));
@@ -910,6 +948,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs a Shitroid instruction list and resets its shared animation timers.</summary>
     private static void SetShitroidInstruction(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
@@ -917,6 +956,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the required physical slot-one victim or rejects an invalid population.</summary>
     private RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         int victimIndex = slot.SlotIndex + 1;
@@ -925,6 +965,7 @@ public sealed partial class RoomEnemySystem
         return _slots[victimIndex];
     }
 
+    /// <summary>Returns initialized encounter state only for the slot that owns Shitroid.</summary>
     private ShitroidEnemyState RequireShitroidState(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = _shitroid ??
@@ -934,9 +975,11 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Requires the active Samus actor for encounter states that interact with her.</summary>
     private static SamusState RequireShitroidSamus(SamusState? samus) => samus ??
         throw new InvalidOperationException("The active Shitroid state requires Samus.");
 
+    /// <summary>Performs the native timer predecrement and tests its signed result.</summary>
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.StateTimer);

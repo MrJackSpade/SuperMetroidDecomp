@@ -6,6 +6,13 @@ namespace SuperMetroid.Desktop;
 /// <summary>Restores the explicit pre-alias nineteen-field spark layout, without dropping live crash state.</summary>
 internal static class DebuggerLegacyShinesparkReader
 {
+    /// <summary>Restores the historical shinespark field order, choosing aliases according to the saved active phase.</summary>
+    /// <param name="instance">Current shinespark object receiving compatible field values.</param>
+    /// <param name="fields">Current reflected fields that remain after alias removal.</param>
+    /// <param name="reader">Stream positioned at the first serialized legacy field identity.</param>
+    /// <param name="resolveType">Resolver for serialized declaring-type identities.</param>
+    /// <param name="readValue">Reads the next typed serialized field value.</param>
+    /// <exception cref="InvalidDataException">The serialized legacy layout or field value is incompatible.</exception>
     internal static void Restore(SamusShinesparkState instance, FieldInfo[] fields,
         BinaryReader reader, Func<string, Type> resolveType, Func<object?> readValue)
     {

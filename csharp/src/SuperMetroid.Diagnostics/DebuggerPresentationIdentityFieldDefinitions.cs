@@ -14,6 +14,7 @@ internal static class DebuggerPresentationIdentityFieldDefinitions
 
     // This is an explicit historical schema inventory, not permission to discard
     // arbitrary unknown fields or every property named ContentIdentity.
+    /// <summary>Catalog types from historical states that carried the retired derived fingerprint field.</summary>
     private static readonly HashSet<Type> Catalogs =
     [
         typeof(RoomPlmBlueDoorVisualCatalog),
@@ -57,5 +58,8 @@ internal static class DebuggerPresentationIdentityFieldDefinitions
         typeof(SamusSpritemapArtworkCatalog),
     ];
 
+    /// <summary>Checks whether an exact catalog type belonged to the retired-field schema.</summary>
+    /// <param name="type">Runtime type whose serialized layout is being migrated.</param>
+    /// <returns><see langword="true"/> only for an explicitly listed catalog type.</returns>
     internal static bool Contains(Type type) => Catalogs.Contains(type);
 }

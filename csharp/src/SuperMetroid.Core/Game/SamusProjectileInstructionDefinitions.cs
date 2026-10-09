@@ -67,6 +67,7 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:8953..8972: Selected four Ice trail phases.</summary>
     private const int IcePhases = 4;
 
+    /// <summary>Resolves Wave and Ice timed records, trail phases, and loop control words.</summary>
     internal static bool TryWaveIceWord(int address, out ushort value)
     {
         value = 0;
@@ -80,6 +81,7 @@ internal static class SamusProjectileInstructionDefinitions
     }
 
     // Timed records advance the trail phase; terminal control selects the loop phase.
+    /// <summary>Resolves a cycle's holds, trail indices, and Goto target from its layout.</summary>
     private static bool TryCycleWord(int address, int start, int phases, ushort hold, out ushort value, int loopPhase = 0)
     {
         int offset = address - start;
@@ -111,6 +113,7 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:8AA7 Goto and target follow the complete spread cycle.</summary>
     private const int SpazerWaveProgramBytes = SpazerWavePhases * TimedRecordBytes + 2 * sizeof(ushort);
 
+    /// <summary>Resolves Spazer growth lists and SpazerWave spread cycles.</summary>
     internal static bool TrySpazerWord(int address, out ushort value)
     {
         int offset = address - SpazerProgramsStart;
@@ -141,6 +144,7 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:8D47..8D92: one entry record, eight cyclic records, then Goto to the first cyclic phase.</summary>
     private const int PlasmaWaveProgramBytes = (1 + PlasmaWaveCyclePhases) * TimedRecordBytes + 2 * sizeof(ushort);
 
+    /// <summary>Resolves Plasma entry and persistent records plus PlasmaWave cycles.</summary>
     internal static bool TryPlasmaWord(int address, out ushort value)
     {
         int offset = address - PlasmaProgramsStart;
@@ -166,6 +170,7 @@ internal static class SamusProjectileInstructionDefinitions
     private const int ChargedPowerStart = PlasmaWaveProgramsStart + WaveAxisCount * PlasmaWaveProgramBytes;
     /// <summary>$93:8E77: Selected two selected charged-Power phases.</summary>
     private const int ChargedAlternateGlyphCount = 2;
+    /// <summary>Timed records in each charged Power directional program.</summary>
     private const int ChargedPowerPhases = ChargedAlternateGlyphCount;
     /// <summary>$93:8E77..9EBA: Selected common one-update charged phase hold (excluding upward preludes).</summary>
     private const ushort ChargedHold = 1;
@@ -177,6 +182,7 @@ internal static class SamusProjectileInstructionDefinitions
     private const int ChargedIcePhases = 4;
     /// <summary>$93:936B: Selected five charged Spazer growth poses, each using the selected alternate-glyph pair.</summary>
     private const int ChargedSpazerGrowthPoses = 5;
+    /// <summary>Timed records across the charged Spazer growth poses.</summary>
     private const int ChargedSpazerPhases = ChargedAlternateGlyphCount * ChargedSpazerGrowthPoses;
     /// <summary>$93:93BB target93AB: Only the mature alternate-glyph pair repeats after growth.</summary>
     private const int ChargedSpazerLoopPhase = ChargedSpazerPhases - ChargedAlternateGlyphCount;
@@ -184,9 +190,11 @@ internal static class SamusProjectileInstructionDefinitions
     private const int ChargedSpazerWavePhases = ChargedSpazerWaveLoopPhase + ChargedAlternateGlyphCount * SpazerWavePhases;
     /// <summary>$93:957B target94DB: Selected two startup poses, each paired, precede the repeating SpazerWave spread.</summary>
     private const int ChargedSpazerStartupPoses = 2;
+    /// <summary>First repeating phase after charged SpazerWave's startup poses.</summary>
     private const int ChargedSpazerWaveLoopPhase = ChargedSpazerStartupPoses * ChargedAlternateGlyphCount;
     /// <summary>$93:9ADB: Selected four charged Plasma growth poses, each using the selected alternate-glyph pair.</summary>
     private const int ChargedPlasmaGrowthPoses = 4;
+    /// <summary>Timed records across the charged Plasma growth poses.</summary>
     private const int ChargedPlasmaPhases = ChargedPlasmaGrowthPoses * ChargedAlternateGlyphCount;
     /// <summary>$93:9B1B target9B0B: Only the mature alternate-glyph pair repeats after growth.</summary>
     private const int ChargedPlasmaLoopPhase = ChargedPlasmaPhases - ChargedAlternateGlyphCount;
@@ -210,8 +218,10 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:9BEB, charged PlasmaWave vertical axis, following four charged Plasma axes.</summary>
     private static int ChargedPlasmaWaveStart => ChargedPlasmaStart + WaveAxisCount * CycleBytes(ChargedPlasmaPhases);
 
+    /// <summary>Storage size of timed records followed by a Goto opcode and target word.</summary>
     private static int CycleBytes(int phases) => phases * TimedRecordBytes + 2 * sizeof(ushort);
 
+    /// <summary>Resolves charged beam records, including entry holds and loop targets.</summary>
     internal static bool TryChargedWord(int address, out ushort value) =>
         TryDirectionCycles(address, ChargedPowerStart, PowerDirectionCount, ChargedPowerPhases, 0, out value) ||
         TryChargedWaveWord(address, ChargedWaveStart, out value) ||
@@ -222,6 +232,7 @@ internal static class SamusProjectileInstructionDefinitions
         TryDirectionCycles(address, ChargedPlasmaStart, WaveAxisCount, ChargedPlasmaPhases, ChargedPlasmaLoopPhase, out value) ||
         TryDirectionCycles(address, ChargedPlasmaWaveStart, WaveAxisCount, ChargedPlasmaWavePhases, ChargedPlasmaWaveLoopPhase, out value);
 
+    /// <summary>Maps an address into one of the adjacent direction-specific cycles.</summary>
     private static bool TryDirectionCycles(int address, int start, int directions, int phases, int loopPhase, out ushort value)
     {
         int offset = address - start;
@@ -232,6 +243,7 @@ internal static class SamusProjectileInstructionDefinitions
         return false;
     }
 
+    /// <summary>Resolves a charged Wave-family prelude followed by directional cycles.</summary>
     private static bool TryChargedWaveWord(int address, int prelude, out ushort value)
     {
         if (address == prelude) { value = ChargedWavePreludeHold; return true; }
@@ -304,8 +316,10 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:A16D, unused projectile27 repeating beam-explosion images.</summary>
     private static int UnusedProjectile27Start => WaveSbaStart + CycleBytes(WaveSbaPhases);
 
+    /// <summary>Storage size of timed records followed by a terminal Delete opcode.</summary>
     private static int OneShotBytes(int phases) => phases * TimedRecordBytes + sizeof(ushort);
 
+    /// <summary>Resolves missile, bomb, explosion, and special ability program words.</summary>
     internal static bool TryNonBeamWord(int address, out ushort value)
     {
         int offset = address - MissileStart;
@@ -328,6 +342,7 @@ internal static class SamusProjectileInstructionDefinitions
     }
 
     // These image-only programs keep the trail frame at zero; one-shots delete rather than loop.
+    /// <summary>Resolves image-only records whose trail phase remains zero and may terminate.</summary>
     private static bool TryNoTrailProgram(int address, int start, int phases, ushort hold, bool delete, out ushort value)
     {
         int offset = address - start;
@@ -338,6 +353,7 @@ internal static class SamusProjectileInstructionDefinitions
         if (delete && offset == recordsBytes) { value = SamusProjectileRomData.Instructions.Delete; return true; }
         return TryCycleWord(address, start, phases, hold, out value);
     }
+    /// <summary>Resolves a mechanics word or throws when its address is outside compiled programs.</summary>
     internal static ushort ReadWord(int address) =>
         TryPowerWord(address, out ushort value) || TryWaveIceWord(address, out value) ||
         TrySpazerWord(address, out value) || TryPlasmaWord(address, out value) ||
@@ -455,15 +471,76 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>Mutually exclusive native projectile program families; direction and frame remain separate axes.</summary>
     internal enum FrameFamily
     {
-        Power, Wave, Ice, Spazer, SpazerWave, Plasma, PlasmaWave,
-        ChargedPower, ChargedWave, ChargedIce, ChargedIceWave, ChargedSpazer,
-        ChargedSpazerWave, ChargedPlasma, ChargedPlasmaWave,
-        Missile, SuperMissile, SuperMissileLink, PowerBomb, FastPowerBomb,
-        Bomb, FastBomb, BeamExplosion, MissileExplosion, BombExplosion, PlasmaSba,
-        SuperExplosion, UnusedEcho, Echo, SpazerSba, WaveSba, UnusedExplosion,
+        /// <summary>Uncharged Power beam directional cycle.</summary>
+        Power,
+        /// <summary>Uncharged Wave beam directional spread cycle.</summary>
+        Wave,
+        /// <summary>Uncharged Ice beam vertical cycle.</summary>
+        Ice,
+        /// <summary>Spazer growth sequence.</summary>
+        Spazer,
+        /// <summary>Spazer combined with the Wave spread.</summary>
+        SpazerWave,
+        /// <summary>Plasma beam entry and persistent cycle.</summary>
+        Plasma,
+        /// <summary>Plasma combined with the Wave spread.</summary>
+        PlasmaWave,
+        /// <summary>Charged Power beam alternating glyph cycle.</summary>
+        ChargedPower,
+        /// <summary>Charged Wave beam prelude and directional spread.</summary>
+        ChargedWave,
+        /// <summary>Charged Ice beam growth cycle.</summary>
+        ChargedIce,
+        /// <summary>Charged Ice beam with the Wave spread.</summary>
+        ChargedIceWave,
+        /// <summary>Charged Spazer growth sequence.</summary>
+        ChargedSpazer,
+        /// <summary>Charged Spazer combined with the Wave spread.</summary>
+        ChargedSpazerWave,
+        /// <summary>Charged Plasma growth sequence.</summary>
+        ChargedPlasma,
+        /// <summary>Charged Plasma combined with the Wave spread.</summary>
+        ChargedPlasmaWave,
+        /// <summary>Missile directional cycle.</summary>
+        Missile,
+        /// <summary>Super missile directional cycle.</summary>
+        SuperMissile,
+        /// <summary>Linked super missile cycle using its shared list.</summary>
+        SuperMissileLink,
+        /// <summary>Normal Power Bomb expansion.</summary>
+        PowerBomb,
+        /// <summary>Fast Power Bomb expansion.</summary>
+        FastPowerBomb,
+        /// <summary>Normal bomb cycle.</summary>
+        Bomb,
+        /// <summary>Fast bomb cycle.</summary>
+        FastBomb,
+        /// <summary>Beam impact explosion sequence.</summary>
+        BeamExplosion,
+        /// <summary>Missile impact explosion sequence.</summary>
+        MissileExplosion,
+        /// <summary>Bomb impact explosion sequence.</summary>
+        BombExplosion,
+        /// <summary>Plasma special attack explosion cycle.</summary>
+        PlasmaSba,
+        /// <summary>Super missile impact explosion sequence.</summary>
+        SuperExplosion,
+        /// <summary>Unused projectile list that shares the echo trail shape.</summary>
+        UnusedEcho,
+        /// <summary>Shinespark echo cycle.</summary>
+        Echo,
+        /// <summary>Spazer special attack growth sequence.</summary>
+        SpazerSba,
+        /// <summary>Wave special attack cycle.</summary>
+        WaveSba,
+        /// <summary>Unused projectile list with beam-explosion imagery.</summary>
+        UnusedExplosion,
     }
 
-    /// <summary>Native timed-record identity; axis is program order and phase is the zero-based timed record.</summary>
+    /// <summary>Identifies a native timed projectile record within its program family.</summary>
+    /// <param name="Family">Projectile program family containing this record.</param>
+    /// <param name="Axis">Directional or program-order index within the family.</param>
+    /// <param name="Phase">Zero-based timed record within the selected axis.</param>
     internal readonly record struct TimedFrame(FrameFamily Family, int Axis, int Phase);
 
     /// <summary>$93:86DB..A19C: classify exactly the 805 timed records, excluding every operand/control word.</summary>

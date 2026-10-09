@@ -11,6 +11,9 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
+    /// <summary>Serializes a debugger object graph with stable type names and layout-checked fields.</summary>
+    /// <param name="destination">Writable stream receiving the graph.</param>
+    /// <param name="root">Root object whose reachable graph is serialized.</param>
     public static void Serialize(Stream destination, object root)
     {
         ArgumentNullException.ThrowIfNull(destination);
@@ -19,6 +22,11 @@ internal static class DebuggerObjectGraphSerializer
         new GraphWriter(writer).Write(root);
     }
 
+    /// <summary>Restores a debugger graph and requires its root to have the requested reference type.</summary>
+    /// <typeparam name="T">Expected root type.</typeparam>
+    /// <param name="source">Readable stream containing a serialized graph.</param>
+    /// <param name="legacyDelegateTokens">Whether the state uses the prior delegate-token encoding.</param>
+    /// <returns>The restored root object.</returns>
     public static T Deserialize<T>(Stream source, bool legacyDelegateTokens = false) where T : class
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -28,15 +36,45 @@ internal static class DebuggerObjectGraphSerializer
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
 
-    private enum ObjectMarker : byte { Null, Reference, New }
-    private enum PayloadKind : byte { Primitive, String, PrimitiveArray, Array, Delegate, Fields }
+    /// <summary>Prefix describing whether a graph value is null, a prior reference, or a new object.</summary>
+    private enum ObjectMarker : byte
+    {
+        /// <summary>The value is null and has no payload.</summary>
+        Null,
+        /// <summary>The value refers to an object previously written under an identifier.</summary>
+        Reference,
+        /// <summary>The value introduces a newly identified object and its payload.</summary>
+        New,
+    }
+    /// <summary>Payload encoding selected for a newly encountered object.</summary>
+    private enum PayloadKind : byte
+    {
+        /// <summary>One supported scalar value.</summary>
+        Primitive,
+        /// <summary>A string encoded by the binary writer.</summary>
+        String,
+        /// <summary>An array represented by its shape and raw primitive bytes.</summary>
+        PrimitiveArray,
+        /// <summary>An array whose elements are recursively encoded graph values.</summary>
+        Array,
+        /// <summary>A delegate invocation list and its target objects.</summary>
+        Delegate,
+        /// <summary>An object represented by its serialized instance fields.</summary>
+        Fields,
+    }
 
+    /// <summary>Writes object identities and type-specific payloads while preserving graph references.</summary>
+    /// <param name="writer">Binary writer shared by recursive graph traversal.</param>
     private sealed class GraphWriter(BinaryWriter writer)
     {
+        /// <summary>Maps reference objects to their first serialized object identifiers.</summary>
         private readonly Dictionary<object, int> references =
             new(ReferenceEqualityComparer.Instance);
+        /// <summary>Next positive identifier assigned to a newly serialized reference object.</summary>
         private int nextReferenceId = 1;
 
+        /// <summary>Writes one nullable value and recursively emits its supported payload.</summary>
+        /// <param name="value">Value to encode, including possible null or a repeated reference.</param>
         public void Write(object? value)
         {
             if (value is null)
@@ -91,6 +129,10 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Writes a scalar primitive payload when the runtime type is supported.</summary>
+        /// <param name="type">Runtime value type.</param>
+        /// <param name="value">Boxed value to encode.</param>
+        /// <returns><see langword="true"/> when the value was written as a primitive.</returns>
         private bool TryWritePrimitive(Type type, object value)
         {
             Type primitiveType = type.IsEnum ? Enum.GetUnderlyingType(type) : type;
@@ -108,6 +150,9 @@ internal static class DebuggerObjectGraphSerializer
             return true;
         }
 
+        /// <summary>Writes one supported scalar using the binary writer's native primitive encoding.</summary>
+        /// <param name="type">Effective scalar type, with enums already reduced to their storage type.</param>
+        /// <param name="value">Value to encode.</param>
         private void WritePrimitiveValue(Type type, object value)
         {
             if (type == typeof(bool)) writer.Write((bool)value);
@@ -129,6 +174,9 @@ internal static class DebuggerObjectGraphSerializer
             else throw new NotSupportedException($"Debugger state primitive {type.FullName} is unsupported.");
         }
 
+        /// <summary>Writes array shape and either raw primitive bytes or recursively encoded elements.</summary>
+        /// <param name="array">Array value to serialize.</param>
+        /// <param name="type">Runtime array type.</param>
         private void WriteArray(Array array, Type type)
         {
             Type elementType = type.GetElementType()
@@ -152,6 +200,8 @@ internal static class DebuggerObjectGraphSerializer
                     Write(array.GetValue(indices));
         }
 
+        /// <summary>Writes rank, lengths, and lower bounds for each array dimension.</summary>
+        /// <param name="array">Array whose dimensions are encoded.</param>
         private void WriteArrayShape(Array array)
         {
             writer.Write(array.Rank);
@@ -162,6 +212,9 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Writes each invocation-list method identity and its target object.</summary>
+        /// <param name="callback">Delegate to serialize.</param>
+        /// <param name="type">Runtime delegate type.</param>
         private void WriteDelegate(Delegate callback, Type type)
         {
             writer.Write((byte)PayloadKind.Delegate);
@@ -178,12 +231,18 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
+    /// <summary>Reads graph payloads, validating object identities and supported serialization layouts.</summary>
+    /// <param name="reader">Binary reader shared by recursive restoration.</param>
+    /// <param name="legacyDelegateTokens">Whether legacy delegate metadata tokens are present.</param>
     private sealed class GraphReader(BinaryReader reader, bool legacyDelegateTokens)
     {
+        /// <summary>Objects already registered by serialized reference ID.</summary>
         private readonly Dictionary<int, object> references = [];
         // One restore reports each legacy omission once, not once per restored instance.
+        /// <summary>Warnings already emitted for legacy omissions in this restore operation.</summary>
         private readonly HashSet<string> reportedWarnings = [];
         // Every object repeats its type and field names; decode each distinct name once.
+        /// <summary>Interned type and member names read from this graph.</summary>
         private readonly Dictionary<string, string> names = new(StringComparer.Ordinal);
 
         /// <summary>
@@ -224,6 +283,8 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Reads one graph value, resolving nulls, references, or a new supported object.</summary>
+        /// <returns>The restored value, or <see langword="null"/>.</returns>
         public object? Read()
         {
             ObjectMarker marker = (ObjectMarker)reader.ReadByte();
@@ -258,6 +319,9 @@ internal static class DebuggerObjectGraphSerializer
             };
         }
 
+        /// <summary>Reads a scalar payload using the serialized type's underlying storage representation.</summary>
+        /// <param name="serializedType">Runtime type resolved from the graph type identity.</param>
+        /// <returns>The decoded scalar value, boxed as its serialized type.</returns>
         private object ReadPrimitive(Type serializedType)
         {
             Type type = serializedType.IsEnum ? Enum.GetUnderlyingType(serializedType) : serializedType;
@@ -282,6 +346,10 @@ internal static class DebuggerObjectGraphSerializer
             return serializedType.IsEnum ? Enum.ToObject(serializedType, value) : value;
         }
 
+        /// <summary>Reads raw primitive-array bytes into a shape-preserving array instance.</summary>
+        /// <param name="type">Serialized array type.</param>
+        /// <param name="referenceId">Object identifier assigned to the new array.</param>
+        /// <returns>The populated array.</returns>
         private Array ReadPrimitiveArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
@@ -309,6 +377,10 @@ internal static class DebuggerObjectGraphSerializer
             return array;
         }
 
+        /// <summary>Reads array dimensions and recursively restores every element.</summary>
+        /// <param name="type">Serialized array type.</param>
+        /// <param name="referenceId">Object identifier assigned to the new array.</param>
+        /// <returns>The populated array.</returns>
         private Array ReadArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
@@ -323,6 +395,9 @@ internal static class DebuggerObjectGraphSerializer
             return array;
         }
 
+        /// <summary>Creates an array using the rank, lengths, and lower bounds encoded in the stream.</summary>
+        /// <param name="elementType">Resolved element type.</param>
+        /// <returns>An unpopulated array with the serialized shape.</returns>
         private Array CreateArray(Type elementType)
         {
             int rank = ReadNonnegativeLength("array rank");
@@ -338,6 +413,10 @@ internal static class DebuggerObjectGraphSerializer
             return Array.CreateInstance(elementType, lengths, lowerBounds);
         }
 
+        /// <summary>Resolves each invocation target and rebuilds the serialized delegate invocation list.</summary>
+        /// <param name="type">Delegate type to construct.</param>
+        /// <param name="referenceId">Object identifier assigned to the delegate.</param>
+        /// <returns>The reconstructed delegate.</returns>
         private object ReadDelegate(Type type, int referenceId)
         {
             int count = ReadNonnegativeLength("delegate invocation");
@@ -364,6 +443,10 @@ internal static class DebuggerObjectGraphSerializer
             return Register(referenceId, combined!);
         }
 
+        /// <summary>Creates an object without its constructor and restores its validated serialized fields.</summary>
+        /// <param name="type">Runtime type of the object being restored.</param>
+        /// <param name="referenceId">Object identifier assigned before field restoration.</param>
+        /// <returns>The restored object instance.</returns>
         private object ReadFields(Type type, int referenceId)
         {
             object instance = RuntimeHelpers.GetUninitializedObject(type);
@@ -447,6 +530,11 @@ internal static class DebuggerObjectGraphSerializer
         /// recognized by exact declaring type/name, drained by import tooling, and replaced
         /// by a reference tombstone so it cannot leak back through another graph alias.
         /// </summary>
+        /// <summary>Restores the current RAM arrays from an older address-space payload and drains its ROM copy.</summary>
+        /// <param name="instance">New current address-space instance.</param>
+        /// <param name="currentFields">Current mutable-memory fields to populate.</param>
+        /// <param name="count">Number of serialized legacy fields.</param>
+        /// <returns>The restored address-space instance.</returns>
         private object ReadLegacyAddressSpace(object instance, FieldInfo[] currentFields, int count)
         {
             var remaining = currentFields.ToDictionary(field => field.Name, StringComparer.Ordinal);
@@ -482,6 +570,7 @@ internal static class DebuggerObjectGraphSerializer
             return instance;
         }
 
+        /// <summary>Consumes the exact legacy cartridge byte-array payload without retaining its data.</summary>
         private void DiscardLegacyCartridgeArray()
         {
             if ((ObjectMarker)reader.ReadByte() != ObjectMarker.New)
@@ -500,8 +589,12 @@ internal static class DebuggerObjectGraphSerializer
             SuperMetroid.AssetExtraction.LegacyCartridgeStateImport.DiscardPayload(reader.BaseStream, byteLength);
         }
 
+        /// <summary>Reference tombstone preventing aliases from reusing a discarded legacy ROM array.</summary>
         private sealed class RetiredCartridgePayload;
 
+        /// <summary>Reads a serialized length and rejects negative values.</summary>
+        /// <param name="label">Name included in an invalid-length error.</param>
+        /// <returns>The validated length.</returns>
         private int ReadNonnegativeLength(string label)
         {
             int value = reader.ReadInt32();
@@ -510,6 +603,10 @@ internal static class DebuggerObjectGraphSerializer
                 : throw new InvalidDataException($"Debugger state has negative {label} length {value}.");
         }
 
+        /// <summary>Registers a newly decoded object under its positive graph reference identifier.</summary>
+        /// <param name="id">Serialized object identifier.</param>
+        /// <param name="value">Decoded object associated with the identifier.</param>
+        /// <returns>The registered object.</returns>
         private object Register(int id, object value)
         {
             if (id <= 0 || !references.TryAdd(id, value))
@@ -552,11 +649,18 @@ internal static class DebuggerObjectGraphSerializer
 
     // A type's field layout is fixed for the process; graphs hold many objects of each type.
     // Callers treat the returned array as read-only (migrations build filtered copies).
+    /// <summary>Caches immutable per-type field layouts used by state graph serialization.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> serializableFields = new();
 
+    /// <summary>Gets the cached field layout used for serializing a runtime type.</summary>
+    /// <param name="type">Runtime type whose instance fields are needed.</param>
+    /// <returns>Serializable instance fields in stable order.</returns>
     private static FieldInfo[] GetSerializableFields(Type type) =>
         serializableFields.GetOrAdd(type, CollectSerializableFields);
 
+    /// <summary>Collects nonstatic, nonignored fields throughout a type's inheritance hierarchy.</summary>
+    /// <param name="type">Runtime type whose fields define its saved layout.</param>
+    /// <returns>Fields in stable declaring-type and metadata-token order.</returns>
     private static FieldInfo[] CollectSerializableFields(Type type) =>
         EnumerateHierarchy(type)
             .SelectMany(level => level.GetFields(
@@ -569,6 +673,9 @@ internal static class DebuggerObjectGraphSerializer
             .ThenBy(field => field.MetadataToken)
             .ToArray();
 
+    /// <summary>Enumerates a type followed by its base types up to the root.</summary>
+    /// <param name="type">Starting runtime type.</param>
+    /// <returns>Each type in the inheritance chain, most-derived first.</returns>
     private static IEnumerable<Type> EnumerateHierarchy(Type type)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -577,8 +684,12 @@ internal static class DebuggerObjectGraphSerializer
 
     // Resolution of a name is fixed for the process, and graphs repeat the same few type
     // names for every object; only allowed results are cached, so rejections still throw.
+    /// <summary>Caches successfully resolved types permitted in saved debugger graphs.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Type> allowedTypes = new(StringComparer.Ordinal);
 
+    /// <summary>Gets a cached permitted type for its serialized assembly-qualified identity.</summary>
+    /// <param name="assemblyQualifiedName">Serialized type identity.</param>
+    /// <returns>The resolved type when it belongs to an allowed assembly.</returns>
     private static Type ResolveAllowedType(string assemblyQualifiedName)
     {
         if (allowedTypes.TryGetValue(assemblyQualifiedName, out Type? cached)) return cached;
@@ -587,6 +698,9 @@ internal static class DebuggerObjectGraphSerializer
         return allowed;
     }
 
+    /// <summary>Resolves a serialized identity and enforces the debugger graph assembly allowlist.</summary>
+    /// <param name="assemblyQualifiedName">Serialized type identity.</param>
+    /// <returns>The resolved permitted runtime type.</returns>
     private static Type ResolveAllowedTypeUncached(string assemblyQualifiedName)
     {
         Type type = DebuggerStateTypeIdentity.Resolve(assemblyQualifiedName)
@@ -611,12 +725,16 @@ internal static class DebuggerObjectGraphSerializer
 /// </summary>
 internal static class RawArrayElements
 {
+    /// <summary>Ensures raw pixel serialization keeps the expected packed element width.</summary>
     static RawArrayElements()
     {
         if (System.Runtime.CompilerServices.Unsafe.SizeOf<SuperMetroid.Core.Assets.Rgba32>() != 4)
             throw new InvalidOperationException("Rgba32 must remain four packed bytes to be serialized raw.");
     }
 
+    /// <summary>Determines whether an array element type has a supported fixed-width raw representation.</summary>
+    /// <param name="elementType">Array element type.</param>
+    /// <returns><see langword="true"/> for primitive types and packed RGBA pixels.</returns>
     internal static bool IsRaw(Type elementType) =>
         elementType.IsPrimitive || elementType == typeof(SuperMetroid.Core.Assets.Rgba32);
 

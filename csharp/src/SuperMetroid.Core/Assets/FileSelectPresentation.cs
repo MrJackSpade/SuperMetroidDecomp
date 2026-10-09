@@ -11,15 +11,31 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class FileSelectPresentation
 {
+    /// <summary>Compiled foreground tilemaps keyed by their schema page names.</summary>
     private readonly Dictionary<string, ushort[]> pages;
+    /// <summary>Compiled ENERGY label patch applied relative to each slot's energy anchor.</summary>
     private readonly FileSelectCompiledPatch energyPatch;
+    /// <summary>Compiled NO DATA label patch applied to empty save slots.</summary>
     private readonly FileSelectCompiledPatch noDataPatch;
+    /// <summary>Compiled colon glyph patch inserted into the save-time field.</summary>
     private readonly FileSelectCompiledPatch timeColonPatch;
+    /// <summary>Optional authored digit words; null uses the stock consecutive tile sequence.</summary>
     private readonly ushort[]? digits;
+    /// <summary>Optional authored save-slot letter words; null uses the stock consecutive tile sequence.</summary>
     private readonly ushort[]? slotLetters;
+    /// <summary>Compiled sprite compositions addressed by their required schema identities.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
+    /// <summary>Parsed layout retained for dynamic anchors and menu animation durations.</summary>
     private readonly FileSelectPresentationDocument document;
 
+    /// <summary>Assembles validated page, patch, glyph, sprite, and layout data into the loaded presentation.</summary>
+    /// <param name="pages">Compiled menu tilemaps indexed by page key.</param>
+    /// <param name="patches">Compiled dynamic text patches indexed by patch key.</param>
+    /// <param name="digits">Compiled digit glyph words in numeric order.</param>
+    /// <param name="slotLetters">Compiled save-slot letters in A-to-C order.</param>
+    /// <param name="sprites">Compiled border and menu actor compositions by sprite key.</param>
+    /// <param name="document">Parsed document retaining the validated dynamic layout.</param>
+    /// <param name="contentIdentity">Uppercase digest identifying the exact source JSON bytes.</param>
     private FileSelectPresentation(
         Dictionary<string, ushort[]> pages,
         Dictionary<string, FileSelectCompiledPatch> patches,
@@ -40,6 +56,10 @@ public sealed class FileSelectPresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Uses stock consecutive tile IDs when supplied glyph words exactly match that sequence.</summary>
+    /// <param name="values">Compiled glyph words in display order.</param>
+    /// <param name="first">Stock tile word expected at index zero.</param>
+    /// <returns>The supplied array when any word is edited; otherwise null signals stock calculation.</returns>
     private static ushort[]? PreserveEditedGlyphs(ushort[] values, ushort first)
     {
         for (int index = 0; index < values.Length; index++)
@@ -54,10 +74,17 @@ public sealed class FileSelectPresentation
     /// <summary>Menu updates per selected-slot helmet animation frame, in the range 1-65535.</summary>
     public int HelmetFrameDuration => document.HelmetFrameDuration;
 
+    /// <summary>Transfers the shared file-select background page into the BG2 tilemap.</summary>
+    /// <param name="vram">Video memory receiving the compiled background page.</param>
     internal void LoadBackground(SnesVram vram) =>
         vram.ExecuteWordTransfer(pages[FileSelectPresentationDefinitions.BackgroundPage],
             MenuPpuState.Bg2TilemapWord, 1);
 
+    /// <summary>Copies a compiled foreground page into a caller-provided 32-by-32 tilemap buffer.</summary>
+    /// <param name="name">Required page key from the presentation schema.</param>
+    /// <param name="destination">Exactly 1024 words receiving the row-major page.</param>
+    /// <exception cref="InvalidDataException">The page key is not present in this presentation.</exception>
+    /// <exception cref="ArgumentException">The destination does not contain exactly 1024 cells.</exception>
     internal void CopyPage(string name, Span<ushort> destination)
     {
         if (!pages.TryGetValue(name, out ushort[]? source))
@@ -68,6 +95,11 @@ public sealed class FileSelectPresentation
         source.CopyTo(destination);
     }
 
+    /// <summary>Gets the dynamic field anchors for a selected save slot on the requested menu family.</summary>
+    /// <param name="dataManagement">Selects copy/clear layout when true, otherwise the main-menu layout.</param>
+    /// <param name="slot">Zero-based save slot index.</param>
+    /// <returns>The validated field layout for that slot.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The slot is outside the three available entries.</exception>
     internal FileSelectSlotFieldDocument Slot(bool dataManagement, int slot)
     {
         FileSelectSlotFieldDocument[] layouts = dataManagement
@@ -78,6 +110,11 @@ public sealed class FileSelectPresentation
             : throw new ArgumentOutOfRangeException(nameof(slot));
     }
 
+    /// <summary>Writes one named sparse text patch into a tilemap relative to its validated anchor.</summary>
+    /// <param name="tilemap">Destination page tilemap.</param>
+    /// <param name="name">Energy, no-data, or time-colon patch identity.</param>
+    /// <param name="anchor">Tile coordinate at which the patch's offsets begin.</param>
+    /// <exception cref="InvalidDataException">The patch name is not one of the compiled patch identities.</exception>
     internal void ApplyPatch(Span<ushort> tilemap, string name, MapLabelPoint anchor)
     {
         FileSelectCompiledPatch patch = name switch
@@ -95,6 +132,12 @@ public sealed class FileSelectPresentation
         }
     }
 
+    /// <summary>Writes a decimal glyph at a horizontal offset from a dynamic field anchor.</summary>
+    /// <param name="tilemap">Destination page tilemap.</param>
+    /// <param name="anchor">Origin of the dynamic numeric field.</param>
+    /// <param name="offset">Horizontal tile offset from the anchor.</param>
+    /// <param name="digit">Digit value from zero through nine.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The digit is outside zero through nine.</exception>
     internal void WriteDigit(Span<ushort> tilemap, MapLabelPoint anchor, int offset, int digit)
     {
         if ((uint)digit >= FileSelectPresentationDefinitions.DigitCount)
@@ -103,6 +146,11 @@ public sealed class FileSelectPresentation
             digits is null ? (ushort)(FileSelectLayout.DigitTileBase + digit) : digits[digit];
     }
 
+    /// <summary>Writes the A, B, or C glyph identifying a save slot at the given anchor.</summary>
+    /// <param name="tilemap">Destination page tilemap.</param>
+    /// <param name="anchor">Tile coordinate receiving the glyph.</param>
+    /// <param name="slot">Zero-based save slot index.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The slot is outside zero through two.</exception>
     internal void WriteSlotLetter(Span<ushort> tilemap, MapLabelPoint anchor, int slot)
     {
         if ((uint)slot >= FileSelectPresentationDefinitions.SlotLetterCount)
@@ -111,11 +159,20 @@ public sealed class FileSelectPresentation
             slotLetters is null ? (ushort)(FileSelectLayout.SamusLetterTileBase + slot) : slotLetters[slot];
     }
 
+    /// <summary>Returns a named tile-space anchor used for dynamic copy or clear slot lettering.</summary>
+    /// <param name="name">Required dynamic-anchor schema key.</param>
+    /// <returns>The validated tile coordinate.</returns>
+    /// <exception cref="InvalidDataException">The key is not present in the loaded document.</exception>
     internal MapLabelPoint DynamicAnchor(string name) =>
         document.DynamicAnchors.TryGetValue(name, out MapLabelPoint? anchor)
             ? anchor
             : throw new InvalidDataException($"Unknown file-select dynamic anchor {name}.");
 
+    /// <summary>Resolves the cursor's pixel-space origin for the active menu and selection.</summary>
+    /// <param name="main">Selects the main-menu cursor layout.</param>
+    /// <param name="confirmation">Selects confirmation choices when not on the main menu.</param>
+    /// <param name="selected">Selected option index in the chosen cursor layout.</param>
+    /// <returns>The pixel coordinate used to draw the cursor.</returns>
     internal MapLabelPoint CursorPosition(bool main, bool confirmation, int selected) =>
         Point(main
             ? document.MainCursorAnchors
@@ -124,6 +181,9 @@ public sealed class FileSelectPresentation
                 : document.DataCursorAnchors,
             selected, "cursor");
 
+    /// <summary>Draws the border composition associated with a menu page.</summary>
+    /// <param name="oam">Sprite buffer receiving the border parts.</param>
+    /// <param name="page">Page identity selecting its border anchor and composition.</param>
     internal void DrawBorder(OamBuffer oam, string page)
     {
         MapLabelPoint anchor = document.BorderAnchors[page];
@@ -132,11 +192,19 @@ public sealed class FileSelectPresentation
             PaletteBits(document.ObjectPalette));
     }
 
+    /// <summary>Draws one cursor animation frame at its resolved pixel-space origin.</summary>
+    /// <param name="oam">Sprite buffer receiving cursor parts.</param>
+    /// <param name="frame">Cursor frame index from zero through three.</param>
+    /// <param name="anchor">Pixel origin for the cursor composition.</param>
     internal void DrawCursor(OamBuffer oam, int frame, MapLabelPoint anchor) =>
         sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
             oam, checked((ushort)anchor.X), checked((ushort)anchor.Y),
             PaletteBits(document.ObjectPalette));
 
+    /// <summary>Draws the selected save slot's helmet animation frame at its configured origin.</summary>
+    /// <param name="oam">Sprite buffer receiving helmet parts.</param>
+    /// <param name="frame">Helmet frame index from zero through seven.</param>
+    /// <param name="slot">Zero-based save slot selecting the pixel-space anchor.</param>
     internal void DrawHelmet(OamBuffer oam, int frame, int slot)
     {
         MapLabelPoint anchor = Point(document.HelmetAnchors, slot, "helmet");
@@ -263,6 +331,10 @@ public sealed class FileSelectPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Checks each slot's dynamic text patches and time field fit within a 32-by-32 page.</summary>
+    /// <param name="document">Parsed layout containing all main and data-management slot anchors.</param>
+    /// <param name="patches">Compiled patches whose sparse cell offsets determine their extents.</param>
+    /// <exception cref="InvalidDataException">A patch or time field extends beyond its page.</exception>
     private static void ValidatePatchPlacements(
         FileSelectPresentationDocument document,
         Dictionary<string, FileSelectCompiledPatch> patches)
@@ -277,6 +349,10 @@ public sealed class FileSelectPresentation
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
 
+        /// <summary>Verifies every sparse patch cell remains inside the page at the supplied anchor.</summary>
+        /// <param name="anchor">Tile coordinate at which the patch is placed.</param>
+        /// <param name="patch">Compiled sparse cells to validate.</param>
+        /// <exception cref="InvalidDataException">Any placed cell lies beyond the page dimensions.</exception>
         static void ValidatePatch(MapLabelPoint anchor, FileSelectCompiledPatch patch)
         {
             for (int index = 0; index < patch.Count; index++)
@@ -289,6 +365,10 @@ public sealed class FileSelectPresentation
         }
     }
 
+    /// <summary>Compiles all page cells into SNES tilemap words while identifying invalid entries by owner.</summary>
+    /// <param name="cells">Parsed cells in row-major order.</param>
+    /// <param name="owner">Page description included in any validation error.</param>
+    /// <returns>Compiled tilemap words in the original order.</returns>
     private static ushort[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var words = new ushort[cells.Length];
@@ -297,6 +377,11 @@ public sealed class FileSelectPresentation
         return words;
     }
 
+    /// <summary>Validates one character-sheet coordinate and packs its tile, palette, priority, and flips.</summary>
+    /// <param name="cell">Authored background tile entry.</param>
+    /// <param name="owner">Cell description included in any validation error.</param>
+    /// <returns>The SNES tilemap word for this cell.</returns>
+    /// <exception cref="InvalidDataException">The cell is null or references an invalid tile or palette.</exception>
     private static ushort CompileCell(MapPresentationCell? cell, string owner)
     {
         if (cell is null ||
@@ -312,6 +397,9 @@ public sealed class FileSelectPresentation
             (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
     }
 
+    /// <summary>Requires all four dynamic field anchors for a save slot to lie inside the tile page.</summary>
+    /// <param name="slot">Parsed slot layout to validate.</param>
+    /// <exception cref="InvalidDataException">The layout is null or an anchor falls outside the 32-by-32 page.</exception>
     private static void ValidateSlot(FileSelectSlotFieldDocument? slot)
     {
         if (slot is null)
@@ -322,6 +410,11 @@ public sealed class FileSelectPresentation
         ValidateTilePoint(slot.TimeValueAnchor, "slot time");
     }
 
+    /// <summary>Validates the required number and screen-space bounds of a cursor or helmet anchor list.</summary>
+    /// <param name="points">Authored anchor coordinates.</param>
+    /// <param name="count">Exact number of coordinates required.</param>
+    /// <param name="owner">Anchor role included in validation errors.</param>
+    /// <exception cref="InvalidDataException">The list is null, has the wrong size, or contains an invalid point.</exception>
     private static void ValidatePoints(MapLabelPoint[]? points, int count, string owner)
     {
         if (points is null || points.Length != count)
@@ -330,6 +423,10 @@ public sealed class FileSelectPresentation
             ValidatePoint(point, owner);
     }
 
+    /// <summary>Validates a screen-space anchor against the SNES's wrapped X and byte-sized Y ranges.</summary>
+    /// <param name="point">Pixel coordinate to validate.</param>
+    /// <param name="owner">Anchor role included in validation errors.</param>
+    /// <exception cref="InvalidDataException">The point is null or outside X=0..511 and Y=0..255.</exception>
     private static void ValidatePoint(MapLabelPoint? point, string owner)
     {
         if (point is null || point.X < 0 || point.X > 0x1ff ||
@@ -338,6 +435,10 @@ public sealed class FileSelectPresentation
                 $"File-select {owner} requires X=0..511 and Y=0..255.");
     }
 
+    /// <summary>Validates a tile-space coordinate within the menu's 32-by-32 page.</summary>
+    /// <param name="point">Tile coordinate to validate.</param>
+    /// <param name="owner">Anchor role included in validation errors.</param>
+    /// <exception cref="InvalidDataException">The point is null or outside the tile page.</exception>
     private static void ValidateTilePoint(MapLabelPoint? point, string owner)
     {
         if (point is null || (uint)point.X >= FileSelectPresentationDefinitions.Width ||
@@ -346,6 +447,12 @@ public sealed class FileSelectPresentation
                 $"File-select {owner} requires a coordinate inside the 32x32 page.");
     }
 
+    /// <summary>Requires a JSON object to contain exactly the supplied schema identities.</summary>
+    /// <typeparam name="T">Value type stored for each identity.</typeparam>
+    /// <param name="values">Parsed object to validate.</param>
+    /// <param name="expected">Required keys, with no additional entries allowed.</param>
+    /// <param name="owner">Object role included in validation errors.</param>
+    /// <exception cref="InvalidDataException">The object is null, has a different count, or lacks a required key.</exception>
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
         IEnumerable<string> expected, string owner)
     {
@@ -357,10 +464,18 @@ public sealed class FileSelectPresentation
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
+    /// <summary>Returns an indexed anchor or reports the selection role when the index is invalid.</summary>
+    /// <param name="points">Validated anchors for one menu context.</param>
+    /// <param name="index">Selected anchor index.</param>
+    /// <param name="owner">Selection role used as the argument name on failure.</param>
+    /// <returns>The selected pixel-space anchor.</returns>
     private static MapLabelPoint Point(MapLabelPoint[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
 
+    /// <summary>Encodes the selected OBJ palette index into SNES sprite attribute bits.</summary>
+    /// <param name="index">OBJ palette number in the supported range zero through seven.</param>
+    /// <returns>Attribute bits ready to combine with each sprite part.</returns>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
@@ -436,11 +551,17 @@ public sealed record FileSelectSlotFieldDocument
     public required MapLabelPoint TimeValueAnchor { get; init; }
 }
 
+/// <summary>Provides sparse tilemap patch cells from authored data or the matching stock definition.</summary>
 internal sealed class FileSelectCompiledPatch
 {
+    /// <summary>Schema patch identity used to calculate its stock cells when no edits are present.</summary>
     private readonly string name;
+    /// <summary>Authored cells retained when their count or contents differ from the stock patch.</summary>
     private readonly FileSelectCompiledPatchCell[]? suppliedCells;
 
+    /// <summary>Stores authored patch cells only when they differ from the calculated stock patch.</summary>
+    /// <param name="name">Required patch identity that determines the stock cell sequence.</param>
+    /// <param name="cells">Compiled cells supplied by the loaded document.</param>
     internal FileSelectCompiledPatch(string name, FileSelectCompiledPatchCell[] cells)
     {
         this.name = name;
@@ -457,10 +578,18 @@ internal sealed class FileSelectCompiledPatch
             }
     }
 
+    /// <summary>Number of sparse cells in the authored patch or its stock equivalent.</summary>
     internal int Count => suppliedCells?.Length ?? FileSelectPresentationDefinitions.PatchCellCount(name);
+    /// <summary>Gets a patch cell from retained artwork or computes the matching stock entry.</summary>
+    /// <param name="index">Zero-based cell index in the patch.</param>
+    /// <returns>The tile offset and compiled tilemap word.</returns>
     internal FileSelectCompiledPatchCell Cell(int index) => suppliedCells is null
         ? FileSelectPresentationDefinitions.PatchCell(name, index) : suppliedCells[index];
 }
+/// <summary>One compiled sparse-patch cell in tile offsets relative to the patch anchor.</summary>
+/// <param name="X">Horizontal tile offset from the patch placement anchor.</param>
+/// <param name="Y">Vertical tile offset from the patch placement anchor.</param>
+/// <param name="Word">Packed SNES tilemap word written at the resulting page coordinate.</param>
 internal readonly record struct FileSelectCompiledPatchCell(int X, int Y, ushort Word);
 
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>
@@ -641,6 +770,10 @@ public static class FileSelectPresentationDefinitions
         >= 7 and < 15 => HelmetFrameName(index - 7),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
+    /// <summary>Lazily yields indexed schema names without allocating a backing name array.</summary>
+    /// <param name="count">Number of names to enumerate.</param>
+    /// <param name="name">Function mapping each zero-based index to its required key.</param>
+    /// <returns>The names for indices from zero through <paramref name="count"/> minus one.</returns>
     private static IEnumerable<string> Names(int count, Func<int, string> name)
     {
         for (int index = 0; index < count; index++) yield return name(index);

@@ -73,17 +73,38 @@ public enum BeetomEnemyFunction : ushort
 /// </summary>
 public sealed class BeetomEnemyState
 {
+    /// <summary>Physical enemy slot whose six common variables back this debugger view.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot copy of the instruction-list pointer selected by Beetom setup.</summary>
     private readonly ushort[] _installedInstructionLists;
+    /// <summary>Per-slot short-hop launch index derived from the native quadratic speed table.</summary>
     private readonly ushort[] _initialShortLeapYSpeedIndexes;
+    /// <summary>Per-slot long-hop launch index derived from the native quadratic speed table.</summary>
     private readonly ushort[] _initialLongLeapYSpeedIndexes;
+    /// <summary>Per-slot lunge launch index derived from the native quadratic speed table.</summary>
     private readonly ushort[] _initialLungeYSpeedIndexes;
+    /// <summary>Per-slot rising/falling arc selector stored in extra WRAM.</summary>
     private readonly ushort[] _fallingFlags;
+    /// <summary>Per-slot latch preventing touch handling from attaching the same Beetom twice.</summary>
     private readonly ushort[] _attachedFlags;
+    /// <summary>Per-slot facing word used by movement and escape throws.</summary>
     private readonly ushort[] _directions;
+    /// <summary>Per-slot X separation captured when the Beetom first attaches.</summary>
     private readonly ushort[] _initialAttachmentXOffsets;
+    /// <summary>Per-slot Y separation captured when the Beetom first attaches.</summary>
     private readonly ushort[] _initialAttachmentYOffsets;
 
+    /// <summary>Connects one physical enemy slot to its native extra-WRAM state arrays.</summary>
+    /// <param name="slot">Enemy slot providing the common variable words.</param>
+    /// <param name="installedInstructionLists">Storage for per-slot installed animation lists.</param>
+    /// <param name="initialShortLeapYSpeedIndexes">Storage for short-hop launch indexes.</param>
+    /// <param name="initialLongLeapYSpeedIndexes">Storage for long-hop launch indexes.</param>
+    /// <param name="initialLungeYSpeedIndexes">Storage for lunge launch indexes.</param>
+    /// <param name="fallingFlags">Storage for arc phase flags.</param>
+    /// <param name="attachedFlags">Storage for attachment latches.</param>
+    /// <param name="directions">Storage for facing words.</param>
+    /// <param name="initialAttachmentXOffsets">Storage for captured horizontal attachment offsets.</param>
+    /// <param name="initialAttachmentYOffsets">Storage for captured vertical attachment offsets.</param>
     internal BeetomEnemyState(
         RoomEnemySlot slot,
         ushort[] installedInstructionLists,
@@ -141,21 +162,35 @@ public sealed class BeetomEnemyState
 /// <summary>Literal translation of Beetom enemy <c>$E87F</c> at <c>$A8:B696-$BED2</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition pointer used to identify Beetoms during setup.</summary>
     internal const ushort BeetomDefinition = 0xe87f;
 
+    /// <summary>Strict horizontal proximity threshold selecting the Samus-targeted decision path.</summary>
     private const ushort BeetomProximityDistance = 0x0060;
+    /// <summary>Controller-word changes required to shake off an attached Beetom.</summary>
     private const ushort BeetomMashCount = 0x0040;
+    /// <summary>Maximum quadratic speed-table index used by falling and flung motion.</summary>
     private const ushort BeetomMaximumYSpeedIndex = 0x0040;
 
+    /// <summary>Per-enemy installed animation-list pointers corresponding to native extra WRAM.</summary>
     private readonly ushort[] _beetomInstalledInstructionLists = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy calculated short-hop launch indexes.</summary>
     private readonly ushort[] _beetomInitialShortLeapYSpeedIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy calculated long-hop launch indexes.</summary>
     private readonly ushort[] _beetomInitialLongLeapYSpeedIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy calculated lunge launch indexes.</summary>
     private readonly ushort[] _beetomInitialLungeYSpeedIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy rising/falling state words.</summary>
     private readonly ushort[] _beetomFallingFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy touch-attachment latch words.</summary>
     private readonly ushort[] _beetomAttachedToSamusFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy facing words used to choose movement direction.</summary>
     private readonly ushort[] _beetomDirections = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy X offsets captured on initial attachment.</summary>
     private readonly ushort[] _beetomInitialAttachmentXOffsets = new ushort[MaximumEnemyCount];
+    /// <summary>Per-enemy Y offsets captured on initial attachment.</summary>
     private readonly ushort[] _beetomInitialAttachmentYOffsets = new ushort[MaximumEnemyCount];
+    /// <summary>Debugger state projections for initialized Beetom slots.</summary>
     private readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
@@ -325,6 +360,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the shared RNG to select an idle or hop setup and records its facing bit.</summary>
     private void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         ushort random = _nextRandom!();
@@ -339,6 +375,7 @@ public sealed partial class RoomEnemySystem
         state.Direction = unchecked((ushort)(random & 1));
     }
 
+    /// <summary>Installs the facing crawl list and schedules its movement function for a later update.</summary>
     private static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, bool left)
     {
         state.Function = left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
@@ -350,6 +387,7 @@ public sealed partial class RoomEnemySystem
                 : BeetomInstructionProgramDefinitions.CrawlingRight);
     }
 
+    /// <summary>Loads the selected launch index, clears the falling phase, and installs hop animation.</summary>
     private static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -374,6 +412,7 @@ public sealed partial class RoomEnemySystem
                 : BeetomInstructionProgramDefinitions.HopRight);
     }
 
+    /// <summary>Aims a rising lunge toward Samus and installs the matching hop list.</summary>
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
         bool left = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
@@ -389,6 +428,7 @@ public sealed partial class RoomEnemySystem
                 : BeetomInstructionProgramDefinitions.HopRight);
     }
 
+    /// <summary>Installs the facing attached animation and switches the function to drain-following.</summary>
     private static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, bool left)
     {
         SetBeetomInstructionList(
@@ -400,6 +440,7 @@ public sealed partial class RoomEnemySystem
         state.Function = left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
     }
 
+    /// <summary>Restores facing crawl art, clears the falling flag, and enters the straight drop.</summary>
     private static void StartBeetomDrop(RoomEnemySlot slot, BeetomEnemyState state)
     {
         SetBeetomInstructionList(
@@ -412,6 +453,7 @@ public sealed partial class RoomEnemySystem
         state.Function = BeetomEnemyFunction.Dropping;
     }
 
+    /// <summary>Runs the ledge probe and quarter-pixel crawl, reversing when terrain blocks progress.</summary>
     private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, bool left)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -441,6 +483,7 @@ public sealed partial class RoomEnemySystem
             state.Function = left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
     }
 
+    /// <summary>Runs vertical arc motion followed by horizontal movement, preserving native axis ordering.</summary>
     private void RunBeetomArc(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -465,6 +508,7 @@ public sealed partial class RoomEnemySystem
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
+    /// <summary>Advances the quadratic rise/fall table and selects the next action on collision.</summary>
     private void RunBeetomVerticalArc(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -500,6 +544,7 @@ public sealed partial class RoomEnemySystem
             state.YSpeedTableIndex + fallingDelta));
     }
 
+    /// <summary>Follows Samus while counting changed controller words, then throws the Beetom on escape.</summary>
     private void RunBeetomDrain(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -534,6 +579,7 @@ public sealed partial class RoomEnemySystem
         state.Function = BeetomEnemyFunction.StartBeingFlung;
     }
 
+    /// <summary>Falls vertically until collision resumes crawling in the stored facing direction.</summary>
     private void RunBeetomDrop(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
         if (!MoveEnemyVertically(level, slot, 3 << 16))
@@ -543,6 +589,7 @@ public sealed partial class RoomEnemySystem
             : BeetomEnemyFunction.StartCrawlingRight;
     }
 
+    /// <summary>Applies accelerating fall and opposite-facing horizontal motion after Samus shakes the Beetom off.</summary>
     private void RunFlungBeetom(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
         if (MoveEnemyVertically(level, slot, ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: false)))
@@ -559,6 +606,10 @@ public sealed partial class RoomEnemySystem
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
+    /// <summary>Finds the first quadratic-table index whose accumulated height reaches the requested target.</summary>
+    /// <param name="targetHeight">Native accumulated fixed-point height threshold.</param>
+    /// <param name="tableIndexDelta">Index increment applied between sampled speed records.</param>
+    /// <returns>The first qualifying table record index.</returns>
     private static ushort CalculateInitialBeetomYSpeedIndex(ushort targetHeight, ushort tableIndexDelta)
     {
         ushort tableIndex = 0;
@@ -634,6 +685,7 @@ public sealed partial class RoomEnemySystem
         state.AttachedToSamus = false;
     }
 
+    /// <summary>Updates cached and live instruction pointers and resets the native animation timers.</summary>
     private static void SetBeetomInstructionList(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -645,18 +697,21 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Requires an active Samus actor before executing a Beetom branch that targets her.</summary>
     private static void RequireBeetomSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom AI requires the active Samus actor.");
     }
 
+    /// <summary>Requires room collision data before executing Beetom movement.</summary>
     private static void RequireBeetomLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Beetom movement requires room level data.");
     }
 
+    /// <summary>Returns the initialized debugger state for this slot or reports a non-Beetom/uninitialized slot.</summary>
     private BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
         _beetomStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Beetom state.");

@@ -10,18 +10,26 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Expected count of distinct retail room headers represented by named states.</summary>
     private const int RetailRoomFxRoomCount = 262;
+    /// <summary>Expected count of distinct retail room states included in the inventory.</summary>
     private const int RetailRoomFxStateCount = 323;
+    /// <summary>Expected count of physical retail door headers.</summary>
     private const int RetailRoomFxDoorCount = 597;
 
     /// <summary>Supplies the production FX owner with import-time presentation assets.</summary>
     /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
+    /// <param name="PaletteBlends">Extracted room palette blend definitions shared by FX states on one bus.</param>
+    /// <param name="Layer3Tilemaps">Extracted BG3 tilemaps referenced by room FX definitions.</param>
+    /// <param name="AnimatedTiles">Extracted animated tile data used by room FX updates.</param>
     private sealed record RetailFxCatalogs(RoomFxPaletteBlendCatalog PaletteBlends,
         RoomFxLayer3TilemapCatalog Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
 
+    /// <summary>Caches extracted FX presentation catalogs by the bus that owns their source data.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
         retailFxCatalogs = new();
 
+    /// <summary>Builds an FX state using catalogs extracted once for the supplied cartridge bus.</summary>
     private static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus)
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
@@ -201,6 +209,7 @@ internal static partial class Program
             $". Inventory: {Path.GetRelativePath(Directory.GetCurrentDirectory(), inventoryPath)}.");
     }
 
+    /// <summary>Independently selects a room FX record, loads production FX, and compares resulting state.</summary>
     private static RetailFxPathAudit AuditRetailFxEntryPath(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -351,6 +360,7 @@ internal static partial class Program
         return audit;
     }
 
+    /// <summary>Checks animated-tile headers referenced by retail room FX data.</summary>
     private static void VerifyRetailRoomFxAnimatedTileHeaders(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
@@ -444,6 +454,7 @@ internal static partial class Program
             "room $02/$01 lava surface advances to the next bank-$87 animation frame");
     }
 
+    /// <summary>Renders a room FX frame through the production composition path for visual assertions.</summary>
     private static Rgba32[] RenderRoomFx(
         SnesVram vram,
         SnesCgram cgram,
@@ -455,12 +466,14 @@ internal static partial class Program
         return frame;
     }
 
+    /// <summary>Copies the requested half-open row range from a rendered frame into a compact pixel array.</summary>
     private static Rgba32[] ReadRows(Rgba32[] frame, int firstRow, int endRow) =>
         frame.AsSpan(
             firstRow * SnesGameplayFrameRenderer.Width,
             (endRow - firstRow) * SnesGameplayFrameRenderer.Width)
         .ToArray();
 
+    /// <summary>Checks one animated-tile header and the tile updates it produces.</summary>
     private static void VerifyRetailRoomFxAnimatedTileHeader(
         SuperMetroidAddressSpace bus,
         ushort objectPointer,
@@ -532,6 +545,7 @@ internal static partial class Program
             $"Independent room-FX selector did not terminate list $83:{listPointer:X4}.");
     }
 
+    /// <summary>Enumerates door pointers explicitly named by a room's FX record list.</summary>
     private static IEnumerable<ushort> EnumerateSpecificFxRecordDoors(
         SuperMetroidAddressSpace bus,
         ushort listPointer)
@@ -556,6 +570,7 @@ internal static partial class Program
             $"Room-FX inventory did not terminate list $83:{listPointer:X4}.");
     }
 
+    /// <summary>Checks a retail liquid rise from its entry door through its target position.</summary>
     private static void VerifyRetailLiquidRise(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
@@ -759,6 +774,7 @@ internal static partial class Program
             "room $02/$28 deterministic earthquake sound count");
     }
 
+    /// <summary>Checks that a retail liquid tide remains within the amplitude encoded by its options.</summary>
     private static void VerifyRetailLiquidTide(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
@@ -800,6 +816,7 @@ internal static partial class Program
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");
     }
 
+    /// <summary>Checks that room changes clear stale liquid display state.</summary>
     private static void VerifyRetailFxTransitionReset(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
@@ -844,6 +861,7 @@ internal static partial class Program
             "transition to $FFFF heat FX cannot carry visible lava from the source room");
     }
 
+    /// <summary>Loads a named room state from the retail symbol inventory.</summary>
     private static CartridgeRoomHeader LoadRoomByIdentity(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
@@ -857,6 +875,7 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Requires reported example rooms to retain their expected liquid classifications.</summary>
     private static void AssertKnownRetailLiquidExamples(
         IReadOnlyDictionary<RoomIdentity, HashSet<RetailLiquidClassification>> examples)
     {
@@ -874,6 +893,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Seeds ordinary visible colors so FX blend checks are graphics-set independent.</summary>
     private static void SeedVisibleRoomFxPalette(SnesCgram cgram)
     {
         // Standard room palettes normally provide these colors before LoadFXHeader applies
@@ -883,6 +903,7 @@ internal static partial class Program
             cgram.SetColor(color, 0x7fff);
     }
 
+    /// <summary>Parses a room-state symbol, ignoring unrelated lines and rejecting malformed room entries.</summary>
     private static RetailFxRoomState? ParseRetailFxRoomState(string line)
     {
         int separator = line.IndexOf(' ');
@@ -912,20 +933,40 @@ internal static partial class Program
         return new RetailFxRoomState(roomPointer, unchecked((ushort)stateAddress));
     }
 
+    /// <summary>Describes whether selected room FX produce visible or hidden water, lava, or acid.</summary>
     private enum RetailLiquidClassification
     {
+        /// <summary>No selected FX record controls a liquid surface.</summary>
         None,
+        /// <summary>An FX record is selected, but it is not classified as a liquid.</summary>
         NonLiquidFx,
+        /// <summary>A water surface is present but hidden from the visible BG3 plane.</summary>
         HiddenWater,
+        /// <summary>A water surface is rendered visibly.</summary>
         VisibleWater,
+        /// <summary>A lava or acid surface is present but hidden from the visible BG3 plane.</summary>
         HiddenLavaOrAcid,
+        /// <summary>A lava or acid surface is rendered visibly.</summary>
         VisibleLavaOrAcid,
     }
 
+    /// <summary>Identifies one room state in the retail room-header symbol inventory.</summary>
+    /// <param name="RoomPointer">Native room-header pointer identifying the room.</param>
+    /// <param name="StatePointer">Native state pointer associated with that room.</param>
     private readonly record struct RetailFxRoomState(
         ushort RoomPointer,
         ushort StatePointer);
 
+    /// <summary>Expected and production-observed FX properties for one state and entry-door path.</summary>
+    /// <param name="SelectedRecord">FX record selected independently from the cartridge data.</param>
+    /// <param name="ExpectedType">FX type decoded from the selected cartridge record.</param>
+    /// <param name="ActualType">FX type produced by the production room FX owner.</param>
+    /// <param name="ExpectedBaseY">Native base Y position from the record, or zero without a record.</param>
+    /// <param name="ActualBaseY">Base Y position installed by the production owner.</param>
+    /// <param name="TargetY">Native target Y position from the record.</param>
+    /// <param name="Velocity">Native vertical velocity from the record.</param>
+    /// <param name="LiquidOptions">Native liquid option bits controlling visibility and tide behavior.</param>
+    /// <param name="Classification">Visibility category assigned to the resulting room state.</param>
     private readonly record struct RetailFxPathAudit(
         ushort SelectedRecord,
         RoomFxType ExpectedType,
@@ -937,6 +978,11 @@ internal static partial class Program
         ushort LiquidOptions,
         RetailLiquidClassification Classification);
 
+    /// <summary>Native entry conditions and vertical endpoints for a focused rising-liquid audit.</summary>
+    /// <param name="Room">Retail room identity being exercised.</param>
+    /// <param name="EntryDoor">Door pointer that selects the rising-liquid record.</param>
+    /// <param name="InitialY">Expected starting surface position.</param>
+    /// <param name="TargetY">Expected surface position when the rise completes.</param>
     private readonly record struct RisingLiquidAuditDefinition(
         RoomIdentity Room,
         ushort EntryDoor,

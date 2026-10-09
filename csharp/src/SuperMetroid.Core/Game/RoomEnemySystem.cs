@@ -26,24 +26,42 @@ public sealed partial class RoomEnemySystem
     /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
     public const int MaximumGraphicsSetCount = 4;
 
+    /// <summary>Stable host objects corresponding one-to-one with the cartridge's physical enemy records.</summary>
     private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[MaximumEnemyCount];
+    /// <summary>Per-layer native-index draw lists rebuilt during each enemy frame.</summary>
     private readonly List<ushort>[] _drawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
+    /// <summary>Native record offsets admitted to the current AI and rendering pass.</summary>
     private readonly List<ushort> _activeEnemyIndexes = new();
+    /// <summary>Active record offsets whose actors participate in Samus collision.</summary>
     private readonly List<ushort> _interactiveEnemyIndexes = new();
+    /// <summary>Post-AI collision snapshots published for solid enemy interactions.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
+    /// <summary>Graphics-set entries resolved for the room, including their staging and VRAM ranges.</summary>
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
+    /// <summary>Current room address space, also used for live enemy WRAM access.</summary>
     private ISnesAddressSpace? _bus;
+    /// <summary>Random-number source used by enemy initialization and callbacks.</summary>
     private Func<ushort>? _nextRandom;
+    /// <summary>Reads the shared cartridge random seed without advancing it.</summary>
     private Func<ushort>? _readRandomNumber;
+    /// <summary>Queries the runtime-owned area boss completion state.</summary>
     private Func<bool>? _isAreaBossDefeated;
+    /// <summary>Publishes completion of the current area's boss encounter.</summary>
     private Action? _setAreaBossDefeated;
+    /// <summary>Queries whether the area miniboss completion state is already set.</summary>
     private Func<bool>? _isAreaMiniBossDefeated;
+    /// <summary>Tests room event bits used by enemy initialization and encounter logic.</summary>
     private Func<EventNumber, bool>? _hasEvent;
+    /// <summary>Sets a room event bit through its runtime owner.</summary>
     private Action<EventNumber>? _setEvent;
+    /// <summary>Clears a room event bit through its runtime owner.</summary>
     private Action<EventNumber>? _clearEvent;
+    /// <summary>Publishes completion of the area's miniboss encounter.</summary>
     private Action? _setAreaMiniBossDefeated;
+    /// <summary>Writes an updated shared random seed when an enemy routine advances it.</summary>
     private Action<ushort>? _setRandomNumber;
+    /// <summary>Native random-enemy counter retained across the room's enemy processing.</summary>
     private ushort _randomEnemyCounter;
 
     /// <summary>
@@ -51,7 +69,9 @@ public sealed partial class RoomEnemySystem
     /// the 8-bit $05B5 counter; standalone audits seed both from the same enemy clock.
     /// </summary>
     private ushort _enemyFrameNmiFrameCounter;
+    /// <summary>VRAM target used when enemy graphics are transferred during room loading.</summary>
     private SnesVram? _vram;
+    /// <summary>CGRAM target used to install enemy OBJ palettes during room loading.</summary>
     private SnesCgram? _cgram;
 
     /// <summary>
@@ -60,11 +80,17 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
     // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
+    /// <summary>Projectile owner supplied for this enemy pass to callbacks that consume or spawn shots.</summary>
     private SamusProjectileSystem? _samusProjectilesForEnemyFrame;
+    /// <summary>Encounter-specific state for Ridley when its actor owns a room slot.</summary>
     private RidleyEnemyState? _ridleyState;
+    /// <summary>Encounter-specific state for Spore Spawn when its actor owns a room slot.</summary>
     private SporeSpawnEnemyState? _sporeSpawn;
+    /// <summary>Allows an audit or special encounter to process every occupied slot regardless of camera bounds.</summary>
     private bool _processAllEnemies;
+    /// <summary>Controls whether room initialization applies ordinary, landing, or Ceres escape gunship setup.</summary>
     private GunshipLoadScenario _gunshipLoadScenario;
+    /// <summary>Samus reference available to enemy initialization callbacks before the first frame.</summary>
     private SamusState? _samusAtEnemyInitialization;
 
     /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
@@ -79,6 +105,7 @@ public sealed partial class RoomEnemySystem
     [field: NonSerialized]
     public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
 
+    /// <summary>Installed text programs bound into active Zebes and Ceres escape typewriter states.</summary>
     [NonSerialized] private EscapeTypewriterPresentation? escapeTypewriterPresentation;
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation
@@ -220,8 +247,10 @@ public sealed partial class RoomEnemySystem
     // A door load initializes enemies while the door IRQ scrolls; init AIs that read
     // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
     // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
+    /// <summary>Time-freeze state sampled at enemy-frame entry for callbacks that share that frame boundary.</summary>
     private bool _enemyFrameTimeIsFrozen;
 
+    /// <summary>Defers loader-time camera reads until the door transition has published its final camera position.</summary>
     private bool _deferLoaderTimeCameraReads;
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
@@ -1110,6 +1139,11 @@ public sealed partial class RoomEnemySystem
         return slot.PaletteIndex;
     }
 
+    /// <summary>Builds the room's enemy graphics lookup and installs each entry's palette and tile data.</summary>
+    /// <param name="bus">Address space used to resolve compiled graphics and enemy definitions.</param>
+    /// <param name="tilesetPointer">Bank-$B4 graphics-set identity selected by the room.</param>
+    /// <param name="vram">VRAM receiving the staged enemy tile uploads.</param>
+    /// <param name="cgram">CGRAM receiving the enemy OBJ palettes.</param>
     private void LoadGraphicsSet(
         ISnesAddressSpace bus,
         ushort tilesetPointer,
@@ -1175,6 +1209,14 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Initializes the fixed enemy slots from the population and runs each record's initialization callback.</summary>
+    /// <param name="bus">Room address space used by initialization and actor services.</param>
+    /// <param name="populationDefinition">Compiled population records and their room death quota.</param>
+    /// <param name="level">Room terrain needed by initialization routines that inspect tiles.</param>
+    /// <param name="samus">Player state supplied to initialization routines that depend on Samus.</param>
+    /// <param name="controllerInput">Held controller state visible to initialization callbacks.</param>
+    /// <param name="cameraX">Camera horizontal position for initialization-time visibility checks.</param>
+    /// <param name="cameraY">Camera vertical position for initialization-time visibility checks.</param>
     private void LoadPopulation(
         ISnesAddressSpace bus,
         RoomEnemyPopulationDefinition populationDefinition,
@@ -1224,6 +1266,10 @@ public sealed partial class RoomEnemySystem
         FirstFreeEnemyIndex = unchecked((ushort)(records.Length * NativeSlotSize));
     }
 
+    /// <summary>Copies one population record and its compiled definition into a stable physical slot.</summary>
+    /// <param name="slot">Preallocated slot object to initialize.</param>
+    /// <param name="population">Room placement, parameters, and initial flags for the actor.</param>
+    /// <param name="definition">Compiled gameplay properties selected by the population record.</param>
     private void InitializeSlotFromDefinition(
         RoomEnemySlot slot,
         RoomEnemyPopulationRecord population,
@@ -1258,6 +1304,9 @@ public sealed partial class RoomEnemySystem
             tileIndex);
     }
 
+    /// <summary>Finds the room-assigned tile and palette indexes, applying the native defaults when no graphics entry exists.</summary>
+    /// <param name="definitionPointer">Enemy definition identity to locate in the loaded graphics set.</param>
+    /// <returns>The actor's base VRAM tile index and OBJ palette bits.</returns>
     private (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(ushort definitionPointer)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
@@ -1276,6 +1325,13 @@ public sealed partial class RoomEnemySystem
         return (0, 0x0a00);
     }
 
+    /// <summary>Dispatches the compiled initializer for a slot and its supported enemy definition.</summary>
+    /// <param name="slot">Actor whose initialization callback is selected by its definition.</param>
+    /// <param name="level">Optional room geometry required by terrain-sensitive initializers.</param>
+    /// <param name="samus">Optional player state used by encounter initialization.</param>
+    /// <param name="controllerInput">Held controller state supplied to callbacks that inspect input.</param>
+    /// <param name="cameraX">Current camera horizontal position.</param>
+    /// <param name="cameraY">Current camera vertical position.</param>
     private void RunInitializationAi(
         RoomEnemySlot slot,
         RoomLevelData? level = null,
@@ -1656,6 +1712,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Sets the gunship's top hull state and chooses its ordinary or post-Ceres starting motion.</summary>
+    /// <param name="slot">Physical slot reserved for the top hull.</param>
     private void InitializeGunshipTop(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -1684,6 +1742,8 @@ public sealed partial class RoomEnemySystem
         slot.VariableC = 0;
     }
 
+    /// <summary>Initializes a gunship bottom hull or entrance pad, preserving native neighboring-slot aliases.</summary>
+    /// <param name="slot">Physical slot reserved for the hull or pad.</param>
     private void InitializeGunshipBottom(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -1729,6 +1789,19 @@ public sealed partial class RoomEnemySystem
         slot.VariableF = GunshipCodePointers.NoOperation;
     }
 
+    /// <summary>Dispatches the supported main-AI callbacks for an active actor.</summary>
+    /// <param name="slot">Actor whose compiled main-AI pointer selects the callback.</param>
+    /// <param name="samus">Player state available to callbacks that interact with Samus.</param>
+    /// <param name="newlyPressedControllerInput">Input edges for this gameplay update.</param>
+    /// <param name="controllerInput">Held controller state for this update.</param>
+    /// <param name="level">Room geometry used by terrain-dependent callbacks.</param>
+    /// <param name="cameraX">Current camera horizontal position.</param>
+    /// <param name="cameraY">Current camera vertical position.</param>
+    /// <param name="samusProjectiles">Projectile owner used by callbacks that create or inspect shots.</param>
+    /// <param name="nmiFrameCounter8">Low-byte enemy frame counter exposed to translated routines.</param>
+    /// <param name="mode7Transform">Optional Mode-7 transform state for encounter-specific drawing.</param>
+    /// <param name="sharedProjectiles">Optional shared bomb/projectile owner used by special callbacks.</param>
+    /// <param name="vramWriteQueue">Optional runtime queue for callbacks that schedule VRAM transfers.</param>
     private void RunMainAi(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -2197,6 +2270,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the gunship top hull's function state machine and shared idle effects.</summary>
+    /// <param name="top">Gunship top-hull slot that owns the current function and timers.</param>
+    /// <param name="samus">Player state moved by entry, landing, and flight functions.</param>
+    /// <param name="newlyPressedControllerInput">Input edges checked while the ship is idle.</param>
+    /// <param name="vramWriteQueue">Queue used by the takeoff tile-upload function.</param>
     private void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
@@ -2307,6 +2385,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves the post-Ceres ship and Samus down together until the landing-brake sequence begins.</summary>
+    /// <param name="top">Top-hull slot anchoring the three-part ship.</param>
+    /// <param name="samus">Player actor carried by the descending ship.</param>
     private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2330,6 +2411,9 @@ public sealed partial class RoomEnemySystem
         top.VariableE = 0;
     }
 
+    /// <summary>Applies the authored landing bounce and opens the gunship entrance pad when it finishes.</summary>
+    /// <param name="top">Top-hull slot owning the landing phase counter.</param>
+    /// <param name="samus">Player actor moved with the hull components.</param>
     private void BouncePostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2361,6 +2445,9 @@ public sealed partial class RoomEnemySystem
         QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
+    /// <summary>Raises Samus out of the landed post-Ceres ship and closes its entrance pad at the native threshold.</summary>
+    /// <param name="top">Top-hull slot whose saved landing height determines the exit position.</param>
+    /// <param name="samus">Player actor leaving the ship.</param>
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2379,6 +2466,10 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
 
+    /// <summary>Adds one fixed-point vertical displacement to Samus and all three gunship components.</summary>
+    /// <param name="samus">Player whose fixed-point Y position is advanced.</param>
+    /// <param name="top">Top-hull slot locating the adjacent components.</param>
+    /// <param name="delta">Unsigned 16.16 displacement shared by all actors.</param>
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
         uint samusFixed = ((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition;
@@ -2396,6 +2487,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the four-phase idle bob timer and shifts the hull and pad when a phase expires.</summary>
+    /// <param name="top">Top-hull slot holding the phase counter and countdown.</param>
     private void StepGunshipBob(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableD;
@@ -2415,6 +2508,10 @@ public sealed partial class RoomEnemySystem
         top.VariableC = unchecked((ushort)((top.VariableC + 1) & 3));
     }
 
+    /// <summary>Starts the entrance sequence when a standing Samus presses Down inside the ship's doorway.</summary>
+    /// <param name="top">Idle top-hull slot used to test the entrance bounds.</param>
+    /// <param name="samus">Player actor considered for entry.</param>
+    /// <param name="newlyPressedControllerInput">New button edges; held Down alone does not start entry.</param>
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
         SamusState? samus,
@@ -2454,6 +2551,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Decrements the gunship function timer and reports its native expiry condition.</summary>
+    /// <param name="top">Top-hull slot whose function timer is stored in variable A.</param>
+    /// <returns><see langword="true"/> when the prior value was one or the decremented word wrapped negative.</returns>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableA;
@@ -2461,6 +2561,9 @@ public sealed partial class RoomEnemySystem
         return oldTimer == 1 || (short)top.VariableA < 0;
     }
 
+    /// <summary>Lowers Samus into the ship and transitions to pad closure once she reaches the cabin threshold.</summary>
+    /// <param name="top">Top-hull slot defining the target cabin height.</param>
+    /// <param name="samus">Player actor entering the ship.</param>
     private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2477,6 +2580,9 @@ public sealed partial class RoomEnemySystem
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
 
+    /// <summary>Restores Samus's energy and ammunition, then selects save confirmation or timebomb takeoff.</summary>
+    /// <param name="top">Top-hull slot that owns the restoration function state.</param>
+    /// <param name="samus">Player inventory and movement state to restore.</param>
     private void RestoreSamusInGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2511,6 +2617,9 @@ public sealed partial class RoomEnemySystem
         top.VariableF = GunshipCodePointers.HandleSaveConfirmation;
     }
 
+    /// <summary>Raises Samus from the cabin and begins closing the exit pad at the authored height.</summary>
+    /// <param name="top">Top-hull slot whose cabin position defines the exit threshold.</param>
+    /// <param name="samus">Player actor exiting the ship.</param>
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -2628,6 +2737,10 @@ public sealed partial class RoomEnemySystem
         MoveGunshipAndSamusToY(top, samus, samus.YPosition);
     }
 
+    /// <summary>Places Samus and the three ship slots at their fixed vertical offsets for one player Y position.</summary>
+    /// <param name="top">Top-hull slot locating the bottom and pad slots.</param>
+    /// <param name="samus">Player actor whose Y coordinate is assigned.</param>
+    /// <param name="samusY">Whole-pixel Y position used to derive each component position.</param>
     private void MoveGunshipAndSamusToY(
         RoomEnemySlot top,
         SamusState samus,
@@ -2641,6 +2754,10 @@ public sealed partial class RoomEnemySystem
         bottom.YPosition = unchecked((ushort)(samusY + 23));
     }
 
+    /// <summary>Restores up to two units without exceeding the inventory maximum.</summary>
+    /// <param name="current">Current ammunition count.</param>
+    /// <param name="maximum">Capacity for that ammunition type.</param>
+    /// <returns>The current count if already full, otherwise the count increased by at most two.</returns>
     private static ushort RestoreTwo(ushort current, ushort maximum)
     {
         if ((short)(current - maximum) >= 0)
@@ -2648,6 +2765,16 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
+    /// <summary>Draws an installed enemy display composition or accepts a compiled empty extended frame.</summary>
+    /// <param name="oam">Destination object-attribute buffer.</param>
+    /// <param name="bank">ROM bank qualifying the frame pointer.</param>
+    /// <param name="pointer">Bank-local spritemap identity.</param>
+    /// <param name="originX">Horizontal screen-space origin.</param>
+    /// <param name="originY">Vertical screen-space origin.</param>
+    /// <param name="paletteBits">Palette and priority bits applied to emitted OAM entries.</param>
+    /// <param name="baseTileIndex">Base character index added to component tile offsets.</param>
+    /// <param name="clipVerticalWrap">Whether components crossing the screen's vertical wrap are clipped.</param>
+    /// <param name="originYIsOnScreen">Whether the origin has already been clipped to the visible vertical range.</param>
     private void DrawEnemySpritemap(OamBuffer oam, byte bank, ushort pointer,
         ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true)
@@ -2666,6 +2793,10 @@ public sealed partial class RoomEnemySystem
             $"Enemy sprite ${bank:X2}:{pointer:X4} requires an installed display composition.");
     }
 
+    /// <summary>Resolves a visual operand through the compiled selector catalog for the actor's definition.</summary>
+    /// <param name="slot">Actor whose definition identifies the owning instruction program.</param>
+    /// <param name="operandAddress">Address of the visual selector operand in the instruction stream.</param>
+    /// <returns>The bank-local frame pointer selected by that operand.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "The instance interpreter selector is a reflection seam for existing focused fixtures.")]
     private ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
@@ -2701,6 +2832,14 @@ public sealed partial class RoomEnemySystem
             $"${slot.Definition.Bank:X2}:${operandAddress:X4}.");
     }
 
+    /// <summary>Runs the actor's instruction list until a timed frame, stop, or dispatch boundary is reached.</summary>
+    /// <param name="slot">Actor whose instruction pointer and timers are updated.</param>
+    /// <param name="samus">Player state available to conditional instruction handlers.</param>
+    /// <param name="level">Room geometry used by tile and terrain instructions.</param>
+    /// <param name="cameraX">Current camera horizontal position.</param>
+    /// <param name="cameraY">Current camera vertical position.</param>
+    /// <param name="controllerInput">Held input visible to instruction conditions.</param>
+    /// <param name="nmiFrameCounter8">Frame counter used by time-dependent instruction commands.</param>
     private void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -4083,6 +4222,9 @@ public sealed partial class RoomEnemySystem
             $"${slot.Definition.Bank:X2}:{address:X4} has no compiled owner.");
     }
 
+    /// <summary>Rebuilds active and Samus-collision index lists from slot state and the camera processing window.</summary>
+    /// <param name="cameraX">Camera horizontal position used for off-screen admission.</param>
+    /// <param name="cameraY">Camera vertical position used for off-screen admission.</param>
     private void DetermineWhichEnemiesToProcess(ushort cameraX, ushort cameraY)
     {
         _activeEnemyIndexes.Clear();
@@ -4110,6 +4252,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the native camera-relative margins used to schedule ordinary enemy processing.</summary>
+    /// <param name="slot">Actor position and horizontal radius to test.</param>
+    /// <param name="cameraX">Camera horizontal position.</param>
+    /// <param name="cameraY">Camera vertical position.</param>
+    /// <returns><see langword="true"/> when the actor intersects the processing bounds.</returns>
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
         ushort cameraX,
@@ -4141,6 +4288,11 @@ public sealed partial class RoomEnemySystem
         return IsNegative16(fromCamera) || !IsNegative16(fromCamera - 0x100 - slot.XRadius);
     }
 
+    /// <summary>Tests whether an ordinary sprite actor's radius and vertical extent miss the camera viewport.</summary>
+    /// <param name="slot">Actor position and radius to test.</param>
+    /// <param name="cameraX">Camera horizontal position.</param>
+    /// <param name="cameraY">Camera vertical position.</param>
+    /// <returns><see langword="true"/> when the actor lies outside the normal-sprite drawing bounds.</returns>
     private static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
         ushort cameraX,
@@ -4150,6 +4302,10 @@ public sealed partial class RoomEnemySystem
         IsNegative16(slot.YPosition + 8 - cameraY) ||
         IsNegative16(cameraY + 248 - slot.YPosition);
 
+    /// <summary>Maps an aligned cartridge enemy-record byte offset to its stable host slot.</summary>
+    /// <param name="nativeIndex">Native offset in the range zero through $07C0, aligned to the $40-byte record stride.</param>
+    /// <returns>The host slot corresponding to that physical record.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The offset is unaligned or outside the 32-record table.</exception>
     private RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
     {
         if ((nativeIndex & (NativeSlotSize - 1)) != 0 || nativeIndex >= MaximumEnemyCount * NativeSlotSize)
@@ -4157,6 +4313,8 @@ public sealed partial class RoomEnemySystem
         return _slots[nativeIndex / NativeSlotSize];
     }
 
+    /// <summary>Guards operations that require a room address space to have been bound by <see cref="Load"/>.</summary>
+    /// <exception cref="InvalidOperationException">No room enemy population has been loaded.</exception>
     private void EnsureLoaded()
     {
         if (_bus is null)
@@ -4174,18 +4332,29 @@ public sealed partial class RoomEnemySystem
             : RoomEnemyDefinitionCatalog.Get(pointer);
     }
 
+    /// <summary>Resolves population data from explicit test fixtures or the compiled retail catalog.</summary>
+    /// <param name="bus">Address space that may provide constructed fixture definitions.</param>
+    /// <param name="pointer">Bank-$A1 population identity.</param>
+    /// <returns>The population records and quota associated with the identity.</returns>
     private static RoomEnemyPopulationDefinition ResolveRoomEnemyPopulation(
         ISnesAddressSpace bus, ushort pointer) =>
         bus is IRoomEnemyFixtureSource fixture
             ? fixture.ReadEnemyPopulation(pointer)
             : RoomEnemyPopulationDefinitions.Get(pointer);
 
+    /// <summary>Resolves graphics-set data from explicit test fixtures or the compiled retail catalog.</summary>
+    /// <param name="bus">Address space that may provide constructed fixture definitions.</param>
+    /// <param name="pointer">Bank-$B4 graphics-set identity.</param>
+    /// <returns>The ordered graphics-set records for that identity.</returns>
     private static RoomEnemyGraphicsSetDefinition ResolveRoomEnemyGraphicsSet(
         ISnesAddressSpace bus, ushort pointer) =>
         bus is IRoomEnemyFixtureSource fixture
             ? fixture.ReadEnemyGraphicsSet(pointer)
             : RoomEnemyGraphicsSetDefinitions.Get(pointer);
 
+    /// <summary>Interprets the low word of an arithmetic result using the cartridge's signed 16-bit test.</summary>
+    /// <param name="value">Integer result whose low 16 bits are tested.</param>
+    /// <returns><see langword="true"/> when bit 15 of the low word is set.</returns>
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 
     /// <summary>Live enemy staging memory; no cartridge reader can satisfy this dependency.</summary>

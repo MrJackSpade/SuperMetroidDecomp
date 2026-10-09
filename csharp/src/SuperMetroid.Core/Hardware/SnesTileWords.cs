@@ -106,7 +106,9 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
 /// <param name="Raw">The packed tile number and OBJ attributes, preserving all 16 native bits.</param>
 public readonly record struct SnesObjAttributeWord(ushort Raw)
 {
+    /// <summary>Low nine attribute-word bits containing the OBJ character number.</summary>
     private const ushort TileNumberMask = 0x01ff;
+    /// <summary>Bit position where the three-bit OBJ palette selector begins.</summary>
     private const int PaletteShift = 9;
     private const int PriorityShift = 12;
     private const ushort ThreeBitMask = 0x0007;
@@ -210,6 +212,7 @@ public readonly record struct SnesOamHighTablePair
 {
     private const byte PairMask = 0x03;
     private const byte XHighMask = 0x01;
+    /// <summary>Second bit in each packed high-table pair selects the large OBJ size.</summary>
     private const byte LargeObjectMask = 0x02;
 
     /// <summary>Gets the unshifted two-bit pair, from 0 through 3, before placement in a shared high-OAM byte.</summary>
@@ -246,7 +249,9 @@ public readonly record struct SnesOamHighTablePair
 /// <param name="Raw">The complete native X word, including any unused upper bits.</param>
 public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
+    /// <summary>Low nine bits carrying the modular spritemap X displacement.</summary>
     private const ushort OffsetMask = 0x01ff;
+    /// <summary>Independent high bit selecting the large OBJ size.</summary>
     private const ushort LargeObjectMask = 0x8000;
     /// <summary>Gets whether bit 15 selects the larger of the PPU's configured OBJ sizes.</summary>
     public bool IsLarge => (Raw & LargeObjectMask) != 0;

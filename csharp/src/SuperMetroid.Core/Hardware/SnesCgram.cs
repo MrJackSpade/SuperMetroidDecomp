@@ -17,6 +17,8 @@ public sealed class SnesCgram
     /// <summary>The size in bytes of CGRAM's complete two-byte color image.</summary>
     public const int ByteCount = SnesPpuLayout.CgramByteCount;
 
+    /// <summary>Stored native BGR555 words, with the unused top bit cleared.</summary>
+    /// <summary>Stored native BGR555 words, with the unused top bit cleared.</summary>
     private readonly ushort[] _colors = new ushort[ColorCount];
 
     /// <summary>Read-only native palette words for watches and verification.</summary>

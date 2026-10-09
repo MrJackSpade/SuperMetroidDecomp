@@ -18,43 +18,77 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class TitleSequenceState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Reusable OBJ pixel plane overwritten when the current title frame is rendered.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Cached output framebuffer; callers must consume it before the next render reuses it.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
     // Gradient OBJ priority/palette planes; fully rewritten by every resolve.
+    /// <summary>Per-pixel OBJ priority data used to resolve title gradient application.</summary>
     [NonSerialized] private byte[]? gradientPriorityScratch;
+    /// <summary>Per-pixel palette selection produced alongside the resolved OBJ priorities.</summary>
     [NonSerialized] private byte[]? gradientPaletteScratch;
 
+    /// <summary>Address space used by cartridge title instructions and console palette effects.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Optional output for opening music and title palette/menu audio commands.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>VRAM image populated from installed title graphics and updated by scene DMA operations.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>Palette image used by the title renderer and console lighting effects.</summary>
     private readonly SnesCgram cgram = new();
+    /// <summary>Native console-lighting effects active over the title palette.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new();
+    /// <summary>OAM assembled for the current title objects.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Controller state consumed by title input dispatch.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Extracted character stream used to animate the baby Metroid in Mode 7 VRAM.</summary>
     private readonly byte[] babyMetroidCharacters;
+    /// <summary>Installed line-by-line title gradient, when supplied by the session.</summary>
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
+    /// <summary>Installed title palette and skip-transition colors.</summary>
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
+    /// <summary>Installed title sprites, Mode 7 graphics, and animation source assets.</summary>
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
 
+    /// <summary>Current stage of the opening sequence, title display, or outgoing transition.</summary>
     private TitleSequencePhase phase;
+    /// <summary>Phase-specific countdown or cadence counter measured in gameplay updates.</summary>
     private int phaseTimer;
+    /// <summary>Address of the next timed entry or command in the active text sequence.</summary>
     private int sequenceEntry;
+    /// <summary>Remaining updates before the active text-sequence entry is consumed.</summary>
     private int sequenceEntryTimer;
+    /// <summary>Installed sprite identity currently drawn by the title sequence.</summary>
     private ushort activeSpritemap;
+    /// <summary>Screen-space horizontal origin of the active title sprite.</summary>
     private ushort activeOriginX;
+    /// <summary>Screen-space vertical origin of the active title sprite.</summary>
     private ushort activeOriginY;
+    /// <summary>Character-data offset applied while drawing the active title sprite.</summary>
     private ushort activeCharacterOffset;
+    /// <summary>Integer part of the Mode 7 horizontal scene offset.</summary>
     private int mode7X;
+    /// <summary>Integer part of the Mode 7 vertical scene offset.</summary>
     private int mode7Y;
+    /// <summary>Fractional part of the Mode 7 horizontal pan accumulated by scene updates.</summary>
     private int mode7XSubposition;
+    /// <summary>Fractional part of the Mode 7 vertical pan accumulated by scene updates.</summary>
     private int mode7YSubposition;
+    /// <summary>Native Mode 7 matrix scale, stored in the cartridge's 8.8 representation.</summary>
     private int zoom;
+    /// <summary>Current master brightness level applied to title pixels.</summary>
     private int brightness;
+    /// <summary>Source-page index for the baby Metroid's repeating character animation.</summary>
     private int babyFrame;
+    /// <summary>Remaining updates before the baby Metroid selects its next source page.</summary>
     private int babyFrameTimer;
+    /// <summary>Whether PPU setup has enabled the Mode 7 background for the active title stage.</summary>
     private bool mode7BackgroundEnabled;
+    /// <summary>Whether the title's line gradient is applied during rendering.</summary>
     private bool gradientEnabled;
+    /// <summary>Whether the title-screen fade should request the demo destination at black.</summary>
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
@@ -68,6 +102,15 @@ public sealed class TitleSequenceState
     {
     }
 
+    /// <summary>Initializes title state from installed assets with explicit control of opening music.</summary>
+    /// <param name="bus">Address space used by title instructions and palette effects.</param>
+    /// <param name="audio">Optional sound output for music and palette effects.</param>
+    /// <param name="queueOpeningMusic">Whether construction queues the opening music commands.</param>
+    /// <param name="titleGradientPresentation">Installed gradient rows used by the title compositor.</param>
+    /// <param name="titlePalettePresentation">Installed title colors required for palette setup.</param>
+    /// <param name="titleGraphicsPresentation">Installed graphics streams required to populate title VRAM.</param>
+    /// <exception cref="ArgumentNullException">The address space is null.</exception>
+    /// <exception cref="InvalidOperationException">Required title graphics or palette assets are missing.</exception>
     private TitleSequenceState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio,
@@ -322,6 +365,7 @@ public sealed class TitleSequenceState
             ResetConsolePaletteFx();
     }
 
+    /// <summary>Recreates both native console-lighting programs after a title skip reset.</summary>
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
@@ -407,6 +451,9 @@ public sealed class TitleSequenceState
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
 
+    /// <summary>Resolves the installed gradient rows for the current Mode 7 scale.</summary>
+    /// <returns>Per-scanline gradient data matching the current title zoom.</returns>
+    /// <exception cref="InvalidOperationException">No title-gradient presentation was installed.</exception>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
     {
         if (titleGradientPresentation is null)
@@ -415,6 +462,7 @@ public sealed class TitleSequenceState
         return titleGradientPresentation.Resolve((ushort)zoom);
     }
 
+    /// <summary>Builds OAM for the active title sprite and the persistent copyright mark.</summary>
     private void PrepareRenderOam()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
@@ -439,6 +487,7 @@ public sealed class TitleSequenceState
         oam.FinalizeFrame();
     }
 
+    /// <summary>Consumes due entries and commands from the current bank-$8B text instruction list.</summary>
     private void StepTextSequence()
     {
         if (--sequenceEntryTimer > 0)
@@ -501,6 +550,8 @@ public sealed class TitleSequenceState
         }
     }
 
+    /// <summary>Installs a scrolling text actor and resets its scene-local Mode 7 fractions.</summary>
+    /// <param name="definition">Instruction list, initial sprite placement, and phase for the text actor.</param>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         phase = definition.Phase;
@@ -520,6 +571,7 @@ public sealed class TitleSequenceState
         mode7BackgroundEnabled = false;
     }
 
+    /// <summary>Installs the logo and copyright objects used when the opening is skipped.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
@@ -541,6 +593,7 @@ public sealed class TitleSequenceState
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
+    /// <summary>Enters the stable title display and starts its native idle countdown.</summary>
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();
@@ -549,6 +602,10 @@ public sealed class TitleSequenceState
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
+    /// <summary>Loads extracted Mode 7 character and map streams using the cartridge's interleaved layout.</summary>
+    /// <param name="characterBytes">Character source bytes, including the full native DMA length.</param>
+    /// <param name="mapBytes">Map source bytes, including the full native DMA length.</param>
+    /// <exception cref="InvalidDataException">Either source is shorter than its native transfer.</exception>
     private void LoadMode7InterleavedVram(byte[] characterBytes, byte[] mapBytes)
     {
         if (characterBytes.Length < TitleSequenceRomData.Vram.Mode7CharacterByteCount)
@@ -567,6 +624,7 @@ public sealed class TitleSequenceState
             mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
     }
 
+    /// <summary>Advances the baby Metroid source-page animation when its timer expires.</summary>
     private void StepBabyMetroidAnimation()
     {
         if (--babyFrameTimer > 0)
@@ -577,6 +635,8 @@ public sealed class TitleSequenceState
         UpdateBabyMetroidCharacterFrame();
     }
 
+    /// <summary>Copies the current baby Metroid character page into its Mode 7 VRAM destination.</summary>
+    /// <exception cref="InvalidDataException">The installed character stream lacks the selected page.</exception>
     private void UpdateBabyMetroidCharacterFrame()
     {
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word
@@ -600,11 +660,22 @@ public sealed class TitleSequenceState
         }
     }
 
+    /// <summary>Reads one little-endian instruction word from the compiled title sequence.</summary>
+    /// <param name="address">Address of the word in the title sequence's bank.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);
 
+    /// <summary>Advances a compiled instruction address without carrying into another ROM bank.</summary>
+    /// <param name="address">Current bus address.</param>
+    /// <param name="bytes">Byte distance to advance within the bank.</param>
+    /// <returns>The wrapped address after the advance.</returns>
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
+    /// <summary>Adds a signed 16.16 delta to a signed integer and unsigned fractional pair.</summary>
+    /// <param name="integer">Integer component, updated with 16-bit signed wrap semantics.</param>
+    /// <param name="fraction">Fractional low word, updated with 16-bit unsigned wrap semantics.</param>
+    /// <param name="delta16Point16">Signed 16.16 increment applied to the pair.</param>
     private static void AddFixedPoint(ref int integer, ref int fraction, int delta16Point16)
     {
         long combined = ((long)integer << 16) | (ushort)fraction;
@@ -613,6 +684,8 @@ public sealed class TitleSequenceState
         fraction = (ushort)combined;
     }
 
+    /// <summary>Loads a scene's Mode 7 transform and hides any scrolling text sprite.</summary>
+    /// <param name="definition">Compiled scene phase, scale, and starting offsets.</param>
     private void ApplyScene(TitleMode7SceneDefinition definition)
     {
         phase = definition.Phase;
@@ -623,6 +696,10 @@ public sealed class TitleSequenceState
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
     }
 
+    /// <summary>Scales RGB channels by the title master-brightness level while preserving alpha.</summary>
+    /// <param name="color">Pixel to shade.</param>
+    /// <param name="level">Brightness from zero through the native maximum.</param>
+    /// <returns>The shaded pixel, with transparent pixels left untouched.</returns>
     private static Rgba32 ApplyBrightness(Rgba32 color, int level)
     {
         if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)

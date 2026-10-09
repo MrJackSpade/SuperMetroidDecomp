@@ -15,21 +15,40 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class ControllerInputRecorder : IDisposable
 {
+    /// <summary>Input-frame interval between asynchronous journal snapshots.</summary>
     private const int FlushIntervalFrames = 120;
+    /// <summary>Directory name used for reset recordings under the host data directory.</summary>
     private const string RecordingDirectoryName = "input-recordings";
 
+    /// <summary>Protects the input journal, shutdown state, and scheduled writer task.</summary>
     private readonly object gate = new();
+    /// <summary>Source-cartridge digest embedded in each recording.</summary>
     private readonly byte[] romSha256;
+    /// <summary>SRAM snapshot from which this recording begins.</summary>
     private readonly byte[] initialSaveRam;
+    /// <summary>Host options captured at recording start.</summary>
     private readonly SuperMetroidGameOptions gameOptions;
+    /// <summary>Installed-content identity, when recording an installed game.</summary>
     private readonly GameContentIdentitySnapshot? contentIdentity;
+    /// <summary>UTC start time written into the recording header.</summary>
     private readonly DateTimeOffset startedUtc;
+    /// <summary>Controller words consumed since this recorder started.</summary>
     private readonly List<ushort> inputs = [];
+    /// <summary>Process-exit callback removed when the recorder is disposed.</summary>
     private readonly EventHandler processExitHandler;
+    /// <summary>Most recently scheduled background write.</summary>
     private Task flushTask = Task.CompletedTask;
+    /// <summary>Input count included in the last scheduled asynchronous snapshot.</summary>
     private int frameCountAtLastScheduledFlush;
+    /// <summary>Whether shutdown has closed the recorder and captured its final snapshot.</summary>
     private bool disposed;
 
+    /// <summary>Creates a recorder and registers its final-flush process-exit fallback.</summary>
+    /// <param name="path">Destination path of the recording file.</param>
+    /// <param name="romSha256">Digest identifying the source cartridge.</param>
+    /// <param name="initialSaveRam">Complete SRAM image used to seed replay.</param>
+    /// <param name="gameOptions">Host options captured for replay.</param>
+    /// <param name="contentIdentity">Optional identity of the installed game content.</param>
     private ControllerInputRecorder(
         string path,
         byte[] romSha256,
@@ -90,6 +109,13 @@ internal sealed class ControllerInputRecorder : IDisposable
             contentIdentity);
     }
 
+    /// <summary>Creates the recording directory and starts a timestamped input journal.</summary>
+    /// <param name="recordingDirectory">Directory in which the journal is stored.</param>
+    /// <param name="romDigest">Source-cartridge digest included in the recording.</param>
+    /// <param name="initialSaveRam">SRAM seed copied into the recording.</param>
+    /// <param name="gameOptions">Host options captured for replay.</param>
+    /// <param name="contentIdentity">Optional installed-content identity.</param>
+    /// <returns>The initialized recorder.</returns>
     private static ControllerInputRecorder StartCore(
         string recordingDirectory,
         byte[] romDigest,
@@ -109,6 +135,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     /// Appends the word before the corresponding game step, preserving the input which
     /// caused an exception even when that frame never returned a rendered image.
     /// </summary>
+    /// <param name="controllerInput">Controller bitfield consumed by the current game frame.</param>
     public void RecordFrame(ushort controllerInput)
     {
         ushort[]? snapshot = null;
@@ -140,6 +167,8 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Schedules an immutable input snapshot for asynchronous atomic publication.</summary>
+    /// <param name="snapshot">Complete input list captured under the recorder lock.</param>
     private void ScheduleFlush(ushort[] snapshot)
     {
         // Publication under the same lock as RecordFrame prevents a second caller from
@@ -151,6 +180,9 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Creates a recording payload from the immutable input snapshot and start metadata.</summary>
+    /// <param name="snapshot">Controller inputs to serialize.</param>
+    /// <returns>Recording payload ready for serialization.</returns>
     private ControllerInputRecording CreateRecording(ushort[] snapshot) => new()
     {
         StartedUtc = startedUtc,
@@ -167,6 +199,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     /// the word in the normal 120-frame asynchronous window would omit the one input that is
     /// most valuable for reproducing the failure while Visual Studio is stopped at the throw.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">The recorder has already been closed.</exception>
     public void FlushAfterFrameFailure()
     {
         Task pendingFlush;
@@ -185,6 +218,8 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Writes and durably flushes a temporary journal before replacing the destination file.</summary>
+    /// <param name="recording">Complete recording payload to publish.</param>
     private void WriteAtomically(ControllerInputRecording recording)
     {
         string temporaryPath = Path + ".tmp";
@@ -202,6 +237,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         File.Move(temporaryPath, Path, overwrite: true);
     }
 
+    /// <summary>Closes the journal and writes its final input snapshot exactly once.</summary>
     private void FlushFinal()
     {
         Task pendingFlush;
@@ -219,6 +255,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Flushes the final recording snapshot and unregisters the process-exit fallback.</summary>
     public void Dispose()
     {
         FlushFinal();

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 public sealed class GameplayWindowRegisterCache
 {
+    /// <summary>Raw main-loop-owned WRAM bytes spanning the modeled register-cache addresses.</summary>
     private readonly byte[] _bytes = new byte[
         GameplayWindowRegisterAddresses.SubscreenWindow - GameplayWindowRegisterAddresses.Window12Selection + 1];
 
@@ -78,6 +79,7 @@ public sealed class GameplayWindowRegisterCache
             ReadByte(GameplayWindowRegisterAddresses.MainScreenWindow));
     }
 
+    /// <summary>Maps one native WRAM cache address to its backing-array offset, rejecting other addresses.</summary>
     private int Index(ushort address)
     {
         int index = address - GameplayWindowRegisterAddresses.Window12Selection;
@@ -91,5 +93,8 @@ public sealed class GameplayWindowRegisterCache
 /// Literal uploaded bytes, including unused high bits. Layer renderers may mask
 /// those bits, but a later native read or overwrite must retain the raw values.
 /// </summary>
+/// <param name="Windows">Captured window boundaries, enables, inversion bits, and logic selector.</param>
+/// <param name="MainScreen">TM layer-selection byte uploaded for the gameplay image.</param>
+/// <param name="MainScreenWindow">TMW mask byte uploaded for the gameplay image.</param>
 public readonly record struct GameplayWindowRegisterSnapshot(
     SnesWindowRegisters Windows, byte MainScreen,     byte MainScreenWindow);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Choot pattern selectors, paths, initialization, and falling loops against retail data.</summary>
+    /// <param name="rom">Retail address space used as the oracle for the five authored Choot patterns.</param>
     private static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -138,19 +140,32 @@ internal static partial class Program
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
+    /// <summary>Reads one little-endian word from the retail Choot pattern tables.</summary>
+    /// <param name="source">Retail address space containing the reference table.</param>
+    /// <param name="address">Full cartridge address of the word's low byte.</param>
+    /// <returns>The two source bytes combined in little-endian order.</returns>
     private static ushort ReadChootPatternWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+    /// <summary>Guards migrated Choot pattern-definition bytes against accidental runtime reads.</summary>
+    /// <param name="source">Address space that handles permitted reads and receives writes.</param>
     private sealed class ChootPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the guarded address-space path.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated pattern tables and delegates other addresses.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the migrated table range.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa2d84c and < 0xa2df74
                 ? throw new InvalidOperationException(
                     $"Choot attempted migrated pattern-definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

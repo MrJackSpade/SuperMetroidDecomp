@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the Botwoon health-palette thresholds and verifies production phase progression without allowing runtime threshold-table reads.</summary>
+    /// <param name="rom">Address space supplying the cartridge's native threshold data and Botwoon assets.</param>
     private static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
@@ -101,13 +103,22 @@ internal static partial class Program
             "terminal, and malformed paths run with the threshold table forbidden.");
     }
 
+    /// <summary>Address-space wrapper that rejects reads of Botwoon's native health-threshold table while forwarding unrelated access.</summary>
+    /// <param name="source">Underlying address space used for allowed reads and all writes.</param>
     private sealed class BotwoonHealthThresholdReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads blocked because they targeted the native threshold table.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the same threshold-table guard as ordinary address-space reads.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The byte at <paramref name="address"/> when the access is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects threshold-table reads and forwards other byte reads to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is outside the forbidden table.</returns>
         public byte ReadByte(int address)
         {
             if (address >= BotwoonHealthPaletteDefinitions.NativeThresholdAddress &&
@@ -120,6 +131,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

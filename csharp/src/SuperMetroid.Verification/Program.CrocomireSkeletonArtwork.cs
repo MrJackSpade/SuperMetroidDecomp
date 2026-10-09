@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks Crocomire's compiled skeleton transfers against cartridge data and validates installed artwork behavior.</summary>
+    /// <param name="rom">Cartridge address space used to read native transfer tables and tile bytes.</param>
+    /// <param name="stockDirectory">Directory containing the stock enemy-art files to validate and modify temporarily.</param>
+    /// <param name="stock">Installed artwork catalog containing Crocomire's skeleton tiles.</param>
     private static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -142,12 +146,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space guard that fails on any cartridge read or write during installed skeleton uploads.</summary>
     private sealed class CrocomireSkeletonNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of read attempts made against the guarded address space.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Rejects a cartridge-byte read, since installed skeleton uploads must use cataloged artwork.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>This guard never returns a value; it throws for every request.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Records and rejects a byte read from the guarded address space.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>This guard never returns a value; it throws for every request.</returns>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -155,6 +167,9 @@ internal static partial class Program
                 $"Installed Crocomire skeleton read cartridge byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because the installed-artwork verification path must not mutate cartridge memory.</summary>
+        /// <param name="address">Address where the caller attempted to write.</param>
+        /// <param name="value">Byte value the caller attempted to write.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
     }

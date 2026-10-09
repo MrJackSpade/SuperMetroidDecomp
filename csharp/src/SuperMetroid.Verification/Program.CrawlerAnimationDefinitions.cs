@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled crawler selectors with the cartridge and verifies production initialization and surface handoffs.</summary>
+    /// <param name="rom">The retail address space supplying selector words outside the guarded migrated sources.</param>
     private static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -131,15 +133,26 @@ internal static partial class Program
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Reads one little-endian selector word from the retail cartridge.</summary>
+    /// <param name="source">The cartridge address space containing the native selector table.</param>
+    /// <param name="address">The byte address of the word's low byte.</param>
+    /// <returns>The two source bytes combined with the low byte first.</returns>
     private static ushort ReadCrawlerAnimationWord(
         SuperMetroidAddressSpace source,
         int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+    /// <summary>Guards migrated crawler selector tables while preserving access to other cartridge data.</summary>
+    /// <param name="source">The underlying bus used for all addresses outside the migrated selector tables.</param>
     private sealed class CrawlerAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-capability byte read through the same migrated-source guard as ordinary reads.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated crawler selector tables and delegates all other reads.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The source byte when the address is outside the guarded tables.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa396db and < 0xa396e3 or
                 >= 0xa3992b and < 0xa39933 or
@@ -151,6 +164,9 @@ internal static partial class Program
                     $"Crawler attempted migrated animation-selector read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write to the underlying bus; this guard only restricts selector-table reads.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

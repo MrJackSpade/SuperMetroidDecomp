@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares every authored Crystal Flash body-palette duration with ROM and verifies the full production palette cycle uses the compiled timings.</summary>
+    /// <param name="rom">Address space containing the native duration table and other data needed to begin the production fixture.</param>
     private static void VerifyCrystalFlashPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -78,13 +80,23 @@ internal static partial class Program
             "100-call production cycle pass with timer-word reads forbidden.");
     }
 
+    /// <summary>Wraps cartridge access and rejects reads of the body-palette timer words during the production cycle.</summary>
+    /// <param name="source">Underlying address space forwarded for accesses outside the guarded timer words.</param>
     private sealed class CrystalFlashPaletteTimingReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from the guarded body-duration words.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an importer read through the timer-word guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte at <paramref name="address"/> when the address is not a guarded timer word.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads of duration bytes while forwarding all other reads to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The requested byte when its address is outside the guarded duration words.</returns>
+        /// <exception cref="InvalidOperationException">The address selects one of the native body-duration words.</exception>
         public byte ReadByte(int address)
         {
             int relative = address -
@@ -101,6 +113,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte to store at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

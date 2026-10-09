@@ -28,6 +28,12 @@ internal static partial class Program
             "selectors are compiled; both production owners reject their ROM sources.");
     }
 
+    /// <summary>Runs both production animated-tile selectors against a guarded ROM view and checks their area-specific counts.</summary>
+    /// <param name="rom">The retail cartridge address space used for allowed noncompiled data reads.</param>
+    /// <param name="area">The map area whose compiled animated-tile selection is being verified.</param>
+    /// <param name="animatedTileBits">The native animation bitset expected in the fixture FX record.</param>
+    /// <param name="expectedSand">The expected number of selected sand tiles for this area.</param>
+    /// <param name="expectedTreadmills">The expected number of selected treadmill tiles for this area.</param>
     private static void VerifyCompiledAreaSelection(
         ISnesAddressSpace rom,
         AreaId area,
@@ -54,13 +60,20 @@ internal static partial class Program
     /// <summary>
     /// Delegates allowed reads to the cartridge and rejects the compiled pointer/list bytes.
     /// </summary>
+    /// <param name="rom">The underlying retail address space for reads outside the compiled table sources.</param>
     private sealed class AreaAnimatedTileSelectionForbiddenBus(
         ISnesAddressSpace rom) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the compiled native pointer table or its object lists.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the guarded address-space path.</summary>
+        /// <param name="address">The bus address to read.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled selection sources and delegates all other reads to the retail bus.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte at <paramref name="address"/> when the address is not a guarded source.</returns>
         public byte ReadByte(int address)
         {
             if (IsCompiledSource(address))
@@ -74,8 +87,15 @@ internal static partial class Program
             return rom.ReadByte(address);
         }
 
+        /// <summary>Rejects writes because this verification wrapper exposes the ROM as read-only.</summary>
+        /// <param name="address">The bus address a caller attempted to modify.</param>
+        /// <param name="value">The byte a caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">Every write is rejected by this read-only verification bus.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Read-only verification bus.");
 
+        /// <summary>Identifies addresses belonging to the native pointer table or compiled animated-object lists.</summary>
+        /// <param name="address">The absolute bus address to classify.</param>
+        /// <returns><see langword="true"/> for a compiled source address; otherwise, <see langword="false"/>.</returns>
         private static bool IsCompiledSource(int address)
         {
             if (address >= AreaAnimatedTileObjectDefinitions.NativeListPointerTable &&

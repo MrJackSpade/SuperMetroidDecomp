@@ -6,10 +6,23 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainHandBeamInstructionProgramDefinitions))]
 internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling : IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of live spritemap operands across the three hand-beam animation stages.</summary>
     public static int PresentationWordCount => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount;
+
+    /// <summary>Returns the native address of a frame's spritemap operand.</summary>
+    /// <param name="index">Zero-based frame index across all stages.</param>
+    /// <returns>Bank-local address of the selected presentation word.</returns>
     public static ushort PresentationWordAddress(int index) => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index);
+
+    /// <summary>Mechanics words in one stage: a duration for each frame plus its external-call command.</summary>
     internal const int WordsPerStage = MotherBrainHandBeamInstructionProgramDefinitions.FramesPerStage + 1;
+
+    /// <summary>Total decoded mechanics entries across all stages and the final delete instruction.</summary>
     internal static int NativeWordCount => MotherBrainHandBeamInstructionProgramDefinitions.StageCount * WordsPerStage + 1;
+
+    /// <summary>Decodes one timer, callback, or terminal-delete mechanics entry from the compiled sequence.</summary>
+    /// <param name="index">Zero-based entry index across all stages and the terminal instruction.</param>
+    /// <returns>The native instruction address and its translated operand value.</returns>
     internal static InstructionMechanicsWord NativeWord(int index)
     {
         if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -19,6 +32,9 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
             (record == 1 ? MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes : MotherBrainHandBeamInstructionProgramDefinitions.FrameOffset(record == 0 ? 0 : record - 1)));
         return new(address, MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Reports whether a cartridge byte address belongs to a translated mechanics word.</summary>
+    /// <param name="address">Full cartridge address to check.</param>
+    /// <returns><see langword="true"/> for bytes occupied by stage timers, callback commands, or the final delete.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;

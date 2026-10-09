@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Ceres Ridley eye-fade schedule and its production palette updates against cartridge data.</summary>
+    /// <param name="rom">Cartridge address space supplying the native palette schedule and palette rows.</param>
     private static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0;
@@ -88,13 +90,22 @@ internal static partial class Program
             "the complete production schedule pass with selector ROM reads forbidden.");
     }
 
+    /// <summary>Wraps an address space to fail if production reads the native eye-fade schedule.</summary>
+    /// <param name="source">Underlying address space used for reads outside the forbidden schedule and for all writes.</param>
     private sealed class CeresRidleyEyeFadeReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads within the protected native schedule.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the guard so schedule reads are rejected.</summary>
+        /// <param name="address">Cartridge address of the byte to read.</param>
+        /// <returns>The byte returned by the underlying address space, unless the address is protected.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a byte, throwing if the address falls within the native eye-fade schedule.</summary>
+        /// <param name="address">Address of the byte to read.</param>
+        /// <returns>The underlying byte when the address is outside the protected schedule.</returns>
         public byte ReadByte(int address)
         {
             if (address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
@@ -108,6 +119,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the underlying address space.</summary>
+        /// <param name="address">Address where the byte is written.</param>
+        /// <param name="value">Byte value to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

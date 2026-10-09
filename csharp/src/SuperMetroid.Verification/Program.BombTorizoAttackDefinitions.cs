@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Bomb Torizo's swipe and explosion tables and their spawned projectile placements.</summary>
+    /// <param name="rom">ROM-backed address space used as the source for the native table comparisons.</param>
     private static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
     {
         const int swipeXAddress = 0x86a738;
@@ -113,6 +115,10 @@ internal static partial class Program
             "Bomb Torizo attack placements: all 34 native words, 22 real swipe spawns and 18 bounded explosion spawns pass with both geometry tables forbidden.");
     }
 
+    /// <summary>Builds a Bomb Torizo projectile fixture backed by the guarded address space.</summary>
+    /// <param name="bus">Guarded bus used by the enemy system during the spawn.</param>
+    /// <param name="facingRight">Whether the fixture's Bomb Torizo faces right.</param>
+    /// <returns>The configured enemy system and its Bomb Torizo body slot.</returns>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
         CreateBombTorizoAttackFixture(ISnesAddressSpace bus, bool facingRight)
     {
@@ -126,11 +132,21 @@ internal static partial class Program
         return (enemies, torizo);
     }
 
+    /// <summary>Rejects cartridge reads from Bomb Torizo's migrated attack-geometry tables and forwards other bus access.</summary>
+    /// <param name="source">Underlying address space for reads outside the forbidden geometry ranges and for writes.</param>
     private sealed class BombTorizoAttackReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-source read through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge bus address requested by the caller.</param>
+        /// <returns>The byte returned by the underlying source when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address lies in a migrated attack-geometry table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated swipe and explosion tables while forwarding other addresses.</summary>
+        /// <param name="address">Bus address to read.</param>
+        /// <returns>The underlying byte for an address outside the forbidden table ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address lies in a migrated swipe or explosion table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x86a738 and < 0x86a764 or
                 >= 0x86a859 and < 0x86a871
@@ -138,6 +154,9 @@ internal static partial class Program
                     $"Bomb Torizo attack attempted migrated geometry read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

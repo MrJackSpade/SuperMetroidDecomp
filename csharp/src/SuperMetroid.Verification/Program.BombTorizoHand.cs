@@ -206,6 +206,7 @@ internal static partial class Program
             "  Bomb Torizo hand: inventory gate, DMA, debris cadence, music, and deletion agree.");
     }
 
+    /// <summary>Verifies the compiled Bomb Torizo hand program and its draw, collision, callback, and debris data.</summary>
     private static void VerifyBombTorizoHandProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -224,13 +225,20 @@ internal static partial class Program
         Suite(nameof(VerifyHandProgramTransferDestination), () => VerifyHandProgramTransferDestination(rom));
     }
 
+    /// <summary>Rejects runtime reads from the migrated Bomb Torizo hand program and draw data.</summary>
+    /// <param name="source">Address space that handles reads outside those compiled source ranges and receives writes.</param>
     private sealed class BombTorizoHandProgramReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of rejected attempts to read a compiled Bomb Torizo hand source byte.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the guarded address-space implementation.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the hand program or draw ranges and delegates unrelated reads.</summary>
+        /// <param name="address">Full cartridge address requested by the caller.</param>
+        /// <returns>The source byte when the address is outside the migrated ranges.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= 0x84d368 and <= 0x84d3c6 or
@@ -243,6 +251,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Full cartridge address to write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

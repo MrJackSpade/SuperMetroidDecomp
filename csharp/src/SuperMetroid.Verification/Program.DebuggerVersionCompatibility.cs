@@ -5,6 +5,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks that debugger-state readers preserve compatibility with published layouts, delegate identities, and field-order-independent payloads.</summary>
     private static void VerifyDebuggerVersionCompatibility()
     {
         Suite(nameof(VerifyRoomCallbackStateIdentity), () => VerifyRoomCallbackStateIdentity());
@@ -353,6 +354,7 @@ internal static partial class Program
         static Type Resolve(string name) => DebuggerStateTypeIdentity.Resolve(name) ?? throw new InvalidDataException(name);
     }
 
+    /// <summary>Restores a pre-streaming room-level state and confirms its visual streams rebuild without cartridge reads.</summary>
     private static void VerifyLegacyRoomVisualLayoutState()
     {
         var type = typeof(RoomLevelData);
@@ -414,11 +416,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Stable method signature used to verify debugger delegate identity across published assembly versions.</summary>
+    /// <param name="state">Samus state passed through unchanged to expose the callback parameter type.</param>
+    /// <returns>The same state instance supplied by the caller.</returns>
     private static SamusState DebuggerSignatureProbe(SamusState state) => state;
 
+    /// <summary>Two-field object used to verify debugger restoration resolves serialized values by field name rather than metadata order.</summary>
     private sealed class DebuggerFieldOrderProbe
     {
+        /// <summary>First serialized value, deliberately written after <see cref="Second"/> in the compatibility fixture.</summary>
         public int First = 0;
+
+        /// <summary>Second serialized value, deliberately written before <see cref="First"/> in the compatibility fixture.</summary>
         public int Second = 0;
     }
 }

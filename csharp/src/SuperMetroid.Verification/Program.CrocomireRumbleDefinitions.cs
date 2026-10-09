@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the rumble definitions against Crocomire's native words and compares the production death-rumble sequence while migrated source reads are blocked.</summary>
+    /// <param name="rom">Address space containing the cartridge rumble words and palette source data.</param>
     private static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;
@@ -129,6 +131,13 @@ internal static partial class Program
             $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
     }
 
+    /// <summary>Advances one reference step by reading the native rumble table and applying its target, timing, and terminator rules.</summary>
+    /// <param name="rom">Address space supplying the native rumble words.</param>
+    /// <param name="index">Current byte offset into the rumble table; updated to the next target or terminal marker.</param>
+    /// <param name="yOffset">Current rumble vertical offset, updated toward the selected target.</param>
+    /// <param name="cooldown">Remaining wait before a negative target advances; updated when timing words are consumed.</param>
+    /// <param name="delta">Per-step vertical movement applied while approaching a target.</param>
+    /// <param name="deathIndex">Death-sequence index advanced when the table terminator is reached.</param>
     private static void StepCrocomireRumbleReference(
         ISnesAddressSpace rom,
         ref ushort index,
@@ -176,11 +185,19 @@ internal static partial class Program
             : unchecked((ushort)(yOffset + delta));
     }
 
+    /// <summary>Address-space wrapper that fails if production rumble or migrated Crocomire palette code reads cartridge data.</summary>
+    /// <param name="source">Underlying address space used for reads outside the forbidden ranges and for all writes.</param>
     private sealed class CrocomireRumbleReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the guard so forbidden source ranges are rejected consistently.</summary>
+        /// <param name="address">Full SNES address requested by the caller.</param>
+        /// <returns>The wrapped byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to native rumble and migrated palette data, forwarding other reads to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The wrapped byte when the address is outside all blocked ranges.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xa498ca and < 0xa4990a ||
                 address >= CrocomirePaletteRomData.FightBodySource &&
@@ -190,6 +207,9 @@ internal static partial class Program
                     $"Crocomire rumble attempted migrated data read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte stored at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -19,13 +19,23 @@ internal sealed class EvidencedSoundAcknowledgements
     /// <summary>$064D..$064F: APU_CurrentSoundLib1..3, the byte each waiting state compares.</summary>
     private const int CurrentSoundLib1 = 0x064d;
 
+    /// <summary>Native sound-handler state in which a library waits for the requested sound byte to be echoed.</summary>
     private const byte WaitForRequestAcknowledgement = 1;
+
+    /// <summary>Native sound-handler state in which a library waits for the cleared request byte to be echoed.</summary>
     private const byte WaitForClearAcknowledgement = 3;
+
+    /// <summary>Number of sound-effect libraries with independent SPC acknowledgement ports.</summary>
     private const int LibraryCount = 3;
 
+    /// <summary>Sound-handler states captured after the preceding native update, one per sound-effect library.</summary>
     private readonly byte[] states = new byte[LibraryCount];
+
+    /// <summary>Current-sound bytes captured from native memory, used as the values each waiting library compares.</summary>
     private readonly byte[] currents = new byte[LibraryCount];
 
+    /// <summary>Captures the native sound-handler state and current-sound bytes used to interpret the next update.</summary>
+    /// <param name="nativeMemory">Native memory image containing the three libraries' state and current-sound bytes.</param>
     public EvidencedSoundAcknowledgements(byte[] nativeMemory) => Capture(nativeMemory);
 
     /// <summary>

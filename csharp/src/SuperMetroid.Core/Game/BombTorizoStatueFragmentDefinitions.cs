@@ -1,6 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One physical fragment emitted when Bomb Torizo's statue hand breaks.</summary>
+/// <param name="InstructionList">Native instruction-list pointer selected for this fragment's debris.</param>
+/// <param name="XOffset">Signed horizontal spawn offset from the statue fragment origin.</param>
+/// <param name="YOffset">Signed vertical spawn offset from the statue fragment origin.</param>
+/// <param name="YVelocity">Initial signed fixed-point vertical velocity assigned to the fragment.</param>
+/// <param name="Acceleration">Per-update vertical velocity increment for the fragment's fall.</param>
 internal readonly record struct BombTorizoStatueFragmentDefinition(
     ushort InstructionList,
     short XOffset,

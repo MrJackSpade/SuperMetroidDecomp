@@ -29,7 +29,10 @@ internal abstract class GunshipInstructionProgramDefinitions
     /// <summary><c>InstList_ShipBottom</c> at $A2:A61C.</summary>
     public const ushort BottomHull = 0xa61c;
 
+    /// <summary>Number of compiled duration, branch, and hull-control words across the gunship instruction lists.</summary>
     public static int MechanicsWordCount => 28;
+
+    /// <summary>Number of interleaved hull and entrance-pad visual-selector operands supplied by presentation assets.</summary>
     public static int PresentationWordCount => 22;
 
     /// <summary>Opening begins with a40-tick wait and a24-tick intermediate hold, then accelerates8..4; closing reverses the transition.</summary>
@@ -40,6 +43,10 @@ internal abstract class GunshipInstructionProgramDefinitions
         _ => Math.Clamp(13 - frame, 4, 8),
     });
 
+    /// <summary>Resolves one non-presentation word from the opening, closing, or hull instruction sequence.</summary>
+    /// <param name="index">Zero-based position in the 28-word mechanics catalog.</param>
+    /// <returns>The bank-local address and value of the selected timing or control word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside <see cref="MechanicsWordCount"/>.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -56,6 +63,10 @@ internal abstract class GunshipInstructionProgramDefinitions
             local % 2 == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Maps one presentation selector index to its visual operand in the gunship lists.</summary>
+    /// <param name="index">Zero-based position among the 22 presentation-owned operands.</param>
+    /// <returns>The bank-local address of the selected hull or entrance-pad selector word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -63,6 +74,10 @@ internal abstract class GunshipInstructionProgramDefinitions
         if (index < 20) return (ushort)(EntrancePadClosing + 2 + 4 * (index - 11));
         return (ushort)(TopHull + 2 + 6 * (index - 20));
     }
+    /// <summary>Looks up the compiled control value at a bank-local instruction address.</summary>
+    /// <param name="address">Address of a mechanics-owned duration, branch, or hull-control word.</param>
+    /// <returns>The compiled word value at <paramref name="address"/>.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="address"/> is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

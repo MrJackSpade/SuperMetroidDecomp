@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A7 shot-AI callback used by Phantoon's invulnerable shell hitboxes.</summary>
     private const ushort PhantoonNoOpHitboxCallback = 0x804c;
+
+    /// <summary>Damage total that closes Phantoon's eye, or starts rage for a qualifying Super Missile.</summary>
     private const ushort PhantoonDamageThreshold = 300;
 
     /// <summary>
@@ -222,6 +225,13 @@ public sealed partial class RoomEnemySystem
         state.Tentacles!.Parameter2 = 2;
     }
 
+    /// <summary>
+    /// Ends the current vulnerable window after its damage threshold is reached and installs
+    /// the closed-eye, invulnerable presentation for either the ordinary or enraged transition.
+    /// </summary>
+    /// <param name="body">Phantoon's body slot, whose AI and collision state are updated.</param>
+    /// <param name="state">Linked body-part state used to close the eye and reset damage accumulation.</param>
+    /// <param name="enraged"><see langword="true"/> to enter the rage transition; otherwise close after ordinary damage.</param>
     private static void ClosePhantoonAfterDamage(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -243,6 +253,9 @@ public sealed partial class RoomEnemySystem
         tentacles.Parameter2 = 2;
     }
 
+    /// <summary>Starts the fatal-swoop or regular death transition after Phantoon's health reaches zero.</summary>
+    /// <param name="body">Phantoon's body slot, used to select the appropriate death AI function.</param>
+    /// <param name="state">Linked body-part and background state updated for the death presentation.</param>
     private static void BeginPhantoonDeathSequence(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -280,6 +293,8 @@ public sealed partial class RoomEnemySystem
         tentacles.Parameter2 |= 0x0100;
     }
 
+    /// <summary>Copies the health-band colors selected by Phantoon's remaining health into his body palette.</summary>
+    /// <param name="body">Phantoon's body slot, whose health selects one of the cartridge palette bands.</param>
     private void CopyPhantoonHealthPalette(RoomEnemySlot body)
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));

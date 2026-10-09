@@ -49,15 +49,23 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition> All { get; } = new DefinitionSequence();
 
+    /// <summary>Provides the fade-in and fade-out definitions by constructing each requested entry on demand.</summary>
     private sealed class DefinitionSequence : IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the two cinematic text-fade programs in native execution order.</summary>
         public int Count => 2;
+
+        /// <summary>Gets a fade definition by its position in the native sequence.</summary>
+        /// <param name="index">Zero for fade-in or one for fade-out.</param>
+        /// <returns>The requested text-fade program definition.</returns>
         public PlanetZebesTextPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => new(PlanetZebesTextPaletteFxProgramOwner.FadeIn),
             1 => new(PlanetZebesTextPaletteFxProgramOwner.FadeOut),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates fade-in followed by fade-out.</summary>
+        /// <returns>An enumerator that constructs each definition as it is requested.</returns>
         public IEnumerator<PlanetZebesTextPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -81,6 +89,8 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic PLANET ZEBES text-fade control program.</summary>
 public sealed class PlanetZebesTextPaletteFxProgramDefinition
 {
+    /// <summary>Creates the control-program view for one cinematic text-fade owner.</summary>
+    /// <param name="owner">Selects whether the definition describes the fade-in or fade-out program.</param>
     internal PlanetZebesTextPaletteFxProgramDefinition(PlanetZebesTextPaletteFxProgramOwner owner) => Owner = owner;
 
     /// <summary>The mutually exclusive text-fade owner.</summary>

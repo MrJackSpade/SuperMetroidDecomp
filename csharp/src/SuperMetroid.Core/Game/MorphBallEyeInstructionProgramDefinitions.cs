@@ -29,15 +29,23 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions
     /// <summary><c>InstList_Eye_Mount_FacingUp</c> at $A8:904A.</summary>
     internal const ushort MountFacingUp = 0x904a;
 
+    /// <summary>Number of tracking frames in the active eye-body instruction list.</summary>
     internal const int ActiveFrameCount = 16;
 
     // Authored eyelid cadence (reviewed under #1165): closing uses these holds forward,
     // opening reverses them after its activation delay; the reversal is calculated.
+    /// <summary>Authored frame holds used by the closing eyelid sequence and reversed for opening.</summary>
     private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
+    /// <summary>Number of compiled instruction words across the eye-body and mount programs.</summary>
     public static int MechanicsWordCount => 46;
+
+    /// <summary>Number of spritemap operands interleaved with the compiled instruction streams.</summary>
     public static int PresentationWordCount => 36;
 
+    /// <summary>Resolves an ordinal mechanics entry to its bank-relative instruction address and encoded value.</summary>
+    /// <param name="index">Zero-based index in the combined eye-body and mount mechanics sequence.</param>
+    /// <returns>The native instruction address and value for that entry.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));

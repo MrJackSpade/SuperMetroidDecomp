@@ -28,9 +28,20 @@ internal abstract class SkulteraInstructionProgramDefinitions
     private static readonly ushort[] TurnHalfDurations = [13, 10, 8, 6];
     /// <summary>$A3:902C/9062: swimming cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwimmingDuration = 14;
+
+    /// <summary>Number of compiled mechanics words across Skultera's two swim and two turn programs.</summary>
     public static int MechanicsWordCount => 32;
+
+    /// <summary>Number of compiled spritemap pointers, split evenly between left-starting and right-starting animations.</summary>
     public static int PresentationWordCount => 22;
 
+    /// <summary>
+    /// Resolves a mechanics-word position to its instruction address and operand value.
+    /// The ordering covers left swimming and its turn before the mirrored right-side programs.
+    /// </summary>
+    /// <param name="index">Zero-based position in the compiled mechanics-word sequence.</param>
+    /// <returns>The instruction address and value stored at that position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The position is outside the compiled sequence.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -55,6 +66,10 @@ internal abstract class SkulteraInstructionProgramDefinitions
             ? EnemyInstructionCodePointers.Instruction_Skultera_SetTurnFinishedFlag : CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Returns the instruction address of one compiled spritemap pointer.</summary>
+    /// <param name="index">Zero-based position in the 22-pointer presentation sequence.</param>
+    /// <returns>The address operand that points to the corresponding spritemap.</returns>
+    /// <exception cref="IndexOutOfRangeException">The position is outside the presentation sequence.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -64,6 +79,9 @@ internal abstract class SkulteraInstructionProgramDefinitions
             : (ushort)((startsLeft ? TurningRight : TurningLeft) + 2 + 4 * (local - 3));
     }
 
+    /// <summary>Checks whether an instruction address is one of Skultera's compiled spritemap-pointer operands.</summary>
+    /// <param name="address">Instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address occurs in the presentation sequence; otherwise, <see langword="false"/>.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)

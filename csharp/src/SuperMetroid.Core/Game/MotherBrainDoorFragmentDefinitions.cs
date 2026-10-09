@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical spawn and signed 8.8 velocity for one exploded escape-door fragment.</summary>
+/// <param name="XOffset">Horizontal spawn offset from the door in pixels.</param>
+/// <param name="YOffset">Vertical spawn offset from the door in pixels.</param>
+/// <param name="XVelocity">Signed 8.8 horizontal velocity applied to the fragment.</param>
+/// <param name="YVelocity">Signed 8.8 vertical velocity selected for the fragment's scatter arc.</param>
 internal readonly record struct MotherBrainDoorFragmentDefinition(
     short XOffset,
     short YOffset,
@@ -10,6 +14,7 @@ internal readonly record struct MotherBrainDoorFragmentDefinition(
 /// <summary>Compiled physical definitions for Mother Brain's eight escape-door fragments.</summary>
 internal static class MotherBrainDoorFragmentDefinitions
 {
+    /// <summary>Number of parameter-indexed fragment trajectories encoded by the scatter table.</summary>
     internal const int Count = 8;
 
     /// <summary>$86:C9B2-$86:C9D1, interleaved with the X velocity: the fragments' authored scatter speeds.</summary>

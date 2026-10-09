@@ -10,6 +10,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Dispatches Kraid's death-state updates, from palette fade through tilemap restoration.</summary>
+    /// <param name="body">The Kraid body slot whose AI state drives the sequence.</param>
+    /// <param name="state">Persistent state shared by Kraid's death and background work.</param>
+    /// <param name="vramWriteQueue">The NMI-owned transfer queue, or <see langword="null"/> for isolated frame execution.</param>
+    /// <param name="cameraX">The room camera position used when finalizing Kraid's dead state.</param>
     private void RunKraidDeathFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -141,6 +146,9 @@ public sealed partial class RoomEnemySystem
         MarkKraidPartDead(body);
     }
 
+    /// <summary>Starts the live death sequence, including palette setup and death handling for attached enemies.</summary>
+    /// <param name="body">Kraid's body slot, whose function and head instruction state are initialized.</param>
+    /// <param name="state">The death state whose hurt-frame guard is checked.</param>
     private void InitializeKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
         if (state.HurtFrame != 0)
@@ -166,6 +174,9 @@ public sealed partial class RoomEnemySystem
         _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);
     }
 
+    /// <summary>Advances Kraid's sinking animation, scheduled floor effects, and final room cleanup.</summary>
+    /// <param name="body">The body slot whose position and AI function advance during the sink.</param>
+    /// <param name="state">The timers, scheduled-event counters, and completion data for the death sequence.</param>
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = ProcessKraidHeadInstruction(body, state);
@@ -210,6 +221,9 @@ public sealed partial class RoomEnemySystem
         GradualColorChange.Numerator = 0;
     }
 
+    /// <summary>Runs the retail callback scheduled for Kraid's current sinking row, if one exists.</summary>
+    /// <param name="body">The body slot whose Y position selects the callback.</param>
+    /// <param name="state">The death state whose sink-table event count is updated.</param>
     private void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
         if (KraidSinkSchedule.CallbackAt(body.YPosition) is ushort function)
@@ -229,6 +243,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Restores one quarter of the BG3 artwork and advances to the next death phase.</summary>
+    /// <param name="body">Kraid's body slot, which stores the next AI function.</param>
+    /// <param name="state">The death state whose completed transfer count is incremented.</param>
+    /// <param name="transferIndex">The zero-based quarter of the standard BG3 asset to upload.</param>
+    /// <param name="next">The AI function selected after this quarter is restored.</param>
+    /// <param name="vramWriteQueue">The NMI transfer queue, or <see langword="null"/> for direct isolated execution.</param>
     private void AdvanceKraidDeathBg3Transfer(
         RoomEnemySlot body,
         KraidEnemyState state,

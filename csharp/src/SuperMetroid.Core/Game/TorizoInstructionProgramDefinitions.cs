@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract partial class TorizoInstructionProgramDefinitions
 {
+    /// <summary>Native bank containing the compiled Bomb and Golden Torizo instruction lists.</summary>
     internal const byte Bank = 0xaa;
 
     /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c> at $AA:B0E5; native instruction-list identity.</summary>
@@ -398,11 +399,22 @@ internal abstract partial class TorizoInstructionProgramDefinitions
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6; native instruction callback operand.</summary>
     private const ushort Function_GoldenTorizo_NormalMovement = 0xd5e6;
 
+    /// <summary>Validated word layout shared by the Bomb Torizo and Golden Torizo instruction programs.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         [.. SharedItems, .. BombLeftItems, .. BombRightItems, .. GoldenLeftItems, .. GoldenRightItems]);
+
+    /// <summary>Number of visual operands embedded in the combined instruction layout.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native address of a visual operand by its layout order.</summary>
+    /// <param name="index">Zero-based index among the presentation slots.</param>
+    /// <returns>The bank-local address of the selected presentation word.</returns>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a mechanics operand from the compiled Torizo lists, rejecting visual slots and uncompiled addresses.</summary>
+    /// <param name="address">Bank-local address of the requested instruction word.</param>
+    /// <returns>The mechanics word stored at the address.</returns>
+    /// <exception cref="InvalidDataException">The address has no compiled mechanics definition.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

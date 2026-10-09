@@ -127,6 +127,10 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Native program bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
+    /// <summary>
+    /// Compiles Yard's crawling, turning, hiding, and airborne instruction entries in native
+    /// order while leaving interleaved sprite-map operands to extracted presentation art.
+    /// </summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc8c6),
         Entry(OutsideTurnUpsideRightMovingUp),
@@ -387,11 +391,20 @@ internal abstract class YardInstructionProgramDefinitions
         Frame(3),
         Frame(3),
         Op(CommonEnemyInstructionCodes.Goto, AirborneFacingRightLoop));
+    /// <summary>Number of sprite-map operands in the compiled Yard programs.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 
+    /// <summary>Resolves a native instruction address to its compiled mechanics value.</summary>
+    /// <param name="address">Bank-local address of the mechanics word.</param>
+    /// <returns>The word value associated with the address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled Yard program.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value : throw NotCompiled(address);
 
+    /// <summary>Returns the native instruction address of a sprite-map operand by slot index.</summary>
+    /// <param name="index">Zero-based index of the presentation operand.</param>
+    /// <returns>The bank-local address containing that operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -402,6 +415,9 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Tests one native operand for an installed presentation slot.</summary>
     internal static bool IsPresentationWordAddress(ushort address) => Layout.IsPresentationWord(address);
 
+    /// <summary>Creates the failure reported when a native mechanics pointer has no compiled definition.</summary>
+    /// <param name="address">Unrecognized bank-local mechanics address.</param>
+    /// <returns>An exception describing the unresolved Yard instruction pointer.</returns>
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Yard instruction mechanics pointer $A3:{address:X4} is not compiled.");
 }

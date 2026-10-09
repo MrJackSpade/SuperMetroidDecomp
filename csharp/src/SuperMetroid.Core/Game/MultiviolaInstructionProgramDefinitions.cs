@@ -16,8 +16,15 @@ internal abstract class MultiviolaInstructionProgramDefinitions
     /// <summary>$A2:B314 Instruction_Common_GotoY after the timed loop.</summary>
     private const ushort LoopOpcode = Flying + TimedFrameCount * 4;
 
+    /// <summary>Number of compiled timing and loop-control words in the animation program.</summary>
     public static int MechanicsWordCount => TimedFrameCount + 2;
+
+    /// <summary>Number of interleaved spritemap selector words for the fourteen timed poses.</summary>
     public static int PresentationWordCount => TimedFrameCount;
+
+    /// <summary>Gets a timed-pose or loop-control word by its mechanics slot.</summary>
+    /// <param name="index">The zero-based slot in the compiled mechanics-word sequence.</param>
+    /// <returns>The instruction address and fixed timer or loop operand stored in that slot.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -25,11 +32,17 @@ internal abstract class MultiviolaInstructionProgramDefinitions
             : new((ushort)(LoopOpcode + (index - TimedFrameCount) * 2),
                 index == TimedFrameCount ? CommonEnemyInstructionCodes.Goto : Flying);
     }
+    /// <summary>Gets the address of one pose's interleaved spritemap selector.</summary>
+    /// <param name="index">The zero-based timed-pose index, from zero through thirteen.</param>
+    /// <returns>The bank-$A2 address containing that pose's presentation word.</returns>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= TimedFrameCount) throw new IndexOutOfRangeException();
         return (ushort)(Flying + index * 4 + 2);
     }
+    /// <summary>Looks up a compiled timing or loop-control operand by instruction address.</summary>
+    /// <param name="address">The bank-$A2 address of a mechanics word.</param>
+    /// <returns>The fixed word encoded at that instruction address.</returns>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

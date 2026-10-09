@@ -37,6 +37,11 @@ internal static class EscapeEtecoonDefinitions
 }
 
 /// <summary>One escape Etecoon's initial position, behavior, animation, and speed.</summary>
+/// <param name="XPosition">Initial horizontal room coordinate in pixels.</param>
+/// <param name="YPosition">Initial vertical room coordinate in pixels.</param>
+/// <param name="PreInstruction">Behavior routine selected for the actor before its instruction list advances.</param>
+/// <param name="InstructionList">Bank-local instruction-list address for the actor's initial animation or wait state.</param>
+/// <param name="HorizontalSpeed">Initial signed 8.8 horizontal velocity used by the actor's movement routine.</param>
 internal readonly record struct EscapeEtecoonInitialization(
     ushort XPosition,
     ushort YPosition,

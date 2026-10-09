@@ -80,6 +80,9 @@ public sealed partial class RoomEnemySystem
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 
+    /// <summary>Imports the current physical body and head state into the shared rainbow-beam sequence before it advances.</summary>
+    /// <param name="state">Encounter records containing the live body, head, and neck values.</param>
+    /// <param name="sequence">Sequence whose actor snapshot is refreshed from those physical records.</param>
     private static void SynchronizeLiveMotherBrainRainbowActor(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence)
@@ -289,6 +292,8 @@ public sealed partial class RoomEnemySystem
         RunMotherBrainRainbowChargingPreInstruction(projectile);
     }
 
+    /// <summary>Keeps the charging projectile pinned to the physical head during its instruction-list updates.</summary>
+    /// <param name="projectile">Charging projectile whose position is updated from the current head slot.</param>
     private void RunMotherBrainRainbowChargingPreInstruction(
         RoomEnemyProjectileSlot projectile)
     {
@@ -319,6 +324,9 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(samusYBeforeMovement + request.YOffset));
     }
 
+    /// <summary>Repositions an explosion projectile relative to Samus while retaining its stored signed offsets.</summary>
+    /// <param name="projectile">Explosion projectile carrying the signed X and Y offsets in its velocity fields.</param>
+    /// <param name="samus">Live actor used as the explosion's moving position reference.</param>
     private static void RunMotherBrainRainbowExplosionPreInstruction(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
@@ -329,6 +337,9 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(target.YPosition + projectile.YVelocity));
     }
 
+    /// <summary>Copies a requested sprite-tile transfer from installed artwork or mutable WRAM into VRAM.</summary>
+    /// <param name="transfer">Source, byte count, and VRAM destination specified by the encounter sequence.</param>
+    /// <exception cref="InvalidDataException">The transfer does not match an installed artwork page or supported source.</exception>
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
@@ -428,6 +439,10 @@ public sealed partial class RoomEnemySystem
         _vram!.LoadBytes(transfer.VramDestination * 2, bytes);
     }
 
+    /// <summary>Translates a shared sequence phase into the corresponding physical Mother Brain body function.</summary>
+    /// <param name="phase">Rainbow-beam or later encounter phase currently owned by the shared sequence.</param>
+    /// <returns>The room body's function identifier for that phase.</returns>
+    /// <exception cref="InvalidDataException">The phase has no live room-function mapping.</exception>
     private static MotherBrainBodyFunction MapLiveMotherBrainRainbowFunction(
         MotherBrainRainbowBeamAttackPhase phase) => phase switch
         {

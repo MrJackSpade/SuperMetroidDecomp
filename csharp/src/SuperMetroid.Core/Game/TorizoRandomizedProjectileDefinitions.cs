@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Game;
 /// One bank-$86 Torizo launch tuple whose two velocity words receive independent signed
 /// random-byte displacements when the projectile is initialized.
 /// </summary>
+/// <param name="InstructionList">Projectile animation instruction-list pointer selected for the launch.</param>
+/// <param name="XOffset">Signed horizontal spawn displacement from the Torizo's position.</param>
+/// <param name="BaseXVelocity">Horizontal velocity before the independent random-byte adjustment.</param>
+/// <param name="YOffset">Signed vertical spawn displacement from the Torizo's position.</param>
+/// <param name="BaseYVelocity">Vertical velocity before the independent random-byte adjustment.</param>
 internal readonly record struct TorizoRandomizedProjectileDefinition(
     ushort InstructionList,
     short XOffset,

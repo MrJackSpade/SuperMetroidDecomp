@@ -17,6 +17,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusState
 {
 
+    /// <summary>Backs <see cref="Pose"/> and seeds the collision snapshot with the default pose.</summary>
     private byte _pose = SamusPoseIds.FacingRightNormalPose;
 
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
@@ -449,10 +450,16 @@ public sealed partial class SamusState
     }
 
 
+    /// <summary>Describes the result of testing a pose expansion against nearby terrain and enemies.</summary>
     private enum LargerPoseCollisionOutcome
     {
+        /// <summary>The requested pose fits, possibly after shifting Samus to preserve clearance.</summary>
         Allowed,
+
+        /// <summary>The requested pose cannot fit; retain the pose that was active before the change.</summary>
         RetainSource,
+
+        /// <summary>Simultaneous upper and lower obstruction requires the stable crouching pose.</summary>
         CrouchFallback,
     }
 

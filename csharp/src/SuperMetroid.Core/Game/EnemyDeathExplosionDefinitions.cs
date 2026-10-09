@@ -3,10 +3,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The five mutually exclusive enemy-death animation variants.</summary>
 internal enum EnemyDeathAnimation : ushort
 {
+    /// <summary>Uses the short explosion sequence for an enemy death.</summary>
     SmallExplosion = 0,
+
+    /// <summary>Uses the sequence for an enemy killed by colliding with Samus.</summary>
     KilledBySamusContact = 1,
+
+    /// <summary>Uses the standard enemy-death explosion sequence.</summary>
     NormalExplosion = 2,
+
+    /// <summary>Uses the smaller Kraid-specific death explosion sequence.</summary>
     MiniKraidExplosion = 3,
+
+    /// <summary>Uses the large enemy-death explosion sequence.</summary>
     BigExplosion = 4,
 }
 

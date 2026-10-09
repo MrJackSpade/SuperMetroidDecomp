@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Fallback eight-bit projectile frame counter advanced by standalone projectile updates without an NMI frame value.</summary>
     private byte _standaloneEnemyProjectileFrameCounter8;
 
     /// <summary>Allocates and initializes enemy projectile <c>$86:F498</c>.</summary>
@@ -81,6 +82,8 @@ public sealed partial class RoomEnemySystem
             SpawnFallingSparkTrail(projectile);
     }
 
+    /// <summary>Applies the aliased 16.16 vertical delta, carrying accumulated fractional motion into the Y position.</summary>
+    /// <param name="projectile">Falling spark whose vertical position and subposition are advanced.</param>
     private static void AddFallingSparkVerticalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
@@ -90,6 +93,8 @@ public sealed partial class RoomEnemySystem
             projectile.YPosition + projectile.YVelocity + (fraction >> 16)));
     }
 
+    /// <summary>Applies the 16.16 horizontal delta stored in the projectile's generic variables.</summary>
+    /// <param name="projectile">Falling spark whose horizontal position and subposition are advanced.</param>
     private static void AddFallingSparkHorizontalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
@@ -99,6 +104,8 @@ public sealed partial class RoomEnemySystem
             projectile.XPosition + projectile.Variable1 + (fraction >> 16)));
     }
 
+    /// <summary>Switches a floor-contact spark to its impact animation and configures the aliased velocity words for the upward arc.</summary>
+    /// <param name="projectile">Falling spark that has reached the floor.</param>
     private static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer = FallingSparkInstructionProgramDefinitions.HitFloor;
@@ -122,6 +129,8 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(projectile.YPosition - 2));
     }
 
+    /// <summary>Emits a falling-spark trail sprite object at the projectile's current position and graphics index.</summary>
+    /// <param name="projectile">Falling spark supplying the trail's position and graphics selection.</param>
     private void SpawnFallingSparkTrail(RoomEnemyProjectileSlot projectile)
     {
         _ = SpawnRoomSpriteObject(

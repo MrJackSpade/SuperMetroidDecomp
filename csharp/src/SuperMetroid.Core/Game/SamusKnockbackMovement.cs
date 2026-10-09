@@ -414,6 +414,9 @@ public static class SamusKnockbackMovement
         EndWithoutPoseChange(samus);
     }
 
+    /// <summary>Completes knockback without changing the pose or restarting its animation.</summary>
+    /// <param name="samus">Player state whose knockback-owned movement flags and velocity are finalized.</param>
+    /// <returns>A result indicating that this frame did not report a landing.</returns>
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
     {
         // `$90:DE40` republishes the current pose, so UpdateSamusPose neither reloads its
@@ -422,6 +425,9 @@ public static class SamusKnockbackMovement
         return FinishKnockback(samus);
     }
 
+    /// <summary>Restores ordinary movement ownership and clears the transient knockback state.</summary>
+    /// <param name="samus">Player state whose knockback and incompatible movement flags are cleared.</param>
+    /// <returns>A default result with no landing reported.</returns>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
         // The native expiry command restores the normal input pointer as well as
@@ -444,6 +450,13 @@ public static class SamusKnockbackMovement
         return new KnockbackMovementResult();
     }
 
+    /// <summary>Moves Samus vertically through the shared speed-calculating aerial path used by upward knockback.</summary>
+    /// <param name="bus">Address space used by movement and collision logic.</param>
+    /// <param name="level">Room geometry against which vertical movement is resolved.</param>
+    /// <param name="samus">Player state whose vertical motion is advanced.</param>
+    /// <param name="nmiFrameCounter">Native frame counter used by collision reactions.</param>
+    /// <param name="plms">Optional room PLM owner receiving collision reactions.</param>
+    /// <returns>The shared aerial routine's vertical collision and displacement result.</returns>
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -467,6 +480,13 @@ public static class SamusKnockbackMovement
             plms: plms);
     }
 
+    /// <summary>Moves Samus downward using her externally supplied vertical displacement without recalculating speed.</summary>
+    /// <param name="bus">Address space used by vertical collision handling.</param>
+    /// <param name="level">Room geometry against which downward movement is resolved.</param>
+    /// <param name="samus">Player state whose vertical motion is advanced.</param>
+    /// <param name="nmiFrameCounter">Native frame counter used to select collision scan order.</param>
+    /// <param name="plms">Optional room PLM owner receiving collision reactions.</param>
+    /// <returns>The block-collision result for the requested downward displacement.</returns>
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -491,5 +511,6 @@ public static class SamusKnockbackMovement
 }
 
 /// <summary>Collision and lifetime result from one `$90:DF38` frame.</summary>
+/// <param name="Landed">Whether downward knockback collided with the floor during this frame.</param>
 public readonly record struct KnockbackMovementResult(
     bool Landed = false);

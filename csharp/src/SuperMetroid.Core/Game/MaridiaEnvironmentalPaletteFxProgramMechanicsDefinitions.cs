@@ -56,9 +56,16 @@ public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>The sand-pit, sand-fall, and waterfall programs in native definition order, calculated without cached records.</summary>
     public static IReadOnlyList<MaridiaEnvironmentalPaletteFxProgramDefinition> All { get; } = new DefinitionSequence();
 
+    /// <summary>Creates the three program definitions on demand in native setup order.</summary>
     private sealed class DefinitionSequence : IReadOnlyList<MaridiaEnvironmentalPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the number of Maridia environmental palette programs.</summary>
         public int Count => 3;
+
+        /// <summary>Creates the definition at the requested position in native setup order.</summary>
+        /// <param name="index">Zero-based position: sand pits, sand falls, then background waterfalls.</param>
+        /// <returns>A fresh definition for the selected environmental palette program.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the three positions.</exception>
         public MaridiaEnvironmentalPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => new(MaridiaEnvironmentalPaletteOwner.SandPits),
@@ -66,6 +73,9 @@ public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
             2 => new(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+
+        /// <summary>Enumerates the three definitions in native setup order.</summary>
+        /// <returns>An enumerator over the sand-pit, sand-fall, and background-waterfall programs.</returns>
         public IEnumerator<MaridiaEnvironmentalPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -89,6 +99,8 @@ public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Maridia environmental palette control program.</summary>
 public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
 {
+    /// <summary>Selects the environmental palette program whose mechanics are represented by this definition.</summary>
+    /// <param name="owner">One of the mutually exclusive Maridia palette animation owners.</param>
     internal MaridiaEnvironmentalPaletteFxProgramDefinition(MaridiaEnvironmentalPaletteOwner owner) => Owner = owner;
 
     /// <summary>The environmental animation represented by this program.</summary>

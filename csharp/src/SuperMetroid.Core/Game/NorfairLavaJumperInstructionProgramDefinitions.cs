@@ -26,9 +26,13 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
     internal const ushort AnimationFinishedCallback = 0xbe8e;
 
     // Jump pose holds are authored animation cadence (reviewed under #1165).
+    /// <summary>Cartridge-authored update durations for the seven successive jump poses.</summary>
     private static readonly ushort[] JumpHolds = [1, 5, 9, 7, 3, 10, 1];
 
+    /// <summary>Number of compiled timing and control words in the hidden, jump, and follower programs.</summary>
     public static int MechanicsWordCount => 23;
+
+    /// <summary>Number of interleaved spritemap operands exposed for installed visual compositions.</summary>
     public static int PresentationWordCount => 14;
 
     /// <summary>
@@ -54,6 +58,10 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Maps a presentation-selector index to its operand address in the parent or follower instruction lists.</summary>
+    /// <param name="index">Zero-based position among the hidden, jump, and follower visual selectors.</param>
+    /// <returns>The bank-local address of the selected interleaved spritemap operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -62,6 +70,10 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
         if (index < 10) return (ushort)(Follower + 2 + (index - 8) * 4);
         return (ushort)(Follower + 14 + (index - 10) * 4);
     }
+    /// <summary>Finds the compiled timing or control value assigned to one instruction-list address.</summary>
+    /// <param name="address">Bank-local address of a mechanics-owned word.</param>
+    /// <returns>The compiled duration, callback, branch, or sleep-command value at that address.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="address"/> is not part of the compiled mechanics layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

@@ -4,7 +4,10 @@ public sealed partial class SuperMetroidGame
 {
     // NMI continuations still owed by the current $82:8000 loading dispatch, and the
     // dispatcher state it selects after its final wait returns.
+    /// <summary>Number of loading-dispatch NMI continuations still required before completion.</summary>
     private int gameLoadingWaitsRemaining;
+
+    /// <summary>Dispatcher state to enter when the loading dispatch's final wait returns.</summary>
     private GameLoadingCompletion gameLoadingCompletion;
 
     /// <summary>
@@ -64,7 +67,12 @@ public sealed partial class SuperMetroidGame
 /// </remarks>
 internal enum GameLoadingCompletion
 {
+    /// <summary>Begins the ordinary gameplay fade-in after loading finishes.</summary>
     GameplayFadeIn,
+
+    /// <summary>Begins the fade-in that continues the Ceres arrival sequence.</summary>
     CeresArrivalFadeIn,
+
+    /// <summary>Enters main gameplay directly after loading finishes.</summary>
     MainGameplay,
 }

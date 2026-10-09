@@ -5,14 +5,20 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Crocomire's private BG2 scroll and sinking-image ownership.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>BG2 tile index used to erase Crocomire imagery from the working tilemap.</summary>
     private const ushort CrocomireBlankBg2Tile = 0x0338;
 
+    /// <summary>Initializes every word of Crocomire's mutable BG2 tilemap to the blank tile.</summary>
     private void ClearCrocomireBg2WorkingTilemap()
     {
         Span<ushort> tilemap = RequireCrocomireDeath().MutableBg2WorkingTilemap;
         tilemap.Fill(CrocomireBlankBg2Tile);
     }
 
+    /// <summary>Copies a contiguous range of working BG2 tilemap words to the matching VRAM addresses.</summary>
+    /// <param name="startWord">First word index in the working tilemap and VRAM layout.</param>
+    /// <param name="wordCount">Number of consecutive words to transfer.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The requested range falls outside the working tilemap.</exception>
     private void TransferCrocomireBg2Words(int startWord, int wordCount)
     {
         if (startWord < 0 || wordCount < 0 ||
@@ -27,6 +33,8 @@ public sealed partial class RoomEnemySystem
             wordIncrement: 1);
     }
 
+    /// <summary>Sets the per-scanline BG2 scroll table to one vertical offset for the whole screen.</summary>
+    /// <param name="verticalScroll">BG2 vertical scroll value applied to every scanline.</param>
     private void FillCrocomireBg2ScrollTable(ushort verticalScroll) =>
         RequireCrocomireDeath().MutableBg2ScrollByScanline.Fill(verticalScroll);
 
@@ -85,6 +93,9 @@ public sealed partial class RoomEnemySystem
         CrocomireBg2HorizontalScroll = horizontal;
     }
 
+    /// <summary>Calculates the BG2 horizontal offset for the body while it lies within the camera's active view.</summary>
+    /// <param name="bodyX">Crocomire body position in room coordinates.</param>
+    /// <returns>The camera-relative offset when its wrapped magnitude is below 284; otherwise the cartridge fallback offset 256.</returns>
     private ushort CalculateOnScreenCrocomireBg2Horizontal(ushort bodyX)
     {
         ushort relative = unchecked((ushort)(_crocomireCameraX - bodyX + 51));

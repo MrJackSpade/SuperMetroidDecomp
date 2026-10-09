@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class MotherBrainRainbowBeamHdmaState
 {
+    /// <summary>Per-scanline WH0/WH1 words produced by the most recent geometry update, with the HUD and empty rows set to the native sentinel.</summary>
     private readonly ushort[] windows = new ushort[SnesPpuLayout.ScreenHeightPixels];
+
+    /// <summary>Optional host-installed color source used by the rainbow beam without changing its simulation-owned geometry.</summary>
     [NonSerialized] private MotherBrainRainbowPalettePresentation? presentationColors;
     /// <summary>Host-owned visual colors; the beam window and update cadence stay cartridge logic.</summary>
     public MotherBrainRainbowPalettePresentation? PresentationColors
@@ -66,6 +69,12 @@ public sealed class MotherBrainRainbowBeamHdmaState
         BuildWindows(bus, headX, headY, angle, angularWidth);
     }
 
+    /// <summary>Builds the scanline window edges selected by the beam quadrant while preserving the native no-op direction's previous geometry.</summary>
+    /// <param name="bus">Address-space context for the geometry update; tangent samples are obtained from compiled definitions.</param>
+    /// <param name="headX">Whole-pixel room X coordinate of the head enemy.</param>
+    /// <param name="headY">Whole-pixel room Y coordinate of the head enemy.</param>
+    /// <param name="angle">Center angle whose edge directions determine the beam window.</param>
+    /// <param name="angularWidth">Native angular width used to derive the two edge angles.</param>
     private void BuildWindows(ISnesAddressSpace bus, ushort headX, ushort headY,
         SnesAngle angle, ushort angularWidth)
     {
@@ -143,8 +152,17 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
     }
 
+    /// <summary>Looks up the absolute tangent step for a wrapped 8-bit angle-table index.</summary>
+    /// <param name="bus">Address-space context passed by the geometry caller; the sample comes from compiled definitions.</param>
+    /// <param name="angle">Angle-table index, reduced to its low byte before lookup.</param>
+    /// <returns>The nonnegative tangent step used to advance one window edge.</returns>
     private static int Tangent(ISnesAddressSpace bus, int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
+
+    /// <summary>Resolves a beam color word from the installed presentation palette at the native animation cursor.</summary>
+    /// <param name="bus">Address-space context for the active update; the installed palette supplies the color data.</param>
+    /// <param name="cursor">Native color-table byte offset selecting the word to return.</param>
+    /// <returns>The packed RGB5 fixed-backdrop color for that cursor.</returns>
     private ushort ReadColorWord(ISnesAddressSpace bus, int cursor) =>
         (presentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))

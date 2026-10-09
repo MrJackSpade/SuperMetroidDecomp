@@ -25,8 +25,11 @@ public enum FuneNamiheEnemyFunction : ushort
 /// </summary>
 public sealed class FuneNamiheEnemyState
 {
+    /// <summary>Underlying enemy slot whose variable words back this typed Fune/Namihe state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the actor's existing WRAM-backed enemy slot.</summary>
+    /// <param name="slot">Enemy slot containing the six shared Fune/Namihe state words.</param>
     internal FuneNamiheEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -89,6 +92,7 @@ public sealed class FuneNamiheEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Per-enemy typed state views for initialized Fune and Namihe actors, indexed by enemy-slot number.</summary>
     private readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[MaximumEnemyCount];
 
@@ -98,6 +102,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
+    /// <summary>Checks whether an enemy-definition pointer identifies the Fune or Namihe actor.</summary>
+    /// <param name="definitionPointer">ROM pointer from the enemy slot's definition field.</param>
+    /// <returns><see langword="true"/> for either supported species definition.</returns>
     private static bool IsFuneNamiheDefinition(ushort definitionPointer) =>
         definitionPointer is FuneNamiheDefinitions.FuneEnemyDefinition or
             FuneNamiheDefinitions.NamiheEnemyDefinition;
@@ -229,6 +236,10 @@ public sealed partial class RoomEnemySystem
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
+    /// <summary>Returns the initialized shared state view associated with an enemy slot.</summary>
+    /// <param name="slot">Fune or Namihe enemy slot whose state is required.</param>
+    /// <returns>The typed view backed by that slot's variable words.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Fune/Namihe actor.</exception>
     private FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
         _funeNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");

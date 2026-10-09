@@ -20,7 +20,13 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
     internal const ushort FloorImpact = 0xa48e;
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
+    /// <summary>Number of embedded spritemap operands whose words select drool presentation frames.</summary>
     public static int PresentationWordCount => 7;
+
+    /// <summary>Returns the bank-$86 address of one embedded spritemap operand.</summary>
+    /// <param name="index">Zero-based slot among the seven presentation operands.</param>
+    /// <returns>The address of the operand word in the compiled instruction lists.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the seven presentation slots.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -32,6 +38,8 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
             _ => (ushort)(FloorImpact + 4 + 4 * (index - 4)),
         };
     }
+    /// <summary>Determines whether a bank-$86 instruction word is an embedded drool spritemap operand.</summary>
+    /// <param name="address">Address to check against the compiled presentation operand locations.</param>
     internal static bool IsPresentationWord(ushort address)
     {
         int impact = address - (FloorImpact + 4);
@@ -40,6 +48,8 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
             ((uint)impact < 12 && impact % 4 == 0);
     }
 
+    /// <summary>Identifies projectile kinds whose behavior uses the Bomb Torizo drool instruction programs.</summary>
+    /// <param name="kind">Projectile kind selected by the enemy projectile system.</param>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
         RoomEnemyProjectileKind.BombTorizoInitialDrool;
@@ -56,6 +66,10 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
             _ => FourFrameDelay,
         };
 
+    /// <summary>Reads a compiled mechanics word for drool timing, setup, movement, collision, or deletion instructions.</summary>
+    /// <param name="address">Bank-$86 address of the instruction word.</param>
+    /// <returns>The literal operand or native instruction pointer stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a word in a compiled drool program.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
         // Each blank frame adds two ticks before falling setup.

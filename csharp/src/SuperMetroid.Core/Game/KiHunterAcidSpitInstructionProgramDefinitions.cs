@@ -21,7 +21,10 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] IntroductionHolds = [3, 3, 4, 3, 1];
 
+    /// <summary>Number of compiled mechanics words across the two spit introductions and their shared floor splash.</summary>
     public static int MechanicsWordCount => 27;
+
+    /// <summary>Number of spritemap operands whose pointers are resolved through the extracted presentation data.</summary>
     public static int PresentationWordCount => 19;
 
     /// <summary>
@@ -57,6 +60,8 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Maps an operand ordinal to its address in the left, right, or shared floor-splash instruction list.</summary>
+    /// <param name="index">Zero-based ordinal among all presentation operands in these instruction lists.</param>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -65,10 +70,16 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         int start = index >= 12 ? Right : Left;
         return (ushort)(start + 2 + pose * 4 + (pose >= 5 ? 4 : 0));
     }
+    /// <summary>Determines whether this compiled program set handles one of the two KiHunter acid-spit projectiles.</summary>
+    /// <param name="kind">Projectile kind to check against the left- and right-facing spit programs.</param>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
         RoomEnemyProjectileKind.KiHunterAcidSpitRight;
 
+    /// <summary>Finds the compiled mechanics value stored at a bank-relative instruction address.</summary>
+    /// <param name="address">Instruction address to resolve within the compiled KiHunter acid-spit mechanics.</param>
+    /// <returns>The mechanics word associated with <paramref name="address"/>.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

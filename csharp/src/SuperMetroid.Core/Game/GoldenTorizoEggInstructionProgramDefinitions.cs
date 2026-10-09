@@ -23,9 +23,16 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>
     internal const ushort BreakRight = 0xb1a8;
 
+    /// <summary>Gets the number of instruction words retained as executable egg-program mechanics.</summary>
     public static int MechanicsWordCount => 53;
+
+    /// <summary>Gets the number of spritemap operand words extracted as presentation data from the egg programs.</summary>
     public static int PresentationWordCount => 26;
 
+    /// <summary>Gets a compiled mechanics word by its position in the combined egg instruction programs.</summary>
+    /// <param name="index">Zero-based index within the mechanics-word sequence.</param>
+    /// <returns>The native program address and word value for that mechanics instruction.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the compiled mechanics-word range.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -82,6 +89,10 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
             breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);
     }
 
+    /// <summary>Gets the native program address of an extracted spritemap operand.</summary>
+    /// <param name="index">Zero-based index within the presentation-operand sequence.</param>
+    /// <returns>The address of the operand in bank $86.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the presentation-word range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -98,6 +109,10 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
         int breakOffset = index - 16;
         return (ushort)(BreakLeft + 24 * (breakOffset / 5) + 4 + 4 * (breakOffset % 5));
     }
+    /// <summary>Looks up a compiled mechanics value by native program address, including delegated Torizo-orb wall-impact words.</summary>
+    /// <param name="address">Bank-local address of the mechanics word to resolve.</param>
+    /// <returns>The compiled word value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled egg or delegated wall-impact mechanics.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab3f)

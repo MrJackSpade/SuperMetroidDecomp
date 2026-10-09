@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusArmCannonState
 {
+    /// <summary>HUD selection observed on the preceding update, used to restart the native stability counter on change.</summary>
     private ushort _previousSelectedHudItem;
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
@@ -148,6 +149,9 @@ public sealed class SamusArmCannonState
         return new SamusArmCannonDrawResult();
     }
 
+    /// <summary>Starts opening or closing the cover once the HUD selection is stable and its desired state differs.</summary>
+    /// <param name="selectedHudItem">Validated HUD selection whose cover policy should be applied.</param>
+    /// <returns><see langword="true"/> when a new transition was initialized.</returns>
     private bool TryStartTransition(ushort selectedHudItem)
     {
         if (ToggleFlag < 2)
@@ -166,14 +170,23 @@ public sealed class SamusArmCannonState
         return true;
     }
 
+    /// <summary>Gets the installed bank-$90 arm-cannon drawing descriptor for Samus's current pose.</summary>
+    /// <param name="bus">Gameplay address space passed by the caller; the pointer is selected from installed artwork data.</param>
+    /// <param name="pose">Samus body pose whose descriptor is required.</param>
+    /// <returns>The bank-relative pointer to the pose's drawing descriptor.</returns>
     private ushort PoseDrawingData(ISnesAddressSpace bus, int pose) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).PoseDrawingData(pose);
 
+    /// <summary>Resolves a byte from the installed bank-$90 arm-cannon drawing descriptor data.</summary>
+    /// <param name="bus">Gameplay address space passed by the caller; the byte is resolved from installed artwork data.</param>
+    /// <param name="address">Bank-relative drawing-data address.</param>
+    /// <returns>The descriptor byte selected by the artwork catalog.</returns>
     private byte ReadDrawingByte(ISnesAddressSpace bus, ushort address) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(address);
 
+    /// <summary>Advances the cover animation toward its open or closed endpoint and clears the transition flag at completion.</summary>
     private void AdvanceFrame()
     {
         if (OpenFlag != 0)

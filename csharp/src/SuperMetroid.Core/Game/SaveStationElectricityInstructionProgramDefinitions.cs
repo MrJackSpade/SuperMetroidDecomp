@@ -14,9 +14,17 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions
 
     /// <summary>Eight one-frame drawing records between timer setup and loop/delete commands.</summary>
     private const int FrameCount = 8;
+
+    /// <summary>Number of compiled words covering timer setup, animation frames, and terminal control.</summary>
     public static int MechanicsWordCount => FrameCount + 5;
+
+    /// <summary>Number of sprite-map operands supplied by extracted save-station presentation art.</summary>
     public static int PresentationWordCount => FrameCount;
 
+    /// <summary>Resolves an instruction slot to its address and mechanics value in the initial or looping program.</summary>
+    /// <param name="index">Zero-based index among the compiled mechanics words.</param>
+    /// <returns>The bank-local instruction address and value stored at that slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="MechanicsWordCount"/>.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -34,11 +42,19 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Returns the instruction address containing one of the eight animation sprite-map operands.</summary>
+    /// <param name="index">Zero-based index of the presentation operand.</param>
+    /// <returns>The bank-local address of the operand's instruction slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Loop + 2 + 4 * index);
     }
+    /// <summary>Finds the compiled mechanics value associated with a native instruction address.</summary>
+    /// <param name="address">Bank-local address to resolve.</param>
+    /// <returns>The mechanics word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled save-station electricity program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

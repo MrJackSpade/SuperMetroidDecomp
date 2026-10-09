@@ -25,6 +25,7 @@ internal abstract class TorizoSonicBoomInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Describes the compiled instruction and presentation-word slots for the Bomb and Golden Torizo sonic-boom programs.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xadbf),
         Entry(FiredLeft),
@@ -60,13 +61,26 @@ internal abstract class TorizoSonicBoomInstructionProgramDefinitions
         Op(EnemyProjectileCodePointers.RTS_8681DE),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero, WallImpactLoop),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
+
+    /// <summary>Gets the number of interleaved spritemap operands extracted from the sonic-boom programs.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the native address of an extracted spritemap operand.</summary>
+    /// <param name="index">Zero-based position among the presentation slots in the compiled layout.</param>
+    /// <returns>The address of the operand in bank $86.</returns>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Determines whether a projectile kind is either Bomb Torizo's or Golden Torizo's sonic boom.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for either sonic-boom projectile; otherwise, <see langword="false"/>.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoSonicBoom or
         RoomEnemyProjectileKind.GoldenTorizoSonicBoom;
 
+    /// <summary>Resolves a bank-$86 address to its compiled sonic-boom instruction word.</summary>
+    /// <param name="address">Address of the mechanics word within the native program bank.</param>
+    /// <returns>The compiled instruction value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify compiled sonic-boom mechanics.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

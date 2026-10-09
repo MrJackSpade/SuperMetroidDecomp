@@ -33,7 +33,10 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and right-facing equivalents. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LaserStartupFrames = 2;
 
+    /// <summary>Number of mechanics words in the four compiled laser and claw instruction lists.</summary>
     public static int MechanicsWordCount => 58;
+
+    /// <summary>Number of spritemap operands across the left- and right-facing laser and claw lists.</summary>
     public static int PresentationWordCount => 42;
 
     /// <summary>
@@ -77,6 +80,8 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Maps a presentation operand ordinal to its address in the appropriate laser or claw instruction list.</summary>
+    /// <param name="index">Zero-based ordinal across both laser lists followed by both claw lists.</param>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -90,10 +95,16 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         return (ushort)(loop + (index - 26) % 8 * 4 + 2);
     }
 
+    /// <summary>Determines whether these compiled programs cover the Mother Brain Pirate laser or Ninja Pirate claw.</summary>
+    /// <param name="kind">Projectile kind to compare with the laser and claw program owners.</param>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PirateMotherBrainLaser or
         RoomEnemyProjectileKind.PirateClaw;
 
+    /// <summary>Looks up the compiled mechanics value associated with a bank-relative instruction address.</summary>
+    /// <param name="address">Address of a mechanics word in one of the compiled projectile instruction lists.</param>
+    /// <returns>The mechanics value stored at the requested instruction address.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Physical component and hitbox records for the 33 native Crocomire corpse frames, $A4:E1FE..E71F.</summary>
 internal static class CrocomireCorpseCollisionDefinitions
 {
+    /// <summary>Maps each native corpse spritemap address to its positioned body collision components.</summary>
     private static readonly Dictionary<ushort, CrocomireBodyCollisionComponent[]> Frames = new()
     {
         // ExtendedSpritemap_CrocomireCorpse_0, $A4:E1FE.
@@ -73,15 +74,29 @@ internal static class CrocomireCorpseCollisionDefinitions
         [0xe716] = [new(32, 32, 0xe748)],
     };
 
+    /// <summary>Maps each body-part tile address to the hitboxes associated with that tile.</summary>
     private static readonly Dictionary<ushort, CrocomireBodyCollisionHitbox[]> Hitboxes = new()
     {
         [0xe72e] = [new(-38, -16, 0, 31, 0xb950, 0xb968), new(0, -29, 26, 28, 0xb950, 0xb968)],
         [0xe748] = [],
     };
 
+    /// <summary>Determines whether the address identifies a frame in the compiled corpse component table.</summary>
+    /// <param name="frame">Native spritemap address to look up.</param>
+    /// <returns><see langword="true"/> when components are defined for the address; otherwise, <see langword="false"/>.</returns>
     internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+
+    /// <summary>Gets the positioned collision components for a native corpse frame.</summary>
+    /// <param name="frame">Native spritemap address whose components are requested.</param>
+    /// <returns>A read-only span over the frame's component records.</returns>
+    /// <exception cref="InvalidDataException">The address is not present in the compiled frame table.</exception>
     internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
         Frames.TryGetValue(frame, out var parts) ? parts : throw new InvalidDataException($"Unknown Crocomire corpse frame $A4:{frame:X4}.");
+
+    /// <summary>Gets the collision hitboxes associated with a body-part tile.</summary>
+    /// <param name="address">Native tile address whose hitboxes are requested.</param>
+    /// <returns>A read-only span over the tile's hitbox records, which may be empty when the tile has no hitboxes.</returns>
+    /// <exception cref="InvalidDataException">The address is not present in the compiled hitbox table.</exception>
     internal static ReadOnlySpan<CrocomireBodyCollisionHitbox> HitboxesAt(ushort address) =>
         Hitboxes.TryGetValue(address, out var parts) ? parts : throw new InvalidDataException($"Unknown Crocomire corpse hitboxes $A4:{address:X4}.");
 }

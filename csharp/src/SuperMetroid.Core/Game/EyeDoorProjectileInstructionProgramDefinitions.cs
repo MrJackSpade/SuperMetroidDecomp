@@ -18,9 +18,16 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_EyeDoorProjectile</c> at $86:B603.</summary>
     internal const ushort Shot = 0xb603;
 
+    /// <summary>Number of address/value entries compiling the Eye Door projectile instruction lists.</summary>
     public static int MechanicsWordCount => 19;
+
+    /// <summary>Number of spritemap operands referenced by the compiled projectile lists.</summary>
     public static int PresentationWordCount => 11;
 
+    /// <summary>Gets the native address and compiled value of a mechanics word by flattened program order.</summary>
+    /// <param name="index">Zero-based index across the initial, flight, impact, and shot instruction lists.</param>
+    /// <returns>The ROM address and value represented at that position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -45,6 +52,10 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
         return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
     }
 
+    /// <summary>Gets the native ROM address of a referenced spritemap operand by program order.</summary>
+    /// <param name="index">Zero-based index among the compiled presentation operands.</param>
+    /// <returns>The address containing the selected operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation words.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -54,6 +65,10 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
         return (ushort)(Shot + 2 + 4 * (index - 7));
     }
 
+    /// <summary>Resolves a native mechanics-word address to its compiled instruction value.</summary>
+    /// <param name="address">ROM address of a word in one of the compiled Eye Door lists.</param>
+    /// <returns>The compiled value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of a compiled instruction list.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

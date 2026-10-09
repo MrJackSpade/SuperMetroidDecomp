@@ -83,6 +83,11 @@ public sealed partial class RoomEnemySystem
             bomb.Variable1 = unchecked((ushort)(bomb.Variable1 + 2));
     }
 
+    /// <summary>Checks armed Samus bombs for a strict overlap and replaces a destroyed Mother Brain bomb with its drop effects.</summary>
+    /// <param name="bomb">Mother Brain bomb currently running its pre-instruction.</param>
+    /// <param name="state">Encounter state updated when the bomb is destroyed.</param>
+    /// <param name="samusBombs">Active Samus bomb set, or null when no bomb projectiles are available.</param>
+    /// <returns><see langword="true"/> when an armed Samus bomb destroys this bomb and its replacement effects are spawned.</returns>
     private bool TryDestroyMotherBrainBombWithSamusBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state,
@@ -123,6 +128,10 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Applies one accelerated 8.8 motion step, reflects horizontal motion, and resolves floor bounce state.</summary>
+    /// <param name="bomb">Projectile whose position and velocities are advanced in place.</param>
+    /// <param name="acceleration">Y-velocity increment for this fall or bounce stage.</param>
+    /// <returns><see langword="true"/> when the bomb reaches the floor and its bounce velocities are reset.</returns>
     private static bool MoveMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         ushort acceleration)
@@ -152,6 +161,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Deletes an exhausted bomb, then emits its Ridley afterburn, dust burst, and sound request.</summary>
+    /// <param name="bomb">Expired projectile whose position and afterburn count are retained for replacement effects.</param>
+    /// <param name="state">Encounter state whose bomb count and sound request are updated.</param>
     private void ExpireMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
@@ -173,6 +185,9 @@ public sealed partial class RoomEnemySystem
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 
+    /// <summary>Removes the bomb from the active projectile pool and updates the encounter's live bomb count.</summary>
+    /// <param name="bomb">Projectile slot to stop and clear.</param>
+    /// <param name="state">Encounter state whose active bomb counter is decremented.</param>
     private static void DeleteMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
@@ -183,6 +198,16 @@ public sealed partial class RoomEnemySystem
         bomb.Clear();
     }
 
+    /// <summary>Tests axis-aligned overlap using wrapped coordinate distances and strict radius boundaries.</summary>
+    /// <param name="firstX">Horizontal center of the first projectile.</param>
+    /// <param name="firstY">Vertical center of the first projectile.</param>
+    /// <param name="firstXRadius">Horizontal radius of the first projectile.</param>
+    /// <param name="firstYRadius">Vertical radius of the first projectile.</param>
+    /// <param name="secondX">Horizontal center of the second projectile.</param>
+    /// <param name="secondY">Vertical center of the second projectile.</param>
+    /// <param name="secondXRadius">Horizontal radius of the second projectile.</param>
+    /// <param name="secondYRadius">Vertical radius of the second projectile.</param>
+    /// <returns><see langword="true"/> only when both wrapped axis distances are smaller than the summed radii.</returns>
     private static bool MotherBrainBombStrictOverlap(
         ushort firstX,
         ushort firstY,

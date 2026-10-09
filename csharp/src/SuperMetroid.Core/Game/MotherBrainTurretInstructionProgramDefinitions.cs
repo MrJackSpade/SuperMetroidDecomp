@@ -21,8 +21,14 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
 
     /// <summary>Left-facing bullet pose at $86:C143; eight poses occupy six bytes each.</summary>
     internal const ushort BulletLeft = 0xc143;
+
+    /// <summary>Gets the number of turret and bullet spritemap operands resolved from extracted presentation art.</summary>
     public static int PresentationWordCount => 21;
 
+    /// <summary>Gets the native address of a spritemap operand in the turret, bullet, or shared smoke programs.</summary>
+    /// <param name="index">Zero-based position in the combined presentation-operand sequence.</param>
+    /// <returns>The bank-local address containing that operand.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the presentation-operand range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -32,10 +38,17 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
             : BulletTouchOrShot + 6 + 4 * (index - 16));
     }
 
+    /// <summary>Determines whether a projectile kind is one of Mother Brain's room turrets or turret bullets.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for a room turret or its bullet; otherwise, <see langword="false"/>.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainRoomTurret or
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet;
 
+    /// <summary>Resolves a native address to a compiled turret-program mechanics word.</summary>
+    /// <param name="address">Bank-local address of the requested mechanics word.</param>
+    /// <returns>The compiled instruction or operand value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by the compiled turret definitions.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -44,6 +57,10 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
             $"Mother Brain turret mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve an address covered by the turret, bullet, selector, or shared-smoke mechanics.</summary>
+    /// <param name="address">Bank-local address to look up.</param>
+    /// <param name="value">Receives the compiled word when found, or zero when the address is not covered.</param>
+    /// <returns><see langword="true"/> when the address belongs to compiled mechanics; otherwise, <see langword="false"/>.</returns>
     internal static bool TryRead(ushort address, out ushort value)
     {
         int poseOffset = address - TurretLeft;

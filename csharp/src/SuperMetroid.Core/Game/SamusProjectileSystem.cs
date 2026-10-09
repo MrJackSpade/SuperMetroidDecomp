@@ -38,8 +38,11 @@ public sealed partial class SamusProjectileSystem
     // tables as eight-byte animation records: the first bogus "spritemap" was the real
     // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
 
+    /// <summary>Five ordinary projectile slots in native low-to-high WRAM index order.</summary>
     private readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
+
+    /// <summary>Eighteen projectile-trail slots covering native byte indices $00 through $22.</summary>
     private readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
@@ -92,7 +95,10 @@ public sealed partial class SamusProjectileSystem
     /// <summary>Duration of the most recent Super Missile impact quake request, not a ticking countdown; cleared by <see cref="ResetForRoomTransition"/> and published immediately to the shared room earthquake owner when bound.</summary>
     public ushort EarthquakeTimer { get; private set; }
 
+    /// <summary>Animation-frame state for the main charge flare and its two spark components.</summary>
     private readonly ushort[] _flareFrames = new ushort[3];
+
+    /// <summary>Per-component countdowns that control when charge-flare animation frames advance.</summary>
     private readonly ushort[] _flareTimers = new ushort[3];
 
     /// <summary>The last alpha-pass result, retained for debugger watches and verification.</summary>
@@ -130,6 +136,11 @@ public sealed partial class SamusProjectileSystem
         LoadSelectedBeamPalette(bus, cgram, beamType, artwork?.Palettes);
     }
 
+    /// <summary>Loads the selected beam palette, using fixed data for Chainsaw and Spacetime beams and the catalog otherwise.</summary>
+    /// <param name="bus">Address space used by fixed-palette beam definitions.</param>
+    /// <param name="cgram">Palette memory that receives the selected colors.</param>
+    /// <param name="selection">Equipped-beam selection masked to the cartridge's beam bits.</param>
+    /// <param name="palettes">Installed catalog for other selections; it may be null when a fixed palette handles the selection.</param>
     private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
         int selection, Assets.BeamPaletteCatalog? palettes)
     {

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer shared by the three bank-$AA Tourian entrance statue records.</summary>
     internal const ushort TourianEntranceStatueDefinition = 0xefff;
 
     /// <summary>
@@ -23,6 +24,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort TourianEntranceStatueAnimationState { get; internal set; }
 
+    /// <summary>Clears the room-scoped completion latch, animation state, and sinking displacement when statue state is reinitialized.</summary>
     private void ResetTourianEntranceStatueRoomState()
     {
         TourianEntranceStatueFinished = false;
@@ -30,6 +32,8 @@ public sealed partial class RoomEnemySystem
         TourianEntranceStatueVerticalOffset = 0;
     }
 
+    /// <summary>Initializes one statue record's instruction state, installs the entrance palette rows, and creates fixed screen actors for the first record.</summary>
+    /// <param name="statue">Enemy slot whose parameter selects one of the three statue instruction lists.</param>
     private void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         if (statue.Parameter1 is not (0 or 2 or 4))
@@ -72,6 +76,10 @@ public sealed partial class RoomEnemySystem
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_cgram!);
     }
 
+    /// <summary>Allocates and initializes one fixed-position projectile actor used to draw the entrance statue or a boss decoration.</summary>
+    /// <param name="kind">Projectile definition for the base decoration, Ridley icon, or Phantoon icon.</param>
+    /// <param name="x">Screen-space horizontal spawn coordinate.</param>
+    /// <param name="y">Screen-space vertical spawn coordinate.</param>
     private void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
         ushort x,
@@ -88,6 +96,8 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = y;
     }
 
+    /// <summary>Maintains a statue projectile's screen placement as the BG2 statue sinks and publishes completion when the base decoration reaches its terminal state.</summary>
+    /// <param name="projectile">Statue projectile whose fixed position and pre-instruction identify its role.</param>
     private void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.PreInstruction ==

@@ -21,10 +21,14 @@ internal abstract class EvirInstructionProgramDefinitions
     /// <summary><c>InstList_Evir_Projectile_Regenerating_1</c> at $A8:877D.</summary>
     internal const ushort ProjectileRegenerationLoop = 0x877d;
 
+    /// <summary>Number of authored body poses in each facing-direction loop.</summary>
     internal const int BodyFrameCount = 6;
+    /// <summary>Number of authored arm poses in each facing-direction loop, including the long resting pose.</summary>
     internal const int ArmsFrameCount = 17;
 
+    /// <summary>Gets the number of compiled mechanics words across both facing loops and projectile programs.</summary>
     public static int MechanicsWordCount => 67;
+    /// <summary>Gets the number of live spritemap operands interleaved with the compiled control words.</summary>
     public static int PresentationWordCount => 49;
 
     /// <summary>
@@ -68,6 +72,8 @@ internal abstract class EvirInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Maps an indexed presentation operand to its native spritemap word address.</summary>
+    /// <param name="index">Zero-based presentation operand index across the body, arm, and projectile programs.</param>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

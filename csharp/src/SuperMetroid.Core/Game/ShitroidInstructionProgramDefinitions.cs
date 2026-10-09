@@ -38,8 +38,15 @@ internal abstract class ShitroidInstructionProgramDefinitions
     /// <summary>$A9:F95E: pose0 starts the speed-up/slow-down pulse after the remorse SFX callback.</summary>
     private const ushort RemorseSoundPulse = RemorseRandomBranchOpcode + 4;
 
+    /// <summary>Gets the number of compiled instruction words that control timers and control flow across the four Shitroid programs.</summary>
     public static int MechanicsWordCount => 35;
+
+    /// <summary>Gets the number of interleaved spritemap selector words whose identities resolve through installed artwork.</summary>
     public static int PresentationWordCount => 30;
+
+    /// <summary>Returns a compiled mechanics word in stable program-table order.</summary>
+    /// <param name="index">Zero-based index below <see cref="MechanicsWordCount"/>.</param>
+    /// <returns>The bank-local instruction address and its timing or control-flow operand.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -63,6 +70,9 @@ internal abstract class ShitroidInstructionProgramDefinitions
     /// turning at the next pose0 after one four-pose contraction cycle.</summary>
     private static ushort RemorsePulseDuration(int frame) => (ushort)(2 + Math.Abs(frame - 4));
 
+    /// <summary>Returns the bank-local address of a compiled spritemap selector operand.</summary>
+    /// <param name="index">Zero-based index below <see cref="PresentationWordCount"/>.</param>
+    /// <returns>The instruction address containing the selected frame identity.</returns>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -74,6 +84,10 @@ internal abstract class ShitroidInstructionProgramDefinitions
         index -= 4;
         return index < 8 ? (ushort)(Remorse + index * 4 + 2) : (ushort)(RemorseSoundPulse + (index - 8) * 4 + 2);
     }
+    /// <summary>Looks up a compiled mechanics operand by its instruction address.</summary>
+    /// <param name="address">Bank-local word address in one of the Shitroid programs.</param>
+    /// <returns>The compiled timing or callback value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the catalog's compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

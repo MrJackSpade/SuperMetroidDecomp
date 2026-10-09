@@ -31,6 +31,11 @@ internal static class DraygonBurialEvirDefinitions
 }
 
 /// <summary>One compiled Draygon death/burial Evir position and movement record.</summary>
+/// <param name="XSubspeed">The absolute horizontal unit-circle component scaled by $FFFF and truncated.</param>
+/// <param name="YSubspeed">The vertical unit-circle component scaled by $FFFF and truncated.</param>
+/// <param name="InitialX">The actor's initial horizontal room coordinate, wrapped to the native word.</param>
+/// <param name="InitialY">The actor's initial vertical room coordinate in pixels.</param>
+/// <param name="Angle">The native table angle that determines the actor's movement signs.</param>
 internal readonly record struct DraygonBurialEvirDefinition(
     ushort XSubspeed,
     ushort YSubspeed,

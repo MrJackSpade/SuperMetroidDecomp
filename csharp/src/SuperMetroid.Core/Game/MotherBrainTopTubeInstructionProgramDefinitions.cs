@@ -23,6 +23,10 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>
+    /// Describes the four ceiling-tube entries, each of which displays one frame before sleeping;
+    /// presentation operands are resolved from extracted art while mechanics stay compiled here.
+    /// </summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc43),
         Entry(TopRight),
@@ -37,15 +41,27 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
         Entry(TopMiddleRight),
         Frame(1),
         Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
+    /// <summary>Number of presentation operands referenced by the ceiling-tube entries.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native address of a presentation operand in the compiled layout.</summary>
+    /// <param name="index">Zero-based operand index.</param>
+    /// <returns>The bank-local address read from the operand's instruction slot.</returns>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Determines whether the projectile kind is one of the four Mother Brain ceiling tubes.</summary>
+    /// <param name="kind">Projectile kind to check.</param>
+    /// <returns><see langword="true"/> when this definition owns the kind; otherwise, <see langword="false"/>.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainTopRightTube or
         RoomEnemyProjectileKind.MotherBrainTopLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube;
 
+    /// <summary>Reads a compiled mechanics word by its bank-local instruction address.</summary>
+    /// <param name="address">Address of a mechanics word in bank <see cref="Bank"/>.</param>
+    /// <returns>The compiled word stored at the requested address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word in this layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

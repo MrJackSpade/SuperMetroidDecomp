@@ -23,6 +23,9 @@ internal static partial class DraygonCollisionDefinitions
     /// <summary><c>ExtendedSpritemap_Draygon_60</c> at $A5:A7F7: mirrored growing component frames and terminal eight-component frame.</summary>
     private const ushort RightExpandingFrames = 0xa7f7;
 
+    /// <summary>Identifies the fixed and expanding Draygon OAM frames whose collision component list is empty.</summary>
+    /// <param name="pointer">Bank-relative pointer to the OAM frame.</param>
+    /// <returns><see langword="true"/> when the pointer is one of the recognized empty frames.</returns>
     internal static bool IsEmptyOamFrame(ushort pointer) =>
         InFixedFrames(pointer, LeftSingleFrames, 6, 1) ||
         InFixedFrames(pointer, RightSingleFrames, 6, 1) ||
@@ -33,6 +36,12 @@ internal static partial class DraygonCollisionDefinitions
         InExpandingFrames(pointer, LeftExpandingFrames) ||
         InExpandingFrames(pointer, RightExpandingFrames);
 
+    /// <summary>Tests whether a pointer lands on a frame boundary in a fixed-size OAM sequence.</summary>
+    /// <param name="pointer">Candidate bank-relative frame pointer.</param>
+    /// <param name="first">Pointer to the first frame in the sequence.</param>
+    /// <param name="frames">Number of frames in the sequence.</param>
+    /// <param name="components">Components stored in each frame, which determines its byte stride.</param>
+    /// <returns><see langword="true"/> only for an aligned frame pointer within the sequence.</returns>
     private static bool InFixedFrames(ushort pointer, ushort first, int frames, int components)
     {
         int stride = 2 + components * 8;
@@ -40,6 +49,10 @@ internal static partial class DraygonCollisionDefinitions
         return offset >= 0 && offset < frames * stride && offset % stride == 0;
     }
 
+    /// <summary>Tests frame starts in the sequence whose component count grows from three to eight.</summary>
+    /// <param name="pointer">Candidate bank-relative frame pointer.</param>
+    /// <param name="first">Pointer to the first expanding frame.</param>
+    /// <returns><see langword="true"/> when the candidate is one of the seven frame starts.</returns>
     private static bool InExpandingFrames(ushort pointer, ushort first)
     {
         // Two-byte counts and eight-byte components; the component count starts
@@ -50,6 +63,9 @@ internal static partial class DraygonCollisionDefinitions
                 return true;
         return false;
     }
+    /// <summary>Returns no compiled OAM components for a recognized empty frame and rejects other uncompiled frames.</summary>
+    /// <param name="pointer">Bank-relative pointer to the Draygon OAM frame.</param>
+    /// <returns>An empty span for a recognized frame without components.</returns>
     private static ReadOnlySpan<DraygonCollisionComponent> OamComponentsAt(
         ushort pointer)
     {
@@ -59,6 +75,9 @@ internal static partial class DraygonCollisionDefinitions
             $"Draygon frame $A5:{pointer:X4} has no compiled collision identity.");
     }
 
+    /// <summary>Returns no hitboxes for the recognized alternate empty list and rejects uncompiled lists.</summary>
+    /// <param name="pointer">Bank-relative pointer to the Draygon hitbox list.</param>
+    /// <returns>An empty span for <see cref="OtherEmptyList"/>.</returns>
     private static ReadOnlySpan<DraygonCollisionHitbox> OamHitboxesAt(
         ushort pointer)
     {

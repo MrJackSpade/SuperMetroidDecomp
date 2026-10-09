@@ -236,6 +236,8 @@ public sealed class SamusCrystalFlashState
             BubbleHdmaRequested);
     }
 
+    /// <summary>Applies one two-pixel raise step and switches to ammunition draining after the tenth call.</summary>
+    /// <param name="samus">Actor whose Y position and animation state are advanced.</param>
     private void StepRaising(SamusState samus)
     {
         // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
@@ -260,6 +262,9 @@ public sealed class SamusCrystalFlashState
         samus.KnockbackActive = false;
     }
 
+    /// <summary>Drains the selected ammunition family on each eighth accepted NMI and advances to the next phase when complete.</summary>
+    /// <param name="samus">Actor whose ammunition and restored energy are updated.</param>
+    /// <param name="nmiFrameCounter">Accepted-NMI counter used to preserve the cartridge's drain cadence.</param>
     private void StepAmmoDrain(SamusState samus, ushort nmiFrameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
@@ -305,6 +310,9 @@ public sealed class SamusCrystalFlashState
         samus.SetAnimationFrameFromSpecialHandler(frame: 12, timer: 3);
     }
 
+    /// <summary>Applies the finishing Y correction and releases Crystal Flash ownership once standing movement resumes.</summary>
+    /// <param name="bus">Address space used to resolve Samus's current movement type.</param>
+    /// <param name="samus">Actor whose position and input-lock state are finalized.</param>
     private void StepFinish(ISnesAddressSpace bus, SamusState samus)
     {
         // Retail usually enters with equality because RaisedYPosition was captured at the
@@ -424,9 +432,15 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
+    /// <summary>Performs the cartridge-style signed 16-bit comparison by interpreting the wrapped difference as an integer.</summary>
+    /// <param name="left">Unsigned storage word treated as the minuend.</param>
+    /// <param name="right">Unsigned storage word treated as the subtrahend.</param>
+    /// <returns><see langword="true"/> when the wrapped signed difference is negative.</returns>
     private static bool SignedLessThan(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
+    /// <summary>Mirrors Crystal Flash's palette frame and timer into the shared special-palette WRAM words.</summary>
+    /// <param name="samus">Actor exposing the aliased palette storage used by other special handlers.</param>
     private void PublishSharedPaletteWords(SamusState samus)
     {
         // `$0ACE/$0AD0` are not Crystal-Flash-private storage. Speed Booster, Screw Attack,

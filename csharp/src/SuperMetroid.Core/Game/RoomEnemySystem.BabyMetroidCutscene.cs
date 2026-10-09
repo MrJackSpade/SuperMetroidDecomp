@@ -77,6 +77,7 @@ public sealed partial class RoomEnemySystem
         LoadBabyMetroidCutsceneInitialPalette();
     }
 
+    /// <summary>Installs the cutscene Baby's initial colors into CGRAM, leaving the transparent backdrop entry untouched.</summary>
     private void LoadBabyMetroidCutsceneInitialPalette()
     {
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
@@ -164,6 +165,9 @@ public sealed partial class RoomEnemySystem
         ApplyBabyMetroidFrameEffects(state, step);
     }
 
+    /// <summary>Copies the cutscene actor's live position, rendering state, and health into its scheduled room-enemy slot.</summary>
+    /// <param name="slot">Physical enemy slot that will participate in room scheduling and rendering.</param>
+    /// <param name="baby">Cutscene actor whose current state is mirrored into the slot.</param>
     private static void CopyBabyMetroidActorToPhysicalSlot(
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby)
@@ -178,6 +182,9 @@ public sealed partial class RoomEnemySystem
         slot.Health = baby.Health;
     }
 
+    /// <summary>Applies sounds, spawned effects, palette transfers, and attack tiles emitted during one Baby update.</summary>
+    /// <param name="state">Mother Brain encounter state that receives the cutscene's sound and music requests.</param>
+    /// <param name="step">Effects and transfer requests produced by the completed Baby update.</param>
     private void ApplyBabyMetroidFrameEffects(
         MotherBrainEnemyState state,
         BabyMetroidCutsceneStepResult step)
@@ -223,6 +230,9 @@ public sealed partial class RoomEnemySystem
             LoadMotherBrainRecoveryLights(roomPalette);
     }
 
+    /// <summary>Validates and applies the requested frame of the room's Mother Brain recovery-light palette animation.</summary>
+    /// <param name="request">Native-layout transfer request identifying the recovery-light frame and destination colors.</param>
+    /// <exception cref="InvalidDataException">The request does not match the expected native transfer layout.</exception>
     private void LoadMotherBrainRecoveryLights(
         MotherBrainBackgroundPaletteTransferRequest request)
     {
@@ -243,6 +253,9 @@ public sealed partial class RoomEnemySystem
             .ApplyRecoveryLights(_cgram!, request.PaletteIndex);
     }
 
+    /// <summary>Validates and copies one extracted Baby Metroid fade-palette frame into its CGRAM range.</summary>
+    /// <param name="palette">Transfer request selecting the fade frame and describing its source and destination layout.</param>
+    /// <exception cref="InvalidDataException">The request does not match the selected frame's native transfer layout.</exception>
     private void LoadBabyMetroidCutsceneFadePalette(
         BabyMetroidPaletteTransferRequest palette)
     {

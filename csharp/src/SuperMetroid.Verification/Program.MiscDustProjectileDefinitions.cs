@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled misc-dust instruction selectors and smoke placements against ROM and their production consumers.</summary>
     private static void VerifyMiscDustProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86e42c;
@@ -87,6 +88,9 @@ internal static partial class Program
             "Misc dust definitions: thirty selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");
     }
 
+    /// <summary>Creates an enemy system whose cartridge bus rejects reads from the migrated misc-dust definition tables.</summary>
+    /// <param name="source">The retail address space forwarded for reads outside the protected tables and for writes.</param>
+    /// <returns>A room enemy system configured to expose accidental runtime reads of misc-dust definitions.</returns>
     private static RoomEnemySystem CreateMiscDustEnemySystem(SuperMetroidAddressSpace source)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -96,19 +100,36 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Reads one little-endian word from the retail tables while verifying their authored values.</summary>
+    /// <param name="source">The retail cartridge address space containing the table entry.</param>
+    /// <param name="address">The byte address of the low byte of the word.</param>
+    /// <returns>The unsigned 16-bit value stored at that address.</returns>
     private static ushort ReadMiscDustWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
+    /// <summary>
+    /// Wraps the retail bus so production consumers fail if they reread the compiled misc-dust
+    /// instruction-selector or smoke-placement tables.
+    /// </summary>
+    /// <param name="source">The underlying cartridge address space for permitted accesses.</param>
     private sealed class MiscDustDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the definition-table guard.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects accesses to migrated misc-dust tables and forwards unrelated reads to the source.</summary>
+        /// <param name="address">The SNES address requested by the consumer.</param>
+        /// <returns>The source byte when the address is outside the protected table ranges.</returns>
+        /// <exception cref="InvalidOperationException">The consumer attempts to read a compiled misc-dust definition table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0x86e42c and < 0x86e468 or >= 0x86e47e and < 0x86e4a6
                 ? throw new InvalidOperationException(
                     $"Misc dust attempted migrated definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards cartridge writes to the wrapped address space.</summary>
+        /// <param name="address">The SNES address to write.</param>
+        /// <param name="value">The byte to write at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

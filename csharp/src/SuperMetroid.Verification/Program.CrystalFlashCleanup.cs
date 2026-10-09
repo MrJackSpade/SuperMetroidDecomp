@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Runs Crystal Flash route checks for activation, refill, and insufficient-capacity behavior.</summary>
     private static void VerifyCrystalFlashRuntime()
     {
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
@@ -13,6 +14,9 @@ internal static partial class Program
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
     }
 
+    /// <summary>Runs one input-driven Crystal Flash scenario and verifies its resource, contact, and visual lifecycle.</summary>
+    /// <param name="capacity">Starting Power Bomb capacity used to distinguish valid and insufficient activation.</param>
+    /// <param name="refill">Whether a real pickup collision restores one bomb during the drain phase.</param>
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -153,9 +157,16 @@ internal static partial class Program
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {
+    /// <summary>Returns the retail enemy definition referenced by the constructed contact population.</summary>
+    /// <param name="pointer">Enemy-definition pointer requested by the room loader.</param>
+    /// <returns>The catalog definition for that pointer.</returns>
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         RoomEnemyDefinitionCatalog.Get(pointer);
 
+    /// <summary>Builds a single-entry enemy population only for the synthetic Crystal Flash contact room.</summary>
+    /// <param name="pointer">Population pointer requested by the fixture loader.</param>
+    /// <returns>The constructed Ripper population record.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pointer does not select this fixture's population.</exception>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -168,6 +179,10 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
         ], 0);
     }
 
+    /// <summary>Builds the one-header graphics set needed to initialize the fixture's Ripper.</summary>
+    /// <param name="pointer">Graphics-set pointer requested by the fixture loader.</param>
+    /// <returns>A graphics-set definition containing the Ripper header.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The pointer does not select this fixture's graphics set.</exception>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -178,6 +193,9 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
         ]);
     }
 
+    /// <summary>Serves constructed population and tileset words, forwarding all other reads to the wrapped bus.</summary>
+    /// <param name="address">CPU address to read.</param>
+    /// <returns>The fixture byte for its two overridden ranges, or the underlying bus byte.</returns>
     public byte ReadByte(int address)
     {
         ReadOnlySpan<ushort> population = [CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
@@ -191,6 +209,9 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
             return (byte)(tileset[offset / 2] >> ((offset & 1) * 8));
         return inner.ReadByte(address);
     }
+    /// <summary>Forwards writes to the underlying retail address space.</summary>
+    /// <param name="address">CPU address to modify.</param>
+    /// <param name="value">Byte written at that address.</param>
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
 }
 

@@ -3,14 +3,33 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks every independently authored Grey-door control byte against its retail instruction stream.</summary>
+    /// <param name="rom">Retail address space supplying the expected program bytes.</param>
     private static void VerifyGreyProgramControls(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 0);
+
+    /// <summary>Checks compiled Grey-door draw-list operands against the corresponding retail bytes.</summary>
+    /// <param name="rom">Retail address space supplying the expected draw operands.</param>
     private static void VerifyGreyProgramDraws(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 1);
+
+    /// <summary>Checks compiled Grey-door target pointers against their independently located retail operands.</summary>
+    /// <param name="rom">Retail address space supplying the expected target pointers.</param>
     private static void VerifyGreyProgramTargets(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 2);
+
+    /// <summary>Checks the Grey-door sound-selector operands against the original instruction bytes.</summary>
+    /// <param name="rom">Retail address space supplying the expected sound selectors.</param>
     private static void VerifyGreyProgramSounds(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 3);
+
+    /// <summary>Checks the compiled per-list hit-count operands against their retail values.</summary>
+    /// <param name="rom">Retail address space supplying the expected hit counts.</param>
     private static void VerifyGreyProgramHitCount(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 4);
 
+    /// <summary>Checks compiled callback pointers against the native callback operands.</summary>
+    /// <param name="rom">Retail address space supplying the expected callback pointers.</param>
     private static void VerifyGreyProgramCallback(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 5);
 
+    /// <summary>Verifies one disjoint operand family over the full byte and overlapping-word address domains.</summary>
+    /// <param name="rom">Retail address space used to compare selected operand bytes.</param>
+    /// <param name="field">Selector for control, draw, target, sound, hit-count, or callback bytes.</param>
     private static void VerifyGreyProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.

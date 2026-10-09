@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks full-body palette pointer families against retail data and verifies installed animation reads use compiled tables.</summary>
     private static void VerifyFullBodyPalettePointerLists()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -179,9 +180,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads one little-endian pointer word from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the pointer bytes.</param>
+    /// <param name="address">Address of the pointer's low byte.</param>
+    /// <returns>The two bytes combined into a 16-bit pointer.</returns>
     private static ushort ReadPalettePointerWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Compares the first Samus OBJ palette in CGRAM with the corresponding masked retail color words.</summary>
+    /// <param name="rom">Retail address space containing the expected palette.</param>
+    /// <param name="actual">CGRAM populated by the palette update under verification.</param>
+    /// <param name="pointer">Palette pointer selecting the expected color words.</param>
+    /// <param name="context">Description attached to any per-color assertion failure.</param>
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SnesCgram actual, int pointer, string context)
     {
@@ -193,10 +203,18 @@ internal static partial class Program
                 $"{context} CGRAM color {color} matches ROM");
     }
 
+    /// <summary>Rejects runtime reads from the four compiled palette-pointer windows and delegates other accesses.</summary>
+    /// <param name="source">Underlying address space used for reads outside those windows and for all writes.</param>
     private sealed class FullBodyPalettePointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the compiled-pointer window guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside the forbidden pointer ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled full-body palette-pointer tables and delegates other addresses.</summary>
+        /// <param name="address">Address to check and, if permitted, read from the source.</param>
+        /// <returns>The source byte when the address is not part of a guarded table.</returns>
         public byte ReadByte(int address)
         {
             if ((uint)(address - SamusPaletteRomData.FullBodyCycles.ScrewAttackLists) < 0x2a ||
@@ -207,6 +225,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Passes writes to the underlying address space; the guard only monitors reads.</summary>
+        /// <param name="address">Write destination address.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

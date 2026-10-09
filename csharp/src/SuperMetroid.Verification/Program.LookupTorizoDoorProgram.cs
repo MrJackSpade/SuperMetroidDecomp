@@ -3,12 +3,18 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks every decoded Torizo-door control byte and overlapping word against the cartridge and shared PLM reader.</summary>
     private static void VerifyTorizoDoorControls(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 0);
+    /// <summary>Checks every decoded Torizo-door draw pointer against its independently identified cartridge operand.</summary>
     private static void VerifyTorizoDoorDraws(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 1);
+    /// <summary>Checks every decoded Torizo-door target pointer against its independently identified cartridge operand.</summary>
     private static void VerifyTorizoDoorTargets(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 2);
+    /// <summary>Checks the native Torizo-door sound operand against its cartridge byte and shared PLM reader.</summary>
     private static void VerifyTorizoDoorSounds(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 3);
+    /// <summary>Checks the Torizo-door hit-count operand against its cartridge byte and shared PLM reader.</summary>
     private static void VerifyTorizoDoorHitCount(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 4);
 
+    /// <summary>Checks the Torizo-door callback operands against their cartridge bytes and shared PLM reader.</summary>
     private static void VerifyTorizoDoorCallback(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 5);
 
     private static void VerifyTorizoDoorField(SuperMetroidAddressSpace rom, int field)

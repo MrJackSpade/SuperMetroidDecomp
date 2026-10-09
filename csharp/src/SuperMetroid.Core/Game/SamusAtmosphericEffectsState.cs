@@ -19,6 +19,7 @@ public sealed class SamusAtmosphericEffectsState
     /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
     public const int SlotCount = 4;
 
+    /// <summary>Mutable models of the four native atmospheric-effect records, indexed in WRAM slot order.</summary>
     private readonly SamusAtmosphericEffectSlot[] _slots =
     [
         new(),
@@ -181,6 +182,14 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
+    /// <summary>Clips and emits one direct 8-by-8 atmospheric sprite using live type-two attributes or installed artwork.</summary>
+    /// <param name="bus">Address space used for type-two WRAM-backed sprite attributes.</param>
+    /// <param name="oam">OAM buffer receiving the sprite when its screen position is visible.</param>
+    /// <param name="slot">Effect state providing the room-space anchor and animation frame.</param>
+    /// <param name="type">Native effect type selecting the attribute source.</param>
+    /// <param name="cameraX">Room-space camera origin subtracted from the horizontal anchor.</param>
+    /// <param name="cameraY">Room-space camera origin subtracted from the vertical anchor.</param>
+    /// <param name="directArtwork">Installed attributes for direct sprite types other than type two.</param>
     private static void DrawDirectSmallSprite(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -203,6 +212,11 @@ public sealed class SamusAtmosphericEffectsState
         oam.AddRawSmallSprite(unchecked((ushort)screenX), unchecked((ushort)screenY), attributes);
     }
 
+    /// <summary>Reads the two-byte, frame-indexed type-two sprite attributes from mirrored movement WRAM.</summary>
+    /// <param name="bus">Address space that must expose mutable WRAM reads.</param>
+    /// <param name="frame">Animation frame selecting the attribute word.</param>
+    /// <returns>The packed OAM attribute word read from WRAM.</returns>
+    /// <exception cref="InvalidOperationException">The address space does not provide mutable WRAM access.</exception>
     private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame)
     {
         ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
@@ -212,6 +226,13 @@ public sealed class SamusAtmosphericEffectsState
             memory.ReadWorkRamByte(source + 1) << 8);
     }
 
+    /// <summary>Resolves a direct effect's frame attributes from the installed artwork catalog.</summary>
+    /// <param name="artwork">Catalog containing the direct sprite definitions.</param>
+    /// <param name="type">Native atmospheric graphics type.</param>
+    /// <param name="frame">Frame within that type's animation.</param>
+    /// <returns>The packed OAM attribute word for the requested sprite.</returns>
+    /// <exception cref="InvalidOperationException">No artwork catalog is installed.</exception>
+    /// <exception cref="InvalidDataException">The catalog has no entry for the requested type and frame.</exception>
     private static ushort ResolveInstalledAttributes(
         SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)
     {
@@ -224,6 +245,14 @@ public sealed class SamusAtmosphericEffectsState
         return attributes;
     }
 
+    /// <summary>Draws one frame from a Samus spritemap table at the effect's camera-relative anchor.</summary>
+    /// <param name="bus">Address space providing the mutable WRAM required by spritemap decoding.</param>
+    /// <param name="oam">OAM buffer receiving the decoded spritemap pieces.</param>
+    /// <param name="slot">Effect state providing the world anchor and frame index.</param>
+    /// <param name="firstSpritemap">First table entry; the current frame is added to select the entry.</param>
+    /// <param name="cameraX">Room-space camera origin subtracted from the horizontal anchor.</param>
+    /// <param name="cameraY">Room-space camera origin subtracted from the vertical anchor.</param>
+    /// <param name="artwork">Installed sprite definitions used to decode the selected table entry.</param>
     private static void DrawSamusTableSpritemap(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -251,6 +280,9 @@ public sealed class SamusAtmosphericEffectsState
                 "Samus atmospheric spritemap requires installed artwork."));
     }
 
+    /// <summary>Ensures an index addresses one of the four native atmospheric-effect slots.</summary>
+    /// <param name="slotIndex">Zero-based slot index to validate.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the slot array.</exception>
     private static void ValidateSlotIndex(int slotIndex)
     {
         if ((uint)slotIndex >= SlotCount)
@@ -279,6 +311,7 @@ public sealed class SamusAtmosphericEffectSlot
     /// <summary>$0AE4 array vertical anchor in whole room pixels; diving splashes follow the live FX surface and lava spray/dust rise one pixel per active update.</summary>
     public ushort YPosition { get; internal set; }
 
+    /// <summary>Resets the packed activity/type word, timer, and both room-space coordinates.</summary>
     internal void Clear()
     {
         FrameAndType = 0;

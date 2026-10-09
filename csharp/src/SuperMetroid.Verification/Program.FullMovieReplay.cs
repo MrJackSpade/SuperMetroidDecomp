@@ -8,11 +8,18 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Repository fixture path for the power-on 100-percent playthrough recording replayed by verification.</summary>
     private const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
+    /// <summary>SHA-256 digest used to ensure the 100-percent replay fixture has not changed.</summary>
     private const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
+    /// <summary>Repository fixture path for the 13-percent Speed Booster lsnes TAS replayed by verification.</summary>
     private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
+    /// <summary>SHA-256 digest used to ensure the 13-percent replay fixture has not changed.</summary>
     private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
 
+    /// <summary>Loads the pinned 100-percent movie and replays its converted inputs through the production game.</summary>
+    /// <param name="traceDirectory">The native input-consumption timeline and read-only WRAM checkpoints for this recording.</param>
+    /// <param name="traceFromUpdate">Optional update index from which diagnostic Samus state is printed.</param>
     private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
@@ -160,6 +167,11 @@ internal static partial class Program
         Console.WriteLine($"{movie.Name} movie replay: {updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match.");
     }
 
+    /// <summary>Prints port and native gameplay state for one replay update to help inspect a reported divergence.</summary>
+    /// <param name="game">The production game instance immediately after processing the converted update.</param>
+    /// <param name="memory">The read-only native WRAM checkpoint after that update.</param>
+    /// <param name="update">The one-based update number associated with the trace line.</param>
+    /// <param name="step">Input, source-frame, and continuation metadata for the converted update.</param>
     private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
     {
         var samus = game.RuntimeForVerification?.Samus;
@@ -229,6 +241,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reads one little-endian 16-bit word from a captured native memory image.</summary>
+    /// <param name="memory">The native memory snapshot containing the requested bytes.</param>
+    /// <param name="address">The byte offset of the word in the snapshot.</param>
+    /// <returns>The unsigned word formed from the low byte followed by the high byte.</returns>
     private static ushort Word(byte[] memory, int address) =>
         BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
 

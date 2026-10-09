@@ -23,11 +23,17 @@ public enum WreckedShipTreadmillDirection
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
 
+    /// <summary>Bank-local pointer identifying the animated-tile object currently being interpreted.</summary>
     private ushort _objectPointer;
+    /// <summary>Address of the next instruction word in the object's bank-$87 program.</summary>
     private ushort _instructionPointer;
+    /// <summary>Countdown controlling when the current instruction or frame is processed again.</summary>
     private ushort _instructionTimer;
+    /// <summary>Number of source bytes copied to VRAM for each animated frame.</summary>
     private ushort _transferByteCount;
+    /// <summary>Encoded VRAM destination used when queuing each frame transfer.</summary>
     private ushort _encodedVramDestination;
+    /// <summary>Compiled mechanics catalog entry that supplies instruction values and frame-source addresses.</summary>
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
@@ -178,6 +184,12 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             $"instructions at $87:{cursor:X4}.");
     }
 
+    /// <summary>Reads an instruction operand from this object's compiled mechanics catalog.</summary>
+    /// <param name="bus">Address space associated with the current interpreter pass; mechanics reads are resolved from the catalog.</param>
+    /// <param name="pointer">Bank-local address of the requested mechanics word.</param>
+    /// <returns>The catalogued instruction or operand at that address.</returns>
+    /// <exception cref="InvalidOperationException">No compiled mechanics entry is bound to this object.</exception>
+    /// <exception cref="InvalidDataException">The address is not part of this object's compiled mechanics.</exception>
     private ushort ReadMechanicsWord(ISnesAddressSpace bus, ushort pointer)
     {
         if (_compiledMechanics is null)

@@ -6,15 +6,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the palette bits of every installed spore-tile attribute with the native transfer data.</summary>
+    /// <param name="rom">Cartridge address space supplying the expected tilemap words.</param>
+    /// <param name="stock">Installed room-FX tilemap catalog containing the spore page.</param>
     private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x1c00));
+    /// <summary>Compares the priority bit of every installed spore-tile attribute with the native transfer data.</summary>
+    /// <param name="rom">Cartridge address space supplying the expected tilemap words.</param>
+    /// <param name="stock">Installed room-FX tilemap catalog containing the spore page.</param>
     private static void VerifySporeTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x2000));
+    /// <summary>Compares the horizontal-flip bit of every installed spore-tile attribute with the native transfer data.</summary>
+    /// <param name="rom">Cartridge address space supplying the expected tilemap words.</param>
+    /// <param name="stock">Installed room-FX tilemap catalog containing the spore page.</param>
     private static void VerifySporeTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x4000));
+    /// <summary>Compares the vertical-flip bit of every installed spore-tile attribute with the native transfer data.</summary>
+    /// <param name="rom">Cartridge address space supplying the expected tilemap words.</param>
+    /// <param name="stock">Installed room-FX tilemap catalog containing the spore page.</param>
     private static void VerifySporeTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x8000));
 
+    /// <summary>Checks one masked attribute component across the complete 1,056-cell spore tilemap.</summary>
+    /// <param name="rom">Cartridge address space containing the native spore attribute words.</param>
+    /// <param name="stock">Installed catalog whose transfer bytes are compared with the native words.</param>
+    /// <param name="mask">Attribute bits retained for this palette, priority, or flip comparison.</param>
     private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock, int mask)
     {
         ReadOnlySpan<byte> installed = stock.Resolve(RoomFxType.Spores).Span;
@@ -28,6 +44,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that stock attributes remain uncached and custom pages preserve all edited bytes independently of input storage.</summary>
+    /// <param name="rom">Cartridge address space used to seed complete custom pages from native data.</param>
+    /// <param name="stock">Stock catalog whose lazy resolution must not materialize custom attribute storage.</param>
     private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         object page = typeof(RoomFxLayer3TilemapCatalog).GetField("spores", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -57,6 +76,9 @@ internal static partial class Program
             AssertThrows<ArgumentException>(() => new RoomFxSporeTilemap(new byte[length]), "Incomplete spore page rejects");
     }
 
+    /// <summary>Runs native parity checks for palette, priority, flips, and editable storage across the spore tilemap.</summary>
+    /// <param name="rom">Cartridge address space providing the native spore transfer data.</param>
+    /// <param name="stock">Installed catalog supplying the stock spore attribute page.</param>
     private static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifySporeTilePalette), () => VerifySporeTilePalette(rom, stock));

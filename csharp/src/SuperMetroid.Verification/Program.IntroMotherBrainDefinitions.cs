@@ -5,6 +5,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Compares intro Mother Brain actor, placement, and instruction data with retail and checks production animation and explosion behavior.</summary>
     private static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -153,16 +154,31 @@ internal static partial class Program
             .GetProperty("SpriteMapPointer")!.GetValue(actor)!;
     }
 
+    /// <summary>Reads one little-endian word from the retail bank data used by the intro Mother Brain programs.</summary>
+    /// <param name="bus">Retail address space supplying the word bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit value.</returns>
     private static ushort ReadIntroMotherBrainWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>Wraps the retail bus and rejects runtime reads from intro Mother Brain definitions, instruction lists, and placement data.</summary>
+    /// <param name="source">Underlying address space for permitted reads and forwarded writes.</param>
     private sealed class IntroMotherBrainDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempted reads from protected compiled-data ranges.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the compiled-data read guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The importer attempted to read a protected intro Mother Brain byte.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted byte from the wrapped bus and rejects access to migrated intro Mother Brain tables.</summary>
+        /// <param name="address">Address requested by the actor or instruction interpreter.</param>
+        /// <returns>The source byte when the address is not protected.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to an intro Mother Brain definition, instruction, or placement range.</exception>
         public byte ReadByte(int address)
         {
             bool forbidden =
@@ -182,6 +198,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped retail address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

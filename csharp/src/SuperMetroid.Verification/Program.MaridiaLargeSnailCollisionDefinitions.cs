@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that every native Oum presentation operand selects the same installed frame without cartridge reads.</summary>
+    /// <param name="rom">Cartridge address space supplying the original bank-$A2 selector values.</param>
+    /// <param name="stock">Installed artwork catalog expected to contain every selected frame.</param>
     private static void VerifyInstalledOumVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -43,6 +46,7 @@ internal static partial class Program
             "frames with no ROM reads.");
     }
 
+    /// <summary>Compares compiled Oum collision records and callback results with cartridge behavior across rectangle boundaries.</summary>
     private static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -158,12 +162,21 @@ internal static partial class Program
         ];
     }
 
+    /// <summary>Address-space sentinel that records and rejects cartridge reads and rejects writes during compiled Oum queries.</summary>
     private sealed class OumNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of cartridge reads attempted through either byte-read interface.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads to the rejecting address-space implementation.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>No value; this sentinel always throws for a read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Records the attempted read and fails so compiled paths cannot silently access cartridge data.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>No value; this sentinel always throws for a read.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge byte read was attempted.</exception>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -171,6 +184,10 @@ internal static partial class Program
                 $"Installed Oum frame or collision read ROM byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes because this verification sentinel does not permit cartridge mutation.</summary>
+        /// <param name="address">Cartridge address the caller attempted to change.</param>
+        /// <param name="value">Byte the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A cartridge byte write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
     }

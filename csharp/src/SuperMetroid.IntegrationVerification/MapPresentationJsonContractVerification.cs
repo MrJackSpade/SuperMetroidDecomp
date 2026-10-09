@@ -9,6 +9,9 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class MapPresentationJsonContractVerification
 {
+    /// <summary>Checks duplicate-property rejection, override identity, and file preservation for extracted map presentation assets.</summary>
+    /// <param name="installationRoot">Root directory of an already extracted and validated game installation.</param>
+    /// <returns>Zero when all malformed documents are rejected and authored files remain unchanged.</returns>
     internal static int Run(string installationRoot)
     {
         GameInstallation installation = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
@@ -98,9 +101,17 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Computes SHA-256 digests for every file directly inside a directory.</summary>
+    /// <param name="directory">Directory whose files are hashed.</param>
+    /// <returns>A filename-to-uppercase-hex-digest map.</returns>
     private static Dictionary<string, string> HashFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>Replaces one manifest digest so a deliberately edited stock resource passes integrity checking.</summary>
+    /// <param name="path">Manifest file to rewrite.</param>
+    /// <param name="baseline">Original manifest bytes used as the edit source.</param>
+    /// <param name="file">Manifest key for the changed resource.</param>
+    /// <param name="content">Changed resource bytes whose digest is recorded.</param>
     private static void RewriteHash(string path, byte[] baseline, string file, byte[] content)
     {
         var manifest = System.Text.Json.Nodes.JsonNode.Parse(baseline)!;
@@ -108,6 +119,9 @@ internal static class MapPresentationJsonContractVerification
         File.WriteAllText(path, manifest.ToJsonString());
     }
 
+    /// <summary>Creates malformed JSON variants with a repeated property at the root and, when available, the first nested object.</summary>
+    /// <param name="root">Valid parsed resource document to transform.</param>
+    /// <returns>Serialized documents containing one duplicate at each selected object boundary.</returns>
     private static IEnumerable<byte[]> DuplicateDocuments(JsonElement root)
     {
         // Repeating a valid property is still ambiguous authored JSON. Before
@@ -118,6 +132,10 @@ internal static class MapPresentationJsonContractVerification
         if (nested is not null) yield return DuplicateAt(root, nested);
     }
 
+    /// <summary>Finds the property/index path to the first nonempty nested JSON object.</summary>
+    /// <param name="root">Element searched recursively.</param>
+    /// <param name="path">Path accumulated from the root; omitted for the initial search.</param>
+    /// <returns>A path containing property names and array indexes, or null when no nested object exists.</returns>
     private static string[]? FirstNestedObject(JsonElement root, string[]? path = null)
     {
         path ??= [];
@@ -138,6 +156,10 @@ internal static class MapPresentationJsonContractVerification
         return null;
     }
 
+    /// <summary>Serializes a JSON tree while repeating the first property of the object at a selected path.</summary>
+    /// <param name="root">Parsed document to serialize.</param>
+    /// <param name="target">Property/index path identifying the object in which to duplicate a property.</param>
+    /// <returns>UTF-8 JSON bytes with the selected duplicate property preserved in the output.</returns>
     private static byte[] DuplicateAt(JsonElement root, string[] target)
     {
         using var bytes = new MemoryStream();
@@ -176,6 +198,10 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Fails the contract verification when a required condition is false.</summary>
+    /// <param name="condition">Condition that must hold.</param>
+    /// <param name="message">Failure detail included in the thrown exception.</param>
+    /// <exception cref="InvalidDataException">The condition is false.</exception>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

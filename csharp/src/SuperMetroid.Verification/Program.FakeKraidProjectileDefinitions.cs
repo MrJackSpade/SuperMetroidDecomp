@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Fake Kraid spit and spike definitions against production projectile spawns.</summary>
+    /// <param name="rom">Cartridge address space used to verify migrated projectile data.</param>
     private static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -103,6 +105,8 @@ internal static partial class Program
             "Fake Kraid projectile definitions: four spit launches, three spike rows, both facings and every real physical spawn pass with both source tables forbidden.");
     }
 
+    /// <summary>Compares each supported spike-row offset with the cartridge table and rejects unsupported rows.</summary>
+    /// <param name="rom">Address space containing the original spike-row offset table.</param>
     private static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 3; row++)
@@ -117,6 +121,10 @@ internal static partial class Program
                 "Fake Kraid unsupported launch port is rejected without masking");
     }
 
+    /// <summary>Creates a projectile system whose bus is the supplied guarded address space.</summary>
+    /// <param name="bus">Bus that the new system will use for cartridge access.</param>
+    /// <param name="instanceFlags">Reflection visibility flags used to replace the system's private bus field.</param>
+    /// <returns>A room-enemy system connected to <paramref name="bus"/>.</returns>
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
         ISnesAddressSpace bus,
         BindingFlags instanceFlags)
@@ -126,17 +134,29 @@ internal static partial class Program
         return enemies;
     }
 
+    /// <summary>Forwards address-space operations but blocks reads of migrated Fake Kraid projectile tables.</summary>
+    /// <param name="source">Address space used for allowed reads and all writes.</param>
     private sealed class FakeKraidProjectileReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes an import-source byte request through the guarded read operation.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The requested byte when its address is outside the migrated tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads from the wrapped space unless the address belongs to a migrated projectile table.</summary>
+        /// <param name="address">Address to read.</param>
+        /// <returns>The byte returned by the wrapped space for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address is in a guarded Fake Kraid projectile table.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83
                 ? throw new InvalidOperationException(
                     $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

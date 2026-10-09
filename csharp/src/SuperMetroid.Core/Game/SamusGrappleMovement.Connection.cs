@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static partial class SamusGrappleMovement
 {
+    /// <summary>Moves a firing grapple into its queued cancellation phase without claiming a shot or Samus movement.</summary>
+    /// <param name="grapple">The grapple state whose pending connection is canceled.</param>
+    /// <returns>The firing result that lets the normal cancellation path run on the next update.</returns>
     private static GrappleMovementResult QueueFiringCancellation(SamusGrappleState grapple)
     {
         grapple.CancelFromConnectedPose = false;
@@ -19,6 +22,9 @@ public static partial class SamusGrappleMovement
             OwnsMovement: false);
     }
 
+    /// <summary>Publishes rope, endpoint, and flare coordinates from the current firing offsets and Samus position.</summary>
+    /// <param name="samus">The current body position and subpixel state used to place the endpoint.</param>
+    /// <param name="grapple">The firing offsets and destination fields to update.</param>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
         // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
@@ -42,6 +48,18 @@ public static partial class SamusGrappleMovement
     private static ushort AddFixed(ushort position, ushort subposition, int offsetFixed) =>
         unchecked((ushort)((((uint)position << 16 | subposition) + (uint)offsetFixed) >> 16));
 
+    /// <summary>
+    /// Applies the cartridge grapple collision dispatcher at an endpoint, following extension blocks
+    /// and performing any reaction owned by the room's PLM system.
+    /// </summary>
+    /// <param name="level">The room collision data and dimensions used to resolve the endpoint and extensions.</param>
+    /// <param name="samus">Samus state for reactions that apply periodic spike damage.</param>
+    /// <param name="endpointX">The endpoint's horizontal pixel coordinate.</param>
+    /// <param name="endpointY">The endpoint's vertical pixel coordinate.</param>
+    /// <param name="plms">The room PLM owner required for reactions that create or notify PLMs.</param>
+    /// <returns>The native carry and overflow result that determines whether the grapple remains live, cancels, or connects.</returns>
+    /// <exception cref="InvalidOperationException">A reaction needs a PLM owner or free PLM slot that was not available.</exception>
+    /// <exception cref="InvalidDataException">The endpoint has an unsupported behavior value, collision type, or extension chain.</exception>
     private static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,
         SamusState samus,
@@ -227,6 +245,21 @@ public static partial class SamusGrappleMovement
         throw new InvalidDataException("Grapple extension chain exceeded sixteen blocks.");
     }
 
+    /// <summary>
+    /// Applies the selected native connection record after an enemy or block accepts the firing grapple,
+    /// including its sound, rope angle, pose choice, and any deferred-pose state.
+    /// </summary>
+    /// <param name="bus">The address space used to read Samus's source movement type.</param>
+    /// <param name="samus">Samus's firing position and movement state used to choose the connection response.</param>
+    /// <param name="grapple">The accepted anchor, direction, and grapple state to connect.</param>
+    /// <param name="previousXPosition">Samus's horizontal position captured before accepted connection geometry can snap her.</param>
+    /// <param name="previousYPosition">Samus's vertical position captured before accepted connection geometry can snap her.</param>
+    /// <param name="validateAnchorBlock">Whether later connected updates must recheck the anchor's collision block.</param>
+    /// <param name="validateAnchorEnemy">Whether later connected updates must recheck the anchor enemy.</param>
+    /// <param name="deferConnectionPoseChange">Whether the firing caller postpones applying the selected connection pose.</param>
+    /// <returns>The resulting connected grapple phase and movement ownership.</returns>
+    /// <exception cref="InvalidDataException">The selected connection record names an unsupported native handler or function.</exception>
+    /// <exception cref="ArgumentException">Both anchor validators are enabled or both are disabled.</exception>
     private static GrappleMovementResult ConnectAcceptedFiringCore(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -471,6 +504,8 @@ public static partial class SamusGrappleMovement
         });
     }
 
+    /// <summary>Seeds the flare, point, and rope-segment animation counters and frames for a newly initialized beam.</summary>
+    /// <param name="grapple">The grapple animation state whose initial frame and segment slots are set.</param>
     private static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // `$9B:C51E` installs counter one after initializing the rope instruction slots.
@@ -493,6 +528,10 @@ public static partial class SamusGrappleMovement
         }
     }
 
+    /// <summary>Recomputes the physical rope start and visual flare origin from Samus's final firing pose and movement mode.</summary>
+    /// <param name="bus">The address space used to read current movement and pose-dependent offsets.</param>
+    /// <param name="samus">The final firing pose, position, and movement state.</param>
+    /// <param name="grapple">The grapple direction and origin fields updated for drawing.</param>
     private static void RefreshFiringDrawOrigins(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -517,6 +556,13 @@ public static partial class SamusGrappleMovement
             graphicsYOffset));
     }
 
+    /// <summary>Resolves the authored beam-flare offset for the current run mode and firing direction.</summary>
+    /// <param name="bus">The address space associated with the firing update; the selected offset comes from installed placement definitions.</param>
+    /// <param name="grapple">The grapple state containing the installed flare-placement definitions.</param>
+    /// <param name="direction">The native firing direction whose flare offset is requested.</param>
+    /// <param name="running">Whether to select the running rather than standing placement.</param>
+    /// <returns>The horizontal and vertical flare offsets relative to Samus.</returns>
+    /// <exception cref="InvalidOperationException">The grapple state has no installed flare-placement definitions.</exception>
     private static (short X, short Y) ReadFlareOrigin(ISnesAddressSpace bus, SamusGrappleState grapple, byte direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(

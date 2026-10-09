@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the compiled Kraid PLM programs, physical draws, and live mutation behavior against retail data.</summary>
     private static void VerifyCompiledKraidRoomPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -35,6 +36,11 @@ internal static partial class Program
             "Kraid room PLMs: eight reachable programs and ten physical draws match ROM; all live ceiling/spike paths, timing and collision run without source reads.");
     }
 
+    /// <summary>Runs one ceiling or spike mutation through its full lifetime and checks timing, final blocks, and source isolation.</summary>
+    /// <param name="header">Kraid room-PLM header that selects the mutation behavior.</param>
+    /// <param name="expectedDeletionFrame">Frame on which the PLM is expected to finish and be removed.</param>
+    /// <param name="firstFinalWord">Expected first final tile word for the selected mutation.</param>
+    /// <param name="changedBlockCount">Number of neighboring blocks modified by the scenario.</param>
     private static void VerifyKraidMutation(
         ushort header, int expectedDeletionFrame, ushort firstFinalWord,
         int changedBlockCount)
@@ -89,13 +95,23 @@ internal static partial class Program
             $"Kraid mutation ${header:X4} reads no migrated source bytes");
     }
 
+    /// <summary>Forwards memory access while rejecting reads from migrated Kraid mutation programs and draw lists.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class KraidRoomSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Count of attempted reads within migrated Kraid source ranges.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the source-range guard.</summary>
+        /// <param name="address">CPU address requested from the importer.</param>
+        /// <returns>The underlying byte when the address is not a migrated Kraid range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects Kraid source ranges that should be served by compiled definitions, forwarding other reads.</summary>
+        /// <param name="address">CPU address requested by the PLM system.</param>
+        /// <returns>The byte from the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address lies in a migrated Kraid program or draw range.</exception>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -114,6 +130,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without modifying the read guard.</summary>
+        /// <param name="address">CPU address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

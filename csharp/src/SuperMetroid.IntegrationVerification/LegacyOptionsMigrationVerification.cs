@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 
+/// <summary>Verifies restoration rules for debugger layouts that predate registered serialized fields.</summary>
 internal static class LegacyOptionsMigrationVerification
 {
     /// <summary>Frontend captures predating the door music-upload NMI source restore the lag-free policy.</summary>
@@ -20,6 +21,8 @@ internal static class LegacyOptionsMigrationVerification
         Console.WriteLine("Legacy frontend: only the upload NMI source omitted; restored with the lag-free policy.");
     }
 
+    /// <summary>Runs the focused legacy-layout checks for options and runtime debugger state.</summary>
+    /// <returns>Zero when all migration checks pass; failures are reported by thrown exceptions.</returns>
     public static int Run()
     {
         VerifyDoorMusicUploadNmisMigration();
@@ -64,6 +67,7 @@ internal static class LegacyOptionsMigrationVerification
             throw new InvalidDataException($"Legacy fields registered by more than one introduction: {string.Join(", ", duplicates)}.");
     }
 
+    /// <summary>Checks whole-introduction restoration and rejection of partial, unknown, or current-layout omissions.</summary>
     private static void VerifyOmissionResolution()
     {
         var type = typeof(SuperMetroidGameOptions);
@@ -81,6 +85,10 @@ internal static class LegacyOptionsMigrationVerification
         Reject(type, ["<Invincibility>k__BackingField"], "an unregistered omission");
     }
 
+    /// <summary>Requires an omission set to be rejected instead of silently accepting an unsupported legacy layout.</summary>
+    /// <param name="type">Serialized state type whose registered introductions are being resolved.</param>
+    /// <param name="omitted">Field names asserted to be an invalid omission set.</param>
+    /// <param name="description">Human-readable case label included if the invalid layout is accepted.</param>
     private static void Reject(Type type, string[] omitted, string description)
     {
         try { DebuggerStateFieldMigrations.ResolveOmissions(type, omitted); }
@@ -88,6 +96,7 @@ internal static class LegacyOptionsMigrationVerification
         throw new InvalidDataException($"Legacy layout with {description} was accepted.");
     }
 
+    /// <summary>Checks initialization of omitted runtime owners and neutral defaults from an older debugger layout.</summary>
     private static void VerifyRuntimeMigration()
     {
         var type = typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime);
@@ -100,6 +109,7 @@ internal static class LegacyOptionsMigrationVerification
         Console.WriteLine("Legacy runtime: four documented additions resolve and omitted owners initialize.");
     }
 
+    /// <summary>Checks that legacy camera restoration omits only the new checkpoint and preserves its four position words on serialization.</summary>
     private static void VerifyCameraMigration()
     {
         var type = typeof(SuperMetroid.Core.Game.ScrollBoundaryCamera);
@@ -123,6 +133,7 @@ internal static class LegacyOptionsMigrationVerification
         Console.WriteLine("Camera checkpoint: explicit legacy omission and exact four-word graph round trip pass.");
     }
 
+    /// <summary>Checks legacy auto-jump field introductions and round-trips pending input plus pose-transition history.</summary>
     private static void VerifyAutoJumpMigration()
     {
         var type = typeof(SuperMetroid.Core.Game.SamusState);

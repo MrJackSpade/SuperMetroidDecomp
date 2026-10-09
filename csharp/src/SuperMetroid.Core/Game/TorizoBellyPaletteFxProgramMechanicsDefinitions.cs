@@ -31,12 +31,19 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     private const ushort BombProgram = 0xe2e9;
     /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
     private const ushort GoldenProgram = 0xe331;
+    /// <summary>Cached two-entry catalog in the native Bomb Torizo then Golden Torizo order.</summary>
     private static readonly IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> Definitions =
         new ProgramDefinitions();
 
+    /// <summary>Provides indexed access to the two fixed belly-palette program definitions.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
     {
+        /// <summary>Number of supported belly-palette owners in native definition order.</summary>
         public int Count => 2;
+        /// <summary>Gets the definition for Bomb Torizo or Golden Torizo by owner index.</summary>
+        /// <param name="index">Numeric <see cref="TorizoBellyPaletteOwner"/> value selecting the owner.</param>
+        /// <returns>The corresponding setup program and its frame/loop addresses.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index does not name either supported owner.</exception>
         public TorizoBellyPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, BombDefinition, BombProgram),
@@ -44,11 +51,18 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
+        /// <summary>Builds the setup and timed-record addresses from one owner's native entry point.</summary>
+        /// <param name="owner">Torizo variant that owns the palette program.</param>
+        /// <param name="definition">Palette-FX definition pointer that selects the program.</param>
+        /// <param name="start">Address of the program's setup instructions.</param>
+        /// <returns>A definition with its first timed frame and terminal loop-command addresses.</returns>
         private static TorizoBellyPaletteFxProgramDefinition Create(
             TorizoBellyPaletteOwner owner, ushort definition, ushort start) =>
             new(owner, definition, start, (ushort)(start + 8),
                 (ushort)(start + 8 + FrameCount * FrameByteCount));
 
+        /// <summary>Enumerates Bomb Torizo and Golden Torizo definitions in that order.</summary>
+        /// <returns>An enumerator over the two fixed belly-palette definitions.</returns>
         public IEnumerator<TorizoBellyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
@@ -101,6 +115,12 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 /// <summary>One Torizo-specific entry and six-frame belly palette loop.</summary>
 public sealed class TorizoBellyPaletteFxProgramDefinition
 {
+    /// <summary>Stores one Torizo variant's palette setup and six-frame loop addresses.</summary>
+    /// <param name="owner">Torizo variant whose belly palette is controlled.</param>
+    /// <param name="definitionPointer">Native palette-FX definition that installs this program.</param>
+    /// <param name="programStart">Address of the setup sequence that selects palette and death pre-instruction.</param>
+    /// <param name="firstFramePointer">Address of the first timed color record.</param>
+    /// <param name="loopInstructionPointer">Address of the terminal goto command after the sixth record.</param>
     internal TorizoBellyPaletteFxProgramDefinition(
         TorizoBellyPaletteOwner owner,
         ushort definitionPointer,

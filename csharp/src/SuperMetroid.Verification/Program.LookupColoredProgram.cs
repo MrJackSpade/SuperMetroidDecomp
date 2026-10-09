@@ -3,14 +3,33 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that colored-door instruction controls match the independent native byte and word oracle.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramControls(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 0);
+
+    /// <summary>Checks colored-door draw operands against their independently enumerated native locations.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramDraws(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 1);
+
+    /// <summary>Checks target-address operands for all colored-door program phases.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramTargets(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 2);
+
+    /// <summary>Checks sound operands in colored-door hit and opening sequences.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramSounds(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 3);
+
+    /// <summary>Checks hit-count operands used by the colored-door program.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramHitCount(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 4);
 
+    /// <summary>Checks callback-address operands installed by colored-door program entries.</summary>
+    /// <param name="rom">Cartridge address space containing the original colored-door program bytes.</param>
     private static void VerifyColoredProgramCallback(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 5);
 
+    /// <summary>Compares one categorized field across the complete address domain owned by colored-door programs.</summary>
+    /// <param name="rom">Cartridge address space supplying the independent expected byte values.</param>
+    /// <param name="field">Field category: controls, draws, targets, sounds, hit counts, or callbacks.</param>
     private static void VerifyColoredProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.

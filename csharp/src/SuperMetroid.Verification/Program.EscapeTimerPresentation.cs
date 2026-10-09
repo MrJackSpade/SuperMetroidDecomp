@@ -6,6 +6,12 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted timer resources, installed artwork transfers, OAM output, overrides, and validation.</summary>
+    /// <param name="bus">Cartridge address space used as the source for native timer data.</param>
+    /// <param name="stock">Directory containing the installed stock timer assets.</param>
+    /// <param name="overrides">Directory used to write and load edited timer assets.</param>
+    /// <param name="original">Installed stock presentation catalog used for identity and rendering comparisons.</param>
+    /// <param name="initialPalettes">Base gameplay palettes supplied when constructing a runtime for queued-transfer rebinding.</param>
     private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -172,6 +178,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks all ten compiled digit pointers and confirms rendering and extraction avoid runtime table reads.</summary>
+    /// <param name="bus">Cartridge address space used to compare native pointer-table data with the compiled definitions.</param>
     private static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
     {
         for (int digit = 0; digit < 10; digit++)
@@ -240,9 +248,14 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps an address space and rejects reads from the compiled escape-timer digit pointer table.</summary>
+    /// <param name="source">Underlying cartridge address space to which allowed reads and writes are forwarded.</param>
     private sealed class EscapeTimerPointerReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Rejects an address inside the ten-entry digit pointer table.</summary>
+        /// <param name="address">Cartridge address being checked before a read.</param>
+        /// <exception cref="InvalidOperationException">The address targets a digit pointer that must not be reread.</exception>
         private static void RejectPointerTable(int address)
         {
             if (address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
@@ -251,18 +264,29 @@ internal static partial class Program
                     $"Escape timer reread compiled digit pointer at ${address:X6}.");
         }
 
+        /// <summary>Reads one byte after ensuring it is outside the compiled digit pointer table.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address targets the guarded digit pointer table.</exception>
         public byte ReadByte(int address)
         {
             RejectPointerTable(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Reads one cartridge byte after ensuring it is outside the compiled digit pointer table.</summary>
+        /// <param name="address">Cartridge address to read from the import source.</param>
+        /// <returns>The byte supplied by the wrapped cartridge import source.</returns>
+        /// <exception cref="InvalidOperationException">The address targets the guarded digit pointer table.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectPointerTable(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

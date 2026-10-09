@@ -5,6 +5,10 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the intro Rinka actor and physical definitions against the cartridge, then verifies
+    /// both timed spawn waves, animation progression, and cleanup without runtime table rereads.
+    /// </summary>
     private static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -89,16 +93,28 @@ internal static partial class Program
             "  Intro Rinka definitions: six actor, twelve physical and 48 instruction bytes match; both timed spawn waves, animation and cleanup are ROM-table independent.");
     }
 
+    /// <summary>Reads one little-endian 16-bit word from two adjacent cartridge bytes.</summary>
+    /// <param name="bus">Cartridge address space containing the native definition bytes.</param>
+    /// <param name="address">Address of the low byte of the word.</param>
+    /// <returns>The two bytes combined in little-endian order.</returns>
     private static ushort ReadIntroRinkaWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>
+    /// Wraps cartridge access and rejects reads of the Rinka definitions, instruction lists,
+    /// and initial physical tables that production logic is expected to use from compiled data.
+    /// </summary>
+    /// <param name="source">Underlying cartridge address space for all permitted reads and writes.</param>
     private sealed class IntroRinkaDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempts to reread protected compiled Rinka data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Reads a cartridge byte through the same protected-range check as ordinary address-space reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Throws for protected native Rinka data ranges and forwards every other read to the wrapped source.</summary>
         public byte ReadByte(int address)
         {
             bool forbidden =
@@ -115,6 +131,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped cartridge address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

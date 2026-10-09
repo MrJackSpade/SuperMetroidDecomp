@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the compiled Ceres flight actor data and that production playback does not reread it.</summary>
     private static void VerifyCeresFlightActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -33,13 +34,23 @@ internal static partial class Program
 
     }
 
+    /// <summary>Forwards cartridge access while rejecting reads from the compiled Ceres actor-definition ranges.</summary>
+    /// <param name="source">Address space used for permitted reads and all writes.</param>
     private sealed class CeresFlightActorDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from a guarded actor-definition range.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes an import-source byte read through the guarded address-space read path.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte at <paramref name="address"/> when it is outside the guarded ranges.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads a permitted address from the wrapped space and rejects reads from compiled actor data.</summary>
+        /// <param name="address">Address requested from the wrapped space.</param>
+        /// <returns>The byte at <paramref name="address"/> when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded Ceres actor-definition range.</exception>
         public byte ReadByte(int address)
         {
             if (IsForbidden(address))
@@ -51,8 +62,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to update.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Determines whether an address falls within a compiled Ceres actor-definition range.</summary>
+        /// <param name="address">Address to classify.</param>
+        /// <returns><see langword="true"/> when the address is guarded; otherwise, <see langword="false"/>.</returns>
         private static bool IsForbidden(int address) =>
             address is >= 0x8bbe84 and < 0x8bbe86 or
                 >= 0x8bbe8a and < 0x8bbe8c or

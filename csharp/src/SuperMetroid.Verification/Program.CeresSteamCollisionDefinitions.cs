@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs installed Ceres steam instruction cycles and checks that every selected frame has editable artwork.</summary>
+    /// <param name="stock">Enemy artwork catalog whose extended-frame identities must cover the four directional cycles.</param>
     private static void VerifyInstalledCeresSteamInstructionFrames(
         EnemyTileArtworkCatalog stock)
     {
@@ -52,6 +54,7 @@ internal static partial class Program
             $"{selected} compiled visual selections, no ROM reads.");
     }
 
+    /// <summary>Compares compiled Ceres steam frames and hitboxes with retail data, including touch and shot boundary behavior.</summary>
     private static void VerifyCeresSteamCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -201,12 +204,20 @@ internal static partial class Program
         ];
     }
 
+    /// <summary>Address-space test double that fails and counts any attempted read during installed collision processing.</summary>
     private sealed class CeresSteamCollisionNoReadBus : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of read attempts rejected by this bus.</summary>
         internal int ReadAttempts { get; private set; }
 
+        /// <summary>Routes importer cartridge reads through the rejecting read path.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>This bus never returns a byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Records and rejects every address-space read to prove installed processing is ROM-free.</summary>
+        /// <param name="address">Address whose attempted read is being detected.</param>
+        /// <returns>This method never returns.</returns>
         public byte ReadByte(int address)
         {
             ReadAttempts++;
@@ -214,6 +225,9 @@ internal static partial class Program
                 $"Installed Ceres steam collision read ROM byte ${address:X6}.");
         }
 
+        /// <summary>Rejects writes so collision processing cannot silently mutate the test bus.</summary>
+        /// <param name="address">Address targeted by the write.</param>
+        /// <param name="value">Byte that would have been written.</param>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Ceres steam collision wrote ROM byte ${address:X6}.");
     }

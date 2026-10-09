@@ -4,6 +4,7 @@ using System.Text.Json;
 
 internal static partial class Program
 {
+    /// <summary>Runs focused checks for managed DSP reset, PCM playback, resampling, ownership, and validation behavior.</summary>
     private static void VerifyManagedSnesDsp()
     {
         Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
@@ -25,6 +26,7 @@ internal static partial class Program
         Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }
 
+    /// <summary>Confirms changing SRCN affects playback only when the current BRR block reaches its loop boundary.</summary>
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
@@ -46,6 +48,7 @@ internal static partial class Program
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
     }
 
+    /// <summary>Verifies key-on and END/LOOP resolve their distinct directory entries for a sample alias.</summary>
     private static void VerifyManagedDspUsesIndependentLoopEntry()
     {
         var dsp = new ManagedSnesDsp(new byte[65536]);
@@ -77,6 +80,7 @@ internal static partial class Program
             new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
     }
 
+    /// <summary>Checks that stereo-channel separation and full-range transitions are measured correctly at buffer seams.</summary>
     private static void VerifyStereoPcmContinuityMeter()
     {
         var meter = new StereoPcmContinuityMeter();
@@ -172,6 +176,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Appends one length-prefixed SPC upload record containing the target address and payload bytes.</summary>
+    /// <param name="stream">Upload stream receiving the encoded record.</param>
+    /// <param name="target">SPC RAM address where the payload is installed.</param>
+    /// <param name="payload">Bytes carried by this upload record.</param>
     private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
     {
         stream.Add(unchecked((byte)payload.Length));
@@ -291,6 +299,9 @@ internal static partial class Program
         AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
     }
 
+    /// <summary>Programs voice zero with audible gain, pitch, envelope, and the requested sample source.</summary>
+    /// <param name="dsp">Managed DSP whose voice-zero registers are initialized.</param>
+    /// <param name="sourceNumber">Sample-directory source selected for the voice.</param>
     private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
         dsp.WriteRegister(0x00, 0x7f);
@@ -376,6 +387,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Confirms malformed RAM sizes, register addresses, frame lengths, sample mappings, and WAV data fail explicitly.</summary>
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
         AssertThrows<ArgumentException>(

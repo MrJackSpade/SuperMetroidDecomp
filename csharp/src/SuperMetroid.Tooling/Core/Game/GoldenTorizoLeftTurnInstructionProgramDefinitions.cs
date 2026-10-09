@@ -22,8 +22,10 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Reports the bank containing the dodge-turn and ordinary left-turn instruction streams.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Compiled control flow and operand slots for both Golden Torizo left-turn programs.</summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd1f1),
         Entry(Dodge),
@@ -38,14 +40,25 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
         Op(TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(8));
 
+    /// <summary>Number of compiled control words across the dodge-turn and ordinary turn lists.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Gets one instruction-control word from the compiled bank-$AA programs.</summary>
+    /// <param name="index">Zero-based word index in the catalog's mechanics-word ordering.</param>
+    /// <returns>The native address and value of the selected control word.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
+    /// <summary>Number of visual operands that select the shared left-turn presentation frame.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Gets the bank-$AA address of one compiled visual-frame operand.</summary>
+    /// <param name="index">Zero-based index among the turn programs' presentation operands.</param>
+    /// <returns>The address whose value selects the facing-screen turning frame.</returns>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Determines whether an address contains a byte owned by one of the compiled control words.</summary>
+    /// <param name="address">Cartridge address tested for compiled mechanics ownership.</param>
+    /// <returns><see langword="true"/> when the byte belongs to a translated control word.</returns>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

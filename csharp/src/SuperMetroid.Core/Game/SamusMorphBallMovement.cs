@@ -399,6 +399,18 @@ public static class SamusMorphBallMovement
         return new MorphBallMovementResult(vertical, landed, HitCeiling: false);
     }
 
+    /// <summary>
+    /// Advances vertical speed with the cartridge's one-frame gravity lag, applies external
+    /// displacement, and performs the corresponding vertical block-collision scan.
+    /// </summary>
+    /// <param name="bus">Address space used by collision and room data reads.</param>
+    /// <param name="level">Room geometry against which the vertical displacement is tested.</param>
+    /// <param name="samus">Kinematics whose vertical position and speed are advanced.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to preserve alternating collision scan order.</param>
+    /// <param name="plms">Optional PLM system notified by collisions.</param>
+    /// <param name="landed">Receives whether the resulting downward scan hit a solid block.</param>
+    /// <param name="hitCeiling">Receives whether the resulting upward scan hit a solid block.</param>
+    /// <returns>The vertical collision result; speed stopping is deferred to the later transition handler.</returns>
     private static BlockMoveResult MoveVerticallyWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -460,6 +472,17 @@ public static class SamusMorphBallMovement
         return vertical;
     }
 
+    /// <summary>
+    /// Performs the grounded no-speed vertical probe using extra displacement and current
+    /// horizontal speed, without updating the stored vertical velocity.
+    /// </summary>
+    /// <param name="bus">Address space used by room collision data reads.</param>
+    /// <param name="level">Room geometry against which the vertical probe is tested.</param>
+    /// <param name="samus">Kinematics and horizontal speed used to calculate the probe displacement.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to select the collision scan order.</param>
+    /// <param name="plms">Optional PLM system notified by collisions.</param>
+    /// <param name="hitCeiling">Receives whether an upward probe collided with a solid block.</param>
+    /// <returns>The collision result from the probe.</returns>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -485,8 +508,16 @@ public static class SamusMorphBallMovement
         return result;
     }
 
+    /// <summary>Combines the integer and fractional words of a 16.16 fixed-point value.</summary>
+    /// <param name="high">The upper word containing the signed integer magnitude.</param>
+    /// <param name="low">The lower word containing the fractional magnitude.</param>
+    /// <returns>The combined unsigned bit representation used by the movement arithmetic.</returns>
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
+    /// <summary>Rejects missing movement dependencies before a public frame-step method reads or changes game state.</summary>
+    /// <param name="bus">Address space required for movement constants and room reads.</param>
+    /// <param name="level">Loaded room geometry required for collision checks.</param>
+    /// <param name="samus">Samus state whose movement is being simulated.</param>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -499,6 +530,9 @@ public static class SamusMorphBallMovement
 }
 
 /// <summary>Collision and direction result produced by one ordinary Morph-Ball frame.</summary>
+/// <param name="Vertical">The vertical block-collision result for the frame.</param>
+/// <param name="Landed">Whether downward movement collided with a solid block.</param>
+/// <param name="HitCeiling">Whether upward movement collided with a solid block.</param>
 public readonly record struct MorphBallMovementResult(
     BlockMoveResult Vertical,
     bool Landed,

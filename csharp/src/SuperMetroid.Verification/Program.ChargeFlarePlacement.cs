@@ -8,6 +8,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native charge-flare OAM placement, edited placement behavior, ROM-read
+    /// independence, and isolation of placement data from saved runtime state.
+    /// </summary>
     private static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
@@ -97,15 +101,29 @@ internal static partial class Program
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
         static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
+    /// <summary>Invokes flare drawing with pose and direction metadata resolved before the renderer call.</summary>
     private delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
         ushort layer1X, ushort layer1Y, int component, SamusMode7Transform? transform,
         ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? sprites,
         byte direction, bool running, byte poseYOffset, bool facingLeft);
 
+    /// <summary>
+    /// Supplies selected synthetic pose metadata and can reject reads of the native flare-origin
+    /// tables while forwarding unrelated address-space operations.
+    /// </summary>
+    /// <param name="source">Underlying cartridge address space for permitted reads and writes.</param>
+    /// <param name="pose">Pose whose native metadata bytes should be exposed through the guard.</param>
+    /// <param name="direction">Direction byte substituted for the selected pose's direction metadata.</param>
+    /// <param name="forbid">Whether reads from the native flare-origin table range should throw.</param>
     private sealed class FlarePlacementGuard(ISnesAddressSpace source, byte pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Reads a cartridge byte through the same pose substitution and origin-table guard as other reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Returns substituted pose metadata when requested, optionally rejects flare-origin table
+        /// reads, and forwards all other addresses to the wrapped source.
+        /// </summary>
         public byte ReadByte(int address)
         {
             int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
@@ -116,9 +134,14 @@ internal static partial class Program
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>
+    /// Confirms that rebinding edited flare offsets changes the production runtime's drawn OAM,
+    /// while placement catalogs remain host-bound data rather than serialized game state.
+    /// </summary>
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);

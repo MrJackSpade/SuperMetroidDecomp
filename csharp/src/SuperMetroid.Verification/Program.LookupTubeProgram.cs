@@ -3,13 +3,22 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that compiled Tube control-flow words match the native PLM program over the complete address domain.</summary>
     private static void VerifyTubeControls(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 0);
+    /// <summary>Verifies that compiled Tube draw operands match their native PLM words.</summary>
     private static void VerifyTubeDraws(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 1);
+    /// <summary>Verifies that compiled Tube target operands match their native PLM words.</summary>
     private static void VerifyTubeTargets(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 2);
+    /// <summary>Verifies that compiled Tube callback operands match their native PLM words.</summary>
     private static void VerifyTubeCallbacks(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 3);
+    /// <summary>Verifies that compiled Tube event operands match their native PLM words.</summary>
     private static void VerifyTubeEvents(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 4);
+    /// <summary>Verifies that the compiled Tube sound operand matches its native PLM byte.</summary>
     private static void VerifyTubeSound(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 5);
 
+    /// <summary>Checks one Tube instruction field's ownership, value, and composition with the shared room-program reader.</summary>
+    /// <param name="rom">Retail address space used to compare the field's original native bytes.</param>
+    /// <param name="field">Field selector: 0 controls, 1 draws, 2 targets, 3 callbacks, 4 events, or 5 sound.</param>
     private static void VerifyTubeField(SuperMetroidAddressSpace rom, int field)
     {
         // Native instruction boundaries, independently transcribed from bank_84.asm.

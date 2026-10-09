@@ -6,6 +6,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Verifies intro egg, baby, scientist, and demo-input behavior against cartridge-backed references while guarding migrated data ranges.</summary>
     private static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -220,16 +221,30 @@ internal static partial class Program
             "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
     }
 
+    /// <summary>Reads a little-endian actor-definition word from cartridge data for comparison with the compiled definition.</summary>
+    /// <param name="bus">Address space supplying the two bytes.</param>
+    /// <param name="address">Cartridge address of the low byte.</param>
+    /// <returns>The word formed from the low byte and following high byte.</returns>
     private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>Wraps cartridge reads and rejects access to compiled intro actor, instruction, demo-input, or collision data.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded source ranges and for writes.</param>
     private sealed class IntroBabyActorDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from source ranges that should be served by compiled intro data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer byte requests through the same forbidden-range checks as normal address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The requested byte when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled intro source data and forwards all other reads to the wrapped address space.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the source for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a guarded intro actor, instruction, demo-input, or collision range.</exception>
         public byte ReadByte(int address)
         {
             bool forbidden =
@@ -267,6 +282,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to update.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

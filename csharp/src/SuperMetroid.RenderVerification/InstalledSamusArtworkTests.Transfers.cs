@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class InstalledSamusArtworkTests
 {
+    /// <summary>Compares stock and edited body-artwork uploads for every top and bottom tile set.</summary>
+    /// <param name="fixture">Installed stock and edited artwork catalogs used by the comparison.</param>
+    /// <param name="memory">Cartridge address space supplying bytes for the queued tile transfers.</param>
+    /// <param name="check">Compares the rendered VRAM and OAM results for each transfer pair.</param>
+    /// <returns>The number of body tile definitions checked.</returns>
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
     {
@@ -49,6 +54,10 @@ internal static partial class InstalledSamusArtworkTests
         return count;
     }
 
+    /// <summary>Builds a pending top or bottom transfer state as if restored from a saved debugger state.</summary>
+    /// <param name="transfer">Transfer state whose selected definition and enable flag are set.</param>
+    /// <param name="upper"><see langword="true"/> to set the top transfer; otherwise sets the bottom transfer.</param>
+    /// <param name="pointer">Definition address retained by the pending transfer.</param>
     private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int pointer)
     {
         // Construct a faithful saved pending-transfer state without modifying the
@@ -59,6 +68,11 @@ internal static partial class InstalledSamusArtworkTests
             nameof(transfer.BottomTransferEnabled))!.SetValue(transfer, true);
     }
 
+    /// <summary>Checks that queued cannon and death-sequence uploads use the rebound installed artwork.</summary>
+    /// <param name="fixture">Stock and edited artwork catalogs used as the two transfer sources.</param>
+    /// <param name="memory">Cartridge address space used to perform each queued transfer.</param>
+    /// <param name="check">Compares the resulting VRAM images and tile-gallery sprites.</param>
+    /// <returns>The number of queued source transfers checked.</returns>
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
     {
@@ -93,16 +107,33 @@ internal static partial class InstalledSamusArtworkTests
         }
     }
 
+    /// <summary>Adapts installed Samus artwork catalogs to the byte-source interfaces used by queued uploads.</summary>
+    /// <param name="artwork">Catalog supplying cannon and death-tile bytes for queued DMA requests.</param>
     private sealed class SamusQueuedArtwork(SamusBodyArtworkCatalog artwork) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a raw upload range from the cannon or death-tile catalogs.</summary>
+        /// <param name="source">Cartridge source address requested by the queued transfer.</param>
+        /// <param name="length">Number of bytes requested from that source.</param>
+        /// <param name="data">Receives the matching artwork bytes when either catalog contains the range.</param>
+        /// <returns><see langword="true"/> when an installed artwork catalog supplies the requested range.</returns>
         public bool TryResolve(int source, int length, out ReadOnlyMemory<byte> data) =>
             artwork.ArmCannon.TryResolveTile(source, length, out data) ||
             artwork.DeathTiles.TryResolve(source, length, out data);
+
+        /// <summary>Rejects typed asset requests because this fixture models raw cartridge-addressed transfers.</summary>
+        /// <param name="asset">Typed asset identifier that is unsupported by this test adapter.</param>
+        /// <exception cref="InvalidDataException">A typed transfer was unexpectedly routed through the raw-source fixture.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidDataException($"Unexpected typed transfer {asset} in Samus upload fixture.");
     }
 
+    /// <summary>Builds an OAM gallery covering the tile ranges represented by one or two VRAM uploads.</summary>
+    /// <param name="first">First upload's starting VRAM character destination.</param>
+    /// <param name="firstSize">First upload length in bytes.</param>
+    /// <param name="second">Second upload's starting VRAM character destination.</param>
+    /// <param name="secondSize">Second upload length in bytes; zero omits the second range.</param>
+    /// <returns>An OAM buffer that places each uploaded tile in a visible grid.</returns>
     private static OamBuffer TileGallery(ushort first, int firstSize, ushort second, int secondSize)
     {
         var oam = new OamBuffer(); oam.BeginFrame();

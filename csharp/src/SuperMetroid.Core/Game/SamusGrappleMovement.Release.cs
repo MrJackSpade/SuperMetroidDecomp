@@ -9,9 +9,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static partial class SamusGrappleMovement
 {
+    /// <summary>Queues the requested grapple movement sound through Samus's shared liquid-physics sound queue.</summary>
+    /// <param name="samus">Samus state whose sound queue receives the request.</param>
+    /// <param name="request">Sound effect and queue limit selected by the caller.</param>
     private static void QueueGrappleSound(SamusState samus, SamusSoundRequest request) =>
         samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued);
 
+    /// <summary>Updates the rope anchor, flare origin, body position, and selected animation frame during a grapple swing.</summary>
+    /// <param name="bus">Address space used to resolve Samus's facing state.</param>
+    /// <param name="samus">Samus state whose rendered body position and animation are updated.</param>
+    /// <param name="grapple">Swing state supplying rope geometry, angle, speed, and installed frame definitions.</param>
     private static void PositionSamusFromPendulum(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -52,6 +59,9 @@ public static partial class SamusGrappleMovement
         samus.YPosition = unchecked((ushort)(ropeStart.Y + offset.Y));
     }
 
+    /// <summary>Derives Samus's fixed-point horizontal and vertical launch speeds from the current pendulum velocity and angle.</summary>
+    /// <param name="samus">Samus state receiving launch velocity and vertical direction.</param>
+    /// <param name="grapple">Swing state supplying angular velocity and angle at release.</param>
     private static void PropelSamusFromSwing(
         SamusState samus,
         SamusGrappleState grapple)
@@ -123,6 +133,8 @@ public static partial class SamusGrappleMovement
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
+    /// <summary>Resets grapple-owned movement, anchor-validation, wall-jump, and flare state after the connected phase ends.</summary>
+    /// <param name="grapple">State object whose connected-phase fields are cleared.</param>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
         // `$9B:C8C5/$C9CE` share the same long cleanup tail. Palette, sound, and HUD-item
@@ -147,6 +159,8 @@ public static partial class SamusGrappleMovement
         ClearFlareAnimation(grapple);
     }
 
+    /// <summary>Clears the shared charge/grapple flare counter and animation progression fields.</summary>
+    /// <param name="grapple">Grapple state whose flare animation fields are reset.</param>
     private static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // `$9B:C856/$C8C5/$C9CE/$CB8B` all clear these same shared charge/grapple WRAM
@@ -156,6 +170,10 @@ public static partial class SamusGrappleMovement
         grapple.FlareAnimationTimer = 0;
     }
 
+    /// <summary>Scales an SNES signed sine-table component by a rope length using the native signed fixed-point rounding behavior.</summary>
+    /// <param name="sine">Signed table component, including the exact endpoints -256 and 256.</param>
+    /// <param name="length">Rope length in pixels.</param>
+    /// <returns>The signed pixel displacement along the coordinate axis.</returns>
     private static int ScaleCoordinate(short sine, int length) => sine switch
     {
         -256 => -length,
@@ -164,6 +182,9 @@ public static partial class SamusGrappleMovement
         _ => (sine * length) >> 8,
     };
 
+    /// <summary>Reads the signed negative-cosine table word used by the grapple's native angle calculations.</summary>
+    /// <param name="index">Table index, with normal angle wrapping applied by the table reader.</param>
+    /// <returns>The signed 16-bit trigonometric component.</returns>
     private static short ReadSignedSine(int index)
     {
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Exercises Bomb Torizo's production drool-spawn path across its random values and facing-dependent angle modes.</summary>
+    /// <param name="rom">Cartridge address space supplying reference sine-table values.</param>
     private static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,6 +53,13 @@ internal static partial class Program
             "Bomb Torizo drool sine: 544 real random/facing spawns preserve native XY velocity with the entire signed-sine ROM table forbidden.");
     }
 
+    /// <summary>Runs one drool spawn and checks allocation, sine-derived velocity, and facing-adjusted origin.</summary>
+    /// <param name="rom">Reference cartridge data used to calculate the expected sine values.</param>
+    /// <param name="spawn">Production enemy-system method that creates the drool projectile.</param>
+    /// <param name="random">Queued random value consumed by the spawn routine.</param>
+    /// <param name="parameter1">Bomb Torizo's native facing and angle-mode parameter.</param>
+    /// <param name="expectedAngle">Expected eight-bit angle selected by this case.</param>
+    /// <param name="scenario">Human-readable description included in assertion failures.</param>
     private static void VerifyBombTorizoDroolSpawn(
         SuperMetroidAddressSpace rom,
         MethodInfo spawn,
@@ -94,6 +103,10 @@ internal static partial class Program
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 
+    /// <summary>Reads the signed sine-table word used as an expected drool velocity component.</summary>
+    /// <param name="rom">Cartridge address space containing the reference table.</param>
+    /// <param name="angle">Eight-bit sine-table selector.</param>
+    /// <returns>The raw 16-bit table word at the selected angle.</returns>
     private static ushort ReadBombTorizoDroolSineWord(
         SuperMetroidAddressSpace rom,
         byte angle)
@@ -102,17 +115,29 @@ internal static partial class Program
         return unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
     }
 
+    /// <summary>Wraps cartridge access and throws if the production spawn path reads the migrated signed-sine table.</summary>
+    /// <param name="source">Underlying address space used for allowed reads and forwarded writes.</param>
     private sealed class BombTorizoDroolSineReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes importer reads through the same sine-table guard as normal address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The requested byte when its address is outside the migrated sine table.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated signed-sine table and delegates all other reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The requested address is within the signed-sine table range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa0b443 and < 0xa0b643
                 ? throw new InvalidOperationException(
                     $"Bomb Torizo drool attempted migrated sine read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a memory write to the wrapped cartridge address space.</summary>
+        /// <param name="address">Cartridge address to update.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

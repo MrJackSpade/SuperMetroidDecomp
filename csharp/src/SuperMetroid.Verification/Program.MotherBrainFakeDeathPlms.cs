@@ -4,6 +4,10 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that compiled Mother Brain fake-death PLM programs and draws match the retail data,
+    /// and that reachable mutations execute without rereading their migrated source bytes.
+    /// </summary>
     private static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -67,6 +71,12 @@ internal static partial class Program
 
     }
 
+    /// <summary>
+    /// Compares one reachable Mother Brain mutation's level changes with its compiled draw runs
+    /// while guarding the migrated program and draw data against runtime reads.
+    /// </summary>
+    /// <param name="header">Room PLM header used to spawn the mutation.</param>
+    /// <param name="program">Instruction-list address whose compiled draw describes the expected blocks.</param>
     private static void VerifyMotherBrainFakeDeathMutation(
         ushort header, ushort program)
     {
@@ -116,13 +126,24 @@ internal static partial class Program
             $"Mother Brain mutation ${header:X4} reads no migrated source bytes");
     }
 
+    /// <summary>
+    /// Wraps an address space to reject reads from Mother Brain fake-death program and draw ranges
+    /// after those definitions have been compiled into the port.
+    /// </summary>
+    /// <param name="source">Address space that supplies permitted reads and receives writes.</param>
     private sealed class MotherBrainFakeDeathSourceGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from the migrated Mother Brain program or draw data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer reads through the same guard used for SNES address-space reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects bank $84 reads within the migrated program or draw ranges and delegates other
+        /// addresses to the wrapped source.
+        /// </summary>
         public byte ReadByte(int address)
         {
             int pointer = address & 0xffff;
@@ -141,6 +162,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Passes writes through unchanged to the wrapped address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

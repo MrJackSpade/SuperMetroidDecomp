@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Bounded bank-$A9 word ranges copied into the compiled Mother Brain head instruction catalog.</summary>
     private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
     [
         (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart,
@@ -21,6 +22,7 @@ internal static partial class Program
             MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    /// <summary>Compares catalogued head-list words to ROM and verifies brain animation consumes compiled operands.</summary>
     private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -142,19 +144,35 @@ internal static partial class Program
             "nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
+    /// <summary>Wraps cartridge access and rejects runtime reads of compiled Mother Brain head-list bytes.</summary>
+    /// <param name="source">Underlying address space used for all reads outside the compiled list ranges and for writes.</param>
     private sealed class MotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the same compiled-range guard as ordinary address-space reads.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The permitted byte from the wrapped source.</returns>
+        /// <exception cref="InvalidOperationException">The address is a byte in a compiled head instruction word.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads from the wrapped source unless the address belongs to a compiled head-list word.</summary>
+        /// <param name="address">Address of the byte requested.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
+        /// <exception cref="InvalidOperationException">The address is a byte in a compiled head instruction word.</exception>
         public byte ReadByte(int address) =>
             IsCompiledHeadByte(address)
                 ? throw new InvalidOperationException(
                     $"Mother Brain reread compiled head instruction at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Tests whether a bank-$A9 byte falls within a compiled instruction word, including its high byte.</summary>
+        /// <param name="address">Full cartridge address to compare with the catalogued regions.</param>
+        /// <returns><see langword="true"/> when the address is in bank $A9 and within a region's word bytes.</returns>
         private static bool IsCompiledHeadByte(int address) =>
             (address >> 16) == 0xa9 && MotherBrainHeadRegions.Any(region =>
                 (address & 0xffff) >= region.Start &&

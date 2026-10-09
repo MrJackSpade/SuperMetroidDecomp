@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies compiled Ceres actor metadata and instruction programs, then steps the destruction
+    /// and Zebes reveal through production actor paths while rejecting reads from compiled source data.
+    /// </summary>
     private static void VerifyCeresDestructionActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -49,13 +53,24 @@ internal static partial class Program
 
     }
 
+    /// <summary>
+    /// Wraps cartridge access for the Ceres production-path verification and fails if actor metadata
+    /// or instruction-list bytes are reread instead of using compiled definitions.
+    /// </summary>
+    /// <param name="source">The retail address space used for all reads outside the protected compiled-data ranges and for writes.</param>
     private sealed class CeresDestructionActorDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of reads rejected because they targeted compiled Ceres actor data.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same protected-range check as ordinary address-space reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from compiled actor metadata or instruction lists and forwards all other reads.</summary>
+        /// <param name="address">The SNES address requested by the production path.</param>
+        /// <returns>The byte from the wrapped retail address space when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address lies in a protected compiled-data range.</exception>
         public byte ReadByte(int address)
         {
             if (IsForbidden(address))
@@ -67,8 +82,14 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the wrapped retail address space.</summary>
+        /// <param name="address">The SNES address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Tests whether an address belongs to the compiled Ceres actor metadata or instruction bytes covered by the guard.</summary>
+        /// <param name="address">The SNES address to classify.</param>
+        /// <returns><see langword="true"/> when a read would bypass the compiled definitions under test.</returns>
         private static bool IsForbidden(int address) =>
             address is >= 0x8bbf23 and < 0x8bbf25 or
                 >= 0x8bbf29 and < 0x8bbf2b or

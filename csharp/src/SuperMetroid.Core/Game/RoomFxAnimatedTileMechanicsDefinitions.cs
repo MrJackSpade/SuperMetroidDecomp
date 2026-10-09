@@ -85,6 +85,7 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
 /// <summary>One engine-owned bank-$87 animated-tile object header and loop skeleton.</summary>
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
+    /// <summary>Calculated read-only frame view derived from the instruction start, count, and shared duration.</summary>
     private readonly CalculatedFrames frames;
 
     internal RoomFxAnimatedTileObjectDefinition(
@@ -112,10 +113,19 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
     /// never a generated frame table. Index bounds match the former read-only list.</remarks>
+    /// <param name="first">The first timed instruction address in the object's frame sequence.</param>
+    /// <param name="count">Number of timed frame records before the terminal goto.</param>
+    /// <param name="duration">Shared timer value assigned to each calculated frame.</param>
     private sealed class CalculatedFrames(ushort first, int count, ushort duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
+        /// <summary>Number of calculated timed frames in this object's loop.</summary>
         public int Count => count;
+
+        /// <summary>Gets the calculated control record at a frame's zero-based position.</summary>
+        /// <param name="index">Frame index within this animation loop.</param>
+        /// <returns>The native address and shared duration for that frame.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the frame sequence.</exception>
         public RoomFxAnimatedTileFrameDefinition this[int index]
         {
             get
@@ -124,6 +134,8 @@ public sealed class RoomFxAnimatedTileObjectDefinition
                 return new(unchecked((ushort)(first + index * 4)), duration);
             }
         }
+        /// <summary>Enumerates calculated frame records in instruction order without storing a frame table.</summary>
+        /// <returns>An enumerator over every timed frame in the loop.</returns>
         public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < count; index++) yield return this[index];
@@ -184,6 +196,8 @@ public sealed class RoomFxAnimatedTileObjectDefinition
 }
 
 /// <summary>One timed control word preceding a live presentation-source operand.</summary>
+/// <param name="InstructionPointer">Bank-local address of the frame's duration word in the instruction stream.</param>
+/// <param name="Duration">Number of ticks the frame remains active before the next instruction.</param>
 public readonly record struct RoomFxAnimatedTileFrameDefinition(
     ushort InstructionPointer,
     ushort Duration)

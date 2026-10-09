@@ -6,6 +6,8 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Checks that editable swing-frame art changes presentation without affecting grapple-body placement or pendulum state.</summary>
+    /// <param name="rom">Cartridge address space used to compare native swing selectors and body-offset data.</param>
     private static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
         var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -75,12 +77,23 @@ internal static partial class Program
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
 
+    /// <summary>Wraps cartridge access to substitute swing-frame selectors and reject reads from compiled body-offset data.</summary>
+    /// <param name="source">Underlying address space for selector reads, permitted reads, and writes.</param>
     private sealed class GrappleBodyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>When enabled, adds eleven modulo 32 to the native swing-frame selector value.</summary>
         public bool ReplaceArt;
+        /// <summary>When enabled, rejects reads of the installed swing-frame selector range.</summary>
         public bool ForbidArt;
+        /// <summary>Routes an import-cartridge read through the selector substitution and read guards.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The guarded address-space value for the requested address.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Substitutes or rejects grapple-art reads and forwards all other reads to the source.</summary>
+        /// <param name="address">Cartridge address requested by the simulation or renderer.</param>
+        /// <returns>The substituted selector byte or the underlying source byte for permitted reads.</returns>
+        /// <exception cref="InvalidOperationException">A forbidden selector or compiled body-offset byte is read.</exception>
         public byte ReadByte(int address)
         {
             if (ForbidArt && address is >= 0x9bc1c2 and < 0x9bc2c2)
@@ -91,6 +104,9 @@ internal static partial class Program
                 return (byte)((source.ReadByte(address) + 11) & 31);
             return source.ReadByte(address);
         }
+        /// <summary>Forwards a cartridge write to the wrapped address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte stored at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

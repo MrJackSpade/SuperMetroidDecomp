@@ -3,9 +3,17 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the escape-gate program's complete byte and overlapping-word ownership against its source data.</summary>
+    /// <param name="rom">Cartridge address space supplying the original escape-gate fields.</param>
     private static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
+
+    /// <summary>Checks the escape-gate program's complete draw-field byte and overlapping-word ownership.</summary>
+    /// <param name="rom">Cartridge address space supplying the original escape-gate fields.</param>
     private static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
 
+    /// <summary>Compares control or drawing field ownership over the full 16-bit address space and validates composed readers.</summary>
+    /// <param name="rom">Cartridge address space containing the native program bytes.</param>
+    /// <param name="draw">Selects the drawing operands when true, otherwise the control operands.</param>
     private static void VerifyEscapeGateProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xbb34,0xbb38,0xbb3a,0xbb3e,0xbb42,0xbb44,0xbb48,0xbb4c,0xbb50];
@@ -40,10 +48,21 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the exported escape-gate frame identities, order, and shared geometry.</summary>
+    /// <param name="rom">Cartridge address space used to check original frame geometry.</param>
     private static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
+
+    /// <summary>Verifies the four collision words for each escape-gate frame against native data.</summary>
+    /// <param name="rom">Cartridge address space containing native collision values.</param>
     private static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
+
+    /// <summary>Verifies the four visual words for each escape-gate frame against native data.</summary>
+    /// <param name="rom">Cartridge address space containing native visual values.</param>
     private static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
 
+    /// <summary>Checks the selected escape-gate draw contract, including pointer coverage and the chosen geometry, collision, or visual words.</summary>
+    /// <param name="rom">Cartridge address space used as the native reference.</param>
+    /// <param name="field">Selects geometry and identity checks (0), collision bits (1), or visual bits (2).</param>
     private static void VerifyEscapeGateDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9473,0x947f,0x948b];

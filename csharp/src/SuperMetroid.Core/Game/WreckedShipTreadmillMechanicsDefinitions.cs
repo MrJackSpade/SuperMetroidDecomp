@@ -38,8 +38,13 @@ public static class WreckedShipTreadmillMechanicsDefinitions
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillObjectDefinition
 {
+    /// <summary>Calculates the four timed frame-entry pointers from the loop's first instruction address.</summary>
     private readonly CalculatedFramePointers frameInstructionPointers;
 
+    /// <summary>Creates the object header and derives its loop-entry addresses from the selected wait command.</summary>
+    /// <param name="direction">Physical conveyor direction represented by this object.</param>
+    /// <param name="objectPointer">Bank-$87 object-header address.</param>
+    /// <param name="waitInstructionPointer">Instruction that waits for the area boss to be defeated.</param>
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
         ushort objectPointer,
@@ -53,12 +58,22 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     // The native two-byte boss wait is followed by four four-byte timed entries.
     // Store the first cursor only; indexing and enumeration calculate the layout.
+    /// <summary>Calculates frame-entry pointers for the fixed four-record timed treadmill loop.</summary>
+    /// <param name="first">Pointer to the first frame record after the boss-wait command.</param>
     private sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
     {
+        /// <summary>Gets the number of timed frame records in the loop.</summary>
         public int Count => 4;
+
+        /// <summary>Gets a frame-entry pointer by adding its four-byte record stride to the first entry.</summary>
+        /// <param name="index">Zero-based frame record index, from 0 through 3.</param>
+        /// <returns>The bank-relative pointer to the selected timed frame record.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The index is outside the four-record loop.</exception>
         public ushort this[int index] => (uint)index < 4
             ? unchecked((ushort)(first + 4 * index))
             : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Enumerates all four calculated frame-entry pointers in loop order.</summary>
+        /// <returns>An enumerator over the timed record addresses.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -66,6 +81,9 @@ public sealed class WreckedShipTreadmillObjectDefinition
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Maps an aligned pointer within this object's four frame records to its zero-based frame index.</summary>
+    /// <param name="pointer">Candidate bank-relative instruction pointer.</param>
+    /// <returns>The frame index from 0 through 3, or -1 when the pointer is outside the record run.</returns>
     private int FrameIndex(ushort pointer)
     {
         int delta = unchecked((ushort)(pointer - LoopInstructionPointer));

@@ -109,8 +109,22 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
+    /// <summary>Instruction offsets for the nine artwork operands, calculated from this program's start address.</summary>
     private readonly IReadOnlyList<ushort> sourceOperandPointers;
 
+    /// <summary>Creates the mechanics description associated with one bank-$87 statue header.</summary>
+    /// <param name="objectPointer">Address of the animated-tile object header.</param>
+    /// <param name="programStart">Address of the first instruction in the statue's program.</param>
+    /// <param name="transferByteCount">Number of artwork bytes uploaded by a timed frame.</param>
+    /// <param name="encodedVramDestination">Hardware-encoded VRAM destination stored in the header.</param>
+    /// <param name="statueStateBit">Bit used by this statue's animation-state instructions.</param>
+    /// <param name="greyEventNumber">Event raised when the statue reaches its grey state.</param>
+    /// <param name="firstFrameDuration">Duration of the first oscillation frame.</param>
+    /// <param name="packedBossTest">Packed area and boss-mask operand used by the program's boss test.</param>
+    /// <param name="clearPaletteByteIndex">Palette byte offset at which the program clears three colors.</param>
+    /// <param name="unlockEffectParameter">Statue selector passed to the eye-glow and soul effect spawners.</param>
+    /// <param name="paletteFxDefinition">Bank-$8D palette-effect definition spawned during release.</param>
+    /// <param name="targetPaletteByteIndex">Palette byte offset receiving the shared grey target colors.</param>
     internal TourianStatueAnimatedTileProgramDefinition(
         ushort objectPointer,
         ushort programStart,
@@ -171,9 +185,20 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// </summary>
     public IReadOnlyList<ushort> SourceOperandPointers => sourceOperandPointers;
 
+    /// <summary>
+    /// Provides the nine source-operand addresses without allocating or storing a separate address array.
+    /// Each address is derived from the program start and the fixed instruction layout.
+    /// </summary>
+    /// <param name="programStart">Address of the first instruction in the statue's program.</param>
     private sealed class CalculatedSourceOperands(ushort programStart) : IReadOnlyList<ushort>
     {
+        /// <summary>The number of artwork operands in the statue program: five oscillation frames, two release frames, and two waits.</summary>
         public int Count => 9;
+
+        /// <summary>Gets the source address for one artwork operand in program order.</summary>
+        /// <param name="index">Zero-based operand position, from zero through <see cref="Count"/> minus one.</param>
+        /// <returns>The operand's bank-$87 address, calculated with 16-bit address wrapping.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the operand list.</exception>
         public ushort this[int index]
         {
             get
@@ -190,6 +215,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
             }
         }
 
+        /// <summary>Enumerates the calculated operand addresses in the order they occur in the program.</summary>
+        /// <returns>An enumerator over the nine source addresses.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -284,6 +311,9 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
         return true;
     }
 
+    /// <summary>Adds an instruction-relative byte offset to this program's start address.</summary>
+    /// <param name="relativeOffset">Byte offset from <see cref="ProgramStart"/>.</param>
+    /// <returns>The resulting bank-$87 address, with 16-bit address wrapping.</returns>
     private ushort At(int relativeOffset) =>
         unchecked((ushort)(ProgramStart + relativeOffset));
 }

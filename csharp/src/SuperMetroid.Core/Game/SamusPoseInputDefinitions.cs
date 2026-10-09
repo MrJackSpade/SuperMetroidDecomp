@@ -25,9 +25,12 @@ internal enum CanonicalPoseButtons : ushort
 }
 
 /// <summary>The selected native condition, retained for transition diagnostics.</summary>
+/// <param name="TargetPose">Pose selected by the matching transition condition.</param>
 internal readonly record struct SamusPoseInputRule(ushort TargetPose);
 
 /// <summary>A decision result, including the distinction between an empty list and exhausted conditions.</summary>
+/// <param name="Rule">Matched target pose, or null when no condition selected a transition.</param>
+/// <param name="HasConditions">True when the source list contains conditions, even if none matched the supplied inputs.</param>
 internal readonly record struct SamusPoseInputMatch(SamusPoseInputRule? Rule, bool HasConditions);
 
 /// <summary>Native pose-to-input dispatch and selected-condition diagnostics; no stored transition rows.</summary>
@@ -273,6 +276,10 @@ internal static class SamusPoseInputDefinitions
     /// <summary>Pose $64, TransitionTable pointer at $91:9FAA: preserved native input-dispatch identity.</summary>
     private const SamusPoseId NativePose64 = (SamusPoseId)0x64;
 
+    /// <summary>Resolves a native pose identifier to its transition-list address when that pose has a compiled list.</summary>
+    /// <param name="pose">Native pose byte whose input-transition list is requested.</param>
+    /// <param name="pointer">Receives the list address on success, or zero when no list is compiled for the pose.</param>
+    /// <returns><see langword="true"/> when the pose maps to a transition-list address.</returns>
     internal static bool TryGetPointer(byte pose, out ushort pointer)
     {
         pointer = (SamusPoseId)pose switch
@@ -368,14 +375,29 @@ internal static class SamusPoseInputDefinitions
         return pointer != 0;
     }
 
+    /// <summary>Evaluates the conditions for a transition list using the matching early- or late-table rules.</summary>
+    /// <param name="pointer">Native transition-list address, used to select the rule table.</param>
+    /// <param name="held">Canonical buttons currently held.</param>
+    /// <param name="newlyPressed">Canonical buttons pressed on this update.</param>
+    /// <returns>The selected target and whether the list contained any conditions.</returns>
     internal static SamusPoseInputMatch Match(ushort pointer, ushort held, ushort newlyPressed) =>
         pointer < LaterListsBegin
             ? SamusPoseInputRulesEarly.Match(pointer, held, newlyPressed)
             : SamusPoseInputRulesLate.Match(pointer, held, newlyPressed);
 
+    /// <summary>Tests whether an input word contains every button required by a transition condition.</summary>
+    /// <param name="input">Canonical held or newly pressed buttons to test.</param>
+    /// <param name="required">Required button combination from the native transition table.</param>
+    /// <returns><see langword="true"/> when all required bits are present in <paramref name="input"/>.</returns>
     internal static bool Has(ushort input, CanonicalPoseButtons required) =>
         (input & (ushort)required) == (ushort)required;
 
+    /// <summary>Constructs a match result for a satisfied transition condition.</summary>
+    /// <param name="index">Condition ordinal, retained for call-site parity with table evaluation.</param>
+    /// <param name="newlyPressed">Buttons newly pressed while evaluating the condition.</param>
+    /// <param name="held">Buttons held while evaluating the condition.</param>
+    /// <param name="target">Pose selected by the satisfied condition.</param>
+    /// <returns>A result containing the target pose and indicating that the list has conditions.</returns>
     internal static SamusPoseInputMatch Accept(int index, CanonicalPoseButtons newlyPressed,
         CanonicalPoseButtons held, SamusPoseId target) =>
         new(new((ushort)target), HasConditions: true);

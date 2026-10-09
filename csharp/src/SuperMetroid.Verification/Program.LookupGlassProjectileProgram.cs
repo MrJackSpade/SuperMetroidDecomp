@@ -3,13 +3,28 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled mechanics-word addresses against the native glass-projectile programs.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassMechanicsAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 0);
+    /// <summary>Checks calculated presentation-word addresses against artwork operands in the native programs.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassPresentationAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 1);
+    /// <summary>Compares replacement shard-animation durations with values parsed from the cartridge programs.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassShardCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 2);
+    /// <summary>Checks the cartridge cadence for the sparkle program's presentation frames.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassSparkleCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 3);
+    /// <summary>Checks the native projectile control operands against the compiled glass definitions.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassProjectileControls(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 4);
+    /// <summary>Checks that each parsed native projectile loop points to the expected instruction target.</summary>
+    /// <param name="rom">Cartridge address space containing the original projectile programs.</param>
     private static void VerifyGlassProjectileLoopTargets(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 5);
 
+    /// <summary>Parses bounded native glass-projectile programs and compares the selected data category with compiled definitions.</summary>
+    /// <param name="rom">Cartridge address space used to read the original instruction words.</param>
+    /// <param name="field">Category to verify: mechanics addresses, presentation addresses, shard cadence, sparkle cadence, control operands, or loop targets.</param>
     private static void VerifyGlassProjectileField(SuperMetroidAddressSpace rom, int field)
     {
         // Parse the original bounded programs; never obtain expected addresses or values

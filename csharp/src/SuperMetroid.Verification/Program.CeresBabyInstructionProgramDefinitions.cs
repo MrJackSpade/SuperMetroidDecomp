@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Ceres Baby control and visual operands against retail data, then exercises its production draw loop and installed-art overrides.</summary>
     private static void VerifyCeresBabyInstructionProgramDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -258,6 +259,10 @@ internal static partial class Program
             "selectors pass through the complete production loop.");
     }
 
+    /// <summary>Reads one little-endian instruction word from the bank-$A6 Ceres Baby program.</summary>
+    /// <param name="source">Address space containing the retail program bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadCeresBabyProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -265,14 +270,26 @@ internal static partial class Program
             source.ReadByte(0xa60000 | address) |
             source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Guards migrated Ceres Baby instruction and palette data against runtime ROM reads, with an optional guard for native frame bytes.</summary>
+    /// <param name="source">Underlying address space used for allowed reads and forwarded writes.</param>
+    /// <param name="blockBabyFrames">When true, also rejects reads from the Ceres Baby frame-data range during the installed-art draw comparison.</param>
     private sealed class CeresBabyInstructionReadGuard(
         ISnesAddressSpace source, bool blockBabyFrames = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of reads attempted against a protected compiled-data range.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the guard's protected-range checks.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The source byte when the address is outside guarded ranges.</returns>
+        /// <exception cref="InvalidOperationException">The importer attempted to read compiled Ceres Baby data.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Reads an allowed byte from the wrapped address space and rejects access to migrated control, selector, palette, or optionally frame data.</summary>
+        /// <param name="address">Address requested by the runtime.</param>
+        /// <returns>The source byte for an unguarded address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a protected Ceres Baby data range; the attempt is counted before throwing.</exception>
         public byte ReadByte(int address)
         {
             if (CeresBabyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -292,6 +309,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte value to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

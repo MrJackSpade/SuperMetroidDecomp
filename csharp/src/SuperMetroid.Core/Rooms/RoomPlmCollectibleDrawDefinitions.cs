@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One native one-block collectible draw list and its physical level word.</summary>
+/// <param name="Pointer">Bank-$84 address of the native six-byte draw record.</param>
+/// <param name="LevelWord">Complete physical level word written by the draw list.</param>
+/// <param name="Id">Stable authoring identifier used to associate editable appearance data with this draw.</param>
 internal readonly record struct RoomPlmCollectibleDrawFrame(
     ushort Pointer, ushort LevelWord, string Id);
 
@@ -27,6 +30,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
     /// <summary>Dynamic-item second-frame selector table at $84:E077.</summary>
     internal const ushort DynamicFrame1Table = 0xe077;
 
+    /// <summary>Enumerates every supported collectible draw frame, including orb, tank, dynamic-slot, and reveal layouts.</summary>
     internal static IEnumerable<RoomPlmCollectibleDrawFrame> All
     {
         get
@@ -62,6 +66,14 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return found;
     }
 
+    /// <summary>
+    /// Resolves a recognized native draw-record start to its physical level word and optionally
+    /// its stable authoring identifier.
+    /// </summary>
+    /// <param name="pointer">Bank-$84 address to resolve; it must point to a complete record start.</param>
+    /// <param name="includeId">Whether to construct the asset identifier when the caller needs exported artwork metadata.</param>
+    /// <param name="frame">Receives the resolved draw, or the default value when the address is not recognized.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a supported draw record.</returns>
     private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
     {
         int index;
@@ -88,12 +100,22 @@ internal static class RoomPlmCollectibleDrawDefinitions
         frame = new(pointer, word, id);
         return true;
     }
+    /// <summary>Maps a six-byte record address to its zero-based position within a contiguous native draw group.</summary>
+    /// <param name="pointer">Address being checked.</param>
+    /// <param name="first">Address of the group's first record.</param>
+    /// <param name="count">Number of records in the group.</param>
+    /// <param name="index">Receives the record position calculated from the address offset.</param>
+    /// <returns><see langword="true"/> only for aligned record starts within the group's range.</returns>
     private static bool TryIndex(ushort pointer, ushort first, int count, out int index)
     {
         int offset = pointer - first;
         index = offset / 6;
         return offset >= 0 && offset % 6 == 0 && index < count;
     }
+    /// <summary>Finds a supported collectible draw by its exact, case-sensitive authoring identifier.</summary>
+    /// <param name="id">Stable identifier assigned to a draw frame.</param>
+    /// <param name="frame">Receives the matching draw, or the default value when no identifier matches.</param>
+    /// <returns><see langword="true"/> when the identifier belongs to one of the catalog's supported draw frames.</returns>
     internal static bool TryGetById(string id, out RoomPlmCollectibleDrawFrame frame)
     {
         foreach (var candidate in All)

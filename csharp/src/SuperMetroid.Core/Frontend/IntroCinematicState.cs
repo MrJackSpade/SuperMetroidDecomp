@@ -91,7 +91,7 @@ public sealed partial class IntroCinematicState
             var baseline = new SnesCgram();
             value.Palette.LoadTo(baseline);
             baseline.Colors.CopyTo(introPalette);
-            if (Phase == IntroCinematicPhase.WaitForInitialMusicQueue)
+            if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(cgram);
             if (Phase >= IntroCinematicPhase.WaitForPageOneMusicQueue &&
                 Phase < IntroCinematicPhase.CeresFlight)
@@ -113,7 +113,7 @@ public sealed partial class IntroCinematicState
             objects?.BindEyeArtwork(value.EyeFrames);
             // $8B:A66F replaces the initial BG3 card with live typewriter words
             // when page one begins. Never overwrite that current state on restore.
-            if (Phase < IntroCinematicPhase.WaitForPageOneMusicQueue)
+            if (InitialNarrationCardResident)
                 vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
                     value.InitialNarrationTilemap.Span);
             vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
@@ -154,6 +154,8 @@ public sealed partial class IntroCinematicState
     private IntroCinematicObjectSystem? objects;
     private CinematicPaletteFader? paletteFader;
     private SamusState? flashbackSamus;
+    /// <summary>$1A57 during the Mother Brain flashback: $8B:AF65 sets it, $8B:B842 clears it.</summary>
+    private IntroSamusDisplay flashbackSamusDisplay;
     private IntroMotherBrainSpriteState? flashbackMotherBrain;
     private IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
     private IntroRinkaSystem? flashbackRinkas;
@@ -165,9 +167,10 @@ public sealed partial class IntroCinematicState
     private ushort crossfadeCounter;
     private ushort introCrossfadeCounter;
     private ushort nmiFrameCounter;
-    private int brightness;
+    /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
+    private int inidisp = ScreenFade.ForcedBlank;
+    private readonly ScreenFade fade = new();
     private int timer = 8;
-    private int fadeDelay;
 
     /// <summary>Creates the opening cinematic and performs its initial native graphics and music setup.</summary>
     /// <param name="bus">The cartridge address space used by cinematic actors and projectiles.</param>
@@ -193,9 +196,6 @@ public sealed partial class IntroCinematicState
             "Opening cinematic requires installed artwork.");
         this.beamArtwork = beamArtwork;
         this.samusBodyArtwork = samusBodyArtwork;
-        audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(
-            MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
         characterArtwork.Palette.LoadTo(cgram);
         cgram.Colors.CopyTo(introPalette);
 
@@ -243,7 +243,9 @@ public sealed partial class IntroCinematicState
             equippedBeams: 0, beamArtwork);
         characterArtwork.Palette.LoadTo(cgram);
 
-        Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+        // The PPU loads above are invisible: the intro stays in forced blank until its fade.
+        // $8B:A395 itself runs as the next dispatch's cinematic function.
+        Phase = IntroCinematicPhase.Initial;
     }
 
     private void ApplyIntroFont(ReadOnlySpan<byte> transfer)
@@ -259,6 +261,14 @@ public sealed partial class IntroCinematicState
             IntroCinematicRomData.Text.JapaneseBlankCharacterByteCount).ToArray();
         vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte, transfer);
     }
+
+    /// <summary>
+    /// True until $8B:A66F replaces the initial BG3 card. The setup phases appended to the
+    /// enum precede it in time even though they follow it numerically.
+    /// </summary>
+    private bool InitialNarrationCardResident =>
+        Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne ||
+        Phase < IntroCinematicPhase.WaitForPageOneMusicQueue;
 
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
@@ -278,24 +288,30 @@ public sealed partial class IntroCinematicState
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
-        bool demoWasLoadedBeforeThisFrame = flashbackDemoInput is not null;
         bool explosionsExistedBeforeThisFrame = flashbackMotherBrainExplosions is not null;
-        bool babyDiscoveryExistedBeforeThisFrame = babyDiscovery is not null;
-        bool scientistCutsceneExistedBeforeThisFrame = scientistCutscene is not null;
         nmiFrameCounter++;
         switch (Phase)
         {
+            case IntroCinematicPhase.Initial:
+                // $8B:A59B-$A5A2: stop the music, then load the opening music data.
+                audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                audio?.QueueMusicDelayed8(
+                    MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
+                Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
+                break;
+
             case IntroCinematicPhase.WaitForInitialMusicQueue:
                 // QueueMusic_Delayed8 owns an eight-frame delay before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
+                    // $8B:A5A7 seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
-                    fadeDelay = 0;
+                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInFirstNarration:
-                if (StepSlowFade(inward: true, delayReload: 2))
+                if (fade.AdvanceSlowFadeIn(ref inidisp))
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
                     timer = 60;
@@ -339,14 +355,20 @@ public sealed partial class IntroCinematicState
             case IntroCinematicPhase.FourSecondHold:
                 if (--timer <= 0)
                 {
+                    // $8B:A64C seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
-                    fadeDelay = 0;
+                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
                 }
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
-                if (StepSlowFade(inward: false, delayReload: 2))
-                    SetupFirstIllustratedPage();
+                // $8B:A663 installs $8B:A66F, which sets up page one in the next dispatch.
+                if (fade.AdvanceSlowFadeOut(ref inidisp))
+                    Phase = IntroCinematicPhase.SetupPageOne;
+                break;
+
+            case IntroCinematicPhase.SetupPageOne:
+                SetupFirstIllustratedPage();
                 break;
 
             case IntroCinematicPhase.WaitForPageOneMusicQueue:
@@ -355,13 +377,14 @@ public sealed partial class IntroCinematicState
                 if (MusicQueueFinished())
                 {
                     objects!.StartEnglishPageOne();
+                    // $8B:A82B seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
-                    fadeDelay = 0;
+                    fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInPageOne:
-                if (StepSlowFade(inward: true, delayReload: 2))
+                if (fade.AdvanceSlowFadeIn(ref inidisp))
                     Phase = IntroCinematicPhase.PageOneText;
                 break;
 
@@ -461,7 +484,9 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.IntroFadeOut:
-                if (StepSlowFade(inward: false, delayReload: 1))
+                // $8B:B72F fades through HandleFadingOut and finishes once forced blank is set.
+                fade.FadeOut(ref inidisp);
+                if (ScreenFade.IsForcedBlank(inidisp))
                 {
                     NarrationFinished = true;
                     // $8B:BCA0 immediately replaces the narration PPU setup with the
@@ -469,7 +494,9 @@ public sealed partial class IntroCinematicState
                     // brightness owner: the narration has just deliberately reached
                     // INIDISP zero, while $8B:BDE4 restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
-                    ceresFlight = new IntroCeresFlightState(bus, characterArtwork?.CeresFlight);
+                    ceresFlight = new IntroCeresFlightState(bus, audio
+                        ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
+                        characterArtwork?.CeresFlight);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -499,22 +526,26 @@ public sealed partial class IntroCinematicState
             {
                 // $B240 selects the ordinary fade-out owner with delay/counter one. The
                 // framebuffer on this request frame is still full-brightness page six.
-                fadeDelay = 0;
+                fade.SetTiming(IntroCinematicRomData.Fade.FinishFade, IntroCinematicRomData.Fade.FinishFade);
                 Phase = IntroCinematicPhase.IntroFadeOut;
             }
         }
 
-        // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
-        // Pose commits at the end of the previous frame deliberately leave it unchanged.
-        flashbackSamus?.RefreshCollisionRadii(bus);
+        // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
+        if (flashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
+        {
+            // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
+            // Pose commits at the end of the previous frame deliberately leave it unchanged.
+            flashbackSamus.RefreshCollisionRadii(bus);
 
-        // DemoInputObjectHandler runs before game state $25. A demo loaded by the cinematic
-        // function therefore starts on the next frame, never on the accepting input frame.
-        if (demoWasLoadedBeforeThisFrame && flashbackDemoInput is not null)
-            StepMotherBrainDemo();
+            // $90:E91D runs DemoInputObjectHandler inside Samus's current-state handler,
+            // after the cinematic function, so a demo loaded by $8B:AEB8 plays its first
+            // entry in the same dispatch, ahead of the Samus pose input that consumes it.
+            if (flashbackDemoInput is not null)
+                StepMotherBrainDemo();
 
-        if (flashbackSamus is not null)
             StepMotherBrainFlashbackSamus();
+        }
 
         // Game state $25 handles cinematic sprites after the active cinematic function and
         // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
@@ -526,6 +557,10 @@ public sealed partial class IntroCinematicState
                 introPalette,
                 nmiFrameCounter,
                 crossfadeCounter);
+            // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
+            // the next dispatch on.
+            if (!flashbackMotherBrain.IsVisible)
+                flashbackSamusDisplay = IntroSamusDisplay.Hidden;
             if (flashbackProjectiles.TryImpactIntroMotherBrainMissile(bus, flashbackBombProjectiles))
             {
                 bool fourthHit = flashbackMotherBrain.RegisterMissileHit();
@@ -542,7 +577,8 @@ public sealed partial class IntroCinematicState
             flashbackRinkas.Step(
                 bus,
                 flashbackSamus,
-                motherBrainExploding: flashbackMotherBrain?.ExplosionStarted == true);
+                motherBrainExploding: flashbackMotherBrain?.ExplosionStarted == true,
+                explosionsAllocated: flashbackMotherBrainExplosions is not null);
         }
 
         // This ordering makes a newly spawned timer-one object select its first spritemap
@@ -556,11 +592,10 @@ public sealed partial class IntroCinematicState
             flashbackMotherBrainExplosions?.Step(bus, crossfadeCounter);
         }
 
-        if (babyDiscoveryExistedBeforeThisFrame)
-            babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter);
-
-        if (scientistCutsceneExistedBeforeThisFrame)
-            scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
+        // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
+        // actors a scene setup spawns take their first step in that same dispatch.
+        babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter);
+        scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
     }
 
     /// <summary>Renders the current cinematic phase into the reusable 256-by-224 RGBA frame buffer.</summary>
@@ -643,6 +678,8 @@ public sealed partial class IntroCinematicState
         flashbackDemoInput.Enable();
         flashbackDemoInput.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart,
             definitionWord: IntroMotherBrainInputDefinitions.ReadWord);
+        // $8B:AF62: Samus is processed, and drawn ahead of the cinematic objects.
+        flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
         // $8B:B018 replaces the target palette with kPalettes_Intro, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
@@ -936,6 +973,12 @@ public sealed partial class IntroCinematicState
                 soundEffect,
                 flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
         }
+
+        // $90:E70D/$90:E71C: both the demo and locked handlers end with
+        // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
+        // movement recorded in its own dispatch.
+        flashbackSamus!.ClearPoseTransitionShotDirection();
+        SamusProjectileInheritance.ClearMovement(bus);
     }
 
     /// <summary>
@@ -1076,7 +1119,8 @@ public sealed partial class IntroCinematicState
         // observable contract for the remaining Mother Brain explosion frames.
         flashbackSamus!.Pose = SamusPoseIds.FacingLeftNormalPose;
         flashbackSamus.RefreshCollisionRadii(bus);
-        flashbackSamus.InitializeAnimation(bus);
+        // $91:874B: a Samus already in pose two keeps her running animation.
+        flashbackSamus.SetAnimationFrameIfPoseChanged(bus);
         flashbackSamus.CommitPoseHistory(bus);
         demo.Disable();
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
@@ -1135,21 +1179,20 @@ public sealed partial class IntroCinematicState
         }
         var oam = new OamBuffer();
         oam.BeginFrame();
-        if (flashbackMotherBrain!.IsVisible)
+        // $8B:8E2D: a negative $1A57 draws Samus and both projectile passes before the
+        // cinematic objects; once $B842 clears it, only the objects remain.
+        if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            // $B82E clears cinematic_var15 when the reverse crossfade reaches zero. That
-            // suppresses Samus and both projectile passes together; it is not merely a
-            // Mother Brain visibility bit.
             flashbackSamus!.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter, ProjectileCompositions);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
-            flashbackRinkas?.Draw(bus, oam, characterArtwork?.RinkaSprites);
         }
+        flashbackRinkas?.Draw(bus, oam, characterArtwork?.RinkaSprites);
         flashbackMotherBrainExplosions?.Draw(oam,
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
-        if (flashbackMotherBrain.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
+        if (flashbackMotherBrain!.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
@@ -1185,17 +1228,26 @@ public sealed partial class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        babyDiscovery!.DrawActors(oam, characterArtwork?.EggEffectSprites,
+        // $8B:8E2D orders Samus against the cinematic objects by $1A57's sign.
+        IntroSamusDisplay display = babyDiscovery!.SamusDisplay;
+        if (display == IntroSamusDisplay.SamusFirst)
+            DrawBabyDiscoverySamus(oam);
+        babyDiscovery.DrawActors(oam, characterArtwork?.EggEffectSprites,
             characterArtwork?.DiscoveryActorSprites);
-
-        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
-        // outside the 256-pixel viewport, and the demo makes her enter from the right; the
-        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
-        babyDiscovery.Samus.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
+        if (display == IntroSamusDisplay.ObjectsFirst)
+            DrawBabyDiscoverySamus(oam);
         oam.FinalizeFrame();
 
         return oam;
+    }
+
+    private void DrawBabyDiscoverySamus(OamBuffer oam)
+    {
+        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
+        // outside the 256-pixel viewport, and the demo makes her enter from the right; the
+        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
+        babyDiscovery!.Samus.TileTransfers.TransferToVram(bus, vram);
+        babyDiscovery.Samus.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
     }
 
     private Rgba32[] RenderScientistCutscene()
@@ -1494,6 +1546,7 @@ public sealed partial class IntroCinematicState
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
             Rgba32 color = pixels[pixel];
+            int brightness = ScreenFade.Displayed(inidisp);
             if (brightness <= 0)
                 pixels[pixel] = new Rgba32(0, 0, 0, 255);
             else if (brightness < 15)
@@ -1503,18 +1556,6 @@ public sealed partial class IntroCinematicState
                     (byte)(color.B * brightness / 15),
                     255);
         }
-    }
-
-    private bool StepSlowFade(bool inward, int delayReload)
-    {
-        // `AdvanceSlowScreenFadeIn/Out` decrements an 8-bit delay first and changes INIDISP
-        // when it reaches zero/wraps. The host integer form below preserves the resulting
-        // one brightness step every delayReload+1 calls without emulating unrelated PPU IO.
-        if (fadeDelay-- > 0)
-            return false;
-        fadeDelay = delayReload;
-        brightness = inward ? Math.Min(15, brightness + 1) : Math.Max(0, brightness - 1);
-        return inward ? brightness == 15 : brightness == 0;
     }
 
     private static void RequireMinimum(byte[] bytes, int minimum, string name)
@@ -1595,4 +1636,9 @@ public enum IntroCinematicPhase
     IntroFadeOut,
     /// <summary>Runs the SPACE COLONY Ceres approach sequence.</summary>
     CeresFlight,
+    /// <summary>$8B:A395: the setup dispatch that queues the opening music.</summary>
+    /// <remarks>Debugger states store phases numerically, so this follows the existing members.</remarks>
+    Initial,
+    /// <summary>$8B:A66F: the dispatch after the first narration's fade-out that sets up page one.</summary>
+    SetupPageOne,
 }

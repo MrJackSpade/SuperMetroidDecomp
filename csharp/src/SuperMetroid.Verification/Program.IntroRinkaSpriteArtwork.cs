@@ -67,8 +67,8 @@ internal static partial class Program
         var rinkas = new IntroRinkaSystem();
         var samus = new SamusState { XPosition = 0x0200, YPosition = 0x0100 };
         for (int frame = 0; frame <= 75; frame++)
-            rinkas.Step(guarded, samus, motherBrainExploding: false);
-        AssertEqual(2, rinkas.SpawnedCount,
+            rinkas.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
+        AssertEqual(2, rinkas.LiveRinkas.Count,
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
@@ -76,8 +76,7 @@ internal static partial class Program
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
-        foreach (var actor in (IEnumerable<IntroDiscoverySprite>)typeof(IntroRinkaSystem)
-            .GetField("rinkas", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(rinkas)!)
+        foreach (IntroDiscoverySprite actor in rinkas.LiveRinkas)
             DrawImportedCinematicActor(bus, nativeLiveOam, actor);
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.LowTable.SequenceEqual(nativeLiveOam.LowTable) &&

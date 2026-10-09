@@ -45,7 +45,7 @@ public sealed partial class IntroCinematicState
                 new RenderLayer[] { new Bg2BppViewportRenderLayer(
                     IntroCinematicRomData.Layers.NarrationTilemapWord,
                     IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null) },
-                MenuRenderDefinitions.ObjectSelection, (byte)brightness);
+                MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
         }
         else
         {
@@ -62,7 +62,7 @@ public sealed partial class IntroCinematicState
             new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
             new ObjPriorityRenderLayer(2), room with { Priority = true },
             new ObjPriorityRenderLayer(3), text with { Priority = true },
-        }, MenuRenderDefinitions.ObjectSelection, (byte)brightness);
+        }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
 
     private static Bg4BppRenderLayer Plane(ushort tilemap, ushort x, ushort y) =>

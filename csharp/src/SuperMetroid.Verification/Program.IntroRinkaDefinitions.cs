@@ -50,18 +50,17 @@ internal static partial class Program
             XPosition = 0x0200,
             YPosition = 0x0100,
         };
-        var rinkas = (List<IntroDiscoverySprite>)typeof(IntroRinkaSystem)
-            .GetField("rinkas", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(system)!;
         for (int frame = 0; frame < 220; frame++)
         {
-            system.Step(guarded, samus, motherBrainExploding: false);
+            system.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
             int expectedCount = frame < 74 ? 0 : frame < 202 ? 2 : 4;
-            AssertEqual(expectedCount, system.SpawnedCount,
+            AssertEqual(expectedCount, system.LiveRinkas.Count,
                 $"intro Rinka two-wave spawn count at frame {frame}");
-            if (frame >= 75)
+            // The spawner holds slot 14 and its Rinkas take lower free slots, so the native
+            // descending walk steps each new Rinka in its spawn call (capture update 1793).
+            if (frame >= 74)
             {
-                int relative = frame - 75;
+                int relative = frame - 74;
                 ushort expectedSprite = relative < 30
                     ? (ushort)(0x8c8d + relative / 10 * 0x16)
                     : ((relative - 30) / 10 % 4) switch
@@ -70,17 +69,17 @@ internal static partial class Program
                         1 => (ushort)0x8c8d,
                         _ => (ushort)0x8cb9,
                     };
-                AssertEqual(expectedSprite, rinkas[0].SpriteMapPointer,
+                AssertEqual(expectedSprite, system.Rinka(0).SpriteMapPointer,
                     $"intro first Rinka selects its native frame at call {frame}");
             }
         }
-        AssertEqual(IntroRinkaDefinitions.RinkaCount, system.SpawnedCount,
+        AssertEqual(IntroRinkaDefinitions.RinkaCount, system.LiveRinkas.Count,
             "intro Rinka spawner allocates both native waves");
         AssertEqual(IntroRinkaDefinitions.RinkaCount, system.ActiveCount,
             "all intro Rinkas remain active before Mother Brain explodes");
 
         for (int frame = 0; frame < 100; frame++)
-            system.Step(guarded, samus, motherBrainExploding: true);
+            system.Step(guarded, samus, motherBrainExploding: true, explosionsAllocated: false);
         AssertEqual(0, system.ActiveCount,
             "all intro Rinkas retire after Mother Brain begins exploding");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

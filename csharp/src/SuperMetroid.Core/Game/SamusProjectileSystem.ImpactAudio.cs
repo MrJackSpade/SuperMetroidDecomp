@@ -21,6 +21,10 @@ public sealed partial class SamusProjectileSystem
         _cinematicImpactAudioSuppressed = cinematicActive;
     }
 
+    private void RequestBeamImpactSound(SamusPowerBombExplosionState powerBomb) =>
+        (_impactSoundRequests ??= []).Add(new(SoundEffectLibrary2Sounds.BeamImpact, 6,
+            SoundSuppressed: powerBomb.IsActive));
+
     private void RequestMissileImpactSound(SamusPowerBombExplosionState powerBomb)
     {
         if (!_cinematicImpactAudioSuppressed)

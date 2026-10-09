@@ -15,7 +15,7 @@ internal static partial class Program
         samus.Kinematics.YRadius = 8;
         SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Crateria);
         AssertEqual(2 << 16, samus.Kinematics.ExtraXFixed, "treadmill inside reaction publishes carry");
-        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0);
+        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)26, samus.XPosition, "standing movement consumes treadmill carry");
         int cases = 0;
         foreach (byte behavior in new byte[] { 8, 9, 10, 11 })
@@ -40,7 +40,7 @@ internal static partial class Program
                 samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, "conveyor inside handler restores normal speed pointer");
             if (admitted)
             {
-                SamusGroundedMovement.StepStandingRight(bus, level, samus, 0);
+                SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
                 AssertEqual((ushort)(24 + (expected >> 16)), samus.XPosition, "conveyor actual horizontal motion");
             }
             cases++;
@@ -51,7 +51,7 @@ internal static partial class Program
         samus = new SamusState { XPosition = 27, YPosition = 40 };
         samus.Kinematics.YRadius = 8;
         SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Crateria);
-        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0);
+        SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
         AssertEqual((ushort)27, samus.XPosition, "conveyor carry clips at solid wall");
         Console.WriteLine($"  Conveyors: {cases} direction/power/vertical-speed cases, actual carry and wall clipping agree.");
     }

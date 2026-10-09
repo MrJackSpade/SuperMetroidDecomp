@@ -1376,6 +1376,24 @@ public sealed partial class SuperMetroidRuntime
                 // any pose transition that would otherwise reinitialize acceleration.
                 SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
 
+                if (ActiveRoom is null)
+                    throw new InvalidOperationException("Live Samus terrain reactions require an active cartridge room.");
+                // `$94:9B60` samples the body after alpha's SetSamusRadius: a pose whose
+                // radius grew in last frame's beta reaches air spikes with its new body now.
+                // Samus command zero replaces the ordinary alpha handler with `$90:E713`,
+                // which never dispatches block-inside detection. Automatic Reserve recovery
+                // uses this exact lock; re-sampling spikes while it owns Samus changes the
+                // post-recovery knockback window used by Shinespark Suit.
+                if (!Samus.StationaryScriptControlLocked)
+                {
+                    SamusTerrainHazardCollision.PrepareFrame(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        ActiveRoom.AreaIndex,
+                        System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
+                }
+
                 if (!TimeIsFrozen && !AlphaInputLocked() && ActiveRoom is { } insideRoom)
                     SamusInsideBlockReactions.PrepareFrame(_addressSpace, LevelData, Samus, insideRoom.AreaIndex,
                         System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), Plms);
@@ -1806,8 +1824,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms,
-                        Controller1.Current);
+                        Controller1.Current,
+                        Plms);
                         break;
                     case SamusPoseIds.MovingRightNormalPose:
                     case SamusPoseIds.MovingRightGunExtendedPose:
@@ -1831,8 +1849,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms,
-                        Controller1.Current);
+                        Controller1.Current,
+                        Plms);
                         break;
                     case SamusPoseIds.MovingLeftNormalPose:
                     case SamusPoseIds.MovingLeftGunExtendedPose:

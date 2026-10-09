@@ -2570,29 +2570,25 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.SkreeParticleDownRight,
             6,
             0x0140,
-            0xfcff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Skree);
+            0xfcff);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpRight,
             6,
             0x0060,
-            0xfbff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Skree);
+            0xfbff);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleDownLeft,
             -6,
             0xfec0,
-            0xfcff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Skree);
+            0xfcff);
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpLeft,
             -6,
             0xffa0,
-            0xfbff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Skree);
+            0xfbff);
     }
 
     /// <summary>
@@ -2607,55 +2603,51 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.MetareeParticleDownRight,
             6,
             0x0140,
-            0xfcff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Metaree);
+            0xfcff);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpRight,
             6,
             0x0060,
-            0xfbff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Metaree);
+            0xfbff);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleDownLeft,
             -6,
             0xfec0,
-            0xfcff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Metaree);
+            0xfcff);
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpLeft,
             -6,
             0xffa0,
-            0xfbff,
-            instructionPointer: SkreeMetareeParticleInstructionProgramDefinitions.Metaree);
+            0xfbff);
     }
 
+    /// <summary>
+    /// Spawns one particle through <c>SpawnEprojInner</c>'s definition copy (damage four,
+    /// contact enabled, Skree or Metaree list), then applies the shared $86:8ACD-$8B39
+    /// initializer's position and 8.8 velocity.
+    /// </summary>
     private void SpawnSkreeOrMetareeParticle(
         RoomEnemySlot source,
         RoomEnemyProjectileKind kind,
         int xOffset,
         ushort xVelocity,
-        ushort yVelocity,
-        ushort instructionPointer)
+        ushort yVelocity)
     {
         RoomEnemyProjectileSlot? particle = AllocateEnemyProjectile();
         if (particle is null)
             return;
 
-        particle.Kind = kind;
+        InitializeEnemyProjectileFromDefinition(
+            particle,
+            kind,
+            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         particle.XPosition = unchecked((ushort)(source.XPosition + xOffset));
         particle.YPosition = source.YPosition;
         particle.XVelocity = xVelocity;
         particle.YVelocity = yVelocity;
-        particle.InstructionPointer = instructionPointer;
-        particle.InstructionTimer = 1;
-        particle.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MetalSkreeParticle;
-        particle.GraphicsIndex = unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex));
-        particle.XRadius = 2;
-        particle.YRadius = 2;
     }
 
 }

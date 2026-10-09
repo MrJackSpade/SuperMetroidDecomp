@@ -10,33 +10,45 @@ internal static partial class Program
 {
     private const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
     private const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
+    private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
+    private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
+
+    private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        VerifyPlaythroughMovie(
+            ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
+            traceDirectory, traceFromUpdate);
+
+    /// <summary>The 13% Speed Booster lsnes TAS, captured on bsnes v085.</summary>
+    private static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        VerifyPlaythroughMovie(
+            ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
+            traceDirectory, traceFromUpdate);
 
     /// <summary>
-    /// Replays the supplied power-on 100% movie through production frontend and gameplay
+    /// Replays a supplied power-on movie through production frontend and gameplay
     /// code. The only imported state is the movie's own power-on SRAM; every later update
     /// receives only its converted controller word, and native WRAM is read-only evidence.
     /// </summary>
+    /// <param name="movie">The recorded movie whose power-on SRAM and controller timeline are replayed.</param>
     /// <param name="traceDirectory">Directory containing the native input-consumption timeline and read-only WRAM checkpoints for the supplied movie.</param>
     /// <param name="traceFromUpdate">
     /// Diagnostic only: from this update on, print port and native Samus kinematics so a
     /// divergence can be read field by field. Comparison and failure are unchanged.
     /// </param>
-    private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null)
+    private static void VerifyPlaythroughMovie(ReplayMovie movie, string traceDirectory, int? traceFromUpdate)
     {
-        byte[] movie = File.ReadAllBytes(FullPlaythroughMoviePath);
-        AssertEqual(FullPlaythroughMovieSha256, Convert.ToHexString(SHA256.HashData(movie)), "100% movie identity");
-        using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie);
+        using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
         var updates = checkpoints.Updates;
 
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ReadResetMovieSaveRam(movie).CopyTo(bus.SaveRam);
+        movie.PowerOnSaveRam.CopyTo(bus.SaveRam);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
 
         byte[] memory = checkpoints.ReadAfter(0);
-        Console.WriteLine($"Native first input boundary: SMV frame {updates[0].SourceFrame}, " +
+        Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
-        ushort[] frameInputs = ReadMovieFrameInputs(movie);
+        ushort[] frameInputs = movie.FrameInputs;
         var recentInputs = new Queue<string>();
         var uploadNmis = new EvidencedDoorMusicUploadNmis();
         game.DoorMusicUploadNmis = uploadNmis;
@@ -104,8 +116,8 @@ internal static partial class Program
                 {
                     if (game.RuntimeForVerification!.MessageBox.IsActive || frame != nativeEnd + 1)
                         throw new InvalidDataException(
-                            $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
-                            $"(SMV frames {step.SourceFrame}-{endSourceFrame}) returned from it at {nativeEnd}.");
+                            $"The port's message box closed after source frame {frame - 1}, but native dispatch {update} " +
+                            $"(source frames {step.SourceFrame}-{endSourceFrame}) returned from it at {nativeEnd}.");
                 }
                 // A confirmation box reads the controller itself ($85:84BA), which the native
                 // capture records as a following NMI-continuation update. The box then
@@ -113,18 +125,18 @@ internal static partial class Program
                 else if (!game.RuntimeForVerification!.MessageBox.IsActive || frame != endSourceFrame ||
                     update >= updates.Count || updates[update].Kind != "nmi-continuation")
                     throw new InvalidDataException(
-                        $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
-                        $"(SMV frames {step.SourceFrame}-{endSourceFrame}) keeps it open past {endSourceFrame - 1}.");
+                        $"The port's message box closed after source frame {frame - 1}, but native dispatch {update} " +
+                        $"(source frames {step.SourceFrame}-{endSourceFrame}) keeps it open past {endSourceFrame - 1}.");
             }
             else if (step.MessageBoxStartFrame is { } nativeBoxFrame)
             {
                 throw new InvalidDataException(
-                    $"Native dispatch {update} opened a message box at SMV frame {nativeBoxFrame}; the port did not.");
+                    $"Native dispatch {update} opened a message box at source frame {nativeBoxFrame}; the port did not.");
             }
             else if (step.MessageBoxEndFrame is { } nativeBoxReturn)
             {
                 throw new InvalidDataException(
-                    $"Native dispatch {update} returned from a message box at SMV frame {nativeBoxReturn}; the port had none open.");
+                    $"Native dispatch {update} returned from a message box at source frame {nativeBoxReturn}; the port had none open.");
             }
             soundAcknowledgements.Capture(memory);
 
@@ -137,15 +149,15 @@ internal static partial class Program
             {
                 Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
                 throw new InvalidDataException(
-                    $"100% movie first divergence after update {update} (SMV source frame {step.SourceFrame}, " +
+                    $"{movie.Name} movie first divergence after update {update} (source frame {step.SourceFrame}, " +
                     $"native state {Word(memory, MovieDesyncMemory.GameState):X2}, port state {(ushort)game.GameState:X2}): " +
                     string.Join("; ", mismatches));
             }
             if (update % 10000 == 0)
-                Console.WriteLine($"Update {update}/{updates.Count} (SMV frame {step.SourceFrame}) matches; state {(ushort)game.GameState:X2}.");
+                Console.WriteLine($"Update {update}/{updates.Count} (source frame {step.SourceFrame}) matches; state {(ushort)game.GameState:X2}.");
         }
         checkpoints.AssertExhausted();
-        Console.WriteLine($"100% movie replay: {updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match.");
+        Console.WriteLine($"{movie.Name} movie replay: {updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match.");
     }
 
     private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
@@ -314,7 +326,15 @@ internal static partial class Program
             Check($"Enemy projectile {slot} ID", projectile.IsActive ? (ushort)projectile.Kind : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!projectile.IsActive) continue;
-            Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
+            // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only
+            // stores its X in Var1; $86:D8DF copies it on its first run. Until then native X
+            // is whatever the aliased RAM held (slot 3's X is CinematicFrameCounter $1A51).
+            // The bubble has no contact radius, so that residue only places one drawn frame.
+            bool bubbleXUnwritten = projectile.Kind == SuperMetroid.Core.Game.RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
+                Word(memory, MovieDesyncMemory.EnemyProjectileX + offset) !=
+                Word(memory, MovieDesyncMemory.EnemyProjectileVar1 + offset);
+            if (!bubbleXUnwritten)
+                Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.YPosition, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         foreach (var actor in runtime.Enemies.Slots)
@@ -330,44 +350,5 @@ internal static partial class Program
             Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;
-    }
-
-    /// <summary>Reads the one-controller SMV input word of every source frame.</summary>
-    private static ushort[] ReadMovieFrameInputs(byte[] movie)
-    {
-        const int FrameCountField = 0x10, ControllerCountField = 0x14, ControllerOffsetField = 0x1c;
-        if (movie[ControllerCountField] != 1)
-            throw new InvalidDataException("Only one-controller movies are supported.");
-        int frames = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(FrameCountField));
-        int offset = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(ControllerOffsetField));
-        var inputs = new ushort[frames + 1];
-        for (int frame = 0; frame <= frames; frame++)
-            inputs[frame] = BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(offset + 2 * frame));
-        return inputs;
-    }
-
-    /// <summary>
-    /// Extracts the 8 KiB cartridge SRAM that a reset-start Snes9x v4/v5 movie embeds in
-    /// place of a snapshot. Snapshot-start movies are rejected: they need state import.
-    /// </summary>
-    private static byte[] ReadResetMovieSaveRam(byte[] movie)
-    {
-        const int MovieOptionsOffset = 0x15, StateOffsetField = 0x18, ControllerOffsetField = 0x1c;
-        const byte StartFromReset = 0x01;
-        if (!movie.AsSpan(0, 4).SequenceEqual("SMV\x1a"u8))
-            throw new InvalidDataException("Not an SMV movie.");
-        uint version = BinaryPrimitives.ReadUInt32LittleEndian(movie.AsSpan(4));
-        if (version is not (4 or 5))
-            throw new InvalidDataException($"SMV version {version} SRAM layout is not supported.");
-        if ((movie[MovieOptionsOffset] & StartFromReset) == 0)
-            throw new InvalidDataException("Movie starts from a snapshot, not from power-on reset.");
-        int start = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(StateOffsetField));
-        int end = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(ControllerOffsetField));
-        using var gzip = new GZipStream(new MemoryStream(movie, start, end - start), CompressionMode.Decompress);
-        using var sram = new MemoryStream();
-        gzip.CopyTo(sram);
-        if (sram.Length < SuperMetroidAddressSpace.SaveRamByteCount)
-            throw new InvalidDataException("Embedded movie SRAM is shorter than the cartridge's 8 KiB.");
-        return sram.GetBuffer().AsSpan(0, SuperMetroidAddressSpace.SaveRamByteCount).ToArray();
     }
 }

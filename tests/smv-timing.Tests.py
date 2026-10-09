@@ -30,6 +30,7 @@ def run():
     normalize = converter["normalize_upload_intervals"]
     def interval(frame, upload=False, next_upload=False):
         return {"sourceFrame": frame, "endSourceFrame": frame + 1, "input": 0, "pressed": 0,
+                "messageBoxStartFrame": None, "messageBoxEndFrame": None,
                 "kind": "nmi-continuation" if upload else "main-loop",
                 "timingClass": "apu-upload-continuation" if upload else "main-loop",
                 "timingEvidence": {"apuUploadActiveAtInput": upload,
@@ -57,7 +58,14 @@ def run():
     hidden[2]["input"] = hidden[3]["input"] = 0x8000
     latched, _ = normalize(hidden, 0)
     assert latched[1]["hardwareWaitLatch"] == 0x8000 and latched[0]["hardwareWaitLatch"] is None
-    for mutation in ("lost-press", "scroll", "unfinished", "overlap"):
+    # The upload's own dispatch runs $82:E664 after SendAPUData returns, storing $E6A2;
+    # a tail NMI landing after that store is still the same dispatch's stall.
+    tail = copy.deepcopy(source)
+    tail[2]["timingClass"] = "apu-upload-tail-continuation"
+    tail[2]["timingEvidence"]["apuUploadActiveAtInput"] = False
+    tail[2]["timingEvidence"]["nativeDoorFunction"] = 0xe6a2
+    assert len(normalize(tail, 0)[1]) == 2, "post-$E664 upload tail was refused"
+    for mutation in ("lost-press", "scroll", "unfinished", "overlap", "advanced-mid-upload"):
         altered = copy.deepcopy(source)
         if mutation == "lost-press":
             # A retained edge that native did not report cannot be reproduced.
@@ -65,6 +73,8 @@ def run():
         if mutation == "scroll": altered[1]["timingEvidence"]["doorScrollCounterAfter"] = 65
         if mutation == "unfinished": altered[1]["timingEvidence"]["doorScrollFinished"] = False
         if mutation == "overlap": altered[1]["timingClass"] = "door-scroll-continuation"
+        # While the upload itself runs, $E664 has not executed, so $E6A2 is foreign.
+        if mutation == "advanced-mid-upload": altered[1]["timingEvidence"]["nativeDoorFunction"] = 0xe6a2
         try:
             normalize(altered, 0)
         except ValueError:

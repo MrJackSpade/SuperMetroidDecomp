@@ -111,6 +111,23 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// <c>Set_Samus_AnimationFrame_if_PoseChanged</c> at <c>$91:FB08</c> as a scene setup
+    /// calls it before committing pose history: the animation restarts only when Pose
+    /// differs from PreviousPose ($0A20), and otherwise keeps its frame and timer running.
+    /// </summary>
+    /// <remarks>
+    /// The routine also returns early while $0A9A is negative. This port owns $0A9A as
+    /// <see cref="AnimationFrameBuffer"/>, so callers must be paths where native $0A9A is
+    /// nonnegative, as it is at the intro's $8B:AF6C setup and $91:8739 demo end.
+    /// </remarks>
+    internal void SetAnimationFrameIfPoseChanged(ISnesAddressSpace bus)
+    {
+        if (Pose == PoseHistory.PreviousPose)
+            return;
+        InitializeAnimation(bus);
+    }
+
+    /// <summary>
     /// Rebinds the delay-list pointer after a bank-$91 scripted controller writes Pose and
     /// literal animation words without calling ordinary pose initialization.
     /// </summary>

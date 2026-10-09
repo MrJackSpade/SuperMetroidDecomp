@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -50,12 +51,12 @@ internal static partial class Program
             CeresFlightSpritePresentation.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var stockFlight = new IntroCeresFlightState(guardedBus, stock);
-        var editedFlight = new IntroCeresFlightState(guardedBus, edited);
-        for (int frame = 0; frame < 20; frame++)
+        var stockFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
+        var editedFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
+        for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
         {
-            stockFlight.Step();
-            editedFlight.Step();
+            stockFlight.StepFrame();
+            editedFlight.StepFrame();
         }
         LayeredRenderSnapshot original = stockFlight.CaptureRenderSnapshot();
         LayeredRenderSnapshot replacement = editedFlight.CaptureRenderSnapshot();
@@ -86,10 +87,10 @@ internal static partial class Program
             "a sprite override cannot hide corrupted stock Ceres sprites");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres sprites vanished during stock repair.");
-        var repairedFlight = new IntroCeresFlightState(guardedBus,
+        var repairedFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(),
             repaired.LoadIntroCinematicArt().CeresFlight);
-        for (int frame = 0; frame < 20; frame++)
-            repairedFlight.Step();
+        for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
+            repairedFlight.StepFrame();
         AssertTrue(repairedFlight.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
                 replacement.Memory.Oam),
             "Ceres sprite override survives stock extraction repair");

@@ -214,14 +214,46 @@ internal static class IntroMotherBrainExplosionSystemAccess
     }
 }
 
+/// <summary>Verification access to <see cref="IntroCeresFlightState"/> members production does not use.</summary>
+internal static class IntroCeresFlightStateAccess
+{
+    extension(IntroCeresFlightState self)
+    {
+        /// <summary>
+        /// One standalone game frame: the flight's dispatch, then the music queue handler the
+        /// game runs after it, so the flight's own music wait drains as in production.
+        /// </summary>
+        internal void StepFrame()
+        {
+            self.Step();
+            PrivateState.Field<SuperMetroid.Core.Audio.CartridgeAudioState>(self, "audio")
+                .AdvanceFrame(PrivateState.Field<SuperMetroid.Core.Hardware.ISnesAddressSpace>(self, "bus"), default);
+        }
+    }
+}
+
 /// <summary>Verification access to <see cref="IntroRinkaSystem"/> members production does not use.</summary>
 internal static class IntroRinkaSystemAccess
 {
     extension(IntroRinkaSystem self)
     {
-        internal int ActiveCount => PrivateState.Field<List<IntroDiscoverySprite>>(self, "rinkas").Count(static rinka => rinka.IsActive);
+        /// <summary>Rinkas holding a cinematic slot, in the native descending slot order.</summary>
+        internal IReadOnlyList<IntroDiscoverySprite> LiveRinkas
+        {
+            get
+            {
+                IntroDiscoverySprite?[] slots = PrivateState.Field<IntroDiscoverySprite?[]>(self, "slots");
+                IntroDiscoverySprite spawner = PrivateState.Field<IntroDiscoverySprite>(self, "spawner");
+                return slots.Reverse().OfType<IntroDiscoverySprite>()
+                    .Where(actor => !ReferenceEquals(actor, spawner)).ToArray();
+            }
+        }
 
-        internal int SpawnedCount => PrivateState.Field<List<IntroDiscoverySprite>>(self, "rinkas").Count;
+        internal int ActiveCount => self.LiveRinkas.Count(static rinka => rinka.IsActive);
+
+        /// <summary>The live Rinka spawned with init parameter <paramref name="parameter"/>.</summary>
+        internal IntroDiscoverySprite Rinka(int parameter) =>
+            self.LiveRinkas.Single(rinka => rinka.GeneralTimer == parameter);
     }
 }
 

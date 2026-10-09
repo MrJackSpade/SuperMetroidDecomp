@@ -1,4 +1,4 @@
-"""Convert an unchanged SMV plus an instrumented native trace to port input updates.
+"""Convert an unchanged SMV or lsnes movie plus an instrumented native trace to port input updates.
 
 This is deliberately not a duplicate-frame remover. The capture must observe the
 pinned J/U main-loop and accepted-NMI controller-read boundaries. WRAM stays private.
@@ -81,9 +81,13 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
             # This contract is deliberately limited to the native door music wait.
             # No new CPU gameplay dispatch or moving door IRQ runs in this interval; an
             # upload tail only finishes the dispatch its main-loop update already owns.
+            # $82:E664 runs after the upload in the same dispatch and, once the music queue
+            # is clear, stores $E6A2 as its only write; a tail NMI may land after that store.
+            door_functions = ((0xe664, 0xe6a2) if update["timingClass"] == "apu-upload-tail-continuation"
+                              else (0xe664,))
             if (not normalized or normalized[-1]["kind"] != "main-loop" or
                 not normalized[-1]["timingEvidence"]["apuUploadActiveAtNextBoundary"] or
-                evidence["nativeGameState"] != 11 or evidence["nativeDoorFunction"] != 0xe664 or
+                evidence["nativeGameState"] != 11 or evidence["nativeDoorFunction"] not in door_functions or
                 not evidence["doorScrollFinished"] or
                 evidence["doorScrollCounterBefore"] != evidence["doorScrollCounterAfter"]):
                 raise ValueError("Unsupported APU continuation; cannot prove a pure post-scroll hardware wait")
@@ -135,16 +139,36 @@ def run():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     movie = args.movie.read_bytes()
-    if len(movie) < 32 or movie[:4] != b"SMV\x1a":
-        raise ValueError("Not an SMV movie")
-    version, = struct.unpack_from("<I", movie, 4)
-    frames, = struct.unpack_from("<I", movie, 16)
-    offset, = struct.unpack_from("<I", movie, 28)
-    if version not in (1, 4, 5) or movie[20] != 1:
-        raise ValueError("Only one-controller SMV versions 1, 4 and 5 are supported")
-    if offset < 32 or offset + 2 * (frames + 1) > len(movie):
-        raise ValueError("Truncated SMV controller stream")
-    inputs = struct.unpack_from(f"<{frames + 1}H", movie, offset)
+    if movie[:4] == b"PK\x03\x04":
+        # lsnes movie: one input line per emulated frame, always from power-on. The
+        # bsnes v085 adapter labels each read with the line the controller latched, and
+        # runs one frame past the movie so the game reads its last line, as Snes9x reads
+        # an SMV's trailing word: the line count is the source frame count plus one.
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent / "lsmv-native-capture"))
+        from lsmv_movie import read_frames
+        words = read_frames(args.movie, args.rom.read_bytes())
+        frames = len(words) - 1
+        inputs = tuple(words)
+        from_reset = True
+        native_capture = ("bsnes v085 (lsnes compatibility core, debugger option); "
+                          "instrumented J/U input boundaries and MessageBox_Routine entry and return")
+    else:
+        if len(movie) < 32 or movie[:4] != b"SMV\x1a":
+            raise ValueError("Not an SMV or lsnes movie")
+        version, = struct.unpack_from("<I", movie, 4)
+        frames, = struct.unpack_from("<I", movie, 16)
+        offset, = struct.unpack_from("<I", movie, 28)
+        if version not in (1, 4, 5) or movie[20] != 1:
+            raise ValueError("Only one-controller SMV versions 1, 4 and 5 are supported")
+        if offset < 32 or offset + 2 * (frames + 1) > len(movie):
+            raise ValueError("Truncated SMV controller stream")
+        inputs = struct.unpack_from(f"<{frames + 1}H", movie, offset)
+        # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather
+        # than from an embedded snapshot, so the native boot prelude precedes gameplay.
+        from_reset = version in (4, 5) and bool(movie[21] & 1)
+        native_capture = ("Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; "
+                          "instrumented J/U input boundaries and MessageBox_Routine entry and return")
     def digest(path):
         with path.open("rb") as stream:
             return hashlib.file_digest(stream, "sha256").hexdigest().upper()
@@ -282,9 +306,6 @@ def run():
         "apu-upload-tail-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
     accepted_input_count = len(updates)
-    # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather
-    # than from an embedded snapshot, so the native boot prelude precedes gameplay.
-    from_reset = version in (4, 5) and bool(movie[21] & 1)
     prelude = boot_prelude_length(updates) if from_reset else 0
     updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
@@ -294,7 +315,7 @@ def run():
         "bootPreludeInputsExcluded": prelude,
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
-        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries and MessageBox_Routine entry and return",
+        "nativeCapture": native_capture,
         "eventsSha256": digest(events_path), "checkpointsSha256": digest(boundaries_path),
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),

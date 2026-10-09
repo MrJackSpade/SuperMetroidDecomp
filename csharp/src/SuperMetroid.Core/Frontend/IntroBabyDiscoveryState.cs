@@ -39,7 +39,9 @@ internal sealed class IntroBabyDiscoveryState
         Samus.YPosition = 0x0093;
         Samus.SelectedHudItem = 0;
         Samus.RefreshCollisionRadii(bus);
-        Samus.InitializeAnimation(bus);
+        // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
+        // keeps running rather than restarting.
+        Samus.SetAnimationFrameIfPoseChanged(bus);
         Samus.CommitPoseHistory(bus);
         Samus.PrimeGraphics(bus);
 
@@ -61,24 +63,53 @@ internal sealed class IntroBabyDiscoveryState
 
     public bool PageThreeRequested { get; private set; }
 
+    /// <summary>
+    /// $1A57 for this scene. $8B:B00F sets it positive; the egg and dancing-baby
+    /// pre-instructions later reorder or clear it.
+    /// </summary>
+    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
+
+    /// <summary>True once $91:8682 has pointed both Samus state handlers at an RTL.</summary>
+    private bool samusHandlersEnded;
+
+    /// <summary>
+    /// Samus, her demo input and the cinematic sprite objects for one dispatch. All run after
+    /// the cinematic function, so $8B:AF6C's setup dispatch already plays the demo's first
+    /// entry, moves Samus and steps the egg and baby.
+    /// </summary>
     public void Step(ushort nmiFrameCounter, ushort introCrossfadeTimer)
     {
-        demo.Step(
-            bus,
-            preInstruction: (_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer),
-            specialInstruction: HandleDemoInstruction,
-            instructionWord: demoWordReader);
+        // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
+        if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
+        {
+            // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
+            // current-state handler, ahead of her pose input and movement.
+            demo.Step(
+                bus,
+                preInstruction: (_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer),
+                specialInstruction: HandleDemoInstruction,
+                instructionWord: demoWordReader);
+            // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
+            // before this dispatch's movement records new distances.
+            Samus.ClearPoseTransitionShotDirection();
+            SamusProjectileInheritance.ClearMovement(bus);
 
-        // The native intro-demo alpha publishes the current pose's collision radius
-        // before input/movement, rather than requiring pose setters to publish early.
-        Samus.RefreshCollisionRadii(bus);
-        IntroSamusDemoMovement.StepGroundedLeft(
-            bus,
-            Level,
-            Samus,
-            demo.Held,
-            demo.NewlyPressed,
-            nmiFrameCounter);
+            // An end instruction read above already replaced the new-state handler, so this
+            // dispatch skips Samus's movement and animation.
+            if (!samusHandlersEnded)
+            {
+                // The native intro-demo alpha publishes the current pose's collision radius
+                // before input/movement, rather than requiring pose setters to publish early.
+                Samus.RefreshCollisionRadii(bus);
+                IntroSamusDemoMovement.StepGroundedLeft(
+                    bus,
+                    Level,
+                    Samus,
+                    demo.Held,
+                    demo.NewlyPressed,
+                    nmiFrameCounter);
+            }
+        }
 
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
@@ -98,6 +129,8 @@ internal sealed class IntroBabyDiscoveryState
             introCrossfadeTimer == 0)
         {
             egg.Redirect(CinematicCodePointers.Lists.Delete);
+            // $8B:A914: page three's text hides Samus.
+            SamusDisplay = IntroSamusDisplay.Hidden;
         }
         egg.Step(bus, HandleEggInstruction,
             IntroBabyDiscoveryInstructionDefinitions.ReadWord);
@@ -166,10 +199,11 @@ internal sealed class IntroBabyDiscoveryState
         if (pointer != IntroBabyDiscoveryRomData.EndDemoInputInstruction)
             return DemoInputInstructionResult.NotHandled(argumentPointer);
 
-        // $91:8682 replaces both Samus handlers with the locked cinematic RTS, disables
-        // demo input, and returns into the following shared delete opcode.
+        // $91:8682 replaces both Samus handlers with RTL $90:E8CD, disables demo input, and
+        // returns into the following shared delete opcode. Samus is never processed again.
         state.Disable();
         Samus.InputLocked = true;
+        samusHandlersEnded = true;
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
@@ -312,6 +346,8 @@ internal sealed class IntroBabyDiscoveryState
         if (introCrossfadeTimer == 0)
         {
             confusedBaby.Delete();
+            // $8B:BB35.
+            SamusDisplay = IntroSamusDisplay.Hidden;
             return;
         }
 
@@ -331,6 +367,10 @@ internal sealed class IntroBabyDiscoveryState
             BabyXVelocity,
             positiveLimit: 0x0280,
             negativeLimit: unchecked((short)0xfd80));
+        // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
+        SamusDisplay = unchecked((sbyte)(BabyXVelocity >> 8)) < 0
+            ? IntroSamusDisplay.ObjectsFirst
+            : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, horizontal: true, BabyXVelocity);
 
         ushort targetY = unchecked((ushort)(Samus.YPosition - 0x0008));

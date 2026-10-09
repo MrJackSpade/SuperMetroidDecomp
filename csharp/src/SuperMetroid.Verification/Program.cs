@@ -587,6 +587,8 @@ if (args is ["--ridley-pause-page-timing"]) { VerifyRidleyPausePageTiming(); ret
 if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
 if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
 if (args is ["--ridley-full-movie"]) { VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; }
+if (args is ["--lsmv-playthrough-movie", var lowTraceDirectory]) { VerifyLowPercentPlaythroughMovie(lowTraceDirectory); return 0; }
+if (args is ["--lsmv-playthrough-movie", var lowTracedDirectory, "--trace-from", var lowTraceFrom]) { VerifyLowPercentPlaythroughMovie(lowTracedDirectory, int.Parse(lowTraceFrom)); return 0; }
 if (args is ["--full-playthrough-movie", var fullTraceDirectory]) { VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; }
 if (args is ["--full-playthrough-movie", var tracedDirectory, "--trace-from", var traceFrom]) { VerifyFullPlaythroughMovie(tracedDirectory, int.Parse(traceFrom)); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
@@ -818,6 +820,36 @@ if (args is ["--wall-jump-spin-exit"])
 if (args is ["--evir-init-timer"])
 {
     VerifyEvirInitTimer();
+    return 0;
+}
+if (args is ["--empty-extended-frame-shots"])
+{
+    Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
+    return 0;
+}
+if (args is ["--kraid-arm-samus-contact"])
+{
+    Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
+    return 0;
+}
+if (args is ["--air-spike-alpha-radius"])
+{
+    Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
+    return 0;
+}
+if (args is ["--square-slope-beam-collision"])
+{
+    Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
+    return 0;
+}
+if (args is ["--beam-impact-sound"])
+{
+    Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
+    return 0;
+}
+if (args is ["--low-percent-intro-timeline"])
+{
+    Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
     return 0;
 }
 if (args is ["--ending-setup-nmi-waits"])
@@ -7835,6 +7867,12 @@ Suite(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaft
 Suite(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstreetEscapePassage());
 Suite(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade());
 Suite(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits());
+Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
+Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
+Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
+Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
+Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
+Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

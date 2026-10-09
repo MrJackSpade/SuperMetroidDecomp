@@ -15,43 +15,77 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
-    // The spawner itself is an invisible ordinary cinematic sprite. Reusing the focused
-    // ROM-list interpreter preserves the exact $4A then $80 frame waits and avoids a host
-    // countdown that would be subtly off by one generic-handler invocation.
-    private readonly IntroDiscoverySprite spawner = new(
-        0, 0, 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
-    private readonly List<IntroDiscoverySprite> rinkas = [];
+    // Native cinematic sprite slots: Mother Brain owns slot 0 and the text caret slot 15,
+    // so the spawner and its Rinkas live in 1..14. $8B:938A spawns into the highest free
+    // slot and $8B:93EF/$8B:9746 walk from the highest slot down.
+    private const int SpawnerSlot = 14;
+    private const int LowestSlot = 1;
 
-    /// <summary>Runs pre-instructions first, then each actor's generic list handler.</summary>
-    public void Step(ISnesAddressSpace bus, SamusState samus, bool motherBrainExploding)
+    private readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
+    private readonly IntroDiscoverySprite spawner;
+    private bool spawnsForbidden;
+
+    public IntroRinkaSystem()
+    {
+        // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
+        // focused ROM-list interpreter preserves its exact $4A then $80 frame waits.
+        spawner = new(0, 0, 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
+        slots[SpawnerSlot] = spawner;
+    }
+
+    /// <summary>One descending generic-handler pass over the spawner and Rinka slots.</summary>
+    /// <param name="bus">Address space the spawner and Rinka instruction lists step through.</param>
+    /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
+    /// <param name="motherBrainExploding">True once Mother Brain's exploding routine deletes the Rinkas.</param>
+    /// <param name="explosionsAllocated">
+    /// True once Mother Brain's explosions occupy cinematic slots. Their slots then share
+    /// this range, so a Rinka spawn would need the whole table to allocate faithfully.
+    /// </param>
+    public void Step(ISnesAddressSpace bus, SamusState samus, bool motherBrainExploding,
+        bool explosionsAllocated)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        // Iterate only actors that existed at frame start. The native slot walker has
-        // already passed newly allocated Rinka slots when the spawner creates each pair.
-        int existingCount = rinkas.Count;
-        for (int index = 0; index < existingCount; index++)
+        spawnsForbidden = explosionsAllocated;
+        // A slot below the one being processed is still ahead in this pass, so a Rinka the
+        // spawner allocates there runs its first pre-instruction and list step immediately.
+        for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
-            IntroDiscoverySprite rinka = rinkas[index];
-            if (!rinka.IsActive)
+            IntroDiscoverySprite? actor = slots[slot];
+            if (actor is null)
                 continue;
 
-            RunPreInstruction(rinka, samus, motherBrainExploding);
-            rinka.Step(bus, (opcode, next) => HandleRinkaInstruction(rinka, opcode, next),
-                IntroRinkaInstructionDefinitions.ReadWord);
-        }
+            if (ReferenceEquals(actor, spawner))
+            {
+                spawner.Step(bus, HandleSpawnerInstruction,
+                    IntroRinkaInstructionDefinitions.ReadWord);
+            }
+            else
+            {
+                RunPreInstruction(actor, samus, motherBrainExploding);
+                if (actor.IsActive)
+                {
+                    actor.Step(bus, (opcode, next) => HandleRinkaInstruction(actor, opcode, next),
+                        IntroRinkaInstructionDefinitions.ReadWord);
+                }
+            }
 
-        spawner.Step(bus, HandleSpawnerInstruction,
-            IntroRinkaInstructionDefinitions.ReadWord);
+            // Deletion clears the slot's list pointer, freeing it for the next spawn.
+            if (!actor.IsActive)
+                slots[slot] = null;
+        }
     }
 
-    /// <summary>Adds each visible Rinka with native origin clipping and insertion order.</summary>
+    /// <summary>Adds each visible Rinka in the native descending slot order.</summary>
     public void Draw(ISnesAddressSpace bus, OamBuffer oam,
         IntroRinkaSpritePresentation? installedArt = null)
     {
-        foreach (IntroDiscoverySprite rinka in rinkas)
-            rinka.Draw(bus, oam, installedArt: installedArt);
+        for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
+        {
+            if (slots[slot] is { } actor && !ReferenceEquals(actor, spawner))
+                actor.Draw(bus, oam, installedArt: installedArt);
+        }
     }
 
     private ushort? HandleSpawnerInstruction(ushort opcode, ushort next)
@@ -92,6 +126,18 @@ internal sealed class IntroRinkaSystem
 
     private void Spawn(int parameter)
     {
+        if (spawnsForbidden)
+        {
+            throw new InvalidOperationException(
+                "An intro Rinka spawn while Mother Brain's explosions hold cinematic slots needs the shared slot table.");
+        }
+
+        int slot = SpawnerSlot;
+        while (slot >= LowestSlot && slots[slot] is not null)
+            slot--;
+        if (slot < LowestSlot)
+            throw new InvalidOperationException("No free cinematic sprite slot for an intro Rinka.");
+
         IntroRinkaPhysicalDefinition definition = IntroRinkaDefinitions.Rinka(parameter);
         var rinka = new IntroDiscoverySprite(
             definition.X,
@@ -103,7 +149,7 @@ internal sealed class IntroRinkaSystem
         };
         rinka.PreInstructionPointerForDiscovery(
             IntroRinkaDefinitions.RinkaActor.PreInstruction);
-        rinkas.Add(rinka);
+        slots[slot] = rinka;
     }
 
     private static void RunPreInstruction(

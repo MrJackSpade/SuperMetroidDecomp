@@ -65,6 +65,10 @@ internal static partial class Program
         AssertTrue(skree.All(projectile => projectile.InstructionPointer ==
                 SkreeMetareeParticleInstructionProgramDefinitions.Skree),
             "Skree burst selects the named Skree particle program");
+        // SpawnEprojInner copies the definition's $0004 properties: four damage, contact enabled.
+        AssertTrue(skree.All(projectile => projectile.CanDamageSamus && projectile.Damage == 4 &&
+                projectile.InvincibilityFrames == 96 && projectile.XRadius == 2 && projectile.YRadius == 2),
+            "Skree particles damage Samus with the definition's four-point contact");
         RunCompleteLoops(
             skree,
             SkreeMetareeParticleInstructionProgramDefinitions.Skree);
@@ -84,6 +88,10 @@ internal static partial class Program
         AssertTrue(metaree.All(projectile => projectile.InstructionPointer ==
                 SkreeMetareeParticleInstructionProgramDefinitions.Metaree),
             "Metaree burst selects the named Metaree particle program");
+        // SpawnEprojInner copies the definition's $0004 properties: four damage, contact enabled.
+        AssertTrue(metaree.All(projectile => projectile.CanDamageSamus && projectile.Damage == 4 &&
+                projectile.InvincibilityFrames == 96 && projectile.XRadius == 2 && projectile.YRadius == 2),
+            "Metaree particles damage Samus with the definition's four-point contact");
         RunCompleteLoops(
             metaree,
             SkreeMetareeParticleInstructionProgramDefinitions.Metaree);

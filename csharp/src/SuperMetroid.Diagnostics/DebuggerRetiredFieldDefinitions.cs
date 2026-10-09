@@ -413,6 +413,14 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Runtime.CeresElevatorShaftRoomMainResult", "<IsActive>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Runtime.CeresElevatorShaftRoomMainResult", "<RotationIndex>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Runtime.CeresElevatorShaftRoomMainResult", "<RotationTimer>k__BackingField")] = Discard,
+        // The intro now keeps native INIDISP ($51) and the $0723/$0725 fade words; the
+        // inidisp/fade introduction derives them from these. Rinkas moved into native
+        // slots, rebuilt by the slots introduction. The Ceres flight waits on the real
+        // music queue instead of a host countdown, which has no current equivalent.
+        [("SuperMetroid.Core.Frontend.IntroCinematicState", "brightness")] = Remember,
+        [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
+        [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
+        [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>
@@ -429,6 +437,14 @@ internal static class DebuggerRetiredFieldDefinitions
         value = stored as ushort? ?? throw new InvalidDataException(
             $"Legacy {instance.GetType().FullName}.{serializedName} is not a word.");
         return true;
+    }
+
+    /// <summary>Returns a retired value of any type drained from <paramref name="instance"/>.</summary>
+    internal static bool TryGetLegacyValue(object instance, string serializedName, out object? value)
+    {
+        value = null;
+        return LegacyValues.TryGetValue(instance, out Dictionary<string, object?>? values) &&
+            values.TryGetValue(serializedName, out value);
     }
 
     private static void Remember(object instance, string serializedName, object? value) =>

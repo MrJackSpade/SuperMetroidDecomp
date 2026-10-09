@@ -277,6 +277,25 @@ internal static class DebuggerStateFieldMigrations
             ["narrationPage", "narrationCharacterIndex", "narrationInitialMarkerPending", "narrationFinalHoldStarted"],
             "Legacy intro state lacks the narration cursor; restoring no narration page until the next page starts."),
 
+        // 13% intro parity: native INIDISP and fade words, $1A57 per scene, native Rinka slots
+        // and the flight's shared music queue.
+        new(typeof(IntroCinematicState).FullName!, ["inidisp", "fade"],
+            "Legacy intro stores only its brightness level; a fade captured between steps restarts its native step delay.",
+            RestoreLegacyIntroFade),
+        new(typeof(IntroCinematicState).FullName!, ["flashbackSamusDisplay"], null,
+            intro => SetIntroSamusDisplay(intro, "flashbackSamusDisplay",
+                Get(intro, "flashbackSamus") is not null &&
+                    Get(intro, "flashbackMotherBrain") is { } motherBrain &&
+                    (bool)motherBrain.GetType().GetProperty("IsVisible")!.GetValue(motherBrain)!
+                    ? IntroSamusDisplaySamusFirst : IntroSamusDisplayHidden)),
+        new("SuperMetroid.Core.Frontend.IntroBabyDiscoveryState", ["<SamusDisplay>k__BackingField", "samusHandlersEnded"], null,
+            RestoreLegacyBabyDiscoveryDisplay),
+        new("SuperMetroid.Core.Frontend.IntroRinkaSystem", ["slots", "spawnsForbidden"], null,
+            RestoreLegacyRinkaSlots),
+        // The parent intro's fade initializer attaches the shared queue once both are restored.
+        new("SuperMetroid.Core.Frontend.IntroCeresFlightState", ["audio"],
+            "Legacy Ceres flight never queued its music; a capture during the music wait resumes with an empty queue."),
+
         new(typeof(PhantoonBlendingState).FullName!, ["<DisplayedMosaic>k__BackingField"],
             "Legacy Phantoon display state lacks MOSAIC history; restores ungrouped until the next accepted NMI."),
         new(typeof(PhantoonEnemyState).FullName!, ["_blending"],
@@ -546,6 +565,95 @@ internal static class DebuggerStateFieldMigrations
 
     private static object? Get(object instance, string field) =>
         FindField(instance.GetType(), field).GetValue(instance);
+
+    // $1A57 IntroSamusDisplayFlag values; the Core enum that names them is internal.
+    private const short IntroSamusDisplayHidden = 0;
+    private const short IntroSamusDisplayObjectsFirst = 1;
+    private const short IntroSamusDisplaySamusFirst = -1;
+
+    private static void SetIntroSamusDisplay(object instance, string field, short value) =>
+        Set(instance, field, Enum.ToObject(FindField(instance.GetType(), field).FieldType, value));
+
+    /// <summary>
+    /// Seeds $51 from the legacy 0-15 level (zero was black, now forced blank) and the fade words
+    /// with the native seed of a fade phase, and attaches a restored flight to the intro's queue.
+    /// </summary>
+    private static void RestoreLegacyIntroFade(object instance)
+    {
+        var intro = (IntroCinematicState)instance;
+        if (!DebuggerRetiredFieldDefinitions.TryGetLegacyValue(intro, "brightness", out object? stored) ||
+            stored is not int brightness || brightness is < 0 or > ScreenFade.FullyLit)
+            throw new InvalidDataException("Legacy intro brightness is missing or not a 0-15 level.");
+        Set(intro, "inidisp", brightness == 0 ? ScreenFade.ForcedBlank : brightness);
+        var fade = new ScreenFade();
+        ushort seed = intro.Phase switch
+        {
+            IntroCinematicPhase.FadeInFirstNarration or IntroCinematicPhase.FadeOutFirstNarration or
+                IntroCinematicPhase.FadeInPageOne => IntroCinematicRomData.Fade.NarrationSlowFade,
+            IntroCinematicPhase.IntroFadeOut => IntroCinematicRomData.Fade.FinishFade,
+            _ => 0,
+        };
+        fade.SetTiming(seed, seed);
+        Set(intro, "fade", fade);
+        if (Get(intro, "ceresFlight") is { } flight && Get(flight, "audio") is null)
+            Set(flight, "audio", Get(intro, "audio") ?? throw new InvalidDataException(
+                "Legacy intro with a Ceres flight has no cartridge audio state to attach."));
+    }
+
+    /// <summary>
+    /// $8B:8682 locked input and stopped Samus together; $1A57 follows the egg's and dancing
+    /// baby's deletions and, while the baby dances, the sign of its X velocity.
+    /// </summary>
+    private static void RestoreLegacyBabyDiscoveryDisplay(object scene)
+    {
+        Set(scene, "samusHandlersEnded",
+            ((SamusState)scene.GetType().GetProperty("Samus")!.GetValue(scene)!).InputLocked);
+        object egg = Get(scene, "egg")!;
+        object baby = Get(scene, "confusedBaby")!;
+        static bool Active(object actor) => (bool)actor.GetType().GetProperty("IsActive")!.GetValue(actor)!;
+        ushort babyPreInstruction = (ushort)baby.GetType().GetProperty("PreInstructionPointer")!.GetValue(baby)!;
+        ushort dancing = (ushort)typeof(IntroCinematicState).Assembly
+            .GetType("SuperMetroid.Core.Frontend.CinematicCodePointers", throwOnError: true)!
+            .GetField("PreInstruction_ConfusedBabyMetroid_Dancing")!.GetValue(null)!;
+        short display;
+        if (!Active(egg) || !Active(baby))
+            display = IntroSamusDisplayHidden;
+        else if (babyPreInstruction == dancing)
+        {
+            ushort velocity = (ushort)scene.GetType().GetProperty("BabyXVelocity",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(scene)!;
+            display = unchecked((sbyte)(velocity >> 8)) < 0 ? IntroSamusDisplayObjectsFirst : IntroSamusDisplaySamusFirst;
+        }
+        else
+            display = IntroSamusDisplayObjectsFirst;
+        SetIntroSamusDisplay(scene, "<SamusDisplay>k__BackingField", display);
+    }
+
+    /// <summary>
+    /// Places the legacy spawn-ordered Rinkas in the slots the scripted allocation gives them:
+    /// the spawner holds 14, the first wave takes 13 and 12, and the second wave arrives after
+    /// Rinka zero's hit has freed 13, taking 13 and 11.
+    /// </summary>
+    private static void RestoreLegacyRinkaSlots(object system)
+    {
+        if (!DebuggerRetiredFieldDefinitions.TryGetLegacyValue(system, "rinkas", out object? stored) ||
+            stored is not System.Collections.IList legacy)
+            throw new InvalidDataException("Legacy intro Rinka list is missing.");
+        object spawner = Get(system, "spawner")!;
+        var slots = (Array)Activator.CreateInstance(FindField(system.GetType(), "slots").FieldType, 15)!;
+        static bool Active(object actor) => (bool)actor.GetType().GetProperty("IsActive")!.GetValue(actor)!;
+        if (Active(spawner))
+            slots.SetValue(spawner, 14);
+        int[] scriptedSlots = [13, 12, 13, 11];
+        if (legacy.Count > scriptedSlots.Length)
+            throw new InvalidDataException($"Legacy intro spawned {legacy.Count} Rinkas; the script spawns four.");
+        if (legacy.Count > 2 && Active(legacy[0]!))
+            throw new InvalidDataException("Legacy intro spawned the second Rinka wave while Rinka zero still held slot 13.");
+        for (int index = 0; index < legacy.Count; index++)
+            if (Active(legacy[index]!))
+                slots.SetValue(legacy[index], scriptedSlots[index]);
+        Set(system, "slots", slots);
+    }
 
     private static void Set(object instance, string field, object? value) =>
         FindField(instance.GetType(), field).SetValue(instance, value);

@@ -13,7 +13,7 @@ internal static partial class Program
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(bus, RepositoryInstallation.IntroArtwork.CeresFlight);
+        var flight = new IntroCeresFlightState(bus, new CartridgeAudioState(), RepositoryInstallation.IntroArtwork.CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -27,11 +27,11 @@ internal static partial class Program
                 coloredRearView |= snapshot.Layers.ToArray().Any(layer => layer is FixedColorAddRenderLayer c
                     && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
                 Compare(expected, snapshot, tick);
-                flight.Step();
+                flight.StepFrame();
                 Compare(expected, snapshot, tick);
                 flightSamples++;
             }
-            else flight.Step();
+            else flight.StepFrame();
         }
         AssertTrue(flight.Finished && coloredRearView, "flight fixture completes and exercises nonzero fixed color");
         AssertTrue(flightPhases.Contains(IntroCeresFlightPhase.SpaceColonyTitle), "flight caption captured");
@@ -110,8 +110,14 @@ internal static partial class Program
     private static void VerifyIntroDisplayCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var legacy = CreateRetailIntroFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-        var captured = CreateRetailIntroFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        // Each owner keeps its own music queue, which the Ceres flight waits on; the game runs
+        // the queue handler after every dispatch.
+        var legacyBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var capturedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var legacyAudio = new CartridgeAudioState();
+        var capturedAudio = new CartridgeAudioState();
+        var legacy = CreateRetailIntroFixture(legacyBus, legacyAudio);
+        var captured = CreateRetailIntroFixture(capturedBus, capturedAudio);
         var phases = new HashSet<IntroCinematicPhase>();
         int samples = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)
@@ -131,7 +137,9 @@ internal static partial class Program
             }
             ushort input = tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
             legacy.Step(input);
+            legacyAudio.AdvanceFrame(legacyBus, default);
             captured.Step(input);
+            capturedAudio.AdvanceFrame(capturedBus, default);
             AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
             AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
             AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");

@@ -153,6 +153,8 @@ internal static partial class Program
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "ordinary gameplay publishes actual warning command");
         runtime.InitializePostCeresZebesRoom();
+        // The Zebes handoff installs a fresh Samus that carries over only the inventory.
+        samus = runtime.Samus!;
         AssertTrue(!runtime.Enemies.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.Slots[0];
         ship.VariableF = GunshipCodePointers.WaitForEntranceToOpen;

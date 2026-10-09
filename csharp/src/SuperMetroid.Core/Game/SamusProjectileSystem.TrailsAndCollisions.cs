@@ -211,6 +211,7 @@ public sealed partial class SamusProjectileSystem
                 if (!blocksPlasmaBeam &&
                     (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
                     return true;
+                // $A0:9A07 only marks the shot; enemy hits never reach Kill_Projectile's sound.
                 KillBeam(bus, slot);
                 return true;
             case SamusProjectileFamily.Missile:
@@ -410,12 +411,13 @@ public sealed partial class SamusProjectileSystem
     /// <summary>
     /// Runs the producer-owned collision call made before a new beam receives its speed.
     /// </summary>
-    private static bool RunInitialBeamCollision(
+    private bool RunInitialBeamCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms,
-        bool waveBeam)
+        bool waveBeam,
+        SamusPowerBombExplosionState powerBomb)
     {
         // The producer explicitly stores zero in both 8.8 speed words. Direction seven is
         // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
@@ -465,7 +467,7 @@ public sealed partial class SamusProjectileSystem
 
         if (!waveBeam && collided)
         {
-            KillBeam(bus, slot);
+            KillBeamOnBlockCollision(bus, slot, powerBomb);
             return true;
         }
 
@@ -516,10 +518,12 @@ public sealed partial class SamusProjectileSystem
         // projectile grazing air beside one solid block therefore keeps moving; every
         // touched block still gets its side effect before that aggregate result is tested.
         bool everyBlockSolid = true;
+        int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan))
+            var context = new ShotSpan(span, bottomBlock - blockY, targetX);
+            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -546,14 +550,71 @@ public sealed partial class SamusProjectileSystem
         }
 
         bool everyBlockSolid = true;
+        int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan, horizontalMovement: false))
+            var context = new ShotSpan(span, rightBlock - blockX, targetY);
+            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, horizontalMovement: false))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
         return everyBlockSolid;
+    }
+
+    /// <summary>
+    /// A block span's scan state: $1A (blocks spanned minus one), $26 (blocks still to check
+    /// minus one; the first, top or left, block has $26 = $1A) and $1C (target boundary).
+    /// </summary>
+    private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
+
+    /// <summary>
+    /// $94:A66A (horizontal) and $94:A71A (vertical) for a beam: the quarter cells of a
+    /// square slope that the beam's edges reach in this block. A hit returns carry like a
+    /// solid block; unlike a non-square slope it does not end the span.
+    /// </summary>
+    private static bool SquareSlopeShotReaction(SamusProjectileSlot slot, RoomCollisionBlock block,
+        ShotSpan span, bool horizontalMovement)
+    {
+        if (slot.PackedType.IsFamily(SamusProjectileFamily.Missile) ||
+            slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile))
+        {
+            // Missiles take the point test in RunMissilePreInstruction; the native missile
+            // branch ($1E set) has no caller in this port.
+            throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
+        }
+
+        // Cell index bits: 0 = right half, 1 = bottom half; BTS bit 6 / bit 7 flip them.
+        int flips = (block.Bts.SlopeFlipsHorizontally ? 1 : 0) | (block.Bts.SlopeFlipsVertically ? 2 : 0);
+        int baseIndex = block.Bts.SlopeShape * 4;
+        bool Solid(int cell) => SquareSlopeDefinitions.ReadSamusQuadrant(baseIndex + cell) != 0;
+
+        if (horizontalMovement)
+        {
+            // The leading edge picks the column half; the scan then tests top/bottom rows.
+            int cell = flips ^ ((span.TargetBoundary & 8) >> 3);
+            bool topEdgeInBottomHalf = (unchecked((ushort)(slot.YPosition - slot.YRadius)) & 8) != 0;
+            bool bottomEdgeInBottomHalf = (unchecked((ushort)(slot.YPosition + slot.YRadius - 1)) & 8) != 0;
+            if (span.Span == 0)
+                return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell ^ 2));
+            if (span.Remaining == 0)
+                return bottomEdgeInBottomHalf ? Solid(cell) || Solid(cell ^ 2) : Solid(cell);
+            if (span.Remaining == span.Span && topEdgeInBottomHalf)
+                return Solid(cell ^ 2);
+            return Solid(cell) || Solid(cell ^ 2);
+        }
+
+        // The leading edge picks the row half; the scan then tests left/right columns.
+        int rowCell = flips ^ ((span.TargetBoundary & 8) >> 2);
+        bool leftEdgeInRightHalf = (unchecked((ushort)(slot.XPosition - slot.XRadius)) & 8) != 0;
+        bool rightEdgeInRightHalf = (unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) & 8) != 0;
+        if (span.Span == 0)
+            return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell ^ 1));
+        if (span.Remaining == 0)
+            return rightEdgeInRightHalf ? Solid(rowCell) || Solid(rowCell ^ 1) : Solid(rowCell);
+        if (span.Remaining == span.Span && leftEdgeInRightHalf)
+            return Solid(rowCell ^ 1);
+        return Solid(rowCell) || Solid(rowCell ^ 1);
     }
 
     private static bool RunShotReaction(
@@ -561,6 +622,7 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
         RoomPlmSystem? roomPlms,
+        ShotSpan span,
         out bool endSpan,
         bool horizontalMovement = true)
     {
@@ -574,6 +636,8 @@ public sealed partial class SamusProjectileSystem
         if (resolvedBlock is null)
             return false;
         block = resolvedBlock.Value;
+        if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape < 5)
+            return SquareSlopeShotReaction(slot, block, span, horizontalMovement);
         if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape >= 5)
         {
             // $94:A147/A15E dispatch non-square slopes through the projectile's
@@ -764,6 +828,17 @@ public sealed partial class SamusProjectileSystem
             .ToSixteenSixteenDelta()
             .AddTo(position, subposition);
         return (result.Whole, result.Fraction);
+    }
+
+    /// <summary>
+    /// $90:AE06 Kill_Projectile for a beam, as bank $94's block collision calls it: the
+    /// explosion's library-two $0C queues ($93:80EF, no cinematic test) before the swap.
+    /// </summary>
+    private void KillBeamOnBlockCollision(ISnesAddressSpace bus, SamusProjectileSlot slot,
+        SamusPowerBombExplosionState powerBomb)
+    {
+        RequestBeamImpactSound(powerBomb);
+        KillBeam(bus, slot);
     }
 
     private static void KillBeam(ISnesAddressSpace bus, SamusProjectileSlot slot)

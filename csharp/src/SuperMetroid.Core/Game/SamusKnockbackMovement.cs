@@ -328,10 +328,15 @@ public static class SamusKnockbackMovement
     }
 
     /// <summary>Installs a same-family target selected by the two `$91:A3F6/A40A` tables.</summary>
+    /// <param name="bus">Cartridge address space for pose metadata.</param>
+    /// <param name="samus">The damage-boosting Samus.</param>
+    /// <param name="targetPose">The table's normal-jump exit.</param>
+    /// <param name="controllerNewInput">This frame's newly pressed buttons, which $91:F5CF reads.</param>
     public static void ApplyDamageBoostPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,
-        byte targetPose)
+        byte targetPose,
+        ushort controllerNewInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -347,11 +352,13 @@ public static class SamusKnockbackMovement
         }
 
         // Both target families have the same radius. HandlePoseChange nevertheless runs
-        // their ordinary initializer; it preserves the live 16.16 jump velocity and starts
-        // the selected target's delay stream at frame zero.
+        // their ordinary initializer ($91:F543): it preserves the live 16.16 jump velocity,
+        // reselects the acceleration mode from extra run speed, and can start a spark from
+        // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        if (!samus.InitializeInstalledNormalJumpPose(bus, SamusMovementType.DamageBoost, controllerNewInput))
+            samus.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>

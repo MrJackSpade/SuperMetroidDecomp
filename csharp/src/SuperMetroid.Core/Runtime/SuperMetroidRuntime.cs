@@ -2751,7 +2751,8 @@ Landed: true, HitCeiling: false);
                                 SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                                     _addressSpace,
                                     Samus,
-                                    targetPose);
+                                    targetPose,
+                                    Controller1.NewlyPressed);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingNormalJumpPose(source) &&
@@ -3108,7 +3109,8 @@ Landed: true, HitCeiling: false);
                     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                         _addressSpace,
                         Samus,
-                        unchecked((byte)boostFallback));
+                        unchecked((byte)boostFallback),
+                        Controller1.NewlyPressed);
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&

@@ -700,6 +700,25 @@ public sealed partial class SamusState
     /// </summary>
     public void ClearPoseTransitionShotDirection() => PoseTransitionShotDirection = 0;
 
+    /// <summary>
+    /// <c>InitializeSamusPose_NormalJumping</c> ($91:F543) for a normal-jump pose already
+    /// installed by a transition that reaches the ordinary initializer ($91:F433). Stored shine
+    /// diverts the six shinespark-capable poses into a windup; otherwise retained extra run
+    /// speed selects deceleration and a fresh Shoot press arms the transition shot.
+    /// </summary>
+    /// <returns>True when the initializer began a shinespark windup instead.</returns>
+    internal bool InitializeInstalledNormalJumpPose(
+        ISnesAddressSpace bus,
+        SamusMovementType previousMovementType,
+        ushort controllerNewInput)
+    {
+        if (TryBeginShinesparkWindup(bus, Pose, previousMovementType))
+            return true;
+        InitializeOrdinaryAerialAcceleration();
+        PublishNormalJumpPoseShotDirection(bus, controllerNewInput);
+        return false;
+    }
+
     /// <summary>Publishes $91:F5CF-F5E6 after an accepted normal-jump pose initializer.</summary>
     internal void PublishNormalJumpPoseShotDirection(ISnesAddressSpace bus, ushort controllerNewInput)
     {

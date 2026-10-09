@@ -761,11 +761,9 @@ public sealed partial class SamusState
                     Kinematics.YPosition + centerAdjustment));
 
                 // The special target installs through $91:F433, which dispatches the new
-                // normal-jumping type to $91:F543: retained extra run speed selects
-                // deceleration, and a fresh Shoot press arms the transition shot. $F433
+                // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433
                 // then restores the suit palette after a wall jump with Screw Attack.
-                InitializeOrdinaryAerialAcceleration();
-                PublishNormalJumpPoseShotDirection(bus, controllerNewInput);
+                InitializeInstalledNormalJumpPose(bus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                     HorizontalSpeed.RequestNormalSuitPaletteRestore();

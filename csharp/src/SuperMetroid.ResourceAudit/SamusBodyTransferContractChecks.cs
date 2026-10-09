@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified missing-record admission gap using authored data, not poses in gameplay.</summary>
 internal static class SamusBodyTransferContractChecks
 {
+    /// <summary>Confirms Samus body records are complete and valid transfer selections are admitted.</summary>
     internal static void Run()
     {
         bool rejected = false;
@@ -32,6 +33,7 @@ internal static class SamusBodyTransferContractChecks
         ConfirmStaticCalls();
     }
 
+    /// <summary>Creates a deterministic Samus body catalog with optional record or frame defects.</summary>
     private static SamusBodyArtworkCatalog Body(bool shortFirstGroup, bool invalidAdjacentFrame = false)
     {
         // Twenty-four groups, with two records in the first and one in each other
@@ -80,6 +82,7 @@ internal static class SamusBodyTransferContractChecks
             new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount]);
     }
 
+    /// <summary>Confirms static Samus transfer calls classify only values inside reviewed domains.</summary>
     private static void ConfirmStaticCalls()
     {
         var trees = SamusBodyTransferClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -130,6 +133,7 @@ internal static class SamusBodyTransferContractChecks
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 8, "unreviewed private-state access revokes transfer closure");
     }
 
+    /// <summary>Creates an indexed PNG stream of the requested dimensions.</summary>
     private static MemoryStream Png(int width, int height)
     {
         var stream = new MemoryStream();
@@ -138,6 +142,7 @@ internal static class SamusBodyTransferContractChecks
         return stream;
     }
 
+    /// <summary>Throws when a Samus body transfer expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Samus transfer confirmation failed: " + reason);

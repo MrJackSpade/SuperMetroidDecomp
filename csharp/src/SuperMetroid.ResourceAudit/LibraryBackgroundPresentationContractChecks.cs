@@ -10,6 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms exact required source admission, not background pixels or room execution.</summary>
 internal static class LibraryBackgroundPresentationContractChecks
 {
+    /// <summary>Confirms exact source ownership for library background tilemap presentations.</summary>
     internal static void Run()
     {
         var cell = new RoomBackgroundTilemapCell { TileColumn = 0, TileRow = 0, Palette = 0,
@@ -76,6 +77,7 @@ internal static class LibraryBackgroundPresentationContractChecks
             "removing exact source admission must revoke even valid-looking lookups");
     }
 
+    /// <summary>Throws when a library background presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Library background confirmation failed: " + reason);

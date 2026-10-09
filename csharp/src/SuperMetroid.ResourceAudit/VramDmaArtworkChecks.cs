@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirm only #1163's ten identified native aliases through the real queue/runtime resolver. No frames or ROM.</summary>
 internal static class VramDmaArtworkChecks
 {
+    /// <summary>Confirms native DMA aliases resolve the exact installed HUD, timer, and Grapple artwork.</summary>
     internal static void Run(string mapDirectory)
     {
         var maps = AreaMapPresentationCatalog.Load(mapDirectory, null);
@@ -51,6 +52,7 @@ internal static class VramDmaArtworkChecks
         Console.WriteLine("Native DMA artwork: ten HUD/timer/Grapple aliases match typed bytes through the actual runtime/RAM-only queue; invalid lengths rejected; pending PNG rebinding passed.");
     }
 
+    /// <summary>Creates a deterministic Grapple tile atlas filled with the specified palette index.</summary>
     private static GrappleTileAtlas Grapple(byte index)
     {
         using var png = new MemoryStream();

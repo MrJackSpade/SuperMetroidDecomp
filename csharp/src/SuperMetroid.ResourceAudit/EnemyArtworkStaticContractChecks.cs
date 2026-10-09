@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified static selector/length contract and its revocation guards.</summary>
 internal static class EnemyArtworkStaticContractChecks
 {
+    /// <summary>Confirms static enemy artwork selector and transfer-length contracts.</summary>
     internal static void Run()
     {
         var trees = EnemyArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -80,9 +81,11 @@ internal static class EnemyArtworkStaticContractChecks
         Revoked(Inspect(Compile(trees.Append(extraMetadata)), true), "additional metadata declaration");
     }
 
+    /// <summary>Confirms a changed provider source revokes all static enemy artwork classifications.</summary>
     private static void Revoked(AuditReport report, string reason) => Require(
         report.Classifications.Count == 0 && report.UnresolvedCount == 15 && report.Consumers.Count == 15, reason);
 
+    /// <summary>Throws when an enemy artwork static contract expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy artwork static confirmation failed: " + reason);

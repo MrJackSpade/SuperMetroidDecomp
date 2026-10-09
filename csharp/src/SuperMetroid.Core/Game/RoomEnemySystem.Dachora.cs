@@ -40,8 +40,11 @@ public enum DachoraAiFunction : ushort
 /// </summary>
 public sealed class DachoraEnemyState
 {
+    /// <summary>Physical enemy record whose six variable words back this typed state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the native variable words of one Dachora body or echo slot.</summary>
+    /// <param name="slot">Physical enemy record owned by this actor.</param>
     internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A: whole speed, countdown, or echo-position interval.</summary>
@@ -95,30 +98,50 @@ public sealed class DachoraEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition word identifying Dachora bodies and their four echo actors.</summary>
     internal const ushort DachoraDefinition = 0xe5ff;
 
+    /// <summary>Library-two sound requested when Samus enters the activation rectangle.</summary>
     private const ushort DachoraActivationSound = 0x001d;
+    /// <summary>Library-two sound played when the running actor reaches maximum speed.</summary>
     private const ushort DachoraSpeedBoosterSound = 0x0039;
+    /// <summary>Library-two sound played when Dachora begins charging its shinespark.</summary>
     private const ushort DachoraChargeSound = 0x003d;
+    /// <summary>Library-two sound played when Dachora launches upward.</summary>
     private const ushort DachoraLaunchSound = 0x003b;
+    /// <summary>Library-two sound played when the upward actor hits the ceiling.</summary>
     private const ushort DachoraCeilingImpactSound = 0x003c;
+    /// <summary>Library-two sound played when the running actor hits a wall.</summary>
     private const ushort DachoraWallImpactSound = 0x0071;
 
     // NTSC retail constants at $A7:F4C9-$F4DB. They are kept as paired native words so
     // fixed-point carry and exact threshold frames remain visible and auditable.
+    /// <summary>Horizontal proximity threshold, in pixels, for beginning Dachora's warning phase.</summary>
     private const int DachoraActivationXDistance = 0x60;
+    /// <summary>Vertical proximity threshold, in pixels, for beginning Dachora's warning phase.</summary>
     private const int DachoraActivationYDistance = 0x40;
+    /// <summary>Warning countdown length before the first running instruction list begins.</summary>
     private const ushort DachoraBlinkDuration = 0x78;
+    /// <summary>Charge countdown length before the shinespark launch.</summary>
     private const ushort DachoraChargeDuration = 0x3c;
+    /// <summary>Running updates between checks that publish a new echo position.</summary>
     private const ushort DachoraEchoPositionInterval = 1;
+    /// <summary>Visible lifetime in updates assigned to each newly positioned speed echo.</summary>
     private const ushort DachoraEchoLifetime = 8;
+    /// <summary>Whole-number cap on horizontal running speed in 16.16 fixed-point units.</summary>
     private const ushort DachoraMaximumSpeedWhole = 8;
+    /// <summary>Fractional component of the horizontal running speed cap.</summary>
     private const ushort DachoraMaximumSpeedFraction = 0;
+    /// <summary>Whole-number horizontal acceleration increment per running update.</summary>
     private const ushort DachoraAccelerationWhole = 0;
+    /// <summary>Fractional horizontal acceleration increment per running update.</summary>
     private const ushort DachoraAccelerationFraction = 0x1000;
+    /// <summary>X coordinate where the left-running path turns back toward the tutorial launch point.</summary>
     private const ushort DachoraLeftTurnX = 0x0060;
+    /// <summary>Hard-coded X coordinate that begins the shinespark charge on the right-running path.</summary>
     private const ushort DachoraShinesparkX = 0x0480;
 
+    /// <summary>Per-slot typed Dachora state, populated when each body or echo is initialized.</summary>
     private readonly DachoraEnemyState?[] _dachoraStates =
         new DachoraEnemyState?[MaximumEnemyCount];
 
@@ -562,6 +585,10 @@ public sealed partial class RoomEnemySystem
         throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");
     }
 
+    /// <summary>Resolves the four consecutive physical enemy slots used as the body's speed echoes.</summary>
+    /// <param name="body">Initialized Dachora body whose following slots hold its echoes.</param>
+    /// <returns>The four following slots in native echo order.</returns>
+    /// <exception cref="InvalidDataException">The body lacks four available following slots or any slot is not a Dachora actor.</exception>
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
     {
         if (body.SlotIndex + 4 >= MaximumEnemyCount)
@@ -581,22 +608,43 @@ public sealed partial class RoomEnemySystem
         return echoes;
     }
 
+    /// <summary>Gets the typed variable-word view previously installed for a physical Dachora slot.</summary>
+    /// <param name="slot">Body or echo slot whose state is required.</param>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as Dachora.</exception>
     private DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
         _dachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Switches an actor to an instruction list and primes its first instruction for the next interpreter step.</summary>
+    /// <param name="slot">Dachora body or echo receiving the list.</param>
+    /// <param name="instructionList">Native instruction-list address to install.</param>
     private static void InstallDachoraInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Checks signed wrapped coordinate separation against a strict per-axis activation threshold.</summary>
+    /// <param name="actor">Dachora coordinate on one axis.</param>
+    /// <param name="samus">Samus coordinate on the same axis.</param>
+    /// <param name="distance">Exclusive proximity limit in pixels.</param>
+    /// <returns>Whether the absolute signed separation is less than the limit.</returns>
     private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
+    /// <summary>Combines signed whole and unsigned fractional words into the 16.16 displacement representation.</summary>
+    /// <param name="whole">Signed integer component stored in a 16-bit word.</param>
+    /// <param name="fraction">Fractional low word.</param>
+    /// <returns>The packed fixed-point value used by enemy movement.</returns>
     private static int ComposeDachoraFixed(ushort whole, ushort fraction) =>
         unchecked(((int)(short)whole << 16) | fraction);
 
+    /// <summary>Adds two 16.16 values with native 32-bit wraparound and returns their component words.</summary>
+    /// <param name="whole">Current signed whole component.</param>
+    /// <param name="fraction">Current fractional component.</param>
+    /// <param name="wholeIncrement">Whole component to add.</param>
+    /// <param name="fractionIncrement">Fractional component to add, including carry into the whole word.</param>
+    /// <returns>The wrapped whole and fractional result words.</returns>
     private static (ushort Whole, ushort Fraction) AddDachoraFixed(
         ushort whole,
         ushort fraction,

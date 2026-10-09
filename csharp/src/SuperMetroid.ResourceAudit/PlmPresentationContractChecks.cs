@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified PLM artwork closure and tuple-shape audit, never a PLM instruction or room.</summary>
 internal static class PlmPresentationContractChecks
 {
+    /// <summary>Confirms reviewed multi-run PLM presentation providers and draw-shape domains.</summary>
     internal static void Run()
     {
         ConfirmConstructorCoverage();
@@ -104,10 +105,12 @@ internal static class PlmPresentationContractChecks
             "pointer, run and word failures must come from precise declared domains");
     }
 
+    /// <summary>Converts a compiled PLM draw list into its visual level-word runs.</summary>
     internal static ushort[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
         frame.Runs.ToArray().Select(run => run.LevelWords.ToArray()
             .Select(word => new RoomLevelWord(word).VisualWord).ToArray()).ToArray();
 
+    /// <summary>Confirms each compiled PLM draw shape is admitted by its production catalog.</summary>
     private static void ConfirmConstructorCoverage()
     {
         ConfirmCoverage(RoomPlmShotBlockDrawDefinitions.All, frame =>
@@ -184,6 +187,7 @@ internal static class PlmPresentationContractChecks
             entries => _ = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries));
     }
 
+    /// <summary>Confirms a catalog constructor admits the complete supplied PLM definition set.</summary>
     internal static void ConfirmCoverage<T>(IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<RoomPlmShotBlockDrawDefinitions.DrawList, T> entry, Action<IEnumerable<T>> construct)
     {
@@ -199,6 +203,7 @@ internal static class PlmPresentationContractChecks
         Require(rejected, "duplicate " + typeof(T).Name + " identities must not satisfy coverage");
     }
 
+    /// <summary>Throws when a PLM presentation contract expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("PLM provider confirmation failed: " + reason);

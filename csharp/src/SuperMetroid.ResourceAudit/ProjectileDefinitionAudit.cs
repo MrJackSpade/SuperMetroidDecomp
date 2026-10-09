@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class ProjectileDefinitionAudit
 {
+    /// <summary>Requires the installed or directly compiled frame selected by a projectile operand.</summary>
     public static void RequireFrame(ushort operand, string owner, string source,
         ResourceIndex exports, AuditReport report)
     {
@@ -24,6 +25,7 @@ internal static class ProjectileDefinitionAudit
         RequireFrame(operand, direct, owner, source, exports, report);
     }
 
+    /// <summary>Requires the installed projectile program or supplied direct composition for an operand.</summary>
     internal static void RequireFrame(ushort operand, ushort? direct, string owner, string source,
         ResourceIndex exports, AuditReport report)
     {

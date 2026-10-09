@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified required graphics-set sources and contiguous sky upload rules.</summary>
 internal static class RoomArtworkPresentationContractChecks
 {
+    /// <summary>Confirms reviewed room artwork providers and exact source ownership.</summary>
     internal static void Run()
     {
         var trees = RoomArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -78,6 +79,7 @@ internal static class RoomArtworkPresentationContractChecks
             "changed required-source admission must revoke character membership proof");
     }
 
+    /// <summary>Throws when a room artwork presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Room artwork provider confirmation failed: " + reason);

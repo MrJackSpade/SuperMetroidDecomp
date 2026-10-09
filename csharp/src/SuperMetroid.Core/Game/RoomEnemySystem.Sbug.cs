@@ -83,8 +83,11 @@ public readonly record struct SbugVelocityWords(ushort Pixel, ushort Subpixel)
 /// </summary>
 public sealed class SbugEnemyState
 {
+    /// <summary>Common enemy-slot words read and written by this typed Sbug view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed state view over the enemy's common slot storage.</summary>
+    /// <param name="slot">Initialized room enemy slot containing the Sbug's shared variables and position.</param>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A; the long lifetime used only by behavior four.</summary>
@@ -169,14 +172,21 @@ public sealed class SbugEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy definition word for the standard Sbug, used to select its initialization path.</summary>
     internal const ushort SbugDefinition = 0xd87f;
+    /// <summary>Room enemy definition word for Sbug2, which shares the Sbug movement implementation.</summary>
     internal const ushort Sbug2Definition = 0xd8bf;
 
+    /// <summary>Seed written to the shared random generator when either random Sbug mode activates.</summary>
     private const ushort SbugRandomSeed = 0x000b;
+    /// <summary>Length of each random direction segment and the forward-then-wait movement leg.</summary>
     private const ushort SbugMovementSegmentFrames = 0x0020;
+    /// <summary>Initial lifetime of the random mode that can reverse when the Sbug is far from Samus.</summary>
     private const ushort SbugLongRandomLifetime = 0x0200;
+    /// <summary>Per-axis separation that triggers reversal in the long-lived random mode.</summary>
     private const int SbugReverseDistance = 0x0060;
 
+    /// <summary>Extension state indexed by enemy slot; null denotes a slot not initialized as Sbug.</summary>
     private readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
@@ -305,6 +315,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Leaves the Sbug waiting until Samus is strictly within the configured radius on both axes.</summary>
+    /// <param name="slot">Enemy slot whose position is compared with Samus.</param>
+    /// <param name="state">Sbug state containing its activation radius and behavior selector.</param>
+    /// <param name="samus">Active player state used for the proximity check.</param>
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
@@ -316,6 +330,11 @@ public sealed partial class RoomEnemySystem
         state.Function = SbugMovementDefinitions.ActivationFunction(state.ActivationBehavior);
     }
 
+    /// <summary>Captures a straight-line angle toward Samus or its opposite and installs matching velocity and facing.</summary>
+    /// <param name="slot">Enemy slot whose facing and instruction state may be updated.</param>
+    /// <param name="state">Sbug state receiving the fixed custom direction.</param>
+    /// <param name="samus">Actor position used to calculate the activation direction.</param>
+    /// <param name="away"><see langword="true"/> to choose the opposite of Samus's direction.</param>
     private static void ActivateSbugTowardOrAway(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -335,6 +354,9 @@ public sealed partial class RoomEnemySystem
             : SbugEnemyFunction.MoveTowardSamus;
     }
 
+    /// <summary>Moves on the left or right diagonal leg selected by bit $10 of the enemy frame counter.</summary>
+    /// <param name="slot">Enemy slot supplying the shared frame counter and receiving movement.</param>
+    /// <param name="state">Precomputed left and right leg velocities and facing indices.</param>
     private static void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
@@ -351,6 +373,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Counts down the forward leg, returning to proximity waiting on signed underflow.</summary>
+    /// <param name="slot">Enemy slot moved while the leg remains active.</param>
+    /// <param name="state">State containing the leg countdown and spawn-angle velocity.</param>
     private static void RunSbugForwardThenWait(RoomEnemySlot slot, SbugEnemyState state)
     {
         state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
@@ -363,6 +388,11 @@ public sealed partial class RoomEnemySystem
         MoveSbugForward(slot, state);
     }
 
+    /// <summary>Advances a timed random segment through collision-aware axis movers and waits on impact.</summary>
+    /// <param name="slot">Enemy slot whose position and collision result are updated.</param>
+    /// <param name="state">Segment timer, custom velocity, and next-direction dispatch state.</param>
+    /// <param name="level">Room collision data required while the segment is active.</param>
+    /// <exception cref="InvalidOperationException">The segment is active but room collision data is unavailable.</exception>
     private void RunSbugCollisionAwareSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -392,6 +422,10 @@ public sealed partial class RoomEnemySystem
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
+    /// <summary>Runs the long-lived random mode, choosing a new segment on expiry and reversing when both axis gaps are large enough.</summary>
+    /// <param name="slot">Enemy slot receiving the custom displacement.</param>
+    /// <param name="state">Long lifetime, segment timer, and current custom velocity.</param>
+    /// <param name="samus">Position used by the independent horizontal and vertical distance thresholds.</param>
     private static void RunSbugStraightReverseSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -418,6 +452,10 @@ public sealed partial class RoomEnemySystem
         AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
     }
 
+    /// <summary>Perturbs the custom angle from shared RNG state and starts a timed random movement segment.</summary>
+    /// <param name="slot">Enemy slot whose facing is synchronized with the selected angle.</param>
+    /// <param name="state">State updated with the new angle, velocity, timer, and movement function.</param>
+    /// <param name="reverseWhenFar"><see langword="true"/> selects the long-lived reversal mode; otherwise the segment is collision-aware.</param>
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -435,6 +473,9 @@ public sealed partial class RoomEnemySystem
             : SbugEnemyFunction.MoveRandomlyUntilCollision;
     }
 
+    /// <summary>Recomputes custom velocity and animation direction from the current custom angle.</summary>
+    /// <param name="slot">Enemy slot whose facing may be changed.</param>
+    /// <param name="state">State supplying angle and speed and receiving the derived values.</param>
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
@@ -449,6 +490,9 @@ public sealed partial class RoomEnemySystem
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Applies the cartridge's independent word negation and its native masked facing-index reversal.</summary>
+    /// <param name="slot">Enemy slot whose facing may be changed.</param>
+    /// <param name="state">Current custom velocity and instruction index to reverse in place.</param>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The original negates pixel and subpixel words separately. For a nonzero low word
@@ -464,11 +508,17 @@ public sealed partial class RoomEnemySystem
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Negates the pixel and subpixel words separately, matching the cartridge arithmetic including its rounding quirk.</summary>
+    /// <param name="value">Two-word fixed displacement to reverse using native word operations.</param>
+    /// <returns>The independently negated words.</returns>
     private static SbugVelocityWords NegateSbugWordsIndependently(SbugVelocityWords value) =>
         new(
             unchecked((ushort)-value.Pixel),
             unchecked((ushort)-value.Subpixel));
 
+    /// <summary>Applies unsigned forward magnitudes with axis signs derived independently from the original spawn angle.</summary>
+    /// <param name="slot">Enemy slot whose fixed-point position is advanced.</param>
+    /// <param name="state">Spawn angle and precomputed horizontal and vertical magnitudes.</param>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
@@ -487,6 +537,10 @@ public sealed partial class RoomEnemySystem
             subtractY);
     }
 
+    /// <summary>Adds signed two-axis fixed-point velocity to the enemy position with 16-bit modular carry.</summary>
+    /// <param name="slot">Enemy slot whose position and subposition words are updated.</param>
+    /// <param name="xVelocity">Signed horizontal displacement for one AI update.</param>
+    /// <param name="yVelocity">Signed vertical displacement for one AI update.</param>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
         SbugVelocityWords xVelocity,
@@ -504,6 +558,12 @@ public sealed partial class RoomEnemySystem
             subtract: false);
     }
 
+    /// <summary>Performs one modular 16.16 position addition or subtraction while preserving the two stored words.</summary>
+    /// <param name="position">Current integer-pixel word.</param>
+    /// <param name="subposition">Current fractional word.</param>
+    /// <param name="velocity">Raw 32-bit fixed displacement.</param>
+    /// <param name="subtract">Whether to subtract rather than add the displacement.</param>
+    /// <returns>The updated integer and fractional position words.</returns>
     private static (ushort Position, ushort Subposition) AddRawSbugVelocity(
         ushort position,
         ushort subposition,
@@ -519,6 +579,11 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Multiplies a quarter-circle table magnitude by speed using the full native unsigned product.</summary>
+    /// <param name="angle">Mathematical movement angle in byte units.</param>
+    /// <param name="speed">Enemy speed parameter.</param>
+    /// <param name="phase">Axis phase offset selecting the horizontal or vertical table component.</param>
+    /// <returns>Unsigned 16.16 magnitude; the caller applies the angle-dependent sign.</returns>
     private static SbugVelocityWords CalculateUnsignedSbugMagnitude(
         byte angle,
         byte speed,
@@ -534,6 +599,11 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)product));
     }
 
+    /// <summary>Calculates signed horizontal and vertical components using the cartridge's byte-multiply behavior.</summary>
+    /// <param name="angle">Mathematical movement angle in byte units.</param>
+    /// <param name="speed">Enemy speed parameter.</param>
+    /// <param name="xVelocity">Receives the signed horizontal component.</param>
+    /// <param name="yVelocity">Receives the signed vertical component.</param>
     private static void CalculateSignedSbugVelocities(
         byte angle,
         byte speed,
@@ -544,6 +614,11 @@ public sealed partial class RoomEnemySystem
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x80);
     }
 
+    /// <summary>Calculates one signed component with byte multiplication and independent-word negation semantics.</summary>
+    /// <param name="angle">Mathematical movement angle in byte units.</param>
+    /// <param name="speed">Enemy speed parameter.</param>
+    /// <param name="phase">Axis phase offset selecting the component.</param>
+    /// <returns>The component in the cartridge's two-word 16.16 representation.</returns>
     private static SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
@@ -562,9 +637,16 @@ public sealed partial class RoomEnemySystem
         return new SbugVelocityWords(pixel, subpixel);
     }
 
+    /// <summary>Maps an angle to the native byte offset used to select one of eight facing instruction lists.</summary>
+    /// <param name="angle">Mathematical movement angle in byte units.</param>
+    /// <returns>The cartridge-compatible byte offset, normally an even value from $00 through $0E.</returns>
     private static ushort CalculateSbugInstructionIndex(byte angle) =>
         unchecked((ushort)(2 * (unchecked((byte)(angle - 0x30)) >> 5)));
 
+    /// <summary>Requests the direction's instruction list and installs it only when it differs from the current list.</summary>
+    /// <param name="slot">Enemy slot whose instruction pointer and timers may be reset.</param>
+    /// <param name="state">Tracks requested and installed lists for the Sbug.</param>
+    /// <param name="instructionIndex">Native byte offset used to select the facing list.</param>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -587,6 +669,8 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Resets the shared game RNG to the seed used by Sbug's native random activation routines.</summary>
+    /// <exception cref="InvalidOperationException">No shared RNG seed-write callback is configured.</exception>
     private void SetSbugRandomSeed()
     {
         if (_setRandomNumber is null)
@@ -597,6 +681,10 @@ public sealed partial class RoomEnemySystem
         _setRandomNumber(SbugRandomSeed);
     }
 
+    /// <summary>Returns the extension state for an initialized Sbug enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose extension state is requested.</param>
+    /// <returns>The state created during Sbug initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Sbug state.</exception>
     private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
         _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");

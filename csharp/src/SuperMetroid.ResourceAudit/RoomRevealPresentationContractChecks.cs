@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified X-ray identity boundary and complete item stores, without gameplay.</summary>
 internal static class RoomRevealPresentationContractChecks
 {
+    /// <summary>Confirms room-reveal artwork ownership and complete collectible stores.</summary>
     internal static void Run()
     {
         ConfirmSingleXrayIdentity();
@@ -63,6 +64,7 @@ internal static class RoomRevealPresentationContractChecks
             "changing X-ray admission revokes both providers declared in that source, not permanent-item coverage");
     }
 
+    /// <summary>Confirms each X-ray request selects one compiled command and matching operands.</summary>
     private static void ConfirmSingleXrayIdentity()
     {
         // Construct the already identified 305-entry provider contract from compiled
@@ -85,6 +87,7 @@ internal static class RoomRevealPresentationContractChecks
             .Single().GetParameters().Length == 2, "the mismatched third input must no longer exist");
     }
 
+    /// <summary>Throws when a room-reveal presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Room reveal provider confirmation failed: " + reason);

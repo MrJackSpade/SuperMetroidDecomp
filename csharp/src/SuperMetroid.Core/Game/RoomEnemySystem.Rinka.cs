@@ -20,8 +20,11 @@ public enum RinkaEnemyFunction : ushort
 /// </summary>
 public sealed class RinkaEnemyState
 {
+    /// <summary>Common enemy slot that owns the native Rinka variable words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed view over one room enemy's shared variable storage.</summary>
+    /// <param name="slot">Enemy slot whose variables back this state view.</param>
     internal RinkaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Common variable A ($7E:0FA8 plus slot offset): same-bank $A2 routine word dispatched by main AI, changed by initialization, the fire instruction, aim completion, or the special death tail.</summary>
@@ -75,15 +78,24 @@ public readonly record struct RinkaSpawnResource(
 /// <summary>Literal translation of Rinka enemy AI $A2:B602-$BA0B.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy definition word identifying an ordinary Rinka population entry.</summary>
     internal const ushort RinkaDefinition = 0xd23f;
+    /// <summary>Native touch-damage AI pointer assigned to Rinka actors.</summary>
     internal const ushort RinkaTouchAi = EnemyAiCodePointers.BankA2.RinkaTouch;
+    /// <summary>Native shot-damage AI pointer assigned to Rinka actors.</summary>
     internal const ushort RinkaShotAi = EnemyAiCodePointers.BankA2.RinkaShot;
+    /// <summary>Native power-bomb damage AI pointer assigned to Rinka actors.</summary>
     internal const ushort RinkaPowerBombAi = EnemyAiCodePointers.BankA2.RinkaPowerBomb;
 
+    /// <summary>Initial delay before a visible Rinka aims and begins homing.</summary>
     private const ushort RinkaInitialDelay = 26;
+    /// <summary>Health restored when the special Mother Brain Rinka finishes its hidden death delay.</summary>
     private const ushort RinkaHealth = 10;
+    /// <summary>Enemy palette slot used by both ordinary and special Rinkas.</summary>
     private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
+    /// <summary>Nominal signed 8.8 speed passed to the native sine and cosine multiply.</summary>
     private const ushort RinkaSpeed = 0x0120;
+    /// <summary>Maximum number of special Rinkas that can be visible at once.</summary>
     private const ushort RinkaMaximumSpecialActors = 3;
 
     // This is not a designed host spawn layout. These eleven triples are the untouched
@@ -92,6 +104,7 @@ public sealed partial class RoomEnemySystem
     // rewrite their immutable spawn snapshots when the original point is on another screen.
     // $A2:B75B: the eleven authored spawn points; each record's extra-RAM selector token is
     // calculated from its position in the list.
+    /// <summary>Eleven authored room-coordinate spawn resources used by Mother Brain's special Rinkas.</summary>
     private static readonly (ushort X, ushort Y)[] RinkaSpawnPoints =
     [
         (0x03e7, 0x0026),
@@ -107,19 +120,29 @@ public sealed partial class RoomEnemySystem
         (0x0080, 0x00a8),
     ];
 
+    /// <summary>Projects a table position into its native even extra-RAM ownership token.</summary>
+    /// <param name="index">Zero-based index in the eleven-entry spawn table.</param>
+    /// <returns>The authored room coordinate and corresponding nonzero resource token.</returns>
     private static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
         new(RinkaSpawnPoints[index].X, RinkaSpawnPoints[index].Y, (ushort)(2 * (index + 1)));
 
+    /// <summary>Per-slot debugger state for initialized Rinkas; null entries belong to other enemies.</summary>
     private readonly RinkaEnemyState?[] _rinkaStates =
         new RinkaEnemyState?[MaximumEnemyCount];
+    /// <summary>Tracks exclusive ownership of the eleven authored special spawn resources.</summary>
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
+    /// <summary>Visible special-Rinka count maintained by fire, leaving-window, and termination paths.</summary>
     private ushort _rinkaActiveCount;
+    /// <summary>Native termination state that makes special Rinkas finish their death animation instead of respawning.</summary>
     private ushort _rinkaTerminationFlag;
+    /// <summary>Layer-one camera X sampled for flight-window and special-spawn calculations.</summary>
     private ushort _rinkaCameraX;
+    /// <summary>Layer-one camera Y sampled for flight-window and special-spawn calculations.</summary>
     private ushort _rinkaCameraY;
     // Special Rinkas whose spawn choice awaits the door loader's camera; see
     // CompleteLoaderTimeCameraReads. Ascending slot order, as Initialise_Enemies runs them.
+    /// <summary>Special-Rinka slots awaiting spawn selection at the door loader's camera position, in loader order.</summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
@@ -200,6 +223,9 @@ public sealed partial class RoomEnemySystem
         InitializeRinkaLife(slot, state);
     }
 
+    /// <summary>Resets a Rinka's firing state and selects the initial animation, or marks a terminated special actor deleted.</summary>
+    /// <param name="slot">Enemy slot whose properties and instruction state are initialized.</param>
+    /// <param name="state">Typed state receiving the initial function, delay, and zero velocity.</param>
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
@@ -412,6 +438,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Reinitializes an actor after it leaves the flight rectangle, releasing special spawn ownership as needed.</summary>
+    /// <param name="slot">Rinka slot leaving the camera-relative flight window.</param>
+    /// <param name="state">State whose reserved resource is released and lifecycle is reset.</param>
     private void RecycleRinkaAfterLeavingViewport(
         RoomEnemySlot slot,
         RinkaEnemyState state)
@@ -489,6 +518,10 @@ public sealed partial class RoomEnemySystem
         state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
+    /// <summary>Finds the authored resource matching a population coordinate, falling back to table entry zero.</summary>
+    /// <param name="xPosition">Room-space spawn X coordinate.</param>
+    /// <param name="yPosition">Room-space spawn Y coordinate.</param>
+    /// <returns>The matching table index, or zero when the coordinate is not one of the authored points.</returns>
     private static int FindRinkaSpawnResource(ushort xPosition, ushort yPosition)
     {
         for (int index = 0; index < RinkaSpawnPoints.Length; index++)
@@ -503,6 +536,8 @@ public sealed partial class RoomEnemySystem
         return 0;
     }
 
+    /// <summary>Frees the table resource owned by a special Rinka and clears its ownership token.</summary>
+    /// <param name="state">Special Rinka state holding the resource token, if one is reserved.</param>
     private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
     {
         if (state.SpawnResourceToken == 0)
@@ -519,6 +554,8 @@ public sealed partial class RoomEnemySystem
         state.SpawnResourceToken = 0;
     }
 
+    /// <summary>Reduces the visible special-actor count once the slot is visible, without allowing unsigned underflow.</summary>
+    /// <param name="slot">Actor whose special status and visibility determine whether the count changes.</param>
     private void DecrementVisibleSpecialRinkaCount(RoomEnemySlot slot)
     {
         if (!IsSpecialRinka(slot) || slot.Properties.HasAny(EnemyProperties.Invisible))
@@ -555,8 +592,15 @@ public sealed partial class RoomEnemySystem
             !IsNegative16(xPosition - _rinkaCameraX - 256);
     }
 
+    /// <summary>Identifies Mother Brain's special Rinka variant by its nonzero first parameter.</summary>
+    /// <param name="slot">Enemy slot being classified.</param>
+    /// <returns><see langword="true"/> when the slot uses the special spawn-and-respawn lifecycle.</returns>
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;
 
+    /// <summary>Returns the initialized extension state for a Rinka slot.</summary>
+    /// <param name="slot">Enemy slot whose Rinka state is required.</param>
+    /// <returns>The per-slot state created by Rinka initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Rinka state.</exception>
     private RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
         _rinkaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");

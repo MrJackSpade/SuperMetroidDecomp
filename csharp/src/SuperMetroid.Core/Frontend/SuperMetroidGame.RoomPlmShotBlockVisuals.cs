@@ -4,32 +4,59 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Nonserialized catalog rebound to the runtime for shootable block overlays.</summary>
     [NonSerialized] private RoomPlmShotBlockVisualCatalog? roomPlmShotBlockVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Grapple-beam-reactive block overlays.</summary>
     [NonSerialized] private RoomPlmGrappleBlockVisualCatalog? roomPlmGrappleBlockVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for station PLM art.</summary>
     [NonSerialized] private RoomPlmStationVisualCatalog? roomPlmStationVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for blue-door cap art.</summary>
     [NonSerialized] private RoomPlmBlueDoorVisualCatalog? roomPlmBlueDoorVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for colored-door cap art.</summary>
     [NonSerialized] private RoomPlmColoredDoorVisualCatalog? roomPlmColoredDoorVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for grey doors and shared clear caps.</summary>
     [NonSerialized] private RoomPlmGreyDoorVisualCatalog? roomPlmGreyDoorVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for mirrored eye-door graphics.</summary>
     [NonSerialized] private RoomPlmEyeDoorVisualCatalog? roomPlmEyeDoorVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Mother Brain glass damage stages.</summary>
     [NonSerialized] private RoomPlmMotherBrainGlassVisualCatalog? roomPlmMotherBrainGlassVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for n00b-tube art.</summary>
     [NonSerialized] private RoomPlmNoobTubeVisualCatalog? roomPlmNoobTubeVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for downward-gate block graphics.</summary>
     [NonSerialized] private RoomPlmDownwardGateVisualCatalog? roomPlmDownwardGateVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for elevator-platform frames.</summary>
     [NonSerialized] private RoomPlmElevatorPlatformVisualCatalog? roomPlmElevatorPlatformVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for escape-gate graphics.</summary>
     [NonSerialized] private RoomPlmEscapeGateVisualCatalog? roomPlmEscapeGateVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Bomb Torizo hand graphics.</summary>
     [NonSerialized] private RoomPlmBombTorizoHandVisualCatalog? roomPlmBombTorizoHandVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Draygon's cannon graphics.</summary>
     [NonSerialized] private RoomPlmDraygonCannonVisualCatalog? roomPlmDraygonCannonVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Chozo statue terrain changes.</summary>
     [NonSerialized] private RoomPlmChozoStatueVisualCatalog? roomPlmChozoStatueVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for linked bomb/contact restoration effects.</summary>
     [NonSerialized] private RoomPlmLinkedRestoreVisualCatalog? roomPlmLinkedRestoreVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Tourian access-floor art.</summary>
     [NonSerialized] private RoomPlmTourianAccessVisualCatalog? roomPlmTourianAccessVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Speed Booster block reveals.</summary>
     [NonSerialized] private RoomPlmSpeedBoosterVisualCatalog? roomPlmSpeedBoosterVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for the Maridia elevatube tile.</summary>
     [NonSerialized] private RoomPlmMaridiaElevatubeVisualCatalog? roomPlmMaridiaElevatubeVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Spore Spawn's ceiling PLM.</summary>
     [NonSerialized] private RoomPlmSporeSpawnCeilingVisualCatalog? roomPlmSporeSpawnCeilingVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Samus Eater tile changes.</summary>
     [NonSerialized] private RoomPlmSamusEaterVisualCatalog? roomPlmSamusEaterVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Botwoon's wall-clearing effect.</summary>
     [NonSerialized] private RoomPlmBotwoonWallVisualCatalog? roomPlmBotwoonWallVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Kraid ceiling and spike appearance.</summary>
     [NonSerialized] private RoomPlmKraidVisualCatalog? roomPlmKraidVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Crocomire arena appearance.</summary>
     [NonSerialized] private RoomPlmCrocomireVisualCatalog? roomPlmCrocomireVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for Mother Brain's fake-death room art.</summary>
     [NonSerialized] private RoomPlmMotherBrainFakeDeathVisualCatalog? roomPlmMotherBrainFakeDeathVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for standard collectible PLM art.</summary>
     [NonSerialized] private RoomPlmCollectibleVisualCatalog? roomPlmCollectibleVisuals;
+    /// <summary>Nonserialized catalog rebound to the runtime for permanent-item images and palettes.</summary>
     [NonSerialized] private RoomPlmDynamicCollectibleArtCatalog? roomPlmDynamicCollectibleArt;
 
     /// <summary>Binds installed shot-block visuals at startup and after state restoration.</summary>

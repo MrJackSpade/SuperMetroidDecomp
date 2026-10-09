@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Negative fixtures for #1166's requested static completeness gate.</summary>
 internal static class EnemyVisualProgramAuditChecks
 {
+    /// <summary>Confirms enemy visual program auditing against the reviewed fixture programs.</summary>
     internal static void Run()
     {
         var syntax = CSharpSyntaxTree.ParseText("""
@@ -84,6 +85,7 @@ internal static class EnemyVisualProgramAuditChecks
         Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, projectile binding, and disposition revocation pass.");
     }
 
+    /// <summary>Throws when an enemy visual program audit expectation is not satisfied.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Enemy visual audit contract failed: " + message);

@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms identified flat/single-word provider coverage and alias shapes, without door or pickup gameplay.</summary>
 internal static class PlmDoorPresentationContractChecks
 {
+    /// <summary>Confirms flat and single-word PLM door presentation contracts and aliases.</summary>
     internal static void Run()
     {
         ConfirmConstructorCoverage();
@@ -79,6 +80,7 @@ internal static class PlmDoorPresentationContractChecks
             "invalid pointers and words retain exact shape findings");
     }
 
+    /// <summary>Confirms each compiled door draw shape is admitted by its production catalog.</summary>
     private static void ConfirmConstructorCoverage()
     {
         ConfirmCoverage(BlueDoorPlmDrawDefinitions.Editable, frame =>
@@ -122,6 +124,7 @@ internal static class PlmDoorPresentationContractChecks
             "mirrored clear uses the required authored clear with horizontal flip");
     }
 
+    /// <summary>Throws when a PLM door presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("PLM door provider confirmation failed: " + reason);

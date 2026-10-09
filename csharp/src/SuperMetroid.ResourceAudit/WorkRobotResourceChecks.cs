@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the specifically identified Work Robot laser resource omission.</summary>
 internal static class WorkRobotResourceChecks
 {
+    /// <summary>Confirms all Work Robot laser frames load and legacy artwork inherits new stock frames.</summary>
     public static void Run()
     {
         // Production catalogs, but constructed art: no cartridge, enemy AI, room,
@@ -72,11 +73,13 @@ internal static class WorkRobotResourceChecks
         Console.WriteLine("Work Robot resources: all seven bindings load; legacy edits survive, new frames inherit stock, incomplete stock is rejected.");
     }
 
+    /// <summary>Loads an enemy projectile spritemap document with an optional stock fallback.</summary>
     private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document,
         EnemyProjectileSpritemapCatalog? stock = null) =>
         EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
+    /// <summary>Throws when a Work Robot resource contract expectation is not satisfied.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Work Robot resource contract failed: " + message);

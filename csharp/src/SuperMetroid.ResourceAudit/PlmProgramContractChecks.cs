@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmProgramContractChecks
 {
+    /// <summary>Confirms static PLM program auditing detects the reviewed record and artwork failures.</summary>
     internal static void Run()
     {
         var absentDraw = Audit(new Dictionary<ushort, ushort>
@@ -108,6 +109,7 @@ internal static class PlmProgramContractChecks
             "unknown opcode, cycles, reported CBBC omission, missing DMA artwork and corrected native records.");
     }
 
+    /// <summary>Confirms representative restored PLM records retain their exact native operands.</summary>
     private static void ConfirmRestoredRecords()
     {
         // Representative native operands from each corrected family, including
@@ -145,10 +147,12 @@ internal static class PlmProgramContractChecks
             "Rescue-wall blank frame must mutate all three vertical terrain words, not just render one block.");
     }
 
+    /// <summary>Requires a compiled PLM word to match its expected native value.</summary>
     private static void Word(int address, int expected) => Require(
         RoomPlmProgramDefinitions.TryReadWord(checked((ushort)address), out ushort actual) && actual == expected,
         $"Native record $84:{address:X4} must contain ${expected:X4}.");
 
+    /// <summary>Audits a constructed PLM word map with optional draw ownership.</summary>
     private static PlmProgramAuditReport Audit(Dictionary<ushort, ushort> words, bool ownsDraw = true)
     {
         var report = new PlmProgramAuditReport();
@@ -158,15 +162,20 @@ internal static class PlmProgramContractChecks
         return report;
     }
 
+    /// <summary>Throws when a PLM program audit expectation is not satisfied.</summary>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidDataException("PLM audit contract failed: " + description);
     }
 }
 
+/// <summary>Defines synthetic PLM addresses reserved for static audit fixtures.</summary>
 internal static class PlmAuditFixtureIds
 {
+    /// <summary>The start address of each constructed fixture program.</summary>
     internal const ushort Start = 0xf000;
+    /// <summary>An intentionally absent branch or link target.</summary>
     internal const ushort AbsentTarget = 0xf100;
+    /// <summary>An intentionally unsupported instruction opcode.</summary>
     internal const ushort UnknownOpcode = 0xffff;
 }

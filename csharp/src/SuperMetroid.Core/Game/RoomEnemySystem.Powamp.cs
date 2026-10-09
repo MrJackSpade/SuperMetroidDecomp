@@ -42,8 +42,11 @@ public enum PowampEnemyFunction : ushort
 /// </summary>
 public sealed class PowampEnemyState
 {
+    /// <summary>The physical enemy slot whose shared variables are exposed through this typed view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view over the slot that stores this Powamp half's variables.</summary>
+    /// <param name="slot">The physical slot containing the shared enemy-variable words.</param>
     internal PowampEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Whether population parameter one is nonzero, selecting the balloon interpretation of shared variables; zero selects the immediately following moving body.</summary>
@@ -84,14 +87,21 @@ public sealed class PowampEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer for the two-slot Powamp population entry at bank $A8:$C163.</summary>
     internal const ushort PowampDefinition = 0xe8bf;
 
+    /// <summary>Rise distance in room pixels when the body is not grappled.</summary>
     private const ushort PowampUngrappledTravelDistance = 0x0040;
+    /// <summary>Rest countdown in AI updates before the balloon begins inflating.</summary>
     private const ushort PowampRestFrames = 0x003c;
+    /// <summary>Inflation and deflation transition duration in AI updates.</summary>
     private const ushort PowampTransitionFrames = 0x000a;
+    /// <summary>Delay in AI updates between fatal damage and the balloon's deletion.</summary>
     private const ushort PowampDeathDelayFrames = 0x0020;
+    /// <summary>AI updates spent at each horizontal offset in the body's wiggle cycle.</summary>
     private const ushort PowampWiggleFramesPerOffset = 0x0005;
 
+    /// <summary>Typed state views indexed by physical enemy slot; balloon and body entries keep their aliased variables distinct.</summary>
     private readonly PowampEnemyState?[] _powampStates =
         new PowampEnemyState?[MaximumEnemyCount];
 
@@ -175,6 +185,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Counts down the resting delay, starts inflation at expiry, and keeps the balloon aligned with the body.</summary>
     private static void RunPowampDeflatedResting(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -189,6 +200,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Waits for the balloon's inflation transition, then starts the body's upward movement.</summary>
     private static void RunPowampInflating(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -205,6 +217,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Moves the body toward its ordinary or grapple-defined height while advancing the horizontal wiggle.</summary>
     private void RunPowampRise(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -259,6 +272,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Completes the current horizontal cycle before resting or deflating, preserving grapple release timing.</summary>
     private void RunPowampFinishWiggle(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -290,6 +304,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Holds the body at grapple height until release, then begins the deflation transition.</summary>
     private static void RunPowampGrappledResting(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -300,6 +315,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Waits for the balloon to deflate before starting the body's downward return.</summary>
     private static void RunPowampDeflating(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -315,6 +331,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Sinks the body to its recorded spawn height and restores its resting animation and delay.</summary>
     private void RunPowampSinking(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -333,6 +350,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Chooses the balloon animation compatible with its current instruction cursor and starts the fatal delay.</summary>
     private static void BeginPowampDeathSequence(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -365,6 +383,7 @@ public sealed partial class RoomEnemySystem
         AlignPowampBalloonY(body, balloon);
     }
 
+    /// <summary>Maintains balloon alignment during the fatal delay, then deletes the balloon and starts the spike burst.</summary>
     private void RunPowampDeathSequence(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -438,6 +457,7 @@ public sealed partial class RoomEnemySystem
         balloon.AiHandlerBits = body.AiHandlerBits;
     }
 
+    /// <summary>Advances one timed horizontal offset and reports when a requested centered phase is reached.</summary>
     private bool AdvancePowampWiggle(
         RoomEnemySlot body,
         PowampEnemyState state,
@@ -468,6 +488,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Sets the balloon's Y from the body position and the active inflation or sinking animation frame.</summary>
     private static void AlignPowampBalloonY(RoomEnemySlot body, RoomEnemySlot balloon)
     {
         ushort cursor = balloon.CurrentInstruction;
@@ -492,6 +513,7 @@ public sealed partial class RoomEnemySystem
         balloon.YPosition = unchecked((ushort)(body.YPosition + PowampMotionDefinitions.BalloonOffset(index, sinking)));
     }
 
+    /// <summary>Selects the deflation function, initializes its countdown, and starts the balloon's sinking animation.</summary>
     private static void StartPowampDeflating(PowampEnemyState state, RoomEnemySlot balloon)
     {
         state.Function = PowampEnemyFunction.Deflating;
@@ -501,17 +523,21 @@ public sealed partial class RoomEnemySystem
             PowampInstructionProgramDefinitions.BalloonStartSinking);
     }
 
+    /// <summary>Decrements the function countdown and reports expiry at zero or signed underflow.</summary>
     private static bool TickPowampTimer(PowampEnemyState state)
     {
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         return state.FunctionTimer == 0 || IsNegative16(state.FunctionTimer);
     }
 
+    /// <summary>Combines the body's signed high word and fractional low word into a 16.16 movement value.</summary>
     private static int ComposePowampVerticalDisplacement(PowampEnemyState state) =>
         unchecked((unchecked((short)state.YVelocity) << 16) | state.YSubvelocity);
 
+    /// <summary>Reports whether the current phase is one of the two zero-offset positions in the wiggle cycle.</summary>
     private static bool IsPowampCentered(ushort wiggleIndex) => wiggleIndex is 0 or 6;
 
+    /// <summary>Selects an instruction list and resets the interpreter counters for that animation.</summary>
     private static void SetPowampInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -519,9 +545,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Requires room geometry for Powamp movement and collision handling.</summary>
     private static RoomLevelData RequirePowampLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
+    /// <summary>Resolves the immediately preceding balloon slot, rejecting a malformed two-slot population.</summary>
     private RoomEnemySlot RequirePowampBalloon(RoomEnemySlot body)
     {
         if (body.SlotIndex == 0)
@@ -535,6 +563,7 @@ public sealed partial class RoomEnemySystem
         return balloon;
     }
 
+    /// <summary>Gets the state view created during Powamp initialization or fails for an uninitialized slot.</summary>
     private PowampEnemyState RequirePowampState(RoomEnemySlot slot) =>
         _powampStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Powamp state.");

@@ -6,6 +6,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks known tuple components without pretending unknown caller values have been proven safe.</summary>
 internal static class PlmVisualDomainAudit
 {
+    /// <summary>Returns an error when known PLM draw selectors exceed the compiled draw shape.</summary>
+    /// <param name="operation">The PLM artwork invocation to inspect.</param>
+    /// <returns>An explanatory error, or <see langword="null"/> when no invalid constant is proven.</returns>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "GetWord") return null;

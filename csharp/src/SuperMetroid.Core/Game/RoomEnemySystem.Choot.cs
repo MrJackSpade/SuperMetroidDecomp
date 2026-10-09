@@ -20,16 +20,35 @@ public enum ChootEnemyFunction : ushort
 /// </summary>
 public sealed class ChootEnemyState
 {
+    /// <summary>Native enemy record containing the six common-slot words used by Choot's AI.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot storage for the room X coordinate restored when the falling cycle ends.</summary>
     private readonly ushort[] _spawnXPositions;
+    /// <summary>Per-slot storage for the room Y coordinate restored when the falling cycle ends.</summary>
     private readonly ushort[] _spawnYPositions;
+    /// <summary>Per-slot whole-pixel X position installed when the jump reaches its apex.</summary>
     private readonly ushort[] _initialFallingXPositions;
+    /// <summary>Per-slot whole-pixel Y position installed when the jump reaches its apex.</summary>
     private readonly ushort[] _initialFallingYPositions;
+    /// <summary>Per-slot X origin used to apply offsets from the selected falling path.</summary>
     private readonly ushort[] _fallingXOrigins;
+    /// <summary>Per-slot Y origin advanced between falling-path loops.</summary>
     private readonly ushort[] _fallingYOrigins;
+    /// <summary>Per-slot saved ascent-table cursor restored after the falling cycle.</summary>
     private readonly ushort[] _initialYSpeedTableIndexes;
+    /// <summary>Per-slot delay loaded from the enemy parameter before its jump begins.</summary>
     private readonly ushort[] _jumpDelayTimers;
 
+    /// <summary>Creates a debugger view that maps one enemy slot onto Choot's shared per-slot WRAM arrays.</summary>
+    /// <param name="slot">Native enemy slot containing Choot's common AI variables.</param>
+    /// <param name="spawnXPositions">Array storing each Choot's spawn X coordinate by slot index.</param>
+    /// <param name="spawnYPositions">Array storing each Choot's spawn Y coordinate by slot index.</param>
+    /// <param name="initialFallingXPositions">Array storing the precomputed X position for the apex transition.</param>
+    /// <param name="initialFallingYPositions">Array storing the precomputed Y position for the apex transition.</param>
+    /// <param name="fallingXOrigins">Array storing each slot's falling-path X origin.</param>
+    /// <param name="fallingYOrigins">Array storing each slot's falling-path Y origin.</param>
+    /// <param name="initialYSpeedTableIndexes">Array storing each slot's calculated initial ascent cursor.</param>
+    /// <param name="jumpDelayTimers">Array storing each slot's countdown before the jump animation begins.</param>
     internal ChootEnemyState(
         RoomEnemySlot slot,
         ushort[] spawnXPositions,
@@ -160,18 +179,29 @@ public sealed class ChootEnemyState
 /// <summary>Literal translation of Choot enemy <c>$D3BF</c> at <c>$A2:D82C-$E143</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native definition word that selects the Choot enemy implementation.</summary>
     internal const ushort ChootDefinition = 0xd3bf;
 
+    /// <summary>Maximum horizontal distance at which Choot leaves its idle wait and starts its jump-delay countdown.</summary>
     private const ushort ChootActivationDistance = 0x0050;
 
+    /// <summary>Per-slot spawn X coordinates retained until the falling pattern completes.</summary>
     private readonly ushort[] _chootSpawnXPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot spawn Y coordinates retained until the falling pattern completes.</summary>
     private readonly ushort[] _chootSpawnYPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot X coordinates to snap to when ascent ends.</summary>
     private readonly ushort[] _chootInitialFallingXPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot Y coordinates to snap to when ascent ends.</summary>
     private readonly ushort[] _chootInitialFallingYPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot X origins used by the falling-path offset stream.</summary>
     private readonly ushort[] _chootFallingXOrigins = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot Y origins advanced at falling-path loop terminators.</summary>
     private readonly ushort[] _chootFallingYOrigins = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot ascent-table cursors saved for the next jump cycle.</summary>
     private readonly ushort[] _chootInitialYSpeedTableIndexes = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot jump-delay countdown loaded when Samus enters activation range.</summary>
     private readonly ushort[] _chootJumpDelayTimers = new ushort[MaximumEnemyCount];
+    /// <summary>Initialized debugger views keyed by the physical enemy slot index.</summary>
     private readonly ChootEnemyState?[] _chootStates =
         new ChootEnemyState?[MaximumEnemyCount];
 
@@ -240,6 +270,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Measures wrapped horizontal distance to Samus and loads the configured delay when she is in range.</summary>
     private static void WaitForChootActivation(
         RoomEnemySlot slot,
         ChootEnemyState state,
@@ -261,6 +292,7 @@ public sealed partial class RoomEnemySystem
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
+    /// <summary>Counts down the native delay and switches to jump instructions after signed underflow.</summary>
     private static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.JumpDelayTimer);
@@ -272,6 +304,7 @@ public sealed partial class RoomEnemySystem
         state.Function = ChootEnemyFunction.Jumping;
     }
 
+    /// <summary>Applies one negative quadratic-speed step and initializes the falling pattern at the ascent apex.</summary>
     private static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         // Only the cursor's high byte reaches the eight-byte quadratic table index. Choot
@@ -301,6 +334,7 @@ public sealed partial class RoomEnemySystem
         state.Function = ChootEnemyFunction.Falling;
     }
 
+    /// <summary>Applies one falling-path offset, advances its cursor, and restores spawn state after the final loop.</summary>
     private static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
         int frameIndex = (state.FallingPatternIndex >> 8) & 0xff;
@@ -357,6 +391,7 @@ public sealed partial class RoomEnemySystem
             $"Choot jump-height calculation did not reach {jumpHeight} pixels.");
     }
 
+    /// <summary>Installs a Choot instruction-list pointer and primes both native timers for dispatch.</summary>
     private static void SetChootInstructionList(
         RoomEnemySlot slot,
         ushort instructionList)
@@ -366,6 +401,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the initialized Choot debugger state for a slot or fails if initialization never registered it.</summary>
     private ChootEnemyState RequireChootState(RoomEnemySlot slot) =>
         _chootStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Choot state.");

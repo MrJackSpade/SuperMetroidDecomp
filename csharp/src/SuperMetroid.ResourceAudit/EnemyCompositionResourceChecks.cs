@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Shared focused confirmation for identified ordinary enemy composition omissions.</summary>
 internal static class EnemyCompositionResourceChecks
 {
+    /// <summary>Confirms one enemy family's compositions load and merge across the schema boundary.</summary>
     public static void Run(string family, byte bank, ReadOnlySpan<ushort> operands,
         int familyFrameCount, int previousVersion, int previousFrameCount, int? familyStart = null)
     {
@@ -66,17 +67,20 @@ internal static class EnemyCompositionResourceChecks
         Console.WriteLine($"{family} resources: all {pointers.Count} compositions load; legacy edits survive, new stock inherits, incomplete stock is rejected.");
     }
 
+    /// <summary>Creates a deterministic sprite part at the specified horizontal offset.</summary>
     private static SpriteVisualPart Part(int x) => new()
     {
         OffsetX = x, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
         TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
     };
 
+    /// <summary>Loads an enemy spritemap document with an optional stock fallback.</summary>
     private static EnemySpritemapCatalog Load(EnemySpritemapDocument document,
         EnemySpritemapCatalog? stock = null) =>
         EnemySpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
+    /// <summary>Throws when an enemy composition contract expectation is not satisfied.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Enemy composition resource contract failed: " + message);

@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Accounts for production-owned, zero-part frames, not missing editable artwork.</summary>
 internal static class CompiledEnemyDisplayAudit
 {
+    /// <summary>Installs reviewed compiled empty-frame display identities into the audit index.</summary>
     internal static void Install(string root, ResourceIndex exports, AuditReport report)
     {
         const string path = "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs";
@@ -24,6 +25,7 @@ internal static class CompiledEnemyDisplayAudit
         }
     }
 
+    /// <summary>Verifies the production renderer still contains the reviewed empty-frame no-op branch.</summary>
     private static void SyntaxTreeGuard(string root, string path)
     {
         // Do not turn a reviewed renderer convention into an unchecked allowlist.
@@ -35,6 +37,7 @@ internal static class CompiledEnemyDisplayAudit
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 
+    /// <summary>Determines whether a renderer method retains the reviewed empty-frame return branch.</summary>
     internal static bool HasNoOpBranch(MethodDeclarationSyntax method) =>
         method.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
             branch.Else is null && branch.Statement is ReturnStatementSyntax { Expression: null } &&

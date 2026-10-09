@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified skeleton export and component-capacity omissions, not the battle.</summary>
 internal static class CrocomireSkeletonResourceChecks
 {
+    /// <summary>Confirms Crocomire skeleton frames and their extended component capacity.</summary>
     internal static void Run()
     {
         ExtendedEnemyCompositionResourceChecks.Run("Crocomire skeleton",
@@ -16,6 +17,7 @@ internal static class CrocomireSkeletonResourceChecks
         ConfirmFragmentationCapacity();
     }
 
+    /// <summary>Confirms the importer and loader preserve thirteen skeleton-collapse components.</summary>
     private static void ConfirmFragmentationCapacity()
     {
         EnemyExtendedFrameDefinition frame = CrocomireSkeletonVisualDefinitions.Frames.ToArray()
@@ -53,6 +55,7 @@ internal static class CrocomireSkeletonResourceChecks
         Console.WriteLine("Crocomire collapse: importer and loader preserve thirteen ordered components; family-specific limits remain enforced.");
     }
 
+    /// <summary>Requires a skeleton artwork operation to reject an invalid component count.</summary>
     private static void Reject(Action action, string message)
     {
         bool rejected = false;
@@ -64,8 +67,10 @@ internal static class CrocomireSkeletonResourceChecks
     /// <summary>Synthetic import bytes for exactly one root; unspecified reads, including hitboxes, fail.</summary>
     private sealed class ConstructedComponentSource : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Stores the synthetic cartridge bytes keyed by CPU address.</summary>
         private readonly Dictionary<int, byte> bytes = [];
 
+        /// <summary>Creates synthetic bytes for one extended frame with the requested component count.</summary>
         public ConstructedComponentSource(EnemyExtendedFrameDefinition frame, int count)
         {
             int address = (frame.Bank << 16) | frame.Pointer;
@@ -85,14 +90,17 @@ internal static class CrocomireSkeletonResourceChecks
             Word(sprite + 5, 0);
         }
 
+        /// <summary>Writes a little-endian word into the synthetic source.</summary>
         private void Word(int address, int value)
         {
             bytes[address] = unchecked((byte)value);
             bytes[address + 1] = unchecked((byte)(value >> 8));
         }
 
+        /// <summary>Reads a byte from the explicitly constructed cartridge addresses.</summary>
         public byte ReadCartridgeByte(int cpuAddress) => bytes.TryGetValue(cpuAddress, out byte value)
             ? value : throw new InvalidDataException($"Unexpected synthetic composition read {cpuAddress:X6}.");
+        /// <summary>Rejects mutation because the synthetic source is import-only.</summary>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Static import must not mutate emulated state.");
     }
 }

@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified closed menu-name flows and their explicit unknown/alias boundaries.</summary>
 internal static class FinitePresentationNameFlowChecks
 {
+    /// <summary>Confirms finite presentation-name flow through the reviewed source constructs.</summary>
     internal static void Run()
     {
         const string fixture = """
@@ -115,6 +116,7 @@ internal static class FinitePresentationNameFlowChecks
             "all potential assignments/call inputs must be inventoried, not only the nearest one");
     }
 
+    /// <summary>Throws when a finite presentation-name flow expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Finite presentation-name confirmation failed: " + reason);

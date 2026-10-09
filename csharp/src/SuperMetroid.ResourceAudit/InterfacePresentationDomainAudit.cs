@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks the finite Core implementation set and sparse cinematic frame identities, not arbitrary runtime points-to state.</summary>
 internal static class InterfacePresentationDomainAudit
 {
+    /// <summary>Determines whether an interface contract has exactly its reviewed implementation set.</summary>
     internal static bool HasReviewedImplementations(Compilation compilation, ClosedPresentationContract contract)
     {
         string[]? expected = InterfacePresentationContractDefinitions.Implementations(contract.Type);
@@ -23,6 +24,7 @@ internal static class InterfacePresentationDomainAudit
                 contract.Sources.Any(source => source.Path == declaration.SyntaxTree.FilePath)));
     }
 
+    /// <summary>Enumerates named types recursively beneath a namespace or containing type.</summary>
     private static IEnumerable<INamedTypeSymbol> Types(INamespaceOrTypeSymbol parent)
     {
         foreach (ISymbol member in parent.GetMembers())
@@ -33,6 +35,7 @@ internal static class InterfacePresentationDomainAudit
         }
     }
 
+    /// <summary>Returns an error when a known cinematic frame belongs to no reviewed implementation.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(IIntroCinematicSpritePresentation).FullName ||

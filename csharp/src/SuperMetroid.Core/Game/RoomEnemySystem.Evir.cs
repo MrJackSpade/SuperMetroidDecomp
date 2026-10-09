@@ -20,8 +20,11 @@ public enum EvirAiFunction : ushort
 /// </summary>
 public sealed class EvirEnemyState
 {
+    /// <summary>The common enemy record whose native variable words back the shared Evir state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed state view over the actor's physical enemy slot.</summary>
+    /// <param name="slot">The body, arms, or projectile slot whose common variables are exposed.</param>
     internal EvirEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Zero for left and one for right; native common variable B.</summary>
@@ -91,17 +94,27 @@ public sealed class EvirEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Room enemy header for an Evir body or arms record.</summary>
     internal const ushort EvirDefinition = 0xe63f;
+    /// <summary>Room enemy header for Evir's reusable projectile record.</summary>
     internal const ushort EvirProjectileDefinition = 0xe67f;
 
+    /// <summary>Native touch callback address dispatched for Evir body damage.</summary>
     private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
+    /// <summary>Native power-bomb callback address dispatched for Evir damage.</summary>
     private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;
+    /// <summary>Native projectile-shot callback address dispatched for Evir damage.</summary>
     private const ushort EvirShotAi = EnemyAiCodePointers.BankA8.EvirShot;
+    /// <summary>Library-two sound identifier played when the body spits its projectile.</summary>
     private const ushort EvirSpitSound = 0x005e;
+    /// <summary>Horizontal range within which the idle projectile begins aiming at Samus.</summary>
     private const ushort EvirActivationDistance = 0x0080;
+    /// <summary>Fixed-point speed magnitude used to derive each aimed projectile component.</summary>
     private const ushort EvirProjectileSpeed = 4;
+    /// <summary>Viewport margin beyond which projectile flight transitions into mouth regeneration.</summary>
     private const ushort EvirFarOffscreenDistance = 0x0100;
 
+    /// <summary>State views indexed by physical enemy slot so body, arms, and projectile retain separate native variables.</summary>
     private readonly EvirEnemyState?[] _evirStates =
         new EvirEnemyState?[MaximumEnemyCount];
 
@@ -186,6 +199,10 @@ public sealed partial class RoomEnemySystem
         state.InstalledInstructionList = 0;
     }
 
+    /// <summary>Updates an Evir body bob or positions its arms record, preserving the shared three-slot actor links.</summary>
+    /// <param name="slot">The body or arms enemy record being updated.</param>
+    /// <param name="state">The actor state stored for that physical record.</param>
+    /// <param name="samus">The active player used to update body facing; required for a body record.</param>
     private void RunEvirMain(RoomEnemySlot slot, EvirEnemyState state, SamusState? samus)
     {
         if (state.Function != EvirAiFunction.HandleBodyOrArms)
@@ -230,6 +247,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Chooses the projectile animation or launch action, then advances its idle, flight, or regeneration phase.</summary>
+    /// <param name="slot">The projectile's physical enemy record.</param>
+    /// <param name="state">Its movement, regeneration, and instruction-list state.</param>
+    /// <param name="samus">The target used when an idle projectile is eligible to launch.</param>
+    /// <param name="cameraX">Viewport left coordinate used to detect distant flight.</param>
+    /// <param name="cameraY">Viewport top coordinate used to detect distant flight.</param>
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -276,6 +299,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Faces the body toward Samus and requests the corresponding body animation list.</summary>
+    /// <param name="body">The Evir body record.</param>
+    /// <param name="state">The body's facing and installed-list state.</param>
+    /// <param name="samus">The active player whose horizontal position determines facing.</param>
     private static void SetEvirBodyFacing(
         RoomEnemySlot body,
         EvirEnemyState state,
@@ -294,6 +321,10 @@ public sealed partial class RoomEnemySystem
                 : EvirInstructionProgramDefinitions.BodyFacingRight);
     }
 
+    /// <summary>Copies body facing and positions the arms record at its fixed offset from the preceding body slot.</summary>
+    /// <param name="arms">The arms record immediately following the body.</param>
+    /// <param name="state">The arms state whose facing and instruction list are updated.</param>
+    /// <param name="initializing">Enables strict header validation while the composite records are being initialized.</param>
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EvirDefinition, "arms body", initializing);
@@ -310,6 +341,9 @@ public sealed partial class RoomEnemySystem
                 : EvirInstructionProgramDefinitions.ArmsFacingRight);
     }
 
+    /// <summary>Anchors an idle or regenerating projectile at the mouth offset selected by the body's facing.</summary>
+    /// <param name="projectile">The projectile record two physical slots after its body.</param>
+    /// <param name="state">The projectile state whose facing is synchronized with the body.</param>
     private void ResetEvirProjectilePosition(RoomEnemySlot projectile, EvirEnemyState state)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(
@@ -324,6 +358,10 @@ public sealed partial class RoomEnemySystem
         projectile.YPosition = unchecked((ushort)(body.YPosition + 18));
     }
 
+    /// <summary>Launches the idle projectile when Samus is within the activation range, deriving signed velocity from the cartridge angle tables.</summary>
+    /// <param name="projectile">The projectile record being launched.</param>
+    /// <param name="state">The projectile motion and instruction state updated for flight.</param>
+    /// <param name="samus">The player whose position supplies the aim vector.</param>
     private void TryLaunchEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -364,6 +402,11 @@ public sealed partial class RoomEnemySystem
         state.Function = EvirAiFunction.ProjectileMoving;
     }
 
+    /// <summary>Checks for the far-offscreen regeneration transition and advances both fixed-point projectile coordinates.</summary>
+    /// <param name="projectile">The projectile record whose position is integrated.</param>
+    /// <param name="state">The aimed X and Y velocities.</param>
+    /// <param name="cameraX">Viewport left coordinate for the regeneration boundary.</param>
+    /// <param name="cameraY">Viewport top coordinate for the regeneration boundary.</param>
     private void RunMovingEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -381,6 +424,11 @@ public sealed partial class RoomEnemySystem
             ComposeEvirFixed(state.YVelocity, state.YSubvelocity));
     }
 
+    /// <summary>Changes distant flight into regeneration unless the paired body is frozen.</summary>
+    /// <param name="projectile">The moving projectile checked against viewport margins.</param>
+    /// <param name="state">The projectile flags and animation phase changed on transition.</param>
+    /// <param name="cameraX">Viewport left coordinate.</param>
+    /// <param name="cameraY">Viewport top coordinate.</param>
     private void StartEvirRegenerationIfFarOffscreen(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -412,6 +460,9 @@ public sealed partial class RoomEnemySystem
             EvirInstructionProgramDefinitions.ProjectileRegenerating);
     }
 
+    /// <summary>Anchors the growing projectile to the mouth and ends regeneration when its animation command clears the flag.</summary>
+    /// <param name="projectile">The projectile record to position.</param>
+    /// <param name="state">The regeneration flag, offset, and animation phase.</param>
     private void RunRegeneratingEvirProjectile(RoomEnemySlot projectile, EvirEnemyState state)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(
@@ -471,9 +522,18 @@ public sealed partial class RoomEnemySystem
         state.Function = EvirAiFunction.ProjectileIdle;
     }
 
+    /// <summary>Combines signed whole pixels and an unsigned fractional word into the native signed 16.16 displacement.</summary>
+    /// <param name="whole">The signed whole-pixel component.</param>
+    /// <param name="fraction">The fractional component in units of 1/65536 pixel.</param>
+    /// <returns>The combined fixed-point displacement.</returns>
     private static int ComposeEvirFixed(short whole, ushort fraction) =>
         unchecked((whole << 16) | fraction);
 
+    /// <summary>Adds a signed fixed-point displacement to a wrapped whole/fraction position pair.</summary>
+    /// <param name="position">The current whole-pixel coordinate.</param>
+    /// <param name="subposition">The current fractional coordinate word.</param>
+    /// <param name="displacement">The signed 16.16 delta to apply.</param>
+    /// <returns>The updated wrapped whole-pixel and fractional components.</returns>
     private static (ushort Position, ushort Subposition) AddEvirPosition(
         ushort position,
         ushort subposition,
@@ -486,6 +546,10 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Records a desired animation list and installs it only when it differs from the currently installed list.</summary>
+    /// <param name="slot">The physical actor record whose instruction pointer and timer may change.</param>
+    /// <param name="state">The requested and installed list pointers for that record.</param>
+    /// <param name="instructionList">The bank-$A8 animation-list base pointer to request.</param>
     private static void RequestEvirInstruction(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -495,6 +559,9 @@ public sealed partial class RoomEnemySystem
         InstallEvirInstruction(slot, state);
     }
 
+    /// <summary>Restarts the instruction timer when a newly requested Evir animation list replaces the installed one.</summary>
+    /// <param name="slot">The actor record receiving the current-instruction pointer and timer update.</param>
+    /// <param name="state">The installed and requested list pointers used to suppress redundant restarts.</param>
     private static void InstallEvirInstruction(RoomEnemySlot slot, EvirEnemyState state)
     {
         if (state.RequestedInstructionList == state.InstalledInstructionList)
@@ -505,6 +572,14 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Resolves a neighboring physical record in the body/arms/projectile triplet and validates its authored role when required.</summary>
+    /// <param name="owner">The record whose slot index anchors the relative lookup.</param>
+    /// <param name="relativeSlot">Signed physical-slot offset to the related actor record.</param>
+    /// <param name="expectedDefinition">Expected enemy header for initialization-time identity checks.</param>
+    /// <param name="relationship">Role name included in an invalid-layout error.</param>
+    /// <param name="initializing">Requires the target header to match even if a state view is already present.</param>
+    /// <returns>The related record at the requested physical offset.</returns>
+    /// <exception cref="InvalidDataException">The offset leaves enemy RAM or the target does not satisfy the applicable identity check.</exception>
     private RoomEnemySlot RequireEvirRelativeSlot(
         RoomEnemySlot owner,
         int relativeSlot,
@@ -528,6 +603,10 @@ public sealed partial class RoomEnemySystem
         return _slots[targetIndex];
     }
 
+    /// <summary>Returns the initialized state view associated with a physical Evir actor record.</summary>
+    /// <param name="slot">The body, arms, or projectile record whose state is required.</param>
+    /// <returns>The state view assigned to that slot.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as part of an Evir actor.</exception>
     private EvirEnemyState RequireEvirState(RoomEnemySlot slot) =>
         _evirStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Evir state.");

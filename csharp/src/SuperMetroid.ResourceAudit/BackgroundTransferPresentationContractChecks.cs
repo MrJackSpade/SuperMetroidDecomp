@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified complete BG2/effect/fragment and owned-length contracts using source fixtures.</summary>
 internal static class BackgroundTransferPresentationContractChecks
 {
+    /// <summary>Confirms the closed contracts for reviewed background transfers and fragments.</summary>
     internal static void Run(bool bg2Only = false)
     {
         var contracts = BackgroundTransferClosedContractDefinitions.All.Where(contract =>
@@ -109,6 +110,7 @@ internal static class BackgroundTransferPresentationContractChecks
             "changed generated frame selection must revoke all four wrapper proofs");
     }
 
+    /// <summary>Throws when a background-transfer contract expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Background/transfer provider confirmation failed: " + reason);

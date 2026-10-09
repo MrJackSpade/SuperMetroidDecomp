@@ -19,54 +19,91 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Cartridge address space used for live memory, peripherals, and ROM-backed game state.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Host-configurable behavior retained for the session and applied when a game is selected.</summary>
     private SuperMetroidGameOptions gameOptions;
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions => gameOptions;
+    /// <summary>Whether gameplay frames run the software PPU compositor; front-end screens still render when disabled.</summary>
     private readonly bool renderGameplayFrames;
+    /// <summary>SRAM adapter that reads and persists the selected cartridge save slot.</summary>
     private readonly SuperMetroidSaveRam saveRam;
 
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     private readonly bool bootMainLoopCarry;
+    /// <summary>Audio command state shared by front-end phases and the active gameplay runtime.</summary>
     private readonly CartridgeAudioState audio = new();
+    /// <summary>Active opening title sequence while the dispatcher owns that state.</summary>
     private TitleSequenceState? title;
+    /// <summary>Active save-slot selection flow.</summary>
     private FileSelectMenuState? fileSelect;
+    /// <summary>Map presentation shown when selecting an existing save.</summary>
     private FileSelectMapMenuState? fileSelectMap;
+    /// <summary>Live game-options menu whose edits override settings loaded from SRAM.</summary>
     private GameOptionsMenuState? options;
+    /// <summary>Game-over menu state used while selecting continue or return behavior.</summary>
     private GameOverMenuState? gameOver;
+    /// <summary>Active Zebes intro cinematic state.</summary>
     private IntroCinematicState? intro;
+    /// <summary>Active Ceres destruction cinematic state.</summary>
     private CeresDestructionCinematicState? ceresDestruction;
+    /// <summary>Active ending and credits sequence state.</summary>
     private EndingCreditsState? endingCredits;
+    /// <summary>Pause-menu state retained across pause and resume dispatcher phases.</summary>
     private PauseMenuState? pauseMenu;
+    /// <summary>Gameplay runtime owning the current room, Samus, enemies, and cartridge-backed simulation.</summary>
     private SuperMetroidRuntime? runtime;
+    /// <summary>State for the elevator departure sequence from Ceres.</summary>
     private readonly CeresDepartureState ceresDeparture = new();
+    /// <summary>State that spends reserve energy after lethal damage when reserve auto-recovery is enabled.</summary>
     private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
+    /// <summary>Coroutine state for opening doors and loading the destination room.</summary>
     private readonly DoorTransitionState doorTransition = new();
+    /// <summary>Fallback framebuffer retained when no captured display snapshot is available.</summary>
     private Rgba32[] legacyPixels = CreateBlackFrame();
     // Software raster of a captured display, reused by every read of the frame below.
+    /// <summary>Reusable software-render target for the currently captured display snapshot.</summary>
     [NonSerialized] private Rgba32[]? capturedDisplayRaster;
+    /// <summary>Current PPU-visible pixels, rasterized from the captured display when one is present.</summary>
     private Rgba32[] lastPixels
     {
         get => capturedDisplay is null ? legacyPixels : SoftwareFrameSnapshotRenderer.Render(capturedDisplay,
             capturedDisplayRaster ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         set { legacyPixels = value; capturedDisplay = null; }
     }
+    /// <summary>Index of the SRAM slot currently selected by the front end.</summary>
     private int selectedSaveSlot;
+    /// <summary>Whether startup is restoring an existing save rather than constructing a fresh game.</summary>
     private bool loadingExistingSave;
+    /// <summary>Inventory snapshot carried through a SpaceTime-triggered intro restart, if one is active.</summary>
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
+    /// <summary>Brightness value advanced by the post-Ceres gameplay fade-in.</summary>
     private byte postCeresFadeBrightness;
+    /// <summary>Two-frame cadence counter for the post-Ceres gameplay fade.</summary>
     private int postCeresFadeCounter = 1;
+    /// <summary>Whether the current gameplay fade completes by handing control to Ceres arrival.</summary>
     private bool gameplayFadeLeadsToCeresArrival;
+    /// <summary>Current brightness while pausing or resuming gameplay.</summary>
     private byte pauseBrightness = PauseFadeTiming.FullyLit;
+    /// <summary>Palette transition object used to produce the player's death fade.</summary>
     private CartridgePaletteTransition? deathPaletteFade;
+    /// <summary>Brightness level applied during the fatal-damage fade.</summary>
     private byte deathFadeBrightness = 15;
+    /// <summary>Cadence counter for the fatal-damage brightness updates.</summary>
     private int deathFadeCounter;
+    /// <summary>Brightness level applied while fading into the ending sequence.</summary>
     private byte endingFadeBrightness = 15;
+    /// <summary>Cadence counter for the ending brightness updates.</summary>
     private int endingFadeCounter;
+    /// <summary>Audio requests published by the preceding dispatcher update.</summary>
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
+    /// <summary>APU acknowledgements supplied by the host for sound-effect request handshakes.</summary>
     private CartridgeAudioAcknowledgements audioAcknowledgements;
+    /// <summary>Gameplay audio publication serial last processed by the front-end audio collector.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
+    /// <summary>Room-state pointer whose music request was most recently queued.</summary>
     private ushort? lastAudioRoomStatePointer;
 
     /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry before any dispatcher frame runs.</summary>
@@ -1174,6 +1211,8 @@ public sealed partial class SuperMetroidGame
                 soundSuppressed: request.SoundSuppressed);
     }
 
+    /// <summary>Collects enemy and liquid-physics audio requests during door waits that skip ordinary gameplay publication.</summary>
+    /// <param name="source">Runtime whose door-transition draw pass produced the pending requests.</param>
     private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
@@ -1189,6 +1228,7 @@ public sealed partial class SuperMetroidGame
                     soundSuppressed: request.SoundSuppressed);
     }
 
+    /// <summary>Human-readable name of the active dispatcher subphase, including remaining counters where useful.</summary>
     private string PhaseName => GameState switch
     {
         SuperMetroidGameState.Reset => "Reset",
@@ -1235,6 +1275,10 @@ public sealed partial class SuperMetroidGame
         _ => GameState.ToString(),
     };
 
+    /// <summary>Checks the native pause-input gates at the start of a gameplay frame.</summary>
+    /// <param name="messageBoxOwnedFrame">Whether the current update began in a message-box-owned frame.</param>
+    /// <param name="samusInputLockedAtFrameStart">Whether Samus was input-locked before this frame's gameplay work.</param>
+    /// <returns><see langword="true"/> when an active room and unlocked Samus may enter pause.</returns>
     private bool CanEnterPause(
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)
@@ -1345,6 +1389,8 @@ public sealed partial class SuperMetroidGame
         }
     }
 
+    /// <summary>Routes lethal health to reserve auto-recovery when available, otherwise starts the death sequence.</summary>
+    /// <returns><see langword="true"/> when an out-of-health Samus was routed into a recovery or death state.</returns>
     private bool RouteOutOfHealth()
     {
         if (runtime?.Samus is not SamusState samus || unchecked((short)samus.Health) > 0)
@@ -1491,6 +1537,7 @@ public sealed partial class SuperMetroidGame
         PublishBlack();
     }
 
+    /// <summary>Copies live menu edits to the gameplay runtime after selected-game initialization.</summary>
     private void ApplySelectedGameOptions()
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
@@ -1521,6 +1568,8 @@ public sealed partial class SuperMetroidGame
             slot.ReserveEnergy,
             slot.ReserveMode));
 
+    /// <summary>Initializes runtime state for a new game, resumed save, Ceres checkpoint, or intro restart.</summary>
+    /// <returns><see langword="true"/> when setup should continue through the ordinary gameplay handoff.</returns>
     private bool SetupSelectedGame()
     {
         CreateGameplayRuntime();
@@ -1662,6 +1711,7 @@ public sealed partial class SuperMetroidGame
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
 
+    /// <summary>Writes the automatic checkpoint when the active runtime reports a valid gunship landing.</summary>
     private void HandleGunshipLandingSave()
     {
         if (runtime is null ||
@@ -1670,6 +1720,7 @@ public sealed partial class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
+    /// <summary>Consumes a confirmed save-station request, persists the live snapshot, and publishes the SRAM change.</summary>
     private void HandleSaveStationPersistence()
     {
         if (runtime?.ConsumeSaveStationPersistenceRequest() is not { } request)
@@ -1691,6 +1742,8 @@ public sealed partial class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
+    /// <summary>Creates an opaque black framebuffer sized for the front-end display.</summary>
+    /// <returns>A new pixel array initialized to black at every location.</returns>
     private static Rgba32[] CreateBlackFrame()
     {
         var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];

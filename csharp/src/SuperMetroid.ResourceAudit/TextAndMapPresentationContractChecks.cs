@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified text/map adapters with constructed source; no content files, cinematic or menu runs.</summary>
 internal static class TextAndMapPresentationContractChecks
 {
+    /// <summary>Confirms reviewed text and map presentation providers and selector domains.</summary>
     internal static void Run()
     {
         var trees = TextAndMapClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -104,6 +105,7 @@ internal static class TextAndMapPresentationContractChecks
             "all map-name calls must fail when their reviewed factory/loader definition changes");
     }
 
+    /// <summary>Throws when a text or map presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Text/map provider confirmation failed: " + reason);

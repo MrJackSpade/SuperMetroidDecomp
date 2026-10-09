@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified room-layout subset admission gap; never loads or enters a room.</summary>
 internal static class RoomLayoutPresentationContractChecks
 {
+    /// <summary>Confirms reviewed room layout providers and layout selection boundaries.</summary>
     internal static void Run()
     {
         int first = RoomVisualLayoutSourceDefinitions.All.First();
@@ -79,6 +80,7 @@ internal static class RoomLayoutPresentationContractChecks
             "using the partial verification factory in Core must revoke production completeness");
     }
 
+    /// <summary>Throws when a room layout presentation expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Room layout confirmation failed: " + reason);

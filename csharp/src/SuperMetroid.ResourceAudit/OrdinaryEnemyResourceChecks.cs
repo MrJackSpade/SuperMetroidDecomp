@@ -5,6 +5,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms only the six statically identified ordinary-composition omissions.</summary>
 internal static class OrdinaryEnemyResourceChecks
 {
+    /// <summary>Checks the extracted composition for the named ordinary enemy family.</summary>
+    /// <param name="family">The reviewed enemy family to audit.</param>
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;

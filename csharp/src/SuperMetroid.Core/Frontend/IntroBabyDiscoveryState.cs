@@ -12,15 +12,28 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class IntroBabyDiscoveryState
 {
+    /// <summary>SNES memory view used for demo input, actor initialization, and cinematic sprite operations.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Optional audio queue receiving the discovery scene's baby and egg sound events.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Reader for demo words, defaulting to the scene's cartridge-backed input definitions.</summary>
     private readonly Func<ushort, ushort> demoWordReader;
+    /// <summary>Input-object state that advances Samus through the scene's recorded demo sequence.</summary>
     private readonly DemoInputState demo = new();
+    /// <summary>Egg fragments created when the hatch instruction runs.</summary>
     private readonly List<IntroEggParticle> eggParticles = [];
+    /// <summary>Slime drops created when the hatched baby reaches its authored scanline.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
+    /// <summary>Cinematic sprite object for the egg and its changing instruction lists.</summary>
     private readonly IntroDiscoverySprite egg;
+    /// <summary>Cinematic sprite object whose pre-instruction advances the confused baby's phases.</summary>
     private readonly IntroDiscoverySprite confusedBaby;
 
+    /// <summary>Initializes Samus, room collision data, demo input, and the egg and baby actors for discovery.</summary>
+    /// <param name="bus">Address space used to read cartridge data and publish the scene's WRAM state.</param>
+    /// <param name="audio">Optional queue for scene sound effects; null disables audio publication.</param>
+    /// <param name="existingSamus">Samus state carried from the preceding flashback, or a new state for an isolated scene.</param>
+    /// <param name="demoWordReader">Optional cartridge-word reader for demo input; the scene definition reader is used when omitted.</param>
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)
     {
@@ -55,12 +68,16 @@ internal sealed class IntroBabyDiscoveryState
             definitionWord: this.demoWordReader);
     }
 
+    /// <summary>Samus actor initialized for the flashback-to-discovery handoff and advanced while her handlers remain active.</summary>
     public SamusState Samus { get; }
 
+    /// <summary>Room geometry and collision data used by grounded demo movement.</summary>
     public RoomLevelData Level { get; }
 
+    /// <summary>Becomes true after Samus crosses the egg's hatch trigger and its object list is redirected.</summary>
     public bool EggHatchingStarted { get; private set; }
 
+    /// <summary>Becomes true when the egg instruction requests the outer cinematic to begin page three.</summary>
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
@@ -147,6 +164,10 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Step(bus);
     }
 
+    /// <summary>Draws the egg, baby, and their spawned effects in cinematic object order.</summary>
+    /// <param name="oam">OAM buffer that receives the scene actors and effect sprites.</param>
+    /// <param name="eggEffectArt">Optional installed art used for egg particles and slime drops.</param>
+    /// <param name="actorArt">Optional installed art used for the egg and baby actors.</param>
     public void DrawActors(OamBuffer oam,
         IntroEggEffectSpritePresentation? eggEffectArt = null,
         IntroDiscoveryActorSpritePresentation? actorArt = null)
@@ -161,6 +182,9 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(bus, oam, eggEffectArt);
     }
 
+    /// <summary>Applies the discovery demo's running, stop-and-look, and inert pre-instruction transitions.</summary>
+    /// <param name="pointer">Current demo pre-instruction address.</param>
+    /// <param name="introCrossfadeTimer">Outer cinematic crossfade countdown used to end the stop-and-look phase.</param>
     private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)
     {
         switch (pointer)
@@ -191,6 +215,10 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Handles the terminal demo opcode by disabling input and ending Samus's scene handlers.</summary>
+    /// <param name="state">Demo input object whose playback is disabled when the end opcode is encountered.</param>
+    /// <param name="pointer">Instruction address being dispatched.</param>
+    /// <param name="argumentPointer">Cursor after the opcode, returned for continued instruction processing.</param>
     private DemoInputInstructionResult HandleDemoInstruction(
         DemoInputState state,
         ushort pointer,
@@ -207,6 +235,10 @@ internal sealed class IntroBabyDiscoveryState
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
+    /// <summary>Handles egg-specific opcodes that spawn hatch effects or request page three.</summary>
+    /// <param name="opcode">Cinematic instruction opcode to inspect.</param>
+    /// <param name="argumentPointer">Instruction cursor returned when this handler consumes the opcode.</param>
+    /// <returns>The next cursor for handled instructions, or null to defer to the shared interpreter.</returns>
     private ushort? HandleEggInstruction(ushort opcode, ushort argumentPointer)
     {
         switch (opcode)
@@ -233,6 +265,10 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Queues the cry associated with a baby-metroid cry opcode and leaves unrelated opcodes to the interpreter.</summary>
+    /// <param name="opcode">Cinematic instruction opcode to inspect.</param>
+    /// <param name="argumentPointer">Instruction cursor returned when a cry opcode is handled.</param>
+    /// <returns>The next cursor for a handled cry, or null for an unrelated instruction.</returns>
     private ushort? HandleConfusedBabyInstruction(ushort opcode, ushort argumentPointer)
     {
         byte soundId = opcode switch
@@ -254,6 +290,8 @@ internal sealed class IntroBabyDiscoveryState
         return argumentPointer;
     }
 
+    /// <summary>Dispatches the baby's hatch ascent, idle countdown, or dancing behavior by native pre-instruction state.</summary>
+    /// <param name="introCrossfadeTimer">Outer page crossfade countdown that ends the dancing phase.</param>
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
         switch (confusedBaby.PreInstructionPointer)
@@ -295,12 +333,16 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Horizontal 8.8 velocity retained while the baby accelerates toward Samus during its dance.</summary>
     private ushort BabyXVelocity { get; set; }
 
+    /// <summary>Vertical 8.8 velocity retained during the hatch arc and later movement toward Samus.</summary>
     private ushort BabyYVelocity { get; set; }
 
+    /// <summary>Countdown between the initial hatch ascent and the start of the dancing phase.</summary>
     private ushort BabyIdleTimer { get; set; }
 
+    /// <summary>Advances the hatch arc, spawns slime drops at the authored Y position, and starts the idle delay at the apex.</summary>
     private void StepHatchedBaby()
     {
         // Equality is intentional: $BA76 uses BNE, and the actor's subpixel integration
@@ -341,6 +383,8 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Moves the baby toward Samus, updates draw ordering, emits periodic cries, and deletes it when the crossfade ends.</summary>
+    /// <param name="introCrossfadeTimer">Outer cinematic crossfade countdown; zero terminates the baby actor.</param>
     private void StepDancingBaby(ushort introCrossfadeTimer)
     {
         if (introCrossfadeTimer == 0)
@@ -383,6 +427,12 @@ internal sealed class IntroBabyDiscoveryState
         AddEightEightVelocity(confusedBaby, horizontal: false, BabyYVelocity);
     }
 
+    /// <summary>Changes a signed 8.8 velocity toward a target coordinate, clamping it to the supplied limits.</summary>
+    /// <param name="position">Current whole-pixel coordinate.</param>
+    /// <param name="target">Coordinate the actor is approaching.</param>
+    /// <param name="velocityWord">Current velocity represented as a signed 8.8 word.</param>
+    /// <param name="positiveLimit">Maximum positive velocity.</param>
+    /// <param name="negativeLimit">Minimum negative velocity.</param>
     private static ushort AccelerateToward(
         ushort position,
         ushort target,
@@ -398,6 +448,10 @@ internal sealed class IntroBabyDiscoveryState
         return unchecked((ushort)velocity);
     }
 
+    /// <summary>Adds an 8.8 velocity to the selected sprite axis while preserving whole and fractional coordinates.</summary>
+    /// <param name="sprite">Actor whose position is updated.</param>
+    /// <param name="horizontal">True to update X; false to update Y.</param>
+    /// <param name="velocity">Signed 8.8 displacement applied this update.</param>
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,
@@ -421,6 +475,8 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Builds a discovery-scene sprite object from its authored actor definition.</summary>
+    /// <param name="definition">Position, palette, instruction list, and pre-instruction for the actor.</param>
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
@@ -432,6 +488,7 @@ internal sealed class IntroBabyDiscoveryState
         return actor;
     }
 
+    /// <summary>Creates the scene's room grid from extracted collision definitions and zero-filled auxiliary layers.</summary>
     private static RoomLevelData CreateLevel()
     {
         const int width = IntroBabyDiscoveryCollisionDefinitions.Columns;

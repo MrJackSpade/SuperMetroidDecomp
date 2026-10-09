@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmInterpreterSourceContract
 {
+    /// <summary>Gets the approved normalized-source fingerprints keyed by PLM interpreter method and arity.</summary>
     internal static readonly IReadOnlyDictionary<string, string> Methods = new Dictionary<string, string>
     {
         ["TryIdentifyPermanentCollectible/3"] = "6A6300F5B6F6DA8B5D1080735D67D69F395CEC3CE759F5B4FAD3DF8448BD9212",

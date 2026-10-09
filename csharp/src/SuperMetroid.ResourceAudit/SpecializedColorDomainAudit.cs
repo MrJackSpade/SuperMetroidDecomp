@@ -7,6 +7,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Relational constraints where selecting a known stream narrows its valid array index.</summary>
 internal static class SpecializedColorDomainAudit
 {
+    /// <summary>Returns an error when known specialized color selectors violate a correlated domain.</summary>
+    /// <param name="operation">The color-resolution invocation to inspect.</param>
+    /// <returns>An explanatory error, or <see langword="null"/> when no invalid constant is proven.</returns>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "Resolve") return null;

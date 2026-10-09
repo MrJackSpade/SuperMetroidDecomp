@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified message-family adapter and its save-only selection ownership.</summary>
 internal static class MessagePresentationContractChecks
 {
+    /// <summary>Confirms reviewed message-box presentation ownership and selector handling.</summary>
     internal static void Run()
     {
         var trees = MessageClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -57,6 +58,7 @@ internal static class MessagePresentationContractChecks
             "invalid constants must fail for exact message ownership, not generic missing-adapter reasons");
     }
 
+    /// <summary>Throws when a message presentation contract expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Message provider confirmation failed: " + reason);

@@ -81,6 +81,13 @@ internal static class KraidHeadInstructionDefinitions
         return OpeningCommand(DeathInitial, index - 22, true, DeathEntryTimer, 64);
     }
 
+    /// <summary>Builds a timed mouth frame, roar sound, or terminator from one command position in a roar/death program.</summary>
+    /// <param name="start">Address of the program's first timed frame.</param>
+    /// <param name="step">Zero-based command step, including the compact two-byte sound slot.</param>
+    /// <param name="death">Selects dying-roar timing, sound, and program termination rules.</param>
+    /// <param name="frameTimer">Duration assigned to ordinary mouth frames.</param>
+    /// <param name="openTimer">Duration assigned to the fully open mouth frame.</param>
+    /// <returns>The compiled instruction at the address computed for this step.</returns>
     private static KraidHeadInstructionDefinition OpeningCommand(
         ushort start, int step, bool death, ushort frameTimer, ushort openTimer)
     {
@@ -95,6 +102,11 @@ internal static class KraidHeadInstructionDefinitions
         return MouthFrame(pointer, stage == 3 ? openTimer : frameTimer, stage);
     }
 
+    /// <summary>Constructs one mouth-frame command from its stage's tilemap and collision shapes.</summary>
+    /// <param name="pointer">Address of the timed frame record in bank $A7.</param>
+    /// <param name="duration">Number of interpreter updates for which the frame remains active.</param>
+    /// <param name="stage">Zero-based mouth opening stage.</param>
+    /// <returns>A frame definition with vulnerable and, for open stages, invulnerable hitboxes.</returns>
     private static KraidHeadInstructionDefinition MouthFrame(ushort pointer, ushort duration, int stage) =>
         Frame(pointer, duration, (ushort)(ClosedMouthTilemap + 0x300 * stage),
             (ushort)(VulnerableHitboxStart + 8 * stage),
@@ -187,6 +199,13 @@ internal static class KraidHeadInstructionDefinitions
             _ => new(0x96f4, 64),
         };
 
+    /// <summary>Creates a timed frame record for the compiled instruction catalog.</summary>
+    /// <param name="pointer">Native bank-$A7 address of the record.</param>
+    /// <param name="duration">Interpreter duration for the displayed frame.</param>
+    /// <param name="tilemap">ROM tilemap pointer selected for the mouth stage.</param>
+    /// <param name="vulnerableHitbox">Hitbox active while Kraid's mouth can be damaged.</param>
+    /// <param name="invulnerableHitbox">Hitbox active while the mouth is not vulnerable, or the native sentinel for no such shape.</param>
+    /// <returns>A frame-kind instruction definition.</returns>
     private static KraidHeadInstructionDefinition Frame(
         ushort pointer,
         ushort duration,
@@ -196,15 +215,29 @@ internal static class KraidHeadInstructionDefinitions
         new(pointer, KraidHeadInstructionKind.Frame, duration, tilemap,
             vulnerableHitbox, invulnerableHitbox, 0);
 
+    /// <summary>Creates the compact sound command placed between timed mouth frames.</summary>
+    /// <param name="pointer">Native bank-$A7 address of the two-byte command.</param>
+    /// <param name="kind">Whether the sound is the ordinary roar or dying roar.</param>
+    /// <param name="soundId">Sound effect identifier consumed by the Kraid interpreter.</param>
+    /// <returns>A sound-kind definition with no frame timing or graphics data.</returns>
     private static KraidHeadInstructionDefinition Sound(
         ushort pointer,
         KraidHeadInstructionKind kind,
         ushort soundId) =>
         new(pointer, kind, 0, 0, 0, 0, soundId);
 
+    /// <summary>Creates the terminal command that ends a private head instruction program.</summary>
+    /// <param name="pointer">Native bank-$A7 address of the terminator.</param>
+    /// <returns>A terminate-kind definition with no frame or sound payload.</returns>
     private static KraidHeadInstructionDefinition End(ushort pointer) =>
         new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0);
 
+    /// <summary>Reads an aliased low-half byte from WRAM or the preserved bytes at the bank-$A7 mirror boundary.</summary>
+    /// <param name="bus">Address space providing mutable WRAM access for mirrored addresses.</param>
+    /// <param name="pointer">CPU address in the low half of bank $A7, including its three mapped boundary bytes.</param>
+    /// <returns>The byte exposed at that aliased address.</returns>
+    /// <exception cref="InvalidOperationException">The bus does not expose WRAM access for a low-half alias.</exception>
+    /// <exception cref="InvalidDataException">The address lies beyond the supported mirror boundary.</exception>
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)
@@ -230,13 +263,24 @@ internal static class KraidHeadInstructionDefinitions
 /// <summary>Mutually exclusive command forms used by Kraid's private head interpreter.</summary>
 internal enum KraidHeadInstructionKind
 {
+    /// <summary>A timed mouth image with collision-shape metadata.</summary>
     Frame,
+    /// <summary>The short sound command used during Kraid's ordinary roar.</summary>
     RoarSound,
+    /// <summary>The short sound command used during Kraid's dying roar.</summary>
     DyingSound,
+    /// <summary>A program terminator that stops head instruction processing.</summary>
     Terminate,
 }
 
 /// <summary>One compiled command from Kraid's four private bank-$A7 head programs.</summary>
+/// <param name="Pointer">Native address identifying the command and its position in the program.</param>
+/// <param name="Kind">Interpretation of the payload, such as a timed frame, sound, or terminator.</param>
+/// <param name="Duration">Frame lifetime in AI updates; sound and terminal commands use zero.</param>
+/// <param name="Tilemap">Mouth graphics source for frame commands; other command kinds use zero.</param>
+/// <param name="VulnerableHitbox">Damageable mouth shape for frame commands.</param>
+/// <param name="InvulnerableHitbox">Non-damageable mouth shape, or <see cref="ushort.MaxValue"/> when absent.</param>
+/// <param name="SoundId">Sound effect identifier for sound commands; other kinds use zero.</param>
 internal readonly record struct KraidHeadInstructionDefinition(
     ushort Pointer,
     KraidHeadInstructionKind Kind,
@@ -247,23 +291,44 @@ internal readonly record struct KraidHeadInstructionDefinition(
     ushort SoundId);
 
 /// <summary>Kraid head cursor/timer pair selected when the first phase ends.</summary>
+/// <param name="Pointer">Next instruction cursor installed when the first phase resumes.</param>
+/// <param name="Timer">Delay retained for the currently displayed head frame.</param>
 internal readonly record struct KraidHeadResumeDefinition(ushort Pointer, ushort Timer);
 
 /// <summary>Calculated native head commands with no stored lookup or startup cache.</summary>
+/// <param name="Length">Number of command records addressable in native program order.</param>
 internal readonly record struct KraidHeadCommandSequence(int Length)
 {
+    /// <summary>Gets the calculated command at a zero-based native-order index.</summary>
+    /// <param name="index">Index in the combined roar, dying-roar, glow, and death command sequence.</param>
+    /// <returns>The command calculated for that position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the sequence.</exception>
     public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
+
+    /// <summary>Materializes the calculated commands in native address order.</summary>
+    /// <returns>A new array containing each command in the sequence.</returns>
     public KraidHeadInstructionDefinition[] ToArray()
     {
         var result = new KraidHeadInstructionDefinition[Length];
         for (int index = 0; index < result.Length; index++) result[index] = this[index];
         return result;
     }
+    /// <summary>Creates a value enumerator that calculates commands as they are visited.</summary>
+    /// <returns>An enumerator starting before the first command.</returns>
     public Enumerator GetEnumerator() => new(this);
+
+    /// <summary>Iterates the calculated command sequence without storing a command cache.</summary>
+    /// <param name="sequence">The sequence whose length and indexed command calculation drive iteration.</param>
     public struct Enumerator(KraidHeadCommandSequence sequence)
     {
+        /// <summary>Index of the next command to expose, advanced by <see cref="MoveNext"/>.</summary>
         private int next;
+
+        /// <summary>Advances to the next command when the sequence has not ended.</summary>
+        /// <returns><see langword="true"/> when <see cref="Current"/> names a valid command.</returns>
         public bool MoveNext() => next++ < sequence.Length;
+
+        /// <summary>Gets the command selected by the most recent successful <see cref="MoveNext"/> call.</summary>
         public KraidHeadInstructionDefinition Current => KraidHeadInstructionDefinitions.Command(next - 1);
     }
 }

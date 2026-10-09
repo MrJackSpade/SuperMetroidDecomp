@@ -6,6 +6,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified partial ordinary-enemy installation admission gap.</summary>
 internal static class EnemyTileArtworkPresentationContractChecks
 {
+    /// <summary>Confirms enemy tile artwork construction and installed-data presentation contracts.</summary>
     internal static void Run()
     {
         bool rejected = false;
@@ -18,6 +19,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         EnemyArtworkStaticContractChecks.Run();
     }
 
+    /// <summary>Confirms installed enemy tile sheets retain exact compiled identities and transfer sizes.</summary>
     private static void ConfirmInstalledData()
     {
         var cached = new Dictionary<int, RoomCharacterAtlas>();
@@ -93,6 +95,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             "exact palette upload and unchanged neighbors");
     }
 
+    /// <summary>Requires an enemy tile artwork construction action to reject invalid data.</summary>
     private static void Reject(Action action, string reason)
     {
         try { action(); }
@@ -100,6 +103,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         throw new InvalidOperationException("Enemy artwork confirmation did not reject " + reason);
     }
 
+    /// <summary>Throws when an enemy tile artwork expectation is not satisfied.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy artwork confirmation failed: " + reason);

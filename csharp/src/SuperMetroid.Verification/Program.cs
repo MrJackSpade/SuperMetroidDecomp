@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--frozen-time-enemy-projectiles"])
+{
+    Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles());
+    return 0;
+}
 if (args is ["--unpause-reserve-blackout"])
 {
     Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout());
@@ -7932,6 +7937,7 @@ Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
 Suite(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage());
 Suite(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence());
 Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout());
+Suite(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

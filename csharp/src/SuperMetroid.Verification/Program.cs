@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--unpause-elevator-flags"])
+{
+    Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
+    return 0;
+}
 if (args is ["--knockback-shinespark-launch"])
 {
     Suite(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch());
@@ -7903,6 +7908,7 @@ Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
 Suite(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation());
 Suite(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb());
 Suite(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch());
+Suite(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

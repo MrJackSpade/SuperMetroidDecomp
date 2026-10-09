@@ -131,6 +131,13 @@ public sealed partial class RoomEnemySystem
     public void PublishElevatorDoorContact() => ElevatorFlags = 1;
 
     /// <summary>
+    /// <c>ResumeGameplay</c> ($80:A149) reloads the tiles through <c>$82:E78C</c>, whose first
+    /// write clears $0E16. Unpausing mid-ride therefore leaves the elevator's pseudo-door
+    /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
+    /// </summary>
+    public void ClearElevatorFlagsOnGameplayResume() => ElevatorFlags = 0;
+
+    /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
     /// actor's initializer recognizes status two and starts at its parameter-2 Y position.
     /// </summary>

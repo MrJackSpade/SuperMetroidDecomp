@@ -2,7 +2,9 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Editable tile/flip/palette reference for one collectible draw frame.</summary>
+/// <summary>Editable metatile/flip reference for one collectible draw frame.</summary>
+/// <param name="Id">Compiled identity of an empty, orb, tank, dynamic-slot, or shot-reveal frame.</param>
+/// <param name="VisualWord">Twelve-bit metatile reference and parent flips, excluding the physical collision nibble.</param>
 public sealed record RoomPlmCollectibleVisualEntry(string Id, ushort VisualWord);
 
 /// <summary>
@@ -26,6 +28,10 @@ public sealed class RoomPlmCollectibleVisualCatalog
 
     private readonly Dictionary<ushort, ushort>? customWords;
 
+    /// <summary>Validates all twenty-four compiled one-cell frames and retains authored visual differences without changing pickup, collision, or persistence rules.</summary>
+    /// <param name="entries">Exactly one visual-only word for each compiled collectible frame identity.</param>
+    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, or leaves compiled frame coverage incomplete.</exception>
     public RoomPlmCollectibleVisualCatalog(
         IEnumerable<RoomPlmCollectibleVisualEntry> entries)
     {
@@ -49,6 +55,10 @@ public sealed class RoomPlmCollectibleVisualCatalog
         if (selected.Count != 0) customWords = selected;
     }
 
+    /// <summary>Resolves the selected appearance of one collectible draw list while leaving its physical level word compiled.</summary>
+    /// <param name="pointer">Bank-$84 identity of a supported six-byte, one-cell draw list, not a collectible PLM header or dynamic graphics address.</param>
+    /// <returns>The authored metatile/flip word, or those visual bits from the compiled stock frame when unchanged.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported collectible frame.</exception>
     public ushort GetWord(ushort pointer)
     {
         if (!RoomPlmCollectibleDrawDefinitions.TryGetWord(pointer, out ushort physical))

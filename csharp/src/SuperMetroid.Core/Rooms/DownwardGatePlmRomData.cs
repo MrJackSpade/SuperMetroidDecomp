@@ -31,13 +31,19 @@ internal static class DownwardGatePreInstructionCodes
 }
 
 /// <summary>The exact projectile action published by a gate instruction to bank $86.</summary>
+/// <param name="Operation">Whether to allocate a gate actor or wake an already associated actor; applying the request belongs to the runtime's projectile owner.</param>
+/// <param name="DefinitionPointer">Bank-$86 moving/initially closed gate header for Spawn; unused and published as zero for Wake.</param>
+/// <param name="PlmBlockIndex">Nonnegative row-major level-block ordinal for the gate's top cell, not a pixel coordinate or native byte offset; each block is sixteen pixels and the native association stores twice this index.</param>
 public readonly record struct DownwardGateProjectileRequest(
     DownwardGateProjectileOperation Operation,
     ushort DefinitionPointer,
     int PlmBlockIndex);
 
+/// <summary>Mutually exclusive work transferred from a downward-gate PLM to the bank-$86 projectile pool.</summary>
 public enum DownwardGateProjectileOperation
 {
+    /// <summary>$84:BBE1, Instruction_PLM_SpawnEnemyProjectileY, or closed-gate setup: allocates the selected gate actor and associates it with the PLM block; a full pool leaves no new actor.</summary>
     Spawn,
+    /// <summary>$84:BBF0, Instruction_PLM_WakeEnemyProjectileAtPLMsPosition: finds the associated actor, advances its instruction pointer two bytes past sleep, and sets its instruction timer to one without allocating another actor.</summary>
     Wake,
 }

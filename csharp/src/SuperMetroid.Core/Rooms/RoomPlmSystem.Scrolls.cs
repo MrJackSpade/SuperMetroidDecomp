@@ -15,6 +15,9 @@ public sealed partial class RoomPlmSystem
     /// <summary>
     /// Applies setup <c>$84:B393</c> to the already-resolved origin of special-air BTS $46.
     /// </summary>
+    /// <param name="blockIndex">Zero-based row-major 16x16 room-block index of the trigger origin, after any scroll-extension traversal.</param>
+    /// <returns>True when a live resident scroll PLM owns the block, including an already-triggered one; false when no matching owner exists.</returns>
+    /// <remarks>The first touch latches the trigger and wakes its instruction list with a one-tick timer; repeated collision probes do not wake it again before ordered scroll writes finish.</remarks>
     public bool TryNotifyScrollTouch(int blockIndex)
     {
         foreach (PlmSlot slot in _slots)
@@ -151,5 +154,7 @@ public sealed partial class RoomPlmSystem
     }
 }
 
+/// <summary>Detached diagnostic identity of one live resident scroll trigger; it does not expose mutable slot or scroll-program state.</summary>
+/// <param name="BlockIndex">Zero-based row-major 16x16 room-block index, not the native doubled block-byte offset.</param>
 public readonly record struct ScrollPlmSnapshot(
     int BlockIndex);

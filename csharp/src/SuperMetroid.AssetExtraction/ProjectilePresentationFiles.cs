@@ -13,6 +13,7 @@ public static class ProjectilePresentationFiles
     public const string ManifestFileName = "projectile-manifest.json";
     /// <summary>Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets.</summary>
     public const int Version = 15;
+    /// <summary>Strict camel-case JSON settings for stock projectile provenance.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -132,6 +133,11 @@ public static class ProjectilePresentationFiles
             selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
     }
 
+    /// <summary>Reads a stock projectile resource and verifies its manifest hash.</summary>
+    /// <param name="directory">Directory containing the stock resource.</param>
+    /// <param name="name">Manifest filename of the resource.</param>
+    /// <param name="expectedHash">SHA-256 required by the manifest.</param>
+    /// <returns>The file path and validated bytes.</returns>
     private static ProjectileFile ReadStock(string directory, string name, string? expectedHash)
     {
         string path = Path.Combine(directory, name);
@@ -142,8 +148,15 @@ public static class ProjectilePresentationFiles
     }
 
     /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>
+    /// <summary>Retains the source identity and bytes of a selected projectile resource.</summary>
+    /// <param name="Path">Path of the stock file or selected replacement.</param>
+    /// <param name="Bytes">Bytes admitted to a resource codec.</param>
     private sealed record ProjectileFile(string Path, byte[] Bytes)
     {
+        /// <summary>Compiles the retained bytes and adds the source path to invalid-data errors.</summary>
+        /// <typeparam name="T">Type produced by the resource decoder.</typeparam>
+        /// <param name="compile">Decoder that consumes a stream.</param>
+        /// <returns>The decoded projectile resource.</returns>
         internal T Compile<T>(Func<Stream, T> compile)
         {
             using var stream = new MemoryStream(Bytes, writable: false);
@@ -154,6 +167,9 @@ public static class ProjectilePresentationFiles
             }
         }
 
+        /// <summary>Selects a same-named replacement when present, otherwise retaining the stock file.</summary>
+        /// <param name="directory">Optional user override directory.</param>
+        /// <returns>The replacement file when it exists, or this stock file.</returns>
         internal ProjectileFile Select(string? directory)
         {
             string? replacement = directory is null ? null : System.IO.Path.Combine(directory, System.IO.Path.GetFileName(Path));
@@ -162,7 +178,26 @@ public static class ProjectilePresentationFiles
         }
     }
 
+    /// <summary>Computes the uppercase SHA-256 identifier used for projectile resources.</summary>
+    /// <param name="bytes">Resource bytes to hash.</param>
+    /// <returns>The hexadecimal SHA-256 value.</returns>
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+
+    /// <summary>Builds a stable identity from every selected projectile presentation component.</summary>
+    /// <param name="composition">Projectile composition resource.</param>
+    /// <param name="beams">Beam atlas resources keyed by their installed filenames.</param>
+    /// <param name="palettes">Beam palette resource.</param>
+    /// <param name="hyperBeamFxColors">Hyper-beam palette-effect color resource.</param>
+    /// <param name="trails">Projectile trail visual definitions.</param>
+    /// <param name="trailTiles">Projectile trail tile atlas.</param>
+    /// <param name="flarePlacement">Charge-flare placement definitions.</param>
+    /// <param name="flareCompositions">Charge-flare sprite compositions.</param>
+    /// <param name="grappleTiles">Grapple tile resource.</param>
+    /// <param name="grappleSprites">Grapple sprite compositions.</param>
+    /// <param name="grappleFlare">Grapple flare placement definitions.</param>
+    /// <param name="grappleSwing">Grapple swing frame definitions.</param>
+    /// <param name="frameBindings">Projectile animation-frame bindings.</param>
+    /// <returns>A SHA-256 identity over the ordered component hashes.</returns>
     private static string Identity(ProjectileFile composition, Dictionary<string, ProjectileFile> beams, ProjectileFile palettes, ProjectileFile hyperBeamFxColors, ProjectileFile trails, ProjectileFile trailTiles, ProjectileFile flarePlacement, ProjectileFile flareCompositions, ProjectileFile grappleTiles, ProjectileFile grappleSprites, ProjectileFile grappleFlare, ProjectileFile grappleSwing, ProjectileFile frameBindings)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
@@ -171,8 +206,33 @@ public static class ProjectilePresentationFiles
             hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
         return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes.Bytes) + Hash(hyperBeamFxColors.Bytes) + Hash(trails.Bytes) + Hash(trailTiles.Bytes) + Hash(flarePlacement.Bytes) + Hash(flareCompositions.Bytes) + Hash(grappleTiles.Bytes) + Hash(grappleSprites.Bytes) + Hash(grappleFlare.Bytes) + Hash(grappleSwing.Bytes) + Hash(frameBindings.Bytes)));
     }
+    /// <summary>Stock cartridge provenance and hashes for every projectile presentation resource.</summary>
+    /// <param name="Version">Projectile manifest schema version.</param>
+    /// <param name="RomSha256">Supported source cartridge SHA-256.</param>
+    /// <param name="ContentSha256">Hash of the projectile composition document.</param>
+    /// <param name="BeamHashes">Beam atlas hashes keyed by filename.</param>
+    /// <param name="PaletteSha256">Beam palette document hash.</param>
+    /// <param name="HyperBeamFxColorsSha256">Hyper-beam color document hash.</param>
+    /// <param name="TrailSha256">Projectile trail definition hash.</param>
+    /// <param name="TrailTilesSha256">Projectile trail tile atlas hash.</param>
+    /// <param name="FlarePlacementSha256">Charge-flare placement document hash.</param>
+    /// <param name="FlareCompositionsSha256">Charge-flare composition document hash.</param>
+    /// <param name="GrappleTilesSha256">Grapple tile resource hash.</param>
+    /// <param name="GrappleSpritesSha256">Grapple sprite document hash.</param>
+    /// <param name="GrappleFlareSha256">Grapple flare placement hash.</param>
+    /// <param name="GrappleSwingSha256">Grapple swing frame document hash.</param>
+    /// <param name="FrameBindingsSha256">Projectile frame-binding document hash.</param>
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
 }
 
 /// <summary>Loaded content and separate original/selected byte identities for diagnostics.</summary>
+/// <param name="Catalog">Compiled projectile sprite compositions.</param>
+/// <param name="StockSha256">Identity of the unmodified stock resource set.</param>
+/// <param name="SelectedSha256">Identity of the resources selected after overrides.</param>
+/// <param name="BeamTiles">Compiled beam atlases and palettes.</param>
+/// <param name="Trails">Compiled projectile trail definitions and tiles.</param>
+/// <param name="FlarePlacement">Compiled charge-flare placement entries.</param>
+/// <param name="FlareCompositions">Compiled charge-flare sprite compositions.</param>
+/// <param name="GrappleTiles">Compiled Grapple tile atlas and presentation data.</param>
+/// <param name="FrameBindings">Compiled projectile frame bindings.</param>
 public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails, ChargeFlarePlacementCatalog FlarePlacement, ChargeFlareSpriteCatalog FlareCompositions, GrappleTileAtlas GrappleTiles, ProjectileFrameBindingCatalog FrameBindings);

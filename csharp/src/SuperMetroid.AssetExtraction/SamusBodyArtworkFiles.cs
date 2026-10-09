@@ -17,10 +17,14 @@ public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
+    /// <summary>Schema version written to the Samus body artwork document.</summary>
     private const int FormatVersion = 4;
+    /// <summary>Pixel width of each extracted upper or lower body atlas.</summary>
     private const int TileWidth = 64;
+    /// <summary>Pixel height reserved for each native body definition.</summary>
     private const int DefinitionHeight = 16;
 
+    /// <summary>Strict camel-case JSON settings shared by stock and override documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -157,6 +161,14 @@ public static class SamusBodyArtworkFiles
     /// <exception cref="InvalidDataException">The body installation or any linked artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Extracts one upper or lower DMA half into padded planar slots and records native identities.</summary>
+    /// <param name="bus">Cartridge address space containing body DMA definitions and source graphics.</param>
+    /// <param name="directory">Directory receiving the encoded atlas PNGs.</param>
+    /// <param name="pointers">Native definition-list pointers for this body half.</param>
+    /// <param name="sortedPointers">All upper and lower pointers, sorted to bound each list.</param>
+    /// <param name="upperHalf">Whether this pass extracts upper-body definitions.</param>
+    /// <param name="hashes">Receives the hash of each emitted PNG.</param>
+    /// <returns>Definition metadata grouped by native pointer-list set.</returns>
     private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,
         ushort[] pointers, ushort[] sortedPointers, bool upperHalf,
         Dictionary<string, string> hashes)
@@ -202,6 +214,11 @@ public static class SamusBodyArtworkFiles
         return sets;
     }
 
+    /// <summary>Loads body atlas pixels and combines manifest selectors with linked Samus artwork.</summary>
+    /// <param name="stockDirectory">Directory containing stock body PNGs and linked artwork.</param>
+    /// <param name="manifest">Validated body metadata to compile.</param>
+    /// <param name="overrideDirectory">Optional directory supplying selected PNG replacements.</param>
+    /// <returns>The compiled cartridge-free Samus body artwork catalog.</returns>
     private static SamusBodyArtworkCatalog BuildCatalog(string stockDirectory, Manifest manifest,
         string? overrideDirectory)
     {
@@ -226,6 +243,13 @@ public static class SamusBodyArtworkFiles
             manifest.DrainedYOffsets);
     }
 
+    /// <summary>Loads each atlas in one body half and checks its identity, hash, and zero padding.</summary>
+    /// <param name="stockDirectory">Directory containing the stock atlas files.</param>
+    /// <param name="overrideDirectory">Optional directory containing replacements with stock filenames.</param>
+    /// <param name="sets">Manifest definition sets to load.</param>
+    /// <param name="upperHalf">Whether the definitions describe the upper body.</param>
+    /// <param name="hashes">Manifest of immutable stock PNG hashes.</param>
+    /// <returns>Decoded body definitions grouped by set.</returns>
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
         string? overrideDirectory, Manifest manifest, bool upperHalf)
     {
@@ -272,6 +296,8 @@ public static class SamusBodyArtworkFiles
         return result;
     }
 
+    /// <summary>Checks manifest dimensions, pointer identities, definition sizes, and selector references.</summary>
+    /// <param name="manifest">The parsed body metadata to validate.</param>
     private static void ValidateManifest(Manifest manifest)
     {
         if (manifest.Version != FormatVersion ||
@@ -293,9 +319,18 @@ public static class SamusBodyArtworkFiles
             throw new InvalidDataException("Samus body manifest does not match this installation.");
     }
 
+    /// <summary>Reads a contiguous table of native 16-bit pointers.</summary>
+    /// <param name="bus">Cartridge address space containing the pointer table.</param>
+    /// <param name="start">Address of the first pointer.</param>
+    /// <param name="count">Number of pointers to read.</param>
+    /// <returns>The pointers in table order.</returns>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
         Enumerable.Range(0, count).Select(i => ReadWord(bus, start + i * 2)).ToArray();
 
+    /// <summary>Decodes one native Samus spritemap and its piece coordinates.</summary>
+    /// <param name="bus">Cartridge address space containing the spritemap records.</param>
+    /// <param name="pointer">Bank-local address of the spritemap.</param>
+    /// <returns>The decoded spritemap definition.</returns>
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
         int address = 0x920000 | pointer;
@@ -312,12 +347,38 @@ public static class SamusBodyArtworkFiles
         return new SamusSpritemapDefinition(pointer, parts);
     }
 
+    /// <summary>Reads a little-endian cartridge word.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
+    /// <summary>Builds the stable atlas filename for a body half and definition set.</summary>
+    /// <param name="upperHalf">Whether the filename identifies the upper-body atlas.</param>
+    /// <param name="set">Zero-based native definition-list set.</param>
+    /// <returns>The corresponding PNG filename.</returns>
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 
+    /// <summary>Serialized split-DMA identities, visual selectors, offsets, and stock image hashes.</summary>
+    /// <param name="Version">Body artwork JSON schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the cartridge revision used for extraction.</param>
+    /// <param name="TopPointers">Native upper-body definition-list pointers by set.</param>
+    /// <param name="BottomPointers">Native lower-body definition-list pointers by set.</param>
+    /// <param name="PosePointers">Native animation definition-list pointers by pose.</param>
+    /// <param name="GraphicsYOffsets">Per-pose native graphics vertical offsets.</param>
+    /// <param name="Frames">Visual frame-to-definition selectors.</param>
+    /// <param name="Top">Upper-body DMA definitions grouped by set.</param>
+    /// <param name="Bottom">Lower-body DMA definitions grouped by set.</param>
+    /// <param name="SpritemapTopBases">Upper spritemap base identities by pose.</param>
+    /// <param name="SpritemapBottomBases">Lower spritemap base identities by pose.</param>
+    /// <param name="SpritemapPointers">Native spritemap pointers by selector slot.</param>
+    /// <param name="Spritemaps">Decoded spritemap records referenced by the pointer table.</param>
+    /// <param name="LandingYOffsets">Landing pose vertical offsets.</param>
+    /// <param name="PostureYOffsets">Posture-transition vertical offsets.</param>
+    /// <param name="DrainedYOffsets">Drained-state vertical offsets.</param>
+    /// <param name="Hashes">Stock PNG hashes keyed by atlas filename.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
         sbyte[] GraphicsYOffsets,
@@ -328,5 +389,9 @@ public static class SamusBodyArtworkFiles
         sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
         Dictionary<string, string> Hashes);
 
+    /// <summary>Native source identity and two transfer lengths for one split body definition.</summary>
+    /// <param name="SourceAddress">Banked source address of the first transfer.</param>
+    /// <param name="FirstSize">Byte count of the first native DMA transfer.</param>
+    /// <param name="SecondSize">Byte count of the following native DMA transfer.</param>
     private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
 }

@@ -16,8 +16,10 @@ public static class RoomPlmStationVisualFiles
     public const string VisualFileName = "stations.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Current manifest and station visual-document schema version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Camel-case JSON settings shared by station provenance and editable visual entries.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -93,6 +95,9 @@ public static class RoomPlmStationVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Verifies every native station run header, physical level word, and continuation offset while extracting visual bits.</summary>
+    /// <param name="bus">Import address space containing the bank-$84 station draw lists.</param>
+    /// <returns>All named station entries ordered by native draw-list pointer.</returns>
     private static RoomPlmStationVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmStationVisualEntry>();
@@ -134,6 +139,9 @@ public static class RoomPlmStationVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Ensures each validated stock run word equals the visual portion of its compiled physical station word.</summary>
+    /// <param name="catalog">Compiled stock station catalog.</param>
+    /// <param name="path">Stock visual filename included in failures.</param>
     private static void VerifyStockMatchesCompiled(RoomPlmStationVisualCatalog catalog,
         string path)
     {
@@ -151,6 +159,10 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Checks document compatibility, compiles complete station coverage, and adds the filename to admission errors.</summary>
+    /// <param name="document">Deserialized station visual document.</param>
+    /// <param name="path">Source filename included in failures.</param>
+    /// <returns>The immutable station visual catalog.</returns>
     private static RoomPlmStationVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -164,8 +176,17 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Reads and deserializes a required station JSON file.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="path">File to read.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes station JSON bytes and normalizes syntax/null failures as invalid asset data.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="bytes">Complete UTF-8 JSON bytes.</param>
+    /// <param name="path">Logical source filename included in failures.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -179,11 +200,22 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Reads one little-endian word from a bank-$84 station draw-list pointer.</summary>
+    /// <param name="bus">Import address space containing the draw list.</param>
+    /// <param name="pointer">Sixteen-bit bank-relative word pointer.</param>
+    /// <returns>The native word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
             bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
+    /// <summary>Stock provenance and exact station visual-document byte identity.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">Cartridge identity used for extraction.</param>
+    /// <param name="VisualSha256">Uppercase SHA-256 of the stock visual JSON bytes.</param>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned complete editable station visual entry collection.</summary>
+    /// <param name="Version">Visual-document schema version.</param>
+    /// <param name="Entries">Map, refill, save, and access layouts in stable identity order.</param>
     private sealed record VisualDocument(int Version, RoomPlmStationVisualEntry[] Entries);
 }

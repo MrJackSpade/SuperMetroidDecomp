@@ -16,8 +16,10 @@ public static class RoomPlmCollectibleVisualFiles
     public const string VisualFileName = "collectibles.json";
     /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Current manifest and collectible visual-document schema version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Camel-case JSON settings shared by stock provenance and editable visual entries.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -90,6 +92,9 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Verifies all dynamic selectors and one-block native draw lists before extracting their twelve-bit visual words.</summary>
+    /// <param name="bus">Import address space containing bank-$84 selector and draw-list data.</param>
+    /// <returns>Every collectible visual frame in compiled identity order.</returns>
     private static RoomPlmCollectibleVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -120,6 +125,9 @@ public static class RoomPlmCollectibleVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Ensures each validated stock visual equals the visual portion of its compiled physical level word.</summary>
+    /// <param name="catalog">Compiled stock collectible catalog.</param>
+    /// <param name="path">Stock visual filename included in failures.</param>
     private static void VerifyStockMatchesCompiled(RoomPlmCollectibleVisualCatalog catalog,
         string path)
     {
@@ -130,6 +138,10 @@ public static class RoomPlmCollectibleVisualFiles
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }
 
+    /// <summary>Checks document compatibility, compiles complete entry coverage, and adds the filename to admission errors.</summary>
+    /// <param name="document">Deserialized collectible visual document.</param>
+    /// <param name="path">Source filename included in failures.</param>
+    /// <returns>The immutable collectible visual catalog.</returns>
     private static RoomPlmCollectibleVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -144,8 +156,17 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>Reads and deserializes a required collectible JSON file.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="path">File to read.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes collectible JSON bytes and normalizes syntax/null failures as invalid asset data.</summary>
+    /// <typeparam name="T">Expected manifest or visual-document type.</typeparam>
+    /// <param name="bytes">Complete UTF-8 JSON bytes.</param>
+    /// <param name="path">Logical source filename included in failures.</param>
+    /// <returns>The non-null deserialized document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -159,12 +180,23 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>Reads one little-endian word from a bank-$84 collectible pointer.</summary>
+    /// <param name="bus">Import address space containing the native data.</param>
+    /// <param name="pointer">Sixteen-bit bank-relative word pointer.</param>
+    /// <returns>The native word.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
             bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
+    /// <summary>Stock provenance and exact collectible visual-document byte identity.</summary>
+    /// <param name="Version">Manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">Cartridge identity used for extraction.</param>
+    /// <param name="VisualSha256">Uppercase SHA-256 of the stock visual JSON bytes.</param>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned complete editable collectible visual entry collection.</summary>
+    /// <param name="Version">Visual-document schema version.</param>
+    /// <param name="Entries">All twenty-four collectible frames and visual words.</param>
     private sealed record VisualDocument(int Version,
         RoomPlmCollectibleVisualEntry[] Entries);
 }

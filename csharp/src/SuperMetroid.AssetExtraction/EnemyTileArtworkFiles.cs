@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
 public static class EnemyTileArtworkFiles
 {
+    /// <summary>Strict camel-case JSON settings used to validate enemy-art manifests.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -1149,6 +1150,8 @@ public static class EnemyTileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Checks that the exported definition pointers match the pinned retail set.</summary>
+    /// <param name="pointers">Native enemy graphics definition pointers in the catalog.</param>
     private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)
     {
         string joined = string.Join(",", pointers.Order().Select(pointer => $"{pointer:X4}"));
@@ -1158,6 +1161,11 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
+    /// <summary>Reconstructs one native Crocomire melt-copy pass and encodes its planar tiles as PNG.</summary>
+    /// <param name="bus">Cartridge address space supplying source bytes.</param>
+    /// <param name="pass">Native source-bank and copy-range description.</param>
+    /// <param name="encodedByteCount">Planar buffer size represented by the exported image.</param>
+    /// <returns>PNG bytes that round-trip to the reconstructed planar data.</returns>
     private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
         CrocomireMeltingPass pass, int encodedByteCount)
     {
@@ -1186,6 +1194,10 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    /// <summary>Decompresses the native Kraid tilemap and encodes its editable document.</summary>
+    /// <param name="bus">Cartridge address space containing compressed tilemap data.</param>
+    /// <param name="sourceAddress">Native compressed source address.</param>
+    /// <returns>Serialized tilemap document bytes.</returns>
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
         byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
@@ -1193,6 +1205,9 @@ public static class EnemyTileArtworkFiles
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
+    /// <summary>Exports Kraid's room-background graphics as a lossless indexed PNG.</summary>
+    /// <param name="bus">Cartridge address space containing the fixed-bank planar tiles.</param>
+    /// <returns>PNG bytes whose decoded transfer matches the native graphics.</returns>
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -1213,6 +1228,10 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    /// <summary>Encodes one Mother Brain special-sprite sheet as a round-trippable indexed PNG.</summary>
+    /// <param name="bus">Cartridge address space containing the sheet graphics.</param>
+    /// <param name="sheet">Native source address, byte count, and output filename.</param>
+    /// <returns>PNG bytes preserving the source planar transfer.</returns>
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
@@ -1232,11 +1251,18 @@ public static class EnemyTileArtworkFiles
         return png;
     }
 
+    /// <summary>Extracts one Torizo instruction-page tile sheet using the shared indexed-page codec.</summary>
+    /// <param name="bus">Cartridge address space containing the page graphics.</param>
+    /// <param name="page">Source address, byte count, and page filename.</param>
+    /// <returns>Encoded page PNG bytes.</returns>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
         TorizoInstructionTileSheetDefinition page) =>
         IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 
+    /// <summary>Serializes the five native Kraid palette groups into the editable color document.</summary>
+    /// <param name="bus">Cartridge address space containing Kraid's palette words.</param>
+    /// <returns>Serialized RGB5 palette document bytes.</returns>
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
         {
@@ -1248,6 +1274,10 @@ public static class EnemyTileArtworkFiles
             DeathArm = ReadKraidColors(bus, KraidPaletteSource.DeathArm),
         });
 
+    /// <summary>Reads and converts one native Kraid RGB5 palette group.</summary>
+    /// <param name="bus">Cartridge address space containing the palette words.</param>
+    /// <param name="source">Palette group whose address and color count are defined by the cartridge catalog.</param>
+    /// <returns>Decoded RGB5 colors in native order.</returns>
     private static PaletteRgb5[] ReadKraidColors(ISnesAddressSpace bus,
         KraidPaletteSource source)
     {
@@ -1271,6 +1301,10 @@ public static class EnemyTileArtworkFiles
         return colors;
     }
 
+    /// <summary>Converts the native Crocomire melt background tilemap into its visual JSON form.</summary>
+    /// <param name="bus">Cartridge address space containing tilemap words and the terminator.</param>
+    /// <param name="sourceAddress">Native tilemap source address.</param>
+    /// <returns>Serialized tilemap document bytes.</returns>
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -1305,6 +1339,52 @@ public static class EnemyTileArtworkFiles
         return json.ToArray();
     }
 
+    /// <summary>Stock provenance and per-resource hashes for ordinary and supplemental enemy artwork.</summary>
+    /// <param name="Version">Enemy artwork manifest schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the extraction cartridge revision.</param>
+    /// <param name="Entries">Ordinary enemy sheets keyed by native definition pointer.</param>
+    /// <param name="CrocomireFirstSha256">Hash for the first Crocomire melt sheet.</param>
+    /// <param name="CrocomireSecondSha256">Hash for the second Crocomire melt sheet.</param>
+    /// <param name="CrocomireFirstTilemapSha256">Hash for the first Crocomire melt tilemap.</param>
+    /// <param name="CrocomireSecondTilemapSha256">Hash for the second Crocomire melt tilemap.</param>
+    /// <param name="EnemyCompositionsSha256">Hash for enemy sprite composition definitions.</param>
+    /// <param name="EnemyProjectileCompositionsSha256">Hash for enemy projectile compositions.</param>
+    /// <param name="EnemyExtendedCompositionsSha256">Hash for extended enemy composition definitions.</param>
+    /// <param name="PhantoonBg2FramesSha256">Hash for Phantoon background-layer frames.</param>
+    /// <param name="DraygonBg2FramesSha256">Hash for Draygon background-layer frames.</param>
+    /// <param name="CrocomireBg2FramesSha256">Hash for Crocomire background-layer frames.</param>
+    /// <param name="MotherBrainBodyBg2FramesSha256">Hash for Mother Brain body background-layer frames.</param>
+    /// <param name="GunshipLiftoffSha256">Hashes for Gunship liftoff resources keyed by frame.</param>
+    /// <param name="TorizoInstructionTilesSha256">Hashes for Torizo instruction-page sheets.</param>
+    /// <param name="CeresEscapeTilesSha256">Hashes for Ceres escape tile sheets.</param>
+    /// <param name="CeresEscapeOverlaySha256">Hash for the Ceres escape overlay.</param>
+    /// <param name="MotherBrainCorpseSha256">Hash for Mother Brain corpse artwork.</param>
+    /// <param name="MotherBrainEscapeTextSha256">Hash for Mother Brain escape text artwork.</param>
+    /// <param name="MotherBrainSpecialSpritesSha256">Hashes for Mother Brain special-sprite sheets.</param>
+    /// <param name="KraidUpperSha256">Hash for Kraid's upper body sheet.</param>
+    /// <param name="KraidLowerSha256">Hash for Kraid's lower body sheet.</param>
+    /// <param name="KraidHeadsSha256">Hashes for Kraid head variants keyed by native identity.</param>
+    /// <param name="KraidRoomBackgroundSha256">Hash for Kraid room-background tiles.</param>
+    /// <param name="KraidColorsSha256">Hash for Kraid's editable palette document.</param>
+    /// <param name="CeresDoorTilesSha256">Hash for Ceres door tiles.</param>
+    /// <param name="CeresDoorColorsSha256">Hash for Ceres door palette colors.</param>
+    /// <param name="MagdollitePaletteCycleSha256">Hash for Magdollite palette-cycle data.</param>
+    /// <param name="WorkRobotPaletteCycleSha256">Hash for Work Robot palette-cycle data.</param>
+    /// <param name="CrocomireColorsSha256">Hash for Crocomire palette data.</param>
+    /// <param name="DraygonColorsSha256">Hash for Draygon palette data.</param>
+    /// <param name="PhantoonColorsSha256">Hash for Phantoon palette data.</param>
+    /// <param name="ChozoAndTubeColorsSha256">Hash for Chozo and glass-tube palette data.</param>
+    /// <param name="SporeSpawnColorsSha256">Hash for Spore Spawn palette data.</param>
+    /// <param name="DachoraColorsSha256">Hash for Dachora palette data.</param>
+    /// <param name="ShitroidColorsSha256">Hash for Shitroid palette data.</param>
+    /// <param name="BabyMetroidCutsceneColorsSha256">Hash for Baby Metroid cutscene palette data.</param>
+    /// <param name="BotwoonColorsSha256">Hash for Botwoon palette data.</param>
+    /// <param name="MotherBrainDeathColorsSha256">Hash for Mother Brain death palette data.</param>
+    /// <param name="ZebetiteColorsSha256">Hash for Zebetite palette data.</param>
+    /// <param name="NorfairRidleyColorsSha256">Hash for Norfair Ridley palette data.</param>
+    /// <param name="TourianStatueColorsSha256">Hash for Tourian statue palette data.</param>
+    /// <param name="CrocomireSkeletonSha256">Hash for Crocomire skeleton artwork.</param>
+    /// <param name="AuxiliaryColorsSha256">Hash for auxiliary palette resources.</param>
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
@@ -1346,5 +1426,9 @@ public static class EnemyTileArtworkFiles
         string CrocomireSkeletonSha256,
         string AuxiliaryColorsSha256);
 
+    /// <summary>Stock integrity metadata for one ordinary enemy graphics sheet.</summary>
+    /// <param name="NativeByteCount">Native planar byte count represented by the PNG.</param>
+    /// <param name="Sha256">SHA-256 of the stock PNG bytes.</param>
+    /// <param name="PaletteSha256">SHA-256 of the indexed-color palette metadata.</param>
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

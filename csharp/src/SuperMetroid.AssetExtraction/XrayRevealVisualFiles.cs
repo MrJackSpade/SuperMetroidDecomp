@@ -17,8 +17,10 @@ public static class XrayRevealVisualFiles
     public const string VisualFileName = "reveals.json";
     /// <summary>Stock manifest filename containing version-two format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema version required by both X-ray visual JSON documents.</summary>
     private const int FormatVersion = 2;
 
+    /// <summary>Strict camel-case JSON settings with collision types serialized by name.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -172,6 +174,9 @@ public static class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Rejects visual documents whose schema, room identities, or metatile operands are invalid.</summary>
+    /// <param name="document">Parsed reveal rules and room overlays to validate.</param>
+    /// <param name="path">Source path included in validation errors.</param>
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -237,6 +242,11 @@ public static class XrayRevealVisualFiles
         _ => throw new InvalidDataException($"X-ray command $91:{command:X4} has no visual shape."),
     };
 
+    /// <summary>Reads the retail reveal-table result for one collision type and BTS value.</summary>
+    /// <param name="bus">Cartridge address space containing the bank-$91 tables and command operands.</param>
+    /// <param name="type">Collision type used to select a reveal-table group.</param>
+    /// <param name="bts">Block-type-specific value matched within that group.</param>
+    /// <returns>The native copy command and its metatile words, or <see langword="null"/> when no rule matches.</returns>
     private static XrayRevealDefinition? ReadNative(ISnesAddressSpace bus,
         RoomCollisionType type, byte bts)
     {
@@ -273,6 +283,10 @@ public static class XrayRevealVisualFiles
         }
     }
 
+    /// <summary>Reads a little-endian word from the bank-$91 reveal table.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="pointer">Bank-local address of the low byte.</param>
+    /// <returns>The decoded 16-bit value.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
         if (pointer < 0x8000 || pointer >= ushort.MaxValue)
@@ -281,6 +295,10 @@ public static class XrayRevealVisualFiles
             bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
     }
 
+    /// <summary>Reads one terminated special-room X-ray overlay list.</summary>
+    /// <param name="bus">Cartridge address space containing room-bank overlay records.</param>
+    /// <param name="pointer">Bank-local address of the first coordinate/word pair.</param>
+    /// <returns>The room pointer and its visual tile entries.</returns>
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
     {
         var tiles = new List<XrayRoomOverlayTileDocument>();
@@ -303,27 +321,64 @@ public static class XrayRevealVisualFiles
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
 
+    /// <summary>Reads a little-endian word from an absolute cartridge address.</summary>
+    /// <param name="bus">Cartridge address space supplying the bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The decoded 16-bit value.</returns>
     private static ushort ReadAbsoluteWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
+    /// <summary>Reads a strict X-ray JSON document from a file.</summary>
+    /// <typeparam name="T">The document model to deserialize.</typeparam>
+    /// <param name="path">Path to the JSON file.</param>
+    /// <returns>The parsed document.</returns>
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes strict X-ray JSON from in-memory bytes.</summary>
+    /// <typeparam name="T">The document model to deserialize.</typeparam>
+    /// <param name="bytes">JSON document contents.</param>
+    /// <param name="path">Logical filename used in parse errors.</param>
+    /// <returns>The parsed document.</returns>
     private static T ReadJson<T>(byte[] bytes, string path) where T : class
     {
         using var stream = new MemoryStream(bytes, writable: false);
         return JsonAssetDocument.Read<T>(stream, JsonOptions, $"X-ray {path}");
     }
 
+    /// <summary>Stock provenance and integrity metadata for the reveal visual document.</summary>
+    /// <param name="Version">Required X-ray JSON schema version.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 of the source cartridge revision.</param>
+    /// <param name="VisualSha256">SHA-256 of the stock reveal visual JSON bytes.</param>
     private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Editable metatile operands, rule descriptions, and special-room overlays.</summary>
+    /// <param name="Version">Required X-ray JSON schema version.</param>
+    /// <param name="Entries">Visual words keyed by the fixed native collision/BTS rule order.</param>
+    /// <param name="ItemMetatiles">Eight visual metatile words used for item reveal slots.</param>
+    /// <param name="Rooms">Room-specific overlay records keyed by native room pointer.</param>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
         ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
+    /// <summary>One authored visual mapping for a fixed native collision/BTS reveal rule.</summary>
+    /// <param name="CollisionType">Native block collision type selected by the rule.</param>
+    /// <param name="BtsValues">BTS values that share the same native command and visual shape.</param>
+    /// <param name="Shape">Stable JSON label for the native copy-command shape.</param>
+    /// <param name="TopLeft">Twelve-bit top-left metatile index.</param>
+    /// <param name="TopRight">Twelve-bit top-right metatile index when used by the shape.</param>
+    /// <param name="BottomLeft">Twelve-bit bottom-left metatile index when used by the shape.</param>
+    /// <param name="BottomRight">Twelve-bit bottom-right metatile index when used by the shape.</param>
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
         string Shape, ushort TopLeft, ushort TopRight, ushort BottomLeft, ushort BottomRight);
+    /// <summary>Visual tiles associated with one native special-room X-ray list.</summary>
+    /// <param name="Pointer">Bank-local native room-overlay pointer.</param>
+    /// <param name="Tiles">Visual tiles in the same order as the native list.</param>
     private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayTileDocument[] Tiles);
 
     // Keep file admission separate from the runtime value type. A missing coordinate
     // must not become the struct's legal zero/default value during deserialization.
+    /// <summary>One serialized room-overlay coordinate and its visual metatile word.</summary>
+    /// <param name="X">Unsigned horizontal block coordinate.</param>
+    /// <param name="Y">Unsigned vertical block coordinate.</param>
+    /// <param name="Word">Twelve-bit metatile index drawn at the coordinate.</param>
     private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word);
 }

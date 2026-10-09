@@ -8,6 +8,14 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies map-sprite clipping, stock cartridge artwork, installed file-select reads,
+    /// and changes to authored sprite JSON and PNG resources.
+    /// </summary>
+    /// <param name="bus">Cartridge address space used by the native comparison paths.</param>
+    /// <param name="stock">Directory containing the stock map-sprite resources.</param>
+    /// <param name="overrides">Directory where modified resource documents and images are written.</param>
+    /// <param name="original">Stock presentation catalog used as the baseline for resource edits.</param>
     private static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var native = new OamBuffer();
@@ -127,10 +135,20 @@ internal static partial class Program
             CartridgeImportSource.Require(bus), oam, address, originX, originY,
             paletteBits, originIsOnScreen);
 
+    /// <summary>
+    /// Wraps the cartridge address space and rejects reads from sprite data that should be
+    /// supplied by installed map-presentation resources, while forwarding other memory access.
+    /// </summary>
     private sealed class MapSpriteReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Address space that receives reads outside the guarded sprite ranges and all writes.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Cartridge byte addresses belonging to imported map-sprite assets and native spritemaps.</summary>
         private readonly HashSet<int> forbidden = new();
+
+        /// <summary>Builds the guarded ranges for map-sprite assets and the native frame spritemaps.</summary>
+        /// <param name="source">Cartridge address space used to locate native frame data and forward allowed access.</param>
         public MapSpriteReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -144,27 +162,49 @@ internal static partial class Program
             }
             void Add(int start, int count) { for (int index = 0; index < count; index++) forbidden.Add(start + index); }
         }
+        /// <summary>Rejects a read when its address belongs to sprite data migrated to installed resources.</summary>
+        /// <param name="address">Cartridge byte address about to be read.</param>
+        /// <exception cref="InvalidOperationException">The address is in a guarded sprite range.</exception>
         private void RejectSpriteSource(int address)
         {
             if (forbidden.Contains(address))
                 throw new InvalidOperationException($"Installed map read migrated sprite data at {address:X6}.");
         }
+        /// <summary>Checks the address against guarded sprite ranges, then reads from the wrapped address space.</summary>
+        /// <param name="address">Address requested by the emulated system.</param>
+        /// <returns>The wrapped address space's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to migrated sprite data.</exception>
         public byte ReadByte(int address)
         {
             RejectSpriteSource(address);
             return source.ReadByte(address);
         }
+        /// <summary>Checks migrated sprite ranges before forwarding an import-source cartridge read.</summary>
+        /// <param name="address">Cartridge byte address requested by the importer.</param>
+        /// <returns>The import source's byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to migrated sprite data.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectSpriteSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
+        /// <summary>Forwards a WRAM read to the wrapped mutable-memory provider.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that WRAM address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-sprite guard source does not expose WRAM.")).ReadWorkRamByte(address);
+        /// <summary>Forwards an SRAM read to the wrapped mutable-memory provider.</summary>
+        /// <param name="address">SRAM address to read.</param>
+        /// <returns>The byte stored at that SRAM address.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-sprite guard source does not expose SRAM.")).ReadSaveRamByte(address);
+        /// <summary>Forwards a byte write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

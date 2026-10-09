@@ -10,14 +10,22 @@ namespace SuperMetroid.Core.Frontend;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed partial class FileSelectRoomMapGraphics
 {
+    /// <summary>Address-space context used to bind map sprites and draw installed marker artwork.</summary>
     private readonly ISnesAddressSpace bus;
+
+    /// <summary>Menu-owned PPU state containing this view's VRAM, CGRAM, tiles, and background artwork.</summary>
     private readonly MenuPpuState ppu;
+
+    /// <summary>Area-specific map icon state backed by the persistent system state.</summary>
     private readonly FileSelectMapIcons icons;
+
+    /// <summary>Currently bound host sprite catalog used by map markers and arrows; rebound when presentation content changes.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
     /// <summary>Live menu-owned VRAM containing the installed BG1 area map, BG2 frame, and map characters; not the gameplay room's VRAM instance.</summary>
     public SnesVram Vram => ppu.Vram;
     /// <summary>Live menu-owned CGRAM, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public SnesCgram Cgram => ppu.Cgram;
+    /// <summary>Persistence state supplying downloaded-map, explored-cell, boss, and station visibility data.</summary>
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
@@ -53,6 +61,10 @@ public sealed partial class FileSelectRoomMapGraphics
         LoadFrame(mapPresentation.Screens, area);
     }
 
+    /// <summary>Loads the area's fixed room-map frame into BG2 using its installed screen presentation.</summary>
+    /// <param name="screens">Installed screen set containing the room-frame artwork.</param>
+    /// <param name="area">Area whose frame layout selects the corresponding screen.</param>
+    /// <exception cref="InvalidOperationException">The installed screen presentation is absent.</exception>
     private void LoadFrame(MapScreenPresentation? screens, AreaId area)
     {
         (screens ?? throw new InvalidOperationException(
@@ -118,11 +130,21 @@ public sealed partial class FileSelectRoomMapGraphics
     }
 
     // OBJ scratch reused across draws; never part of saved state (restores reallocate it).
+    /// <summary>Temporary rendered OBJ plane composited over the current map background.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
     // Owned frames: each is valid until the same method renders again.
+    /// <summary>Reusable output for the BG2-only frame render.</summary>
     [NonSerialized] private Rgba32[]? frameOnlyBuffer;
+
+    /// <summary>Reusable output for independently scrolled BG1 and fixed BG2 background composition.</summary>
     [NonSerialized] private Rgba32[]? backgroundsBuffer;
 
+    /// <summary>Builds native OAM order for the area icons, saved-station marker, and optional animated arrows without advancing animation state.</summary>
+    /// <param name="horizontalScroll">BG1 horizontal scroll in pixels used to position map-bound icons.</param>
+    /// <param name="verticalScroll">BG1 vertical scroll in pixels used to position map-bound icons.</param>
+    /// <param name="marker">Saved-station marker drawn between the two map-icon layers.</param>
+    /// <param name="animations">Optional arrow owner whose current state is drawn after the marker.</param>
+    /// <returns>Finalized OAM for the current menu frame.</returns>
     private OamBuffer PrepareIcons(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {

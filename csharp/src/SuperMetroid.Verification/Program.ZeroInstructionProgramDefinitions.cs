@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the Zero crawler instruction-definition verification.</summary>
     private static void VerifyZeroInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZeroInstructionProgramDefinitions), () => VerifyZeroInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled Zero mechanics and executes the crawler's four production surface loops with cartridge reads guarded.</summary>
+    /// <param name="rom">Retail address space used to compare instruction and presentation words.</param>
     private static void VerifyZeroInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -96,6 +99,11 @@ internal static partial class Program
             "mechanics bytes forbidden.");
     }
 
+    /// <summary>Advances one Zero instruction list for a fixed number of production processor calls.</summary>
+    /// <param name="enemies">Room system that owns the Zero slot and instruction processor.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="slot">Crawler slot whose instruction timer is made ready before each call.</param>
+    /// <param name="callCount">Number of processor calls to perform.</param>
     private static void ExecuteZeroProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -111,6 +119,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeats compiled mechanics lookups so the caller can measure warmed allocation behavior.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeZeroInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -124,6 +134,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from bank $A3.</summary>
+    /// <param name="source">Address space supplying the two instruction bytes.</param>
+    /// <param name="address">Bank-relative address of the word's low byte.</param>
+    /// <returns>The adjacent bytes combined into a 16-bit word.</returns>
     private static ushort ReadZeroInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -131,14 +145,26 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Blocks reads of compiled Zero mechanics and records access to native presentation operands.</summary>
+    /// <param name="source">Underlying address space used for permitted cartridge reads and writes.</param>
     private sealed class ZeroInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Base addresses of presentation words observed through the guarded bus.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempts to read mechanics bytes that production should resolve from compiled definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes import-source reads through the same guard and presentation observer.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying source byte when the guarded read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operands, and forwards other addresses.</summary>
+        /// <param name="address">Absolute cartridge address to read.</param>
+        /// <returns>The underlying source byte for a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Zero mechanics data.</exception>
         public byte ReadByte(int address)
         {
             if (ZeroInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -167,6 +193,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a cartridge write to the wrapped address space.</summary>
+        /// <param name="address">Absolute cartridge address to update.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -24,8 +24,11 @@ public enum SkreeEnemyFunction : ushort
 /// </summary>
 public sealed class SkreeEnemyState
 {
+    /// <summary>Backing enemy slot whose variable words remain the authoritative Skree state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the slot that owns this Skree's mutable variables.</summary>
+    /// <param name="slot">Initialized enemy slot whose A-E words are exposed by this state view.</param>
     internal SkreeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable A, reloaded to 21 while diving and counted down while burrowing.</summary>
@@ -67,11 +70,15 @@ public sealed class SkreeEnemyState
 /// <summary>Literal translation of enemy $DB7F at $A3:C6A4-$C7D4.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition word used to identify Skree actors during room setup.</summary>
     internal const ushort SkreeDefinition = 0xdb7f;
 
+    /// <summary>Per-slot typed views for Skrees initialized by this enemy system; other slots remain null.</summary>
     private readonly SkreeEnemyState?[] _skreeStates =
         new SkreeEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Seeds the Skree's idle animation and phase function while retaining its live variables in the enemy slot.</summary>
+    /// <param name="slot">Room enemy slot being initialized as a Skree.</param>
     private void InitializeSkree(RoomEnemySlot slot)
     {
         var state = new SkreeEnemyState(slot)
@@ -85,6 +92,10 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = OrdinaryEnemyInstructionLists.SkreeInitial;
     }
 
+    /// <summary>Dispatches the current Skree phase, starting its wind-up, dive, or timed burrow as the relevant conditions are met.</summary>
+    /// <param name="slot">Enemy slot supplying the current actor position and native variables.</param>
+    /// <param name="samus">Active actor used for proximity and dive steering; required while Skree AI is running.</param>
+    /// <param name="level">Room collision data required when the Skree is diving.</param>
     private void RunSkreeMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -132,6 +143,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the six-pixel descent, steering toward Samus until the downward collision probe starts the burrow phase.</summary>
+    /// <param name="slot">Enemy slot whose position, collision flags, and instruction timing are updated.</param>
+    /// <param name="state">Typed view used to switch the phase and retain the burrow lifetime.</param>
+    /// <param name="samus">Target position that determines horizontal steering.</param>
+    /// <param name="level">Room collision map queried by the downward probe.</param>
     private void RunSkreeDive(
         RoomEnemySlot slot,
         SkreeEnemyState state,
@@ -158,6 +174,9 @@ public sealed partial class RoomEnemySystem
             (unchecked((short)(slot.XPosition - samus.XPosition)) >= 0 ? -1 : 1)));
     }
 
+    /// <summary>Counts down the floor-impact lifetime, emits its midpoint particle burst, and deletes the actor at expiry.</summary>
+    /// <param name="slot">Enemy slot whose vertical position and deletion state are advanced.</param>
+    /// <param name="state">Typed view containing the remaining burrow updates.</param>
     private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)
     {
         state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
@@ -174,6 +193,9 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
     }
 
+    /// <summary>Installs the requested animation list only when it differs from the currently installed phase.</summary>
+    /// <param name="slot">Enemy slot receiving the new instruction list and reset timing fields.</param>
+    /// <param name="state">Skree phase state naming the requested and installed animation phases.</param>
     private static void InstallRequestedSkreeInstruction(
         RoomEnemySlot slot,
         SkreeEnemyState state)
@@ -188,6 +210,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the typed state view associated with a slot or fails when that slot was not initialized as a Skree.</summary>
+    /// <param name="slot">Enemy slot whose initialized Skree state is required.</param>
+    /// <returns>The state view backed by the slot's native variable words.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no registered Skree state.</exception>
     private SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>
         _skreeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skree state.");

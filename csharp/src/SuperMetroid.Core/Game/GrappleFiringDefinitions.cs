@@ -77,14 +77,24 @@ internal static class GrappleFiringDefinitions
 /// to up facing left, with distinct downward-facing hand poses at indices 4 and 5.</summary>
 internal enum GrappleOriginDirection : byte
 {
+    /// <summary>Index zero selects the native upward hand anchor for Samus facing right.</summary>
     UpFacingRight = 0,
+    /// <summary>Index one selects the first diagonal-up firing pose's hand anchor.</summary>
     UpRight = 1,
+    /// <summary>Index two selects the horizontal firing pose's hand anchor.</summary>
     Right = 2,
+    /// <summary>Index three selects the diagonal-down firing pose before the distinct downward-facing record.</summary>
     DownRight = 3,
+    /// <summary>Index four preserves the right-facing downward pose's separate native hand anchor.</summary>
     DownFacingRight = 4,
+    /// <summary>Index five preserves the left-facing downward pose's separate native hand anchor.</summary>
     DownFacingLeft = 5,
+    /// <summary>Index six selects the diagonal-down firing pose with the opposite horizontal sign.</summary>
     DownLeft = 6,
+    /// <summary>Index seven selects the horizontal firing pose with the opposite horizontal sign.</summary>
     Left = 7,
+    /// <summary>Index eight selects the diagonal-up firing pose with the opposite horizontal sign.</summary>
     UpLeft = 8,
+    /// <summary>Index nine selects the native upward hand anchor for Samus facing left.</summary>
     UpFacingLeft = 9,
 }

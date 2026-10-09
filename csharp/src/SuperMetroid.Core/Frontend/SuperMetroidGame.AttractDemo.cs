@@ -5,14 +5,30 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Index of the selected stock attract-demo set.</summary>
     private int demoSet;
+
+    /// <summary>Index of the next scene to load within the current demo set.</summary>
     private int demoScene;
+
+    /// <summary>Gameplay frames remaining in the currently loaded attract-demo scene.</summary>
     private int demoFramesRemaining;
+
+    /// <summary>Remaining NMI-only frames that hold the scene's final image before playback returns.</summary>
     private int demoHoldFramesRemaining;
+
+    /// <summary>Remaining blank-room transfer frames; a negative value marks the scene as not yet loaded.</summary>
     private int demoLoadFramesRemaining = -1;
+
+    /// <summary>Whether controller input interrupted the current demo and should return to the title sequence.</summary>
     private bool demoCancelled;
+
+    /// <summary>Whether another scene remains in the selected set after the current playback.</summary>
     private bool demoHasNextScene;
 
+    /// <summary>Advances attract-demo loading, playback, final-image hold, and return transitions by one host frame.</summary>
+    /// <param name="controllerInput">Current controller state supplied to the demo runtime.</param>
+    /// <param name="gameplayAudio">Frame publication used to queue echo audio during demo gameplay updates.</param>
     private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
@@ -124,6 +140,8 @@ public sealed partial class SuperMetroidGame
         }
     }
 
+    /// <summary>Ends active playback and records whether user input cancelled the demo.</summary>
+    /// <param name="cancelled">Whether the return path should resume the title sequence as an interrupted demo.</param>
     private void FinishAttractPlayback(bool cancelled)
     {
         demoCancelled = cancelled;
@@ -131,6 +149,8 @@ public sealed partial class SuperMetroidGame
         PublishBlack();
     }
 
+    /// <summary>Returns the number of attract-demo sets unlocked by the current save slots.</summary>
+    /// <returns>The default set count without a valid save, or the completed-game count when a slot has game completion.</returns>
     internal int AvailableDemoSetCount()
     {
         // VerifySRAM unlocks the fourth set only when at least one valid slot exists.

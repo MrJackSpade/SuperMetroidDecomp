@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the cartridge-backed verification suite for Zebetite instruction programs and mechanics.</summary>
     private static void VerifyZebetiteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZebetiteInstructionProgramDefinitions), () => VerifyZebetiteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks all compiled health-tier programs against cartridge words and executes their production sprite-selection path.</summary>
+    /// <param name="rom">Retail address space used to compare native mechanics and presentation words.</param>
     private static void VerifyZebetiteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -124,6 +127,8 @@ internal static partial class Program
             "programs, and ten native sprite selections pass with zero live operand reads.");
     }
 
+    /// <summary>Repeatedly reads compiled health-tier mechanics values for the warmed allocation probe.</summary>
+    /// <returns>A checksum consumed by the caller to keep the lookup results observable.</returns>
     private static int ProbeZebetiteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -137,6 +142,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from bank $A6 of the cartridge.</summary>
+    /// <param name="source">Retail address space containing the native word.</param>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <returns>The combined sixteen-bit value.</returns>
     private static ushort ReadZebetiteInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -144,15 +153,26 @@ internal static partial class Program
             source.ReadByte(0xa60000 | address) |
             source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Address-space proxy that records presentation-selector reads and rejects reads of compiled mechanics bytes.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and forwarded writes.</param>
     private sealed class ZebetiteInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation-word addresses observed through bank-$A6 reads.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Most recently observed presentation word, retained for inspecting selector access.</summary>
         internal ushort LastObservedPresentationWord { get; private set; }
+        /// <summary>Number of attempted reads rejected because they target compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge imports through the same mechanics-read guard as generic accesses.</summary>
+        /// <param name="address">Cartridge address being imported.</param>
+        /// <returns>The permitted byte from the wrapped source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads and records accesses to presentation-selector words.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The byte from the underlying source when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -182,6 +202,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

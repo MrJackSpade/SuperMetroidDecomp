@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 actors spawned by the mirrored bank-$84 eye-door PLMs.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Door-bit state used by live eye-door projectiles to detect when their target door opens.</summary>
     private Bank80SystemState? _eyeDoorProjectileSystem;
 
     /// <summary>
@@ -63,6 +64,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Places an eye-door projectile from its PLM block and compiled origin pair, retaining the door bit it targets.</summary>
+    /// <param name="projectile">Allocated projectile record to initialize.</param>
+    /// <param name="request">Spawn request carrying the PLM position, origin-table selector, and target door bit.</param>
+    /// <param name="blockX">Horizontal coordinate of the spawning PLM in room blocks.</param>
+    /// <param name="blockY">Vertical coordinate of the spawning PLM in room blocks.</param>
+    /// <exception cref="InvalidDataException">The request parameter is not an aligned origin-pair selector within the compiled table.</exception>
     private static void InitializeEyeDoorProjectile(
         RoomEnemyProjectileSlot projectile,
         EyeDoorProjectileRequest request,
@@ -86,6 +93,12 @@ public sealed partial class RoomEnemySystem
             EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
     }
 
+    /// <summary>Positions a sweat effect beside its PLM and installs the selected compiled velocity pair.</summary>
+    /// <param name="projectile">Allocated effect record to initialize.</param>
+    /// <param name="parameter">Byte-offset selector for the compiled X/Y velocity words.</param>
+    /// <param name="blockX">Horizontal coordinate of the spawning PLM in room blocks.</param>
+    /// <param name="blockY">Vertical coordinate of the spawning PLM in room blocks.</param>
+    /// <exception cref="InvalidDataException">The selector is unaligned or extends beyond the velocity-pair table.</exception>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -108,6 +121,12 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
     }
 
+    /// <summary>Initializes smoke animation and chooses its position from the compiled placement ranges using one RNG sample.</summary>
+    /// <param name="projectile">Allocated smoke record to initialize.</param>
+    /// <param name="parameter">Packed instruction argument selecting the smoke list and placement record.</param>
+    /// <param name="blockX">Horizontal coordinate of the spawning PLM in room blocks.</param>
+    /// <param name="blockY">Vertical coordinate of the spawning PLM in room blocks.</param>
+    /// <exception cref="InvalidOperationException">The room enemy system has no cartridge RNG delegates installed.</exception>
     private void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -135,6 +154,10 @@ public sealed partial class RoomEnemySystem
             "Eye-door smoke initialization requires the cartridge RNG generator."))();
     }
 
+    /// <summary>Moves an eye-door shot, applies its compiled acceleration, and switches it to impact when blocked or its door opens.</summary>
+    /// <param name="projectile">Live eye-door projectile whose position, velocity, and instruction state are updated.</param>
+    /// <param name="level">Room collision data used to detect solid edges.</param>
+    /// <exception cref="InvalidOperationException">The projectile's door-bit owner has not been installed.</exception>
     private void RunEyeDoorProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -164,6 +187,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves the sweat effect with gravity and starts its impact animation on downward collision.</summary>
+    /// <param name="projectile">Live sweat actor to advance.</param>
+    /// <param name="level">Room collision data used by horizontal and vertical movement.</param>
     private static void RunEyeDoorSweatPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -182,12 +208,18 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 12));
     }
 
+    /// <summary>Derives the signed fixed-point acceleration from the cartridge sine sample at an angle-table index.</summary>
+    /// <param name="tableIndex">Angle index, wrapped to the native byte-sized trigonometry domain.</param>
+    /// <returns>The signed velocity increment after the native four-bit shift.</returns>
     private static short ReadEyeDoorAcceleration(int tableIndex)
     {
         short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
     }
 
+    /// <summary>Disables further motion pre-instruction processing and schedules the selected impact animation.</summary>
+    /// <param name="projectile">Effect actor whose instruction state is replaced.</param>
+    /// <param name="instructionList">Compiled impact-list pointer to install.</param>
     private static void SetEyeDoorEffectImpactList(
         RoomEnemyProjectileSlot projectile,
         ushort instructionList)
@@ -197,6 +229,10 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionTimer = 1;
     }
 
+    /// <summary>Applies horizontal velocity and snaps the actor to a solid collision face when its edge is blocked.</summary>
+    /// <param name="projectile">Effect actor whose horizontal position and subposition are advanced.</param>
+    /// <param name="level">Room collision map queried along the actor's horizontal edge.</param>
+    /// <returns><see langword="true"/> if movement collided with a solid edge.</returns>
     private static bool MoveEyeDoorEffectHorizontally(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -242,6 +278,10 @@ public sealed partial class RoomEnemySystem
         return near >= current ? near : current;
     }
 
+    /// <summary>Applies vertical velocity and snaps the actor to a solid collision face when its edge is blocked.</summary>
+    /// <param name="projectile">Effect actor whose vertical position and subposition are advanced.</param>
+    /// <param name="level">Room collision map queried along the actor's vertical edge.</param>
+    /// <returns><see langword="true"/> if movement collided with a solid edge.</returns>
     private static bool MoveEyeDoorEffectVertically(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

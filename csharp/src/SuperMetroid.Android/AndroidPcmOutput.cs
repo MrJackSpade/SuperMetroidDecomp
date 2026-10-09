@@ -9,11 +9,30 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidPcmOutput : IDisposable
 {
+    /// <summary>
+    /// The streaming Android audio track that receives interleaved stereo PCM.
+    /// </summary>
     private readonly AudioTrack track;
+
+    /// <summary>
+    /// Queues copied video-frame audio and drains it through the device writer on its worker.
+    /// </summary>
     private readonly QueuedPcmSink sink;
+
+    /// <summary>
+    /// Records track startup and periodic write diagnostics for Android audio recovery.
+    /// </summary>
     private readonly AndroidResumeTrace trace;
+
+    /// <summary>
+    /// Cumulative number of PCM samples successfully handed to the track, used to annotate write traces.
+    /// </summary>
     private long writtenSamples;
 
+    /// <summary>
+    /// Creates and starts a low-latency stereo PCM track with a bounded queue for frame submissions.
+    /// </summary>
+    /// <param name="trace">The diagnostic trace that receives startup and write measurements.</param>
     public AndroidPcmOutput(AndroidResumeTrace trace)
     {
         this.trace = trace;
@@ -51,11 +70,26 @@ internal sealed class AndroidPcmOutput : IDisposable
         sink = new QueuedPcmSink(WriteToDevice, capacity: 8);
     }
 
+    /// <summary>
+    /// Gets the underrun count reported by the active Android audio track.
+    /// </summary>
     public int UnderrunCount => track.UnderrunCount;
+
+    /// <summary>
+    /// Gets the number of submitted audio frames still waiting in the bounded PCM queue.
+    /// </summary>
     public int PendingFrameCount => sink.PendingFrameCount;
 
+    /// <summary>
+    /// Submits a copied PCM frame to the bounded worker queue for playback.
+    /// </summary>
+    /// <param name="samples">Interleaved stereo PCM samples for one rendered frame.</param>
     public void Submit(short[] samples) => sink.Submit(samples);
 
+    /// <summary>
+    /// Writes all samples in one queued buffer to the track, retrying partial writes until it is accepted.
+    /// </summary>
+    /// <param name="samples">The interleaved PCM buffer dequeued for device playback.</param>
     private void WriteToDevice(short[] samples)
     {
         long start = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -71,6 +105,9 @@ internal sealed class AndroidPcmOutput : IDisposable
             trace.Record("write", $"start={start} samples={writtenSamples} head={track.PlaybackHeadPosition} underruns={track.UnderrunCount}");
     }
 
+    /// <summary>
+    /// Drains and stops the queued writer, then pauses, flushes, releases, and disposes the Android track.
+    /// </summary>
     public void Dispose()
     {
         try { sink.Dispose(); }

@@ -15,12 +15,39 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class WorldMapLabelComposition
 {
+    /// <summary>
+    /// Identifies the world area whose label text and line arrangement are rendered.
+    /// </summary>
     private readonly ushort identity;
+
+    /// <summary>
+    /// X coordinate of the rightmost glyph in the upper label line, or the only line for single-line labels.
+    /// </summary>
     private readonly int upperOrigin;
+
+    /// <summary>
+    /// X coordinate of the rightmost glyph in Wrecked Ship's lower <c>SHIP</c> line.
+    /// </summary>
     private readonly int lowerOrigin;
+
+    /// <summary>
+    /// Per-glyph horizontal spacing overrides for layouts whose authored advance differs from the default eight-pixel cell.
+    /// </summary>
     private readonly Dictionary<int, int>? letterAdvances;
+
+    /// <summary>
+    /// General compiled sprite composition used when the supplied parts do not match the supported world-label lettering pattern.
+    /// </summary>
     private readonly SpriteComposition? authored;
 
+    /// <summary>
+    /// Stores either the compact label-layout parameters or the general composition fallback selected by <see cref="Compile"/>.
+    /// </summary>
+    /// <param name="identity">The world-area identifier used to choose the label text and line layout.</param>
+    /// <param name="upperOrigin">The rightmost glyph's X offset on the upper or single line.</param>
+    /// <param name="lowerOrigin">The rightmost glyph's X offset on Wrecked Ship's lower line.</param>
+    /// <param name="letterAdvances">Optional per-glyph spacing values that preserve authored optical adjustments.</param>
+    /// <param name="authored">A general sprite composition to draw when the parts cannot use the compact label representation.</param>
     private WorldMapLabelComposition(ushort identity, int upperOrigin, int lowerOrigin,
         Dictionary<int, int>? letterAdvances, SpriteComposition? authored)
     { this.identity = identity; this.upperOrigin = upperOrigin; this.lowerOrigin = lowerOrigin;
@@ -38,9 +65,22 @@ internal sealed class WorldMapLabelComposition
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>
+    /// Returns the authored line Y offset for a glyph, separating Wrecked Ship's two words and centering other labels on one line.
+    /// </summary>
+    /// <param name="id">The world-area identifier controlling the label's line arrangement.</param>
+    /// <param name="index">The glyph index in the rendered label sequence.</param>
+    /// <returns>The glyph's vertical offset relative to the label origin.</returns>
     private static int VerticalOffset(ushort id, int index) =>
         id == MapSpriteDefinitions.WorldWreckedShip ? (index < 4 ? 0 : -8) : -4;
 
+    /// <summary>
+    /// Compacts recognized map-label sprite parts into text and spacing data, retaining the generic sprite compiler as a fallback.
+    /// </summary>
+    /// <param name="id">The world-area identity that determines the expected label text and line structure.</param>
+    /// <param name="parts">The authored sprite parts whose tile sequence and layout are inspected.</param>
+    /// <param name="name">The diagnostic name passed to the generic compiler when compact recognition fails.</param>
+    /// <returns>A compact label composition for a recognized layout, or a general sprite composition otherwise.</returns>
     internal static WorldMapLabelComposition Compile(ushort id, SpriteVisualPart[] parts, string name)
     {
         string text = Text(id);
@@ -65,6 +105,13 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
+    /// <summary>
+    /// Adds this label's glyph sprites to OAM using the caller's screen origin and live palette selection.
+    /// </summary>
+    /// <param name="oam">The OAM buffer that receives the label sprites.</param>
+    /// <param name="x">The screen-space X origin for the label.</param>
+    /// <param name="y">The screen-space Y origin for the label.</param>
+    /// <param name="paletteBits">The palette bits supplied by the current map-label caller.</param>
     internal void Draw(OamBuffer oam, ushort x, ushort y, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, x, y, paletteBits); return; }
@@ -79,6 +126,12 @@ internal sealed class WorldMapLabelComposition
         }
     }
 
+    /// <summary>
+    /// Computes a glyph's authored horizontal position from the line's rightmost origin and intervening advances.
+    /// </summary>
+    /// <param name="index">The glyph's index in the label text.</param>
+    /// <param name="count">The total number of glyphs in the label.</param>
+    /// <returns>The glyph's X offset relative to the supplied screen origin.</returns>
     private int HorizontalOffset(int index, int count)
     {
         bool bottom = identity == MapSpriteDefinitions.WorldWreckedShip && index < 4;

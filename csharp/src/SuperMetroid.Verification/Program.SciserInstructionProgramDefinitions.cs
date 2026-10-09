@@ -4,12 +4,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the Sciser instruction-program checks using the retail cartridge as their oracle.</summary>
     private static void VerifySciserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled mechanics words with bank-$A3 data, invokes the production Sciser
+    /// initializer and instruction processor for each surface orientation, and guards the
+    /// execution path against cartridge reads for compiled mechanics or presentation data.
+    /// </summary>
+    /// <param name="rom">Retail address space used to verify the compiled mechanics words.</param>
     private static void VerifySciserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -94,6 +101,11 @@ internal static partial class Program
             "with both instruction and presentation ROM reads forbidden.");
     }
 
+    /// <summary>Calls the production instruction processor a fixed number of times with the timer ready.</summary>
+    /// <param name="enemies">Enemy system whose instruction processor is being exercised.</param>
+    /// <param name="process">Production instruction-processing method invoked for each call.</param>
+    /// <param name="slot">Sciser slot whose instruction timer and pointer are advanced.</param>
+    /// <param name="callCount">Number of processor calls to make.</param>
     private static void ExecuteSciserProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -109,6 +121,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms compiled mechanics lookups and returns a checksum so their results remain observable.</summary>
+    /// <returns>The accumulated values of alternating upside-right and upside-up mechanics words.</returns>
     private static int ProbeSciserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -122,6 +136,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from bank $A3 at the supplied bank-local address.</summary>
+    /// <param name="source">Address space containing bank-$A3 bytes.</param>
+    /// <param name="address">Bank-local address of the low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadSciserInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -129,14 +147,29 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Observes compiled Sciser presentation-selector reads and rejects attempts to fetch
+    /// instruction mechanics that are expected to come from compiled definitions.
+    /// </summary>
+    /// <param name="source">Underlying address space for permitted reads and forwarded writes.</param>
     private sealed class SciserInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Bank-$A3 presentation-selector word addresses read during guarded execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads from compiled mechanics bytes rejected by the guard.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes importer byte reads through the guard's mechanics and presentation checks.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The wrapped address space's byte when the read is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records presentation-selector reads, then forwards other reads.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The wrapped address space's byte when the access is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address is a compiled Sciser mechanics byte.</exception>
         public byte ReadByte(int address)
         {
             if (SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -165,6 +198,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

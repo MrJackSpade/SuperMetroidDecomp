@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares every possible Kraid Y position with the native sink-table callback selection.</summary>
+    /// <param name="callbacks">The Y-coordinate to callback entries decoded from the retail schedule.</param>
     private static void VerifyKraidSinkCallbackSelection(Dictionary<ushort, ushort> callbacks)
     {
         AssertEqual(28, callbacks.Count, "Native sinking row count");
@@ -14,13 +16,29 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that each nonempty native sink callback supplies the expected PLM block column.</summary>
+    /// <param name="rom">The retail address space containing callback code and inline arguments.</param>
+    /// <param name="callbacks">The distinct callback addresses selected by the native sink schedule.</param>
     private static void VerifyKraidSinkPlmColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 17, request => request.BlockX));
+
+    /// <summary>Checks that each nonempty native sink callback supplies the expected PLM block row.</summary>
+    /// <param name="rom">The retail address space containing callback code and inline arguments.</param>
+    /// <param name="callbacks">The distinct callback addresses selected by the native sink schedule.</param>
     private static void VerifyKraidSinkPlmRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 18, request => request.BlockY));
+
+    /// <summary>Checks that each nonempty native sink callback supplies the expected PLM header.</summary>
+    /// <param name="rom">The retail address space containing callback code and inline arguments.</param>
+    /// <param name="callbacks">The distinct callback addresses selected by the native sink schedule.</param>
     private static void VerifyKraidSinkPlmHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 19, request => request.Header));
 
+    /// <summary>Compares a selected inline PLM argument at each native callback with the compiled request field.</summary>
+    /// <param name="rom">The retail address space containing native callback instructions and arguments.</param>
+    /// <param name="callbacks">Callback addresses whose inline arguments are inspected.</param>
+    /// <param name="offset">Byte offset from the callback entry for the selected field.</param>
+    /// <param name="field">Selects the corresponding value from a decoded PLM request.</param>
     private static void VerifyKraidSinkPlmField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
         int offset, Func<KraidPlmRequest, ushort> field)
     {
@@ -45,6 +63,9 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(invalid), "Unknown sink callback rejected");
     }
 
+    /// <summary>Runs production sink callbacks and checks event counts, emitted rocks, and each rock's native X position.</summary>
+    /// <param name="rom">The retail address space providing callback instructions and rock coordinates.</param>
+    /// <param name="callbacks">The decoded Y-coordinate schedule used to exercise each distinct callback.</param>
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
@@ -75,6 +96,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Decodes the retail Y-to-callback table and verifies its PLM arguments and production effects.</summary>
+    /// <param name="rom">The retail address space containing the schedule and callback code.</param>
+    /// <param name="definitionsOnly">When true, stops after definition and callback checks instead of sweeping all Y positions.</param>
     private static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
@@ -123,12 +147,26 @@ internal static partial class Program
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
 
+    /// <summary>Rejects reads from the migrated Kraid sink schedule and rejects writes during the production probe.</summary>
+    /// <param name="source">The underlying address space used for reads outside the migrated schedule.</param>
     private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge reads through the migrated-schedule guard.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte returned by the guarded address space when the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the native sink schedule range and delegates other byte reads.</summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the migrated Kraid sink schedule.</exception>
         public byte ReadByte(int address) => address is >= 0xa7c5e7 and <= 0xa7c690
             ? throw new InvalidOperationException("Unexpected migrated Kraid sink schedule read.") : source.ReadByte(address);
+
+        /// <summary>Rejects writes because the schedule verification probe only reads cartridge data.</summary>
+        /// <param name="address">The bus address the probe attempted to write.</param>
+        /// <param name="value">The byte the probe attempted to store.</param>
+        /// <exception cref="InvalidOperationException">The read-only verification bus was asked to write.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected sink bus write.");
     }
 }

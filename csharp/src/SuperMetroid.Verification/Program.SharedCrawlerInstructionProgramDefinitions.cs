@@ -5,12 +5,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and verifies the compiled shared-crawler mechanics and movement loops.</summary>
     private static void VerifySharedCrawlerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks bank-A3 mechanics and runs each crawler definition over every surface orientation.</summary>
+    /// <param name="rom">Retail address space containing the native shared-crawler instruction data.</param>
+    /// <param name="artwork">Optional installed artwork catalog supplied to the production enemy system.</param>
     private static void VerifySharedCrawlerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -96,6 +100,11 @@ internal static partial class Program
               "execute without cartridge visual-selector reads.");
     }
 
+    /// <summary>Advances one initialized crawler instruction list through the production processor.</summary>
+    /// <param name="enemies">Room enemy system containing the crawler and processor.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="slot">Crawler slot whose instruction timer is advanced.</param>
+    /// <param name="callCount">Number of processor invocations to perform.</param>
     private static void ExecuteSharedCrawlerProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -111,6 +120,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Repeatedly reads representative compiled words for the warmed-allocation check.</summary>
+    /// <returns>A checksum that keeps the repeated lookups observable.</returns>
     private static int ProbeSharedCrawlerInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -124,6 +135,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the shared-crawler bank A3.</summary>
+    /// <param name="source">Retail address space containing bank A3.</param>
+    /// <param name="address">Offset of the low byte within bank A3.</param>
+    /// <returns>The word formed by the addressed byte and its successor.</returns>
     private static ushort ReadSharedCrawlerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -131,15 +146,27 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Detects reads of compiled crawler mechanics and records or rejects cartridge presentation reads.</summary>
+    /// <param name="source">Address space receiving reads and writes permitted by the guard.</param>
+    /// <param name="forbidPresentation">Whether presentation-selector reads should throw and count as forbidden.</param>
     private sealed class SharedCrawlerInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets presentation-word offsets whose bytes were requested while reads were allowed.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Gets attempts to read compiled mechanics or presentation bytes configured as forbidden.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-byte request through the guard's read policy.</summary>
+        /// <param name="address">Cartridge bus address to read.</param>
+        /// <returns>The byte returned by the wrapped source when permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled-mechanics reads, records or rejects presentation reads, and forwards other bytes.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The byte returned by the wrapped source when the guard permits the read.</returns>
         public byte ReadByte(int address)
         {
             if (SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -174,6 +201,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

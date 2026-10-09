@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One hardcoded bank-$84 PLM request issued by Kraid's bank-$A7 AI.</summary>
+/// <param name="BlockX">Horizontal block coordinate where the room PLM is applied.</param>
+/// <param name="BlockY">Vertical block coordinate where the room PLM is applied.</param>
+/// <param name="Header">Room PLM header selecting the block mutation or animation.</param>
 public readonly record struct KraidPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
 /// <summary>
@@ -34,15 +37,25 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
 
+    /// <summary>Provides the two PLMs used to clear Kraid's ceiling and spikes, in native callback order.</summary>
     private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
     {
+        /// <summary>Gets the number of hardcoded requests in the defeated-room sequence.</summary>
         public int Count => 2;
+
+        /// <summary>Gets the ceiling-clear request first and the spike-clear request second.</summary>
+        /// <param name="index">Zero-based position in the native call order.</param>
+        /// <returns>The hardcoded request at <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not 0 or 1.</exception>
         public KraidPlmRequest this[int index] => index switch
         {
             0 => ClearCeiling,
             1 => ClearSpikes,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+
+        /// <summary>Enumerates ceiling and spike clearing requests in the order Kraid's initialization issues them.</summary>
+        /// <returns>An enumerator over the two hardcoded requests.</returns>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -57,7 +70,13 @@ public static class KraidPlmDefinitions
     /// </summary>
     private sealed class GrowthCeilingSequence : IReadOnlyList<KraidPlmRequest>
     {
+        /// <summary>Gets the number of ceiling PLM requests in Kraid's growth callback table.</summary>
         public int Count => 9;
+
+        /// <summary>Builds the ceiling PLM request associated with one entry in the native rock-position table.</summary>
+        /// <param name="index">Zero-based callback entry, from 0 through 8.</param>
+        /// <returns>A request for the ceiling block above that entry's rock column.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the callback table.</exception>
         public KraidPlmRequest this[int index]
         {
             get
@@ -70,6 +89,9 @@ public static class KraidPlmDefinitions
                 return new(column, 0x12, header);
             }
         }
+
+        /// <summary>Enumerates all nine growth ceiling requests in native callback-table order.</summary>
+        /// <returns>An enumerator over the generated ceiling requests.</returns>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];

@@ -71,8 +71,15 @@ public enum PuyoDirection : ushort
 /// </summary>
 public sealed class PuyoEnemyState
 {
+    /// <summary>
+    /// The ordinary enemy slot that backs Puyo's five bank-$A2 variable words.
+    /// </summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>
+    /// Creates a typed Puyo state view over the slot's native enemy-variable storage.
+    /// </summary>
+    /// <param name="slot">The initialized room-enemy slot whose variables expose Puyo's cartridge state.</param>
     internal PuyoEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -152,11 +159,24 @@ public sealed class PuyoEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Bank-$A2 enemy-definition pointer used by room population to identify Puyo actors.
+    /// </summary>
     internal const ushort PuyoDefinition = 0xcfbf;
 
+    /// <summary>
+    /// Byte stride of one eight-byte record in the shared quadratic speed table.
+    /// </summary>
     private const int QuadraticSpeedRecordSize = 8;
+
+    /// <summary>
+    /// Largest unsigned 8.8 accumulator accepted by Puyo's quadratic vertical-speed lookup.
+    /// </summary>
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
+    /// <summary>
+    /// Stores the typed extended state associated with each active enemy slot after Puyo initialization.
+    /// </summary>
     private readonly PuyoEnemyState?[] _puyoStates =
         new PuyoEnemyState?[MaximumEnemyCount];
 
@@ -541,9 +561,19 @@ public sealed partial class RoomEnemySystem
         SetPuyoInstructionList(slot, instructionList);
     }
 
+    /// <summary>
+    /// Reverses the high and low bytes so the native jump-height word can be compared in its swapped accumulator form.
+    /// </summary>
+    /// <param name="value">The 16-bit value whose byte order is reversed.</param>
+    /// <returns>The value with its two bytes exchanged.</returns>
     private static ushort SwapBytes(ushort value) =>
         unchecked((ushort)((value << 8) | (value >> 8)));
 
+    /// <summary>
+    /// Returns the other valid Puyo direction and rejects values outside the two-entry cartridge domain.
+    /// </summary>
+    /// <param name="direction">The current direction word.</param>
+    /// <returns><see cref="PuyoDirection.Left"/> for rightward motion, or <see cref="PuyoDirection.Right"/> for leftward motion.</returns>
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {
         PuyoDirection.Right => PuyoDirection.Left,
@@ -552,6 +582,11 @@ public sealed partial class RoomEnemySystem
             $"Puyo direction {(ushort)direction} is outside the two-entry ROM domain."),
     };
 
+    /// <summary>
+    /// Installs a Puyo instruction list and initializes the instruction timer and shared enemy timer for immediate processing.
+    /// </summary>
+    /// <param name="slot">The enemy slot whose instruction state is updated.</param>
+    /// <param name="instructionList">The bank-relative address of the instruction list to run.</param>
     private static void SetPuyoInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -559,6 +594,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>
+    /// Retrieves the extended state created for a Puyo slot or fails when the slot was not initialized as Puyo.
+    /// </summary>
+    /// <param name="slot">The enemy slot whose Puyo state is required.</param>
+    /// <returns>The initialized Puyo state associated with the slot.</returns>
     private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
         _puyoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");

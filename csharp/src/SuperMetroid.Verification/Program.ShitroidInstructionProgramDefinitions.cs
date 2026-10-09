@@ -5,12 +5,19 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Loads the retail ROM and runs the Shitroid instruction-definition verification against its cartridge tables.
+    /// </summary>
     private static void VerifyShitroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShitroidInstructionProgramDefinitions), () => VerifyShitroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>
+    /// Compares compiled Shitroid mechanics and presentation data with the ROM, then exercises the production instruction runner while guarding migrated reads.
+    /// </summary>
+    /// <param name="rom">The retail cartridge address space used as the independent reference for original instruction data.</param>
     private static void VerifyShitroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -149,6 +156,17 @@ internal static partial class Program
             "bytes forbidden and zero live visual operand reads.");
     }
 
+    /// <summary>
+    /// Runs a selected Shitroid instruction sequence for a fixed number of callbacks and checks each executed visual operand against the cartridge.
+    /// </summary>
+    /// <param name="rom">The cartridge reference used to validate emitted spritemap pointers.</param>
+    /// <param name="executedOperands">Collects the addresses of visual operands reached during execution.</param>
+    /// <param name="enemies">The enemy system whose instruction processor will be invoked.</param>
+    /// <param name="process">The instruction-processing method bound to <paramref name="enemies"/>.</param>
+    /// <param name="processArguments">The argument array passed to each reflected processor invocation.</param>
+    /// <param name="shitroid">The slot whose instruction pointer and timer are advanced.</param>
+    /// <param name="program">The starting address of the compiled Shitroid sequence.</param>
+    /// <param name="callCount">The number of processor callbacks to perform.</param>
     private static void ExecuteShitroidProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -174,6 +192,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Repeatedly reads compiled Shitroid mechanics words to provide a warmed, non-zero checksum for allocation measurement.
+    /// </summary>
+    /// <returns>The accumulated value, which keeps the lookup work observable to the caller.</returns>
     private static int ProbeShitroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -187,6 +209,12 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>
+    /// Reads adjacent bytes in bank A9 and combines them using the cartridge's little-endian word layout.
+    /// </summary>
+    /// <param name="source">The cartridge address space to read.</param>
+    /// <param name="address">The 16-bit bank-relative address of the word's low byte.</param>
+    /// <returns>The unsigned 16-bit value stored at the requested bank-relative address.</returns>
     private static ushort ReadShitroidInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -194,14 +222,35 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>
+    /// Audits Shitroid execution by rejecting reads of compiled mechanics bytes and recording reads of native presentation operands.
+    /// </summary>
+    /// <param name="source">The underlying address space that receives all permitted cartridge accesses.</param>
     private sealed class ShitroidInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>
+        /// Gets the compiled presentation-word addresses whose bytes have been requested during guarded execution.
+        /// </summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>
+        /// Gets the number of attempts to read a byte belonging to the compiled mechanics table.
+        /// </summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>
+        /// Routes an importer cartridge read through the Shitroid access audit.
+        /// </summary>
+        /// <param name="address">The cartridge address requested by the importer.</param>
+        /// <returns>The byte at the address when it is not a forbidden compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>
+        /// Rejects reads from compiled mechanics data, tracks presentation operands in bank A9, and forwards allowed reads.
+        /// </summary>
+        /// <param name="address">The cartridge address to inspect and read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed access.</returns>
         public byte ReadByte(int address)
         {
             if (ShitroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -232,6 +281,11 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>
+        /// Forwards a write to the wrapped address space without changing its address or value.
+        /// </summary>
+        /// <param name="address">The address receiving the write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -6,6 +6,12 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Enumerates visual ROM inputs named by every compiled room background command list.</summary>
 internal static class LibraryBackgroundSourceInventory
 {
+    /// <summary>
+    /// Walks the distinct native library-background lists referenced by room definitions
+    /// and records source and destination operands for commands that move background data.
+    /// </summary>
+    /// <param name="bus">Cartridge address space containing bank-$8F command lists and their operands.</param>
+    /// <returns>Asset-bearing commands in list order; end markers and tilemap-clear commands have no entries.</returns>
     public static IReadOnlyList<LibraryBackgroundSource> Scan(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -78,6 +84,10 @@ internal static class LibraryBackgroundSourceInventory
                 ReadWord(bus, unchecked((ushort)(operandPointer + 5))));
     }
 
+    /// <summary>Reads a little-endian 16-bit operand from bank $8F.</summary>
+    /// <param name="bus">Cartridge address space containing the command list.</param>
+    /// <param name="pointer">Bank-local address of the operand's low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
         int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
@@ -86,6 +96,10 @@ internal static class LibraryBackgroundSourceInventory
                 unchecked((ushort)(pointer + 1))) << 8)));
     }
 
+    /// <summary>Reads a three-byte little-endian bus address operand from bank $8F.</summary>
+    /// <param name="bus">Cartridge address space containing the command list.</param>
+    /// <param name="pointer">Bank-local address of the operand's least-significant byte.</param>
+    /// <returns>The three operand bytes combined into a 24-bit bus address.</returns>
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
         (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
@@ -95,6 +109,14 @@ internal static class LibraryBackgroundSourceInventory
 }
 
 /// <summary>One source operand in a native library-background list, not a synthesized image.</summary>
+/// <param name="ListPointer">Bank-$8F pointer identifying the containing room background-command list.</param>
+/// <param name="CommandPointer">Bank-local address of this command's opcode word.</param>
+/// <param name="Command">Operation that determines which source and destination operands are populated.</param>
+/// <param name="SourceAddress">24-bit bus address read by the transfer or decompression command.</param>
+/// <param name="WorkRamDestination">Bank-$7E destination offset for decompression, or <see langword="null"/> for other commands.</param>
+/// <param name="VramDestination">VRAM word destination for transfer commands, or <see langword="null"/> otherwise.</param>
+/// <param name="TransferByteCount">Number of bytes transferred to VRAM, or <see langword="null"/> when the command has no transfer.</param>
+/// <param name="DoorPointer">Door identity gating a door-specific transfer; absent for commands that run unconditionally.</param>
 internal sealed record LibraryBackgroundSource(
     ushort ListPointer,
     ushort CommandPointer,

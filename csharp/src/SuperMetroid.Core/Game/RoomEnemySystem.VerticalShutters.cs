@@ -143,6 +143,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Maps the validated trigger-table offset to the shutter's first wait, activation, or no-op state.</summary>
+    /// <param name="state">Initialized shutter state containing the selected trigger-table offset.</param>
+    /// <returns>The initial function dispatched by the vertical-shutter update.</returns>
     private static VerticalShutterFunction SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
     {
         return state.InitialFunctionTableOffset switch
@@ -156,6 +159,11 @@ public sealed partial class RoomEnemySystem
         };
     }
 
+    /// <summary>Starts travel in the configured primary direction and queues the activation sound when visible.</summary>
+    /// <param name="slot">Shutter slot whose movement state is activated.</param>
+    /// <param name="state">State supplying the primary travel direction.</param>
+    /// <param name="cameraX">Current camera horizontal position used for sound visibility.</param>
+    /// <param name="cameraY">Current camera vertical position used for sound visibility.</param>
     private void ActivateVerticalShutter(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -168,6 +176,10 @@ public sealed partial class RoomEnemySystem
         QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
     }
 
+    /// <summary>Moves the shutter upward by its configured fixed-point velocity and stops at its upper bound.</summary>
+    /// <param name="slot">Shutter slot whose position is updated.</param>
+    /// <param name="state">Movement state supplying velocity, limit, and rider status.</param>
+    /// <param name="samus">Samus state that is carried by the shutter when she is riding it.</param>
     private static void MoveVerticalShutterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -187,6 +199,10 @@ public sealed partial class RoomEnemySystem
         StopVerticalShutterAfterUp(state);
     }
 
+    /// <summary>Moves the shutter downward by its configured fixed-point velocity and stops at its lower bound.</summary>
+    /// <param name="slot">Shutter slot whose position is updated.</param>
+    /// <param name="state">Movement state supplying velocity, limit, and rider status.</param>
+    /// <param name="samus">Samus state that is carried by the shutter when she is riding it.</param>
     private static void MoveVerticalShutterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -206,6 +222,10 @@ public sealed partial class RoomEnemySystem
         StopVerticalShutterAfterDown(state);
     }
 
+    /// <summary>Applies the shutter's vertical displacement to Samus when the update began with her riding the platform.</summary>
+    /// <param name="slot">Shutter slot at its new vertical position.</param>
+    /// <param name="state">State containing the previous position and riding flag for this movement step.</param>
+    /// <param name="samus">Samus state whose extra vertical displacement is updated.</param>
     private static void CarrySamusVertically(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -217,6 +237,8 @@ public sealed partial class RoomEnemySystem
             slot.YPosition - state.PreviousYPosition));
     }
 
+    /// <summary>Enters permanent no-op or the configured rest period after upward travel reaches its limit.</summary>
+    /// <param name="state">Shutter state whose post-upward function and timer are selected.</param>
     private static void StopVerticalShutterAfterUp(VerticalShutterEnemyState state)
     {
         if (state.MovedUpRestTime == PermanentStopRestTime)
@@ -228,6 +250,8 @@ public sealed partial class RoomEnemySystem
         state.Function = VerticalShutterFunction.StoppedAfterMovingUp;
     }
 
+    /// <summary>Enters permanent no-op or the configured rest period after downward travel reaches its limit.</summary>
+    /// <param name="state">Shutter state whose post-downward function and timer are selected.</param>
     private static void StopVerticalShutterAfterDown(VerticalShutterEnemyState state)
     {
         if (state.MovedDownRestTime == PermanentStopRestTime)
@@ -239,6 +263,11 @@ public sealed partial class RoomEnemySystem
         state.Function = VerticalShutterFunction.StoppedAfterMovingDown;
     }
 
+    /// <summary>Counts down the post-upward rest and then waits for proximity or begins downward travel.</summary>
+    /// <param name="slot">Shutter slot used for the activation sound visibility check.</param>
+    /// <param name="state">State supplying the rest timer, trigger mode, and travel direction.</param>
+    /// <param name="cameraX">Current camera horizontal position.</param>
+    /// <param name="cameraY">Current camera vertical position.</param>
     private void RunVerticalShutterStoppedAfterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -256,6 +285,11 @@ public sealed partial class RoomEnemySystem
         QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
     }
 
+    /// <summary>Counts down the post-downward rest and then waits for proximity or begins upward travel.</summary>
+    /// <param name="slot">Shutter slot used for the activation sound visibility check.</param>
+    /// <param name="state">State supplying the rest timer, trigger mode, and travel direction.</param>
+    /// <param name="cameraX">Current camera horizontal position.</param>
+    /// <param name="cameraY">Current camera vertical position.</param>
     private void RunVerticalShutterStoppedAfterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -306,6 +340,9 @@ public sealed partial class RoomEnemySystem
         QueueShutterActivationSoundIfOnScreen(slot, cameraX, cameraY);
     }
 
+    /// <summary>Installs an instruction-list entry and resets the per-list timer state on the shutter slot.</summary>
+    /// <param name="slot">Shutter slot receiving the instruction pointer.</param>
+    /// <param name="instruction">Banked instruction address to execute next.</param>
     private static void InstallVerticalShutterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;

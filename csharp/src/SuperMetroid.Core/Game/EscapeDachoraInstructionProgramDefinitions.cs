@@ -53,14 +53,27 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
     // These reviewed script choices determine movement callback and event/acid branch timing.
     // The half-gait and every-update policies are selected choreography, not consequences of physics.
     // No independent movement-step, artwork or room-geometry exemption is implied.
+    /// <summary>Control-word count for one low-tide directional run, including its branch suffix.</summary>
     private const int LowDirectionControls = RunFrames * 2 + 8;
+    /// <summary>Control-word count for one high-tide directional run, including its branch suffix.</summary>
     private const int HighDirectionControls = RunFrames * 2 + 6;
+    /// <summary>Total control words in both low-tide directions, including their shared entry operands.</summary>
     private const int LowTideControls = 2 + 2 * LowDirectionControls;
+    /// <summary>Total control words in both high-tide directions, including their shared entry operands.</summary>
     private const int HighTideControls = 2 + 2 * HighDirectionControls;
+    /// <summary>Number of six-frame run groups in the escape departure acceleration program.</summary>
     private const int DepartureFrames = 3 * RunFrames;
+
+    /// <summary>Gets the number of compiled mechanics operands across low tide, high tide, and departure lists.</summary>
     public static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
+
+    /// <summary>Gets the number of compiled spritemap-selector operands in all four direction runs and departure phases.</summary>
     public static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
 
+    /// <summary>Returns the address and value of one mechanics operand in the compiled escape program.</summary>
+    /// <param name="index">Zero-based index within <see cref="MechanicsWordCount"/>.</param>
+    /// <returns>The bank-$B3 address and expected word for the selected control operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics range.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -113,6 +126,10 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             tail == 0 ? CommonEnemyInstructionCodes.Goto : RunningForEscapeMaximumSpeed);
     }
 
+    /// <summary>Returns the bank-$B3 address of one compiled spritemap-selector operand.</summary>
+    /// <param name="index">Zero-based index within <see cref="PresentationWordCount"/>.</param>
+    /// <returns>The address containing the selected visual operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled presentation range.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -129,6 +146,10 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             : (ushort)(RunningForEscapeAccelerating + (index - 4 * RunFrames - 1) * 6 + sizeof(ushort));
     }
 
+    /// <summary>Looks up a compiled escape-mechanics operand by its instruction address.</summary>
+    /// <param name="address">Bank-$B3 address of the mechanics word.</param>
+    /// <returns>The compiled control or timing value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics operands.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

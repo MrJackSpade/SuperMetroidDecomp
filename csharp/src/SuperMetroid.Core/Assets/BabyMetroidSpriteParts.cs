@@ -5,11 +5,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
 internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
 {
+    /// <summary>Unreflected half-sprite records owned by this pose.</summary>
     private readonly EnemySpritemapPart[] halfParts;
+    /// <summary>Signed one-based half-part indices in draw order; a negative entry requests horizontal reflection.</summary>
     private readonly sbyte[] drawingOrder;
+    /// <summary>Optional first-pose component used to share unchanged dome parts across poses.</summary>
     private readonly BabyMetroidSpriteParts? sharedBody;
+    /// <summary>Optional signed one-based references selecting local or shared half-parts and their reflection.</summary>
     private readonly sbyte[]? halfSelections;
 
+    /// <summary>Creates a pose from owned half-parts, draw-order references, and optional shared-body selections.</summary>
+    /// <param name="halfParts">Unreflected parts stored locally by this pose.</param>
+    /// <param name="drawingOrder">Signed one-based indices that expand half-parts into the complete ordered spritemap.</param>
+    /// <param name="sharedBody">Earlier pose supplying reusable half-parts, when this pose shares components.</param>
+    /// <param name="halfSelections">Optional signed mapping from half-part indices to local or shared storage.</param>
     private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder,
         BabyMetroidSpriteParts? sharedBody = null, sbyte[]? halfSelections = null)
     {
@@ -18,7 +27,12 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         this.sharedBody = sharedBody;
         this.halfSelections = halfSelections;
     }
+    /// <summary>Gets the number of complete sprite records emitted by the bilateral composition.</summary>
     public override int Count => drawingOrder.Length;
+
+    /// <summary>Gets a sprite record in draw order, reflecting it when its order entry has a negative sign.</summary>
+    /// <param name="index">Zero-based index in the expanded spritemap.</param>
+    /// <returns>The selected local or shared half-part with its requested horizontal orientation.</returns>
     public override EnemySpritemapPart this[int index]
     {
         get
@@ -29,6 +43,11 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         }
     }
 
+    /// <summary>Builds a compact bilateral representation for a recognized native Baby pose, sharing unchanged body parts when possible.</summary>
+    /// <param name="identity">Spritemap identity used to select one of the three native poses.</param>
+    /// <param name="supplied">Complete supplied records in native drawing order.</param>
+    /// <param name="bodyTemplate">First-pose component reused for matching unchanged dome records.</param>
+    /// <returns>A compact composition for a recognized symmetric pose, or ordinary owned records when it cannot be compiled.</returns>
     internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
         int offset = identity - BabyMetroidCompositionDefinitions.FirstPose;
@@ -78,6 +97,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return new BabyMetroidSpriteParts(local.ToArray(), order, bodyTemplate, selections);
     }
 
+    /// <summary>Resolves a half-part selection from local storage or the shared body template.</summary>
+    /// <param name="index">Zero-based index into the half-part selection map.</param>
+    /// <returns>The selected part, reflecting a shared template entry when its selection encodes the opposite orientation.</returns>
     private EnemySpritemapPart HalfPart(int index)
     {
         if (halfSelections is null) return halfParts[index];
@@ -88,6 +110,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return (shared & 1) == 0 ? part : Reflect(part);
     }
 
+    /// <summary>Mirrors a sprite record horizontally, accounting for its tile width and toggling its horizontal flip bit.</summary>
+    /// <param name="part">Unreflected sprite record to mirror.</param>
+    /// <returns>A record with a reflected X position and horizontal-flip attribute.</returns>
     private static EnemySpritemapPart Reflect(EnemySpritemapPart part)
     {
         int size = part.X.IsLarge ? 16 : 8;

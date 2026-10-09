@@ -5,12 +5,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the compiled Wall Space Pirate instruction-program checks.</summary>
     private static void VerifyWallSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled mechanics with ROM and exercises production attacks, climbs, collisions, and selectors.</summary>
+    /// <param name="rom">The retail address space used for native-word comparisons and permitted visual reads.</param>
     private static void VerifyWallSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -208,6 +211,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Creates an empty 32-by-32 room for movement paths that should not collide with terrain.</summary>
+    /// <returns>Room data with empty foreground, behavior, and background layers.</returns>
     private static RoomLevelData CreateOpenWallPirateRoom()
     {
         const int width = 32;
@@ -222,6 +227,8 @@ internal static partial class Program
             new byte[8]);
     }
 
+    /// <summary>Creates a 32-by-32 room with a solid floor row used to trigger a climbing collision reversal.</summary>
+    /// <returns>Room data whose foreground row at index 17 is solid across the room.</returns>
     private static RoomLevelData CreateWallPirateFloorRoom()
     {
         const int width = 32;
@@ -238,6 +245,8 @@ internal static partial class Program
             new byte[8]);
     }
 
+    /// <summary>Repeats compiled mechanics lookups to warm the path and produce a checksum for allocation measurement.</summary>
+    /// <returns>A checksum over the looked-up instruction word.</returns>
     private static int ProbeWallSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -249,16 +258,30 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a native instruction word from two adjacent little-endian bytes.</summary>
+    /// <param name="bus">The address space containing the native instruction data.</param>
+    /// <param name="address">The address of the word's low byte.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadWallPirateWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads from compiled Wall Space Pirate mechanics and visual-selector bytes during production execution.</summary>
+    /// <param name="source">The underlying address space used for reads outside the compiled ranges and all writes.</param>
     private sealed class WallSpacePirateInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Gets the number of attempts to read compiled mechanics or presentation-selector bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the compiled-source guard.</summary>
+        /// <param name="address">The bus address to read.</param>
+        /// <returns>The byte supplied by the guarded address space when the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and presentation-selector reads, then delegates other byte reads.</summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled Wall Space Pirate mechanics or a visual selector.</exception>
         public byte ReadByte(int address)
         {
             if (WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -290,6 +313,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the underlying address space.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -52,10 +52,17 @@ public sealed partial class RoomEnemySystem
 
     // Resolve the complete resource before advancing the phase or touching actors,
     // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
+    /// <summary>Requires installed tilemap artwork for a native Crocomire melt address.</summary>
+    /// <param name="tilemapAddress">Native address identifying the first or second melt tilemap.</param>
+    /// <returns>The complete tilemap words used to initialize the BG2 working image.</returns>
+    /// <exception cref="InvalidDataException">The installation has no Crocomire melting artwork.</exception>
     private ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(int tilemapAddress) =>
         (TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
 
+    /// <summary>Initializes the per-column dissolve height and redirects the body to the selected melt list.</summary>
+    /// <param name="state">Crocomire encounter state whose death phase and body instruction pointer are updated.</param>
+    /// <param name="bodyInstructionList">Compiled body list for the current melt sequence.</param>
     private void StartCrocomireMeltingTilemap(CrocomireEnemyState state, ushort bodyInstructionList)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -65,6 +72,9 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(state.Body, bodyInstructionList);
     }
 
+    /// <summary>Clears the requested BG2 words, places the compact image after its blank lead-in, and starts the initial transfer.</summary>
+    /// <param name="tilemap">Tilemap words copied into the mutable BG2 working image.</param>
+    /// <param name="clearedWords">Number of leading working words cleared for this melt phase.</param>
     private void WriteCrocomireMeltingTilemap(ReadOnlySpan<ushort> tilemap, int clearedWords)
     {
         Span<ushort> working = RequireCrocomireDeath().MutableBg2WorkingTilemap;
@@ -105,6 +115,8 @@ public sealed partial class RoomEnemySystem
         death.MutableMeltingColumnHeights.Clear();
     }
 
+    /// <summary>Uploads the next compiled melt graphics slice or advances the phase after the transfer list ends.</summary>
+    /// <param name="state">Encounter state whose death-sequence phase tracks transfer-list completion.</param>
     private void UploadNextCrocomireMeltingGraphicsSlice(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -121,6 +133,9 @@ public sealed partial class RoomEnemySystem
         death.MeltingTransferOffset += 8;
     }
 
+    /// <summary>Copies one validated bank-$7E melt graphics record from the scratch image into VRAM.</summary>
+    /// <param name="upload">Compiled transfer descriptor containing source, size, and VRAM destination.</param>
+    /// <exception cref="InvalidDataException">The record uses an unexpected source bank or extends beyond the scratch image.</exception>
     private void UploadCrocomireMeltingRecord(CrocomireMeltingUpload upload)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -140,6 +155,8 @@ public sealed partial class RoomEnemySystem
         _vram!.LoadBytes(destinationWord * 2, death.MeltingGraphics.Slice(sourceOffset, byteCount));
     }
 
+    /// <summary>Enables BG2 melt HDMA, initializes its scanline scroll values, and captures the body's starting X position.</summary>
+    /// <param name="state">Encounter state containing the tongue/body position and melt distortion state.</param>
     private void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -154,6 +171,9 @@ public sealed partial class RoomEnemySystem
         death.BodyXBeforeMelting = state.Body.XPosition;
     }
 
+    /// <summary>Advances acid effects, column erasure, body rumble, and the changing BG2 distortion during a melt frame.</summary>
+    /// <param name="state">Encounter state updated by the active dissolve.</param>
+    /// <param name="samus">Optional player state used by the acid-smoke effect.</param>
     private void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus)
     {
         SpawnCrocomireAcidSmoke(state, samus);
@@ -249,6 +269,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Builds per-scanline BG2 offsets from the current melt distortion fraction and vertical bounds.</summary>
+    /// <param name="state">Encounter state supplying the tongue/body screen position.</param>
+    /// <param name="death">Melt state containing adjusted Y values and the distortion step.</param>
     private void BuildCrocomireMeltingScrollTable(
         CrocomireEnemyState state,
         CrocomireDeathState death)
@@ -274,6 +297,8 @@ public sealed partial class RoomEnemySystem
             output.Slice(line).Fill(CrocomireBg2VerticalScroll);
     }
 
+    /// <summary>Stops dissolve HDMA and moves the cursor to the next compiled melt-transfer pass.</summary>
+    /// <param name="state">Encounter state whose death-sequence phase advances past the completed dissolve.</param>
     private void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -285,6 +310,8 @@ public sealed partial class RoomEnemySystem
         death.MeltingTransferOffset = 0;
     }
 
+    /// <summary>Resets Crocomire's reaction counters and clears/uploads the full BG2 working tilemap between melt passes.</summary>
+    /// <param name="state">Encounter state whose melt pacing counters and death phase are reset or advanced.</param>
     private void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
         state.ReactionTimer = 0;

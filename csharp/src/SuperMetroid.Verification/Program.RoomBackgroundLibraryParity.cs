@@ -161,11 +161,18 @@ internal static partial class Program
             "installed-art binding retains WRAM background transfer high byte");
     }
 
+    /// <summary>Detects any attempt to read an uncompiled bank-$8F library-background command list.</summary>
+    /// <param name="source">The underlying address space used for reads outside the guarded command-list range.</param>
     private sealed class LibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace
     {
+        /// <summary>Gets the number of forbidden reads attempted from the unknown list's address range.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects reads from the unknown bank-$8F command-list range and delegates other byte reads.</summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to the uncompiled list under test.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x8ff000 and <= 0x8fffff)
@@ -177,33 +184,58 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the underlying address space.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Rejects source reads that would fall back to migrated command lists or visual assets.</summary>
+    /// <param name="source">The address space used for permitted reads, WRAM, SRAM, and writes.</param>
+    /// <param name="entries">The scanned source inventory used to identify visual ranges selected by each program.</param>
     private sealed class LibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Checks whether an address is a forbidden compiled-list or visual-source read before delegating it.</summary>
+        /// <param name="address">The bus address to inspect and read.</param>
+        /// <returns>The byte supplied by the underlying address space when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The read targets a compiled command list or migrated visual source.</exception>
         public byte ReadByte(int address)
         {
             CheckVisualRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Guards a cartridge-source read before forwarding it through the wrapped import source.</summary>
+        /// <param name="address">The cartridge bus address to inspect and read.</param>
+        /// <returns>The byte returned by the wrapped cartridge import source when the read is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The read targets a compiled command list or migrated visual source.</exception>
         public byte ReadCartridgeByte(int address)
         {
             CheckVisualRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads WRAM through the wrapped mutable-memory source without applying ROM visual-range checks.</summary>
+        /// <param name="address">The WRAM address to read.</param>
+        /// <returns>The byte supplied by the underlying mutable-memory source.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Library-background source requires WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Reads SRAM through the wrapped mutable-memory source without applying ROM visual-range checks.</summary>
+        /// <param name="address">The SRAM address to read.</param>
+        /// <returns>The byte supplied by the underlying mutable-memory source.</returns>
+        /// <exception cref="InvalidOperationException">The wrapped source does not expose mutable memory.</exception>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Library-background source requires SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Rejects addresses that would reread compiled command lists or their migrated visual inputs.</summary>
+        /// <param name="address">The bus address about to be read.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled list, compressed visual source, or direct-transfer visual source.</exception>
         private void CheckVisualRead(int address)
         {
             foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
@@ -232,6 +264,9 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">The bus address to write.</param>
+        /// <param name="value">The byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class MultiviolaEnemyState
 {
+    /// <summary>Room slot whose native variable words back this typed velocity view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a velocity view that reads and writes the Multiviola words stored on the slot.</summary>
+    /// <param name="slot">Enemy slot initialized for a Multiviola.</param>
     internal MultiviolaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FAC,x</c>, whole half of horizontal 16.16 velocity.</summary>
@@ -51,13 +54,22 @@ public sealed class MultiviolaEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native bank-$A0 enemy-definition pointer that selects Multiviola initialization and main AI.</summary>
     internal const ushort MultiviolaDefinition = 0xd1bf;
 
+    /// <summary>Angle offset supplied when reading the absolute-cosine magnitude sample.</summary>
     private const ushort MultiviolaCosineOffset = 0x0040;
+
+    /// <summary>Angle offset supplied when reading the absolute-sine magnitude sample.</summary>
     private const ushort MultiviolaSineOffset = 0x0080;
+
+    /// <summary>Angle bit toggled after horizontal terrain contact to reflect the X component.</summary>
     private const ushort MultiviolaHorizontalReflection = 0x0040;
+
+    /// <summary>Angle bits toggled after vertical terrain contact to reflect the Y component.</summary>
     private const ushort MultiviolaVerticalReflection = 0x00c0;
 
+    /// <summary>Per-slot velocity views created during initialization and required by the active AI.</summary>
     private readonly MultiviolaEnemyState?[] _multiviolaStates =
         new MultiviolaEnemyState?[MaximumEnemyCount];
 
@@ -165,9 +177,17 @@ public sealed partial class RoomEnemySystem
         state.YSubvelocity = unchecked((ushort)(~state.YSubvelocity + 1));
     }
 
+    /// <summary>Combines the stored whole and fractional words into the signed 16.16 movement value.</summary>
+    /// <param name="whole">Whole-pixel word of the velocity.</param>
+    /// <param name="fraction">Fractional word of the velocity.</param>
+    /// <returns>The two words packed as a fixed-point displacement without changing their bit pattern.</returns>
     private static int JoinMultiviolaVelocity(ushort whole, ushort fraction) =>
         unchecked((whole << 16) | fraction);
 
+    /// <summary>Returns the initialized velocity view for a slot or rejects AI dispatch before initialization.</summary>
+    /// <param name="slot">Enemy slot whose Multiviola state is required.</param>
+    /// <returns>The state view bound to the slot's native velocity words.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Multiviola state.</exception>
     private MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
         _multiviolaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");

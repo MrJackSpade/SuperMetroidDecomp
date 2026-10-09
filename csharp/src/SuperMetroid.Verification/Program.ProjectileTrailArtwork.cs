@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed projectile-trail artwork with native OAM while checking animation and mutable-memory contracts.</summary>
+    /// <param name="bus">Retail address space used to extract trail data and build the native rendering reference.</param>
     private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
@@ -116,6 +118,11 @@ internal static partial class Program
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
+    /// <summary>Advances the cartridge trail instruction stream and draws its current left and right trail sprites.</summary>
+    /// <param name="rom">Address space supplying native instruction words.</param>
+    /// <param name="pair">Paired trail state whose sides, positions, and instruction cursors are mutated.</param>
+    /// <param name="oam">OAM buffer receiving visible trail sprites.</param>
+    /// <param name="frozen">Whether instruction timers and commands are held for this rendered frame.</param>
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
     {
@@ -157,6 +164,10 @@ internal static partial class Program
                     side.TileNumberAttributes);
         }
     }
+    /// <summary>Checks runtime trail catalog binding, snapshot exclusion, host rebinding after restore, and preservation of saved timing.</summary>
+    /// <param name="bus">Cartridge address space used to create the retail runtime fixture.</param>
+    /// <param name="stock">Unedited catalog used as the native-equivalent appearance baseline.</param>
+    /// <param name="edited">Catalog with a changed frame appearance used to verify runtime selection.</param>
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -198,6 +209,7 @@ internal static partial class Program
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
     }
+    /// <summary>Checks that the bank-$90 low-half trail program alias reads through typed WRAM access rather than generic bus reads.</summary>
     private static void VerifyTrailMutableAlias()
     {
         var mirror = new TrailMutableMirrorBus();
@@ -207,15 +219,29 @@ internal static partial class Program
         Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
     }
 
+    /// <summary>Test address space that exposes only two expected WRAM bytes and fails on untyped, SRAM, or write access.</summary>
     private sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of typed WRAM byte requests made by the alias read.</summary>
         public int WorkRamReads { get; private set; }
 
+        /// <summary>Routes cartridge reads to the fail-fast generic read path used to detect incorrect access.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The result of the generic read path.</returns>
+        /// <exception cref="InvalidOperationException">Any cartridge-byte read is untyped for this fixture.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects generic reads so the test can require the mutable-memory interface for the bank alias.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>No value; every request throws.</returns>
+        /// <exception cref="InvalidOperationException">A generic address-space read was attempted.</exception>
         public static byte ReadByte(int address) =>
             throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
 
+        /// <summary>Supplies the two low-half alias bytes expected by the compiled trail-word read.</summary>
+        /// <param name="address">WRAM address requested by the reader.</param>
+        /// <returns><c>$12</c> at <c>$900100</c> or <c>$34</c> at <c>$900101</c>.</returns>
+        /// <exception cref="InvalidOperationException">The request is outside those two fixture addresses.</exception>
         public byte ReadWorkRamByte(int address)
         {
             WorkRamReads++;
@@ -227,9 +253,17 @@ internal static partial class Program
             };
         }
 
+        /// <summary>Rejects SRAM access because this alias fixture provides no save-memory bytes.</summary>
+        /// <param name="address">Save-memory address requested by the caller.</param>
+        /// <returns>No value; every request throws.</returns>
+        /// <exception cref="InvalidOperationException">Any save-memory read was attempted.</exception>
         public byte ReadSaveRamByte(int address) =>
             throw new InvalidOperationException($"Unexpected trail SRAM read ${address:X6}.");
 
+        /// <summary>Rejects all writes because the fixture is read-only.</summary>
+        /// <param name="address">Address requested for writing.</param>
+        /// <param name="value">Byte value the caller attempted to store.</param>
+        /// <exception cref="InvalidOperationException">Any write was attempted.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
     }

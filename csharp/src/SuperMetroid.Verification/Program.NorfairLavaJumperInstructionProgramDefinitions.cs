@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the cartridge-backed verification suite for the compiled Norfair lava-jumper programs.</summary>
     private static void VerifyNorfairLavaJumperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled mechanics words and drives parent and follower enemies through their production instruction programs.</summary>
+    /// <param name="rom">Retail address space used to compare native mechanics words and provide permitted runtime reads.</param>
     private static void VerifyNorfairLavaJumperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -113,6 +116,14 @@ internal static partial class Program
             "production programs, the real handshake, and compiled spritemap selectors pass.");
     }
 
+    /// <summary>Advances one lava-jumper instruction list through its timed frames and confirms it reaches terminal sleep.</summary>
+    /// <param name="enemies">Enemy system whose production instruction processor is invoked.</param>
+    /// <param name="process">Bound instruction-processing method.</param>
+    /// <param name="arguments">Reflection argument array passed to the processor, with <paramref name="slot"/> in its enemy slot position.</param>
+    /// <param name="slot">Enemy whose instruction pointer and timer are advanced.</param>
+    /// <param name="entry">Expected initial program pointer.</param>
+    /// <param name="terminalSleep">Expected pointer after all timed frames have elapsed.</param>
+    /// <param name="timedFrames">Number of authored timed frames before the terminal sleep instruction.</param>
     private static void RunNorfairLavaJumperProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -134,6 +145,8 @@ internal static partial class Program
             "lava-jumper program reaches terminal sleep");
     }
 
+    /// <summary>Repeatedly reads compiled program entry words for the warmed allocation probe.</summary>
+    /// <returns>A checksum of the selected words so the caller observes the lookup results.</returns>
     private static int ProbeNorfairLavaJumperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -150,18 +163,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction word from the retail cartridge image.</summary>
+    /// <param name="bus">Cartridge address space containing the native word.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The combined sixteen-bit value.</returns>
     private static ushort ReadNorfairLavaJumperInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Address-space proxy that detects fallback reads of compiled Norfair mechanics or presentation selectors.</summary>
+    /// <param name="source">Underlying bus for permitted cartridge accesses.</param>
     private sealed class NorfairLavaJumperInstructionReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation selector words observed through the generic cartridge read path.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempted reads rejected because they targeted compiled mechanics data.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes asset-import reads through the same mechanics guard as generic reads.</summary>
+        /// <param name="address">Cartridge address being read.</param>
+        /// <returns>The permitted byte from the wrapped source.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation-selector reads, and forwards permitted accesses.</summary>
+        /// <param name="address">Address requested by the runtime.</param>
+        /// <returns>The byte read from the underlying source when access is permitted.</returns>
         public byte ReadByte(int address)
         {
             if (NorfairLavaJumperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -187,6 +214,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying cartridge address space.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -50,13 +50,25 @@ public enum RoomCollisionType : byte
 /// bank-$94 collision dispatcher. That makes the type useful at debugger boundaries while
 /// preserving unknown collision-nibble values exactly.
 /// </remarks>
+/// <param name="Raw">The original packed level-data word, retaining presentation bits, collision type, and any unnamed collision value.</param>
 public readonly record struct RoomLevelWord(ushort Raw)
 {
+    /// <summary>Mask selecting the ten-bit visual block-definition index.</summary>
     private const ushort VisualBlockIndexMask = 0x03ff;
+
+    /// <summary>Mask selecting the horizontal and vertical parent-block flip bits.</summary>
     private const ushort VisualFlipMask = 0x0c00;
+
+    /// <summary>Combined mask for the block index and flip fields that form the visual word.</summary>
     private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
+
+    /// <summary>Mask selecting the high-nibble collision dispatcher value.</summary>
     private const ushort CollisionTypeMask = 0xf000;
+
+    /// <summary>Bit tested by native attachment probes as a coarse solid-block indicator.</summary>
     private const ushort SolidProbeMask = 0x8000;
+
+    /// <summary>Number of bits the high-nibble collision value is shifted to reach its low-byte representation.</summary>
     private const int CollisionTypeShift = 12;
 
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
@@ -130,12 +142,18 @@ public readonly record struct RoomLevelWord(ushort Raw)
             (Raw & ~CollisionTypeMask) | ((ushort)collisionType << CollisionTypeShift))));
     }
 
+    /// <summary>Ensures a visual block reference fits in the word's ten-bit index field.</summary>
+    /// <param name="visualBlockIndex">Block-definition index supplied for the visual portion of a level word.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index sets bits outside the ten-bit field.</exception>
     private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
     {
         if ((visualBlockIndex & ~VisualBlockIndexMask) != 0)
             throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));
     }
 
+    /// <summary>Restricts the visual flip field to its independently supported horizontal and vertical bits.</summary>
+    /// <param name="visualFlipFlags">Parent-block flip flags to encode.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The value contains flags other than horizontal or vertical flip.</exception>
     private static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
     {
         const LevelBlockFlipFlags All =
@@ -144,6 +162,9 @@ public readonly record struct RoomLevelWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(visualFlipFlags));
     }
 
+    /// <summary>Ensures a collision dispatch value fits the four-bit high-nibble field.</summary>
+    /// <param name="collisionType">Collision handler value to encode.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The value exceeds the native sixteen-entry dispatch range.</exception>
     private static void ValidateCollisionType(RoomCollisionType collisionType)
     {
         if ((byte)collisionType > 0x0f)

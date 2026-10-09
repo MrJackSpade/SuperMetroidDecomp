@@ -15,15 +15,34 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class RoomLevelData
 {
+    /// <summary>Mutable logical BG1 words used by collision and foreground room edits.</summary>
     private readonly ushort[] _foregroundEntries;
+
+    /// <summary>Logical BTS bytes paired with BG1 words for collision dispatch.</summary>
     internal readonly byte[] _behaviorBytes;
+
+    /// <summary>Logical BG2 words retained separately from BG1 collision data.</summary>
     private readonly ushort[] _backgroundEntries;
+
+    /// <summary>Combined CRE and area visual-block definitions indexed as eight bytes per block.</summary>
     private readonly byte[] _blockDefinitions;
+
+    /// <summary>BG1 allocation, including any decompressed native tail read by the scrolling producer.</summary>
     private readonly ushort[] _streamingForegroundAllocation;
+
+    /// <summary>BG2 allocation, including any decompressed native tail read by the scrolling producer.</summary>
     private readonly ushort[] _streamingBackgroundAllocation;
+
+    /// <summary>BG1 streaming words after installed visual references are applied to logical room blocks.</summary>
     private readonly ushort[] _visualStreamingForegroundAllocation;
+
+    /// <summary>BG2 streaming words after installed visual references are applied to logical room blocks.</summary>
     private readonly ushort[] _visualStreamingBackgroundAllocation;
+
+    /// <summary>Bounded native level-data allocation used by PLM indexing, including its prefilled tail.</summary>
     private readonly ushort[] _plmForegroundAllocation;
+
+    /// <summary>BTS bytes paired with the bounded PLM allocation; logical entries mirror the collision plane.</summary>
     private readonly byte[] _plmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>

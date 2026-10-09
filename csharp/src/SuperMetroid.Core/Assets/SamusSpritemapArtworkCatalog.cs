@@ -20,9 +20,13 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Native <c>$92:945D</c> lower-half base-index table.</summary>
     public const int BottomBaseAddress = 0x92945D;
 
+    /// <summary>Pose-specific upper-half table element indices that override the stock selector calculation.</summary>
     private readonly Dictionary<int, ushort> topBases;
+    /// <summary>Pose-specific lower-half table element indices that override the stock selector calculation.</summary>
     private readonly Dictionary<int, ushort> bottomBases;
+    /// <summary>Indexed pointer-table values supplied as edits; absent entries are resolved from shared frame definitions.</summary>
     private readonly Dictionary<int, ushort> pointers;
+    /// <summary>Nonzero bank-$92 pointer identities mapped to the OAM compositions installed at those addresses.</summary>
     private readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
 
     /// <summary>Validates pose selectors, indexed pointers, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
@@ -96,6 +100,9 @@ public sealed class SamusSpritemapArtworkCatalog
     public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((byte)pose)).ToArray();
     /// <summary>Materializes the complete indexed bank-$92 pointer allocation in native table order, preserving repeated identities and mutable-memory zero pointers.</summary>
     public ReadOnlySpan<ushort> Pointers => Enumerable.Range(0, PointerCount).Select(Pointer).ToArray();
+    /// <summary>Resolves an indexed table entry through explicit edits, shared-source aliases, and the stock pointer calculation.</summary>
+    /// <param name="index">Zero-based element index in the native pointer table.</param>
+    /// <returns>The bank-$92 pointer selected for the entry, including zero when it denotes mutable CPU memory.</returns>
     private ushort Pointer(int index) => pointers.TryGetValue(index, out ushort value)
         ? value : SamusSpritemapFrameDefinitions.SourceIndex(index) != index
             ? Pointer(SamusSpritemapFrameDefinitions.SourceIndex(index))
@@ -132,9 +139,14 @@ public sealed class SamusSpritemapArtworkCatalog
 }
 
 /// <summary>A native bank-$92 spritemap record and its editable five-byte OAM parts.</summary>
+/// <param name="Pointer">Nonzero bank-$92 identity used to select this composition from the indexed pointer table.</param>
+/// <param name="Parts">OAM pieces in draw order, each retaining the native encoded coordinates and attributes.</param>
 public sealed record SamusSpritemapDefinition(ushort Pointer, SamusSpritePart[] Parts);
 
 /// <summary>Encoded X/size word, signed-wrap Y byte, and complete OBJ attribute word.</summary>
+/// <param name="X">Native X-position and sprite-size encoding consumed by the OAM renderer.</param>
+/// <param name="Y">Signed-wrap vertical offset byte retained for native OAM placement.</param>
+/// <param name="Attributes">Complete OBJ attribute word, preserving the native palette, priority, and flip bits.</param>
 public readonly record struct SamusSpritePart(
     [property: JsonRequired] ushort X,
     [property: JsonRequired] byte Y,

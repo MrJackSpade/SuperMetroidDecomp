@@ -132,6 +132,16 @@ wait,
 }
 
 /// <summary>One cinematic-object definition, initializer result, and translated motion policy.</summary>
+/// <param name="ActivePreInstruction">Callback pointer installed on the actor before it begins stepping its instruction list.</param>
+/// <param name="InstructionList">Bank-$8B instruction-list pointer used to initialize the actor's animation and scripted behavior.</param>
+/// <param name="X">Initial horizontal screen coordinate supplied to the cinematic sprite.</param>
+/// <param name="Y">Initial vertical screen coordinate supplied to the cinematic sprite.</param>
+/// <param name="Attributes">Initial SNES object attributes, including the actor's palette and priority settings.</param>
+/// <param name="HorizontalDelta">Fractional word supplied to the actor's horizontal fixed-point update.</param>
+/// <param name="WrapX">Whether the scene update applies the horizontal update and masks X to the cinematic world range.</param>
+/// <param name="SlideAcceleration">8.8 fixed-point vertical acceleration accumulated while the Zebes reveal slides away.</param>
+/// <param name="SlidePreInstruction">Callback pointer installed when this actor participates in the scene-slide phase.</param>
+/// <param name="CompletesScene">Whether this actor owns the transition to the finished phase when it leaves the scene.</param>
 internal readonly record struct CeresDestructionActorDefinition(
     ushort ActivePreInstruction,
     ushort InstructionList,

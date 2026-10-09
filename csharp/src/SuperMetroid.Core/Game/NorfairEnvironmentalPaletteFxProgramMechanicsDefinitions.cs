@@ -53,10 +53,26 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>$8D:F1D1/F2D9/F3E1 select color one in foreground palettes four/five/six.</summary>
     private const int RegularFirstPalette = 4, RegularFirstColor = 1;
 
+    /// <summary>
+    /// Lazily indexed view of the four Norfair palette programs, built from their shared phase layout.
+    /// </summary>
     private static readonly ProgramDefinitions Definitions = new();
+
+    /// <summary>
+    /// Provides the four program definitions without allocating a separate array of records.
+    /// </summary>
     private sealed class ProgramDefinitions : IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition>
     {
+        /// <summary>
+        /// Gets the fixed number of Norfair environmental palette programs represented by this view.
+        /// </summary>
         public int Count => 4;
+
+        /// <summary>
+        /// Gets the definition at its owner-order index and rejects indices outside the four-program catalog.
+        /// </summary>
+        /// <param name="index">The zero-based owner-order index of the requested program.</param>
+        /// <returns>The definition whose owner corresponds to <paramref name="index"/>.</returns>
         public NorfairEnvironmentalPaletteFxProgramDefinition this[int index]
         {
             get
@@ -75,6 +91,10 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }
         }
+        /// <summary>
+        /// Enumerates the four definitions in the same order as <see cref="NorfairEnvironmentalPaletteOwner"/>.
+        /// </summary>
+        /// <returns>An enumerator over the owner-ordered program definitions.</returns>
         public IEnumerator<NorfairEnvironmentalPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -132,11 +152,36 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
 {
+    /// <summary>
+    /// Number of leading bytes in each heat-publishing record before its duration and color payload.
+    /// </summary>
     private const int HeatPhasePublicationByteCount = 3;
+
+    /// <summary>
+    /// Number of colors stored before the palette-FX skip command in each phase record.
+    /// </summary>
     private const int LeadingColorCount = 3;
+
+    /// <summary>
+    /// Byte displacement from a regular record's start to its first color word.
+    /// </summary>
     private const int LeadingColorsOffset = 2;
+
+    /// <summary>
+    /// Byte displacement from a regular record's start to its trailing color words.
+    /// </summary>
     private const int TrailingColorsOffset = 10;
 
+    /// <summary>
+    /// Describes one environmental palette program's owner, instruction boundaries, color destination, and heat-phase behavior.
+    /// </summary>
+    /// <param name="owner">The environmental palette object that owns the program.</param>
+    /// <param name="definitionPointer">The native definition identity used to install this program.</param>
+    /// <param name="programStart">The address of the program's color-index setup command.</param>
+    /// <param name="firstFramePointer">The address of the first timed phase record.</param>
+    /// <param name="loopInstructionPointer">The address of the terminal goto command that restarts the phase loop.</param>
+    /// <param name="colorByteIndex">The first CGRAM byte updated by the program's color commands.</param>
+    /// <param name="publishesHeatPhase">Whether each phase begins by publishing its byte-sized index for Samus's separate heat palette.</param>
     internal NorfairEnvironmentalPaletteFxProgramDefinition(
         NorfairEnvironmentalPaletteOwner owner,
         ushort definitionPointer,

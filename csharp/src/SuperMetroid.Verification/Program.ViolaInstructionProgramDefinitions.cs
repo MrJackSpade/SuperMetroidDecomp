@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers the retail-ROM verification suite for Viola's compiled instruction mechanics.</summary>
     private static void VerifyViolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled Viola mechanics against cartridge words and executes each surface orientation through the production initializer and instruction processor.</summary>
+    /// <param name="rom">Retail address space used for reference words and visual-selector verification.</param>
     private static void VerifyViolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -98,6 +101,11 @@ internal static partial class Program
             "mechanics bytes forbidden.");
     }
 
+    /// <summary>Advances a Viola instruction program through the production processor for a fixed number of eligible calls.</summary>
+    /// <param name="enemies">Enemy system whose production instruction processor is invoked.</param>
+    /// <param name="process">Reflected production instruction-processing method.</param>
+    /// <param name="slot">Viola slot whose instruction timer and current program are advanced.</param>
+    /// <param name="callCount">Number of processor calls to perform.</param>
     private static void ExecuteViolaProgram(
         RoomEnemySystem enemies,
         MethodInfo process,
@@ -113,6 +121,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Warms and repeatedly reads compiled Viola mechanics entries so steady-state lookup allocations can be measured.</summary>
+    /// <returns>A checksum that keeps the lookup results observable.</returns>
     private static int ProbeViolaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -126,6 +136,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads a little-endian instruction mechanics word from bank $A3 for comparison with compiled data.</summary>
+    /// <param name="source">Retail address space containing the original instruction program.</param>
+    /// <param name="address">Bank-relative address of the low byte.</param>
+    /// <returns>The adjacent cartridge bytes combined as an unsigned 16-bit word.</returns>
     private static ushort ReadViolaInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -133,14 +147,26 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Wraps cartridge access to reject reads of compiled Viola mechanics and track any reads of compiled presentation operands.</summary>
+    /// <param name="source">Underlying address space for permitted reads and writes.</param>
     private sealed class ViolaInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Unique presentation operand addresses observed during production execution.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+
+        /// <summary>Number of attempted reads rejected for targeting compiled mechanics bytes.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge-import reads through the same mechanics guard and presentation tracking as ordinary byte reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is not a compiled mechanics byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics reads, records presentation operand reads, and forwards all other byte requests.</summary>
+        /// <param name="address">Address-space location requested by production code.</param>
+        /// <returns>The underlying byte when the address is outside the compiled mechanics range.</returns>
+        /// <exception cref="InvalidOperationException">The request targets a compiled Viola mechanics byte.</exception>
         public byte ReadByte(int address)
         {
             if (ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -169,6 +195,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; this wrapper guards and observes reads only.</summary>
+        /// <param name="address">Address-space location to write.</param>
+        /// <param name="value">Byte passed to the underlying source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

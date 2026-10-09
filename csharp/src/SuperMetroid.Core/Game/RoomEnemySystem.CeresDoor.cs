@@ -12,13 +12,21 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A6 function word that switches the rotating elevator actor into its timed rumble and destruction sequence.</summary>
     private const ushort CeresDoorRotatingRumbleFunction = 0xf7dc;
+    /// <summary>Bank-$A6 function word that continues the rotating elevator's palette and Mode-7 door animation.</summary>
     private const ushort CeresDoorElevatorAnimationFunction = 0xf850;
+    /// <summary>Initial countdown loaded by the elevator door before its 49-call destruction sequence.</summary>
     private const ushort CeresDoorRumbleDuration = 0x0030;
+    /// <summary>Actor countdown interval between successive rumble explosions.</summary>
     private const ushort CeresDoorRumbleInterval = 4;
+    /// <summary>Library-two sound effect queued for each rumble explosion.</summary>
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;
+    /// <summary>Animation identifier used when the explosion random value selects the smoke effect.</summary>
     private const ushort CeresDoorSmokeAnimation = 3;
+    /// <summary>Animation identifier used when the explosion random value selects the blast effect.</summary>
     private const ushort CeresDoorExplosionAnimation = 0x000c;
+    /// <summary>Room status published when the escape door finishes its destruction sequence.</summary>
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
 
@@ -29,6 +37,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 
+    /// <summary>Gets the installed Ceres-door artwork catalog required by initialization and palette or tile animation.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
         TileArtwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
@@ -199,6 +208,7 @@ public sealed partial class RoomEnemySystem
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, CeresDoorRumbleSoundEffect), maximumQueued: 6);
     }
 
+    /// <summary>Updates the rotating elevator door's Mode-7 tilemap frame and animated palette colors from the shared enemy frame counter.</summary>
     private void RunCeresDoorPaletteAnimation()
     {
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances

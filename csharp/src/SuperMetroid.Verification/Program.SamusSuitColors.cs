@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted normal-suit sharing, all 48 color values, native palette pointers, and missing-catalog failures.</summary>
     private static void VerifyNormalSuitCatalogBoundary()
     {
         var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -96,6 +97,13 @@ internal static partial class Program
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers, Power copy, and missing-content errors pass without a runtime bus.");
     }
 
+    /// <summary>Exercises an edited suit-color override through live Samus palette restoration and production Ceres initialization.</summary>
+    /// <param name="stockDirectory">Directory containing the installed stock map-presentation documents.</param>
+    /// <param name="overrideDirectory">Directory where the edited suit-color document is written and later removed.</param>
+    /// <param name="original">Stock catalog used to compare content identity and color values.</param>
+    /// <param name="bus">Retail address space used for extraction and guarded runtime integration.</param>
+    /// <param name="initialPalettes">Installed palette assets needed to initialize the production runtime.</param>
+    /// <param name="fixtureAssets">Room assets bound to the runtime for the Ceres entry check.</param>
     private static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,
@@ -216,37 +224,58 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps memory access to detect runtime rereads of the three cartridge suit-color palettes.</summary>
+    /// <param name="source">Address space used for permitted reads and forwarded writes.</param>
     private sealed class SuitColorReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Bank addresses of the Power, Varia, and Gravity palette source ranges checked by the guard.</summary>
         private static readonly int[] Sources =
         [
             SamusRenderingRomData.Body.PowerSuitPalette,
             SamusRenderingRomData.Body.VariaSuitPalette,
             SamusRenderingRomData.Body.GravitySuitPalette,
         ];
+        /// <summary>Number of attempted general or cartridge reads rejected for overlapping a suit-color palette.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Rejects overlapping suit-color reads before delegating through the general address-space API.</summary>
+        /// <param name="address">SNES address requested by the caller.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within one of the three protected palette ranges.</exception>
         public byte ReadByte(int address)
         {
             RejectSuitColorRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Rejects protected palette reads before forwarding through the cartridge-import API.</summary>
+        /// <param name="address">SNES cartridge address requested by the caller.</param>
+        /// <returns>The cartridge byte when the address does not overlap a protected palette.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within one of the three protected palette ranges.</exception>
         public byte ReadCartridgeByte(int address)
         {
             RejectSuitColorRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards a WRAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">WRAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Suit-color verification source requires WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Forwards a save-RAM read to the wrapped mutable-memory source.</summary>
+        /// <param name="address">Save-RAM address to read.</param>
+        /// <returns>The byte stored at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Suit-color verification source requires SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Checks whether an address lies within any protected 16-color palette range.</summary>
+        /// <param name="address">SNES address to test.</param>
+        /// <exception cref="InvalidOperationException">The address overlaps a protected suit-color byte.</exception>
         private void RejectSuitColorRead(int address)
         {
             foreach (int sourceAddress in Sources)
@@ -260,6 +289,9 @@ internal static partial class Program
             }
         }
 
+        /// <summary>Forwards a byte write unchanged; palette protection applies only to reads.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

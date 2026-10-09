@@ -7,8 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-selector anchors, visual animation and compositions; selection rules stay compiled.</summary>
 public sealed class PauseSelectorPresentation
 {
+    /// <summary>Stores only authored anchor coordinates that differ from stock, with null retaining the stock axis value.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
+
+    /// <summary>Base phase compositions for the reserve, beam, and suit/equipment selector categories.</summary>
     private readonly PhaseComposition reserve, beam, equipment;
+
+    /// <summary>Stores authored phase durations only when they differ from the native menu timing rule.</summary>
     private readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Gets the initial selector dwell time in accepted update ticks.</summary>
     public int InitialDurationTicks { get; }
@@ -16,6 +21,15 @@ public sealed class PauseSelectorPresentation
     public ushort PaletteBits { get; }
     /// <summary>Gets the number of cyclic visual animation phases.</summary>
     public int PhaseCount { get; }
+    /// <summary>Creates the validated selector presentation from sparse anchor, composition, and timing overrides.</summary>
+    /// <param name="anchorOverrides">Coordinates that differ from stock anchors; null axes retain their stock values.</param>
+    /// <param name="reserve">The reserve-category composition across animation phases.</param>
+    /// <param name="beam">The beam-category composition across animation phases.</param>
+    /// <param name="equipment">The suit/equipment-category composition across animation phases.</param>
+    /// <param name="phaseCount">Number of entries in the cyclic selector animation.</param>
+    /// <param name="durationOverrides">Non-native phase durations keyed by normalized phase index, if any.</param>
+    /// <param name="initialDuration">Initial selector dwell duration in accepted update ticks.</param>
+    /// <param name="palette">The OBJ palette index encoded for selector drawing.</param>
     private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
         PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
         Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
@@ -98,12 +112,22 @@ public sealed class PauseSelectorPresentation
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
     private sealed class PhaseComposition(PauseSelectorVisual basis)
     {
+        /// <summary>Base composition reused in phases with no explicitly authored visual change.</summary>
         private readonly PauseSelectorVisual basis = basis;
+
+        /// <summary>Stores only phase compositions that differ by identity from the base composition.</summary>
         private Dictionary<int, PauseSelectorVisual>? overrides;
+
+        /// <summary>Records an explicitly authored phase when it is a distinct composition from the base.</summary>
+        /// <param name="phase">The zero-based animation phase index.</param>
+        /// <param name="value">The compiled composition selected for that phase.</param>
         public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
         }
+        /// <summary>Returns the captured composition for a phase, or the shared base when that phase has no override.</summary>
+        /// <param name="phase">The normalized zero-based animation phase index.</param>
+        /// <returns>The phase-specific composition or the base composition.</returns>
         public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }

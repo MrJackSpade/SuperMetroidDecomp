@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Extracts the supported cartridge's Samus Eater draw data and verifies stock mapping, overrides, geometry, and live rendering.</summary>
     private static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -84,6 +85,9 @@ internal static partial class Program
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
     }
 
+    /// <summary>Checks all eight stock draw lists against their native words and validates catalog cloning and input constraints.</summary>
+    /// <param name="rom">Retail address space containing the native draw lists.</param>
+    /// <param name="installed">Catalog loaded from the extracted stock resource.</param>
     private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
         RoomPlmSamusEaterVisualCatalog installed)
     {
@@ -162,12 +166,19 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries), "plant collision bits rejected");
     }
 
+    /// <summary>Checks native run counts and signed offsets against the compiled Samus Eater draw descriptors.</summary>
+    /// <param name="rom">Retail address space containing the native draw-list records.</param>
     private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, false));
 
+    /// <summary>Checks each physical block word in the eight compiled draw lists against the native records.</summary>
+    /// <param name="rom">Retail address space containing the native draw-list words.</param>
     private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, true));
 
+    /// <summary>Verifies either draw geometry or block words for every supported pointer and rejects invalid indices.</summary>
+    /// <param name="rom">Retail address space used as the reference for draw-list data.</param>
+    /// <param name="words">Selects physical block-word checks when true and run geometry checks when false.</param>
     private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
     {
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
@@ -233,6 +244,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Runs the production PLM draw path with edited visuals and checks collision words, redraw output, and native placement.</summary>
+    /// <param name="rom">Retail address space used to compare native draw placement.</param>
+    /// <param name="visuals">Edited visual catalog consumed by the room PLM system.</param>
+    /// <param name="pointer">Native draw-list pointer being executed.</param>
+    /// <param name="physicalWord">Collision word expected to remain in room level data.</param>
+    /// <param name="visualWord">Edited visual word expected in the emitted tilemap update.</param>
     private static void VerifySamusEaterLiveDraw(
         SuperMetroidAddressSpace rom, RoomPlmSamusEaterVisualCatalog visuals, ushort pointer,
         ushort physicalWord, ushort visualWord)
@@ -279,11 +296,22 @@ internal static partial class Program
             "compiled Samus Eater draw never reads ROM at runtime");
     }
 
+    /// <summary>Fails on any cartridge read or write so runtime Samus Eater drawing must use compiled draw data.</summary>
     private sealed class SamusEaterVisualSourceGuard : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads; each attempt throws before returning a byte.</summary>
         public int Reads { get; private set; }
+
+        /// <summary>Routes importer reads through the same fail-fast guard.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>This method never returns because cartridge reads are forbidden.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read was attempted.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every CPU-bus read and increments the observed read count.</summary>
+        /// <param name="address">Absolute cartridge address requested.</param>
+        /// <returns>This method never returns because reads are forbidden.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge read was attempted.</exception>
         public byte ReadByte(int address)
         {
             Reads++;
@@ -291,6 +319,10 @@ internal static partial class Program
                 $"Samus Eater drew from native ROM ${address:X6}.");
         }
 
+        /// <summary>Rejects every CPU-bus write.</summary>
+        /// <param name="address">Absolute address the caller attempted to update.</param>
+        /// <param name="value">Byte the caller attempted to write.</param>
+        /// <exception cref="InvalidOperationException">A cartridge write was attempted.</exception>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Samus Eater draw wrote to CPU bus.");
     }

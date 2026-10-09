@@ -9,9 +9,16 @@ namespace SuperMetroid.Core.Assets;
 /// opposite-side geometry is calculated separately from those pose choices.</summary>
 internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Zero-based stage selector used to calculate the matching hair-release composition.</summary>
     private readonly int stage;
+    /// <summary>Authored forearm positions when the pose's two pieces do not match the mirrored default geometry.</summary>
     private readonly (int X, int Y)[]? moving;
+    /// <summary>Position of the authored forearm used as the anchor for its opposite-side counterpart.</summary>
     private readonly (int X, int Y) forearmAnchor;
+
+    /// <summary>Creates the calculated piece list for one recognized hair-release stage.</summary>
+    /// <param name="stage">Zero-based position among the eight consecutive hair-release poses.</param>
+    /// <param name="supplied">Imported composition whose matching forearm geometry is preserved when it differs from the default.</param>
     private EndingRewardHairParts(int stage, SpriteComposition supplied)
     {
         this.stage = stage;
@@ -27,9 +34,16 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
         }
     }
+    /// <summary>Mirrors a sixteen-pixel forearm around the vertical axis and offsets its counterpart one pixel upward.</summary>
+    /// <param name="anchor">Position of the authored forearm.</param>
+    /// <returns>Position of the opposite forearm.</returns>
     internal static (int X, int Y) OppositeForearm((int X, int Y) anchor)
         // Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.
         => (1 - 16 - anchor.X, anchor.Y - 1);
+    /// <summary>Replaces recognized hair-release compositions with calculated atlas parts when their supplied part count matches.</summary>
+    /// <param name="pointer">Native spritemap pointer identifying the pose.</param>
+    /// <param name="supplied">Imported composition retained for unrecognized poses or incompatible part counts.</param>
+    /// <returns>The calculated hair composition for a matching pose, otherwise the original supplied composition.</returns>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 8; stage++)
@@ -41,6 +55,10 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
+    /// <summary>Returns the authored number of sprite pieces for a hair-release stage.</summary>
+    /// <param name="stage">Zero-based stage selector from zero through seven.</param>
+    /// <returns>The number of pieces emitted by the stage's spritemap.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The stage is outside the eight recognized poses.</exception>
     private static int PartCount(int stage) => stage switch
     {
         0 or 4 => 9,
@@ -49,7 +67,13 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         7 => 13,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
+    /// <summary>Gets the piece count required by this stage's native spritemap.</summary>
     public int Count => PartCount(stage);
+
+    /// <summary>Gets the calculated atlas piece at its native composition index.</summary>
+    /// <param name="index">Zero-based piece index within this stage.</param>
+    /// <returns>The positioned and attributed sprite piece.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside this stage's piece range.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -141,6 +165,8 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the calculated pieces in the order expected by the native spritemap composition.</summary>
+    /// <returns>An enumerator over this stage's positioned sprite pieces.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

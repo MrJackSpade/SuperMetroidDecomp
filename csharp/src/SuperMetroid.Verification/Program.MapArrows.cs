@@ -9,6 +9,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Compares native and installed map arrows, exercises editable positions and timing, and validates restore and failure behavior.</summary>
+    /// <param name="bus">Address space used by native and guarded installed menu paths.</param>
+    /// <param name="stock">Directory containing the stock map-arrow presentation document.</param>
+    /// <param name="overrides">Directory where the edited arrow document is written and loaded.</param>
+    /// <param name="original">Selected stock presentation catalog used for native comparisons.</param>
     private static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new MapArrowReadGuard(bus);
@@ -99,10 +104,17 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Rejects reads of arrow graphics metadata while forwarding permitted cartridge and mutable-memory access.</summary>
     private sealed class MapArrowReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Underlying address space used for requests that are permitted by the guard.</summary>
         private readonly ISnesAddressSpace source;
+
+        /// <summary>Bus addresses occupied by native arrow records, animation tables, and sprite instructions.</summary>
         private readonly HashSet<int> forbidden = new();
+
+        /// <summary>Builds the blocked metadata ranges by following the retail arrow definitions and sprite programs.</summary>
+        /// <param name="source">Retail-backed address space used to discover native arrow data and serve allowed reads.</param>
         public MapArrowReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
@@ -121,27 +133,47 @@ internal static partial class Program
             }
             void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         }
+        /// <summary>Throws when an installed arrow path attempts to read one of the recorded ROM metadata bytes.</summary>
+        /// <param name="address">Bus address about to be accessed.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to native arrow presentation metadata.</exception>
         private void RejectArrowSource(int address)
         {
             if (forbidden.Contains(address))
                 throw new InvalidOperationException($"Installed arrows read visual metadata from ROM at {address:X6}.");
         }
+        /// <summary>Checks ordinary byte reads against the blocked metadata set before forwarding them.</summary>
+        /// <param name="address">Bus address of the requested byte.</param>
+        /// <returns>The forwarded byte if the address is allowed.</returns>
         public byte ReadByte(int address)
         {
             RejectArrowSource(address);
             return source.ReadByte(address);
         }
+        /// <summary>Checks cartridge reads against the blocked metadata set before using the import source.</summary>
+        /// <param name="address">Cartridge bus address of the requested byte.</param>
+        /// <returns>The imported cartridge byte if the address is allowed.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectArrowSource(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
+        /// <summary>Reads work RAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">Work-RAM bus address to read.</param>
+        /// <returns>The byte stored at the requested work-RAM address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-arrow guard source does not expose WRAM.")).ReadWorkRamByte(address);
+
+        /// <summary>Reads save RAM through the wrapped mutable-memory interface.</summary>
+        /// <param name="address">Save-RAM bus address to read.</param>
+        /// <returns>The byte stored at the requested save-RAM address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Map-arrow guard source does not expose SRAM.")).ReadSaveRamByte(address);
+
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Bus address receiving the write.</param>
+        /// <param name="value">Byte written at <paramref name="address"/>.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

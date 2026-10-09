@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed scrolling-sky pages against cartridge data and checks their door and frame-time VRAM transfers.</summary>
     private static void VerifyRoomSkyTilemaps()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -193,29 +194,47 @@ internal static partial class Program
             "per-frame NMI transfers use installed art and native wrapped WRAM, and an edit reaches the queued row.");
     }
 
+    /// <summary>Bus proxy that rejects reads from installed sky pages and, optionally, the compiled Landing Site transfer list.</summary>
+    /// <param name="source">Underlying cartridge and memory bus for permitted operations.</param>
+    /// <param name="blockLandingList">Whether reads of the Landing Site library-background list are also forbidden.</param>
     private sealed class SkyPageReadGuard(ISnesAddressSpace source,
         bool blockLandingList = false) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Rejects reads from installed sky-page source addresses and forwards other generic reads.</summary>
+        /// <param name="address">Address requested by the renderer or loader.</param>
+        /// <returns>The byte read from the underlying source when allowed.</returns>
         public byte ReadByte(int address)
         {
             CheckRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Applies the same forbidden-range checks before forwarding an imported cartridge read.</summary>
+        /// <param name="address">Cartridge address requested for import.</param>
+        /// <returns>The byte returned by the wrapped import source when allowed.</returns>
         public byte ReadCartridgeByte(int address)
         {
             CheckRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Forwards typed work-RAM reads to the underlying mutable-memory source.</summary>
+        /// <param name="address">Work-RAM address requested by the transfer.</param>
+        /// <returns>The byte at that address.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Sky verification source requires WRAM.")).ReadWorkRamByte(address);
 
+        /// <summary>Forwards typed save-RAM reads to the underlying mutable-memory source.</summary>
+        /// <param name="address">Save-RAM address requested by the transfer.</param>
+        /// <returns>The byte at that address.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Sky verification source requires SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Rejects reads that would bypass installed sky artwork or a requested compiled transfer-list replacement.</summary>
+        /// <param name="address">Address about to be read through a guarded path.</param>
+        /// <exception cref="InvalidOperationException">The address belongs to a protected sky page or blocked transfer list.</exception>
         private void CheckRead(int address)
         {
             if (address >= RoomSkyTilemapFormat.FirstSourceAddress &&
@@ -233,15 +252,29 @@ internal static partial class Program
                     $"Landing Site entry reread compiled transfer list ${address:X6}.");
         }
 
+        /// <summary>Forwards writes without applying the proxy's read restrictions.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Provides installed sky-page bytes to queued VRAM transfers without consulting cartridge visual data.</summary>
+    /// <param name="art">Catalog that resolves page source addresses and requested transfer lengths.</param>
     private sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Rejects generic asset-ID lookup because this provider serves address-selected sky pages.</summary>
+        /// <param name="asset">Generic asset identifier, which is not valid for this address-based provider.</param>
+        /// <returns>No data; this operation always throws because no generic assets are accepted.</returns>
+        /// <exception cref="InvalidOperationException">A caller requests a generic asset instead of an installed sky-page range.</exception>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Unexpected queued asset {asset}.");
 
+        /// <summary>Looks up a requested transfer by its original cartridge source address and byte length.</summary>
+        /// <param name="sourceAddress">Native source address identifying a catalog page range.</param>
+        /// <param name="byteCount">Number of bytes requested for the VRAM transfer.</param>
+        /// <param name="data">Receives the resolved installed bytes when the range is present.</param>
+        /// <returns><see langword="true"/> when the catalog contains the requested range.</returns>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => art.TryResolve(sourceAddress, byteCount, out data);
     }

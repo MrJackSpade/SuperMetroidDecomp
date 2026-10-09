@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs Skree and Metaree mechanics, presentation, and program-phase checks against the retail ROM.</summary>
     private static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled instruction words and executes every animation phase for both species behind a read guard.</summary>
+    /// <param name="rom">Retail address space supplying the native instruction and visual-operand references.</param>
     private static void VerifySkreeMetareeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -165,8 +168,13 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Returns the display label used to identify one member of the Skree/Metaree pair in verification messages.</summary>
+    /// <param name="metaree"><see langword="true"/> to select Metaree; otherwise, select Skree.</param>
+    /// <returns>The species label used by assertions.</returns>
     private static string SpeciesName(bool metaree) => metaree ? "Metaree" : "Skree";
 
+    /// <summary>Warms and repeats one compiled mechanics lookup for each species so the caller can measure allocation behavior.</summary>
+    /// <returns>A checksum that keeps both lookup results observable.</returns>
     private static int ProbeSkreeMetareeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -180,19 +188,35 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction or presentation word from the supplied address space.</summary>
+    /// <param name="bus">Address space containing the word bytes.</param>
+    /// <param name="address">Address of the low byte.</param>
+    /// <returns>The low byte followed by the high byte as a 16-bit value.</returns>
     private static ushort ReadSkreeMetareeInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Rejects reads of compiled Skree/Metaree mechanics and installed visual selectors, forwarding other requests.</summary>
+    /// <param name="source">Underlying address space used for reads outside the guarded ranges and for writes.</param>
     private sealed class SkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of read attempts targeting installed Skree or Metaree visual-selector words.</summary>
         internal int ForbiddenPresentationReadAttempts { get; private set; }
+
+        /// <summary>Number of read attempts targeting bytes represented by compiled mechanics definitions.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge imports through the same forbidden-address checks as ordinary reads.</summary>
+        /// <param name="address">Cartridge address requested by the importer.</param>
+        /// <returns>The byte returned by the guarded address-space read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects compiled mechanics and presentation bytes, forwarding unrelated reads to the source.</summary>
+        /// <param name="address">Address requested by production code.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to compiled mechanics or an installed presentation selector.</exception>
         public byte ReadByte(int address)
         {
             if (SkreeMetareeInstructionProgramDefinitions.IsCompiledMechanicsByte(address))
@@ -227,6 +251,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged; the guard monitors read accesses only.</summary>
+        /// <param name="address">Address receiving the write.</param>
+        /// <param name="value">Byte value forwarded to the source.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

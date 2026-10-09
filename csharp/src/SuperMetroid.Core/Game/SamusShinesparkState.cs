@@ -315,9 +315,9 @@ public sealed class SamusShinesparkState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (Phase != ShinesparkPhase.Windup)
-            throw new InvalidOperationException("Directional shinespark launch requires windup.");
-
+        // `$91:FACA` installs the launch handler over whatever handler is current. A windup
+        // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
+        // pose and the windup's speeds, and a direction still launches from it.
         Phase = targetPose switch
         {
             SamusPoseIds.ShinesparkHorizontalRightPose or

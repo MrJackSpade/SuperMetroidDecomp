@@ -11,9 +11,16 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Hash-checked stock BG tilemaps and persistent editable tile-reference overrides.</summary>
 public static class RoomBackgroundTilemapArtworkFiles
 {
+    /// <summary>Stock manifest filename recording every library-background source address, native transfer length, and JSON hash.</summary>
     public const string ManifestFileName = "room-backgrounds.json";
     private const int FormatVersion = 1;
 
+    /// <summary>Creates one editable tilemap JSON file per retail compressed library-background source and records its provenance.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying the compiled background sources.</param>
+    /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with source addresses, one- or two-page transfer lengths, and file hashes.</param>
+    /// <remarks>Preserves ordered 32x32 BG pages with exact native-word roundtrips; does not read or write player overrides.</remarks>
+    /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -39,6 +46,12 @@ public static class RoomBackgroundTilemapArtworkFiles
             new RoomBackgroundFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
     }
 
+    /// <summary>Checks stock background provenance and compiles each selected tilemap resource without cartridge access.</summary>
+    /// <param name="stockDirectory">Directory containing the supported-cartridge manifest and all hash-checked stock JSON files.</param>
+    /// <param name="overrideDirectory">Optional directory of same-named complete JSON replacements; null or a missing replacement selects that stock file.</param>
+    /// <returns>A catalog owning the selected ordered BG transfer bytes, keyed by immutable native source address.</returns>
+    /// <remarks>Always checks each stock hash before selection, then validates the chosen document against its manifest transfer length. An override cannot alter source identities or page count.</remarks>
+    /// <exception cref="InvalidDataException">The manifest, source coverage, stock hash, transfer length, or selected tilemap document is invalid.</exception>
     public static RoomBackgroundTilemapCatalog Load(string stockDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
@@ -87,6 +100,9 @@ public static class RoomBackgroundTilemapArtworkFiles
         return new RoomBackgroundTilemapCatalog(selected);
     }
 
+    /// <summary>Checks the background manifest, hashes, and all stock tilemap documents with overrides disabled.</summary>
+    /// <param name="stockDirectory">Installed background-art directory to validate without cartridge reads or file writes.</param>
+    /// <exception cref="InvalidDataException">Stock provenance, coverage, transfer sizes, hashes, or tilemap content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -13,9 +13,16 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomCharacterArtworkFiles
 {
+    /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
     private const int FormatVersion = 2;
 
+    /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost span.</param>
+    /// <param name="directory">Output directory, created if needed; every PNG and manifest filename must be new.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with each PNG's hash and native byte count.</param>
+    /// <remarks>Deduplicates shared sources and verifies exact four-bit planar roundtrips. PNG palettes are diagnostic, not runtime colors; player overrides are not accessed.</remarks>
+    /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);

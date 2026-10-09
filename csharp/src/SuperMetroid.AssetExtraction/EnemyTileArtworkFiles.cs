@@ -20,6 +20,12 @@ public static class EnemyTileArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Writes the complete retail enemy-art installation: character sheets, palettes, sprite compositions, and supplemental boss and cutscene resources.</summary>
+    /// <param name="bus">Non-null cartridge import address space supplying room-enemy graphics definitions and the associated artwork sources.</param>
+    /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten.</param>
+    /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
+    /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage and native pixel/color roundtrips. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
+    /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, palette representation, or resource roundtrip validation are invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -1137,6 +1143,10 @@ public static class EnemyTileArtworkFiles
         }
     }
 
+    /// <summary>Validates and compiles the complete installed enemy-art catalog without selecting any player overrides.</summary>
+    /// <param name="stockDirectory">Directory containing the enemy manifest and all ordinary and supplemental stock resources.</param>
+    /// <remarks>Checks the supported cartridge identity, retail definition coverage, manifest hashes, and resource schemas without cartridge access or file writes.</remarks>
+    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)

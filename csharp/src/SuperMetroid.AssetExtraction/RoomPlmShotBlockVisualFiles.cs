@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmShotBlockVisualFiles
 {
+    /// <summary>Family-relative stock/override JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
     public const string VisualFileName = "shot-blocks.json";
+    /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,15 @@ public static class RoomPlmShotBlockVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Verifies ordinary shot-block bank-$84 draw geometry, complete physical words, and continuation offsets before exporting visual-only run arrays.</summary>
+    /// <param name="bus">Cartridge source for all nineteen compiled draws; stored identities are draw-list pointers, not PLM headers or instruction pointers.</param>
+    /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputing it; stock load requires the supported cartridge identity.</param>
+    /// <remarks>Words retain metatile/parent-flip bits 0..11 in native run order. Existing files are refused and separate JSON/manifest writes are not rolled back together.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native draw data differs from compiled cartridge definitions.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +54,14 @@ public static class RoomPlmShotBlockVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates all stock shot-block draws before selecting an optional complete visual replacement.</summary>
+    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
+    /// <returns>A ROM-independent catalog that copies edited run arrays and preserves native collision words, draw placement, timing, and slot effects.</returns>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked first. Override JSON needs all nineteen draw pointers exactly once, original run counts/lengths, and twelve-bit visual words, but no manifest.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmShotBlockVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -72,6 +91,9 @@ public static class RoomPlmShotBlockVisualFiles
         return CreateCatalog(selected, overridePath);
     }
 
+    /// <summary>Runs stock provenance, hash, schema, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge access, or writes.</summary>
+    /// <param name="directory">Shot-block family directory containing both required stock files.</param>
+    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmShotBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

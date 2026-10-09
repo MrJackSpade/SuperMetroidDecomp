@@ -12,7 +12,9 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 public static class RoomPlmGrappleBlockVisualFiles
 {
+    /// <summary>Family-relative stock/override JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
     public const string VisualFileName = "grapple-blocks.json";
+    /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     private const int FormatVersion = 1;
 
@@ -23,6 +25,15 @@ public static class RoomPlmGrappleBlockVisualFiles
         WriteIndented = true,
     };
 
+    /// <summary>Checks every six-byte bank-$84 Grapple-block draw record and exports its pointer-keyed twelve-bit visual word.</summary>
+    /// <param name="bus">Cartridge source for the five compiled one-cell draws, including full collision words and terminating offsets.</param>
+    /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, not recomputed here; stock load requires the supported identity.</param>
+    /// <remarks>Only metatile/flip bits are editable. Existing files are not overwritten, and separate JSON/manifest writes can leave a partial installation.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Native draw data differs from compiled cartridge definitions.</exception>
+    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -43,6 +54,14 @@ public static class RoomPlmGrappleBlockVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates the five stock Grapple-block frames before selecting an optional complete artwork replacement.</summary>
+    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
+    /// <param name="overrideDirectory">Optional family directory; null or missing visual JSON selects validated stock.</param>
+    /// <returns>A ROM-independent pointer-to-visual-word catalog; Grapple collision, breakup timing, and one-cell geometry remain compiled.</returns>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory even with an override. Override JSON needs each compiled draw pointer exactly once and twelve-bit words, but no manifest.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, document version, pointer coverage/uniqueness, or visual-only bits are invalid.</exception>
+    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static RoomPlmGrappleBlockVisualCatalog Load(
         string stockDirectory, string? overrideDirectory)
     {
@@ -78,6 +97,9 @@ public static class RoomPlmGrappleBlockVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
+    /// <summary>Runs stock provenance, hash, schema, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge access, or writes.</summary>
+    /// <param name="directory">Grapple-block family directory containing both required stock files.</param>
+    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     private static RoomPlmGrappleBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)

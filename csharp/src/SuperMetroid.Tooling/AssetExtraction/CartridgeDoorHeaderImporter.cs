@@ -7,6 +7,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Reads one native twelve-byte bank-$83 door record during import.</summary>
 public static class CartridgeDoorHeaderImporter
 {
+    /// <summary>Decodes the destination, orientation, entry coordinates, distance, and setup-code pointer from one native bank-$83 door record.</summary>
+    /// <param name="bus">Address space implementing the import-only cartridge-source capability.</param>
+    /// <param name="pointer">Sixteen-bit door-record address within bank $83.</param>
+    /// <returns>The decoded door header retaining its native pointer identity; no runtime state is changed.</returns>
     public static CartridgeDoorHeader Load(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);

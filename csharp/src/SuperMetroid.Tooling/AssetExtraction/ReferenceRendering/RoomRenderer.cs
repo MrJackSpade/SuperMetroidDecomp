@@ -30,6 +30,7 @@ public static class RoomRenderer
 {
     // RoomHeader_LandingSite ($8F:91F8) declares a 9x5-screen room. Every state uses
     // graphics set 0 and LevelData_LandingSite; music, enemies, effects, and PLMs vary.
+    /// <summary>Static 9-by-5-screen Landing Site definition from RoomHeader_LandingSite ($8F:91F8), using graphics set 0 and the shared level data without state-specific actors or effects.</summary>
     public static readonly RoomRenderDefinition LandingSite = new(
         "Landing Site", 9, 5,
         "LevelData_LandingSite.bin",

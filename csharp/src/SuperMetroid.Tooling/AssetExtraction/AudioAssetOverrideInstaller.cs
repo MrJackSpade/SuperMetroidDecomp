@@ -7,6 +7,9 @@
 /// </summary>
 public static class AudioAssetOverrideInstaller
 {
+    /// <summary>Validates installed stock audio and stages a complete editable copy outside the stock game directory, refusing to overwrite an existing override.</summary>
+    /// <param name="installation">Installation supplying the stock catalog and persistent override destination.</param>
+    /// <returns>The absolute override-directory path after the validated staging directory has been moved into place.</returns>
     public static string Initialize(GameInstallation installation)
     {
         ArgumentNullException.ThrowIfNull(installation);

@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--air-spike-alpha-radius"])
+{
+    Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
+    return 0;
+}
 if (args is ["--square-slope-beam-collision"])
 {
     Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
@@ -7855,6 +7860,7 @@ Suite(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits());
 Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
 Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
 Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
+Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

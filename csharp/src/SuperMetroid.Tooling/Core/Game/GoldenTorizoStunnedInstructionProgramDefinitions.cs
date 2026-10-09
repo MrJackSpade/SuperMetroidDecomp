@@ -23,8 +23,14 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+
+    /// <summary>Provides the bank that contains this native instruction program.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>
+    /// Compiles the stunned entry, four repeated tile-copy operations, timer loop, and
+    /// walking continuation; tile artwork remains in the separately installed descriptors.
+    /// </summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd193),
         Entry(Start),
@@ -52,12 +58,20 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
         Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
+    /// <summary>Number of compiled instruction and operand words in the stunned program.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+
+    /// <summary>Returns a compiled control word and its native address by ordinal.</summary>
+    /// <param name="index">Zero-based ordinal among the program's mechanics words.</param>
+    /// <returns>The bank-local address and value of the selected word.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
+    /// <summary>Checks whether a full address selects a byte owned by the compiled mechanics layout.</summary>
+    /// <param name="address">Full SNES address to classify.</param>
+    /// <returns><see langword="true"/> for a compiled mechanics byte; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

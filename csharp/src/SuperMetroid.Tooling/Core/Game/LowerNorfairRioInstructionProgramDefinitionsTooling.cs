@@ -6,8 +6,16 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(LowerNorfairRioInstructionProgramDefinitions))]
 internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of compiled mechanics words across the Lower Norfair Rio programs.</summary>
     public static int MechanicsWordCount => 51;
+
+    /// <summary>Number of interleaved spritemap operands supplied by Rio presentation artwork.</summary>
     public static int PresentationWordCount => 32;
+
+    /// <summary>Returns a mechanics word from the contiguous compiled program range in address order.</summary>
+    /// <param name="index">Zero-based index among mechanics words, excluding presentation operands.</param>
+    /// <returns>The bank-$A2 address and value of the selected control, timing, or callback word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the 51 compiled mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -19,6 +27,10 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Returns the native address of one interleaved Rio spritemap operand.</summary>
+    /// <param name="index">Zero-based index among the presentation words.</param>
+    /// <returns>The bank-$A2 address whose word is supplied by presentation data.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the 32 presentation slots.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -30,6 +42,9 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Checks whether a byte in the Rio program range belongs to a compiled mechanics word.</summary>
+    /// <param name="address">Full 24-bit cartridge address to classify.</param>
+    /// <returns><see langword="true"/> for either byte of a bank-$A2 mechanics word, excluding presentation operands.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)

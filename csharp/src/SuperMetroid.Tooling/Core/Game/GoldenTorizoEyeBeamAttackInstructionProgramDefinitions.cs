@@ -25,8 +25,11 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+
+    /// <summary>Bank identifier advertised to tooling that locates this catalog's native instruction addresses.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Ordered layout of the callable eye-beam attack, including its spawn and tile-transfer loops.</summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd10d),
         Entry(Start),
@@ -63,12 +66,21 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
         Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
         Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
+    /// <summary>Number of non-presentation words compiled from the eye-beam attack instruction list.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+
+    /// <summary>Returns one mechanics word from the layout's address-ordered mechanics entries.</summary>
+    /// <param name="index">Zero-based index among the compiled mechanics words.</param>
+    /// <returns>The native address and value of the selected timing, control, or projectile-spawn word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics entries.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
+    /// <summary>Checks whether an absolute bank-$AA address is either byte of a mechanics word in the compiled attack list.</summary>
+    /// <param name="address">24-bit SNES address to classify.</param>
+    /// <returns><see langword="true"/> for a byte belonging to a compiled mechanics word; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

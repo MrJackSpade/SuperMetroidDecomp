@@ -6,8 +6,16 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(FuneNamiheInstructionProgramDefinitions))]
 internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of compiled timing, callback, and loop-control words across both species and facings.</summary>
     public static int MechanicsWordCount => 62;
+
+    /// <summary>Gets the number of live spritemap operands interleaved with the eight instruction programs.</summary>
     public static int PresentationWordCount => 38;
+
+    /// <summary>Gets one compiled mechanics word in Fune-then-Namihe program order.</summary>
+    /// <param name="index">Zero-based index into the adapter's compiled mechanics-word sequence.</param>
+    /// <returns>The address and value of the selected control word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the 62 mechanics words.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -26,6 +34,11 @@ internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstru
             (namihe ? 52 : 48) * (speciesIndex / wordsPerFacing) + offset);
         return new(address, FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+
+    /// <summary>Returns the bank-$A8 address of an interleaved visual-frame pointer.</summary>
+    /// <param name="index">Zero-based operand index across the Fune and Namihe programs.</param>
+    /// <returns>Address of the selected presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the 38 presentation operands.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -37,6 +50,10 @@ internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstru
         return (ushort)((namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft) +
             (namihe ? 52 : 48) * (speciesIndex / frames) + offset);
     }
+
+    /// <summary>Checks whether a bank-$A8 byte belongs to compiled control data rather than a live presentation operand.</summary>
+    /// <param name="address">24-bit cartridge address to classify.</param>
+    /// <returns><see langword="true"/> for a byte of a compiled mechanics word; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;

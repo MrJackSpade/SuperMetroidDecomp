@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--bomb-jump-run-momentum"])
+{
+    Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
+    return 0;
+}
 if (args is ["--contact-damage-sound"])
 {
     Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
@@ -7974,6 +7979,7 @@ Suite(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag());
 Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
 Suite(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQuake());
 Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
+Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

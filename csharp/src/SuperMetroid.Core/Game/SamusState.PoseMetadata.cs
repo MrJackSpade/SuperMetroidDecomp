@@ -692,11 +692,13 @@ public sealed partial class SamusState
     }
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
+    /// <remarks>The newly pressed buttons feed the transition-shot test at $91:F5CF.</remarks>
     public bool TrySetupPublishedBombJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
         bool timeIsFrozen,
         ushort nmiFrameCounter,
+        ushort controllerNewInput,
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -757,6 +759,16 @@ public sealed partial class SamusState
                 RefreshCollisionRadii(bus);
                 Kinematics.YPosition = unchecked((ushort)(
                     Kinematics.YPosition + centerAdjustment));
+
+                // The special target installs through $91:F433, which dispatches the new
+                // normal-jumping type to $91:F543: retained extra run speed selects
+                // deceleration, and a fresh Shoot press arms the transition shot. $F433
+                // then restores the suit palette after a wall jump with Screw Attack.
+                InitializeOrdinaryAerialAcceleration();
+                PublishNormalJumpPoseShotDirection(bus, controllerNewInput);
+                if (movementType == SamusMovementType.WallJumping &&
+                    EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+                    HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).

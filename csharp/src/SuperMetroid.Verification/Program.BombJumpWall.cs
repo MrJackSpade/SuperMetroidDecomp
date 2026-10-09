@@ -62,7 +62,7 @@ internal static partial class Program
         hurt.RefreshCollisionRadii(bus);
         hurt.InitializeAnimation(bus);
         hurt.PublishBombJumpDirection(2);
-        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0), "hurt pose admits bomb start");
+        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(bus, hurt);
         hurt.Kinematics.YSpeed = 1;
         hurt.Kinematics.YSubspeed = 0;
@@ -74,7 +74,7 @@ internal static partial class Program
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseIds.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         hurt.PublishBombJumpDirection(2);
-        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0), "fresh bomb command rearms retained hurt pose");
+        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
         AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
 
         // Damage may interrupt a humanoid bomb start before its first moving frame.

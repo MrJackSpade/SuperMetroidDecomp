@@ -2430,6 +2430,7 @@ Landed: true, HitCeiling: false);
                             "A published bomb-jump direction requires active room level data."),
                         TimeIsFrozen,
                         NmiFrameCounter,
+                        Controller1.NewlyPressed,
                         Plms))
                 {
                     ProspectiveSamusPose = null;

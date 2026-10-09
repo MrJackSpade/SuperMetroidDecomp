@@ -88,6 +88,9 @@ public sealed partial class SuperMetroidGame
 
     private void ApplyDisplayBrightness(byte brightness)
     {
+        // Every published level is a write of the brightness register $51; pause entry
+        // fades from the last one.
+        pauseBrightness = brightness;
         using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is not null && capturedDisplay is { } frame)
         {

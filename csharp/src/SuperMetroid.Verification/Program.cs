@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--drained-spark-crash"])
+{
+    Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
+    return 0;
+}
 if (args is ["--baby-metroid-wall-clear-timing"])
 {
     Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
@@ -7986,6 +7991,7 @@ Suite(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQ
 Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
 Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
 Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
+Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

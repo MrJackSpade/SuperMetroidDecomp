@@ -7,17 +7,31 @@ public static class SamusShinesparkProjectileRomData
 {
     /// <summary>$90:D40D writes type $8029 before InitializeShinesparkEchoOrSpazerSba.</summary>
     public const ushort EchoType = 0x8029;
-    /// <summary>$90:D4C6..D4D1: horizontal, vertical and diagonal crash poses select an axis and its opposite.</summary>
+    /// <summary>
+    /// $90:D4C6..D4D1, indexed by (pose - $C9) * 2: the crash's two echo angle indices. The six
+    /// crash poses select an axis and its opposite.
+    /// </summary>
+    /// <remarks>
+    /// The routine indexes with whatever pose is installed when the crash finishes. A drained
+    /// controller ($91:E4F8) can replace the crash pose with $E8/$E9 while the crash keeps its
+    /// movement handler, and those indices read on into the code of $90:D4D2: the bytes at
+    /// $90:D504/$D505 and $90:D506/$D507.
+    /// </remarks>
     internal static (SnesAngle First, SnesAngle Second) DepartureAngles(byte pose)
     {
-        SnesAngle first = pose switch
+        (byte first, byte second) = pose switch
         {
-            SamusPoseIds.ShinesparkHorizontalRightPose or SamusPoseIds.ShinesparkHorizontalLeftPose => SnesAngle.Zero,
-            SamusPoseIds.ShinesparkVerticalRightPose or SamusPoseIds.ShinesparkVerticalLeftPose => SnesAngle.QuarterTurn,
-            SamusPoseIds.ShinesparkDiagonalRightPose => SnesAngle.NormalizeRaw(-SnesAngle.QuarterTurn.RawValue / 2),
-            SamusPoseIds.ShinesparkDiagonalLeftPose => SnesAngle.NormalizeRaw(SnesAngle.QuarterTurn.RawValue / 2),
-            _ => throw new InvalidOperationException($"Shinespark crash finish requires pose $C9-$CE, not ${pose:X2}."),
+            SamusPoseIds.ShinesparkHorizontalRightPose => ((byte)0x00, (byte)0x80),
+            SamusPoseIds.ShinesparkHorizontalLeftPose => ((byte)0x00, (byte)0x80),
+            SamusPoseIds.ShinesparkVerticalRightPose => ((byte)0x40, (byte)0xc0),
+            SamusPoseIds.ShinesparkVerticalLeftPose => ((byte)0x40, (byte)0xc0),
+            SamusPoseIds.ShinesparkDiagonalRightPose => ((byte)0xe0, (byte)0x60),
+            SamusPoseIds.ShinesparkDiagonalLeftPose => ((byte)0x20, (byte)0xa0),
+            SamusPoseIds.DrainedCrouchingRightPose => ((byte)0x16, (byte)0x9d),
+            SamusPoseIds.DrainedCrouchingLeftPose => ((byte)0xb6, (byte)0x0a),
+            _ => throw new InvalidOperationException(
+                $"Shinespark crash finish has no modeled echo angles for pose ${pose:X2}."),
         };
-        return (first, first.AddRaw(SnesAngle.HalfTurn.RawValue));
+        return (SnesAngle.FromTableIndex(first), SnesAngle.FromTableIndex(second));
     }
 }

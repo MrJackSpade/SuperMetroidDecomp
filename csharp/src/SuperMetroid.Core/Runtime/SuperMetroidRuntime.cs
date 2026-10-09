@@ -1730,11 +1730,14 @@ public sealed partial class SuperMetroidRuntime
                 // with `$90:94CB`; the other phases stay motionless while enemy AI controls
                 // pose/timing. This branch is reached only when no independently retained
                 // Crystal Flash pointer still owns the physical movement-handler word.
+                // Controller zero ($91:E4F8) changes only the pose, so a crashing spark keeps
+                // its handler and finishes below; `$F7` relinquishes the spark itself.
                 // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
                 // `$E725` during enemy AI, this same frame's beta dispatches the knockback
                 // pose's type-$0A mover below, as `$90:A5FC` does natively.
                 else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive &&
-                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked))
+                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked) &&
+                    (Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !Samus.Shinespark.OwnsMovementHandler))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -1750,11 +1753,7 @@ public sealed partial class SuperMetroidRuntime
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
                 // launch, and crash therefore own beta movement regardless of the pose's
                 // table index; ordinary type-$1B physics does not exist to fall back to.
-                else if (Samus.Shinespark.Phase is
-                    ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or
-                    ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal or
-                    ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
-                    ShinesparkPhase.CrashFinish)
+                else if (Samus.Shinespark.OwnsMovementHandler)
                 {
                     // Determine_Samus_YAcceleration supplies the environment-selected pair
                     // used as spark acceleration. Projectile_Func7 does not replace it.

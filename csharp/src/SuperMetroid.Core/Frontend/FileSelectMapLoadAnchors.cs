@@ -28,6 +28,8 @@ public static class FileSelectMapLoadAnchors
 }
 
 /// <summary>Player-map position supplied to native initial-scroll clipping, not a marker drawing origin.</summary>
+/// <param name="X">Horizontal map-pixel coordinate used to initialize scrolling around the loaded Samus position.</param>
+/// <param name="Y">Vertical map-pixel coordinate used for initial scrolling, including the native one-row map projection offset.</param>
 public readonly record struct FileSelectMapAnchor(ushort X, ushort Y);
 
 /// <summary>Compiled $81:AAA0 FileSelectMapArea_IndexTable order used by label composition.</summary>

@@ -68,7 +68,9 @@ internal static class IntroEggEffectDefinitions
         new(0xaab3, 0xcd69);
 }
 
-/// <summary>One native six-byte shell/slime cinematic-object definition.</summary>
+/// <summary>One native six-byte shell/slime cinematic-object definition used to initialize and animate an intro effect.</summary>
+/// <param name="PreInstruction">Bank-$8B callback invoked before the object's instruction list advances.</param>
+/// <param name="InstructionList">Bank-$8B address of the object's first animation instruction.</param>
 internal readonly record struct IntroEggEffectActorDefinition(
     ushort PreInstruction,
     ushort InstructionList);

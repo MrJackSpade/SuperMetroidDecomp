@@ -346,6 +346,7 @@ internal abstract class CrocomireInstructionProgramDefinitions
     /// <summary>Native program bank $A4.</summary>
     internal const byte Bank = 0xa4;
 
+    /// <summary>Compiled body, melting, bridge, and skeleton instruction streams in their native entry-point layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbade),
         Entry(Initial),
@@ -813,6 +814,10 @@ internal abstract class CrocomireInstructionProgramDefinitions
         Frame(20),
         Op(CommonEnemyInstructionCodes.Goto, SkeletonFlowingDownRiver));
 
+    /// <summary>Resolves a modeled mechanics operand while excluding live spritemap words and unrelated programs.</summary>
+    /// <param name="address">Bank-$A4 offset of the instruction word to resolve.</param>
+    /// <returns>The compiled mechanics value at that offset.</returns>
+    /// <exception cref="InvalidDataException">The offset is not part of the compiled Crocomire mechanics layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

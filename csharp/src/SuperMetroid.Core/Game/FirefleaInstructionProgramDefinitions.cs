@@ -8,6 +8,7 @@ internal abstract class FirefleaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Fireflea</c> at $A3:8C2F.</summary>
     internal const ushort Loop = 0x8c2f;
+    /// <summary>Number of timed visual selections in the Fireflea instruction loop before its return-to-loop words.</summary>
     internal const int FrameCount = 52;
 
     /// <summary>Whether an address is one of the 52 visual operands.</summary>
@@ -16,6 +17,10 @@ internal abstract class FirefleaInstructionProgramDefinitions
         address <= Loop + (FrameCount - 1) * 4 + 2 &&
         (address - Loop - 2) % 4 == 0;
 
+    /// <summary>Decodes a Fireflea frame duration or the final goto command and loop target from its native word address.</summary>
+    /// <param name="address">The bank-local address of a compiled mechanics word.</param>
+    /// <returns>The duration or loop-control value stored at the address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a mechanics word in the compiled Fireflea program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Loop;

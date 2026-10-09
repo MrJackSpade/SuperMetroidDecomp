@@ -15,9 +15,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
+    /// <summary>CGRAM color index receiving each palette record from the Hyper Beam FX program.</summary>
     private const int DestinationColorIndex =
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
+    /// <summary>Native instruction-list address of the next Hyper Beam palette-FX command.</summary>
     private ushort _instructionPointer;
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>

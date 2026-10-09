@@ -24,6 +24,10 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
+    /// <summary>Returns the native address of a palette operand in one of the timed flash frames.</summary>
+    /// <param name="index">Zero-based frame index among the fourteen palette events.</param>
+    /// <returns>The bank-$A9 address of that frame's palette selector word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the fourteen-frame program.</exception>
     internal static ushort PresentationWordAddress(int index) =>
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
             throw new IndexOutOfRangeException();
@@ -38,6 +42,10 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Reads a compiled frame duration or the closing loop instruction and target.</summary>
+    /// <param name="address">Bank-$A9 address of a mechanics word in the palette flash program.</param>
+    /// <returns>The fixed frame duration, Goto opcode, or flash-program start pointer stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlashStart;

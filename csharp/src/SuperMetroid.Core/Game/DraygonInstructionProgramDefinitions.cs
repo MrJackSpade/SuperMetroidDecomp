@@ -152,6 +152,7 @@ internal abstract class DraygonInstructionProgramDefinitions
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
 
+    /// <summary>Compiled address layout for Draygon's body and component instruction programs, including mechanics and presentation slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0x97b9),
         Entry(Sleep),
@@ -589,6 +590,10 @@ internal abstract class DraygonInstructionProgramDefinitions
         Frame(6),
         Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0));
 
+    /// <summary>Reads a word only when its compiled Draygon instruction slot is owned by mechanics.</summary>
+    /// <param name="address">Bank-local address of the candidate instruction word.</param>
+    /// <returns>The compiled mechanics value at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside the layout or names a presentation operand rather than mechanics data.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One fixed bank-$86 pickup animation selection record.</summary>
+/// <param name="TableOffset">Byte offset into the native pickup-animation selector table, retained in the projectile's variable field.</param>
+/// <param name="InstructionList">Bank-$86 instruction-list pointer installed on the pickup projectile.</param>
 internal readonly record struct EnemyPickupAnimationDefinition(
     ushort TableOffset,
     ushort InstructionList);

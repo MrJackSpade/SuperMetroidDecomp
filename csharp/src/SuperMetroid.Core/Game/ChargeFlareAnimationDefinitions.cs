@@ -17,6 +17,10 @@ internal static class ChargeFlareAnimationDefinitions
     internal const ushort GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const ushort GrappleInitialDelay = 3;
+    /// <summary>Reads a compiled charge-flare pointer-table or cadence byte at its cartridge address.</summary>
+    /// <param name="address">Full banked address of the requested byte.</param>
+    /// <returns>The pointer or animation-delay byte defined for that address.</returns>
+    /// <exception cref="InvalidDataException">The address is outside the compiled charge-flare byte ranges.</exception>
     internal static byte ReadByte(int address)
     {
         int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
@@ -39,6 +43,9 @@ internal static class ChargeFlareAnimationDefinitions
         int minimum = sparkOffset < 7 ? 3 : 2;
         return frame == 6 ? Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
     }
+    /// <summary>Reads a little-endian word from compiled charge-flare data without carrying into another bank.</summary>
+    /// <param name="address">Full banked address of the word's low byte.</param>
+    /// <returns>The word composed from the byte at <paramref name="address"/> and its bank-local successor.</returns>
     internal static ushort ReadWord(int address) =>
         (ushort)(ReadByte(address) | ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
 }

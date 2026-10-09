@@ -12,6 +12,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8B45</c>, horizontal flight facing right.</summary>
     internal const ushort FlyingRight = 0x8b45;
 
+    /// <summary>Number of compiled timing and goto words across both facing directions and their rising/flight loops.</summary>
     public static int MechanicsWordCount => 36;
 
     /// <summary>
@@ -34,6 +35,10 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitions
         return new((ushort)(start + 4 * frames + 2 * (word - frames)),
             word == frames ? CommonEnemyInstructionCodes.Goto : start);
     }
+    /// <summary>Finds the compiled mechanics value for a Norfair Pipe Bug instruction address.</summary>
+    /// <param name="address">The bank-local address of a timing or control word.</param>
+    /// <returns>The duration, goto command, or loop target encoded at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

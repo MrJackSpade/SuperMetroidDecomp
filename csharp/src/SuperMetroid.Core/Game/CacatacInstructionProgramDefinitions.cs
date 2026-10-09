@@ -48,6 +48,10 @@ internal abstract class CacatacInstructionProgramDefinitions
     /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
+    /// <summary>Reads a compiled duration, instruction pointer, or control target from either Cacatac program set.</summary>
+    /// <param name="address">Bank-relative address of an authored mechanics word in the upright or inverted lists.</param>
+    /// <returns>The mechanics value encoded at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -55,6 +59,10 @@ internal abstract class CacatacInstructionProgramDefinitions
             $"Cacatac instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve one address in the compiled upright or inverted instruction programs.</summary>
+    /// <param name="address">Candidate bank-relative byte address; only aligned addresses encoding mechanics words are accepted.</param>
+    /// <param name="value">Receives the compiled duration, instruction pointer, or control target, or zero when no word is defined there.</param>
+    /// <returns><see langword="true"/> when the address identifies a mechanics word; otherwise <see langword="false"/>.</returns>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - UpsideUpIdle;

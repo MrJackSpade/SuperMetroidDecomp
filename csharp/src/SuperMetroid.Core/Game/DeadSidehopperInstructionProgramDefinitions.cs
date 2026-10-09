@@ -32,6 +32,7 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Compiled timing and control-flow words for the hopping, idle, corpse, and initially-dead programs, excluding their live spritemap operands.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecac),
         Entry(AliveHopping),
@@ -58,6 +59,10 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
         Frame(1),
         Op(CommonEnemyInstructionCodes.Sleep));
 
+    /// <summary>Reads an authored timing or control-flow word from the sidehopper programs.</summary>
+    /// <param name="address">Bank-$A9 address of a compiled mechanics word.</param>
+    /// <returns>The instruction word stored at the requested address.</returns>
+    /// <exception cref="InvalidDataException">The address is not part of the compiled mechanics layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

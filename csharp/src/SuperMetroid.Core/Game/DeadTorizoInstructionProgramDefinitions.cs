@@ -17,6 +17,7 @@ internal abstract class DeadTorizoInstructionProgramDefinitions
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Compiled bank-$A9 mechanics for the corpse's one-tick entry delay and terminal sleep instruction.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd6dc),
         Entry(Stationary),
@@ -25,6 +26,10 @@ internal abstract class DeadTorizoInstructionProgramDefinitions
         Entry(SleepOpcode),
         Op(CommonEnemyInstructionCodes.Sleep));
 
+    /// <summary>Reads a compiled duration or control word from the stationary corpse program.</summary>
+    /// <param name="address">Bank-relative address of a mechanics word in the compiled program.</param>
+    /// <returns>The value stored at that mechanics address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word for Dead Torizo.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

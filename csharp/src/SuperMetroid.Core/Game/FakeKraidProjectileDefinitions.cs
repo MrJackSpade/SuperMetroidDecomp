@@ -46,6 +46,8 @@ internal enum FakeKraidSpikeRow
 }
 
 /// <summary>One signed 8.8 Fake Kraid spit launch-velocity pair.</summary>
+/// <param name="XVelocity">Signed 8.8 horizontal velocity; its sign is mirrored to match Kraid's facing.</param>
+/// <param name="YVelocity">Signed 8.8 vertical velocity, negative for the upward launch.</param>
 internal readonly record struct FakeKraidSpitLaunch(
     ushort XVelocity,
     ushort YVelocity);

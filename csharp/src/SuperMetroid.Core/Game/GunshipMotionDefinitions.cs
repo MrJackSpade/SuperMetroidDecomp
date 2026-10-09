@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One timer and signed whole-pixel delta in the gunship idle-bob cycle.</summary>
+/// <param name="Timer">Number of ticks the selected bob phase remains active.</param>
+/// <param name="YDelta">Signed whole-pixel vertical movement applied during the phase.</param>
 internal readonly record struct GunshipIdleBobDefinition(byte Timer, sbyte YDelta);
 
 /// <summary>Exact bounded motion policies for the Landing Site gunship.</summary>

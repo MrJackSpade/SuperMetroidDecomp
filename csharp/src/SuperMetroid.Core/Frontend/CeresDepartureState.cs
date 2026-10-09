@@ -15,7 +15,10 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CeresDepartureState
 {
+    /// <summary>State-$20 hold countdown; its 16-bit decrement is applied after each gameplay update.</summary>
     private ushort holdFramesRemaining;
+
+    /// <summary>Current INIDISP brightness nibble used by the state-$21 fade toward forced blank.</summary>
     private byte brightness = 15;
 
     /// <summary>Current bank-$82 portion of the departure sequence.</summary>

@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Frontend;
 
+/// <summary>Defines the sixteen WRAM-to-VRAM chunk mappings used to upload the post-credits reward icons.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions
 {
     /// <summary>$7F:4000: decompressed post-credits icon staging buffer.</summary>
@@ -29,6 +30,9 @@ internal static class EndingRewardGraphicsUploadDefinitions
         return index * (ChunkBytes / sizeof(ushort));
     }
 
+    /// <summary>Rejects chunk indices outside the native upload table.</summary>
+    /// <param name="index">Zero-based upload chunk index.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative or reaches the upload count.</exception>
     private static void ValidateIndex(int index)
     {
         if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)

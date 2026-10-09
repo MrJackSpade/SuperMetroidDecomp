@@ -172,6 +172,9 @@ public static class EnemyPropertyFlagExtensions
         return unchecked((ushort)(word | rawBits));
     }
 
+    /// <summary>Ensures an enemy-property mask contains only named high-byte flags, leaving family-owned low-byte data out of the typed flag set.</summary>
+    /// <param name="flags">Named enemy-property bits requested by a flag operation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The value contains low-byte data or an unnamed high-byte bit.</exception>
     private static void ValidateKnown(EnemyProperties flags)
     {
         if (((ushort)flags & ~KnownPropertyFlagMask) != 0)
@@ -181,6 +184,9 @@ public static class EnemyPropertyFlagExtensions
         }
     }
 
+    /// <summary>Ensures an extra-property mask contains only translated bits whose behavior is represented by <see cref="EnemyExtraProperties"/>.</summary>
+    /// <param name="flags">Extra-property bits requested by a flag operation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The value contains a bit without translated behavior.</exception>
     private static void ValidateKnown(EnemyExtraProperties flags)
     {
         const EnemyExtraProperties known =

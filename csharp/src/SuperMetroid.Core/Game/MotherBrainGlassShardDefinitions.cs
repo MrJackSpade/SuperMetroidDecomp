@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical block-relative origin for one Mother Brain glass-shard emitter.</summary>
+/// <param name="XOffset">Signed pixel offset from the PLM origin: right, left, or center emitter placement.</param>
+/// <param name="YOffset">Positive pixel offset placing the emitter two blocks below the PLM origin.</param>
 internal readonly record struct MotherBrainGlassShardPlacement(short XOffset, short YOffset);
 
 /// <summary>Compiled animation selectors and physical origins for Mother Brain's glass shards.</summary>

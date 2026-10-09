@@ -262,6 +262,11 @@ public sealed record ControllerInputRecording
         return Read(source);
     }
 
+    /// <summary>
+    /// Ensures the recording has required payloads, a valid ROM digest, correctly sized SRAM,
+    /// and well-formed optional content identity data before it is serialized.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A digest, content identity, or payload length violates the recording format.</exception>
     private void Validate()
     {
         ArgumentNullException.ThrowIfNull(RomSha256);
@@ -288,6 +293,10 @@ public sealed record ControllerInputRecording
         }
     }
 
+    /// <summary>Requires a component content digest to contain exactly one SHA-256 value.</summary>
+    /// <param name="digest">The optional digest bytes associated with a content component.</param>
+    /// <param name="component">The component name used to identify malformed data.</param>
+    /// <exception cref="InvalidDataException">The digest is absent or is not 32 bytes long.</exception>
     private static void ValidateDigest(byte[]? digest, string component)
     {
         if (digest is null || digest.Length != ControllerInputRecordingFormat.DigestByteCount)

@@ -19,6 +19,7 @@ internal static class EnemyDropChanceDefinitions
     /// </summary>
     internal const int RecordCount = 118;
 
+    /// <summary>Hexadecimal source form of all 118 contiguous six-byte retail item-drop probability records.</summary>
     private const string PackedChanceHex =
         "3C3C3C053C0A1E5055280A0A3C3C3C053C0A1403558905053C3C3C050A3C00A5500005053C3C3C053C0A3C3C3C053C0A3719AA00050037197D003200" +
         "50461E1932001E4650460500461E504605004614505005003C3C3C053C0A3C3C3C053C0A008C0A0064053C3C3C053C0A00644605460A325F46001414" +
@@ -33,6 +34,7 @@ internal static class EnemyDropChanceDefinitions
         "323232003237000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000" +
         "000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000000000FF0000";
 
+    /// <summary>Decoded probability bytes, laid out in pointer order for aligned record copies.</summary>
     private static readonly byte[] PackedChances = Convert.FromHexString(PackedChanceHex);
 
     /// <summary>

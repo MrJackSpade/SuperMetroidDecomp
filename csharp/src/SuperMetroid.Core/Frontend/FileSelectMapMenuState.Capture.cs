@@ -38,6 +38,15 @@ public sealed partial class FileSelectMapMenuState
         return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
     }
 
+    /// <summary>
+    /// Composes the area and room snapshots for the current map-window edges. A completed
+    /// expansion selects the room, a completed return selects the area, and an active valid
+    /// rectangle inserts the room scene within the area scene.
+    /// </summary>
+    /// <param name="areaScene">Area-map snapshot used as the visible base during the transition.</param>
+    /// <param name="roomScene">Room snapshot revealed inside the moving window.</param>
+    /// <param name="window">Current transition state providing completion, direction, and edge positions.</param>
+    /// <returns>The selected complete scene or a snapshot containing the clipped room insertion.</returns>
     private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
@@ -50,6 +59,17 @@ public sealed partial class FileSelectMapMenuState
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }
 
+    /// <summary>
+    /// Adds a child-scene layer over the basis snapshot while retaining the basis memory,
+    /// object selection, and brightness; child pixels replace the basis within the rectangle.
+    /// </summary>
+    /// <param name="basis">Snapshot providing the parent memory and layers outside the rectangle.</param>
+    /// <param name="inside">Snapshot whose scene is shown within the rectangle.</param>
+    /// <param name="left">Inclusive left screen-pixel edge of the child scene.</param>
+    /// <param name="top">Inclusive top scanline of the child scene.</param>
+    /// <param name="right">Exclusive right screen-pixel edge of the child scene.</param>
+    /// <param name="bottom">Exclusive bottom scanline of the child scene.</param>
+    /// <returns>A snapshot with the child scene inserted as its final render layer.</returns>
     private static LayeredRenderSnapshot Insert(LayeredRenderSnapshot basis, LayeredRenderSnapshot inside,
         int left, int top, int right, int bottom)
     {

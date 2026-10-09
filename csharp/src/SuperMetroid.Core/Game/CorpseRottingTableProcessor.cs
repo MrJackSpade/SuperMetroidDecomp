@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class CorpseRottingTableProcessor
 {
+    /// <summary>Byte stride of one table entry containing a signed Y offset and a delay word.</summary>
     private const int EntryByteCount = 4;
 
     /// <summary>Builds the descending-Y, ascending-delay table from <c>$A9:DC40</c>.</summary>
@@ -112,6 +113,10 @@ public static class CorpseRottingTableProcessor
         return true;
     }
 
+    /// <summary>Writes a 16-bit table value to WRAM in the little-endian byte order used by the native processor.</summary>
+    /// <param name="bus">Address space receiving the two byte writes.</param>
+    /// <param name="address">Full WRAM byte address of the low byte.</param>
+    /// <param name="value">Word value to store.</param>
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {
         bus.WriteByte(address, unchecked((byte)value));

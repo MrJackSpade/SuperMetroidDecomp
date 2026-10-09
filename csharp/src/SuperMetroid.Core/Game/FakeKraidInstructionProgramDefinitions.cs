@@ -27,6 +27,9 @@ internal abstract class FakeKraidInstructionProgramDefinitions
     /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
     internal const ushort FireSpitFacingRight = 0x9a2a;
 
+    /// <summary>Identifies interleaved visual-selector operands in the upright and right-facing Fake Kraid programs.</summary>
+    /// <param name="address">Candidate bank-relative address of a program word.</param>
+    /// <returns><see langword="true"/> when the address contains a compiled spritemap selector.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - ChooseActionFacingLeft;
@@ -48,6 +51,10 @@ internal abstract class FakeKraidInstructionProgramDefinitions
             $"Fake Kraid instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to resolve a duration, instruction command, or branch target in either facing program.</summary>
+    /// <param name="address">Candidate bank-relative address of an instruction word.</param>
+    /// <param name="value">Receives the compiled mechanics word when the address is recognized.</param>
+    /// <returns><see langword="true"/> if the address is a compiled mechanics word; otherwise <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         bool right = address >= ChooseActionFacingRight;

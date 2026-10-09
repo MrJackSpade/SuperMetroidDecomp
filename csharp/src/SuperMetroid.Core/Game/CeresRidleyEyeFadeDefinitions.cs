@@ -37,4 +37,6 @@ internal static class CeresRidleyEyeFadeDefinitions
 }
 
 /// <summary>One Ceres Ridley eye-fade row selection or the terminal handoff.</summary>
+/// <param name="IsComplete">Whether this step is the native schedule terminator that ends the eye fade.</param>
+/// <param name="PaletteRow">Palette row to apply while the step is active; the terminal step carries no row selection.</param>
 internal readonly record struct CeresRidleyEyeFadeStep(bool IsComplete, byte PaletteRow);

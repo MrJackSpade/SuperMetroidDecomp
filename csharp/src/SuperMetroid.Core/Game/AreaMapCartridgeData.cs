@@ -3,8 +3,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Lossless decoded view of one retail area map and station reveal plane.</summary>
 public sealed class AreaMapCartridgeData : IAreaMapView
 {
+    /// <summary>Decoded map words in row-major order over the logical 64-by-32 area grid.</summary>
     private readonly MapTileWord[] tilemap;
 
+    /// <summary>Creates the area's map view while retaining its raw cartridge data and source addresses.</summary>
+    /// <param name="area">Area identity associated with the imported map and reveal plane.</param>
+    /// <param name="tilemapAddress">Full cartridge address from which the packed tilemap was read.</param>
+    /// <param name="stationRevealMaskAddress">Full cartridge address from which the station reveal mask was read.</param>
+    /// <param name="rawTilemapBytes">Packed tilemap bytes in their original cartridge storage order.</param>
+    /// <param name="stationRevealMaskBytes">Native station-reveal bits indexed by logical map coordinate.</param>
+    /// <param name="tilemap">Decoded tile words ordered by row, then column.</param>
     internal AreaMapCartridgeData(
         AreaId area,
         int tilemapAddress,

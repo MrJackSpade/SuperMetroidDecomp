@@ -15,11 +15,18 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitions
 
     /// <summary><c>$A8:E828</c>, the one-frame neutral program installed at initialization.</summary>
     internal const ushort Initial = 0xe828;
+    /// <summary>Identifies spritemap operands in the two turn animations and the initial neutral program.</summary>
+    /// <param name="address">Bank-$A8 instruction-word address to classify.</param>
+    /// <returns><see langword="true"/> when the address contains an editable presentation selector.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - SamusLeft;
         return (uint)offset < 28 ? offset % 14 % 4 == 2 : address == Initial + 2;
     }
+    /// <summary>Reads a compiled duration, sleep command, or initial-program control word at its native address.</summary>
+    /// <param name="address">Address of a mechanics word in one of the three face-block programs.</param>
+    /// <returns>The word used for animation timing or instruction control flow.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - SamusLeft;

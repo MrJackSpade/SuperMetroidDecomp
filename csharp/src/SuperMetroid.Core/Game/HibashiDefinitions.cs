@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One authored Hibashi eruption hitbox frame.</summary>
+/// <param name="YOffset">Distance subtracted from the eruption's spawn Y position to place the hitbox center.</param>
+/// <param name="YRadius">Vertical half-height assigned to the hitbox for this activity frame.</param>
 internal readonly record struct HibashiActivityDefinition(
     ushort YOffset,
     ushort YRadius);

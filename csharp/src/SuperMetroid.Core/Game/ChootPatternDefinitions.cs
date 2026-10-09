@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One Choot falling stream and its per-loop vertical advance.</summary>
+/// <param name="FallingPatternPointer">Bank-$A2 address of the selected falling trajectory stream.</param>
+/// <param name="FallingPatternYDistance">Whole-pixel vertical advance applied to the loop origin at each stream terminator; this is an authored input, not the trajectory's final offset.</param>
 internal readonly record struct ChootPatternDefinition(
     ushort FallingPatternPointer,
     ushort FallingPatternYDistance);

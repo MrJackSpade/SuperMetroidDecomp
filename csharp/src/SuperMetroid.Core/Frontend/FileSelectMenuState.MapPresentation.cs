@@ -20,6 +20,7 @@ public sealed partial class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Reconstructs the active file-select page from installed artwork, then reapplies save-slot data and operation-specific slot letters.</summary>
     private void RebuildInstalledPresentationPage()
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
@@ -60,6 +61,9 @@ public sealed partial class FileSelectMenuState
         }
     }
 
+    /// <summary>Draws one save slot's empty marker or populated health, energy-tank, and play-time fields into the current menu tilemap.</summary>
+    /// <param name="slot">Save data to display, or <see langword="null"/> for an unused slot.</param>
+    /// <param name="layout">Authored anchors and no-data layout for this slot on the selected page.</param>
     private void DrawInstalledSlot(
         SuperMetroid.Core.Game.SuperMetroidSaveSlot? slot,
         FileSelectSlotFieldDocument layout)

@@ -30,8 +30,14 @@ public static class EnemyLinearSpeedDefinitions
         return (unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
     }
 
+    /// <summary>Assembles two adjacent authored bytes into one little-endian speed word.</summary>
+    /// <param name="offset">Byte offset of the word's low byte.</param>
+    /// <returns>The 16-bit word beginning at <paramref name="offset"/>.</returns>
     private static ushort ReadWord(int offset) => (ushort)(ReadByte(offset) | ReadByte(offset + 1) << 8);
 
+    /// <summary>Extracts one byte from a signed whole/fraction speed record in native byte order.</summary>
+    /// <param name="offset">Byte offset within the packed NTSC speed records.</param>
+    /// <returns>The selected byte, including the record's two's-complement negative component when addressed there.</returns>
     private static byte ReadByte(int offset)
     {
         int velocity = offset / RecordSize * FixedPointStep;

@@ -6,7 +6,10 @@ public sealed partial class SuperMetroidGame
     // As in SuperMetroidRuntime.StepFrame, each update begins with the accepted NMI that
     // delivered its input. CommonBootSection clears bank $7E after the reset update's NMI,
     // so the reset dispatch zeroes them after that count.
+    /// <summary>Frontend-owned 16-bit accepted-NMI count, handed to and retained from the runtime.</summary>
     private ushort menuNmiFrameCounter;
+
+    /// <summary>Low-byte mirror of the frontend-owned accepted-NMI count used by native byte-sized timers.</summary>
     private byte menuNmiFrameCounter8;
 
     /// <summary>Clears the counters as the reset vector's bank-$7E wipe does.</summary>

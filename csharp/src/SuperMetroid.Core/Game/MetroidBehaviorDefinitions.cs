@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One world-position displacement during Metroid's Power Bomb escape shake.</summary>
+/// <param name="X">Signed horizontal whole-pixel offset for this shake step.</param>
+/// <param name="Y">Signed vertical whole-pixel offset for this shake step.</param>
 internal readonly record struct MetroidEscapeDisplacement(short X, short Y);
 
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>

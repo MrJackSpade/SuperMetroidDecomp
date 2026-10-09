@@ -36,6 +36,7 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
 
+    /// <summary>Ordered compiled engine-control layouts for Oum's idle, attack, and rolling programs in both facings.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xca4b),
         Entry(FacingLeftIdle),
@@ -127,6 +128,10 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
         Op(MaridiaLargeSnailInstructionCodes.DisallowAttackRotation),
         Op(CommonEnemyInstructionCodes.Goto, FacingRightRollingBackwards));
 
+    /// <summary>Resolves one compiled Oum mechanics word while leaving live spritemap operands to the visual catalog.</summary>
+    /// <param name="address">Bank-$A2 offset of the instruction word to resolve.</param>
+    /// <returns>The compiled control or timing word at that offset.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a mechanics word in the compiled programs.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

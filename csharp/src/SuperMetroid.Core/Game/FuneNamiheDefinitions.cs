@@ -15,7 +15,9 @@ internal static class FuneNamiheDefinitions
     /// <summary>$A8:96DF, Namihe idle-left selector cursor.</summary>
     internal const ushort NamiheIdleLeftCursor = 0x96df;
 
+    /// <summary>Cursor offset bit added for idle instruction lists; a clear bit selects the active list.</summary>
     internal const ushort ActiveCursorDelta = 4;
+    /// <summary>Cursor offset bit added for right-facing instruction lists; a clear bit selects the left-facing list.</summary>
     internal const ushort FacingRightCursorDelta = 2;
 
     /// <summary>Sound effect $1F in library two, queued when either actor spits.</summary>

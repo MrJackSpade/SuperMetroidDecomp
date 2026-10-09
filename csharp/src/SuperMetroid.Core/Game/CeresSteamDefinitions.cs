@@ -75,6 +75,8 @@ public static class CeresSteamDefinitions
     };
 }
 /// <summary>One compiled Ceres steam instruction/function selection.</summary>
+/// <param name="InstructionList">The instruction program selected for the steam variant's direction.</param>
+/// <param name="Function">The main function identity paired with that program, including any rotating-elevator visual transform.</param>
 internal readonly record struct CeresSteamInitialization(
     ushort InstructionList,
     CeresSteamFunction Function);

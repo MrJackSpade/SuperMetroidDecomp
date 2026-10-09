@@ -75,6 +75,9 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
         };
     }
 
+    /// <summary>Rejects addresses that are not aligned words within the compiled hand-beam body list.</summary>
+    /// <param name="address">Bank-$A9 word address to validate.</param>
+    /// <exception cref="InvalidDataException">The address is odd or outside the list's start and end addresses.</exception>
     private static void Validate(ushort address)
     {
         if (!ContainsWord(address))
@@ -84,6 +87,9 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
         }
     }
 
+    /// <summary>Creates the lookup failure for an in-range list word that does not encode mechanics, such as a visual selector.</summary>
+    /// <param name="address">Bank-$A9 address of the non-mechanics word.</param>
+    /// <returns>An exception identifying the address as a visual selector rather than a mechanics word.</returns>
     private static InvalidDataException NotMechanics(ushort address) => new(
         $"Mother Brain hand-beam visual selector $A9:{address:X4} is not mechanics.");
 }

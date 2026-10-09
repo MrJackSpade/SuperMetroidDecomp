@@ -117,6 +117,12 @@ internal static class IntroEggMotionDefinitions
     /// </remarks>
     public static (ushort Whole, ushort Fraction) SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 
+    /// <summary>Calculates a signed 16.16 gravity sample from seven-record descent groups followed by steady acceleration.</summary>
+    /// <param name="frame">Zero-based record index in the selected bounded gravity table.</param>
+    /// <param name="count">Number of records available in that table.</param>
+    /// <param name="negativeGroups">Number of initial seven-record groups whose whole-pixel component descends from a negative value.</param>
+    /// <returns>The sample as its high-word whole component and low-word fractional component.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame index is negative or is not present in the selected table.</exception>
     private static (ushort Whole, ushort Fraction) Curve(int frame, int count, int negativeGroups)
     {
         if ((uint)frame >= count)
@@ -129,6 +135,9 @@ internal static class IntroEggMotionDefinitions
         return Split((frame / 7 - negativeGroups) * 0x10000 + fraction);
     }
 
+    /// <summary>Separates a signed 16.16 fixed-point value into its native high and low 16-bit words.</summary>
+    /// <param name="value">Signed fixed-point value whose integer and fractional components are encoded in one 32-bit integer.</param>
+    /// <returns>The high word followed by the low word, represented as unsigned storage words.</returns>
     private static (ushort Whole, ushort Fraction) Split(int value) =>
         (unchecked((ushort)(value >> 16)), unchecked((ushort)value));
 }

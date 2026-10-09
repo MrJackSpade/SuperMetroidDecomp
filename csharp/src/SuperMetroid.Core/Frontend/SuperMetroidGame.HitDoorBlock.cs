@@ -4,7 +4,10 @@ public sealed partial class SuperMetroidGame
 {
     // State $09's door function before state $0A. Every door hit installs $82:E17D; a
     // downward elevator replaces it with the $82:E19F delay.
+    /// <summary>Tracks whether this door-hit dispatch is continuing the downward-elevator delay.</summary>
     private bool waitingForDownwardsElevator;
+
+    /// <summary>Remaining countdown ticks before the downward-elevator door dispatch completes.</summary>
     private int downwardsElevatorDelayTimer;
 
     /// <summary>

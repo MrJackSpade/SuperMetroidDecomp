@@ -15,6 +15,16 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class IntroSamusDemoMovement
 {
+    /// <summary>
+    /// Advances a grounded left-facing demo frame by resolving input, moving and animating in the starting pose,
+    /// then applying wall handling and committing the prospective or no-input fallback pose.
+    /// </summary>
+    /// <param name="bus">The address space used by pose, movement, and animation definitions.</param>
+    /// <param name="level">The room geometry used for grounded movement and wall checks.</param>
+    /// <param name="samus">The Samus state advanced by this demo frame.</param>
+    /// <param name="heldInput">Controller buttons held during the frame.</param>
+    /// <param name="newlyPressedInput">Controller buttons newly pressed for pose-transition lookup.</param>
+    /// <param name="nmiFrameCounter">The frame counter passed to native-order movement and animation updates.</param>
     public static void StepGroundedLeft(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -119,6 +129,11 @@ internal static class IntroSamusDemoMovement
             samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Applies a supported left-facing grounded jump, run/stand, or aim transition using shared Samus logic.</summary>
+    /// <param name="bus">The address space supplying transition behavior.</param>
+    /// <param name="samus">The Samus state whose pose transition is applied.</param>
+    /// <param name="sourcePose">The pose from which the transition was selected.</param>
+    /// <param name="targetPose">The prospective pose selected for the transition.</param>
     private static void ApplyPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,

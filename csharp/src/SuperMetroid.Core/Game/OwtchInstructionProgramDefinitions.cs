@@ -23,7 +23,13 @@ internal abstract class OwtchInstructionProgramDefinitions
     /// only hold8, not instruction-reset1, motion, radii, sprite selection or pixel art.</remarks>
     internal const ushort CyclicVisualHold = 8;
 
+    /// <summary>Byte length of each native direction-specific loop, including its goto and target words.</summary>
     internal const int ProgramBytes = 18;
+
+    /// <summary>Resolves a duration, direction callback, or loop control word from either Owtch animation program.</summary>
+    /// <param name="address">Bank-relative address of the candidate instruction word.</param>
+    /// <returns>The compiled mechanics word at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a mechanics word in either direction's program.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - MovingLeft;

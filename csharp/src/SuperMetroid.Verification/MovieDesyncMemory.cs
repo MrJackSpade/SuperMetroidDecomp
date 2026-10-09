@@ -52,6 +52,9 @@ internal static class MovieDesyncMemory
     public const int EnemyProjectileIds = 0x1997, EnemyProjectileX = 0x1a4b, EnemyProjectileY = 0x1a93,
         EnemyProjectileSlots = 18;
 
+    /// <summary>$1B23: eighteen enemy-projectile Var1 words.</summary>
+    public const int EnemyProjectileVar1 = 0x1b23;
+
     /// <summary>$80:9459: accepted-NMI controller-read entry recorded in each checkpoint.</summary>
     public const int ControllerReadBoundary = 0x809459;
 }

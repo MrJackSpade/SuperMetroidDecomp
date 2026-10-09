@@ -324,7 +324,15 @@ internal static partial class Program
             Check($"Enemy projectile {slot} ID", projectile.IsActive ? (ushort)projectile.Kind : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!projectile.IsActive) continue;
-            Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
+            // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only
+            // stores its X in Var1; $86:D8DF copies it on its first run. Until then native X
+            // is whatever the aliased RAM held (slot 3's X is CinematicFrameCounter $1A51).
+            // The bubble has no contact radius, so that residue only places one drawn frame.
+            bool bubbleXUnwritten = projectile.Kind == SuperMetroid.Core.Game.RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
+                Word(memory, MovieDesyncMemory.EnemyProjectileX + offset) !=
+                Word(memory, MovieDesyncMemory.EnemyProjectileVar1 + offset);
+            if (!bubbleXUnwritten)
+                Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.YPosition, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         foreach (var actor in runtime.Enemies.Slots)

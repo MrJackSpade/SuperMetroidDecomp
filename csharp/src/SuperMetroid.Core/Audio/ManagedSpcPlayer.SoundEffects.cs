@@ -22,6 +22,7 @@ public sealed partial class ManagedSpcPlayer
         soundCommandReads[libraryIndex] = inputPorts[port];
     }
 
+    /// <summary>Admits or rejects a changed CPU request, selects its resident program, and applies its allocation policy.</summary>
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -67,6 +68,7 @@ public sealed partial class ManagedSpcPlayer
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
     /// except for library-three cancel/low-health operations; low-health preserves priority.
     /// Native handler identities are documented on the SpcLibraryNPolicy catalog members.</remarks>
+    /// <summary>Translates a library-specific allocation class into voice count, priority, and special mode state.</summary>
     private static void ConfigureSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
@@ -134,6 +136,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Initializes newly selected library channels and advances each active sound program.</summary>
     private void ProcessSoundLibrary(int libraryIndex)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -154,6 +157,7 @@ public sealed partial class ManagedSpcPlayer
             RunSoundChannel(library, channel);
     }
 
+    /// <summary>Assigns free DSP voices to the requested library and saves the music state they replace.</summary>
     private void InitializeSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
@@ -212,6 +216,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Releases one borrowed voice and restores its saved music-channel instrument, volume, and pan state.</summary>
     private void ResetSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         soundChannel.Disabled = SpcDriverData.SoundEffects.Active;
@@ -232,6 +237,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Reads and advances the bytecode cursor for a resident sound channel.</summary>
     private byte ReadSoundByte(ManagedSpcSoundChannel channel)
     {
         byte value = ram[unchecked((ushort)(channel.Pointer + channel.PointerIndex))];
@@ -239,6 +245,7 @@ public sealed partial class ManagedSpcPlayer
         return value;
     }
 
+    /// <summary>Executes one channel tick, including timed notes, repeat controls, release, and pitch slides.</summary>
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         if (soundChannel.Disabled == SpcDriverData.SoundEffects.Active)

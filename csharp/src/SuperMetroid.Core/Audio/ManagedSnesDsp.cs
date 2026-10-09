@@ -14,33 +14,58 @@ public sealed class ManagedSnesDsp
     /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
 
+    /// <summary>SPC RAM consulted for directory pointers, echo data, and uploaded sound bytes.</summary>
     private readonly byte[] apuRam;
+    /// <summary>Mirrored 128-byte S-DSP register file, including read-only output registers.</summary>
     private readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
+    /// <summary>Mutable state for each of the eight hardware voices.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
         .ToArray();
+    /// <summary>Interleaved native-rate PCM accumulated before host-rate resampling.</summary>
     private readonly short[] sampleBuffer = new short[NativeStereoFramesPerVideoFrame * 2];
+    /// <summary>Current signed coefficients of the shared eight-tap echo filter.</summary>
     private readonly sbyte[] firValues = new sbyte[8];
+    /// <summary>Left-channel delay samples feeding the shared FIR filter.</summary>
     private readonly short[] firBufferLeft = new short[8];
+    /// <summary>Right-channel delay samples feeding the shared FIR filter.</summary>
     private readonly short[] firBufferRight = new short[8];
 
+    /// <summary>Sample bank resolved by key-on and subsequent live directory reads.</summary>
     private ManagedPcmSampleBank? sampleBank;
+    /// <summary>FLG output-mute latch.</summary>
     private bool mute;
+    /// <summary>FLG reset latch, which forces all voice envelopes into release.</summary>
     private bool reset;
+    /// <summary>Signed master output gain for the left channel.</summary>
     private sbyte masterVolumeLeft;
+    /// <summary>Signed master output gain for the right channel.</summary>
     private sbyte masterVolumeRight;
+    /// <summary>Current pseudo-random noise sample shared by voices.</summary>
     private short noiseSample;
+    /// <summary>DSP-clock interval between noise generator updates; zero disables the clock.</summary>
     private ushort noiseRate;
+    /// <summary>Elapsed DSP clocks toward the next noise update.</summary>
     private ushort noiseCounter;
+    /// <summary>Whether echo samples may be written back into APU RAM.</summary>
     private bool echoWrites;
+    /// <summary>Signed left echo output gain.</summary>
     private sbyte echoVolumeLeft;
+    /// <summary>Signed right echo output gain.</summary>
     private sbyte echoVolumeRight;
+    /// <summary>Signed feedback gain mixed into the next echo-buffer write.</summary>
     private sbyte feedbackVolume;
+    /// <summary>Current echo-ring base address in APU RAM.</summary>
     private ushort echoBufferAddress;
+    /// <summary>Echo-ring length in DSP processing frames.</summary>
     private ushort echoDelay;
+    /// <summary>Frames remaining before the echo-ring cursor wraps to its base.</summary>
     private ushort echoRemaining;
+    /// <summary>Current interleaved stereo frame offset within the echo ring.</summary>
     private ushort echoBufferIndex;
+    /// <summary>Next slot in the circular eight-sample FIR history.</summary>
     private byte firBufferIndex;
+    /// <summary>Number of stereo frames currently staged in the native output buffer.</summary>
     private ushort sampleOffset;
 
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
@@ -268,6 +293,7 @@ public sealed class ManagedSnesDsp
         sampleOffset = 0;
     }
 
+    /// <summary>Resolves the selected sample and initializes interpolation and envelope state for a newly keyed voice.</summary>
     private void KeyOn(Voice voice)
     {
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
@@ -281,6 +307,7 @@ public sealed class ManagedSnesDsp
         voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
+    /// <summary>Advances one voice's pitch phase, sample window, envelope, and output-register values.</summary>
     private void CycleVoice(int index)
     {
         Voice voice = voices[index];
@@ -343,6 +370,7 @@ public sealed class ManagedSnesDsp
         voice.SampleOutput = sample;
     }
 
+    /// <summary>Applies one scheduled ADSR, gain-mode, or release envelope step.</summary>
     private static void HandleGain(Voice voice)
     {
         switch (voice.AdsrState)
@@ -398,6 +426,7 @@ public sealed class ManagedSnesDsp
         }
     }
 
+    /// <summary>Combines four adjacent decoded samples with the S-DSP Gaussian coefficients.</summary>
     private static short GetInterpolatedSample(Voice voice, int sampleNumber, int offset)
     {
         var taps = SnesDspTables.GaussianCoefficients(offset);
@@ -409,6 +438,7 @@ public sealed class ManagedSnesDsp
         return unchecked((short)(Clamp16(output) >> 1));
     }
 
+    /// <summary>Refills one voice's four-tap interpolation window and follows native loop-directory behavior.</summary>
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
@@ -476,6 +506,7 @@ public sealed class ManagedSnesDsp
             voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
     }
 
+    /// <summary>Reads the selected source's live little-endian DIR loop pointer from APU RAM.</summary>
     private ushort ReadLoopAddress(byte source)
     {
         int directory = (registers[SnesDspRegisterMap.Global.SourceDirectory] << 8) +
@@ -502,6 +533,7 @@ public sealed class ManagedSnesDsp
         voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));
     }
 
+    /// <summary>Advances the shared 15-bit noise generator when its configured rate expires.</summary>
     private void HandleNoise()
     {
         if (noiseRate != 0)
@@ -514,6 +546,7 @@ public sealed class ManagedSnesDsp
         noiseCounter = 0;
     }
 
+    /// <summary>Filters the echo ring, mixes its output, and optionally writes feedback back to APU RAM.</summary>
     private void HandleEcho(ref int outputLeft, ref int outputRight)
     {
         ushort address = unchecked((ushort)(echoBufferAddress + echoBufferIndex * 4));
@@ -566,52 +599,86 @@ public sealed class ManagedSnesDsp
         }
     }
 
+    /// <summary>Reads a little-endian word with 16-bit APU-RAM address wrapping.</summary>
     private ushort ReadWord(int address) => unchecked((ushort)(
         apuRam[address & 0xffff] | (apuRam[(address + 1) & 0xffff] << 8)));
 
+    /// <summary>Writes a little-endian word with 16-bit APU-RAM address wrapping.</summary>
     private void WriteWord(int address, ushort value)
     {
         apuRam[address & 0xffff] = unchecked((byte)value);
         apuRam[(address + 1) & 0xffff] = unchecked((byte)(value >> 8));
     }
 
+    /// <summary>Clamps an intermediate DSP result to signed PCM16 range.</summary>
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);
 
+    /// <summary>Envelope phases used by ADSR and direct-gain voice processing.</summary>
     private enum EnvelopeState : byte
     {
+        /// <summary>Rising ADSR attack toward the decay threshold.</summary>
         Attack,
+        /// <summary>Exponential decay toward the configured sustain level.</summary>
         Decay,
+        /// <summary>Exponential sustain at the configured rate.</summary>
         Sustain,
+        /// <summary>One of the hardware gain modes independent of ADSR.</summary>
         Gain,
+        /// <summary>Fixed-rate envelope fall after key-off or reset.</summary>
         Release,
     }
 
+    /// <summary>Per-voice register, decoder, pitch, envelope, and routing state.</summary>
     private sealed class Voice
     {
+        /// <summary>Fourteen-bit programmed pitch step.</summary>
         public ushort Pitch;
+        /// <summary>Fractional pitch accumulator that selects the current sample position.</summary>
         public ushort PitchCounter;
+        /// <summary>Whether the previous voice modulates this voice's pitch.</summary>
         public bool PitchModulation;
+        /// <summary>History window used by four-point Gaussian interpolation.</summary>
         public short[] DecodeBuffer { get; } = new short[19];
+        /// <summary>Current sample-directory source number.</summary>
         public byte SourceNumber;
+        /// <summary>PCM source selected by the last key-on or loop-directory resolution.</summary>
         public ManagedPcmSample? Sample;
+        /// <summary>Next source PCM frame copied into the decode window.</summary>
         public int SampleCursor;
+        /// <summary>END/LOOP header flags from the most recently consumed source block.</summary>
         public byte PreviousFlags;
+        /// <summary>Live BRR cursor retained for a released silent voice whose source has no PCM mapping.</summary>
         public ushort? ReleasedBrrCursor;
+        /// <summary>Whether the voice substitutes the shared noise generator for PCM.</summary>
         public bool UseNoise;
+        /// <summary>DSP-clock periods for attack, decay, sustain, and release updates.</summary>
         public ushort[] AdsrRates { get; } = new ushort[4];
+        /// <summary>Elapsed clock count toward the next envelope step.</summary>
         public ushort RateCounter;
+        /// <summary>Current ADSR or gain envelope phase.</summary>
         public EnvelopeState AdsrState;
+        /// <summary>Envelope threshold at which decay changes into sustain.</summary>
         public ushort SustainLevel;
+        /// <summary>Whether GAIN mode controls the envelope instead of ADSR.</summary>
         public bool UseGain;
+        /// <summary>GAIN mode selector for direct, decreasing, or increasing gain.</summary>
         public byte GainMode;
+        /// <summary>Whether GAIN directly assigns a fixed envelope value.</summary>
         public bool DirectGain;
+        /// <summary>Seven-bit direct gain value from the voice GAIN register.</summary>
         public ushort GainValue;
+        /// <summary>Current 11-bit envelope level multiplied into the voice sample.</summary>
         public ushort Gain;
+        /// <summary>Latest signed sample emitted by this voice.</summary>
         public short SampleOutput;
+        /// <summary>Signed per-voice left-channel gain.</summary>
         public sbyte VolumeLeft;
+        /// <summary>Signed per-voice right-channel gain.</summary>
         public sbyte VolumeRight;
+        /// <summary>Whether the voice contributes to echo input and feedback.</summary>
         public bool EchoEnable;
 
+        /// <summary>Restores register-derived and decoder state to a silent newly initialized voice.</summary>
         public void Reset()
         {
             Pitch = PitchCounter = 0;

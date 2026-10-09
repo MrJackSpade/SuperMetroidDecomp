@@ -90,14 +90,17 @@ internal static class EyeBeamWindowBuilder
         return rows;
     }
 
+    /// <summary>Reads one tangent-table sample for the requested angle quadrant.</summary>
     private static int Tangent(ISnesAddressSpace bus, int index)
     {
         return AbsoluteTangentDefinitions.Sample(index);
     }
 
+    /// <summary>Offsets an off-screen diagonal edge to its fixed-point boundary.</summary>
     private static int OffsetOrigin(int origin, bool offScreen, bool positive) =>
         !offScreen ? origin : origin + (positive ? -EyeWindowRenderDefinitions.FixedPointSpan : EyeWindowRenderDefinitions.FixedPointSpan);
 
+    /// <summary>Fills rows between two off-screen edge ramps using their boundary-entry distances.</summary>
     private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int origin,
         int upperStep, int lowerStep, bool positive)
     {
@@ -111,6 +114,7 @@ internal static class EyeBeamWindowBuilder
         do { Set(rows, top++, EyeWindowRenderDefinitions.FullWindow); } while (top <= bottom);
     }
 
+    /// <summary>Preserves the native one-row entry value where an off-screen up-left edge begins.</summary>
     private static void PreserveOffScreenUpLeftEntry(ushort[] rows, int start, int origin, int leftStep, int rightStep)
     {
         if (rightStep == 0) return;
@@ -127,6 +131,7 @@ internal static class EyeBeamWindowBuilder
             (finalLeft & EyeWindowRenderDefinitions.FullRightEdge));
     }
 
+    /// <summary>Writes one window word only when its scanline lies within the table.</summary>
     private static void Set(ushort[] rows, int y, ushort window)
     {
         if ((uint)y < rows.Length) rows[y] = window;

@@ -19,6 +19,7 @@ public readonly record struct BackgroundLineScroll(ushort X, ushort Y);
 /// <summary>Owned 2-bpp BG color-math plane with a physical-line scroll table.</summary>
 public sealed record Bg2BppColorMathRenderLayer : RenderLayer
 {
+    /// <summary>Owned BG scroll registers indexed by physical display scanline.</summary>
     private readonly BackgroundLineScroll[] scrolls;
     /// <summary>The owned 224 register pairs indexed by physical output scanline, including HUD lines rather than starting at the gameplay viewport.</summary>
     public ReadOnlySpan<BackgroundLineScroll> Scrolls => scrolls;

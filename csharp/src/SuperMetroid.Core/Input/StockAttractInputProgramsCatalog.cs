@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Input;
 public static partial class StockAttractInputPrograms
 {
     /// <summary>One native object header: initializer, pre-instruction and initial list.</summary>
+    /// <param name="Initializer">Bank-$91 routine selected during object initialization.</param>
+    /// <param name="PreInstruction">Routine identity called before each object update.</param>
+    /// <param name="Start">Instruction-list address loaded for the object.</param>
     public readonly record struct ObjectDefinition(ushort Initializer, ushort PreInstruction, ushort Start);
     /// <summary>The three distinct operations reachable from shipped title-demo objects.</summary>
     public enum Operation
@@ -17,6 +20,11 @@ public static partial class StockAttractInputPrograms
         Goto
     }
     /// <summary>A decoded input span or control transfer. Held and edge words remain independent.</summary>
+    /// <param name="Kind">Decoded input, delete, or goto operation.</param>
+    /// <param name="Next">Address of the next stock command after this operation.</param>
+    /// <param name="Duration">Number of updates to retain an input span.</param>
+    /// <param name="Held">Controller word held during an input span.</param>
+    /// <param name="NewlyPressed">Independent rising-edge word for an input span.</param>
     public readonly record struct Command(Operation Kind, ushort Next, ushort Duration = 0,
         SnesButton Held = SnesButton.None, SnesButton NewlyPressed = SnesButton.None);
 

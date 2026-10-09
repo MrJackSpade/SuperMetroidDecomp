@@ -21,6 +21,8 @@ internal enum RoomViewportLoadMode
 /// <summary>
 /// Source-room PPU scroll words retained until directional door setup derives its offsets.
 /// </summary>
+/// <param name="Bg1Horizontal">Displayed BG1 horizontal register value before door setup.</param>
+/// <param name="Bg1Vertical">Displayed BG1 vertical register value before door setup.</param>
 internal readonly record struct DoorOpeningPpuScroll(
     ushort Bg1Horizontal,
     ushort Bg1Vertical);

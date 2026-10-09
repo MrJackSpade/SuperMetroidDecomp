@@ -22,6 +22,7 @@ public enum MusicCommandKind : byte
 /// </summary>
 public readonly record struct MusicCommand
 {
+    /// <summary>Wraps a native queue word without normalizing noncanonical cartridge values.</summary>
     private MusicCommand(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The exact word stored in the cartridge's eight-entry music queue.</summary>
@@ -89,6 +90,7 @@ public readonly record struct MusicCommand
 /// </summary>
 public readonly record struct MusicCommandDelay
 {
+    /// <summary>Stores the effective countdown after native minimum-delay clamping.</summary>
     private MusicCommandDelay(ushort frames) => Frames = frames;
 
     /// <summary>Effective native countdown frames.</summary>

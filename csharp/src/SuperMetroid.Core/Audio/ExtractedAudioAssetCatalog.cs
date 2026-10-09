@@ -13,16 +13,25 @@ public sealed class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
+    /// <summary>Validated upload bytes keyed by their original 24-bit cartridge addresses.</summary>
     private readonly IReadOnlyDictionary<int, byte[]> streams;
+    /// <summary>Decoded PCM source maps installed by each upload address.</summary>
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
+    /// <summary>Validated instrument records installed alongside each music bank.</summary>
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
+    /// <summary>Decoded authored sequence definitions keyed by the upload that installs them.</summary>
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
+    /// <summary>Address-stable resident sound programs accepted from the selected manifest.</summary>
     private readonly IReadOnlyList<AudioSoundProgramMetadata> soundPrograms;
+    /// <summary>Three validated SFX-library command maps selected by the managed SPC.</summary>
     private readonly IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries;
+    /// <summary>Number of distinct canonical PCM identities included in the catalog.</summary>
     private readonly int canonicalSampleCount;
+    /// <summary>Hash of the canonical serialization of the validated manifest.</summary>
     private readonly string contentIdentity;
 
+    /// <summary>Creates a catalog from already loaded, validated, address-keyed content.</summary>
     private ExtractedAudioAssetCatalog(
         IReadOnlyDictionary<int, byte[]> streams,
         IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks,
@@ -197,16 +206,27 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
     private sealed class HashingWriteStream(IncrementalHash hash) : Stream
     {
+        /// <summary>Always false because canonical serialization only writes to this stream.</summary>
         public override bool CanRead => false;
+        /// <summary>Always false because hashing does not retain seekable content.</summary>
         public override bool CanSeek => false;
+        /// <summary>Always true; writes append bytes to the supplied incremental hash.</summary>
         public override bool CanWrite => true;
+        /// <summary>Unsupported because the stream does not buffer serialized content.</summary>
         public override long Length => throw new NotSupportedException();
+        /// <summary>Unsupported because the stream has no stored position.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Feeds the requested segment directly into the hash.</summary>
         public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
+        /// <summary>Feeds the supplied span directly into the hash.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
+        /// <summary>No buffered output needs flushing.</summary>
         public override void Flush() { }
+        /// <summary>Unsupported because this stream has no readable content.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Unsupported because this stream has no seekable content.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Unsupported because the hash stream has no stored length.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
     }
 
@@ -273,6 +293,7 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
     public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries => soundLibraries;
 
+    /// <summary>Validates and orders a complete instrument table by its native index.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
         ValidateInstruments(
         AudioBankMetadata bank)
@@ -317,6 +338,7 @@ public sealed class ExtractedAudioAssetCatalog
         return Array.AsReadOnly(ordered);
     }
 
+    /// <summary>Loads, hashes, decodes, and de-duplicates the canonical replacement sample files.</summary>
     private static Dictionary<string, ManagedPcmSample> LoadCanonicalSamples(
         string root,
         IReadOnlyList<AudioCanonicalSampleMetadata> definitions)
@@ -358,6 +380,7 @@ public sealed class ExtractedAudioAssetCatalog
         return samples;
     }
 
+    /// <summary>Checks decoded track, phrase, and channel references against the fixed bank identities.</summary>
     private static void ValidateMusicBank(AudioBankMetadata bank)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
@@ -420,6 +443,7 @@ public sealed class ExtractedAudioAssetCatalog
         _ = SpcMusicDefinitionCodec.CompileBank(bank);
     }
 
+    /// <summary>Validates resident SFX programs and each library's fixed command routing.</summary>
     private static (
         IReadOnlyList<AudioSoundProgramMetadata> Programs,
         IReadOnlyList<AudioSoundLibraryMetadata> Libraries) ValidateSoundDefinitions(
@@ -506,6 +530,7 @@ public sealed class ExtractedAudioAssetCatalog
             Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
     }
 
+    /// <summary>Resolves a manifest-relative file while rejecting rooted or escaping paths.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))
@@ -519,6 +544,7 @@ public sealed class ExtractedAudioAssetCatalog
         return path;
     }
 
+    /// <summary>Reads the catalog manifest located directly under one audio root.</summary>
     private static AudioAssetManifest ReadManifest(string root)
     {
         return DeserializeManifest(Path.Combine(root, ManifestFileName));
@@ -535,6 +561,7 @@ public sealed class ExtractedAudioAssetCatalog
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
+    /// <summary>Ensures an override edits supported content without changing stock routing or source identities.</summary>
     private static void ValidateOverrideCompatibility(
         AudioAssetManifest stock,
         AudioAssetManifest selected,
@@ -618,6 +645,12 @@ public sealed class ExtractedAudioAssetCatalog
 }
 
 /// <summary>Serializable root of the inspectable extracted-audio catalog.</summary>
+/// <param name="FormatVersion">Schema revision interpreted by the catalog loader.</param>
+/// <param name="Uploads">Opaque cartridge streams and their integrity metadata.</param>
+/// <param name="CanonicalSamples">Replaceable PCM assets shared by equivalent source entries.</param>
+/// <param name="Banks">Decoded music, instrument, and sample metadata for each upload.</param>
+/// <param name="SoundPrograms">Editable address-stable resident SFX programs.</param>
+/// <param name="SoundLibraries">Command routing and voice-allocation metadata for each SFX library.</param>
 public sealed record AudioAssetManifest(
     int FormatVersion,
     IReadOnlyList<AudioUploadManifestEntry> Uploads,
@@ -631,6 +664,12 @@ public sealed record AudioAssetManifest(
 }
 
 /// <summary>Manifest identity and integrity information for one opaque upload stream.</summary>
+/// <param name="Name">Stable cartridge asset name recorded in the manifest.</param>
+/// <param name="SnesAddress">24-bit source address identifying the cartridge upload.</param>
+/// <param name="DataIndex">Byte offset selecting this music-data pointer entry.</param>
+/// <param name="StreamFile">Manifest-relative path to the serialized upload bytes.</param>
+/// <param name="ByteLength">Expected byte count of the upload stream.</param>
+/// <param name="Sha256">Expected hexadecimal digest of the stream file.</param>
 public sealed record AudioUploadManifestEntry(
     string Name,
     int SnesAddress,
@@ -640,6 +679,15 @@ public sealed record AudioUploadManifestEntry(
     string Sha256);
 
 /// <summary>Decoded, human-readable metadata derived from one common-plus-music APU image.</summary>
+/// <param name="Name">Stable bank name used in diagnostics and manifest tools.</param>
+/// <param name="DataIndex">Cartridge pointer-table byte offset that selected the bank.</param>
+/// <param name="SnesAddress">Cartridge address of the uploaded music data.</param>
+/// <param name="TrackPointers">Native APU-RAM address for each numbered track.</param>
+/// <param name="MusicTracks">Decoded top-level flow for each numbered track.</param>
+/// <param name="MusicPhrases">Decoded eight-channel routing tables reachable from the tracks.</param>
+/// <param name="MusicPrograms">Decoded channel bytecode reachable from the phrases.</param>
+/// <param name="Instruments">Ordered six-byte instrument records installed with this bank.</param>
+/// <param name="Samples">BRR directory entries and their canonical PCM aliases.</param>
 public sealed record AudioBankMetadata(
     string Name,
     byte DataIndex,
@@ -652,6 +700,11 @@ public sealed record AudioBankMetadata(
     IReadOnlyList<AudioSampleMetadata> Samples);
 
 /// <summary>One numbered music track's top-level phrase-flow program.</summary>
+/// <param name="Track">Zero-based track number within the bank.</param>
+/// <param name="Id">Stable manifest identity for this track.</param>
+/// <param name="Address">Native APU-RAM start address; zero represents an inactive slot.</param>
+/// <param name="ByteCapacity">Fixed native slot size in bytes, or zero for an inactive slot.</param>
+/// <param name="Instructions">Decoded phrase, control, repeat, and end operations in source order.</param>
 public sealed record AudioMusicTrackMetadata(
     int Track,
     string Id,
@@ -660,18 +713,28 @@ public sealed record AudioMusicTrackMetadata(
     IReadOnlyList<AudioMusicTrackInstructionMetadata> Instructions);
 
 /// <summary>One phrase-flow operation; repeat uses Target while other operations do not.</summary>
+/// <param name="Operation">Stable operation name from <see cref="AudioMusicInstructionOperations"/>.</param>
+/// <param name="Value">Native little-endian track word or the phrase pointer it selects.</param>
+/// <param name="Target">Repeat target address, or null for operations without a target.</param>
 public sealed record AudioMusicTrackInstructionMetadata(
     string Operation,
     ushort Value,
     ushort? Target);
 
 /// <summary>Eight-channel routing table selected by a top-level track instruction.</summary>
+/// <param name="Id">Stable manifest identity derived from the bank and phrase address.</param>
+/// <param name="Address">Native APU-RAM address of the routing table.</param>
+/// <param name="ChannelPrograms">Eight channel-program identities; null entries silence their channels.</param>
 public sealed record AudioMusicPhraseMetadata(
     string Id,
     ushort Address,
     IReadOnlyList<string?> ChannelPrograms);
 
 /// <summary>One bounded authored channel/subroutine program.</summary>
+/// <param name="Id">Stable manifest identity derived from the bank and program address.</param>
+/// <param name="Address">Native APU-RAM start address.</param>
+/// <param name="ByteCapacity">Fixed number of bytes reserved for this program.</param>
+/// <param name="Instructions">Decoded notes, timing prefixes, effects, and terminal operation.</param>
 public sealed record AudioMusicProgramMetadata(
     string Id,
     ushort Address,
@@ -682,6 +745,10 @@ public sealed record AudioMusicProgramMetadata(
 /// One channel command. Timing contains the optional length/articulation prefix; Arguments
 /// contains effect operands. Opcode is retained for exact lossless recompilation.
 /// </summary>
+/// <param name="Operation">Stable named note or effect operation.</param>
+/// <param name="Opcode">Original command byte retained for round-trip encoding.</param>
+/// <param name="Timing">Zero to two timing-prefix bytes preceding the opcode.</param>
+/// <param name="Arguments">Effect operands following the opcode.</param>
 public sealed record AudioMusicInstructionMetadata(
     string Operation,
     byte Opcode,
@@ -689,6 +756,13 @@ public sealed record AudioMusicInstructionMetadata(
     IReadOnlyList<byte> Arguments);
 
 /// <summary>The six bytes consumed by the SPC driver's set-instrument command.</summary>
+/// <param name="Instrument">Zero-based instrument table index.</param>
+/// <param name="UsesNoise">Whether the high source marker selects noise rather than a sample.</param>
+/// <param name="SourceOrNoiseRate">Sample source number or DSP noise-rate encoding.</param>
+/// <param name="Adsr1">First native envelope-control byte.</param>
+/// <param name="Adsr2">Second native envelope-control byte.</param>
+/// <param name="Gain">Native GAIN register byte.</param>
+/// <param name="PitchBase">Little-endian instrument pitch multiplier.</param>
 public sealed record AudioInstrumentMetadata(
     int Instrument,
     bool UsesNoise,
@@ -699,6 +773,11 @@ public sealed record AudioInstrumentMetadata(
     ushort PitchBase);
 
 /// <summary>One validated BRR directory entry and its canonical PCM sample alias.</summary>
+/// <param name="Source">S-DSP source number in the sample directory.</param>
+/// <param name="StartAddress">Native APU-RAM start pointer.</param>
+/// <param name="LoopAddress">Native APU-RAM loop pointer.</param>
+/// <param name="BlockCount">Number of nine-byte BRR blocks in this entry.</param>
+/// <param name="SampleId">Canonical PCM identity representing the decoded sample.</param>
 public sealed record AudioSampleMetadata(
     byte Source,
     ushort StartAddress,
@@ -707,6 +786,12 @@ public sealed record AudioSampleMetadata(
     string SampleId);
 
 /// <summary>One canonical, replaceable PCM asset shared by every equivalent bank source.</summary>
+/// <param name="Id">Stable sample identity referenced by bank directory entries.</param>
+/// <param name="WavFile">Manifest-relative mono PCM16 WAVE path.</param>
+/// <param name="SampleRate">Declared PCM sample rate in hertz.</param>
+/// <param name="SampleCount">Declared number of decoded mono frames.</param>
+/// <param name="LoopSampleIndex">Optional zero-based loop frame within the PCM data.</param>
+/// <param name="Sha256">Expected hexadecimal digest of the complete WAVE file.</param>
 public sealed record AudioCanonicalSampleMetadata(
     string Id,
     string WavFile,
@@ -716,11 +801,17 @@ public sealed record AudioCanonicalSampleMetadata(
     string Sha256);
 
 /// <summary>Static SFX routing metadata used by the managed SPC driver.</summary>
+/// <param name="Library">One-based sound library number corresponding to an APU request port.</param>
+/// <param name="Effects">Ordered command table for this library.</param>
 public sealed record AudioSoundLibraryMetadata(
     int Library,
     IReadOnlyList<AudioSoundEffectMetadata> Effects);
 
 /// <summary>A bounded, address-stable resident SPC sound-effect channel program.</summary>
+/// <param name="Id">Stable identity used by effects that route to this program.</param>
+/// <param name="Address">Native APU-RAM program entry address.</param>
+/// <param name="ByteCapacity">Fixed byte slot assigned by the resident driver.</param>
+/// <param name="Instructions">Named bytecode operations and their operands.</param>
 public sealed record AudioSoundProgramMetadata(
     string Id,
     ushort Address,
@@ -728,11 +819,18 @@ public sealed record AudioSoundProgramMetadata(
     IReadOnlyList<AudioSoundInstructionMetadata> Instructions);
 
 /// <summary>One named operation and its documented byte operands.</summary>
+/// <param name="Operation">Stable name of the SFX bytecode operation.</param>
+/// <param name="Arguments">Operand bytes in native program order.</param>
 public sealed record AudioSoundInstructionMetadata(
     string Operation,
     IReadOnlyList<byte> Arguments);
 
 /// <summary>Stable identity, routing and voice-allocation class for a one-based SFX command.</summary>
+/// <param name="Command">One-based request byte written to the selected APU port.</param>
+/// <param name="Id">Stable manifest identity for this library command.</param>
+/// <param name="StreamPointer">Native SPC-RAM pointer to the command's channel stream table.</param>
+/// <param name="Configuration">Compiled allocation-policy selector for this command.</param>
+/// <param name="ChannelPrograms">Program identities assigned to the command's allocated voices.</param>
 public sealed record AudioSoundEffectMetadata(
     byte Command,
     string Id,
@@ -740,8 +838,10 @@ public sealed record AudioSoundEffectMetadata(
     byte Configuration,
     IReadOnlyList<string> ChannelPrograms);
 
+/// <summary>Shared JSON policy and allocation-conscious converters for extracted audio manifests.</summary>
 internal static class AudioAssetJson
 {
+    /// <summary>Canonical camel-case manifest serializer settings used for both load and identity hashing.</summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -757,9 +857,10 @@ internal static class AudioAssetJson
     /// </summary>
     private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
     {
-        // Operation names repeat across every program; keep one instance of each.
+        /// <summary>Thread-local canonical strings reused for repeated instruction operation names.</summary>
         [ThreadStatic] private static Dictionary<string, string>? operations;
 
+        /// <summary>Reads the four supported instruction properties while skipping unknown JSON properties.</summary>
         public override AudioMusicInstructionMetadata Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -803,6 +904,7 @@ internal static class AudioAssetJson
             return new AudioMusicInstructionMetadata(operation!, opcode, timing!, arguments!);
         }
 
+        /// <summary>Returns a shared operation string, adding unseen JSON names to the thread-local lookup.</summary>
         private static string Operation(ref Utf8JsonReader reader)
         {
             if (reader.TokenType != JsonTokenType.String)
@@ -818,6 +920,7 @@ internal static class AudioAssetJson
             return name;
         }
 
+        /// <summary>Writes instruction properties in the stable manifest order.</summary>
         public override void Write(Utf8JsonWriter writer, AudioMusicInstructionMetadata value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
@@ -837,6 +940,7 @@ internal static class AudioAssetJson
     /// </summary>
     private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
     {
+        /// <summary>Reads a JSON byte array into one exact result array, renting temporary storage only for long arrays.</summary>
         public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartArray)
@@ -869,6 +973,7 @@ internal static class AudioAssetJson
             }
         }
 
+        /// <summary>Writes byte values as the manifest's ordinary JSON number array.</summary>
         public override void Write(Utf8JsonWriter writer, IReadOnlyList<byte> value, JsonSerializerOptions options)
         {
             writer.WriteStartArray();

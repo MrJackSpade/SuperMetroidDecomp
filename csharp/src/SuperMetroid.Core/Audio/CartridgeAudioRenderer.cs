@@ -13,7 +13,9 @@ public sealed class CartridgeAudioRenderer
     public const int ChannelCount = 2;
     /// <summary>Eight hundred stereo frames generated for each 60-Hz emulation update, yielding 1,600 signed 16-bit channel samples.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
+    /// <summary>Upload and decoded-definition catalog shared by each command dispatch.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
+    /// <summary>Reusable interleaved output storage returned by <see cref="RenderFrame"/>.</summary>
     private readonly short[] samples = new short[StereoFramesPerVideoFrame * ChannelCount];
 
     /// <summary>Creates the cartridge-command adapter and its reusable PCM buffer, retaining an existing player state or creating a new managed APU.</summary>

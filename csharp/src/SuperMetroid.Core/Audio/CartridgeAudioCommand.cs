@@ -18,6 +18,10 @@ public enum CartridgeAudioCommandKind : byte
 /// blobs into every frontend frame. Port zero selects music; ports one through three are
 /// the retail sound-effect libraries. Unused fields are zero for a given command kind.
 /// </remarks>
+/// <param name="Kind">Selects an upload or CPU-to-APU port write.</param>
+/// <param name="UploadAddress">24-bit cartridge source address for an upload command.</param>
+/// <param name="Port">Zero-based APU port index for a write command.</param>
+/// <param name="Value">Byte written to the selected port.</param>
 public readonly record struct CartridgeAudioCommand(
     CartridgeAudioCommandKind Kind,
     int UploadAddress,
@@ -34,6 +38,10 @@ public readonly record struct CartridgeAudioCommand(
 }
 
 /// <summary>Bytes returned by the SPC to the 65816 through APU ports $2140-$2143.</summary>
+/// <param name="Port0">SPC output value for SNES port $2140, used by music handshakes.</param>
+/// <param name="Port1">SPC output value for SNES port $2141, used by sound library one.</param>
+/// <param name="Port2">SPC output value for SNES port $2142, used by sound library two.</param>
+/// <param name="Port3">SPC output value for SNES port $2143, used by sound library three.</param>
 public readonly record struct CartridgeAudioAcknowledgements(
     byte Port0,
     byte Port1,

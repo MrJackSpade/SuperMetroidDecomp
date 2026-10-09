@@ -62,9 +62,16 @@ public sealed class ControllerInputState
         return restore;
     }
 
+    /// <summary>Restores the real controller words after a temporary demo publication.</summary>
+    /// <param name="owner">Input state whose demo-facing words are temporarily replaced.</param>
+    /// <param name="held">Real held-input word captured before the override.</param>
+    /// <param name="newlyPressed">Real edge word captured before the override.</param>
     private sealed class DemoInputRestore(ControllerInputState owner, ushort held, ushort newlyPressed) : IDisposable
     {
+        /// <summary>Prevents repeated disposal from restoring state more than once.</summary>
         private bool disposed;
+
+        /// <summary>Restores the controller words captured before the demo override.</summary>
         public void Dispose()
         {
             if (disposed) return;

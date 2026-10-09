@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 
 public static partial class GameplayDisplayCapture
 {
+    /// <summary>Builds the Mode 7 base plane and memory snapshot for Ceres elevator or Ridley scenes.</summary>
     private static LayeredRenderSnapshot CaptureMode7Base(SuperMetroidRuntime runtime)
     {
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;

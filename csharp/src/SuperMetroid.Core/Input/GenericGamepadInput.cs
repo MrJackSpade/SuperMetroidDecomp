@@ -10,6 +10,10 @@ namespace SuperMetroid.Core.Input;
 /// exact host-to-SNES bit conversion deterministic and independently testable without a
 /// physical controller or a dependency on Windows native APIs.
 /// </remarks>
+/// <param name="HorizontalAxis">Normalized signed horizontal stick value, where negative is left and positive is right.</param>
+/// <param name="VerticalAxis">Normalized signed vertical stick value, where negative is up and positive is down.</param>
+/// <param name="PointOfView">POV-hat angle in hundredths of a degree, or <see cref="GenericGamepadInput.CenteredPointOfView"/> when centered.</param>
+/// <param name="Buttons">Zero-based host button bitmask; face buttons occupy bits 0–3 and shoulders bits 4–5.</param>
 public readonly record struct GenericGamepadSnapshot(
     short HorizontalAxis,
     short VerticalAxis,
@@ -137,6 +141,7 @@ public static class GenericGamepadInput
         return result;
     }
 
+    /// <summary>Tests one zero-based host button bit in the raw gamepad snapshot.</summary>
     private static bool IsPressed(uint buttons, int zeroBasedButtonIndex) =>
         (buttons & (1u << zeroBasedButtonIndex)) != 0;
 }

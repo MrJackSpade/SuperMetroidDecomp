@@ -14,11 +14,17 @@ public static class AudioAssetCatalogData
     /// <summary>Cartridge-order view of24 named music cases, without a stored lookup or cache.</summary>
     public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music = new MusicBankView();
 
+    /// <summary>Lazy cartridge-order projection over the named music upload identities.</summary>
     private sealed class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
     {
+        /// <summary>Number of authored music uploads in the retail pointer table.</summary>
         public int Count => 24;
+
+        /// <summary>Resolves one zero-based slot to its named upload definition.</summary>
         public AudioUploadAssetDefinition this[int index] => (uint)index < Count
             ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new IndexOutOfRangeException();
+
+        /// <summary>Enumerates music uploads in pointer-table order without allocating a backing array.</summary>
         public IEnumerator<AudioUploadAssetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -76,4 +82,7 @@ public static class AudioAssetCatalogData
 }
 
 /// <summary>Identity of one upload stream before it is materialized on disk.</summary>
+/// <param name="SnesAddress">24-bit cartridge address from which the upload is read.</param>
+/// <param name="DataIndex">Music pointer-table byte offset selecting the stream.</param>
+/// <param name="Name">Stable disassembly symbol used as the extracted asset filename identity.</param>
 public sealed record AudioUploadAssetDefinition(int SnesAddress, byte DataIndex, string Name);

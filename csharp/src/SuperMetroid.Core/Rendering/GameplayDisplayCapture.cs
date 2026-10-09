@@ -145,6 +145,7 @@ public static partial class GameplayDisplayCapture
             SnesPpuLayout.MaximumMasterBrightness);
     }
 
+    /// <summary>Copies exactly the gameplay viewport's HDMA values, rejecting truncated scanline data.</summary>
     private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
     {
         if (values is null) return [];
@@ -155,5 +156,6 @@ public static partial class GameplayDisplayCapture
         return result;
     }
 
+    /// <summary>Adds signed room shake to a wrapping 16-bit scroll register value.</summary>
     private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
 }

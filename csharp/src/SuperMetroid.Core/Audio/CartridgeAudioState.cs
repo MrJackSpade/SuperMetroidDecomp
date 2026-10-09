@@ -13,27 +13,41 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class CartridgeAudioState
 {
+    /// <summary>Eight native music command words indexed by the queue's byte positions.</summary>
     private readonly MusicCommand[] _musicEntries =
         new MusicCommand[AudioRomData.Queues.MusicCapacity];
+    /// <summary>Effective countdown stored alongside each occupied music command.</summary>
     private readonly MusicCommandDelay[] _musicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
+    /// <summary>Three independent sixteen-byte sound request rings, one per SPC library.</summary>
     private readonly byte[,] _soundQueues = new byte[
         AudioRomData.Queues.SoundLibraryCount,
         AudioRomData.Queues.SoundCapacity];
+    /// <summary>Next unread request position for each sound library.</summary>
     private readonly byte[] _soundReadPositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Next write position for each sound library, retaining one empty ring slot.</summary>
     private readonly byte[] _soundWritePositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Four-state port handshake phase for each sound library.</summary>
     private readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Request byte currently awaiting the matching SPC acknowledgement.</summary>
     private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Two-update request-clear countdown used by the sound-port handshake.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Reset-time upload and port writes returned before ordinary queue dispatch.</summary>
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
+    /// <summary>Queue slot consumed by the next music dispatcher call.</summary>
     private byte _musicReadPosition;
+    /// <summary>Queue slot that will receive the next music command.</summary>
     private byte _musicWritePosition;
+    /// <summary>Native 16-bit countdown controlling when the current music entry is handled.</summary>
     private ushort _musicTimer;
+    /// <summary>Command currently being timed after removal from the ring.</summary>
     private MusicCommand _musicEntry;
+    /// <summary>Remaining sound-handler calls that silence all three ports after a music change.</summary>
     private byte _soundHandlerDowntime;
 
     /// <summary>Creates empty native music/SFX queues and zeroed acknowledgement state, scheduling the common audio-bank upload and reset port writes for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
@@ -288,6 +302,7 @@ public sealed class CartridgeAudioState
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
 
+    /// <summary>Stores a delayed command, optionally dropping it when the reserved-slot ring is full.</summary>
     private void QueueMusic(
         MusicCommand command,
         MusicCommandDelay delay,
@@ -309,6 +324,7 @@ public sealed class CartridgeAudioState
         _musicWritePosition = next;
     }
 
+    /// <summary>Advances the native music countdown, dispatches its current command, and fetches the next occupied slot.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
         bool timerExpired = _musicTimer-- == 1;
@@ -352,6 +368,7 @@ public sealed class CartridgeAudioState
         _musicTimer = _musicDelays[_musicReadPosition].Frames;
     }
 
+    /// <summary>Retires the active ring entry and wraps the read position using the native music mask.</summary>
     private void ClearAndAdvanceMusicEntry()
     {
         _musicEntries[_musicReadPosition] = default;
@@ -360,6 +377,7 @@ public sealed class CartridgeAudioState
             (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask));
     }
 
+    /// <summary>Applies music-change downtime or advances each library's APU acknowledgement handshake once.</summary>
     private void HandleSoundEffects(
         CartridgeAudioAcknowledgements acknowledgements,
         List<CartridgeAudioCommand> commands)
@@ -385,6 +403,7 @@ public sealed class CartridgeAudioState
                 commands);
     }
 
+    /// <summary>Runs one library's four-phase send, echo, clear, and zero-acknowledgement protocol.</summary>
     private void HandleSoundEffectQueue(
         int queue,
         byte acknowledgement,
@@ -439,6 +458,7 @@ public sealed class CartridgeAudioState
         }
     }
 
+    /// <summary>Publishes the next unread request on one library port and marks it as awaiting SPC echo.</summary>
     private void SendNextSound(int queue, List<CartridgeAudioCommand> commands)
     {
         if (_soundReadPositions[queue] == _soundWritePositions[queue])

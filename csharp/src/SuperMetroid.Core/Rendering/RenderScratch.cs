@@ -10,13 +10,20 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 internal sealed class RenderScratch : IDisposable
 {
+    /// <summary>Per-thread reusable color planes grouped by exact pixel count.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<Rgba32[]>>? freeColors;
+    /// <summary>Per-thread reusable byte planes grouped by exact element count.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<byte[]>>? freeBytes;
+    /// <summary>Per-thread reusable VRAM/CGRAM/OAM snapshot readers.</summary>
     [ThreadStatic] private static Stack<SoftwarePpuSnapshotMemory>? freeMemory;
 
+    /// <summary>Planes borrowed by this scope and returned together when disposed.</summary>
     private readonly List<Rgba32[]> colors = [];
+    /// <summary>Byte planes borrowed by this scope and returned together when disposed.</summary>
     private readonly List<byte[]> bytes = [];
+    /// <summary>Snapshot readers borrowed by this scope and returned together when disposed.</summary>
     private readonly List<SoftwarePpuSnapshotMemory> memories = [];
+    /// <summary>Whether this scope has returned its borrowed storage.</summary>
     private bool disposed;
 
     /// <summary>A cleared color plane (every pixel transparent).</summary>

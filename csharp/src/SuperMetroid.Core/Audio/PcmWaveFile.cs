@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Strict mono PCM16 RIFF/WAVE codec used by extracted and replacement samples.</summary>
 public static class PcmWaveFile
 {
+    /// <summary>RIFF format code identifying integer PCM audio.</summary>
     private const ushort PcmFormat = 1;
+    /// <summary>Minimum WAVE format payload containing the base PCM fields.</summary>
     private const int MinimumFormatChunkBytes = 16;
 
     /// <summary>Decodes little-endian, uncompressed mono PCM16 after validating the RIFF length and the single format/data chunks; unrelated chunks are skipped.</summary>
@@ -109,9 +111,11 @@ public static class PcmWaveFile
             writer.Write(sample);
     }
 
+    /// <summary>Reads one little-endian 16-bit field from a previously bounded chunk.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
         unchecked((ushort)(bytes[offset] | (bytes[offset + 1] << 8)));
 
+    /// <summary>Reads one little-endian 32-bit field from a previously bounded chunk.</summary>
     private static uint ReadDword(ReadOnlySpan<byte> bytes, int offset) =>
         unchecked((uint)(bytes[offset] | (bytes[offset + 1] << 8) |
             (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)));

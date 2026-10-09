@@ -11,6 +11,13 @@ namespace SuperMetroid.Core.Input;
 /// those configurable words before each comparison: it converts physical buttons into the
 /// canonical action bits without making every movement routine own a second binding table.
 /// </remarks>
+/// <param name="Shoot">Physical button mapped to the canonical shoot action.</param>
+/// <param name="Jump">Physical button mapped to the canonical jump action.</param>
+/// <param name="Dash">Physical button mapped to the canonical dash action.</param>
+/// <param name="ItemSelect">Physical button mapped to item selection.</param>
+/// <param name="ItemCancel">Physical button mapped to item cancellation.</param>
+/// <param name="AimUp">Physical button mapped to the aim-up action.</param>
+/// <param name="AimDown">Physical button mapped to the aim-down action.</param>
 public readonly record struct ControllerBindings(
     ushort Shoot,
     ushort Jump,
@@ -193,6 +200,7 @@ public readonly record struct ControllerBindings(
         return this;
     }
 
+    /// <summary>Returns a copy with one menu-row action assigned to the supplied button word.</summary>
     private ControllerBindings WithAction(int action, ushort value) => action switch
     {
         0 => this with { Shoot = value },
@@ -205,6 +213,7 @@ public readonly record struct ControllerBindings(
         _ => throw new ArgumentOutOfRangeException(nameof(action)),
     };
 
+    /// <summary>Maps a held physical binding to its canonical action bit while retaining accumulated controls.</summary>
     private static ushort Map(
         ushort physicalInput,
         ushort physicalBinding,

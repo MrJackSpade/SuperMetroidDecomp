@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 
 public static partial class GameplayDisplayCapture
 {
+    /// <summary>Captures Phantoon's phase-dependent BG2 removal and additive blending as one composition layer.</summary>
     private static RenderLayer CapturePhantoonBlending(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];

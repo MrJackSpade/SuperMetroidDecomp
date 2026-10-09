@@ -26,8 +26,10 @@ public sealed class VramWriteQueue
 
     // A two-byte zero-size terminator is written at TailInBytes during NMI. Consequently,
     // an otherwise fitting final record is invalid if it leaves fewer than two bytes.
+    /// <summary>Space the native NMI consumer needs for the zero-sized end marker.</summary>
     private const int TerminatorByteCount = 2;
 
+    /// <summary>Typed pending transfers, kept in the order the game queued them.</summary>
     private readonly List<VramWriteEntry> _entries = [];
 
     /// <summary>
@@ -57,6 +59,7 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, 0, encodedVramDestination) { AssetId = asset });
     }
 
+    /// <summary>Checks table capacity including the native terminator before appending one record.</summary>
     private void Append(VramWriteEntry entry)
     {
         int newTail = TailInBytes + EntryByteCount;

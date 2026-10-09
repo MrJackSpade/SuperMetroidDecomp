@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>The mutually exclusive mapped sources a PPU DMA transfer can read.</summary>
 internal enum SnesDmaSourceKind
 {
+    /// <summary>Mapped work RAM visible to the DMA A-bus.</summary>
     WorkRam,
+    /// <summary>Mapped battery-backed save RAM visible to the DMA A-bus.</summary>
     SaveRam,
+    /// <summary>Cartridge ROM mapped in the upper LoROM window.</summary>
     Cartridge,
+    /// <summary>No modeled memory device responds at this address.</summary>
     Unmapped,
 }
 
@@ -16,6 +20,7 @@ internal enum SnesDmaSourceKind
 /// </summary>
 internal static class SnesDmaSourceMap
 {
+    /// <summary>Classifies one already-wrapped DMA bus address by the mapped source it can read.</summary>
     internal static SnesDmaSourceKind Classify(SnesAddress address)
     {
         byte bank = address.Bank;

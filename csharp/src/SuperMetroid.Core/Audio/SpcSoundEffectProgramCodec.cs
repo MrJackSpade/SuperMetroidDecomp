@@ -30,6 +30,7 @@ public static class AudioSoundInstructionOperations
 /// </summary>
 internal static class SpcSoundEffectProgramCodec
 {
+    /// <summary>Decodes one bounded resident SFX channel stream into named operations and byte operands.</summary>
     internal static AudioSoundProgramMetadata Decode(
         string id,
         ushort address,
@@ -88,6 +89,7 @@ internal static class SpcSoundEffectProgramCodec
             $"SPC sound program '{id}' at ${address:X4} has no terminal instruction.");
     }
 
+    /// <summary>Encodes an editable SFX program while preserving its fixed native slot size.</summary>
     internal static byte[] Encode(AudioSoundProgramMetadata program)
     {
         ArgumentNullException.ThrowIfNull(program);
@@ -162,6 +164,7 @@ internal static class SpcSoundEffectProgramCodec
         return [.. bytes];
     }
 
+    /// <summary>Reads a fixed number of operands and packages them as one named instruction.</summary>
     private static AudioSoundInstructionMetadata Read(
         string operation,
         int count,
@@ -176,6 +179,7 @@ internal static class SpcSoundEffectProgramCodec
         return new(operation, arguments);
     }
 
+    /// <summary>Reads one byte only when its SPC-RAM address was populated by an upload.</summary>
     private static byte ReadByte(
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,

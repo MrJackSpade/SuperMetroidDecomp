@@ -16,6 +16,9 @@ internal readonly record struct DoorCameraAlignmentState(
     bool Completed)
 {
     /// <summary>Executes one exact coordinate step for the supplied bank-$83 orientation.</summary>
+    /// <param name="orientation">Door orientation byte selecting the aligned camera axis.</param>
+    /// <param name="cameraX">Current horizontal camera register pair.</param>
+    /// <param name="cameraY">Current vertical camera register pair.</param>
     public static DoorCameraAlignmentState Step(
         byte orientation,
         ushort cameraX,

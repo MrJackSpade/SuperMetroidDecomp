@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Host display rectangle; small clients clip the centered minimum-size picture.</summary>
+/// <param name="Left">Horizontal destination offset within the host client.</param>
+/// <param name="Top">Vertical destination offset within the host client.</param>
+/// <param name="Width">Destination pixel width of the rendered frame.</param>
+/// <param name="Height">Destination pixel height of the rendered frame.</param>
 public readonly record struct DisplayViewport(int Left, int Top, int Width, int Height)
 {
     /// <summary>
@@ -36,6 +40,8 @@ public readonly record struct DisplayViewport(int Left, int Top, int Width, int 
 /// <summary>Consumer display aspect, distinct from the native SNES sample dimensions.</summary>
 internal static class DisplayAspect
 {
+    /// <summary>Numerator of the corrected display aspect ratio.</summary>
     internal const int Numerator = 4;
+    /// <summary>Denominator of the corrected display aspect ratio.</summary>
     internal const int Denominator = 3;
 }

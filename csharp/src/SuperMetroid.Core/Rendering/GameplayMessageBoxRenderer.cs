@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Composites bank-$85's temporary BG3 message tilemap over a gameplay frame.</summary>
 public static class GameplayMessageBoxRenderer
 {
+    /// <summary>Pixel width used to validate and index gameplay frame buffers.</summary>
     private const int ScreenWidth = SnesGameplayFrameRenderer.Width;
+    /// <summary>Pixel height used to clip the message box to the rendered gameplay frame.</summary>
     private const int ScreenHeight = SnesGameplayFrameRenderer.Height;
 
     /// <summary>Copies the currently exposed message; inactive/zero-radius messages emit no overlay.</summary>
@@ -49,6 +51,7 @@ public static class GameplayMessageBoxRenderer
         CompositeTilemap(frame, tilemap, rowCount, messageBox.RadiusPixels, vram, cgram);
     }
 
+    /// <summary>Rasterizes a clipped message tilemap from VRAM/CGRAM into the supplied frame buffer.</summary>
     private static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
         int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
     {

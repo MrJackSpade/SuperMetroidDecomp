@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public readonly record struct SnesAddress
 {
+    /// <summary>Largest value representable on the 24-bit SNES CPU bus.</summary>
     private const int MaximumValue = 0x00ff_ffff;
+    /// <summary>Offset bit separating the upper cartridge window from the lower half-bank.</summary>
     private const ushort UpperLoRomWindowMask = 0x8000;
 
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>

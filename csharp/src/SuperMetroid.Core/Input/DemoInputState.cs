@@ -219,6 +219,7 @@ public sealed class DemoInputState
         PreviousNewlyPressed = NewlyPressed;
     }
 
+    /// <summary>Consumes control opcodes until a timed input record or delete instruction is reached.</summary>
     private void ProcessInstructionList(
         ISnesAddressSpace bus,
         Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction,
@@ -313,6 +314,7 @@ public sealed class DemoInputState
         }
     }
 
+    /// <summary>Creates an error identifying a native callback that the owning demo object did not provide.</summary>
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
 }

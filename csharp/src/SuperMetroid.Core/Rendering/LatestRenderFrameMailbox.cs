@@ -12,13 +12,21 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class LatestRenderFrameMailbox
 {
+    /// <summary>Serializes mailbox pointer, generation, and metric updates.</summary>
     private readonly object sync = new();
+    /// <summary>The single not-yet-consumed immutable packet, if one is queued.</summary>
     private RenderFrameSnapshot? pending;
+    /// <summary>Simulation load/reset generation accepted by this mailbox.</summary>
     private long generation;
+    /// <summary>Highest sequence accepted, retained across generation changes.</summary>
     private long lastSequence;
+    /// <summary>Total packets published since construction.</summary>
     private long published;
+    /// <summary>Total packets taken by a consumer.</summary>
     private long taken;
+    /// <summary>Total pending packets overwritten by a newer publication.</summary>
     private long replaced;
+    /// <summary>Total pending packets discarded at a generation boundary.</summary>
     private long invalidated;
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>
@@ -100,4 +108,5 @@ public sealed class LatestRenderFrameMailbox
 }
 
 /// <summary>Visual-only counters; none represents skipped emulation ticks or audio.</summary>
+/// <param name="Replaced">Packets replaced by a newer publication before consumption.</param>
 public readonly record struct RenderMailboxMetrics(    long Replaced);

@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 public sealed partial class ManagedSpcPlayer
 {
+    /// <summary>Divides a signed nine-bit delta into native 8.8 fixed-point steps.</summary>
     private static ushort DivideSignedFixedPoint(int numerator, byte denominator)
     {
         int original = numerator;
@@ -14,6 +15,7 @@ public sealed partial class ManagedSpcPlayer
         return unchecked((ushort)(((original & 0x100) != 0) ? -fixedPoint : fixedPoint)); // allow(BitMask): SPC nine-bit sign test
     }
 
+    /// <summary>Interpolates pan-table gains and writes the channel's left/right DSP volumes unless an SFX owns it.</summary>
     private void WriteVolume(ManagedSpcMusicChannel channel, ushort volume)
     {
         // A sound effect owns this hardware voice while its bit is set. Music state continues
@@ -54,6 +56,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Converts note and fine-pitch bytes to the instrument-scaled DSP pitch registers.</summary>
     private void WritePitchInner(ManagedSpcMusicChannel channel, ushort pitch)
     {
         byte note = unchecked((byte)((pitch >> 8) & 0x7f)); // allow(BitMask): seven-bit note number
@@ -79,6 +82,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Applies native low/high note corrections before writing the channel pitch.</summary>
     private void WritePitch(ManagedSpcMusicChannel channel, ushort pitch)
     {
         if (HighByte(pitch) >= 0x34) // allow(HardwareMagnitude): native high-note correction threshold
@@ -88,6 +92,7 @@ public sealed partial class ManagedSpcPlayer
         WritePitchInner(channel, pitch);
     }
 
+    /// <summary>Restores channel defaults and global fade/tempo state when music is paused or restarted.</summary>
     private void ResetMusicChannels()
     {
         for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // allow(BitMask): highest voice bit
@@ -116,6 +121,7 @@ public sealed partial class ManagedSpcPlayer
         SetHighByte(ref tempo, SpcDriverData.Music.DefaultTrackTempo);
     }
 
+    /// <summary>Loads one instrument record into DSP source, envelope, gain, and pitch state without changing its ID.</summary>
     private void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, byte instrument)
     {
         if ((instrument & 0x80) != 0) // allow(BitMask): percussion instrument marker
@@ -142,12 +148,14 @@ public sealed partial class ManagedSpcPlayer
         channel.InstrumentPitchBase = unchecked((ushort)((ram[address + 4] << 8) | ram[address + 5]));
     }
 
+    /// <summary>Records the selected instrument identity and installs its DSP settings.</summary>
     private void SetInstrument(ManagedSpcMusicChannel channel, byte instrument)
     {
         channel.InstrumentId = instrument;
         SetInstrumentWithoutSavingId(channel, instrument);
     }
 
+    /// <summary>Computes the signed per-tick pitch delta toward a slide target.</summary>
     private static void ComputePitchAdd(ManagedSpcMusicChannel channel, byte pitch)
     {
         channel.PitchTarget = unchecked((byte)(pitch & 0x7f)); // allow(BitMask): seven-bit note number
@@ -155,6 +163,7 @@ public sealed partial class ManagedSpcPlayer
             channel.PitchTarget - (channel.Pitch >> 8), channel.PitchSlideLength);
     }
 
+    /// <summary>Consumes an immediately following pitch-slide effect and initializes its target and duration.</summary>
     private void CheckPitchSlideToNote(ManagedSpcMusicChannel channel)
     {
         if (channel.PitchSlideLength != 0 || ram[channel.PatternOrderPointer] != (byte)SpcMusicEffect.PitchSlide)
@@ -166,6 +175,7 @@ public sealed partial class ManagedSpcPlayer
             globalTransposition + channel.ChannelTransposition)));
     }
 
+    /// <summary>Dispatches one music effect opcode and consumes its native operands.</summary>
     private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
@@ -333,6 +343,7 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Looks ahead through pattern control flow to determine whether the next boundary ties the note.</summary>
     private bool WantsKeyOff(ManagedSpcMusicChannel channel)
     {
         int loops = channel.SubroutineLoops;
@@ -364,6 +375,7 @@ public sealed partial class ManagedSpcPlayer
         throw new InvalidDataException("SPC key-off lookahead did not reach a note boundary.");
     }
 
+    /// <summary>Combines master, note, and channel gains into the channel's current volume.</summary>
     private void CalculateFinalVolume(ManagedSpcMusicChannel channel, byte volume)
     {
         int scaled = HighByte(masterVolume) * volume >> 8;
@@ -372,6 +384,7 @@ public sealed partial class ManagedSpcPlayer
         channel.FinalVolume = unchecked((byte)(scaled * scaled >> 8));
     }
 
+    /// <summary>Applies the current tremolo phase and depth before recalculating channel volume.</summary>
     private void CalculateTremolo(ManagedSpcMusicChannel channel, byte value)
     {
         value = (value & 0x80) != 0 // allow(BitMask): tremolo waveform phase
@@ -381,12 +394,14 @@ public sealed partial class ManagedSpcPlayer
         CalculateFinalVolume(channel, unchecked((byte)(value ^ byte.MaxValue)));
     }
 
+    /// <summary>Marks volume as changed and evaluates one tempo-scaled tremolo phase.</summary>
     private void HandleTremolo(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch |= 0x80; // allow(BitMask): dirty result marker
         CalculateTremolo(channel, unchecked((byte)(channel.TremoloRate * mainTempoAccumulator >> 8)));
     }
 
+    /// <summary>Applies shallow or deep vibrato displacement to a base channel pitch.</summary>
     private void CalculateVibratoPitch(ManagedSpcMusicChannel channel, ushort pitch, byte value)
     {
         int scaled = value << 2;
@@ -397,6 +412,7 @@ public sealed partial class ManagedSpcPlayer
         WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // allow(BitMask): vibrato direction
     }
 
+    /// <summary>Advances active tremolo, pan fades, pitch slides, and vibrato for one music channel.</summary>
     private void HandlePanAndSweep(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch = 0;
@@ -429,6 +445,7 @@ public sealed partial class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
+    /// <summary>Updates note release, pitch-envelope, slide, and vibrato state between note commands.</summary>
     private void HandleNoteTick(ManagedSpcMusicChannel channel)
     {
         if (channel.NoteKeyOffTicksLeft != 0 &&
@@ -475,6 +492,7 @@ public sealed partial class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
+    /// <summary>Advances per-channel volume and pan fades and emits changed DSP volume registers.</summary>
     private void HandleChannelTick(ManagedSpcMusicChannel channel)
     {
         if (channel.VolumeFadeTicks != 0)
@@ -519,6 +537,7 @@ public sealed partial class ManagedSpcPlayer
             WriteVolume(channel, channel.PanValue);
     }
 
+    /// <summary>Consumes port-zero controls or advances the active track's patterns and channel ticks.</summary>
     private void HandleMusicCommand()
     {
         byte command = inputPorts[AudioRomData.Apu.MusicPort];
@@ -694,6 +713,7 @@ public sealed partial class ManagedSpcPlayer
         currentChannelBit = 0;
     }
 
+    /// <summary>Selects a numbered track, initializes its startup countdown, and requests key-off for music voices.</summary>
     private void StartTrack(byte track)
     {
         portsToSnes[AudioRomData.Apu.MusicPort] = track;
@@ -703,6 +723,7 @@ public sealed partial class ManagedSpcPlayer
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
+    /// <summary>Starts a pitched/percussion note on the channel unless it is tied or currently borrowed by SFX.</summary>
     private void PlayNote(ManagedSpcMusicChannel channel, byte note)
     {
         if (note >= SpcDriverData.Music.FirstPercussionNote)

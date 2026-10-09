@@ -44,6 +44,7 @@ internal static class SpcMusicTables
     /// <summary>SPC1E1D..1E31 contains21 pan samples. The curve's exact generator remains
     /// required review under1165; no retention exception has been established.</summary>
     internal const int PanSampleCount = 21;
+    /// <summary>Twenty-one literal pan multipliers embedded in the resident driver.</summary>
     private static readonly byte[] panVolume =
         [0, 1, 3, 7, 13, 21, 30, 41, 52, 66, 81, 94, 103, 110, 115, 119, 122, 124, 125, 126, 127];
 

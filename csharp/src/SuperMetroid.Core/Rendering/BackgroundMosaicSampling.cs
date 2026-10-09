@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public readonly struct BackgroundMosaicSampling
 {
+    /// <summary>Stored MOSAIC size-minus-one value, with zero also representing default sampling.</summary>
     private readonly byte _encodedSize;
     /// <summary>The PPU encodes widths one through sixteen as zero through fifteen.</summary>
     public int Size => _encodedSize + 1;

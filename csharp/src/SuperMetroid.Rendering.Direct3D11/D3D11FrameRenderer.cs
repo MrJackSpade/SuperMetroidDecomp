@@ -44,6 +44,10 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         return constantUpload;
     }
 
+    /// <summary>Creates embedded compute/display shaders and native 256-by-224 output/OBJ resources on an existing render-owner device; owns those resources but not the device.</summary>
+    /// <param name="owner">Live device owned by the calling thread; must outlive this renderer and share ownership with any presenter using its output.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="owner"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Construction is attempted off the device's owner thread.</exception>
     public D3D11FrameRenderer(D3D11RenderDevice owner)
         : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
 
@@ -112,6 +116,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             (uint)((packet.Height + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
     }
 
+    /// <summary>Unbinds renderer shader/resource state and releases its owned GPU objects in reverse creation order on the owner thread; the shared device remains alive and repeated disposal is harmless.</summary>
+    /// <exception cref="InvalidOperationException">First disposal is attempted from a different owner thread.</exception>
     public void Dispose()
     {
         if (disposed) return;

@@ -5,7 +5,13 @@ using Vortice.DXGI;
 namespace SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Explicit device selection; hardware requests never silently become WARP.</summary>
-public enum D3D11DeviceKind { Hardware, Warp }
+public enum D3D11DeviceKind
+{
+    /// <summary>Creates the requested feature-level-11 device on the first enumerated non-software DXGI adapter; absence or creation failure is not replaced with WARP.</summary>
+    Hardware,
+    /// <summary>Explicitly selects Microsoft's WARP software rasterizer for the D3D11 backend, rather than a portable CPU-renderer fallback.</summary>
+    Warp
+}
 
 /// <summary>Render-thread-owned D3D11 device/context lifetime, isolated from portable display contracts.</summary>
 public sealed class D3D11RenderDevice : IDisposable
@@ -14,12 +20,19 @@ public sealed class D3D11RenderDevice : IDisposable
     private bool disposed;
     internal ID3D11Device Device { get; }
     internal ID3D11DeviceContext Context { get; }
+    /// <summary>Description queried from the adapter actually associated with the successfully created device.</summary>
     public string AdapterDescription { get; }
+    /// <summary>Explicit hardware or WARP backend selected at construction; device creation never silently changes it.</summary>
     public D3D11DeviceKind Kind { get; }
     /// <summary>Actual feature level returned by the created device, not an inferred adapter capability.</summary>
     public FeatureLevel ActualFeatureLevel { get; }
+    /// <summary>Adapter, selected backend, and actual feature level formatted for worker startup/recovery reporting without further GPU calls.</summary>
     public string DiagnosticDescription => $"{AdapterDescription}; backend={Kind}; feature level={ActualFeatureLevel}";
 
+    /// <summary>Creates a BGRA-capable feature-level-11 device and immediate context on the calling render-owner thread; resource use and first disposal must remain on that thread.</summary>
+    /// <param name="kind">Explicit hardware-adapter or WARP selection; only the defined enum values are accepted.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined device backend.</exception>
+    /// <exception cref="NotSupportedException">Hardware was requested but DXGI exposes no non-software adapter.</exception>
     public D3D11RenderDevice(D3D11DeviceKind kind)
     {
         if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
@@ -57,6 +70,8 @@ public sealed class D3D11RenderDevice : IDisposable
             throw new InvalidOperationException("D3D11 immediate context must remain on its render-owner thread.");
     }
 
+    /// <summary>Clears and flushes the immediate context, then releases context/device references on their owner thread; repeated disposal is harmless and does not perform a GPU-completion wait.</summary>
+    /// <exception cref="InvalidOperationException">First disposal is attempted from a different thread.</exception>
     public void Dispose()
     {
         if (disposed) return;

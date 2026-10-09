@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks migrated Chozo and tube colors against cartridge data, overrides, and live enemy initializers.</summary>
+    /// <param name="rom">Cartridge address space used to verify the original RGB5 palette words.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock artwork and color document.</param>
+    /// <param name="stock">Loaded stock artwork catalog whose native color data is compared.</param>
     private static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -128,11 +132,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps an address space and rejects reads from the migrated Chozo and tube palette range.</summary>
+    /// <param name="source">Underlying address space for reads outside the migrated palette and for writes.</param>
     private sealed class ChozoAndTubePaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the palette-range guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the migrated palette range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects access to migrated palette ROM and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The byte at an address outside the migrated color tables.</returns>
+        /// <exception cref="InvalidOperationException">The address lies within the migrated Chozo or tube color data.</exception>
         public byte ReadByte(int address) =>
             address >= ChozoAndTubeColorRomData.TubeCracksSource &&
             address < ChozoAndTubeColorRomData.LowerNorfairSource +
@@ -141,6 +154,9 @@ internal static partial class Program
                     $"Chozo/tube accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

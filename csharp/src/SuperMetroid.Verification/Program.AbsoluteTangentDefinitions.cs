@@ -5,6 +5,9 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled tangent table against its native words and verifies production consumers avoid runtime table reads.</summary>
+    /// <param name="rom">Cartridge address space used to read the reference tangent words.</param>
+    /// <param name="definitionsOnly">When <see langword="true"/>, limits checks to the compiled definition and its bounds.</param>
     private static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         int Native(int index) => rom.ReadByte(0x91c9d4 + index * 2) | rom.ReadByte(0x91c9d5 + index * 2) << 8;
@@ -58,12 +61,25 @@ internal static partial class Program
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
 
+    /// <summary>Wraps an address space and rejects runtime reads from the absolute-tangent table.</summary>
+    /// <param name="source">Underlying address space for allowed reads and all writes.</param>
     private sealed class TangentReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the guarded runtime-read path.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte returned by the underlying address space, unless the tangent table is forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the tangent-table range and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The byte at an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The runtime attempts to read the absolute-tangent table.</exception>
         public byte ReadByte(int address) => address is >= 0x91c9d4 and < 0x91cad6
             ? throw new InvalidOperationException("Runtime absolute-tangent ROM read.") : source.ReadByte(address);
+
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all native enemy-projectile definitions against their compiled records and exercises runtime consumers with definition-byte reads forbidden.</summary>
+    /// <param name="rom">Cartridge address space containing the native enemy-projectile definition records.</param>
     private static void VerifyEnemyProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
@@ -145,17 +147,30 @@ internal static partial class Program
             "all definition bytes forbidden.");
     }
 
+    /// <summary>Wraps an address space to fail if runtime projectile behavior rereads compiled definition bytes.</summary>
+    /// <param name="source">Underlying address space for reads outside the forbidden definition bytes and for writes.</param>
+    /// <param name="forbidden">Addresses of native definition bytes that compiled runtime behavior must not read.</param>
     private sealed class EnemyProjectileDefinitionReadGuard(
         ISnesAddressSpace source,
         HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the forbidden-byte guard.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte from the wrapped address space if it is not forbidden.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from native projectile-definition bytes and forwards other reads.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped address space for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is in the forbidden definition-byte set.</exception>
         public byte ReadByte(int address) => forbidden.Contains(address)
             ? throw new InvalidOperationException(
                 $"Enemy-projectile runtime reread compiled definition byte ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

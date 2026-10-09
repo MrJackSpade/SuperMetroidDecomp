@@ -19,6 +19,7 @@ internal static partial class Program
             "  Eye doors: mirrored setup, slot order, effects, shot filters, persistence, and blue-door conversion agree.");
     }
 
+    /// <summary>Confirms eye-door attack, sweat, and smoke projectiles use the expected initialization and native behavior.</summary>
     private static void VerifyEyeDoorEnemyProjectiles()
     {
         var bus = new TestAddressSpace();
@@ -108,6 +109,9 @@ internal static partial class Program
             "smoke advances cartridge RNG once after sampling current seed");
     }
 
+    /// <summary>Exercises one mirrored eye-door fixture from population loading through accepted hits and blue-door conversion.</summary>
+    /// <param name="orientation">Side-specific eye-door orientation whose population and conversion behavior is checked.</param>
+    /// <param name="useSuperMissile">Whether the fixture uses one Super Missile hit instead of the three-hit missile threshold.</param>
     private static void VerifyEyeDoorOrientation(
         EyeDoorOrientation orientation,
         bool useSuperMissile)
@@ -228,6 +232,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Writes the minimal population, instruction, and draw data needed to run one eye-door orientation fixture.</summary>
+    /// <param name="bus">Address space receiving the constructed room-population and PLM program bytes.</param>
+    /// <param name="orientation">Orientation used to select the mirrored eye, door, bottom, and conversion instructions.</param>
     private static void SeedEyeDoorFixtureRom(
         TestAddressSpace bus,
         EyeDoorOrientation orientation)
@@ -286,6 +293,11 @@ internal static partial class Program
         WriteOneBlockDraw(bus, 0xf020, 0x8003);
     }
 
+    /// <summary>Seeds a passive eye-door component's resident and opened instruction lists in the fixture address space.</summary>
+    /// <param name="bus">Address space receiving the instruction words and opened-list terminator.</param>
+    /// <param name="list">Start address of the passive component's initial instruction list.</param>
+    /// <param name="openedTarget">Instruction-list address selected after the eye door opens.</param>
+    /// <param name="draw">Draw-list pointer used by the passive component.</param>
     private static void SeedPassiveEyeDoorList(
         TestAddressSpace bus,
         ushort list,
@@ -303,6 +315,11 @@ internal static partial class Program
         WriteWord(bus, 0x840000 | openedTarget, RoomPlmInstructionCodes.Delete);
     }
 
+    /// <summary>Advances the eye-door PLM system once with neutral input and no enemy-death progress.</summary>
+    /// <param name="plms">PLM system whose active eye-door slots are advanced.</param>
+    /// <param name="bus">Fixture address space used to fetch PLM instruction words.</param>
+    /// <param name="level">Room collision and block data used by the PLM update.</param>
+    /// <param name="streamer">Background tilemap streamer passed to the PLM update.</param>
     private static void StepEyeDoorPlms(
         RoomPlmSystem plms,
         TestAddressSpace bus,

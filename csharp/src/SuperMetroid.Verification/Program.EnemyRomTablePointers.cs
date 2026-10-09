@@ -76,6 +76,7 @@ internal static partial class Program
         (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
     ];
 
+    /// <summary>Checks compiled instruction selectors against ROM words and verifies production initializers avoid those ROM reads.</summary>
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
     {
@@ -143,11 +144,19 @@ internal static partial class Program
             "  Enemy instruction selectors: nine native words and all three production initializers avoid their source tables.");
     }
 
+    /// <summary>Wraps an address space and rejects reads from the enemy instruction-selector tables that should be compiled into definitions.</summary>
+    /// <param name="source">Address space used for reads outside the guarded selector-table ranges and for all writes.</param>
     private sealed class EnemyInstructionSelectionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Reads a cartridge-source byte through the same selector-table guard as runtime address-space reads.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The byte returned by the wrapped address space when the address is not guarded.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads within the guarded instruction-selector tables and delegates other reads to the wrapped address space.</summary>
+        /// <param name="address">Address of the byte to read.</param>
+        /// <returns>The byte at <paramref name="address"/> when it is outside the guarded ranges.</returns>
         public byte ReadByte(int address)
         {
             if (address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
@@ -161,6 +170,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space without altering the value or address.</summary>
+        /// <param name="address">Cartridge address where the byte is written.</param>
+        /// <param name="value">Byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

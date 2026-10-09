@@ -52,6 +52,8 @@ internal static partial class Program
         Console.WriteLine($"Enemy definitions: all 1,761 Torizo mechanics words, 564 selectors, 106 physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }
 
+    /// <summary>Compares compiled Torizo mechanics, sprite selectors, physical frames, and hitboxes to native data.</summary>
+    /// <param name="source">The cartridge address space providing the reference bank-$AA words.</param>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
         AssertEqual(1761, TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount, "complete Torizo mechanics count");
@@ -112,6 +114,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks corpse rotation offsets, transfer descriptors, hitboxes, and sand-copy tables against native data.</summary>
+    /// <param name="source">The cartridge address space providing the reference bank-$A9 words.</param>
     private static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new (ushort, int)[]
@@ -146,6 +150,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies each Crocomire frame's compiled power-bomb reaction against its mouth artwork.</summary>
+    /// <param name="source">The cartridge address space containing Crocomire's bank-$A4 spritemaps.</param>
     private static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
     {
         int tested = 0;
@@ -165,6 +171,8 @@ internal static partial class Program
         AssertEqual(50, tested, "all Crocomire reaction frames");
     }
 
+    /// <summary>Checks extraction, editing, validation, and resolution of enemy auxiliary palette colors.</summary>
+    /// <param name="source">The cartridge address space from which the auxiliary palette document is extracted.</param>
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);
@@ -191,6 +199,10 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
     }
 
+    /// <summary>Reads a little-endian 16-bit word from two consecutive cartridge bytes in one bank.</summary>
+    /// <param name="source">The address space used for cartridge-byte reads.</param>
+    /// <param name="address">The full SNES address of the word's low byte.</param>
+    /// <returns>The combined low and high bytes.</returns>
     private static ushort NativeWord(ISnesAddressSpace source, int address) =>
         (ushort)(source.ReadCartridgeByte(address) |
             source.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);

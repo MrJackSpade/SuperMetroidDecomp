@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the extracted bridge-fragment positions with ROM data and verifies production spawning without table reads.</summary>
+    /// <param name="rom">Cartridge address space supplying the reference positions and guarded non-table reads.</param>
     private static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;
@@ -65,16 +67,26 @@ internal static partial class Program
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }
 
+    /// <summary>Address-space adapter that rejects reads from the migrated Crocomire bridge-fragment position table.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class CrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the table-read guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the migrated position table and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte at a permitted address.</returns>
         public byte ReadByte(int address) => address is >= 0xa49156 and < 0xa4916c
             ? throw new InvalidOperationException(
                 $"Crocomire bridge fragment attempted migrated position read ${address:X6}.")
             : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

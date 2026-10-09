@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed projectile compositions and frame draws with cartridge OAM while ensuring installed draws do not reread visual data.</summary>
+    /// <param name="bus">Cartridge address space used for the native reference draws and instruction data.</param>
+    /// <param name="directory">Directory containing the installed projectile artwork catalog.</param>
+    /// <param name="stock">Loaded artwork catalog whose compositions and frames are checked.</param>
     private static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -1013,11 +1017,20 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Blocks reads of projectile visual bytes while forwarding other address-space operations to the wrapped source.</summary>
+    /// <param name="source">Address space that supplies permitted reads and receives writes.</param>
     private sealed class EnemyProjectileVisualReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-source reads through the visual-byte guard.</summary>
+        /// <param name="address">Address requested from the cartridge source.</param>
+        /// <returns>The byte from the wrapped source when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects access to installed projectile visual bytes and forwards other reads to the wrapped source.</summary>
+        /// <param name="address">SNES address to read.</param>
+        /// <returns>The byte at a permitted address.</returns>
+        /// <exception cref="InvalidOperationException">The request attempts to reread projectile visual data that should come from the installed catalog.</exception>
         public byte ReadByte(int address)
         {
             ushort low = unchecked((ushort)address);
@@ -1035,6 +1048,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write to the wrapped address space.</summary>
+        /// <param name="address">SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

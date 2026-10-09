@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed Draygon palettes against native data and exercises edited-color runtime paths.</summary>
+    /// <param name="rom">The cartridge address space used to compare extracted RGB5 colors with their source values.</param>
+    /// <param name="stockDirectory">The installed stock-art directory containing the Draygon palette document.</param>
+    /// <param name="stock">The installed enemy artwork catalog whose native palette data is checked.</param>
     private static void VerifyInstalledDraygonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -179,11 +183,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps an address space and rejects runtime reads from migrated Draygon palette tables.</summary>
+    /// <param name="source">The underlying address space for permitted reads and forwarded writes.</param>
     private sealed class DraygonPaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the palette-read restrictions.</summary>
+        /// <param name="address">The address requested by the importer.</param>
+        /// <returns>The underlying byte when the address is outside the migrated palette tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from migrated palette ranges and delegates all other reads.</summary>
+        /// <param name="address">The address to read.</param>
+        /// <returns>The underlying byte when the read is permitted.</returns>
         public byte ReadByte(int address)
         {
             bool healthTable = address >= DraygonColorRomData.HealthBandsSource &&
@@ -199,6 +211,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">The destination address.</param>
+        /// <param name="value">The byte to write.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

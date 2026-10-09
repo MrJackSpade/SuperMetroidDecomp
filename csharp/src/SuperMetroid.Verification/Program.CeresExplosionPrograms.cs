@@ -3,11 +3,26 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the initial explosion's six duration-three frames and terminal deletion against the retail stream.</summary>
+    /// <param name="rom">Retail address space supplying the native instruction bytes.</param>
     private static void VerifyCeresInitialExplosionProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xccdb, 0xccf5);
+
+    /// <summary>Checks the repeating explosion's frame and blank intervals, repeat count, and terminal deletion against retail data.</summary>
+    /// <param name="rom">Retail address space supplying the native instruction bytes.</param>
     private static void VerifyCeresRepeatingExplosionProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xccf5, 0xcd1b);
+
+    /// <summary>Checks the final wave's repeated four-frame bursts and terminal deletion against the retail stream.</summary>
+    /// <param name="rom">Retail address space supplying the native instruction bytes.</param>
     private static void VerifyCeresFinalWaveProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xcd1b, 0xcd39);
+
+    /// <summary>Checks the station blast's six duration-five frames and terminal deletion against the retail stream.</summary>
+    /// <param name="rom">Retail address space supplying the native instruction bytes.</param>
     private static void VerifyCeresStationBlastProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xce1b, 0xce35);
 
+    /// <summary>Compares a bounded explosion program with retail bytes and verifies its interpreted timing, frame operands, and lifetime.</summary>
+    /// <param name="rom">Retail address space containing the native explosion program in bank $8B.</param>
+    /// <param name="start">Inclusive bank-relative start address of the program.</param>
+    /// <param name="end">Exclusive bank-relative end address; instruction words may not cross this boundary.</param>
     private static void VerifyCeresExplosionProgram(ISnesAddressSpace rom, ushort start, ushort end)
     {
         for (int pointer = start; pointer < end; pointer++)

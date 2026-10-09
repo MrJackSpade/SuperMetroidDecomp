@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the ending-explosion frame catalog matches cartridge pointers, part counts, names, ordering, and index bounds.</summary>
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
@@ -42,6 +43,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that calculated explosion compositions preserve native sprite fields, ordering, and OAM clipping behavior.</summary>
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
@@ -130,6 +132,7 @@ internal static partial class Program
                 (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
+    /// <summary>Checks the compiled instruction words and compares native and installed actor timing, cursor, frame, and lifetime updates.</summary>
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
@@ -184,6 +187,7 @@ internal static partial class Program
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 
+    /// <summary>Compares installed explosion artwork with cartridge spritemaps in on-screen and off-screen OAM draws.</summary>
     private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
@@ -218,6 +222,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that a named starfield override changes the live ending explosion and that missing frame art is rejected.</summary>
     private static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
     {

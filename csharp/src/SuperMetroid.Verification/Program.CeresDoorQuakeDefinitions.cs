@@ -7,6 +7,8 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the native four-phase Ceres door quake data and its rendering without allowing migrated ROM reads.</summary>
+    /// <param name="rom">Cartridge address space used to compare the compiled offsets and construct the guarded verification system.</param>
     private static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
@@ -109,12 +111,22 @@ internal static partial class Program
             "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
     }
 
+    /// <summary>Rejects reads of migrated Ceres quake bytes and, optionally, the private overlay's imported spritemap bytes.</summary>
+    /// <param name="source">Address space used for reads and writes outside the guarded cartridge ranges.</param>
+    /// <param name="blockOverlay">When <see langword="true"/>, also rejects reads of the private overlay spritemap bytes.</param>
     private sealed class CeresDoorQuakeReadGuard(
         ISnesAddressSpace source, bool blockOverlay = false)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Reads an imported cartridge byte through the guard, applying the same protected-range checks.</summary>
+        /// <param name="address">CPU-visible address of the requested cartridge byte.</param>
+        /// <returns>The delegated byte when the address is not blocked.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Delegates a mapped byte read unless it targets migrated quake data or a blocked private overlay.</summary>
+        /// <param name="address">CPU-visible address of the requested byte.</param>
+        /// <returns>The byte from the wrapped address space when the address is allowed.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within a protected Ceres data range.</exception>
         public byte ReadByte(int address) =>
             address is >= 0xa6a321 and < 0xa6a325 ||
             (blockOverlay && address is >= 0xa6a329 and < 0xa6a353)
@@ -122,6 +134,9 @@ internal static partial class Program
                     $"Ceres private door draw attempted migrated source read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a mapped byte write to the wrapped address space.</summary>
+        /// <param name="address">CPU-visible address to write.</param>
+        /// <param name="value">Byte value to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

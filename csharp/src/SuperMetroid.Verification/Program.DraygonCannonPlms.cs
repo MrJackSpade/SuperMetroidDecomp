@@ -100,6 +100,8 @@ internal static partial class Program
             "  Draygon cannons: retail slot order, setup, missile thresholds, terrain, and firing flags agree.");
     }
 
+    /// <summary>Writes the four retail-order cannon population records and seeds their facing-specific instruction and draw lists.</summary>
+    /// <param name="bus">Fixture address space receiving the room population and PLM program bytes.</param>
     private static void SeedDraygonCannonFixture(TestAddressSpace bus)
     {
         bus.WriteBytes(0x8f9000, [
@@ -133,6 +135,15 @@ internal static partial class Program
             destroyedDraw: 0xf120);
     }
 
+    /// <summary>Builds a shielded cannon's idle, hit, and destroyed programs with one-block draw lists.</summary>
+    /// <param name="bus">Fixture address space that receives the instruction and draw bytes.</param>
+    /// <param name="list">Address of the shielded cannon's idle instruction list.</param>
+    /// <param name="hitList">Address of the list entered after a qualifying missile hit.</param>
+    /// <param name="destroyedList">Address of the terminal list entered when the cannon is destroyed.</param>
+    /// <param name="damageInstruction">Facing-specific callback that disables the corresponding cannon firing word.</param>
+    /// <param name="idleDraw">Draw-list address used by the intact cannon.</param>
+    /// <param name="hitDraw">Draw-list address used while the cannon reacts to a hit.</param>
+    /// <param name="destroyedDraw">Draw-list address used for the destroyed cannon tiles.</param>
     private static void SeedShieldedCannonList(
         TestAddressSpace bus,
         ushort list,
@@ -165,6 +176,11 @@ internal static partial class Program
         WriteOneBlockDraw(bus, destroyedDraw, 0xa003);
     }
 
+    /// <summary>Advances the PLM system for the hit animation's three frames so its damage callback can settle.</summary>
+    /// <param name="plms">PLM system containing the struck cannon.</param>
+    /// <param name="bus">Address space used by PLM execution.</param>
+    /// <param name="level">Room collision and block state modified by the cannon.</param>
+    /// <param name="streamer">Background tilemap streamer used during each PLM step.</param>
     private static void SettleDraygonCannonHit(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -175,6 +191,11 @@ internal static partial class Program
             StepDraygonCannonPlms(plms, bus, level, streamer);
     }
 
+    /// <summary>Runs one PLM update with fixed zero scroll, no enemy deaths, and no new controller input.</summary>
+    /// <param name="plms">PLM system to update.</param>
+    /// <param name="bus">Address space supplying the active PLM instructions.</param>
+    /// <param name="level">Room state supplied to the update.</param>
+    /// <param name="streamer">Background tilemap streamer supplied to the update.</param>
     private static void StepDraygonCannonPlms(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -192,6 +213,11 @@ internal static partial class Program
             enemyDeathQuota: 0,
             controllerNewInput: 0);
 
+    /// <summary>Checks that a destroyed cannon replaces its two vertical room cells with native spike-block collision.</summary>
+    /// <param name="level">Room level whose collision cells are inspected.</param>
+    /// <param name="blockIndex">Index of the cannon's upper cell in the room block array.</param>
+    /// <param name="roomWidth">Number of blocks per row, used to locate the lower cell.</param>
+    /// <param name="context">Label included in assertion failures to identify the cannon state.</param>
     private static void AssertDestroyedCannon(
         RoomLevelData level,
         int blockIndex,

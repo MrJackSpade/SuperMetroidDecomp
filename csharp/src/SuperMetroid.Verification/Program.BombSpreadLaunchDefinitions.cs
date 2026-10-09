@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares every compiled Bomb Spread launch slot against cartridge data while forbidding runtime reads of that data.</summary>
+    /// <param name="rom">Cartridge address space used to capture the reference launch words before guarded spawning.</param>
     private static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a+1)<<8);
@@ -44,16 +46,26 @@ internal static partial class Program
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
     }
 
+    /// <summary>Address-space adapter that rejects reads of the Bomb Spread launch table during spawning.</summary>
+    /// <param name="source">Underlying address space that serves allowed reads and receives writes.</param>
     private sealed class BombSpreadLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte access through the guard so launch-table reads are rejected.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects access to the compiled launch-data range and forwards other reads to the source.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte supplied by the wrapped address space when the address is permitted.</returns>
         public byte ReadByte(int address)
         {
             if(address>=SamusBombSpreadRomData.FuseTimers && address<SamusBombSpreadRomData.YSubspeeds+SamusBombSpreadRomData.SlotCount*2)
                 throw new InvalidDataException("Bomb Spread still read its compiled launch data from ROM.");
             return source.ReadByte(address);
         }
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to the address.</param>
         public void WriteByte(int address,byte value) => source.WriteByte(address,value);
     }
 }

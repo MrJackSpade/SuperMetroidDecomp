@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Validates installed Phantoon palettes against ROM data, override persistence, live handlers, and guarded runtime reads.</summary>
+    /// <param name="rom">Cartridge address space used for reference colors and as the source behind the runtime guard.</param>
+    /// <param name="stockDirectory">Directory containing the stock Phantoon color document and enemy artwork.</param>
+    /// <param name="stock">Loaded stock artwork catalog whose Phantoon colors form the unmodified baseline.</param>
     private static void VerifyInstalledPhantoonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -177,11 +181,18 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Address-space adapter that rejects runtime reads from Phantoon's migrated palette data.</summary>
+    /// <param name="source">Underlying address space used for permitted reads and all writes.</param>
     private sealed class PhantoonPaletteReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte access through the Phantoon palette read guard.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads in the migrated palette range and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Address to read from the guarded address space.</param>
+        /// <returns>The byte at a permitted address.</returns>
         public byte ReadByte(int address) =>
             address >= PhantoonColorRomData.FadeOutSource &&
             address < PhantoonColorRomData.HealthBandsSource +
@@ -191,6 +202,9 @@ internal static partial class Program
                     $"Phantoon accessed migrated palette ROM ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address that receives the write.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

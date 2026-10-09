@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native RGB5 palette data, installed overrides, draw-hook cadence, and ROM-free runtime animation.</summary>
+    /// <param name="rom">Address space used only to compare installed palette colors with their native cartridge words.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock enemy-art files.</param>
+    /// <param name="stock">Catalog loaded from the stock installation for comparison with the edited catalog.</param>
     private static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -128,12 +132,26 @@ internal static partial class Program
         Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, edited CGRAM, persistent override, strict failures and no runtime ROM reads pass.");
     }
 
+    /// <summary>Address-space guard that fails if the installed Magdollite palette hook attempts any cartridge read or write.</summary>
     private sealed class NoMagdollitePaletteRomReads : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-byte requests through the rejecting runtime-read guard.</summary>
+        /// <param name="address">Address requested by the caller.</param>
+        /// <returns>This guard never returns a byte because runtime cartridge reads are forbidden.</returns>
+        /// <exception cref="InvalidOperationException">A cartridge-byte read was attempted.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects every runtime byte read to ensure the installed palette cycle uses selected artwork data.</summary>
+        /// <param name="address">Address the runtime attempted to read.</param>
+        /// <returns>This method never returns.</returns>
+        /// <exception cref="InvalidOperationException">A runtime ROM read was attempted.</exception>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Magdollite palette hook read ROM ${address:X6}.");
+
+        /// <summary>Rejects every runtime byte write because palette animation must not mutate cartridge memory.</summary>
+        /// <param name="address">Address the runtime attempted to write.</param>
+        /// <param name="value">Byte value the runtime attempted to store.</param>
+        /// <exception cref="InvalidOperationException">A runtime ROM write was attempted.</exception>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             $"Installed Magdollite palette hook wrote ROM ${address:X6}.");
     }

@@ -18,6 +18,9 @@ internal static partial class Program
     /// </summary>
     private const int CeresFrontApproachTicks = 30;
 
+    /// <summary>Verifies installed Ceres flight art against ROM assets, then exercises rendering, rebinding and override handling.</summary>
+    /// <param name="installation">Game installation supplying stock artwork and user override paths.</param>
+    /// <param name="bus">Cartridge address space used to extract native reference assets and guard migrated reads.</param>
     private static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -181,6 +184,11 @@ internal static partial class Program
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
     }
 
+    /// <summary>Checks that editable rear-view actor placements retain native identities and affect the intended flight layout.</summary>
+    /// <param name="installation">Installation containing the stock actor document and override directory.</param>
+    /// <param name="bus">Cartridge source for the native placement reference data.</param>
+    /// <param name="stock">Stock Ceres flight artwork used as the unedited comparison.</param>
+    /// <param name="guardedBus">Address space that rejects reads of artwork already supplied by the catalog.</param>
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)
@@ -260,6 +268,10 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Confirms palette overrides reach flight and destruction CGRAM, survive rebinding, and reject malformed data.</summary>
+    /// <param name="installation">Installation supplying the stock palette and override file locations.</param>
+    /// <param name="guardedBus">Address space that fails if the states reread migrated palette data from the cartridge.</param>
+    /// <param name="stock">Unmodified Ceres flight catalog used to compare palette rendering and restore behavior.</param>
     private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, CeresFlightArtworkCatalog stock)
     {
@@ -323,6 +335,9 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    /// <summary>Verifies edited Mode-7 maps and character images change visible front or rear flight pixels.</summary>
+    /// <param name="installation">Installation whose stock and override artwork files are exercised.</param>
+    /// <param name="bus">Cartridge address space for constructing native-art comparison states.</param>
     private static void VerifyCeresVisibleOverrides(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -409,6 +424,10 @@ internal static partial class Program
         File.Delete(mapOverride);
     }
 
+    /// <summary>Builds the VRAM image expected after the flight uploads its character data and selected map view.</summary>
+    /// <param name="artwork">Compiled Ceres characters, object graphics and front/rear map bytes.</param>
+    /// <param name="rear"><see langword="true"/> to place the rear map slice; otherwise uses the front slice.</param>
+    /// <returns>Complete expected VRAM contents, including Mode-7 tile/map interleaving and object graphics.</returns>
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];

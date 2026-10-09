@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares Bomb Torizo's migrated posture and walk tables with ROM data and exercises their runtime consumers.</summary>
+    /// <param name="rom">Address space for the ROM revision whose movement tables are being verified.</param>
     private static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int standingXAddress = 0xaac3ee;
@@ -124,11 +126,19 @@ internal static partial class Program
             "Bomb Torizo movement definitions: all 88 native words, 32 real posture applications and 20 real walk consumers pass with all six source tables forbidden.");
     }
 
+    /// <summary>Address-space wrapper that rejects reads from Bomb Torizo movement tables already represented by compiled definitions.</summary>
+    /// <param name="source">Underlying address space used for accesses outside the migrated table ranges and for writes.</param>
     private sealed class BombTorizoMovementReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge imports through the same guard used for ordinary reads.</summary>
+        /// <param name="address">Full SNES address requested by the cartridge importer.</param>
+        /// <returns>The source byte when the address is outside the migrated movement tables.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Forwards non-migrated reads and fails if gameplay attempts to fetch a compiled movement-table byte.</summary>
+        /// <param name="address">Full SNES address to read.</param>
+        /// <returns>The byte returned by the underlying address space for an allowed address.</returns>
         public byte ReadByte(int address) =>
             address is >= 0xaac3ee and < 0xaac41e or
                 >= 0xaac440 and < 0xaac470 or
@@ -138,6 +148,9 @@ internal static partial class Program
                     $"Bomb Torizo movement attempted migrated table read ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Passes writes through to the wrapped address space without applying the read guard.</summary>
+        /// <param name="address">Full SNES address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

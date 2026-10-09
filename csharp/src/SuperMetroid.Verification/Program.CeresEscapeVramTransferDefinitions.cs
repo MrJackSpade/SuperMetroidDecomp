@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native Ceres transfer records against compiled metadata and exercises installed escape transfers while descriptor reads are blocked.</summary>
+    /// <param name="rom">Cartridge address space used to compare native records and extract the installed escape artwork.</param>
     private static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<CeresEscapeVramTransferDefinition> records =
@@ -144,17 +146,29 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Wraps the cartridge bus to reject reads of native Ceres transfer descriptors during installed execution.</summary>
+    /// <param name="source">Underlying address space that supplies permitted reads and receives writes.</param>
     private sealed class CeresEscapeTransferReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the descriptor-protecting bus read.</summary>
+        /// <param name="address">Address requested by the importer.</param>
+        /// <returns>The byte from the wrapped address space when the address is not a blocked descriptor byte.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from native Ceres transfer descriptors and forwards other reads to the wrapped bus.</summary>
+        /// <param name="address">Address of the requested byte.</param>
+        /// <returns>The byte supplied by the wrapped bus for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address is part of a native Ceres transfer descriptor.</exception>
         public byte ReadByte(int address) =>
             CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address)
                 ? throw new InvalidOperationException(
                     $"Installed Ceres transfer read native descriptor ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

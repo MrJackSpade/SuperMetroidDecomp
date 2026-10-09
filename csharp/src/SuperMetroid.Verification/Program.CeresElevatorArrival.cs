@@ -69,6 +69,8 @@ internal static partial class Program
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
 
+    /// <summary>Compares the compiled elevator projectile headers and instruction words with their cartridge data.</summary>
+    /// <param name="rom">Address space containing the retail Ceres elevator definitions.</param>
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
@@ -115,10 +117,19 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Wraps an address space and rejects reads from the compiled Ceres arrival instruction ranges.</summary>
+    /// <param name="source">Underlying address space for reads outside those ranges and for all writes.</param>
     private sealed class CeresArrivalDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the guard's runtime read check.</summary>
+        /// <param name="address">Address requested by the cartridge importer.</param>
+        /// <returns>The underlying byte when the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled arrival streams and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">Runtime address to read.</param>
+        /// <returns>The byte at an address outside the guarded instruction ranges.</returns>
+        /// <exception cref="InvalidOperationException">The address belongs to a compiled Ceres arrival instruction range.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= 0x86a28b and < 0x86a2a1 ||
@@ -130,6 +141,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a write unchanged to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

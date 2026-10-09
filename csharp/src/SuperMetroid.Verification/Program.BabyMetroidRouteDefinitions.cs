@@ -48,13 +48,26 @@ internal static partial class Program
             "  Baby route definitions: 33 overlapping native words and callback identities agree.");
     }
 
+    /// <summary>Reads a little-endian word from two consecutive cartridge-bus bytes.</summary>
+    /// <param name="bus">Address space that supplies the word's bytes.</param>
+    /// <param name="address">Address of the low byte; the high byte is read at the next address.</param>
+    /// <returns>The combined 16-bit word.</returns>
     private static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
+    /// <summary>Wraps an address space to fail if execution reads the cartridge bytes used to compile Baby Metroid routes.</summary>
+    /// <param name="source">Underlying address space for reads outside the compiled route source range and for all writes.</param>
     private sealed class BabyRouteReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Routes cartridge-import reads through the guarded address-space read path.</summary>
+        /// <param name="address">Address requested by the cartridge importer.</param>
+        /// <returns>The byte supplied by the wrapped address space when the read is outside the compiled route source range.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from the compiled route source range and forwards all other reads.</summary>
+        /// <param name="address">Address of the byte requested from the wrapped address space.</param>
+        /// <returns>The byte at an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The address falls within the cartridge range compiled into Baby Metroid route definitions.</exception>
         public byte ReadByte(int address)
         {
             if (address is >= BabyMetroidRouteDefinitionsConstants.SourceAddress and
@@ -68,6 +81,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a byte write to the wrapped address space.</summary>
+        /// <param name="address">Address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -78,8 +78,8 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock:
                 if (!DecrementMotherBrainTimerPastZero(state))
                     return;
-                if (samus is not null)
-                    samus.InputLocked = false;
+                // $A9:8874: Samus command one restores the normal handler pair.
+                samus?.SetStationaryScriptControlLock(false);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
                 state.FunctionTimer = 8;
                 RunMotherBrainFakeDeath(state, samus);
@@ -175,7 +175,9 @@ public sealed partial class RoomEnemySystem
         // preserves scroll zero and clears scroll one, locking the arena to screen zero.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
-        requiredSamus.InputLocked = true;
+        // $A9:8832 runs Samus command zero, the stationary lock: its alpha handler places
+        // no bombs and fires nothing new while the arena drains.
+        requiredSamus.SetStationaryScriptControlLock(true);
         RequireSetRoomScrollState(1, RoomScrollState.RedBoundary);
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;

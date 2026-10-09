@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--mother-brain-fake-death-lock"])
+{
+    Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock());
+    return 0;
+}
 if (args is ["--door-waits-for-message-box"])
 {
     Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
@@ -8010,6 +8015,7 @@ Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
 Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
 Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
 Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
+Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

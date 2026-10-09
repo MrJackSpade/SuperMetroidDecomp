@@ -147,6 +147,11 @@ public sealed partial class RoomPlmSystem
         return true;
     }
 
+    /// <summary>Checks that a consecutive treadmill block range stays within one room row.</summary>
+    /// <param name="level">Room dimensions used to locate the range's row and horizontal position.</param>
+    /// <param name="origin">Linear block index at the start of the range.</param>
+    /// <param name="count">Number of consecutive blocks the PLM will write.</param>
+    /// <exception cref="InvalidDataException">The range would extend beyond the room row containing its origin.</exception>
     private static void EnsureHorizontalRangeFits(
         RoomLevelData level,
         int origin,
@@ -163,6 +168,8 @@ public sealed partial class RoomPlmSystem
 }
 
 /// <summary>Semantic discriminator for the one-frame Wrecked Ship treadmill PLM.</summary>
+/// <param name="Direction">Travel direction that selects the treadmill's instruction list and collision behavior.</param>
+/// <param name="AreaBossDefeated">Whether Phantoon was defeated, which determines if the PLM activates treadmill collision on its first pass.</param>
 internal sealed record WreckedShipTreadmillPlmState(
     WreckedShipTreadmillDirection Direction,
     bool AreaBossDefeated);
@@ -170,10 +177,10 @@ internal sealed record WreckedShipTreadmillPlmState(
 /// <summary>Cartridge literals owned by setup $84:B04A and instructions $84:AD43/$AD58.</summary>
 internal static class WreckedShipTreadmillPlmRomData
 {
-    /// <summary>Hardcoded PLM X block supplied by both bank-$8F door routines.</summary>
+    /// <summary>Horizontal block coordinate supplied by both bank-$8F door routines for the treadmill row's origin.</summary>
     public const byte BlockX = 4;
 
-    /// <summary>Hardcoded PLM Y block supplied by both bank-$8F door routines.</summary>
+    /// <summary>Vertical block coordinate supplied by both bank-$8F door routines for the treadmill row's origin.</summary>
     public const byte BlockY = 9;
 
     /// <summary>Number of consecutive row entries written by setup and activation.</summary>

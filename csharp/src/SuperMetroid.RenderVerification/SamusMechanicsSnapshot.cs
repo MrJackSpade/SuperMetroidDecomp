@@ -10,9 +10,14 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class SamusMechanicsSnapshot
 {
+    /// <summary>Caches the ordered instance-field list used to traverse each runtime type.</summary>
     private static readonly ConcurrentDictionary<Type, FieldInfo[]> Fields = new();
+
+    /// <summary>Maps stable object-graph paths to the captured type, value, or reference marker.</summary>
     private readonly SortedDictionary<string, string> values = new(StringComparer.Ordinal);
 
+    /// <summary>Captures the mutable Samus graph as path/value entries for later mechanics comparison.</summary>
+    /// <param name="root">Root state object whose reachable gameplay fields are recorded.</param>
     internal SamusMechanicsSnapshot(object root)
     {
         var references = new Dictionary<object, string>(ReferenceEqualityComparer.Instance);
@@ -48,6 +53,9 @@ internal sealed class SamusMechanicsSnapshot
         }
     }
 
+    /// <summary>Gets instance fields to traverse, excluding host bindings and presentation-only outputs.</summary>
+    /// <param name="type">Runtime type whose declared and inherited fields are inspected.</param>
+    /// <returns>Fields ordered by name within each type in the inheritance chain.</returns>
     private static FieldInfo[] SerializableFields(Type type)
     {
         var result = new List<FieldInfo>();
@@ -72,6 +80,10 @@ internal sealed class SamusMechanicsSnapshot
         return result.ToArray();
     }
 
+    /// <summary>Requires another capture to contain the same values and reference graph at every path.</summary>
+    /// <param name="other">Snapshot to compare with this capture.</param>
+    /// <param name="context">Label included in the failure message to identify the comparison.</param>
+    /// <exception cref="InvalidOperationException">A path is absent or its captured value differs.</exception>
     internal void RequireSame(SamusMechanicsSnapshot other, string context)
     {
         foreach (string key in values.Keys.Union(other.values.Keys).Order(StringComparer.Ordinal))

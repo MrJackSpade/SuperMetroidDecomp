@@ -12,6 +12,11 @@ namespace SuperMetroid.Core.Rooms;
 public static class RoomAssetRomData
 {
     /// <summary>One fixed WRAM fill followed by a DMA to a VRAM word destination.</summary>
+    /// <param name="WorkRamSourceAddress">Bank-relative byte offset of the WRAM data copied to VRAM.</param>
+    /// <param name="WorkRamDestination">Bank-relative byte offset where the fill pattern is written.</param>
+    /// <param name="ByteCount">Number of bytes filled and transferred.</param>
+    /// <param name="FillValue">The 16-bit word repeated across the WRAM fill range.</param>
+    /// <param name="VramDestinationWord">Destination in VRAM word units for the transfer.</param>
     public readonly record struct TilemapTransfer(
         int WorkRamSourceAddress,
         ushort WorkRamDestination,

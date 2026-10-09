@@ -7,7 +7,9 @@ public sealed partial class RoomPlmSystem
 {
     // These are wiring, not emulated state. Runtime binds them before collision and on
     // room initialization, including the first frame after restoring an older state.
+    /// <summary>Bound enemy owner used to run the Chozo hand's nested spawn and actor setup.</summary>
     [NonSerialized] private RoomEnemySystem? _chozoEnemies;
+    /// <summary>Bound room-effects owner used when the Lower Norfair hand changes acid height.</summary>
     [NonSerialized] private RoomLayer3FxState? _chozoRoomFx;
 
     /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
@@ -89,6 +91,11 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Sets a room block's collision type and behavior byte while retaining its other packed tile fields.</summary>
+    /// <param name="level">Room whose foreground collision data is updated.</param>
+    /// <param name="index">Linear block index within the room.</param>
+    /// <param name="type">Collision type to write into the packed level word.</param>
+    /// <param name="bts">Block behavior byte associated with the collision type.</param>
     private static void WriteChozoBlock(RoomLevelData level, int index,
         RoomCollisionType type, byte bts)
     {
@@ -97,6 +104,12 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(index, bts);
     }
 
+    /// <summary>Handles Chozo-specific branches and block or room-effects writes in a PLM instruction stream.</summary>
+    /// <param name="bus">Address space used to read branch operands from the compiled PLM program.</param>
+    /// <param name="level">Room data modified by slope transformation instructions.</param>
+    /// <param name="slot">Active PLM slot whose instruction pointer may be redirected or advanced.</param>
+    /// <param name="instruction">Instruction word currently being dispatched.</param>
+    /// <returns><see langword="true"/> if this method handled the instruction; otherwise <see langword="false"/>.</returns>
     private bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, ushort instruction)
     {
         switch (instruction)
@@ -136,6 +149,9 @@ public sealed partial class RoomPlmSystem
         return true;
     }
 
+    /// <summary>Restores the Lower Norfair hand's special collision block after its trigger tile has become blank air.</summary>
+    /// <param name="level">Room collision data containing the hand's trigger location.</param>
+    /// <param name="slot">PLM slot whose wait pre-instruction is checked and deactivated after restoration.</param>
     private static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
         if (slot.PreInstruction != ChozoStatuePlmRomData.WaitForLowerNorfairHand) return;

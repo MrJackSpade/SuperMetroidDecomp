@@ -13,6 +13,10 @@ using SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class FileSelectCaptureComparison
 {
+    /// <summary>Replays a reset-origin input journal, isolates its file-select swoosh, and compares it with a captured WAV.</summary>
+    /// <param name="journalPath">Path to the controller journal containing the reset-origin recording and ROM identity.</param>
+    /// <param name="wavePath">Path to the stereo PCM capture to compare with the replayed audio.</param>
+    /// <returns>Zero when the replay produced one audible swoosh and the comparison completed.</returns>
     public static int Run(string journalPath, string wavePath)
     {
         VerifyMatcher();
@@ -68,6 +72,7 @@ internal static class FileSelectCaptureComparison
         return 0;
     }
 
+    /// <summary>Checks the waveform search against a known shifted, gain-scaled signal and a silent-capture control.</summary>
     private static void VerifyMatcher()
     {
         // A known shifted, volume-scaled signal checks the measurement itself before
@@ -84,6 +89,10 @@ internal static class FileSelectCaptureComparison
             throw new InvalidDataException("Silent capture incorrectly matches a nonzero signal.");
     }
 
+    /// <summary>Searches a capture for the target waveform, using a coarse scan followed by a sample-accurate local scan.</summary>
+    /// <param name="capture">Captured mono samples in which to locate the target segment.</param>
+    /// <param name="target">Replay-generated sample window used as the correlation template.</param>
+    /// <returns>The capture offset with the highest normalized correlation and that correlation score.</returns>
     private static (int Offset, double Score) Find(double[] capture, double[] target)
     {
         if (capture.Length < target.Length) throw new InvalidDataException("Capture is shorter than comparison window.");
@@ -105,6 +114,12 @@ internal static class FileSelectCaptureComparison
         return (best, score);
     }
 
+    /// <summary>Computes normalized dot-product correlation between a target and a strided capture window.</summary>
+    /// <param name="capture">Captured samples containing the comparison window.</param>
+    /// <param name="target">Reference samples to compare with the window.</param>
+    /// <param name="offset">Starting sample in <paramref name="capture"/>.</param>
+    /// <param name="stride">Number of samples to skip between each pair included in the calculation.</param>
+    /// <returns>A normalized correlation score, or zero when either compared signal has zero energy.</returns>
     private static double Correlation(double[] capture, double[] target, int offset, int stride)
     {
         double dot = 0, a = 0, b = 0;
@@ -118,6 +133,10 @@ internal static class FileSelectCaptureComparison
         return a == 0 || b == 0 ? 0 : dot / Math.Sqrt(a * b);
     }
 
+    /// <summary>Reads the data chunk from a 48 kHz, stereo, 16-bit PCM RIFF/WAVE file and averages each channel pair.</summary>
+    /// <param name="path">Path to the WAV capture.</param>
+    /// <returns>One mono-valued sample for each stereo frame, represented as a double.</returns>
+    /// <exception cref="InvalidDataException">The file is truncated or is not in the supported PCM WAV format.</exception>
     private static double[] ReadWave(string path)
     {
         using var reader = new BinaryReader(File.OpenRead(path));

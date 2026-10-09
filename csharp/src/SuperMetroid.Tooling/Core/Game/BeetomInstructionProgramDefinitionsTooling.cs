@@ -6,8 +6,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BeetomInstructionProgramDefinitions))]
 internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of compiled mechanics words in Beetom's left- and right-facing programs.</summary>
     public static int MechanicsWordCount => 48;
+
+    /// <summary>Number of spritemap operands across Beetom's left- and right-facing programs.</summary>
     public static int PresentationWordCount => 32;
+
+    /// <summary>Returns the address and value of a mechanics word at its catalog ordinal.</summary>
+    /// <param name="index">Zero-based ordinal across the compiled mechanics words for both facings.</param>
+    /// <returns>The instruction address and mechanics value represented by that ordinal.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -29,6 +36,8 @@ internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(BeetomInstructionProgramDefinitions.CrawlingLeft + BeetomInstructionProgramDefinitions.FacingStride * (index / 24) + offset);
         return new(address, BeetomInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Maps a presentation operand ordinal to its address in the corresponding facing's instruction lists.</summary>
+    /// <param name="index">Zero-based ordinal across the presentation operands for both facings.</param>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -37,6 +46,9 @@ internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructio
             BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft + 2 + 4 * (frame - 8) + (frame >= 12 ? 2 : 0);
         return (ushort)(BeetomInstructionProgramDefinitions.CrawlingLeft + BeetomInstructionProgramDefinitions.FacingStride * (index / 16) + offset);
     }
+    /// <summary>Checks whether a 24-bit address identifies a compiled mechanics word in Beetom's bank-$A8 programs.</summary>
+    /// <param name="address">24-bit address to test; only bank-$A8 locations are considered.</param>
+    /// <returns><see langword="true"/> when the address is a mechanics position, excluding spritemap operands.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa80000) return false;

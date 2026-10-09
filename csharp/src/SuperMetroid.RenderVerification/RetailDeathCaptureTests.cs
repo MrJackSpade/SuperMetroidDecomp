@@ -6,14 +6,25 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Runs focused retail-ROM frame-capture parity checks through Samus's death and game-over sequence.</summary>
 internal static class RetailDeathCaptureTests
 {
+    /// <summary>Compares captured rendering and audio against legacy rendering through an ordinary death.</summary>
+    /// <param name="device">Render device used for pixel readback.</param>
+    /// <param name="renderer">Frame renderer used to produce captured-frame pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: false);
 
+    /// <summary>Runs the same captured-frame comparison through automatic reserve recovery and gameplay handoff.</summary>
+    /// <param name="device">Render device used for pixel readback.</param>
+    /// <param name="renderer">Frame renderer used to produce captured-frame pixels.</param>
     internal static void RunReserveRecovery(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: true);
 
+    /// <summary>Replays the selected death scenario in legacy and captured games, checking frame state, PCM, and pixels.</summary>
+    /// <param name="device">Render device used to verify each captured frame.</param>
+    /// <param name="renderer">Renderer used to compare captured snapshots with legacy pixels.</param>
+    /// <param name="reserveRecovery">Whether zero health starts with automatic reserve energy and must return to gameplay.</param>
     private static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, bool reserveRecovery)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -83,6 +94,7 @@ internal static class RetailDeathCaptureTests
     }
 }
 
+/// <summary>Shared reserve-tank values used to construct the retail automatic-recovery capture scenario.</summary>
 internal static class ReserveCaptureFixtureDefinitions
 {
     /// <summary>One acquired reserve tank supplies 100 energy units for the focused recovery fixture.</summary>

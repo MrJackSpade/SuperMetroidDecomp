@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Room layer-three FX state driven by the resident Speed Booster escape controller.</summary>
     private RoomLayer3FxState? _speedBoosterEscapeFx;
+
+    /// <summary>Callback used to update the room's earthquake timer when the escape controller changes it.</summary>
     private Action<ushort>? _writeEarthquakeTimer;
 
+    /// <summary>Clears the room-FX and earthquake bindings when the Speed Booster escape PLM is no longer active.</summary>
     private void ResetSpeedBoosterEscapeState()
     {
         _speedBoosterEscapeFx = null;
@@ -73,6 +77,10 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Waits for Speed Booster ownership, then starts the lavaquake motion or removes the inactive PLM.</summary>
+    /// <param name="slot">Resident PLM slot whose instruction flow is advanced or cleared.</param>
+    /// <param name="samus">Current player state used to check collected equipment.</param>
+    /// <param name="fx">Layer-three state receiving the initial lavaquake motion values.</param>
     private void RunWaitForSpeedBooster(
         PlmSlot slot,
         SamusState samus,
@@ -102,6 +110,10 @@ public sealed partial class RoomPlmSystem
         WakeAtNextInstruction(slot);
     }
 
+    /// <summary>Advances the lavaquake through its staged room-FX motion and records when Samus outruns it.</summary>
+    /// <param name="slot">PLM slot carrying the current stage cursor in its loop timer.</param>
+    /// <param name="samus">Current player position used to determine whether the stage may advance.</param>
+    /// <param name="fx">Layer-three state updated with the stage's height limit and vertical velocity.</param>
     private void RunAdvanceLava(
         PlmSlot slot,
         SamusState samus,

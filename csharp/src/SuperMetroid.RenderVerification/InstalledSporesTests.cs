@@ -8,6 +8,10 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static partial class InstalledSporesTests
 {
+    /// <summary>Runs the installed-content spores rendering checks against stock and temporary presentation overrides.</summary>
+    /// <param name="installationRoot">Installed game directory containing the maps folder.</param>
+    /// <param name="romPath">Pinned ROM path used to compare the installed assets with native artwork.</param>
+    /// <param name="nativeArtworkDirectory">Directory containing extracted native artwork for comparison.</param>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
@@ -52,6 +56,10 @@ internal static partial class InstalledSporesTests
         Console.WriteLine("Spore FX: installed-only timing, freeze, scroll, editing, legacy artwork and native layer exclusions verified. No gameplay/read discovery or player data used.");
     }
 
+    /// <summary>Checks that every spores room record keeps compiled mechanics, scroll, DMA, physics, and rendering ownership when artwork is overridden.</summary>
+    /// <param name="stock">Presentation catalog loaded without overrides.</param>
+    /// <param name="edited">Catalog loaded with temporary spores artwork and tilemap overrides.</param>
+    /// <param name="packets">Receives selected stock and edited snapshots for software-versus-device pixel comparison.</param>
     private static void CheckOwners(AreaMapPresentationCatalog stock, AreaMapPresentationCatalog edited,
         List<RenderFrameSnapshot> packets)
     {
@@ -134,6 +142,9 @@ internal static partial class InstalledSporesTests
         Console.WriteLine($"{records} compiled spores records: {comparisons} stock/edited control comparisons; {alteredTransfers} changed frame transfers, signed wrap and freeze verified.");
     }
 
+    /// <summary>Creates a room FX state using presentation assets selected by the supplied catalog.</summary>
+    /// <param name="presentation">Catalog providing animated tile artwork, layer-three tilemaps, and palette blends.</param>
+    /// <returns>A state configured to resolve its display assets from that catalog.</returns>
     private static RoomLayer3FxState Create(AreaMapPresentationCatalog presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
@@ -141,6 +152,9 @@ internal static partial class InstalledSporesTests
         PaletteBlendColors = presentation.RoomFxPaletteBlends,
     };
 
+    /// <summary>Serializes an FX object graph so independently configured states can be compared for control-state changes.</summary>
+    /// <param name="value">FX state object to serialize.</param>
+    /// <returns>The serializer's byte representation of the object graph.</returns>
     private static byte[] Graph(object value)
     {
         using var bytes = new MemoryStream();
@@ -148,6 +162,10 @@ internal static partial class InstalledSporesTests
         return bytes.ToArray();
     }
 
+    /// <summary>Stops the verification immediately when an expected spores-rendering property is not satisfied.</summary>
+    /// <param name="condition">Condition that must hold for the current verification step.</param>
+    /// <param name="context">Failure detail included in the thrown exception.</param>
+    /// <exception cref="InvalidOperationException">The condition is false.</exception>
     private static void Require(bool condition, string context)
     {
         if (!condition) throw new InvalidOperationException(context);

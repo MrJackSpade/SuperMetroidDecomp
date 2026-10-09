@@ -29,6 +29,10 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     /// <summary>$86:CE65 shard placement: argument four selects X offset -16.</summary>
     private const ushort CentreShard = 4;
 
+    /// <summary>Reads a little-endian mechanics word whose low byte starts within the compiled glass program's word-address range.</summary>
+    /// <param name="address">Bank-local address of the word's low byte.</param>
+    /// <param name="value">Receives the compiled word when the address is supported, or zero otherwise.</param>
+    /// <returns><see langword="true"/> when a complete two-byte read is available from this program.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -37,6 +41,10 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads a byte from any address occupied by the compiled glass program, including its final byte.</summary>
+    /// <param name="address">Bank-local byte address to read.</param>
+    /// <param name="value">Receives the compiled byte when supported, or zero otherwise.</param>
+    /// <returns><see langword="true"/> when the address lies within the program's inclusive byte range.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -45,6 +53,9 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Extracts one byte from the overlapping little-endian words that encode the glass control program.</summary>
+    /// <param name="address">Address of the byte within the encoded program.</param>
+    /// <returns>The byte selected from its containing compiled word.</returns>
     private static byte ByteAt(int address)
     {
         if (address == FirstAddress + 2) return 1; // Area's primary boss bit.
@@ -53,6 +64,9 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return (byte)(WordAt(start) >> ((address - start) * 8));
     }
 
+    /// <summary>Reconstructs the mechanics operand at a word start across the glass stages, shard bursts, and terminal branches.</summary>
+    /// <param name="address">Bank-local address of the instruction word to reproduce.</param>
+    /// <returns>The callback, branch operand, timing, draw pointer, or shard argument encoded at that position.</returns>
     private static ushort WordAt(int address)
     {
         if (address < Stages)
@@ -111,6 +125,9 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         throw new InvalidOperationException("Glass program stage domain is inconsistent.");
     }
 
+    /// <summary>Selects the draw-definition pointer for the requested pane-damage or shatter stage.</summary>
+    /// <param name="stage">Zero-based stage in the glass damage sequence.</param>
+    /// <returns>The compiled draw-list pointer for that stage, with later stages resolving to the final shatter.</returns>
     private static ushort DrawAt(int stage) => stage switch
     {
         0 => MotherBrainGlassPlmDrawDefinitions.Initial,

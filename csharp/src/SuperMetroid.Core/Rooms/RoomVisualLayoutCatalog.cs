@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed class RoomVisualLayout
 {
+    /// <summary>Owned copy of the initial BG1 visual words, kept separate from collision and type data.</summary>
     private readonly ushort[] foreground;
+
+    /// <summary>Owned copy of the initial BG2 visual words, independent of native BTS and collision data.</summary>
     private readonly ushort[] background;
 
     /// <summary>Copies and validates both initial visual planes for one room-level source, rejecting mismatched dimensions and any collision/type bits in the artwork words.</summary>
@@ -54,6 +57,9 @@ public sealed class RoomVisualLayout
     /// <summary>Copied initial BG2 block selectors and parent flips in row-major order, independent of native type bits, BTS, and subsequent scripted room changes.</summary>
     public ReadOnlyMemory<ushort> BackgroundVisualWords => background;
 
+    /// <summary>Checks whether any visual word uses the upper four bits reserved for non-art data.</summary>
+    /// <param name="words">Visual-plane words to validate.</param>
+    /// <returns><see langword="true"/> if any word has a bit set in positions 12 through 15.</returns>
     private static bool HasCollisionBits(ReadOnlySpan<ushort> words)
     {
         foreach (ushort word in words)
@@ -65,6 +71,7 @@ public sealed class RoomVisualLayout
 /// <summary>Complete installed room-layout artwork selected by the room state's source.</summary>
 public sealed class RoomVisualLayoutCatalog
 {
+    /// <summary>Owned source-keyed copy of the installed visual layouts.</summary>
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
     /// <summary>Copies a source-keyed installation and requires every supported room-level source to have a matching non-null layout.</summary>
@@ -75,6 +82,9 @@ public sealed class RoomVisualLayoutCatalog
     {
     }
 
+    /// <summary>Copies and validates an installation, optionally requiring every supported room source.</summary>
+    /// <param name="layouts">Source-keyed layouts to copy and validate.</param>
+    /// <param name="requireCompleteInstallation"><see langword="true"/> to reject installations missing any supported source.</param>
     private RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
         bool requireCompleteInstallation)
     {

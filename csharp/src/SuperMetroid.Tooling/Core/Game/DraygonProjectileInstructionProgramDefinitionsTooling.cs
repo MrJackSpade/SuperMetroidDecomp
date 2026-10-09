@@ -6,9 +6,20 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(DraygonProjectileInstructionProgramDefinitions))]
 internal abstract class DraygonProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of presentation selector operands in the compiled Draygon projectile lists.</summary>
     public static int PresentationWordCount => DraygonProjectileInstructionProgramDefinitions.PresentationWordCount;
+
+    /// <summary>Gets the bank address of one compiled projectile sprite selector.</summary>
+    /// <param name="index">The zero-based presentation slot.</param>
+    /// <returns>The address of the selected presentation word.</returns>
     public static ushort PresentationWordAddress(int index) => DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+
+    /// <summary>Number of fixed timing and control operands in the compiled projectile lists.</summary>
     public static int MechanicsWordCount => 38;
+
+    /// <summary>Maps a flattened mechanics slot to its instruction address and fixed operand.</summary>
+    /// <param name="index">The zero-based slot across the compiled Draygon projectile programs.</param>
+    /// <returns>The address and cartridge-defined value of the selected mechanics word.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -26,6 +37,9 @@ internal abstract class DraygonProjectileInstructionProgramDefinitionsTooling : 
         };
         return new((ushort)address, DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Checks whether an address points to either byte of a compiled mechanics word.</summary>
+    /// <param name="address">The full SNES address to classify.</param>
+    /// <returns><see langword="true"/> when the bank and aligned word belong to the compiled mechanics catalog.</returns>
     public static bool IsCompiledMechanicsByte(int address) =>
         (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
         DraygonProjectileInstructionProgramDefinitions.TryRead((ushort)(address & ~1), out _);

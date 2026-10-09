@@ -44,6 +44,7 @@ internal static class TourianAccessPlmDrawDefinitions
     }
 
     // Temporary DTOs retain the artwork import/export contract; no draw cache remains.
+    /// <summary>Enumerates draw-list descriptions for the clear and three crumble frames.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -56,6 +57,10 @@ internal static class TourianAccessPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps a native draw-list pointer to the stable artwork identifier used by the asset catalog.</summary>
+    /// <param name="pointer">Tourian access-floor draw-list address.</param>
+    /// <returns>The identifier associated with the clear or crumble frame.</returns>
+    /// <exception cref="InvalidDataException">The pointer is not one of the compiled Tourian access draw lists.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         EmptyRowPointer => "crumble-empty-row",
@@ -67,6 +72,10 @@ internal static class TourianAccessPlmDrawDefinitions
             $"Tourian access draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Looks up a draw-list description by its stable artwork identifier.</summary>
+    /// <param name="id">Identifier assigned by <see cref="VisualId"/>.</param>
+    /// <param name="list">Receives the matching draw-list description, or the default value when no match exists.</param>
+    /// <returns><see langword="true"/> when the identifier matches a compiled clear or crumble frame.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -82,6 +91,10 @@ internal static class TourianAccessPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Returns the native pointer for a crumble animation frame or its final cleared row.</summary>
+    /// <param name="frame">Frame index from zero through three, with three selecting the empty row.</param>
+    /// <returns>The corresponding native draw-list pointer.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The frame index is outside the four animation states.</exception>
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
         0 => CrumbleFirstPointer,
@@ -91,6 +104,10 @@ internal static class TourianAccessPlmDrawDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Builds the row-run description for a compiled Tourian access draw-list pointer.</summary>
+    /// <param name="pointer">Native draw-list address to describe.</param>
+    /// <param name="list">Receives the generated row runs, or the default value when the pointer is unknown.</param>
+    /// <returns><see langword="true"/> when the pointer describes a clear or crumble draw list.</returns>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

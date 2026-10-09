@@ -944,7 +944,9 @@ public sealed partial class SamusState
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
             Pose = targetPose;
-            RefreshCollisionRadii(bus);
+            // $91:FDAE leaves $0B00 at the compact body's radius: this frame's enemy and
+            // projectile collision still use it, and alpha's SetSamusRadius takes the
+            // landing body only next frame, as for an ordinary landing.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
             InitializeAnimation(bus, initialFrame: 0);
         }

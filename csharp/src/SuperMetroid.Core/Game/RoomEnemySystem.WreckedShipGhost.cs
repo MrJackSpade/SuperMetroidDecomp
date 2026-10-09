@@ -28,9 +28,13 @@ public enum WreckedShipGhostAiFunction : ushort
 /// </summary>
 public sealed class WreckedShipGhostEnemyState
 {
+    /// <summary>Enemy slot that backs the ghost's common native variables.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Sidecar copy of the actor-selected sixteen-color target palette.</summary>
     private readonly ushort[] _targetPalette = new ushort[16];
 
+    /// <summary>Creates host state for a ghost while keeping its common variables backed by the owning enemy slot.</summary>
+    /// <param name="slot">Enemy slot containing the ghost's native common variables.</param>
     internal WreckedShipGhostEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A: bank-$A8 indirect main-AI function.</summary>
@@ -104,6 +108,7 @@ public sealed class WreckedShipGhostEnemyState
     /// </summary>
     public ReadOnlyMemory<ushort> TargetPalette => _targetPalette;
 
+    /// <summary>Provides writable access for the ghost's initialization and fade phases to set the palette target.</summary>
     internal Span<ushort> MutableTargetPalette => _targetPalette;
 }
 
@@ -117,15 +122,23 @@ public sealed class WreckedShipGhostEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer used to initialize and dispatch the Wrecked Ship ghost.</summary>
     internal const ushort WreckedShipGhostDefinition = 0xe77f;
 
+    /// <summary>Initial invisible wait before the first Samus-tracking phase, including the native $A0 offset.</summary>
     private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
+    /// <summary>Number of frames the ghost remains visible and bobbing before fading out.</summary>
     private const ushort WreckedShipGhostVisibleDuration = 0x0078;
+    /// <summary>Frames Samus must remain inside the small movement bounds to count as stationary.</summary>
     private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
+    /// <summary>Frames the ghost waits after detecting a movement-direction change.</summary>
     private const ushort WreckedShipGhostStableDirectionDuration = 0x0010;
+    /// <summary>Whole-number part of vertical velocity assigned when the visible bobbing phase begins.</summary>
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
+    /// <summary>Magnitude of the fractional vertical acceleration applied toward and away from the bobbing origin.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
 
+    /// <summary>Initialized host-side state for each Wrecked Ship ghost enemy slot.</summary>
     private readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
         new WreckedShipGhostEnemyState?[MaximumEnemyCount];
 
@@ -490,6 +503,13 @@ public sealed partial class RoomEnemySystem
         return componentsChanged;
     }
 
+    /// <summary>Moves one masked BGR555 channel by one level toward its target and counts the change.</summary>
+    /// <param name="current">Color word containing the channel to update.</param>
+    /// <param name="target">Color word supplying the desired channel level.</param>
+    /// <param name="mask">Bits occupied by the channel in the BGR555 word.</param>
+    /// <param name="shift">Bit position of the channel's least significant bit.</param>
+    /// <param name="componentsChanged">Running count incremented when the channel moves.</param>
+    /// <returns>The color word with the selected channel moved one step toward its target, or unchanged if already equal.</returns>
     private static ushort StepWreckedShipGhostPaletteComponent(
         ushort current,
         ushort target,
@@ -507,12 +527,19 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)((current & ~mask) | (currentComponent << shift)));
     }
 
+    /// <summary>Computes the first CGRAM color index for the palette selected by the enemy slot.</summary>
+    /// <param name="slot">Ghost enemy slot whose palette index identifies an OBJ palette.</param>
+    /// <returns>Starting color index in CGRAM for the selected sixteen-color palette.</returns>
     private static int WreckedShipGhostPaletteStart(RoomEnemySlot slot)
     {
         int objectPalette = (slot.PaletteIndex >> 9) & 7;
         return 128 + objectPalette * 16;
     }
 
+    /// <summary>Gets the initialized host-side state associated with a Wrecked Ship ghost slot.</summary>
+    /// <param name="slot">Enemy slot whose state is required.</param>
+    /// <returns>The slot's initialized ghost state.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Wrecked Ship ghost state.</exception>
     private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
         _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");

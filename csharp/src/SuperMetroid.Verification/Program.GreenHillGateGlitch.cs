@@ -7,6 +7,18 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>One cartridge-recorded setup and outcome for the Green Hill grapple gate scenario.</summary>
+    /// <param name="StartX">Initial whole-pixel X coordinate used to place Samus in the room.</param>
+    /// <param name="BaseSpeed">Horizontal base speed assigned before the recorded input sequence.</param>
+    /// <param name="Opened">Whether the downward gate began opening during the measured input window.</param>
+    /// <param name="OpenFrame">Input frame on which the gate's loop timer first reports opening, or the recorded sentinel when it stays closed.</param>
+    /// <param name="SamusX">Samus's final whole-pixel X coordinate.</param>
+    /// <param name="SamusSubX">Samus's final fractional X coordinate.</param>
+    /// <param name="SamusY">Samus's final whole-pixel Y coordinate.</param>
+    /// <param name="Pose">Final Samus pose value recorded by the native comparison fixture.</param>
+    /// <param name="GrappleX">Final Grapple anchor X coordinate.</param>
+    /// <param name="GrappleY">Final Grapple anchor Y coordinate.</param>
+    /// <param name="GrappleFunction">Bank-$A0 function pointer identifying the final Grapple phase.</param>
     private readonly record struct GreenHillGateRecord(
         int StartX,
         int BaseSpeed,
@@ -20,6 +32,7 @@ internal static partial class Program
         int GrappleY,
         ushort GrappleFunction);
 
+    /// <summary>Compares both cartridge success windows and adjacent failure controls for the Green Hill grapple-speed gate interaction.</summary>
     private static void VerifyGreenHillGrappleSpeedGateGlitch()
     {
         GreenHillGateRecord[] expected = File.ReadLines(
@@ -50,6 +63,10 @@ internal static partial class Program
             "original CPU, including the opening gate actor.");
     }
 
+    /// <summary>Runs the actual Green Hill room with one initial position and speed, recording gate and Samus outcomes.</summary>
+    /// <param name="startX">Whole-pixel X coordinate used to initialize grounded Samus.</param>
+    /// <param name="baseSpeed">Horizontal base speed used for the scenario.</param>
+    /// <returns>The gate-opening frame and final movement and Grapple state.</returns>
     private static GreenHillGateRecord RunGreenHillGrappleSpeedGateGlitch(
         int startX,
         int baseSpeed)
@@ -144,6 +161,10 @@ internal static partial class Program
         return actual;
     }
 
+    /// <summary>Parses one native CSV comparison row using invariant decimal and hexadecimal number formats.</summary>
+    /// <param name="line">Comma-separated record containing the setup, gate outcome, and final actor state.</param>
+    /// <returns>The parsed values used to compare the production room run with the cartridge capture.</returns>
+    /// <exception cref="InvalidDataException">The row does not contain the expected number of fields.</exception>
     private static GreenHillGateRecord ParseGreenHillGateRecord(string line)
     {
         string[] fields = line.Split(',');

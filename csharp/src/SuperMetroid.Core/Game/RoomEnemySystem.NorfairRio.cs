@@ -26,8 +26,11 @@ public enum NorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairRioEnemyState
 {
+    /// <summary>Backing enemy slot that owns native common-variable fields such as velocity and function.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the host-side Norfair Rio state projection for an initialized enemy slot.</summary>
+    /// <param name="slot">Enemy record whose common variables back this state's native fields.</param>
     internal NorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: last instruction list installed by function seven.</summary>
@@ -70,18 +73,24 @@ public sealed class NorfairRioEnemyState
 /// <summary>Literal translation of Norfair Rio enemy AI $A2:C1C9-$C41F.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer identifying the Norfair Rio parent and flame-follower pair.</summary>
     internal const ushort NorfairRioDefinition = 0xd2ff;
 
+    /// <summary>Strict horizontal distance within which the parent may begin an attack.</summary>
     private const ushort NorfairRioHorizontalTriggerDistance = 0x00c0;
+    /// <summary>Per-update amount subtracted from the signed 8.8 vertical velocity during a dive or return.</summary>
     private const ushort NorfairRioGravity = 32;
+    /// <summary>Library-two sound identifier requested when the descending dive begins.</summary>
     private const ushort NorfairRioDiveSound = 0x0065;
 
+    /// <summary>Initialized host state for each active Norfair Rio enemy slot.</summary>
     private readonly NorfairRioEnemyState?[] _norfairRioStates =
         new NorfairRioEnemyState?[MaximumEnemyCount];
 
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
     public ushort? LastNorfairRioSoundEffect { get; private set; }
 
+    /// <summary>Clears per-slot Rio state and the frame-local dive sound request when room state is reset.</summary>
     private void ResetNorfairRioRoomState()
     {
         Array.Clear(_norfairRioStates);
@@ -277,6 +286,9 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Updates the flame follower from its immediately preceding parent, including visibility and signed offset.</summary>
+    /// <param name="follower">Enemy slot occupied by the flame half.</param>
+    /// <param name="followerState">Host state associated with that follower slot.</param>
     private void FollowNorfairRioParent(
         RoomEnemySlot follower,
         NorfairRioEnemyState followerState)
@@ -312,6 +324,9 @@ public sealed partial class RoomEnemySystem
             parent.YPosition + (short)parentState.FollowerYOffset));
     }
 
+    /// <summary>Starts the upward return phase after the dive reaches its turning condition.</summary>
+    /// <param name="slot">Parent enemy slot whose motion and instruction list are changing.</param>
+    /// <param name="state">Parent state that stores the new velocity and dispatch function.</param>
     private static void BeginNorfairRioReturn(
         RoomEnemySlot slot,
         NorfairRioEnemyState state)
@@ -324,6 +339,10 @@ public sealed partial class RoomEnemySystem
         state.Function = NorfairRioEnemyFunction.ReturnToPerch;
     }
 
+    /// <summary>Moves the parent by its signed horizontal velocity and reverses that velocity after a blocking collision.</summary>
+    /// <param name="level">Room collision data used for horizontal movement.</param>
+    /// <param name="slot">Parent enemy slot to move.</param>
+    /// <param name="state">State containing the velocity to apply and possibly reverse.</param>
     private void MoveNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -338,6 +357,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs a changed Rio instruction list and restarts its instruction and enemy timers.</summary>
+    /// <param name="slot">Enemy slot whose instruction stream is updated.</param>
+    /// <param name="state">State tracking the list currently installed for that slot.</param>
+    /// <param name="instructionList">Bank-$A2 list address to install.</param>
     private static void InstallNorfairRioInstructionList(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
@@ -352,6 +375,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the enemy slot immediately before a follower, which owns the parent half.</summary>
+    /// <param name="follower">Follower slot whose parent is being located.</param>
+    /// <returns>The preceding enemy slot.</returns>
+    /// <exception cref="InvalidDataException">The follower occupies slot zero and has no preceding slot.</exception>
     private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -359,6 +386,9 @@ public sealed partial class RoomEnemySystem
         return _slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Verifies that a follower is immediately preceded by a non-follower Rio enemy of the same definition.</summary>
+    /// <param name="follower">Follower slot whose parent relationship must be checked.</param>
+    /// <exception cref="InvalidDataException">The preceding slot is not a valid Rio parent.</exception>
     private void ValidateNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
@@ -371,12 +401,19 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Ensures room collision data is available before advancing Rio movement.</summary>
+    /// <param name="level">Optional level data supplied to the current enemy update.</param>
+    /// <exception cref="InvalidOperationException">No room level data was supplied.</exception>
     private static void RequireNorfairRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
+    /// <summary>Gets the initialized Rio state associated with an enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose state is required.</param>
+    /// <returns>The slot's initialized Norfair Rio state.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Norfair Rio enemy.</exception>
     private NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
         _norfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair Rio state.");

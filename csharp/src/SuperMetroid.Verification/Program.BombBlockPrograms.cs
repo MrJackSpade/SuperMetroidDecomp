@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Confirms the compiled bomb-block restoration descriptors match the native restoration lists.</summary>
+    /// <param name="rom">Retail ROM supplying the original instruction words used as the reference.</param>
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
@@ -59,12 +61,16 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Returns the native control, reaction, and frame boundaries for each bomb-block behavior program.</summary>
+    /// <returns>One tuple per native behavior sequence, in program order.</returns>
     private static (ushort Collision, ushort Reaction, ushort Tail, int Frames, ushort End)[] BombBlockNativeLayouts() =>
         [(0xcc35,0xcc3c,0xcc3f,7,0xcc5f), (0xcc5f,0xcc66,0xcc69,8,0xcc8b),
          (0xcc8b,0xcc92,0xcc95,8,0xccb7), (0xccb7,0xccbe,0xccc1,8,0xcce3),
          (0xcce3,0xccea,0xcced,4,0xccff), (0xccff,0xcd06,0xcd09,4,0xcd1b),
          (0xcd1b,0xcd22,0xcd25,4,0xcd37), (0xcd37,0xcd3e,0xcd41,4,0xcd53)];
 
+    /// <summary>Checks that every compiled mechanics word address and value matches the native program bytes.</summary>
+    /// <param name="rom">Retail ROM used to verify each recognized mechanics word.</param>
     private static void VerifyBombBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -92,6 +98,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that compiled draw-operand addresses cover exactly the native frame-draw words.</summary>
+    /// <param name="rom">Retail ROM used to verify each recognized draw pointer.</param>
     private static void VerifyBombBlockDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -108,6 +116,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that packed sound-byte addresses and values match the native bomb-block programs.</summary>
+    /// <param name="rom">Retail ROM used to verify each recognized sound byte.</param>
     private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,
@@ -122,6 +132,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares native and compiled bomb-block timelines across all behaviors and producer types.</summary>
     private static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -196,6 +207,9 @@ internal static partial class Program
         Console.WriteLine($"Bomb-block PLMs: 88 control words, 16 sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
+    /// <summary>Confirms edits to shared breakup artwork affect tile uploads without changing collision words.</summary>
+    /// <param name="rom">Retail ROM used by the guarded native-program comparison.</param>
+    /// <param name="forbidden">ROM addresses that compiled behavior or visual data must not reread.</param>
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -289,11 +303,28 @@ internal static partial class Program
             "edited block $058 composition reaches later streaming");
     }
 
-    private enum BombBlockProducer { Collision, Bomb, PowerBomb }
+    /// <summary>Mechanism that creates the bomb-block PLM in the focused fixture.</summary>
+    private enum BombBlockProducer
+    {
+        /// <summary>Spawn caused by Samus colliding with the bomb block.</summary>
+        Collision,
+        /// <summary>Spawn caused by an ordinary bomb projectile.</summary>
+        Bomb,
+        /// <summary>Spawn caused by a power-bomb projectile.</summary>
+        PowerBomb
+    }
 
+    /// <summary>Room objects needed to advance one bomb-block timeline in the fixture.</summary>
+    /// <param name="Level">Collision and block-word state mutated by the PLM program.</param>
+    /// <param name="Streamer">Background tilemap streamer used to publish block updates.</param>
+    /// <param name="Plms">PLM system whose active bomb-block program is advanced.</param>
     private sealed record BombBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Builds a small room fixture and installs the selected bomb-block producer's program.</summary>
+    /// <param name="behavior">Block behavior byte used by the spawn path.</param>
+    /// <param name="producer">Collision, bomb, or power-bomb trigger used to create the PLM.</param>
+    /// <returns>The level, its background streamer, and the PLM system containing the spawned program.</returns>
     private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
     {
         const int width = 8;

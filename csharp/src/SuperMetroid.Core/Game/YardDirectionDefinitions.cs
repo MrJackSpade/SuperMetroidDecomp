@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// One of the eight cartridge-authored surface directions used by a Yard (Maridia snail).
 /// </summary>
+/// <param name="CrawlingInstructionList">Instruction list used while the Yard crawls along this surface orientation.</param>
+/// <param name="PropertyBits">Native movement-property bits derived from the direction's motion axis and sign.</param>
+/// <param name="HidingInstructionList">Instruction list used while the Yard hides in this orientation.</param>
+/// <param name="AirborneFacingDirection">Facing selector used when this direction transitions to airborne behavior.</param>
+/// <param name="OppositeDirection">Direction-table index for the paired orientation that reverses travel on the same surface.</param>
+/// <param name="MovementFunction">Movement callback selected for this surface orientation.</param>
 internal readonly record struct YardDirectionDefinition(
     ushort CrawlingInstructionList,
     ushort PropertyBits,
@@ -12,6 +18,8 @@ internal readonly record struct YardDirectionDefinition(
     YardMovementFunction MovementFunction);
 
 /// <summary>Facing-specific animation lists installed while a Yard is airborne.</summary>
+/// <param name="VisibleInstructionList">Airborne animation played for the selected facing.</param>
+/// <param name="HidingInstructionList">Hidden airborne animation used for the selected facing during detach or launch behavior.</param>
 internal readonly record struct YardAirborneInstructionDefinition(
     ushort VisibleInstructionList,
     ushort HidingInstructionList);
@@ -22,13 +30,28 @@ internal static class YardDirectionDefinitions
     /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
     private enum SurfaceDirection : ushort
     {
+        /// <summary>Ceiling-right wall surface with upward travel.</summary>
         UpsideRightMovingUp,
+
+        /// <summary>Ceiling-right wall surface with downward travel.</summary>
         UpsideRightMovingDown,
+
+        /// <summary>Ceiling-left wall surface with upward travel.</summary>
         UpsideLeftMovingUp,
+
+        /// <summary>Ceiling-left wall surface with downward travel.</summary>
         UpsideLeftMovingDown,
+
+        /// <summary>Bottom surface with leftward travel.</summary>
         UpsideDownMovingLeft,
+
+        /// <summary>Bottom surface with rightward travel.</summary>
         UpsideDownMovingRight,
+
+        /// <summary>Top surface with leftward travel.</summary>
         UpsideUpMovingLeft,
+
+        /// <summary>Top surface with rightward travel.</summary>
         UpsideUpMovingRight,
     }
 

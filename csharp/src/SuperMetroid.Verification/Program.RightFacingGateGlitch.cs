@@ -7,6 +7,17 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Captures the cartridge comparison fields for one East Tunnel frozen-enemy gate attempt.</summary>
+    /// <param name="EnemyX">Horizontal spawn position assigned to the frozen Boyon before the pause sequence.</param>
+    /// <param name="ShootFrame">Resumed gameplay frame on which the Super Missile is fired.</param>
+    /// <param name="Opened">Whether the gate's activation timer changed, indicating the projectile triggered its switch.</param>
+    /// <param name="OpenFrame">Resumed frame of switch activation, or the sentinel returned by the trace when no activation occurred.</param>
+    /// <param name="SamusX">Samus's whole-pixel horizontal position when the trace is captured.</param>
+    /// <param name="SamusSubX">Samus's horizontal subpixel position at capture time.</param>
+    /// <param name="SamusY">Samus's whole-pixel vertical position when the trace is captured.</param>
+    /// <param name="Pose">Numeric pose value used to compare the resulting Samus state with the native trace.</param>
+    /// <param name="ShotX">Projectile slot zero's retained impact X coordinate, or zero when the gate never activates.</param>
+    /// <param name="ShotY">Projectile slot zero's retained impact Y coordinate, or zero when the gate never activates.</param>
     private readonly record struct EastTunnelGateRecord(
         int EnemyX,
         int ShootFrame,
@@ -19,12 +30,14 @@ internal static partial class Program
         int ShotX,
         int ShotY);
 
+    /// <summary>Runs the Pink Brinstar right-gate projectile matrix and the East Tunnel frozen-enemy comparison.</summary>
     private static void VerifyRightFacingGateGlitches()
     {
         Suite(nameof(VerifyPinkBrinstarRightFacingGateGlitch), () => VerifyPinkBrinstarRightFacingGateGlitch());
         Suite(nameof(VerifyEastTunnelFrozenEnemyGateGlitch), () => VerifyEastTunnelFrozenEnemyGateGlitch());
     }
 
+    /// <summary>Compares actual-room Pink Brinstar gate activations across the sampled Samus-position matrix with native records.</summary>
     private static void VerifyPinkBrinstarRightFacingGateGlitch()
     {
         string[] expected = File.ReadLines(
@@ -137,6 +150,7 @@ internal static partial class Program
             "right-gate activations and every negative match the original CPU.");
     }
 
+    /// <summary>Checks the native East Tunnel success and control cases for firing after gameplay resumes from pause.</summary>
     private static void VerifyEastTunnelFrozenEnemyGateGlitch()
     {
         EastTunnelGateRecord[] expected = File.ReadLines(
@@ -166,6 +180,10 @@ internal static partial class Program
             "exactly as on the original CPU.");
     }
 
+    /// <summary>Replays one frozen-Boyon position and resumed firing frame, returning the observed gate and actor state.</summary>
+    /// <param name="frozenEnemyX">Whole-pixel X position assigned to the Boyon held frozen during pause.</param>
+    /// <param name="shootFrame">Resumed update on which Samus fires the Super Missile.</param>
+    /// <returns>The gate result and captured Samus/projectile coordinates for comparison with the native trace.</returns>
     private static EastTunnelGateRecord RunEastTunnelFrozenEnemyGateGlitch(
         int frozenEnemyX,
         int shootFrame)
@@ -257,6 +275,10 @@ internal static partial class Program
             shotY);
     }
 
+    /// <summary>Parses one comma-separated native trace row containing ten integer fields in record order.</summary>
+    /// <param name="line">CSV row whose values describe a single East Tunnel gate attempt.</param>
+    /// <returns>The typed record represented by the row.</returns>
+    /// <exception cref="InvalidDataException">The row does not contain exactly ten fields.</exception>
     private static EastTunnelGateRecord ParseEastTunnelRecord(string line)
     {
         int[] fields = line.Split(',').Select(int.Parse).ToArray();

@@ -7,7 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// complete parts are calculated; independently edited choices remain inputs.</summary>
 internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Null when the standard 25-part atlas layout is in use; otherwise stores
+    /// the caller's tile and crop choices for a customized composition.</summary>
     private readonly (int Tile, bool Cropped)[]? selection;
+
+    /// <summary>Retains custom choices, but uses the compact stock representation when
+    /// the supplied sequence exactly matches the native 25-piece layout.</summary>
+    /// <param name="supplied">Tile and crop choices in the composition's part order.</param>
     private EndingLogoWrapParts((int Tile, bool Cropped)[] supplied)
     {
         bool stock = supplied.Length == 25;
@@ -16,8 +22,30 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         selection = stock ? null : supplied;
     }
 
-    private enum ClosingPiece { InnerRightTip, OuterLeftTip, RightSpan, LeftSpan, MiddleSpan, InnerLeftTip, RightCorner }
+    /// <summary>Names the seven entries in the rotated closing arc's native tile order.</summary>
+    private enum ClosingPiece
+    {
+        /// <summary>First arc entry, forming the inner tip at the right end.</summary>
+        InnerRightTip,
+        /// <summary>Second arc entry, forming the outer tip at the left end.</summary>
+        OuterLeftTip,
+        /// <summary>Wide right-hand segment of the closing arc.</summary>
+        RightSpan,
+        /// <summary>Wide left-hand segment of the closing arc.</summary>
+        LeftSpan,
+        /// <summary>Central wide segment joining the two sides of the arc.</summary>
+        MiddleSpan,
+        /// <summary>Inner tip that closes the left side of the arc.</summary>
+        InnerLeftTip,
+        /// <summary>Corner segment that joins the arc to the right wrap.</summary>
+        RightCorner
+    }
 
+    /// <summary>Maps a zero-based part position to the stock atlas tile and crop choice.
+    /// Positions follow the native closing arc, top edge, patch, and right-side ordering.</summary>
+    /// <param name="index">Zero-based position in the standard 25-part composition.</param>
+    /// <returns>The atlas tile number and whether the tile is cropped for that position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The position is outside the stock composition.</exception>
     internal static (int Tile, bool Cropped) StockSelection(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
@@ -53,6 +81,10 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return (index == 23 ? EndingLogoWrapAtlas.OuterSideJunction : EndingLogoWrapAtlas.UpperSideEndpoint, false);
     }
 
+    /// <summary>Recalculates placement for a composition whose tiles match this atlas layout.
+    /// An unrecognized tile is left untouched because its placement cannot be inferred here.</summary>
+    /// <param name="supplied">The composition to inspect and, when recognized, reposition.</param>
+    /// <returns>The recalculated composition when every tile is supported; otherwise the original instance.</returns>
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
     {
         var selection = new (int Tile, bool Cropped)[supplied.PartCount];
@@ -66,6 +98,11 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return supplied.CalculateIfMatching(new EndingLogoWrapParts(selection));
     }
 
+    /// <summary>Builds the positioned sprite part for a tile used by the right-wrap atlas.</summary>
+    /// <param name="tile">Atlas tile number whose wrap position is being calculated.</param>
+    /// <param name="cropped">Whether the left top cap uses its cropped placement.</param>
+    /// <param name="part">Receives the compiled part when the tile has a known wrap placement.</param>
+    /// <returns><see langword="true"/> when the tile is recognized; otherwise <see langword="false"/>.</returns>
     private static bool TryPlace(int tile, bool cropped, out CompiledSpritePart part)
     {
         int x, y;
@@ -124,7 +161,11 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return true;
     }
 
+    /// <summary>Number of parts represented by the custom selection, or all 25 stock parts.</summary>
     public int Count => selection?.Length ?? 25;
+
+    /// <summary>Gets the positioned part at a zero-based composition position.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside this selection.</exception>
     public CompiledSpritePart this[int index]
     {
         get
@@ -135,6 +176,7 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
             return part;
         }
     }
+    /// <summary>Enumerates positioned parts in the composition's native order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];

@@ -24,13 +24,26 @@ namespace SuperMetroid.Core.Assets;
 /// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
+    /// <summary>Explicit RGB5 values retained when an editable color does not match a shared palette relationship.</summary>
     private readonly Dictionary<int, ushort> colors = new();
+
+    /// <summary>Original neutral intensity used to derive repeated white while preserving channel overrides.</summary>
     private readonly int neutralIntensity;
+
+    /// <summary>Independent channel edits for the repeated neutral color.</summary>
     private readonly LoadingPaletteInputView.Channels neutralOverrides;
+
+    /// <summary>Independent channel inputs for endpoint colors with paired shared channels.</summary>
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
+
+    /// <summary>Independent channel inputs for colors that share an endpoint basis.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
+
+    /// <summary>Channel edits preserved for shade entries derived from adjacent ink midpoints.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
+    /// <summary>Builds the runtime input maps from the validated ten rows of eight RGB5 values.</summary>
+    /// <param name="frames">Color words indexed by frame and ink, already validated against the schema dimensions.</param>
     private HyperBeamFxColorCatalog(ushort[][] frames)
     {
         neutralIntensity = frames[0][0] & 31;
@@ -77,6 +90,10 @@ public sealed class HyperBeamFxColorCatalog
     /// Frame2 highlight inks4..7 at8D:D936..D93C preserve frame4 green/blue
     /// and raise red to green: the same green-to-yellow transform used by the
     /// body cycle. Remaining independent inputs have the class-level art disposition.</remarks>
+    /// <summary>Resolves one palette entry from its supplied input or the documented shared-color relationships.</summary>
+    /// <param name="frame">Zero-based palette row in the ten-frame cycle.</param>
+    /// <param name="color">Zero-based ink index within the row.</param>
+    /// <returns>The resolved packed RGB5 color word.</returns>
     private ushort Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
@@ -123,12 +140,23 @@ public sealed class HyperBeamFxColorCatalog
         frame == 0 ? (white & 31, null) :
         frame == 4 ? (null, red & 31) :
         color is 3 or 7 ? (null, red >> 5 & 31) : (red & 31, null);
+    /// <summary>Compact representation of endpoint channels, storing only values that differ from shared hue components.</summary>
     internal readonly struct PairedChannels
     {
+        /// <summary>Explicit red-channel input, or <see langword="null"/> when it follows a shared endpoint.</summary>
         private readonly int? red;
+
+        /// <summary>Explicit green-channel input, or <see langword="null"/> when it follows a shared endpoint.</summary>
         private readonly int? green;
+
+        /// <summary>Explicit blue-channel input, or <see langword="null"/> when it follows the paired hue channel.</summary>
         private readonly int? blue;
 
+        /// <summary>Stores only channel values that differ from the endpoint relationships used for reconstruction.</summary>
+        /// <param name="supplied">Original packed RGB5 color supplied by the asset.</param>
+        /// <param name="redHue">Whether blue shares the green channel for a red hue.</param>
+        /// <param name="sharedRed">Red channel supplied by the shared endpoint, when applicable.</param>
+        /// <param name="sharedGreen">Green channel supplied by the shared endpoint, when applicable.</param>
         internal PairedChannels(ushort supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
             int suppliedRed = supplied & 31, suppliedGreen = supplied >> 5 & 31;
@@ -144,6 +172,8 @@ public sealed class HyperBeamFxColorCatalog
             return (ushort)(resolvedRed | resolvedGreen << 5 | (blue ?? (redHue ? resolvedGreen : resolvedRed)) << 10);
         }
     }
+
+    /// <summary>JSON options enforcing camel-case names, rejection of unknown properties, and stable indented output.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -213,6 +243,8 @@ public sealed class HyperBeamFxColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects duplicate property names before a color document is deserialized.</summary>
+    /// <param name="value">JSON element tree to inspect recursively.</param>
     private static void RejectDuplicateProperties(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Hyper Beam FX color property."));

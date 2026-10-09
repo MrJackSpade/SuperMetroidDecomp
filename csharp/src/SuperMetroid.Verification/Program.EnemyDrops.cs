@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Native chance-table pointer used by the focused enemy-drop fixtures.</summary>
     private const ushort NativeDropChancePointer = EnemyDropChanceDefinitions.FirstPointer;
 
     /// <summary>
@@ -26,6 +27,7 @@ internal static partial class Program
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");
     }
 
+    /// <summary>Checks that contact-killed enemies become inert respawn placeholders before the next AI dispatch.</summary>
     private static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
@@ -71,6 +73,7 @@ internal static partial class Program
         AssertEqual(1, fixture.System.EnemiesKilled, "placeholder cannot be killed twice");
     }
 
+    /// <summary>Checks the resource, collection identity, and sound effects of each supported pickup kind.</summary>
     private static void VerifyEveryEnemyPickupEffect()
     {
         SamusState smallEnergySamus = CreateDropTestSamus();
@@ -138,6 +141,11 @@ internal static partial class Program
                     "super-missile pickup restores one"));
     }
 
+    /// <summary>Spawns and collects one selected pickup, then checks its native identity and requested effect.</summary>
+    /// <param name="kind">Pickup family whose compiled identity and effect are under verification.</param>
+    /// <param name="samus">Samus resource state before collection.</param>
+    /// <param name="expectedSound">Library-two sound identity expected from this pickup.</param>
+    /// <param name="assertEffect">Assertions for the resource changes caused by collection.</param>
     private static void AssertEnemyPickupEffect(
         EnemyPickupKind kind,
         SamusState samus,
@@ -175,6 +183,7 @@ internal static partial class Program
         assertEffect(samus);
     }
 
+    /// <summary>Checks random-zero reroll, critical-energy weighting, and resource-based drop eligibility.</summary>
     private static void VerifyEnemyDropSelectionRules()
     {
         // Random zero is explicitly rejected by $86:F106. A following value of one must
@@ -226,6 +235,7 @@ internal static partial class Program
             "full resources make the native record's ammo weights ineligible");
     }
 
+    /// <summary>Checks pickup expiry ordering and strict-radius collision at and inside the contact boundary.</summary>
     private static void VerifyEnemyPickupLifetimeAndCollision()
     {
         SamusState samus = CreateDropTestSamus();
@@ -258,6 +268,7 @@ internal static partial class Program
             "one pixel inside strict radius sum collects pickup");
     }
 
+    /// <summary>Checks that grapple attachment delays pickup collection while the pickup lifetime still counts down.</summary>
     private static void VerifyEnemyPickupGrappleDelay()
     {
         SamusState samus = CreateDropTestSamus();
@@ -317,6 +328,7 @@ internal static partial class Program
             "nineteenth allocation observes the shared eighteen-slot pool as full");
     }
 
+    /// <summary>Checks generic death initialization and in-place conversion of its explosion projectile into a pickup.</summary>
     private static void VerifyGenericEnemyDeathDropConversion()
     {
         SamusState samus = CreateDropTestSamus();
@@ -372,6 +384,8 @@ internal static partial class Program
             "converted death actor selects the compiled small-energy list");
     }
 
+    /// <summary>Creates a positioned Samus state with ordinary energy initialized for pickup fixtures.</summary>
+    /// <returns>A fresh state with 99 current and maximum health.</returns>
     private static SamusState CreateDropTestSamus() => new()
     {
         XPosition = 100,
@@ -380,6 +394,10 @@ internal static partial class Program
         MaxHealth = 99,
     };
 
+    /// <summary>Builds a one-block room, seeded test bus, deterministic RNG, and loaded enemy system.</summary>
+    /// <param name="samus">Samus instance supplied to the loaded room system.</param>
+    /// <param name="randomValues">Ordered RNG samples consumed by enemy-drop selection.</param>
+    /// <returns>The address space, loaded system, and room level used by the fixture.</returns>
     private static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues)
@@ -407,6 +425,8 @@ internal static partial class Program
         return new EnemyDropFixture(bus, system, level);
     }
 
+    /// <summary>Copies the respawn placeholder and installs minimal projectile data for focused pickup checks.</summary>
+    /// <param name="bus">Synthetic address space receiving the required ROM-shaped records and lists.</param>
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -434,6 +454,10 @@ internal static partial class Program
 
     }
 
+    /// <summary>Groups the loaded room components shared by enemy-drop verification cases.</summary>
+    /// <param name="Bus">Synthetic memory containing only the ROM data needed by the fixture.</param>
+    /// <param name="System">Enemy and projectile systems loaded against the fixture room.</param>
+    /// <param name="Level">Mutable room collision data used by pickup updates.</param>
     private readonly record struct EnemyDropFixture(
         TestAddressSpace Bus,
         RoomEnemySystem System,

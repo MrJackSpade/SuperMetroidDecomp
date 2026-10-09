@@ -34,6 +34,7 @@ internal static class DeadMonsterRottingDefinitions
         new(0x0011, 0xffe1, 0x0028, 0xfff9),
     ];
 
+    /// <summary>Seven asymmetric touch rectangles used by Dead Torizo's native collision callback.</summary>
     internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
 
     /// <summary>
@@ -69,6 +70,12 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
+    /// <summary>Converts a corpse row's pixel Y offset into its tile-row byte offset in staged graphics.</summary>
+    /// <param name="table">Native row-offset table pointer identifying the corpse tile width and height.</param>
+    /// <param name="yOffset">Pixel offset whose eight-pixel row is being staged.</param>
+    /// <returns>Byte offset of that row in the compact corpse tile buffer.</returns>
+    /// <exception cref="InvalidDataException">The table has no compiled corpse geometry.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The Y offset selects a row beyond the corpse data.</exception>
     internal static ushort RotationOffset(ushort table, ushort yOffset)
     {
         (int count, int tiles) = table switch
@@ -84,6 +91,10 @@ internal static class DeadMonsterRottingDefinitions
         return (ushort)(row * tiles * 32);
     }
 
+    /// <summary>Resolves a native transfer-list pointer to the live-WRAM row descriptors it represents.</summary>
+    /// <param name="table">Bank-$A9 pointer to a supported corpse VRAM transfer table.</param>
+    /// <returns>A bounded sequence of row transfers with the table's clipping and destination offsets.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a compiled transfer table entry.</exception>
     internal static TransferRows ForTransferTable(ushort table)
     {
         int offset = table - SidehopperTransfers;
@@ -117,11 +128,22 @@ internal static class DeadMonsterRottingDefinitions
         throw new InvalidDataException($"Corpse transfer table $A9:{table:X4} has no compiled definition.");
     }
 
-    /// <summary>Consecutive live-WRAM tile rows placed in32-tile VRAM rows; sidehoppers clip their first row.</summary>
+    /// <summary>Consecutive live-WRAM tile rows placed in 32-tile VRAM rows; sidehoppers clip their first row.</summary>
+    /// <param name="count">Number of transfer rows in the bounded sequence.</param>
+    /// <param name="stride">Source bytes between corresponding rows in live WRAM.</param>
+    /// <param name="source">Starting offset within the declared source bank.</param>
+    /// <param name="destination">Encoded VRAM destination for the first row.</param>
+    /// <param name="firstSize">Optional byte count for a clipped first row; zero uses the regular stride.</param>
+    /// <param name="firstDestinationOffset">Optional first-row tile displacement used by the clipped sidehopper transfer.</param>
     internal readonly struct TransferRows(int count, ushort stride, ushort source, ushort destination,
         ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
     {
+        /// <summary>Number of row transfers represented by this sequence.</summary>
         public int Count => count;
+
+        /// <summary>Gets the transfer descriptor for one row in the bounded sequence.</summary>
+        /// <param name="index">Zero-based row index.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside the transfer sequence.</exception>
         public DeadMonsterVramTransferDefinition this[int index]
         {
             get
@@ -132,6 +154,7 @@ internal static class DeadMonsterRottingDefinitions
                     (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));
             }
         }
+        /// <summary>Enumerates each row transfer in source and destination order.</summary>
         public IEnumerator<DeadMonsterVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -148,11 +171,20 @@ internal static class DeadMonsterRottingDefinitions
 }
 
 /// <summary>Native signed rectangle words retained as ushort for asymmetric overlap arithmetic.</summary>
+/// <param name="Left">Signed horizontal offset of the rectangle's left edge from the corpse origin.</param>
+/// <param name="Top">Signed vertical offset of the rectangle's top edge from the corpse origin.</param>
+/// <param name="Right">Signed horizontal offset of the rectangle's right edge from the corpse origin.</param>
+/// <param name="Bottom">Signed vertical offset of the rectangle's bottom edge from the corpse origin.</param>
 internal readonly record struct DeadCorpseTouchHitbox(ushort Left, ushort Top, ushort Right, ushort Bottom);
 
 /// <summary>One immutable DMA descriptor selecting live corpse WRAM, not immutable artwork.</summary>
+/// <param name="SizeInBytes">Number of bytes in the DMA transfer.</param>
+/// <param name="SourceBankWord">Native bank word used to form the transfer's source address.</param>
+/// <param name="SourceOffset">Offset within the source bank for the transfer data.</param>
+/// <param name="EncodedVramDestination">Native encoded VRAM destination word for the transfer.</param>
 internal readonly record struct DeadMonsterVramTransferDefinition(
     ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset, ushort EncodedVramDestination)
 {
+    /// <summary>Combines the source bank and offset into the 24-bit bus address used for the DMA read.</summary>
     internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
 }

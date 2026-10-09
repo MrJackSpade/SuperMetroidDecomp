@@ -3,30 +3,45 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named cartridge constants for bank-$84 downward gates.</summary>
 internal static class DownwardGatePlmRomData
 {
+    /// <summary>Number of vertical room-block cells covered by the resident downward gate.</summary>
     public const byte GateHeightInBlocks = 5;
+    /// <summary>BTS value written to each covered collision cell while the gate is closed.</summary>
     public const byte ClosedGateBts = 0x10;
+    /// <summary>Library-2 sound effect requested when a color gate rejects a projectile.</summary>
     public const byte RejectedShotSound = 0x57;
+    /// <summary>Sound effect selected by the resident gate's movement instruction.</summary>
     public const byte MovementSound = 0x0e;
 }
 
 /// <summary>Temporary gate-trigger PLM headers selected by shootable BTS $46-$4D.</summary>
 internal static class DownwardGateTriggerPlmHeaders
 {
+    /// <summary>$84:C806 header for the temporary green trigger on the gate's left side.</summary>
     public const ushort GreenLeft = 0xc806;
+    /// <summary>$84:C80A header for the temporary green trigger on the gate's right side.</summary>
     public const ushort GreenRight = 0xc80a;
+    /// <summary>$84:C80E header for the temporary red trigger on the gate's left side.</summary>
     public const ushort RedLeft = 0xc80e;
+    /// <summary>$84:C812 header for the temporary red trigger on the gate's right side.</summary>
     public const ushort RedRight = 0xc812;
+    /// <summary>$84:C816 header for the temporary blue trigger on the gate's left side.</summary>
     public const ushort BlueLeft = 0xc816;
+    /// <summary>$84:C81A header for the temporary blue trigger on the gate's right side.</summary>
     public const ushort BlueRight = 0xc81a;
+    /// <summary>$84:C81E header for the temporary yellow trigger on the gate's left side.</summary>
     public const ushort YellowLeft = 0xc81e;
+    /// <summary>$84:C822 header for the temporary yellow trigger on the gate's right side.</summary>
     public const ushort YellowRight = 0xc822;
 }
 
 /// <summary>Bank-$84 pre-instruction callbacks used by the resident gate coroutine.</summary>
 internal static class DownwardGatePreInstructionCodes
 {
+    /// <summary>$84:BB52 callback that wakes the resident gate only after its trigger timer is set.</summary>
     public const ushort WakeIfTriggered = 0xbb52;
+    /// <summary>$84:BB6B callback that wakes on a trigger or when Samus occupies the gate column.</summary>
     public const ushort WakeIfTriggeredOrSamusBelow = 0xbb6b;
+    /// <summary>$84:BB6A inert callback installed after the resident gate has been woken.</summary>
     public const ushort Inert = 0xbb6a;
 }
 

@@ -5,12 +5,15 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Loads the retail ROM and runs the vertical-shutter instruction-definition checks.</summary>
     private static void VerifyVerticalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled shutter mechanics, presentation selectors, and production instruction execution against cartridge data.</summary>
+    /// <param name="rom">Retail address space used for native comparison values and unrelated visual data.</param>
     private static void VerifyVerticalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -100,6 +103,8 @@ internal static partial class Program
             "mechanics bytes forbidden.");
     }
 
+    /// <summary>Compares each compiled mechanics word and verifies that only its two bytes belong to the mechanics catalog.</summary>
+    /// <param name="rom">Cartridge address space supplying the reference words.</param>
     private static void VerifyVerticalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9aa, 0xe9ae, 0xede7, 0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedf9];
@@ -138,6 +143,7 @@ internal static partial class Program
                 "vertical shutter word ordinal bounds");
     }
 
+    /// <summary>Checks the exact native address set assigned to plain-shutter and Kamer presentation words.</summary>
     private static void VerifyVerticalShutterPresentationAddresses()
     {
         ushort[] addresses = [0xe9ac, 0xede9, 0xeded, 0xedf1, 0xedf5];
@@ -159,6 +165,8 @@ internal static partial class Program
                 "vertical shutter presentation ordinal bounds");
     }
 
+    /// <summary>Compares Kamer's four timed visual operands with native pointers and rejects neighboring operands.</summary>
+    /// <param name="rom">Cartridge address space containing the native visual pointers and spritemap data.</param>
     private static void VerifyKamerPlatformVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xede9, 0xeded, 0xedf1, 0xedf5];
@@ -181,6 +189,8 @@ internal static partial class Program
                 AssertEqual((ushort)0, missing, "Kamer shared missing value cleared");
             }
     }
+    /// <summary>Checks vertical-shutter initial function lookup against the cartridge table without prematurely changing state.</summary>
+    /// <param name="rom">Cartridge address space containing the native initial-function words.</param>
     private static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         var select = typeof(RoomEnemySystem).GetMethod("SelectInitialVerticalShutterFunction",
@@ -206,6 +216,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that horizontal-shutter initialization installs the native function selected by each valid offset.</summary>
+    /// <param name="rom">Cartridge address space containing the native initial-function words.</param>
     private static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         var select = typeof(RoomEnemySystem).GetMethod("SelectInitialHorizontalShutterFunction",
@@ -228,6 +240,8 @@ internal static partial class Program
             AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
         }
     }
+    /// <summary>Checks shutter visual pointer calculations, native map lengths, ownership, and owner-specific selection.</summary>
+    /// <param name="rom">Cartridge address space used to compare native pointer operands and spritemap counts.</param>
     private static void VerifyShutterVisualPointerMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac, 0xe9d6];
@@ -268,6 +282,8 @@ internal static partial class Program
             }
         AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(0, 0xe9ac), "unknown shutter owner rejected");
     }
+    /// <summary>Warms and repeatedly reads the two compiled instruction programs for an allocation measurement.</summary>
+    /// <returns>A checksum that keeps the lookup results observable to the caller.</returns>
     private static int ProbeVerticalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -281,18 +297,32 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian word from the supplied cartridge address space.</summary>
+    /// <param name="bus">Address space containing the native instruction data.</param>
+    /// <param name="address">SNES bus address of the word's first byte.</param>
+    /// <returns>The two bytes combined in little-endian order.</returns>
     private static ushort ReadVerticalShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Wraps an address space to reject compiled mechanics reads and record presentation-word reads.</summary>
+    /// <param name="source">Underlying cartridge address space for allowed reads and writes.</param>
     private sealed class VerticalShutterInstructionProgramReadGuard(
         ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation words observed in the vertical-shutter bank while production logic runs.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Number of attempts to read bytes owned by the compiled mechanics catalog.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guard's forbidden-range and presentation tracking logic.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space when the read is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics-table reads, records presentation operands, and forwards other reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -322,6 +352,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write to the wrapped address space.</summary>
+        /// <param name="address">SNES bus address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

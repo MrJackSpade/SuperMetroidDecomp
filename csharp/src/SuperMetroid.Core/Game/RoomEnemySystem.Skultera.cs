@@ -22,13 +22,26 @@ public enum SkulteraEnemyFunction : ushort
 /// </summary>
 public sealed class SkulteraEnemyState
 {
+    /// <summary>Enemy slot that owns the common-variable words exposed by this state view.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot low-byte vertical oscillation radius from the enemy's second parameter.</summary>
     private readonly ushort[] _radii;
+    /// <summary>Per-slot animation signal indicating that a swimming turn has completed.</summary>
     private readonly ushort[] _turnFinishedFlags;
+    /// <summary>Per-slot signed angle increment, negated when the enemy completes a turn.</summary>
     private readonly ushort[] _angleDeltas;
+    /// <summary>Per-slot sine-derived vertical offset retained from the preceding movement step.</summary>
     private readonly ushort[] _previousYOffsets;
+    /// <summary>Per-slot sine-derived vertical offset calculated for the current movement step.</summary>
     private readonly ushort[] _currentYOffsets;
 
+    /// <summary>Creates a typed view over one Skultera slot and its extra per-slot state words.</summary>
+    /// <param name="slot">Common enemy slot containing the function, angle, and speed words.</param>
+    /// <param name="radii">Backing array for each Skultera's vertical oscillation radius.</param>
+    /// <param name="turnFinishedFlags">Backing array for animation-published turn completion flags.</param>
+    /// <param name="angleDeltas">Backing array for signed per-slot sine-angle increments.</param>
+    /// <param name="previousYOffsets">Backing array for the previously retained vertical offsets.</param>
+    /// <param name="currentYOffsets">Backing array for the offsets calculated during the current step.</param>
     internal SkulteraEnemyState(
         RoomEnemySlot slot,
         ushort[] radii,
@@ -135,13 +148,20 @@ public sealed class SkulteraEnemyState
 /// <summary>Literal translation of Skultera enemy <c>$D6FF</c> at <c>$A3:902A-$9287</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy header identity used to initialize and dispatch Skultera behavior.</summary>
     internal const ushort SkulteraDefinition = 0xd6ff;
 
+    /// <summary>Extra-WRAM backing words for per-slot vertical oscillation radii.</summary>
     private readonly ushort[] _skulteraRadii = new ushort[MaximumEnemyCount];
+    /// <summary>Extra-WRAM backing words for animation-published turn completion flags.</summary>
     private readonly ushort[] _skulteraTurnFinishedFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Extra-WRAM backing words for each Skultera's signed angle increment.</summary>
     private readonly ushort[] _skulteraAngleDeltas = new ushort[MaximumEnemyCount];
+    /// <summary>Extra-WRAM backing words for the preceding movement step's sine offset.</summary>
     private readonly ushort[] _skulteraPreviousYOffsets = new ushort[MaximumEnemyCount];
+    /// <summary>Extra-WRAM backing words for the current movement step's sine offset.</summary>
     private readonly ushort[] _skulteraCurrentYOffsets = new ushort[MaximumEnemyCount];
+    /// <summary>Typed state views created when individual enemy slots initialize as Skultera.</summary>
     private readonly SkulteraEnemyState?[] _skulteraStates =
         new SkulteraEnemyState?[MaximumEnemyCount];
 
@@ -260,6 +280,10 @@ public sealed partial class RoomEnemySystem
         state.PreviousYOffset = state.CurrentYOffset;
     }
 
+    /// <summary>Switches a colliding swimmer into the opposite-facing turn animation and resets its instruction timers.</summary>
+    /// <param name="slot">Enemy slot whose animation and timers are updated.</param>
+    /// <param name="state">Skultera state whose function changes to the corresponding turning phase.</param>
+    /// <param name="currentlyMovingLeft"><see langword="true"/> when the collision occurred while moving left.</param>
     private static void BeginSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -296,6 +320,10 @@ public sealed partial class RoomEnemySystem
             : SkulteraInstructionProgramDefinitions.SwimmingRight;
     }
 
+    /// <summary>Returns the state view created during Skultera initialization for the specified enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose translated state is required.</param>
+    /// <returns>The initialized per-slot Skultera state.</returns>
+    /// <exception cref="InvalidOperationException">The slot has not been initialized as a Skultera.</exception>
     private SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
         _skulteraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");

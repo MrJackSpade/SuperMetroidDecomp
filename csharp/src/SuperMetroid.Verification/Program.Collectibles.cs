@@ -225,6 +225,8 @@ internal static partial class Program
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
+    /// <summary>Checks that native Morph Ball pickup handling clears its physical block
+    /// at the correct message-return boundary and that horizontal collision sees the change.</summary>
     private static void VerifyMorphBallPickupCollision()
     {
         var bus = new TestAddressSpace();
@@ -267,6 +269,19 @@ internal static partial class Program
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
+    /// <summary>Builds a one-item room-population fixture using cartridge-shaped headers
+    /// and a synthetic level, then returns the systems needed to advance and inspect it.</summary>
+    /// <param name="bus">Address space containing the collectible tables and graphics data.</param>
+    /// <param name="header">Room PLM header that selects the collectible instruction list.</param>
+    /// <param name="roomArgument">Physical room-item bit index passed to the PLM.</param>
+    /// <param name="precollected">Whether the fixture starts with that physical item bit set.</param>
+    /// <param name="preopenedChozo">Whether the fixture starts with the room's Chozo bit set.</param>
+    /// <param name="roomFx">Optional room effects state supplied during population.</param>
+    /// <param name="width">Synthetic level width in blocks.</param>
+    /// <param name="blockX">Horizontal block coordinate used for the item placement.</param>
+    /// <param name="blockY">Vertical block coordinate used for the item placement.</param>
+    /// <param name="height">Synthetic level height in blocks.</param>
+    /// <returns>The loaded PLM system and the level, streamer, game state, Samus, and item block location.</returns>
     private static CollectibleFixture LoadCollectible(
         TestAddressSpace bus,
         ushort header,
@@ -324,6 +339,9 @@ internal static partial class Program
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
 
+    /// <summary>Seeds the address space with the room headers, shared graphics instruction,
+    /// and draw data needed to exercise collectible population and slot reuse.</summary>
+    /// <param name="bus">Address space that receives the synthetic bank-$84 and bank-$89 data.</param>
     private static void SeedCollectibleRom(TestAddressSpace bus)
     {
         const ushort sharedDynamicList = 0xf100;
@@ -367,6 +385,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Writes a single block-draw instruction followed by its terminator.</summary>
+    /// <param name="bus">Address space receiving the instruction bytes.</param>
+    /// <param name="pointer">Bank-relative instruction-list address.</param>
+    /// <param name="levelWord">Level word assigned to the one drawn block.</param>
     private static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         bus.WriteBytes(0x840000 | pointer, [
             0x01, 0x00,
@@ -374,6 +396,10 @@ internal static partial class Program
             0x00, 0x00,
         ]);
 
+    /// <summary>Checks that a pickup updates the inventory, capacity, and refill fields
+    /// appropriate to its energy, ammunition, equipment, or beam identity.</summary>
+    /// <param name="kind">Collectible whose permanent effect is being checked.</param>
+    /// <param name="samus">Samus state expected to contain the acquired effect.</param>
     private static void AssertPermanentCollectibleEffect(
         InWorldCollectibleKind kind,
         SamusState samus)
@@ -441,6 +467,8 @@ internal static partial class Program
             $"{kind} enters equipped beam word");
     }
 
+    /// <summary>Checks that collected-item bits survive SRAM serialization and restoration
+    /// alongside other persistent system flags and Samus inventory words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
         var bus = new TestAddressSpace();
@@ -492,6 +520,8 @@ internal static partial class Program
             "equipped beam word round-trips independently from collected beams");
     }
 
+    /// <summary>Checks permanent-item message preparation, display timing, dismissal,
+    /// restoration, text layout, and the short completion-message path.</summary>
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
@@ -675,6 +705,8 @@ internal static partial class Program
             "unsupported message identifies numeric ID and source context");
     }
 
+    /// <summary>Checks the suit pickup's staged pose and palette transition, including
+    /// reveal timing and cleanup of Samus input locking.</summary>
     private static void VerifySuitPickupTransformation()
     {
         var bus = new TestAddressSpace();
@@ -776,6 +808,10 @@ internal static partial class Program
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
+    /// <summary>Checks that suit entry and reveal shift pose history consistently when
+    /// acquiring either suit with or without the other suit already equipped.</summary>
+    /// <param name="bus">Address space used by the pickup's pose and equipment lookups.</param>
+    /// <param name="suitColors">Palette catalog used during the reveal stage.</param>
     private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
@@ -811,6 +847,14 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Groups the live room systems and item location produced by
+    /// <see cref="LoadCollectible"/> so verification steps advance the same fixture.</summary>
+    /// <param name="Plms">Room PLM owner that advances the collectible and publishes its pickup.</param>
+    /// <param name="Level">Level data containing the item's visible and collision block.</param>
+    /// <param name="Streamer">Background streamer that applies PLM block changes to visible map data.</param>
+    /// <param name="System">Persistent room and item flags consulted by PLM population.</param>
+    /// <param name="Samus">Actor state whose inventory and pickup effects are inspected.</param>
+    /// <param name="BlockIndex">Linear level-block index occupied by the fixture item.</param>
     private readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,

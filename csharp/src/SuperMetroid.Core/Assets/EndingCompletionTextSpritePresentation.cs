@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
 public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled compositions indexed by the bank-$8C spritemap pointer used by ending instructions.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Creates the installed presentation from compositions already compiled and validated by the loader.</summary>
+    /// <param name="frames">Visual composition for each supported ending-text spritemap pointer.</param>
     private EndingCompletionTextSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -112,8 +115,11 @@ public static class EndingCompletionTextSpriteDefinitions
     internal const ushort ZeroMap = 0xb67b;
     /// <summary>$8C:B66F, the two-part colon frame.</summary>
     internal const ushort ColonMap = 0xb66f;
+    /// <summary>Prefix stages in each fixed completion-message phrase, in operation, completed, and clear-time order.</summary>
     private const int OperationLetters = 15, CompletedLetters = 21, ClearLetters = 9;
+    /// <summary>Total phrase-prefix stages before the digit and colon compositions.</summary>
     private const int PrefixCount = OperationLetters + CompletedLetters + ClearLetters;
+    /// <summary>Full catalog size: all phrase prefixes, ten digits, and one colon.</summary>
     private const int FrameCount = PrefixCount + 11;
 
     /// <summary>Stable 56-frame catalog: 15 THE OPERATION WAS prefixes at $8C:A69D, 21 COMPLETED SUCCESSFULLY prefixes at $AB6B, nine CLEAR TIME prefixes at $B49B, then ten digits at $B67B and the colon at $B66F.</summary>
@@ -122,8 +128,15 @@ public static class EndingCompletionTextSpriteDefinitions
     /// <summary>Sum preceding records: two header bytes and two five-byte OAM parts
     /// per revealed letter. Shared with the generated typewriter instructions.</summary>
     internal static ushort PrefixMap(ushort first, int prefix) => (ushort)(first + 2 * prefix + 5 * prefix * (prefix + 1));
+    /// <summary>Computes the contiguous bank-relative spritemap pointer for one decimal digit.</summary>
+    /// <param name="digit">Digit identity from zero through nine.</param>
+    /// <returns>Pointer to the digit's two-part OAM composition.</returns>
     internal static ushort DigitMap(int digit) => (ushort)(ZeroMap + digit * (2 + 2 * 5));
 
+    /// <summary>Builds the named frame definition at its stable position in the 56-entry catalog.</summary>
+    /// <param name="index">Zero-based catalog index.</param>
+    /// <returns>The phrase-prefix, digit, or colon definition occupying that position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the catalog.</exception>
     private static EndingCompletionTextSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -134,14 +147,30 @@ public static class EndingCompletionTextSpriteDefinitions
         return glyph == 10 ? new("colon-00", ColonMap, 2) : new(Key("digit", glyph), DigitMap(glyph), 2);
     }
 
+    /// <summary>Describes one progressively revealed phrase prefix and its native OAM composition.</summary>
+    /// <param name="family">Stable phrase key, such as operation, completed, or clear-time.</param>
+    /// <param name="first">Bank-relative pointer to the phrase's first prefix composition.</param>
+    /// <param name="stage">Zero-based number of the current revealed-letter stage.</param>
+    /// <returns>Definition with the stage's key, native pointer, and two parts per visible letter.</returns>
     private static EndingCompletionTextSpriteFrameDefinition Prefix(string family, ushort first, int stage) =>
         new(Key(family, stage), PrefixMap(first, stage), 2 * (stage + 1));
+    /// <summary>Formats a stable JSON key for a phrase stage or numbered glyph.</summary>
+    /// <param name="family">Frame family prefix used in the document schema.</param>
+    /// <param name="stage">Zero-based stage or glyph number formatted as two decimal digits.</param>
+    /// <returns>The family and two-digit stage joined by a hyphen.</returns>
     private static string Key(string family, int stage) => family + "-" + stage.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
 
+    /// <summary>Provides indexed access to generated frame definitions without storing a duplicate array.</summary>
     private sealed class FrameView : IReadOnlyList<EndingCompletionTextSpriteFrameDefinition>
     {
+        /// <summary>Gets the fixed number of phrase, digit, and colon definitions.</summary>
         public int Count => FrameCount;
+        /// <summary>Gets the generated definition at a stable catalog position.</summary>
+        /// <param name="index">Zero-based position in the complete frame catalog.</param>
+        /// <value>The definition corresponding to that position.</value>
         public EndingCompletionTextSpriteFrameDefinition this[int index] => Get(index);
+        /// <summary>Enumerates the generated definitions in catalog order.</summary>
+        /// <returns>An enumerator over all phrase prefixes followed by digits and colon.</returns>
         public IEnumerator<EndingCompletionTextSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);

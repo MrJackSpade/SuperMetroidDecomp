@@ -22,8 +22,10 @@ public enum MetareeEnemyFunction : ushort
 /// </summary>
 public sealed class MetareeEnemyState
 {
+    /// <summary>Live enemy slot whose variable words back this typed state view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a state view that reads and writes Metaree variables on the supplied enemy slot.</summary>
     internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
@@ -75,15 +77,23 @@ public sealed class MetareeEnemyState
 /// <summary>Literal translation of Metaree enemy <c>$D67F</c> at <c>$A3:88F0-$8B64</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition word used to identify Metaree spawns in room data.</summary>
     internal const ushort MetareeDefinition = 0xd67f;
 
+    /// <summary>Horizontal activation threshold in pixels for starting the dive sequence.</summary>
     private const ushort MetareeHorizontalActivationDistance = 0x48;
+    /// <summary>NTSC divisor used to derive the dive's downward whole-pixel speed from vertical separation.</summary>
     private const ushort MetareeDiveDivisorNtsc = 24;
+    /// <summary>Added to the divided vertical separation so the dive always has a minimum downward speed.</summary>
     private const ushort MetareeMinimumYVelocity = 4;
+    /// <summary>Per-update horizontal steering distance while a Metaree is diving.</summary>
     private const ushort MetareeHorizontalDiveSpeed = 2;
+    /// <summary>NTSC update count reloaded during flight and consumed after the Metaree reaches the ground.</summary>
     private const ushort MetareeBurrowLifetimeNtsc = 21;
+    /// <summary>Remaining burrow updates at which the Metaree emits its metal-particle burst.</summary>
     private const ushort MetareeParticleFrameNtsc = 8;
 
+    /// <summary>Typed Metaree state views indexed by enemy slot; uninitialized and non-Metaree slots remain null.</summary>
     private readonly MetareeEnemyState?[] _metareeStates =
         new MetareeEnemyState?[MaximumEnemyCount];
 
@@ -146,6 +156,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Starts preparation when Samus is within the horizontal threshold and captures the dive speed.</summary>
     private static void RunMetareeIdle(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -170,6 +181,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
 
+    /// <summary>Waits for the launch animation signal, then switches to dive state and queues its launch sound.</summary>
     private void RunMetareePreparation(RoomEnemySlot slot, MetareeEnemyState state)
     {
         if (!state.AttackReady)
@@ -185,6 +197,7 @@ public sealed partial class RoomEnemySystem
         LastMetareeSoundEffect = 0x005b;
     }
 
+    /// <summary>Moves the actor toward Samus until the downward solid-bit probe transitions it into burrowing.</summary>
     private void RunMetareeDive(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -223,6 +236,7 @@ public sealed partial class RoomEnemySystem
                 : -MetareeHorizontalDiveSpeed)));
     }
 
+    /// <summary>Counts down underground, emits the timed particle burst, and marks the enemy deleted at expiry.</summary>
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
         state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
@@ -246,6 +260,7 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(slot.YPosition + 1));
     }
 
+    /// <summary>Updates the live instruction pointer and resets animation timing only when the requested phase changes.</summary>
     private static void InstallRequestedMetareeInstruction(
         RoomEnemySlot slot,
         MetareeEnemyState state)
@@ -261,6 +276,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the initialized typed state for this slot or throws when the slot is not an initialized Metaree.</summary>
     private MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
         _metareeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metaree state.");

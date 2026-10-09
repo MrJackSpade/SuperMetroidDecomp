@@ -16,22 +16,34 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
+    /// <summary>Mechanics definition for the Power Suit heat palette cycle.</summary>
     private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power);
+    /// <summary>Mechanics definition for the Varia Suit heat palette cycle.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia);
+    /// <summary>Mechanics definition for the Gravity Suit heat palette cycle.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity);
+    /// <summary>Read-only ordered view of the three suit-specific heat programs.</summary>
     private static readonly IReadOnlyList<PaletteFxHeatProgramDefinition> Programs = new ProgramList();
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All => Programs;
 
+    /// <summary>Enumerates the heat programs in the native Power, Varia, Gravity selection order.</summary>
     private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
     {
+        /// <summary>Number of supported suit programs.</summary>
         public int Count => 3;
+
+        /// <summary>Gets the suit program at its native selection index.</summary>
+        /// <param name="index">Index from zero through two.</param>
+        /// <returns>The corresponding Power, Varia, or Gravity program.</returns>
         public PaletteFxHeatProgramDefinition this[int index] => index switch
         {
             0 => Power, 1 => Varia, 2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates Power, Varia, and Gravity programs in selection order.</summary>
+        /// <returns>An enumerator over the three compiled program definitions.</returns>
         public IEnumerator<PaletteFxHeatProgramDefinition> GetEnumerator()
         {
             yield return Power;
@@ -57,6 +69,8 @@ public sealed class PaletteFxHeatProgramDefinition
 {
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
+
+    /// <summary>Calculated sixteen-phase frame view for this suit's heat program.</summary>
     private readonly IReadOnlyList<PaletteFxHeatProgramFrameDefinition> frames;
 
     internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
@@ -90,9 +104,16 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>The sixteen timed records, calculated on access without stored rows.</summary>
     public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames => frames;
 
+    /// <summary>Calculates a suit's timed record pointers by index without storing a frame array.</summary>
+    /// <param name="suit">Suit whose native heat-program pointer table defines the records.</param>
     private sealed class FrameList(PaletteFxHeatSuit suit) : IReadOnlyList<PaletteFxHeatProgramFrameDefinition>
     {
+        /// <summary>Number of timed phases in each suit's heat program.</summary>
         public int Count => 16;
+
+        /// <summary>Creates the frame definition at a native phase index.</summary>
+        /// <param name="index">Phase from zero through fifteen.</param>
+        /// <returns>A frame definition pointing to that phase's duration word.</returns>
         public PaletteFxHeatProgramFrameDefinition this[int index]
         {
             get
@@ -101,6 +122,8 @@ public sealed class PaletteFxHeatProgramDefinition
                 return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index));
             }
         }
+        /// <summary>Enumerates all sixteen frame definitions in phase order.</summary>
+        /// <returns>An enumerator over the calculated frame pointers.</returns>
         public IEnumerator<PaletteFxHeatProgramFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
@@ -138,6 +161,7 @@ public sealed class PaletteFxHeatProgramDefinition
     }
 }
 /// <summary>One timed fifteen-color record in a Samus-in-heat palette program.</summary>
+/// <param name="InstructionPointer">Native address of the record's duration word.</param>
 public readonly record struct PaletteFxHeatProgramFrameDefinition(
     ushort InstructionPointer)
 {

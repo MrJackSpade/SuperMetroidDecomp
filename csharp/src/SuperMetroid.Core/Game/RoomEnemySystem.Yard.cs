@@ -37,8 +37,11 @@ public enum YardMovementFunction : ushort
 /// </summary>
 public sealed class YardEnemyState
 {
+    /// <summary>Physical enemy slot that stores Yard's native variables A through F.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the debugger projection over Yard's owning enemy slot.</summary>
+    /// <param name="slot">Physical slot containing Yard's native state words.</param>
     internal YardEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native variable A: signed 8.8 horizontal crawl velocity stored as raw bits, used either tangentially or as a normal-axis surface probe according to the movement pointer.</summary>
@@ -112,10 +115,13 @@ public sealed class YardEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy definition pointer for Yard, the Maridia snail, at bank-$A3:$CC36.</summary>
     internal const ushort YardDefinition = 0xdbbf;
 
+    /// <summary>Spritemap used while Yard's shell has no visible animation frame.</summary>
     private const ushort YardNothingSpritemap = 0x804d;
 
+    /// <summary>Per-enemy Yard state projections, indexed by the owning native enemy slot.</summary>
     private readonly YardEnemyState?[] _yardStates =
         new YardEnemyState?[MaximumEnemyCount];
 
@@ -166,6 +172,9 @@ public sealed partial class RoomEnemySystem
         (state.CrawlingXVelocity, state.CrawlingYVelocity) = YardVelocityDefinitions.Apply(speed, direction);
     }
 
+    /// <summary>Checks that a population speed index addresses an entry in the crawl-speed table.</summary>
+    /// <param name="index">Native speed-table index supplied by Yard's population record.</param>
+    /// <exception cref="InvalidDataException">The index is outside the cartridge speed table.</exception>
     private static void ValidateYardSpeedIndex(ushort index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
@@ -305,6 +314,10 @@ public sealed partial class RoomEnemySystem
             DropYard(slot, state);
     }
 
+    /// <summary>Moves Yard along its current surface and processes corner turns or loss of support.</summary>
+    /// <param name="slot">Physical enemy slot whose position and collision properties are updated.</param>
+    /// <param name="state">Yard-specific crawl direction, velocity, and turn-cooldown state.</param>
+    /// <param name="level">Room collision data used for surface and corner probes.</param>
     private void RunYardCrawlingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -394,6 +407,9 @@ public sealed partial class RoomEnemySystem
         HandleYardTurnTransitionDisabling(state, adjusted);
     }
 
+    /// <summary>Disables corner transitions after slope adjustment and reenables them after the cooldown.</summary>
+    /// <param name="state">Yard state holding the transition flag and cooldown counter.</param>
+    /// <param name="slopeAdjusted">Whether this crawl update aligned Yard to a non-square slope.</param>
     private static void HandleYardTurnTransitionDisabling(
         YardEnemyState state,
         bool slopeAdjusted)
@@ -414,6 +430,10 @@ public sealed partial class RoomEnemySystem
         state.TurnTransitionDisableCounter = next;
     }
 
+    /// <summary>Installs a crawl animation list and resets the corner-transition cooldown.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction pointer and initial timer.</param>
+    /// <param name="state">Yard state whose turn-transition guard is armed.</param>
+    /// <param name="instructionList">Animation instruction-list pointer for the new movement direction.</param>
     private static void SetYardInstructionAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -505,6 +525,10 @@ public sealed partial class RoomEnemySystem
             state.AirborneYVelocity = acceleratedWhole;
     }
 
+    /// <summary>Stops airborne motion and restores Yard's floor-crawl or dropped-shell landing state.</summary>
+    /// <param name="slot">Enemy slot whose position, facing properties, and hiding animation are restored.</param>
+    /// <param name="state">Yard state containing airborne behavior and orientation.</param>
+    /// <param name="samus">Player position used to orient a landed, active Yard.</param>
     private static void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
     {
         state.AirborneXVelocity = 0;
@@ -541,6 +565,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Installs the visible and hidden instruction lists matching Yard's airborne facing.</summary>
+    /// <param name="slot">Enemy slot receiving the visible animation list and reset timers.</param>
+    /// <param name="state">Yard state supplying facing and retaining the corresponding hiding list.</param>
     private static void SetYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state)
@@ -553,6 +580,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Turns Yard when its horizontal facing points away from Samus.</summary>
+    /// <param name="slot">Enemy slot used to select the facing comparison.</param>
+    /// <param name="state">Yard state whose airborne-facing bit encodes left or right.</param>
+    /// <param name="samus">Player position used for the horizontal comparison.</param>
+    /// <returns><see langword="true"/> when a permitted turn was performed.</returns>
     private static bool MakeYardFaceSamusHorizontally(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -564,6 +596,10 @@ public sealed partial class RoomEnemySystem
         return shouldTurn && TurnYardAround(slot, state);
     }
 
+    /// <summary>Reverses Yard's surface direction and installs the matching crawl animation and velocities.</summary>
+    /// <param name="slot">Enemy slot receiving the new crawl list and facing property bits.</param>
+    /// <param name="state">Yard state supplying the current direction and behavior guards.</param>
+    /// <returns><see langword="true"/> when Yard was allowed to turn and its direction changed.</returns>
     private static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == 2 ||
@@ -662,6 +698,10 @@ public sealed partial class RoomEnemySystem
         state.Behavior = 0;
     }
 
+    /// <summary>Applies Yard touch AI's horizontal-input test for whether Samus is directing toward the shell.</summary>
+    /// <param name="state">Yard state supplying the shell's horizontal facing.</param>
+    /// <param name="controllerInput">Raw SNES controller word sampled for the touch callback.</param>
+    /// <returns><see langword="true"/> when the native directional test treats input as directed toward Yard.</returns>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
         ushort controllerInput)
@@ -688,9 +728,16 @@ public sealed partial class RoomEnemySystem
         LastYardSoundEffect = 0x0070;
     }
 
+    /// <summary>Combines signed whole and fractional words into one 16.16 fixed-point displacement.</summary>
+    /// <param name="whole">Signed high word stored as raw bits.</param>
+    /// <param name="fraction">Low fractional word stored as raw bits.</param>
+    /// <returns>The combined signed 32-bit fixed-point value.</returns>
     private static int ComposeSignedFixed(ushort whole, ushort fraction) =>
         unchecked((int)(((uint)whole << 16) | fraction));
 
+    /// <summary>Returns the Yard-specific state associated with an initialized enemy slot.</summary>
+    /// <param name="slot">Physical enemy slot whose Yard projection is required.</param>
+    /// <exception cref="InvalidOperationException">No Yard state has been initialized for the slot.</exception>
     private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
         _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");

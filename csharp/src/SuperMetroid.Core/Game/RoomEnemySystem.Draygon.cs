@@ -8,20 +8,31 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-local enemy definition pointer for Draygon's authoritative body record.</summary>
     private const ushort DraygonBodyDefinition = DraygonEnemyDefinitionPointers.Body;
+
+    /// <summary>Bank-local enemy definition pointer for Draygon's independently initialized eye record.</summary>
     private const ushort DraygonEyeDefinition = DraygonEnemyDefinitionPointers.Eye;
+
+    /// <summary>Bank-local enemy definition pointer for Draygon's composited tail record.</summary>
     private const ushort DraygonTailDefinition = DraygonEnemyDefinitionPointers.Tail;
+
+    /// <summary>Bank-local enemy definition pointer for Draygon's composited arms record.</summary>
     private const ushort DraygonArmsDefinition = DraygonEnemyDefinitionPointers.Arms;
 
+    /// <summary>Encounter state shared by the body and its eye, tail, and arms records while the room is loaded.</summary>
     private DraygonEnemyState? _draygon;
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
     public DraygonEnemyState? Draygon => _draygon;
 
+    /// <summary>Reports whether an enemy definition pointer belongs to one of Draygon's four physical records.</summary>
+    /// <param name="definition">Enemy definition pointer being classified.</param>
     private static bool IsDraygonDefinition(ushort definition) => definition is
         DraygonBodyDefinition or DraygonEyeDefinition or
         DraygonTailDefinition or DraygonArmsDefinition;
 
+    /// <summary>Discards the encounter extension when the room population is reset.</summary>
     private void ResetDraygonRoomState() => _draygon = null;
 
     /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
@@ -351,6 +362,9 @@ public sealed partial class RoomEnemySystem
         state.FacingRight = true;
     }
 
+    /// <summary>Builds the descending swoop's per-step Y table from the current Samus target and arena reset height.</summary>
+    /// <param name="state">Encounter state receiving the generated path and tracking its vertical bounds.</param>
+    /// <param name="samus">Samus position used to determine the swoop's target point.</param>
     private static void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
         ushort yPosition = 0x0180;
@@ -571,6 +585,8 @@ public sealed partial class RoomEnemySystem
         SubtractDraygonHorizontalVelocity(body);
     }
 
+    /// <summary>Adds the signed 16.16 horizontal velocity stored in Draygon's common variables to its position.</summary>
+    /// <param name="body">Body slot whose whole and fractional X coordinates are advanced.</param>
     private static void AddDraygonHorizontalVelocity(RoomEnemySlot body)
     {
         uint position = ((uint)body.XPosition << 16) | body.XSubposition;
@@ -580,6 +596,8 @@ public sealed partial class RoomEnemySystem
         body.XSubposition = unchecked((ushort)position);
     }
 
+    /// <summary>Subtracts the signed 16.16 horizontal velocity stored in Draygon's common variables from its position.</summary>
+    /// <param name="body">Body slot whose whole and fractional X coordinates are moved backward.</param>
     private static void SubtractDraygonHorizontalVelocity(RoomEnemySlot body)
     {
         uint position = ((uint)body.XPosition << 16) | body.XSubposition;
@@ -685,6 +703,9 @@ public sealed partial class RoomEnemySystem
             FinishDraygonGoopFiring(state, movingRight);
     }
 
+    /// <summary>Ends a goop firing pass by restoring idle arm animation and selecting the matching recovery function.</summary>
+    /// <param name="state">Encounter state whose arms and body function are updated.</param>
+    /// <param name="movingRight">Whether the completed pass was moving to the right.</param>
     private static void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
     {
         InstallDraygonInstruction(
@@ -733,6 +754,9 @@ public sealed partial class RoomEnemySystem
         state.Body.YPosition = 0xffb0;
     }
 
+    /// <summary>Applies the oscillating goop-path Y coordinate and advances the body horizontally in the selected direction.</summary>
+    /// <param name="state">Encounter state providing the body, oscillation phase, and movement velocity.</param>
+    /// <param name="movingRight">Whether the body advances by adding rather than subtracting its horizontal velocity.</param>
     private static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
         state.Body.YPosition = unchecked((ushort)(
@@ -745,6 +769,8 @@ public sealed partial class RoomEnemySystem
             SubtractDraygonHorizontalVelocity(state.Body);
     }
 
+    /// <summary>Spawns a shared-pool breath bubble on the body's 128-frame cadence.</summary>
+    /// <param name="state">Encounter state supplying body position and the frame counter.</param>
     private void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
         if ((state.Body.FrameCounter & 0x007f) != 0)
@@ -759,12 +785,19 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs a part's instruction list and makes its first command eligible immediately.</summary>
+    /// <param name="part">Body or composited part receiving the new list.</param>
+    /// <param name="instruction">Bank-local instruction-list pointer to install.</param>
     private static void InstallDraygonInstruction(RoomEnemySlot part, ushort instruction)
     {
         part.CurrentInstruction = instruction;
         part.InstructionTimer = 1;
     }
 
+    /// <summary>Consumes the native 64-frame turret RNG cadence and spawns a turret only when Samus is available.</summary>
+    /// <param name="state">Encounter state tracking how many cadence checks have occurred.</param>
+    /// <param name="samus">Current Samus state used to select and position a wall turret, when present.</param>
+    /// <param name="frameCounterLow">Low byte of the native frame counter tested for a turret update.</param>
     private void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
         SamusState? samus,
@@ -825,6 +858,10 @@ public sealed partial class RoomEnemySystem
         eye.Timer = 0;
     }
 
+    /// <summary>Gets the active encounter state after verifying all four physical records are linked consistently.</summary>
+    /// <param name="body">Body slot expected to own the active encounter.</param>
+    /// <returns>The complete state containing body, eye, tail, and arms slots.</returns>
+    /// <exception cref="InvalidDataException">The body state is absent or one of Draygon's parts is not linked.</exception>
     private DraygonEnemyState RequireCompleteDraygonState(RoomEnemySlot body)
     {
         DraygonEnemyState state = _draygon ??

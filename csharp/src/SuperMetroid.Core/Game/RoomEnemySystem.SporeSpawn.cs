@@ -26,9 +26,13 @@ public enum SporeSpawnFunction : ushort
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
+    /// <summary>Independent target-palette words indexed like CGRAM, retained until the host applies them.</summary>
     private readonly ushort[] _targetPalette = new ushort[256];
+    /// <summary>Marks which target-palette slots have pending writes for the next consumer pass.</summary>
     private readonly bool[] _targetPaletteWritten = new bool[256];
 
+    /// <summary>Associates the boss-specific state with the live common enemy slot it extends.</summary>
+    /// <param name="body">Room slot containing Spore Spawn's shared enemy fields.</param>
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, instruction, and stalk-projectile owners.</summary>
@@ -70,12 +74,17 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 
+    /// <summary>Stores a target-palette word and marks its CGRAM index for later consumption.</summary>
+    /// <param name="index">CGRAM-compatible palette slot to update.</param>
+    /// <param name="value">Packed color word requested for that slot.</param>
     internal void WriteTargetColor(int index, ushort value)
     {
         _targetPalette[index] = value;
         _targetPaletteWritten[index] = true;
     }
 
+    /// <summary>Applies each pending target color once, clearing its pending marker after the callback.</summary>
+    /// <param name="write">Host operation that installs a color at its indexed destination.</param>
     internal void ConsumeTargetColors(Action<int, ushort> write)
     {
         for (int index = 0; index < _targetPalette.Length; index++)
@@ -102,10 +111,14 @@ public sealed partial class RoomEnemySystem
     /// <summary><c>EnemyHeaders_SporeSpawn</c> at <c>$A0:DF3F</c>; bank-relative body definition identity, distinct from stalk header $DF7F.</summary>
     public const ushort SporeSpawnDefinition = 0xdf3f;
 
+    /// <summary>Room-pixel X coordinate of Spore Spawn's death-drift destination.</summary>
     private const ushort SporeSpawnDeathCenterX = 128;
+    /// <summary>Room-pixel Y coordinate used both as the death-drift destination and descent endpoint.</summary>
     private const ushort SporeSpawnDeathCenterY = 624;
+    /// <summary>Room-pixel Y coordinate anchoring the top of the stalk interpolation.</summary>
     private const ushort SporeSpawnCeilingY = 560;
 
+    /// <summary>Drop attempts published during the current room-enemy frame.</summary>
     private readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
     /// <summary>Frame-local hardcoded ceiling PLM request.</summary>
@@ -114,6 +127,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last library-two sound requested by the boss or one of its instructions.</summary>
     public ushort? LastSporeSpawnSoundEffectLibrary2 { get; private set; }
 
+    /// <summary>Removes the boss extension and clears all room- and frame-scoped Spore Spawn outputs.</summary>
     private void ResetSporeSpawnRoomState()
     {
         _sporeSpawn = null;
@@ -122,6 +136,7 @@ public sealed partial class RoomEnemySystem
         _sporeSpawnDropRequests.Clear();
     }
 
+    /// <summary>Clears transient PLM, sound, and drop publications before advancing the next frame.</summary>
     private void BeginSporeSpawnFrame()
     {
         LastSporeSpawnPlm = null;
@@ -152,6 +167,10 @@ public sealed partial class RoomEnemySystem
             SporeSpawnScrollingHooks.FightMinimumLayerOneY);
     }
 
+    /// <summary>Returns the initialized boss extension only when it belongs to the supplied body slot.</summary>
+    /// <param name="slot">Enemy slot currently entering a Spore Spawn operation.</param>
+    /// <returns>The extension associated with that exact slot.</returns>
+    /// <exception cref="InvalidOperationException">The extension is absent or belongs to another enemy slot.</exception>
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemySlot slot)
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
@@ -347,6 +366,12 @@ public sealed partial class RoomEnemySystem
             horizontal: false);
     }
 
+    /// <summary>Writes a fixed first stalk coordinate and the quarter, half, and three-quarter positions
+    /// from the captured anchor toward the body endpoint into projectile slots 14 through 17.</summary>
+    /// <param name="firstPosition">Fixed coordinate of the first stalk segment.</param>
+    /// <param name="anchor">Captured coordinate from which the remaining segments are spaced.</param>
+    /// <param name="end">Current coordinate at the boss-side end of the stalk.</param>
+    /// <param name="horizontal"><see langword="true"/> updates X positions; otherwise updates Y positions.</param>
     private void WriteSporeSpawnStalkAxis(
         ushort firstPosition,
         ushort anchor,
@@ -381,9 +406,16 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Publishes a ceiling-block PLM request at native room block coordinate (7,30).</summary>
+    /// <param name="header">Bank-$84 PLM header selecting the ceiling mutation.</param>
     private void PublishSporeSpawnPlm(ushort header) =>
         LastSporeSpawnPlm = new SporeSpawnPlmRequest(7, 30, header);
 
+    /// <summary>Adds a signed 16.16 displacement to a position/subposition pair with native word wrapping.</summary>
+    /// <param name="position">Integer pixel portion of the fixed-point coordinate.</param>
+    /// <param name="subposition">Fractional portion of the coordinate.</param>
+    /// <param name="displacement">Signed 16.16 amount to add.</param>
+    /// <returns>The wrapped integer and fractional words after the displacement.</returns>
     private static (ushort Position, ushort Subposition) AddSporeSpawnFixed(
         ushort position,
         ushort subposition,

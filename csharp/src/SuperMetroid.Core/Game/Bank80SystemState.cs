@@ -81,14 +81,29 @@ public sealed class Bank80SystemState
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
+    /// <summary>Persistent event bits mirrored at the bank-$80 event-table address.</summary>
     private readonly byte[] _events = new byte[EventByteCount];
+
+    /// <summary>Per-area boss defeat flags stored in the persistent area table.</summary>
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
+
+    /// <summary>Persistent bits recording which room Chozo orbs have been opened.</summary>
     private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+
+    /// <summary>Persistent per-location flags recording collected item pickups.</summary>
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
+
+    /// <summary>Persistent flags recording which colored doors have been opened.</summary>
     private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
+
+    /// <summary>Unpacked explored-map bit planes, including the live-only Ceres plane.</summary>
     private readonly byte[] _exploredMapTiles =
         new byte[ExploredMapAreaCount * ExploredMapBytesPerArea];
+
+    /// <summary>Persistent save-station and elevator usage markers indexed by area.</summary>
     private readonly byte[] _usedSaveStationsAndElevators = new byte[UsedSaveStationByteCount];
+
+    /// <summary>Persistent per-area flags showing that a map station has been used.</summary>
     private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
@@ -174,12 +189,20 @@ public sealed class Bank80SystemState
             memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));
     }
 
+    /// <summary>Copies a byte span to consecutive addresses in the SRAM-mirror region of the bus.</summary>
+    /// <param name="bus">Address space receiving the bytes.</param>
+    /// <param name="address">First destination address.</param>
+    /// <param name="bytes">Ordered values to write.</param>
     private static void WriteBytes(ISnesAddressSpace bus, int address, ReadOnlySpan<byte> bytes)
     {
         for (int index = 0; index < bytes.Length; index++)
             bus.WriteByte(address + index, bytes[index]);
     }
 
+    /// <summary>Reads consecutive WRAM bytes into a caller-provided state buffer.</summary>
+    /// <param name="memory">Mutable memory exposing the WRAM read path.</param>
+    /// <param name="address">First WRAM address to read.</param>
+    /// <param name="bytes">Destination span filled in address order.</param>
     private static void ReadBytes(ISnesMutableMemory memory, int address, Span<byte> bytes)
     {
         for (int index = 0; index < bytes.Length; index++)
@@ -772,6 +795,9 @@ public sealed class Bank80SystemState
         return (int)eventNumber;
     }
 
+    /// <summary>Converts a collected-item bit index into its table byte and bit mask.</summary>
+    /// <param name="bitIndex">Nonnegative bit index in the native item table.</param>
+    /// <returns>The byte offset and one-bit mask for the selected pickup.</returns>
     private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)
     {
         return ResolvePersistentRoomBit(
@@ -780,6 +806,12 @@ public sealed class Bank80SystemState
             "Collected-item bit index must fit the native 64-byte table.");
     }
 
+    /// <summary>Validates a persistent room-table bit index and splits it into byte and bit positions.</summary>
+    /// <param name="bitIndex">Nonnegative index into the selected persistent table.</param>
+    /// <param name="byteCount">Allocated table length in bytes.</param>
+    /// <param name="errorMessage">Message used when the index exceeds the table.</param>
+    /// <returns>The byte offset and one-bit mask corresponding to the index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the allocated table.</exception>
     private static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
         int bitIndex,
         int byteCount,
@@ -791,18 +823,31 @@ public sealed class Bank80SystemState
         return (bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
     }
 
+    /// <summary>Ensures an area index addresses one of the allocated area-state entries.</summary>
+    /// <param name="areaIndex">Area byte offset to validate.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the native area table.</exception>
     private static void ValidateAreaIndex(int areaIndex)
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
     }
 
+    /// <summary>Maps an area-map coordinate to its byte offset in the packed explored-map planes.</summary>
+    /// <param name="areaIndex">Area plane containing the cell.</param>
+    /// <param name="mapX">Horizontal cell coordinate.</param>
+    /// <param name="mapY">Vertical cell coordinate.</param>
+    /// <returns>Offset into the flattened seven-area buffer.</returns>
     private static int ResolveExploredMapByteIndex(int areaIndex, int mapX, int mapY)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
         return areaOffset + AreaMapLayout.GetBitByteIndex(mapX, mapY);
     }
 
+    /// <summary>Validates the area and 64-by-32 cell coordinates used to address explored-map state.</summary>
+    /// <param name="areaIndex">Map plane index, including the live-only Ceres plane.</param>
+    /// <param name="mapX">Horizontal cell coordinate from zero through 63.</param>
+    /// <param name="mapY">Vertical cell coordinate from zero through 31.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Any coordinate is outside its allocated range.</exception>
     private static void ValidateExploredMapCoordinate(int areaIndex, int mapX, int mapY)
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)

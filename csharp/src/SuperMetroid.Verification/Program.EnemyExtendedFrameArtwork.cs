@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed enemy extended-frame compositions against native drawing while blocking their visual ROM ranges.</summary>
     private static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -1377,10 +1378,12 @@ internal static partial class Program
     // Historical schemas own a fixed prefix of the append-only identity catalog.
     // Select authored values by those names so later families cannot leak into
     // old overrides; retain their edited compositions and display bindings.
+    /// <summary>Selects the named prefix owned by an older schema from the append-only frame identity catalog.</summary>
     private static Dictionary<string, T> HistoricalExtendedEntries<T>(
         Dictionary<string, T> source, int count) =>
         EnemyExtendedFrameDefinitions.Frames.ToArray().Take(count)
             .ToDictionary(frame => frame.Name, frame => source[frame.Name], StringComparer.Ordinal);
+    /// <summary>Maps the former Spore Spawn frame prefix to its legacy Draygon identity during override migration.</summary>
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
             ? "draygon_oam_" + name["spore_spawn_oam_".Length..]
@@ -1389,6 +1392,7 @@ internal static partial class Program
     // Independent native extended-spritemap OAM walker ($A0: drawing path).
     // BG2 streams are covered by their dedicated fixture; this comparison owns
     // only component offsets, clipping, and the packed sprite compositions.
+    /// <summary>Walks a native extended spritemap and produces its clipped OAM composition for comparison.</summary>
     private static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y)
     {
@@ -1414,6 +1418,7 @@ internal static partial class Program
         return oam;
     }
 
+    /// <summary>Draws one installed extended frame through the game renderer using the catalog's configured bank.</summary>
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, ushort x, ushort y,
         Action<RoomEnemySlot>? inspect = null)
@@ -1422,6 +1427,7 @@ internal static partial class Program
             pointer, x, y, inspect);
     }
 
+    /// <summary>Draws a selected bank and frame through the runtime renderer with a synthetic enemy slot.</summary>
     private static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
         ISnesAddressSpace bus, byte bank, ushort pointer, ushort x, ushort y,
         Action<RoomEnemySlot>? inspect = null)
@@ -1453,6 +1459,7 @@ internal static partial class Program
         return oam;
     }
 
+    /// <summary>Queries the runtime's extended-hitbox path and returns the callback selected at a known interior point.</summary>
     private static ushort GetTouchCallback(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer)
     {
@@ -1486,6 +1493,7 @@ internal static partial class Program
         return (ushort)arguments[6]!;
     }
 
+    /// <summary>Chooses the matching walking, wall, or ninja Pirate definition for an installed frame pointer.</summary>
     private static ushort PirateDefinitionForFrame(ushort pointer)
     {
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
@@ -1504,11 +1512,15 @@ internal static partial class Program
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
     }
 
+    /// <summary>Forwards cartridge access while throwing if drawing reads any visual bytes enumerated for a frame.</summary>
+    /// <param name="source">Underlying address space used to enumerate frame data and service accesses outside blocked ranges.</param>
     private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Cartridge byte addresses belonging to visual frame data that must already be installed.</summary>
         private readonly HashSet<int> blocked = [];
 
+        /// <summary>Blocks the frame header, component list, and referenced sprite or BG2 stream bytes for a banked frame.</summary>
         internal void BlockFrame(byte bank, ushort pointer)
         {
             int root = (bank << 16) | pointer;
@@ -1559,14 +1571,17 @@ internal static partial class Program
                 source.ReadByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
         }
 
+        /// <summary>Adds a contiguous bank-local byte range to the set rejected by subsequent reads.</summary>
         private void Block(byte bank, ushort pointer, int length)
         {
             for (int index = 0; index < length; index++)
                 blocked.Add((bank << 16) | unchecked((ushort)(pointer + index)));
         }
 
+        /// <summary>Routes the importer-facing read through the same visual-range guard as runtime reads.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from blocked frame bytes and forwards all other reads to the underlying address space.</summary>
         public byte ReadByte(int address)
         {
             if (blocked.Contains(address))
@@ -1575,6 +1590,7 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged because this guard restricts reads of installed visual data only.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

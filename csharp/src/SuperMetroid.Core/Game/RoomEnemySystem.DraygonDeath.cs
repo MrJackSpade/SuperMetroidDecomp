@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Whole-pixel X coordinate at which the dying body transitions from drifting to the burial wait.</summary>
     private const ushort DraygonDeathTargetX = 0x0100;
+    /// <summary>Whole-pixel Y coordinate at which the dying body transitions from drifting to the burial wait.</summary>
     private const ushort DraygonDeathTargetY = 0x01e0;
+    /// <summary>Y coordinate at or below which the buried body completes its death sequence.</summary>
     private const ushort DraygonBurialFinishedY = 0x0240;
+    /// <summary>Frame countdown between reaching the burial point and beginning the final sink.</summary>
     private const ushort DraygonDeathWaitFramesUs = 0x01a0;
 
+    /// <summary>Steers the dying body toward its burial point, then initializes the waiting phase and its Evir actors.</summary>
     private void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
@@ -60,6 +65,7 @@ public sealed partial class RoomEnemySystem
         eye.VariableA = 0x804b;
     }
 
+    /// <summary>Emits periodic smoke while the burial countdown runs, advancing the Evirs until the sink phase begins.</summary>
     private void WaitForDraygonBurialEvirs(
         DraygonEnemyState state,
         byte frameCounterLow)
@@ -75,6 +81,7 @@ public sealed partial class RoomEnemySystem
         MoveDraygonDeathEvirs();
     }
 
+    /// <summary>Moves Draygon below the arena, then removes the actors, creates drops, persists defeat, and clears sprite objects.</summary>
     private void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
         byte frameCounterLow)
@@ -110,6 +117,7 @@ public sealed partial class RoomEnemySystem
         ClearRoomSpriteObjectPool();
     }
 
+    /// <summary>Uses the death-animation frame cadence and RNG to spawn dust clouds at randomized arena coordinates.</summary>
     private void SpawnDyingDraygonSmoke(DraygonEnemyState state, byte frameCounterLow)
     {
         if ((frameCounterLow & 7) != 0)
@@ -122,6 +130,7 @@ public sealed partial class RoomEnemySystem
             state.DeathSmokeObjectsSpawned++;
     }
 
+    /// <summary>Spawns the requested death-animation object at a randomized offset from Draygon's current body position.</summary>
     private void SpawnRandomDyingDraygonObject(
         DraygonEnemyState state,
         RoomSpriteObjectKind kind)
@@ -139,6 +148,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Replaces room sprite objects with the six Evir actors used by the burial animation.</summary>
     private void SpawnDraygonDeathEvirs(DraygonEnemyState state)
     {
         ClearRoomSpriteObjectPool();
@@ -154,6 +164,7 @@ public sealed partial class RoomEnemySystem
         state.DeathEvirsSpawned = true;
     }
 
+    /// <summary>Creates one burial Evir at the position assigned by its indexed native movement definition.</summary>
     private void SpawnDraygonDeathEvir(int entry, RoomSpriteObjectKind kind)
     {
         DraygonBurialEvirDefinition definition =
@@ -170,6 +181,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the six burial Evirs using their independent fractional X and Y ROM velocities.</summary>
     private void MoveDraygonDeathEvirs()
     {
         for (int entry = 5, slotIndex = RoomSpriteObjectSlotCount - 1;
@@ -200,6 +212,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves Draygon along the native sine-table vector, retaining fixed-point subpositions on both axes.</summary>
     private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, byte movementAngle, ushort speed)
     {
         uint xMagnitude = unchecked((uint)ReadUnsignedSineMagnitudeProduct(
@@ -222,6 +235,7 @@ public sealed partial class RoomEnemySystem
             subtract: ((movementAngle + 0x80) & 0x80) != 0);
     }
 
+    /// <summary>Adds or subtracts a fractional speed word from a sprite object's 16.16 position with native wrapping.</summary>
     private static (ushort Position, ushort Subposition) AddSpriteObjectSubspeed(
         ushort position,
         ushort subposition,
@@ -237,6 +251,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Resets every room sprite-object slot before a death sequence replaces or removes those actors.</summary>
     private void ClearRoomSpriteObjectPool()
     {
         foreach (RoomSpriteObjectSlot sprite in _roomSpriteObjects)

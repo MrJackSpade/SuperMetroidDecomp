@@ -24,6 +24,9 @@ public sealed partial class BabyMetroidCutsceneState
         return new BabyMetroidOnionRingHitResult();
     }
 
+    /// <summary>Advances Samus's rainbow palette phase when the Baby crosses its activation height.</summary>
+    /// <param name="samus">Player state whose drained-color animation is enabled or advanced.</param>
+    /// <param name="samusRainbowActivated">Set to <see langword="true"/> when this step starts the rainbow effect.</param>
     private void StepSamusRainbowPaletteAnimation(
         SamusState samus,
         ref bool samusRainbowActivated)
@@ -56,6 +59,7 @@ public sealed partial class BabyMetroidCutsceneState
         }
     }
 
+    /// <summary>Damps horizontal velocity and increases downward velocity using the death-flight update.</summary>
     private void AccelerateDownwardsForDeath()
     {
         // `$CE40` subtracts `$20` from the magnitude, clamps at zero, reapplies the old
@@ -67,6 +71,9 @@ public sealed partial class BabyMetroidCutsceneState
         YVelocity = unchecked((ushort)(YVelocity + 2));
     }
 
+    /// <summary>Advances the palette fade after reaching its height threshold and emits a transfer when needed.</summary>
+    /// <param name="paletteTransfer">Receives the next CGRAM transfer request, if this step advances a fade color.</param>
+    /// <returns><see langword="true"/> when all fade steps are complete.</returns>
     private bool StepFadeToBlack(ref BabyMetroidPaletteTransferRequest? paletteTransfer)
     {
         // No timer changes occur until the actor's centre reaches Y `$80`.
@@ -91,6 +98,8 @@ public sealed partial class BabyMetroidCutsceneState
         return false;
     }
 
+    /// <summary>Ticks the death-explosion cadence and returns the next scatter request when it expires.</summary>
+    /// <returns>The next room explosion request, or <see langword="null"/> while its timer remains active.</returns>
     private BabyMetroidDeathExplosionRequest? StepDeathExplosion()
     {
         DeathExplosionTimer = unchecked((ushort)(DeathExplosionTimer - 1));
@@ -111,6 +120,8 @@ public sealed partial class BabyMetroidCutsceneState
             SoundEffect: 0x0013);
     }
 
+    /// <summary>Installs an instruction-list pointer and initializes its timer and loop counter.</summary>
+    /// <param name="pointer">Address of the next Baby Metroid instruction list.</param>
     private void SetInstructionList(ushort pointer)
     {
         InstructionList = pointer;
@@ -118,6 +129,11 @@ public sealed partial class BabyMetroidCutsceneState
         InstructionLoopCounter = 0;
     }
 
+    /// <summary>Moves speed and angle toward their targets, then recalculates signed velocity components.</summary>
+    /// <param name="bus">SNES address space used by the cartridge trigonometry tables.</param>
+    /// <param name="angleDelta">Signed angular step applied before clamping at the target angle.</param>
+    /// <param name="targetAngle">Angle toward which the Baby's heading advances.</param>
+    /// <param name="targetSpeed">Speed approached in fixed increments.</param>
     private void UpdateSpeedAndAngle(
         ISnesAddressSpace bus,
         ushort angleDelta,
@@ -152,6 +168,10 @@ public sealed partial class BabyMetroidCutsceneState
         YVelocity = CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)));
     }
 
+    /// <summary>Computes one signed velocity component from speed and a byte-indexed sine sample.</summary>
+    /// <param name="speed">Unsigned movement speed supplied to the native multiply.</param>
+    /// <param name="sineIndex">Angle-table byte used to select the signed sine value.</param>
+    /// <returns>The signed 8.8 component encoded in a 16-bit word.</returns>
     private static ushort CalculateVelocityComponent(
         ushort speed,
         byte sineIndex)
@@ -161,6 +181,7 @@ public sealed partial class BabyMetroidCutsceneState
         return EnemyTrigonometryTables.MultiplySignedSine(speed, sineIndex);
     }
 
+    /// <summary>Integrates both 8.8 velocity words into the Baby's whole and subpixel positions.</summary>
     private void MoveAccordingToVelocity()
     {
         XPosition = AddNativeEightEightVelocity(XPosition, XSubposition, XVelocity, out ushort xSubposition);
@@ -169,6 +190,12 @@ public sealed partial class BabyMetroidCutsceneState
         YSubposition = ySubposition;
     }
 
+    /// <summary>Adds a signed 8.8 velocity to whole-pixel position while preserving native fractional carry.</summary>
+    /// <param name="wholePosition">Current whole-pixel coordinate.</param>
+    /// <param name="subposition">Current fractional coordinate word.</param>
+    /// <param name="velocity">Signed 8.8 velocity word.</param>
+    /// <param name="newSubposition">Receives the updated fractional coordinate.</param>
+    /// <returns>The updated whole-pixel coordinate with 16-bit wraparound.</returns>
     private static ushort AddNativeEightEightVelocity(
         ushort wholePosition,
         ushort subposition,
@@ -184,6 +211,12 @@ public sealed partial class BabyMetroidCutsceneState
         return unchecked((ushort)(wholePosition + wholeDelta));
     }
 
+    /// <summary>Tests overlap between the Baby's hitbox and an axis-aligned rectangle.</summary>
+    /// <param name="centerX">Horizontal center of the tested rectangle.</param>
+    /// <param name="centerY">Vertical center of the tested rectangle.</param>
+    /// <param name="rectangleXRadius">Horizontal half-size of the rectangle.</param>
+    /// <param name="rectangleYRadius">Vertical half-size of the rectangle.</param>
+    /// <returns><see langword="true"/> when the two hitboxes overlap on both axes.</returns>
     private bool CollidesWithRectangle(
         ushort centerX,
         ushort centerY,
@@ -199,6 +232,13 @@ public sealed partial class BabyMetroidCutsceneState
         return yDistance <= rectangleYRadius + YHitboxRadius;
     }
 
+    /// <summary>Applies divided horizontal and vertical acceleration toward a target point.</summary>
+    /// <param name="targetX">Target room-space horizontal coordinate.</param>
+    /// <param name="targetY">Target room-space vertical coordinate.</param>
+    /// <param name="accelerationDivisor">Byte-sized divisor controlling the gradual acceleration steps.</param>
+    /// <param name="wrongWayOffScreenXSpeed">Horizontal speed used when moving the wrong way off screen.</param>
+    /// <param name="layer1X">Horizontal camera origin used by the off-screen rule.</param>
+    /// <param name="layer1Y">Vertical camera origin used by the off-screen rule.</param>
     private void GraduallyAccelerateTowardsPoint(
         ushort targetX,
         ushort targetY,
@@ -215,6 +255,10 @@ public sealed partial class BabyMetroidCutsceneState
             YPosition, targetY, YVelocity, divisor);
     }
 
+    /// <summary>Applies the Baby's generous native bounds check against the current room camera.</summary>
+    /// <param name="layer1X">Horizontal origin of layer one.</param>
+    /// <param name="layer1Y">Vertical origin of layer one.</param>
+    /// <returns><see langword="true"/> when the Baby lies outside the expanded gameplay viewport.</returns>
     private bool IsVaguelyOffScreen(ushort layer1X, ushort layer1Y)
     {
         // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
@@ -230,6 +274,11 @@ public sealed partial class BabyMetroidCutsceneState
         return relativeX < 0 || relativeX >= 0x0120;
     }
 
+    /// <summary>Accelerates each axis toward a point and reports when both predicted positions reach it.</summary>
+    /// <param name="targetX">Target room-space horizontal coordinate.</param>
+    /// <param name="targetY">Target room-space vertical coordinate.</param>
+    /// <param name="acceleration">Signed velocity increment applied independently on each axis.</param>
+    /// <returns><see langword="true"/> once both axes have reached or crossed their targets.</returns>
     private bool AccelerateTowardsPoint(ushort targetX, ushort targetY, ushort acceleration)
     {
         // `$F5A6` counts axes whose next whole-pixel prediction reaches/crosses target,
@@ -239,6 +288,10 @@ public sealed partial class BabyMetroidCutsceneState
         return reachedX && reachedY;
     }
 
+    /// <summary>Adjusts vertical velocity toward a target and clamps it to zero at the crossing.</summary>
+    /// <param name="targetY">Target room-space vertical coordinate.</param>
+    /// <param name="acceleration">Signed velocity increment applied toward the target.</param>
+    /// <returns><see langword="true"/> when the next whole-pixel movement reaches or crosses the target.</returns>
     private bool AccelerateTowardsYPosition(ushort targetY, ushort acceleration)
     {
         short difference = unchecked((short)(YPosition - targetY));
@@ -267,6 +320,10 @@ public sealed partial class BabyMetroidCutsceneState
         return true;
     }
 
+    /// <summary>Adjusts horizontal velocity toward a target and clamps it to zero at the crossing.</summary>
+    /// <param name="targetX">Target room-space horizontal coordinate.</param>
+    /// <param name="acceleration">Signed velocity increment applied toward the target.</param>
+    /// <returns><see langword="true"/> when the next whole-pixel movement reaches or crosses the target.</returns>
     private bool AccelerateTowardsXPosition(ushort targetX, ushort acceleration)
     {
         short difference = unchecked((short)(XPosition - targetX));
@@ -294,5 +351,6 @@ public sealed partial class BabyMetroidCutsceneState
         return true;
     }
 
+    /// <summary>Creates the empty point marker used to identify a cutscene update boundary.</summary>
     private static BabyMetroidCutscenePoint Capture() => new();
 }

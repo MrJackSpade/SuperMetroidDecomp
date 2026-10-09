@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class SamusLiquidPhysicsState
 {
+    /// <summary>Sound requests published during the current Samus handler's audio window.</summary>
     private readonly List<SamusSoundRequest> _soundRequests = [];
+    /// <summary>Power-bomb state consulted when movement or animation requests are queued.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    /// <summary>Fallback RNG state for standalone animation updates without a runtime-owned system.</summary>
     private readonly Bank80SystemState _standaloneRandom = new();
 
     /// <summary>No liquid physics are active at the sampled Samus boundary.</summary>
@@ -412,6 +415,9 @@ public sealed partial class SamusLiquidPhysicsState
         HandleLandingGraphics(bus, samus);
     }
 
+    /// <summary>Selects the landing particle behavior from Samus's current area and room identity.</summary>
+    /// <param name="bus">Address space used by area-specific landing effect logic.</param>
+    /// <param name="samus">Landed Samus state supplying position, pose, and liquid-boundary data.</param>
     private void HandleLandingGraphics(ISnesAddressSpace bus, SamusState samus)
     {
         // `$91:F0AA` is an eight-entry area jump table. Invalid area bytes would execute
@@ -457,6 +463,8 @@ public sealed partial class SamusLiquidPhysicsState
         }
     }
 
+    /// <summary>Applies Crateria's room-specific landing splash and dust rules.</summary>
+    /// <param name="samus">Landed Samus state used to choose and place the effect pair.</param>
     private void HandleCrateriaLandingGraphics(SamusState samus)
     {
         // Crateria's cinematic path deletes both landing-owned slots before consulting room
@@ -515,6 +523,9 @@ public sealed partial class SamusLiquidPhysicsState
         DeleteLandingPair();
     }
 
+    /// <summary>Installs the landing-owned particle pair only when Samus is above active liquid.</summary>
+    /// <param name="samus">Landed Samus state supplying the pose boundary and effect origin.</param>
+    /// <param name="type">Atmospheric-effect type selecting splash or dust offsets and animation.</param>
     private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
     {
         // GetBottom_R18 uses the current pose definition and includes the last
@@ -541,6 +552,7 @@ public sealed partial class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(3, type, 0, 3, secondX, y);
     }
 
+    /// <summary>Clears the frame/type words of the two landing-owned particle slots.</summary>
     private void DeleteLandingPair()
     {
         // Native STZ writes only the packed frame/type words; timers and coordinates survive.
@@ -623,6 +635,10 @@ public sealed partial class SamusLiquidPhysicsState
             PeriodicDamage + wholeDamage + (fractional >> 16)));
     }
 
+    /// <summary>Creates either a diving splash or the two grounded splashes for a water transition.</summary>
+    /// <param name="samus">Samus position used to place the splash graphics.</param>
+    /// <param name="movementType">Movement mode distinguishing a diving transition from a grounded one.</param>
+    /// <param name="bottom">Occupied bottom-pixel coordinate sampled for the current update.</param>
     private void SpawnWaterSplash(
         SamusState samus,
         SamusMovementType movementType,
@@ -647,6 +663,11 @@ public sealed partial class SamusLiquidPhysicsState
             unchecked((ushort)(bottom - 4)));
     }
 
+    /// <summary>Checks the native mouth position, cadence, and slot availability before spawning bubbles and sound.</summary>
+    /// <param name="samus">Samus position used to place the bubble particle.</param>
+    /// <param name="top">Current top collision boundary used to locate the mouth.</param>
+    /// <param name="nmiFrameCounter">Frame counter controlling the periodic bubble opportunity.</param>
+    /// <param name="system">RNG state used to choose the bubble sound variant.</param>
     private void TrySpawnAirBubbles(
         SamusState samus,
         ushort top,
@@ -669,6 +690,10 @@ public sealed partial class SamusLiquidPhysicsState
         QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 0x0f : 0x11)), maximumQueued: 6);
     }
 
+    /// <summary>Creates the four-slot lava or acid surface spray when Samus crosses its native trigger.</summary>
+    /// <param name="samus">Samus position used to spread the spray particles horizontally.</param>
+    /// <param name="top">Current top boundary compared with the lava/acid surface.</param>
+    /// <param name="nmiFrameCounter">Frame counter used to gate the spray sound request.</param>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
         ushort top,
@@ -699,6 +724,10 @@ public sealed partial class SamusLiquidPhysicsState
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x10), maximumQueued: 6);
     }
 
+    /// <summary>Chooses wet splashes or dry boost dust for a running foot-contact frame and queues eligible step audio.</summary>
+    /// <param name="bus">Address space used to resolve facing for particle placement.</param>
+    /// <param name="samus">Running Samus state supplying room, pose, position, and boost information.</param>
+    /// <param name="movementType">Current movement mode, which must be running for any step effect.</param>
     private void TrySpawnRunningFootsteps(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -751,6 +780,10 @@ public sealed partial class SamusLiquidPhysicsState
         }
     }
 
+    /// <summary>Places a pair of foot-contact particles on opposite sides of Samus.</summary>
+    /// <param name="bus">Address space used to determine which side is forward.</param>
+    /// <param name="samus">Samus position and facing used to place the pair.</param>
+    /// <param name="type">Atmospheric-effect type assigned to both particles.</param>
     private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
     {
         bool directionIsFour = samus.IsFacingLeft(bus);
@@ -765,6 +798,9 @@ public sealed partial class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(1, type, 0, 3, secondX, y);
     }
 
+    /// <summary>Records a sound request and snapshots whether an active power bomb suppresses its playback.</summary>
+    /// <param name="soundEffect">Library and sound identity selected by the translated routine.</param>
+    /// <param name="maximumQueued">Native queue limit supplied by the sound call site.</param>
     private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>
         _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
@@ -781,10 +817,17 @@ public sealed partial class SamusLiquidPhysicsState
         return IsBelowSurface(LavaAcidYPosition, boundary) ? LavaAcid : Air;
     }
 
+    /// <summary>Checks water contact after applying liquid-options bit two's water-physics exemption.</summary>
+    /// <param name="boundary">Samus boundary coordinate compared with the general FX surface.</param>
+    /// <returns><see langword="true"/> when water physics are enabled and this boundary is below the surface.</returns>
     private bool WaterAffectsBoundary(ushort boundary) =>
         (LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) == 0 &&
         IsBelowSurface(FxYPosition, boundary);
 
+    /// <summary>Performs the cartridge's signed 16-bit surface-minus-boundary comparison, rejecting negative sentinels.</summary>
+    /// <param name="surface">Water or lava/acid surface word, with negative values denoting an absent surface.</param>
+    /// <param name="boundary">Samus boundary word tested against the surface.</param>
+    /// <returns><see langword="true"/> when the surface exists and the boundary lies below it.</returns>
     private static bool IsBelowSurface(ushort surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;

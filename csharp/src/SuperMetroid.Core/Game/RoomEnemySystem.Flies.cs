@@ -19,8 +19,11 @@ public enum FlyEnemyFunction : ushort
 /// </summary>
 public sealed class FlyEnemyState
 {
+    /// <summary>Provides the live WRAM-backed enemy variables exposed by this debugger view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a debugger view over the supplied enemy's shared variable slots.</summary>
+    /// <param name="slot">Enemy slot whose variables hold the fly AI state.</param>
     internal FlyEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>Flies.retreatTimer</c> in variable A at <c>$0FA8,x</c>; counts up per attack update, down through signed underflow during retreat, and then down from 24 to gate another idle attack.</summary>
@@ -72,13 +75,20 @@ public sealed class FlyEnemyState
 /// <summary>Shared Mellow/Mella/Memu AI translated literally from $A2:B06B-$B1E7.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy-definition pointer for the Mellow fly variant.</summary>
     internal const ushort MellowDefinition = 0xd0ff;
+    /// <summary>Enemy-definition pointer for the Mella fly variant.</summary>
     internal const ushort MellaDefinition = 0xd13f;
+    /// <summary>Enemy-definition pointer for the Memu fly variant.</summary>
     internal const ushort MemuDefinition = 0xd17f;
 
+    /// <summary>Horizontal proximity threshold, in room pixels, that admits a fly attack.</summary>
     private const int FlyAttackHorizontalRange = 0x70;
+    /// <summary>Per-slot views of initialized fly AI variables, absent until a fly is initialized.</summary>
     private readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[MaximumEnemyCount];
 
+    /// <summary>Initializes a fly's idle circle state and selects its flight instruction program.</summary>
+    /// <param name="slot">Enemy slot to initialize.</param>
     private void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState(slot)
@@ -92,6 +102,9 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Advances one fly AI update, including its RNG side effect and current movement state.</summary>
+    /// <param name="slot">Enemy whose state and position are advanced.</param>
+    /// <param name="samus">Active actor used for idle attack admission; required for a fly update.</param>
     private void RunFlyMain(RoomEnemySlot slot, SamusState? samus)
     {
         if (samus is null)
@@ -127,6 +140,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves a fly around its idle circle and switches direction when the angle wraps.</summary>
+    /// <param name="slot">Enemy slot whose position is updated.</param>
+    /// <param name="state">Persistent angle and cooldown variables for the fly.</param>
+    /// <param name="samus">Actor whose horizontal proximity can trigger an attack.</param>
+    /// <param name="clockwise">Whether this update advances the circle angle clockwise.</param>
     private static void RunFlyCircle(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -154,6 +172,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Captures Samus's current target position and derives the fly's attack velocity.</summary>
+    /// <param name="slot">Attacking fly's current position and variable storage.</param>
+    /// <param name="state">State that receives velocity, target Y, and attack mode.</param>
+    /// <param name="samus">Actor position sampled to aim the attack.</param>
     private static void SetFlyToAttackSamus(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -168,6 +190,9 @@ public sealed partial class RoomEnemySystem
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
+    /// <summary>Moves the fly along its sampled attack vector and reverses it after crossing target Y.</summary>
+    /// <param name="slot">Enemy slot whose position is advanced.</param>
+    /// <param name="state">Attack vector, target Y, and elapsed attack timer.</param>
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
@@ -183,6 +208,9 @@ public sealed partial class RoomEnemySystem
         state.Function = FlyEnemyFunction.Retreat;
     }
 
+    /// <summary>Applies one sine/cosine table step to the fly's room position and subpixel offsets.</summary>
+    /// <param name="slot">Enemy slot whose position is advanced.</param>
+    /// <param name="state">Current angle used to select the table entries.</param>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle >> 1;
@@ -196,6 +224,9 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)ReadSignedSineCosine(tableIndex)));
     }
 
+    /// <summary>Applies the stored signed 8.8 attack or retreat velocities to the fly's position.</summary>
+    /// <param name="slot">Enemy slot whose position and subpixel offsets are advanced.</param>
+    /// <param name="state">Horizontal and vertical velocities to apply.</param>
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
         (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
@@ -208,6 +239,9 @@ public sealed partial class RoomEnemySystem
             state.YVelocity);
     }
 
+    /// <summary>Reads one signed word from the shared negative-cosine/sine lookup table.</summary>
+    /// <param name="index">Word index, including any phase offset required by the caller.</param>
+    /// <returns>The signed table value used as a movement component.</returns>
     private static short ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
@@ -215,6 +249,9 @@ public sealed partial class RoomEnemySystem
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
+    /// <summary>Returns initialized per-slot fly state or fails when initialization was skipped.</summary>
+    /// <param name="slot">Enemy slot whose fly state is required.</param>
+    /// <returns>The state view backed by that slot's variables.</returns>
     private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
         _flyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");

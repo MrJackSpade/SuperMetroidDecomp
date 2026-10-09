@@ -38,28 +38,50 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
     /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
     /// </summary>
+    /// <param name="Right">Whether the cannon faces right; this controls horizontal mirroring and row layout.</param>
+    /// <param name="Shield">Whether this draw uses the intact shield artwork rather than damaged tiles.</param>
+    /// <param name="Frame">Zero-based frame within the selected shield or damaged sequence.</param>
     internal readonly record struct Draw(bool Right, bool Shield, int Frame)
     {
+        /// <summary>Gets the number of horizontal row runs used by this orientation.</summary>
         internal int RunCount => Right ? 2 : 3;
+
+        /// <summary>Validates a row-run index before calculating its cells or offsets.</summary>
+        /// <param name="run">Zero-based run index.</param>
+        /// <exception cref="IndexOutOfRangeException">The run is outside this draw's layout.</exception>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Returns the number of level words written by one row run.</summary>
+        /// <param name="run">Zero-based run index.</param>
+        /// <returns>Number of cells emitted in the run.</returns>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
         }
+        /// <summary>Returns the horizontal block offset between this run and the next.</summary>
+        /// <param name="run">Zero-based run index.</param>
+        /// <returns>Signed X offset for the next run.</returns>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Returns the vertical block offset between this run and the next.</summary>
+        /// <param name="run">Zero-based run index.</param>
+        /// <returns>Signed Y offset for the next run.</returns>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Calculates the cartridge level word for one cell in a run.</summary>
+        /// <param name="run">Zero-based row-run index.</param>
+        /// <param name="cell">Zero-based cell index within the run.</param>
+        /// <returns>Tile and collision bits for the cell, or the empty level word for an absent damaged tile.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run or cell is outside this draw's layout.</exception>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -72,6 +94,10 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes a supported native draw pointer into orientation, shield state, and frame index.</summary>
+    /// <param name="pointer">Bank-$84 pointer from a Draygon cannon draw instruction.</param>
+    /// <param name="draw">Receives the decoded layout when the pointer names an owned frame.</param>
+    /// <returns><see langword="true"/> when the pointer is an exact start of a supported draw frame.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool right, shield;
@@ -90,6 +116,8 @@ internal static class DraygonCannonPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates all right- and left-facing shield and damaged frame pointers in cartridge order.</summary>
+    /// <returns>The twelve supported draw pointers.</returns>
     private static IEnumerable<ushort> Pointers()
     {
         for (int frame = 0; frame < 2; frame++) yield return (ushort)(RightShieldA + frame * 16);
@@ -97,6 +125,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         for (int frame = 0; frame < 2; frame++) yield return (ushort)(LeftShieldA + frame * 20);
         for (int frame = 0; frame < 4; frame++) yield return (ushort)(LeftDamagedA + frame * 20);
     }
+    /// <summary>Gets draw-list views for every supported cannon frame in pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -109,6 +138,10 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
     // Temporary artwork DTOs. Runtime drawing calculates cells directly.
+    /// <summary>Builds the temporary draw-list representation for a supported native pointer.</summary>
+    /// <param name="pointer">Bank-$84 pointer identifying a cannon frame.</param>
+    /// <param name="list">Receives the generated row and cell layout on success.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> names a supported frame.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -123,6 +156,10 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
+    /// <summary>Finds a draw-list layout by its stable presentation asset identifier.</summary>
+    /// <param name="id">Visual ID associated with one of the supported pointer frames.</param>
+    /// <param name="list">Receives the matching generated draw-list layout on success.</param>
+    /// <returns><see langword="true"/> when the ID matches a supported frame.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())
@@ -130,6 +167,10 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = default;
         return false;
     }
+    /// <summary>Maps a supported bank-$84 draw pointer to its stable presentation asset identifier.</summary>
+    /// <param name="pointer">Pointer identifying a cannon frame.</param>
+    /// <returns>The JSON-facing visual ID for the frame.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a supported draw frame.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         RightShieldA => "right-shield-a",

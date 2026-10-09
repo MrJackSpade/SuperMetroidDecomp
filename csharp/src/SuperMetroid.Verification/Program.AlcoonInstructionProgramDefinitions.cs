@@ -5,8 +5,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Room header used to load the retail Alcoon instruction and visual audit fixture.</summary>
     private const ushort AlcoonInstructionAuditRoom = 0x93aa;
 
+    /// <summary>Compares all compiled Alcoon mechanics words and their byte ownership with the retail cartridge.</summary>
+    /// <param name="rom">Cartridge address space used to read the reference instruction words.</param>
     private static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -56,6 +59,8 @@ internal static partial class Program
                 "Alcoon mechanics ordinal bounds");
     }
 
+    /// <summary>Lists the native instruction operands that select Alcoon's presentation frames.</summary>
+    /// <returns>The ordered bank-$A8 addresses of the presentation words.</returns>
     private static ushort[] AlcoonPresentationAddressOracle() =>
         [
             0xdbeb,0xdbf1,0xdbf7,0xdbfd,
@@ -66,6 +71,7 @@ internal static partial class Program
             0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
         ];
 
+    /// <summary>Checks the compiled presentation-word count, address order, complete membership domain, and ordinal bounds.</summary>
     private static void VerifyAlcoonPresentationAddressMapping()
     {
         ushort[] expected = AlcoonPresentationAddressOracle();
@@ -82,6 +88,8 @@ internal static partial class Program
                 "Alcoon presentation ordinal bounds");
     }
 
+    /// <summary>Compares Alcoon's visual operands with native spritemap pointers and checks selector rejection for gaps.</summary>
+    /// <param name="rom">Cartridge address space containing the expected visual operand words.</param>
     private static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = AlcoonPresentationAddressOracle();
@@ -110,12 +118,16 @@ internal static partial class Program
                 "Alcoon distant invalid visual operand");
     }
 
+    /// <summary>Loads the retail ROM and exercises Alcoon's compiled instruction programs in their room fixture.</summary>
     private static void VerifyAlcoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs Alcoon's native room programs while checking movement callbacks and that compiled data replaces ROM reads.</summary>
+    /// <param name="rom">Retail cartridge address space used to construct the room and reference its assets.</param>
+    /// <param name="installedArt">Optional installed artwork catalog for the stricter visual-source isolation path.</param>
     private static void VerifyAlcoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
@@ -221,6 +233,8 @@ internal static partial class Program
               "with mechanics and visual source bytes forbidden.");
     }
 
+    /// <summary>Repeatedly resolves compiled Alcoon instruction words so the caller can measure warmed lookup allocations.</summary>
+    /// <returns>A checksum that makes the word lookups observable.</returns>
     private static int ProbeAlcoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -244,6 +258,10 @@ internal static partial class Program
         return checksum;
     }
 
+    /// <summary>Reads one little-endian instruction word from the Alcoon bank in the supplied cartridge space.</summary>
+    /// <param name="source">Cartridge address space containing bank-$A8 data.</param>
+    /// <param name="address">Bank-local address of the first byte.</param>
+    /// <returns>The two bytes combined into a 16-bit word.</returns>
     private static ushort ReadAlcoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
@@ -251,14 +269,25 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
+    /// <summary>Rejects compiled mechanics reads and tracks or rejects native presentation reads through a wrapped bus.</summary>
+    /// <param name="source">Underlying address space for reads and writes that the guard permits.</param>
+    /// <param name="forbidPresentation"><see langword="true"/> to throw on presentation-word reads; otherwise record them for auditing.</param>
     private sealed class AlcoonInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Presentation operands observed when the guard is configured to record rather than reject them.</summary>
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
+        /// <summary>Count of attempts to read bytes owned by the compiled mechanics catalog.</summary>
         internal int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes cartridge reads through the guard's mechanics and presentation checks.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects mechanics reads, then records or rejects presentation operands before forwarding other reads.</summary>
+        /// <param name="address">SNES bus address to read.</param>
+        /// <returns>The byte returned by the wrapped address space for an allowed read.</returns>
         public byte ReadByte(int address)
         {
             if (AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
@@ -292,6 +321,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards a memory write to the wrapped address space.</summary>
+        /// <param name="address">SNES bus address to write.</param>
+        /// <param name="value">Byte to store at that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

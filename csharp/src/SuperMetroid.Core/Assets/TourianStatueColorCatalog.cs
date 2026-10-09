@@ -21,11 +21,20 @@ public sealed class TourianStatueColorCatalog
                 Enumerable.Range(0, TourianStatuePaletteRomData.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
         });
 
+    /// <summary>Selected base-decoration inks, resolved from stock paint data unless edited.</summary>
     private readonly PaletteBand baseColors;
+    /// <summary>Selected statue inks, resolved from stock paint data unless edited.</summary>
     private readonly PaletteBand statueColors;
+    /// <summary>Selected boss-eye inks, flattened in boss-row then color order.</summary>
     private readonly PaletteBand eyeColors;
+    /// <summary>Selected grey-transition inks, resolved from stock paint data unless edited.</summary>
     private readonly PaletteBand greyColors;
 
+    /// <summary>Creates palette bands from validated packed RGB5 words.</summary>
+    /// <param name="baseColors">Selected base-decoration colors in native palette order.</param>
+    /// <param name="statueColors">Selected statue colors in native palette order.</param>
+    /// <param name="eyeColors">Four boss rows of selected eye colors.</param>
+    /// <param name="greyColors">Selected grey-transition colors in native order.</param>
     private TourianStatueColorCatalog(ushort[] baseColors, ushort[] statueColors,
         ushort[][] eyeColors, ushort[] greyColors)
     {
@@ -35,6 +44,7 @@ public sealed class TourianStatueColorCatalog
         this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
     }
 
+    /// <summary>Serializer policy shared by loading and writing the versioned palette document.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -118,6 +128,12 @@ public sealed class TourianStatueColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates one palette band and packs each RGB5 triplet into a SNES color word.</summary>
+    /// <param name="colors">Editable channel values for the band.</param>
+    /// <param name="count">Required number of colors in the band.</param>
+    /// <param name="label">Band name included in validation errors.</param>
+    /// <returns>Packed RGB5 words in the same order as the input colors.</returns>
+    /// <exception cref="InvalidDataException">The band has the wrong length or contains a missing or out-of-range color.</exception>
     private static ushort[] Compile(PaletteRgb5[]? colors, int count, string label)
     {
         if (colors is null || colors.Length != count)
@@ -137,9 +153,16 @@ public sealed class TourianStatueColorCatalog
     /// <summary>One independent installed domain: stock colors calculate; arbitrary supplied words own sparse overrides.</summary>
     private sealed class PaletteBand
     {
+        /// <summary>Paint-data domain used to calculate colors without explicit edits.</summary>
         private readonly TourianStatuePaintBand band;
+        /// <summary>Number of color slots in this independently edited palette domain.</summary>
         private readonly int count;
+        /// <summary>Only supplied colors that differ from the calculated stock values.</summary>
         private readonly Dictionary<int, ushort> edits = [];
+
+        /// <summary>Tracks supplied overrides while leaving stock-matching colors calculated.</summary>
+        /// <param name="band">Stock paint domain used as the fallback for unedited slots.</param>
+        /// <param name="supplied">Packed selected color words in this band's order.</param>
         internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<ushort> supplied)
         {
             this.band = band;
@@ -147,23 +170,34 @@ public sealed class TourianStatueColorCatalog
             for (int color = 0; color < count; color++)
                 if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(color, supplied[color]);
         }
+        /// <summary>Resolves one slot from its explicit edit or the corresponding stock paint value.</summary>
+        /// <param name="color">Zero-based color slot within this band.</param>
+        /// <returns>The selected packed RGB5 color word.</returns>
+        /// <exception cref="IndexOutOfRangeException">The slot is outside this band.</exception>
         internal ushort Read(int color)
         {
             if ((uint)color >= count) throw new IndexOutOfRangeException();
             return edits.TryGetValue(color, out ushort edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
+        /// <summary>Materializes the complete selected band, including calculated stock slots.</summary>
+        /// <returns>A new array containing colors in band order.</returns>
         internal ushort[] Words()
         {
             var result = new ushort[count];
             for (int color = 0; color < count; color++) result[color] = Read(color);
             return result;
         }
+        /// <summary>Writes every selected slot to consecutive CGRAM entries starting at the supplied index.</summary>
+        /// <param name="destination">CGRAM palette to update.</param>
+        /// <param name="firstColor">Index receiving slot zero of this band.</param>
         internal void Apply(SnesCgram destination, int firstColor)
         {
             ArgumentNullException.ThrowIfNull(destination);
             for (int color = 0; color < count; color++) destination.SetColor(firstColor + color, Read(color));
         }
     }
+    /// <summary>Rejects duplicate property names before JSON deserialization can discard earlier values.</summary>
+    /// <param name="value">JSON root element whose object properties are checked.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Tourian statue color property."));

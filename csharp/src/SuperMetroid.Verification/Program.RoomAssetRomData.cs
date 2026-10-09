@@ -260,15 +260,24 @@ internal static partial class Program
             "and padding edits are rejected.");
     }
 
+    /// <summary>Wraps the room loader's memory view and fails if it rereads compiled character graphics.</summary>
+    /// <param name="source">Underlying cartridge and mutable memory providers.</param>
+    /// <param name="areaCharacters">Retail source address of the active tileset's character stream.</param>
     private sealed class RoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Rejects forbidden character-source access before delegating the ordinary bus read.</summary>
+        /// <param name="address">CPU bus address requested by the room loader.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
         public byte ReadByte(int address)
         {
             RejectCharacterRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Rejects forbidden character-source access before delegating the cartridge read.</summary>
+        /// <param name="address">Cartridge address requested by the room loader.</param>
+        /// <returns>The byte supplied by the wrapped cartridge source.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectCharacterRead(address);
@@ -277,18 +286,29 @@ internal static partial class Program
                 .ReadCartridgeByte(address);
         }
 
+        /// <summary>Reads mutable work RAM through the wrapped memory provider.</summary>
+        /// <param name="address">CPU address of the work-RAM byte.</param>
+        /// <returns>The current work-RAM byte.</returns>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Room character guard requires WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads save RAM through the wrapped memory provider.</summary>
+        /// <param name="address">CPU address of the save-RAM byte.</param>
+        /// <returns>The current save-RAM byte.</returns>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Room character guard requires SRAM."))
             .ReadSaveRamByte(address);
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Throws when a read targets CRE graphics or the active room-character stream.</summary>
+        /// <param name="address">Address being checked before delegation.</param>
         private void RejectCharacterRead(int address)
         {
             if (address != RoomAssetRomData.Tilesets.CreCharactersAddress &&
@@ -298,27 +318,38 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Prevents room loading from rereading the compiled tileset-definition records.</summary>
+    /// <param name="source">Underlying cartridge and mutable memory providers.</param>
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
         : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         // The guarded range begins at graphics set zero's native definition, located once
         // through the unguarded source's pointer table.
+        /// <summary>Start of the forbidden contiguous definition range, resolved from graphics set zero's pointer.</summary>
         private readonly int firstDefinitionAddress = RoomAssetRomData.Tilesets.DefinitionBank |
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source),
                 RoomAssetRomData.Tilesets.PointerTableAddress);
 
+        /// <summary>Rejects guarded definition reads before forwarding an ordinary bus read.</summary>
+        /// <param name="address">CPU bus address requested by the room loader.</param>
+        /// <returns>The byte supplied by the wrapped address space.</returns>
         public byte ReadByte(int address)
         {
             RejectDefinitionRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Rejects guarded definition reads before forwarding a cartridge read.</summary>
+        /// <param name="address">Cartridge address requested by the room loader.</param>
+        /// <returns>The byte supplied by the wrapped cartridge source.</returns>
         public byte ReadCartridgeByte(int address)
         {
             RejectDefinitionRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Throws when an address falls within the compiled tileset-definition record range.</summary>
+        /// <param name="address">Cartridge address to test against the guarded range.</param>
         private void RejectDefinitionRead(int address)
         {
             int end = RoomAssetRomData.Tilesets.PointerTableAddress +
@@ -328,14 +359,26 @@ internal static partial class Program
                     $"Room loader reread compiled tileset definition data at ${address:X6}.");
         }
 
+        /// <summary>Forwards a write to the underlying address space.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte to store.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
         // Room scroll storage keeps WRAM bytes across rooms; WRAM is not guarded cartridge data.
+        /// <summary>Reads work RAM without applying the cartridge-definition guard.</summary>
+        /// <param name="cpuAddress">CPU address of the work-RAM byte.</param>
+        /// <returns>The current work-RAM byte.</returns>
         public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
 
+        /// <summary>Reads save RAM without applying the cartridge-definition guard.</summary>
+        /// <param name="cpuAddress">CPU address of the save-RAM byte.</param>
+        /// <returns>The current save-RAM byte.</returns>
         public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
     }
 
+    /// <summary>Checks that a library tilemap transfer uses matching WRAM source/destination and stays within WRAM and VRAM.</summary>
+    /// <param name="transfer">Authored transfer range being validated.</param>
+    /// <param name="description">Label used to identify the checked transfer in assertion output.</param>
     private static void ValidateTilemapTransfer(
         RoomAssetRomData.TilemapTransfer transfer,
         string description)

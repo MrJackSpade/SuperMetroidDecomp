@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Kraid palettes against cartridge data and verifies consumer reads stay asset-backed.</summary>
+    /// <param name="rom">Cartridge import address space used as the reference palette source.</param>
+    /// <param name="directory">Directory containing the installed stock artwork assets.</param>
+    /// <param name="stock">Loaded stock artwork catalog whose Kraid colors are being verified.</param>
     private static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -118,6 +122,10 @@ internal static partial class Program
 
     // Independent palette writes from pinned sm_a7.c. This fixture's zero health
     // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    /// <summary>Builds expected CGRAM contents from the pinned cartridge palette tables for one consumer path.</summary>
+    /// <param name="rom">Address space used to read the native palette words.</param>
+    /// <param name="consumer">Kraid palette operation whose native output is reconstructed.</param>
+    /// <returns>A full CGRAM color array with the selected consumer's writes applied.</returns>
     private static ushort[] ReferenceKraidPaletteConsumer(
         ISnesAddressSpace rom, KraidPaletteConsumer consumer)
     {
@@ -168,6 +176,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Invokes the production Kraid palette path and captures its resulting CGRAM image.</summary>
+    /// <param name="bus">Guarded SNES address space supplied to the enemy system.</param>
+    /// <param name="artwork">Artwork catalog providing installed palette colors.</param>
+    /// <param name="consumer">Palette operation to execute through the production method.</param>
+    /// <returns>A copy of all CGRAM colors after the selected operation.</returns>
     private static ushort[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
@@ -219,23 +232,40 @@ internal static partial class Program
         return cgram.Colors.ToArray();
     }
 
+    /// <summary>Production operations that consume Kraid's separately authored palette rows.</summary>
     private enum KraidPaletteConsumer
     {
+        /// <summary>Loads the room-backdrop colors for Kraid's encounter.</summary>
         BackdropLoad,
+        /// <summary>Loads Kraid's initial target palette band.</summary>
         InitialTargetLoad,
+        /// <summary>Advances the timed fade of the room backdrop palette.</summary>
         BackdropFade,
+        /// <summary>Writes the normal health-dependent body and secondary color bands.</summary>
         HealthNormal,
+        /// <summary>Writes the hurt-flash variants of the health-dependent palette bands.</summary>
         HealthFlash,
+        /// <summary>Reduces the temporary eye glow toward its native target colors.</summary>
         EyeUnglow,
+        /// <summary>Installs the arm palette used during Kraid's death animation.</summary>
         DeathArm,
     }
 
+    /// <summary>Address-space wrapper that rejects reads from palette regions covered by installed assets.</summary>
+    /// <param name="source">Underlying address space to serve allowed cartridge reads and writes.</param>
     private sealed class KraidPaletteSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Number of attempted reads from palette ranges that should be supplied by the asset catalog.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Routes a cartridge-source read through the palette-range guard.</summary>
+        /// <param name="address">Cartridge byte address requested by the caller.</param>
+        /// <returns>The byte read from the underlying source if the address is allowed.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads from Kraid palette ranges and forwards other reads to the wrapped address space.</summary>
+        /// <param name="address">SNES byte address requested by the caller.</param>
+        /// <returns>The underlying byte for an address outside guarded palette ranges.</returns>
         public byte ReadByte(int address)
         {
             foreach (KraidPaletteSource palette in Enum.GetValues<KraidPaletteSource>())
@@ -251,6 +281,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes unchanged to the wrapped address space.</summary>
+        /// <param name="address">SNES byte address to write.</param>
+        /// <param name="value">Byte stored at the requested address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -26,6 +26,9 @@ internal abstract class KraidFootInstructionProgramDefinitions
     /// <summary>Adjacent unreferenced fast-backwards program at $A7:893D.</summary>
     internal const ushort AdjacentUnusedFastBackward = 0x893d;
 
+    /// <summary>Emits the native initial, neutral, forward, lunge, and backward foot programs into mechanics and presentation selections.</summary>
+    /// <param name="words">Collector receiving instruction addresses and their timing or callback words.</param>
+    /// <param name="presentation">Collector receiving the presentation address associated with each emitted frame.</param>
     internal static void Generate(ref MechanicsSelection words, ref PresentationSelection presentation)
     {
         ushort cursor = Initial;
@@ -68,11 +71,21 @@ internal abstract class KraidFootInstructionProgramDefinitions
         throw new InvalidDataException($"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
+    /// <summary>Selects one generated mechanics word by stream index or address, optionally matching either byte of its address.</summary>
+    /// <param name="targetIndex">Zero-based emitted-word index to capture, or a negative value to disable index matching.</param>
+    /// <param name="targetAddress">Address of the word to capture, or a value outside the stream to disable address matching.</param>
+    /// <param name="includeHighByte">When true, also matches the second byte address of each emitted word.</param>
     internal struct MechanicsSelection(int targetIndex, int targetAddress, bool includeHighByte)
     {
+        /// <summary>Number of mechanics words passed to this collector so far.</summary>
         private int count;
+        /// <summary>Whether a word matched the configured index or address selector.</summary>
         internal bool Found;
+        /// <summary>The last mechanics word that matched the configured selector.</summary>
         internal InstructionMechanicsWord Selected;
+
+        /// <summary>Records a generated word and captures it when its index or address matches.</summary>
+        /// <param name="word">Mechanics address and value emitted by the instruction program.</param>
         internal void Add(InstructionMechanicsWord word)
         {
             if (count == targetIndex || word.Address == targetAddress ||
@@ -85,10 +98,17 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Captures one generated frame's presentation address by its zero-based frame index.</summary>
+    /// <param name="targetIndex">Frame index whose presentation address this collector retains.</param>
     internal struct PresentationSelection(int targetIndex)
     {
+        /// <summary>Number of frame presentation addresses passed to this collector so far.</summary>
         private int count;
+        /// <summary>Presentation address recorded for the configured frame index.</summary>
         internal ushort Selected;
+
+        /// <summary>Records a frame presentation address and retains it if the current index is selected.</summary>
+        /// <param name="address">Address of the presentation data associated with a generated frame.</param>
         internal void Add(ushort address)
         {
             if (count == targetIndex) Selected = address;
@@ -96,6 +116,12 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Emits a forward-walking or fast-lunge program, including vertical movement, impact sound, and its sleep terminator.</summary>
+    /// <param name="words">Collector receiving emitted instruction words.</param>
+    /// <param name="presentation">Collector receiving presentation addresses for emitted frames.</param>
+    /// <param name="cursor">Current program address, advanced as words and frames are emitted.</param>
+    /// <param name="fast">Selects the shorter lunge timing and its corresponding frame sequence when true.</param>
+    /// <param name="moveLeftInstruction">Horizontal movement callback used during the forward sequence.</param>
     private static void AddForwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -177,6 +203,10 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Emits the backward walk and return loop, including impact motion and the jump to its loop entry.</summary>
+    /// <param name="words">Collector receiving emitted instruction words.</param>
+    /// <param name="presentation">Collector receiving presentation addresses for emitted frames.</param>
+    /// <param name="cursor">Current program address, advanced as words and frames are emitted.</param>
     private static void AddBackwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -223,6 +253,11 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, WalkingBackward);
     }
 
+    /// <summary>Emits two consecutive callback words for vertical and horizontal movement within one animation interval.</summary>
+    /// <param name="words">Collector receiving the callbacks.</param>
+    /// <param name="cursor">Current program address, advanced after each emitted word.</param>
+    /// <param name="vertical">Vertical movement callback to emit first.</param>
+    /// <param name="horizontal">Horizontal movement callback to emit second.</param>
     private static void AddVerticalAndHorizontal(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -233,6 +268,10 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, horizontal);
     }
 
+    /// <summary>Appends one instruction word at the current native program address and advances the cursor by a word.</summary>
+    /// <param name="words">Collector receiving the instruction's address and value.</param>
+    /// <param name="cursor">Address at which the instruction is emitted, advanced by two bytes afterward.</param>
+    /// <param name="instruction">Instruction or callback word to store.</param>
     private static void AddInstruction(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -242,6 +281,11 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 2));
     }
 
+    /// <summary>Appends a frame duration, records its following presentation address, and advances past both words.</summary>
+    /// <param name="words">Collector receiving the duration word and its program address.</param>
+    /// <param name="presentation">Collector receiving the presentation address following this duration.</param>
+    /// <param name="cursor">Address of the duration word, advanced by the duration and presentation words.</param>
+    /// <param name="duration">Number of updates for which the associated frame is held.</param>
     private static void AddFrame(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -253,6 +297,10 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Ensures an emitted program ends at the next known native instruction-list address.</summary>
+    /// <param name="actual">Cursor reached after emitting the current program.</param>
+    /// <param name="expected">Address required by the following compiled program.</param>
+    /// <exception cref="InvalidDataException">The generated word count does not end at the expected native address.</exception>
     private static void RequireCursor(ushort actual, ushort expected)
     {
         if (actual != expected)

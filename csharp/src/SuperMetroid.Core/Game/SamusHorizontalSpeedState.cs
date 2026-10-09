@@ -580,6 +580,7 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoYPosition = secondY;
     }
 
+    /// <summary>Adds the native fixed-point 0.1000 increment to the extra run-speed pair.</summary>
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
@@ -587,6 +588,7 @@ public sealed class SamusHorizontalSpeedState
         ExtraRunSubspeed = unchecked((ushort)accelerated);
     }
 
+    /// <summary>Publishes the contact-damage selector while the boost counter is at stage four.</summary>
     private void PublishBoostContactDamage()
     {
         if ((SpeedBoostCounter & 0xff00) == 0x0400)
@@ -799,6 +801,10 @@ public sealed class SamusHorizontalSpeedState
         return ReadEntryAtAddress(bus, address);
     }
 
+    /// <summary>Reads an authored speed-table entry or the supported mutable low-bank alias.</summary>
+    /// <param name="bus">Address space used if the address resolves to live WRAM.</param>
+    /// <param name="address">Bank-$90 bus address of the twelve-byte entry.</param>
+    /// <returns>The six-word speed entry at the selected address.</returns>
     private static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
     {
         if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
@@ -848,6 +854,9 @@ public sealed class SamusHorizontalSpeedState
         return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 
+    /// <summary>Applies the selected acceleration or deceleration entry to the stored 16.16 base speed.</summary>
+    /// <param name="entry">ROM-authored increments and maximum for the current movement type.</param>
+    /// <returns>The updated unsigned 16.16 base speed.</returns>
     private uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
@@ -998,12 +1007,20 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
     public uint BaseFixed => Compose(BaseSpeed, BaseSubspeed);
 
+    /// <summary>Splits a 16.16 value into the native whole and fractional WRAM words.</summary>
+    /// <param name="value">Fixed-point value to store.</param>
     private void SetBaseFixed(uint value)
     {
         BaseSpeed = unchecked((ushort)(value >> 16));
         BaseSubspeed = unchecked((ushort)value);
     }
 
+    /// <summary>Compares two high/low word pairs using the cartridge's signed subtraction branches.</summary>
+    /// <param name="valueHigh">Whole-word portion of the value being tested.</param>
+    /// <param name="valueLow">Fractional-word portion of the value being tested.</param>
+    /// <param name="comparisonHigh">Whole-word portion of the comparison limit.</param>
+    /// <param name="comparisonLow">Fractional-word portion of the comparison limit.</param>
+    /// <returns>Whether the native branch sequence treats the value as greater.</returns>
     private static bool IsGreaterThanQuirked(
         ushort valueHigh,
         ushort valueLow,
@@ -1017,6 +1034,9 @@ public sealed class SamusHorizontalSpeedState
                (unchecked((short)(valueLow - comparisonLow)) >= 0 && valueLow != comparisonLow);
     }
 
+    /// <summary>Limits the signed whole-pixel displacement to the native range of -15 through 15.</summary>
+    /// <param name="displacement">Packed fixed-point displacement whose low word is preserved.</param>
+    /// <returns>The clamped value with its original fractional word.</returns>
     private static int ClampDisplacement(int displacement)
     {
         short high = unchecked((short)(displacement >> 16));
@@ -1035,11 +1055,21 @@ public sealed class SamusHorizontalSpeedState
         return unchecked((int)(((uint)(ushort)high << 16) | low));
     }
 
+    /// <summary>Combines native high and low words into an unsigned 16.16 value.</summary>
+    /// <param name="high">Whole-number word.</param>
+    /// <param name="low">Fractional word.</param>
+    /// <returns>The combined fixed-point value.</returns>
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
 }
 
 /// <summary>One native 12-byte <c>SamusSpeedTableEntry</c> from cartridge bank $90.</summary>
+/// <param name="Acceleration">High word of the fixed-point acceleration increment.</param>
+/// <param name="AccelerationSubspeed">Low word of the fixed-point acceleration increment.</param>
+/// <param name="MaximumSpeed">High word of the maximum base speed.</param>
+/// <param name="MaximumSubspeed">Low word of the maximum base speed.</param>
+/// <param name="Deceleration">High word of the fixed-point deceleration increment.</param>
+/// <param name="DecelerationSubspeed">Low word of the fixed-point deceleration increment.</param>
 public readonly record struct SpeedTableEntry(
     ushort Acceleration,
     ushort AccelerationSubspeed,
@@ -1053,4 +1083,6 @@ public readonly record struct SpeedTableEntry(
 }
 
 /// <summary>Value and 65816 carry returned by <c>$90:9B1F</c>.</summary>
+/// <param name="Speed">Updated fixed-point horizontal base speed.</param>
+/// <param name="ReachedMaximum">Whether the routine's carry result indicates that the speed limit was exceeded.</param>
 public readonly record struct AerialBaseSpeedResult(uint Speed, bool ReachedMaximum);

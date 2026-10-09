@@ -32,14 +32,25 @@ internal abstract class HopperInstructionProgramDefinitions
     /// <summary>$A3:AA94 and each landed program: last pose hold before ReadyToHop. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LandingFinalHold = 3;
 
+    /// <summary>Describes one authored hopper program's starting address, sound prefix, and airborne or landed phase.</summary>
+    /// <param name="Start">Native bank-$A3 address at which this program begins.</param>
+    /// <param name="Sound">Whether two sound-related words follow the off-screen-processing control word.</param>
+    /// <param name="Jumping">Whether the program is airborne and uses the single-pose hop cadence.</param>
     private readonly record struct ProgramDefinition(ushort Start, bool Sound, bool Jumping)
     {
+        /// <summary>Number of words before the program's frame poses, including any sound callback operands.</summary>
         internal int PrefixWords => Sound ? 3 : 1;
+        /// <summary>Number of timed poses: one airborne pose or four landed poses.</summary>
         internal int PoseCount => Jumping ? 1 : 4;
+        /// <summary>Total number of mechanics words, including prefix, poses, and the phase-specific tail.</summary>
         internal int WordCount => PrefixWords + PoseCount + (Jumping ? 1 : 2);
     }
 
     // Four species/size groups each contain airborne and landed programs for both orientations.
+    /// <summary>Resolves one of the sixteen compiled programs from its grouped species, size, phase, and orientation index.</summary>
+    /// <param name="index">Zero-based program index across the four species/size groups.</param>
+    /// <returns>Definition containing the program start address and its sound and movement-phase traits.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the sixteen compiled programs.</exception>
     private static ProgramDefinition ProgramAt(int index)
     {
         if ((uint)index >= 16) throw new IndexOutOfRangeException();
@@ -73,9 +84,15 @@ internal abstract class HopperInstructionProgramDefinitions
         return ProgramAt(group * 4 + (upsideDown ? 2 : 0) + (jumping ? 0 : 1)).Start;
     }
 
+    /// <summary>Total number of instruction, callback, timing, and flow-control words across all hopper programs.</summary>
     public static int MechanicsWordCount => 96;
+    /// <summary>Total number of interleaved spritemap operands selected from installed presentation artwork.</summary>
     public static int PresentationWordCount => 40;
 
+    /// <summary>Returns one indexed mechanics word from the concatenated hopper program streams.</summary>
+    /// <param name="index">Zero-based index in the 96-word mechanics stream.</param>
+    /// <returns>The native address and value of the selected mechanics word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the compiled mechanics stream.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -88,6 +105,10 @@ internal abstract class HopperInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Builds one mechanics entry from a program's sound prefix, pose timing, or control-flow tail.</summary>
+    /// <param name="program">Program traits used to select the word's address and value.</param>
+    /// <param name="index">Zero-based word offset within the program.</param>
+    /// <returns>The compiled address/value pair at that offset.</returns>
     private static InstructionMechanicsWord Word(ProgramDefinition program, int index)
     {
         if (index == 0)
@@ -115,6 +136,10 @@ internal abstract class HopperInstructionProgramDefinitions
                 : CommonEnemyInstructionCodes.Sleep);
     }
 
+    /// <summary>Returns the native address of one of the interleaved spritemap operands across hopper programs.</summary>
+    /// <param name="index">Zero-based index among the forty presentation words.</param>
+    /// <returns>Bank-$A3 address containing the selected spritemap operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the presentation word sequence.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -124,6 +149,9 @@ internal abstract class HopperInstructionProgramDefinitions
         return (ushort)(program.Start + program.PrefixWords * 2 + (pose == 0 ? 0 : pose - 1) * 4 + 2);
     }
 
+    /// <summary>Determines whether an address is one of the compiled spritemap operand locations.</summary>
+    /// <param name="address">Bank-$A3 instruction address to classify.</param>
+    /// <returns>True when the address selects a presentation word rather than mechanics.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -131,6 +159,10 @@ internal abstract class HopperInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves a native mechanics address to its compiled instruction, timing, sound, or flow-control word.</summary>
+    /// <param name="address">Bank-$A3 address to read from the compiled program set.</param>
+    /// <returns>The mechanics word stored at that address.</returns>
+    /// <exception cref="InvalidDataException">No compiled mechanics word has the requested address.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

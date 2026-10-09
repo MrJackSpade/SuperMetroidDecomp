@@ -9,6 +9,11 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Creates the production title state with optional installed gradient, palette, and graphics assets.</summary>
+    /// <param name="bus">Address-space context used by the title state for any cartridge-backed content.</param>
+    /// <param name="titleGradientPresentation">Optional extracted scanline gradients supplied to the title renderer.</param>
+    /// <param name="titlePalettePresentation">Optional installed title colors used for initialization and ambient effects.</param>
+    /// <param name="titleGraphicsPresentation">Optional installed Mode 7, OBJ, and Baby graphics used by the scene.</param>
     private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
@@ -16,6 +21,8 @@ internal static partial class Program
  =>
         RepositoryInstallation.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
+    /// <summary>Checks native gradient boundaries across zoom selections and invokes the related title presentation verifications.</summary>
+    /// <param name="bus">Cartridge address space containing the title gradient tables and related source assets.</param>
     private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
@@ -42,6 +49,8 @@ internal static partial class Program
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
 
+    /// <summary>Validates extracted title assets against cartridge data and compares installed graphics with the native title scene.</summary>
+    /// <param name="bus">Cartridge address space used as the extraction and native-render reference.</param>
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
         for (int address = TitleSequenceInstructionDefinitions.StartAddress;
@@ -214,6 +223,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks extracted initial title colors, skip-fade colors, and palette use without runtime cartridge rereads.</summary>
+    /// <param name="bus">Cartridge address space containing the title palette and ambient effect data.</param>
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.TitlePaletteExtractor.Extract(bus);
@@ -264,6 +275,9 @@ internal static partial class Program
             "initial cartridge source bytes.");
     }
 
+    /// <summary>Compares extracted ambient palette-FX frames with native colors and confirms installed effects avoid source rereads.</summary>
+    /// <param name="bus">Cartridge address space providing the native ambient palette colors.</param>
+    /// <param name="presentation">Extracted title palette containing the ambient colors under verification.</param>
     private static void VerifyExtractedTitleAmbientPalette(
         ISnesAddressSpace bus,
         TitlePalettePresentation presentation)
@@ -323,6 +337,8 @@ internal static partial class Program
             "installed title ambient loops avoid cartridge color reads");
     }
 
+    /// <summary>Checks rejection of malformed title palette documents, invalid colors, incomplete animations, and unknown fields.</summary>
+    /// <param name="extracted">Valid serialized title palette used as the basis for malformed-document variants.</param>
     private static void VerifyTitlePaletteValidation(byte[] extracted)
     {
         TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
@@ -381,6 +397,8 @@ internal static partial class Program
             "title palette rejects native-address escape hatch");
     }
 
+    /// <summary>Checks extracted gradient variants against the decoder and verifies production rendering uses installed gradient data.</summary>
+    /// <param name="bus">Cartridge address space used to extract and independently decode the native gradients.</param>
     private static void VerifyExtractedTitleGradient(ISnesAddressSpace bus)
     {
         var cartridgeReads = new HashSet<int>();
@@ -424,6 +442,8 @@ internal static partial class Program
             $"production avoided {cartridgeReads.Count} cartridge source bytes.");
     }
 
+    /// <summary>Checks rejection of invalid title gradient identities, scanline data, color channels, controls, and unknown fields.</summary>
+    /// <param name="extracted">Valid serialized title gradient used as the basis for malformed-document variants.</param>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
@@ -462,6 +482,12 @@ internal static partial class Program
             "title gradient rejects native-address escape hatch");
     }
 
+    /// <summary>Advances an installed title through its skip fade and captures the first rendered gradient with its zoom.</summary>
+    /// <param name="bus">Address space used by the title scene and its other required presentation bindings.</param>
+    /// <param name="presentation">Installed gradient variants supplied to the title renderer.</param>
+    /// <param name="palette">Installed title palette required to initialize the scene.</param>
+    /// <param name="graphics">Installed title graphics required to initialize the scene.</param>
+    /// <returns>The captured scanline colors and the title's selected Mode 7 zoom.</returns>
     private static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
         ISnesAddressSpace bus,
         TitleGradientPresentation presentation,
@@ -481,6 +507,7 @@ internal static partial class Program
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }
 
+    /// <summary>Checks that title color math applies only to eligible OBJ palettes and respects native five-bit subtraction.</summary>
     private static void VerifyTitleGradientObjectEligibility()
     {
         var oam = new OamBuffer();
@@ -512,25 +539,41 @@ internal static partial class Program
             TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
     }
 
+    /// <summary>Tracks title asset reads and can reject accesses to source bytes after their installed presentation is bound.</summary>
+    /// <param name="source">Address space that receives permitted reads and all writes.</param>
+    /// <param name="addresses">Set of cartridge addresses to collect or reject, depending on the guard mode.</param>
+    /// <param name="forbidReads">When true, throws for tracked addresses; otherwise records each requested address.</param>
     private sealed class TitlePresentationReadBus(
         ISnesAddressSpace source,
         HashSet<int> addresses,
         bool forbidReads) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Count of attempted reads from tracked addresses while rejection is enabled.</summary>
         public int ForbiddenReadAttempts { get; private set; }
 
+        /// <summary>Tracks a byte access and forwards it when it is permitted.</summary>
+        /// <param name="address">CPU address requested from the wrapped address space.</param>
+        /// <returns>The wrapped address-space byte for a permitted request.</returns>
+        /// <exception cref="InvalidOperationException">Read rejection is enabled and the address is tracked.</exception>
         public byte ReadByte(int address)
         {
             TrackRead(address);
             return source.ReadByte(address);
         }
 
+        /// <summary>Tracks a cartridge access before delegating to the wrapped cartridge import source.</summary>
+        /// <param name="address">Cartridge address requested by the caller.</param>
+        /// <returns>The byte returned by the wrapped import source.</returns>
+        /// <exception cref="InvalidOperationException">Read rejection is enabled and the address is tracked.</exception>
         public byte ReadCartridgeByte(int address)
         {
             TrackRead(address);
             return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
         }
 
+        /// <summary>Records an observed address or rejects it when the guard is configured to block the tracked set.</summary>
+        /// <param name="address">Address observed by one of the read methods.</param>
+        /// <exception cref="InvalidOperationException">Rejection is enabled and the address belongs to the guarded set.</exception>
         private void TrackRead(int address)
         {
             if (forbidReads && addresses.Contains(address))
@@ -543,6 +586,9 @@ internal static partial class Program
                 addresses.Add(address);
         }
 
+        /// <summary>Forwards writes to the wrapped address space without read tracking.</summary>
+        /// <param name="address">CPU address receiving the byte.</param>
+        /// <param name="value">Byte written to the wrapped address space.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

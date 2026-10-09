@@ -26,8 +26,11 @@ public enum LowerNorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
+    /// <summary>Physical enemy slot that owns this Rio actor's shared C/D/F variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed state projection over an existing enemy slot.</summary>
+    /// <param name="slot">Slot whose native variables back the Rio-specific state.</param>
     internal LowerNorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Last bank-$A2 instruction-list identity installed for this actor, native <c>Holtz.instList</c> at <c>$7E:7800,x</c>; distinct from the advancing cursor and prevents timer resets when the same list is requested again.</summary>
@@ -70,18 +73,24 @@ public sealed class LowerNorfairRioEnemyState
 /// <summary>Literal translation of Lower Norfair Rio AI $A2:C6D2-$C8B5.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer used to distinguish Lower Norfair Rio slots.</summary>
     internal const ushort LowerNorfairRioDefinition = 0xd33f;
 
+    /// <summary>Strict horizontal distance below which the idle Rio may begin an attack.</summary>
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
+    /// <summary>Per-frame decrement applied to the actor's signed 8.8 vertical velocity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
+    /// <summary>Library-two sound request emitted when the dive changes into its return ascent.</summary>
     private const ushort LowerNorfairRioReturnSound = 0x0064;
 
+    /// <summary>Per-slot Rio state projections, cleared when room enemy state is reset.</summary>
     private readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
         new LowerNorfairRioEnemyState?[MaximumEnemyCount];
 
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public ushort? LastLowerNorfairRioSoundEffect { get; private set; }
 
+    /// <summary>Discards Rio-specific slot projections and the prior frame's sound request.</summary>
     private void ResetLowerNorfairRioRoomState()
     {
         Array.Clear(_lowerNorfairRioStates);
@@ -260,6 +269,8 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Updates the flame follower from its preceding parent or deletes/hides it when the parent is unavailable.</summary>
+    /// <param name="follower">Follower slot whose position, visibility, and freeze timer mirror its parent.</param>
     private void FollowLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -286,6 +297,9 @@ public sealed partial class RoomEnemySystem
         follower.YPosition = unchecked((ushort)(parent.YPosition + 12));
     }
 
+    /// <summary>Starts the return ascent, seeds upward velocity, and publishes its sound request.</summary>
+    /// <param name="slot">Parent enemy slot entering the return phase.</param>
+    /// <param name="state">Rio state whose velocity and function are updated.</param>
     private void BeginLowerNorfairRioReturn(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
@@ -299,6 +313,10 @@ public sealed partial class RoomEnemySystem
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }
 
+    /// <summary>Moves the Rio horizontally and reverses its signed velocity after a blocking collision.</summary>
+    /// <param name="level">Room geometry used by the horizontal collision sweep.</param>
+    /// <param name="slot">Enemy slot whose position is moved.</param>
+    /// <param name="state">Rio state supplying the signed 8.8 horizontal velocity.</param>
     private void MoveLowerNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -313,6 +331,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Installs a new animation list and resets its timers only when the list identity changes.</summary>
+    /// <param name="slot">Enemy slot receiving the instruction pointer and fresh timers.</param>
+    /// <param name="state">State tracking the list most recently installed for this actor.</param>
+    /// <param name="instructionList">Bank-$A2 instruction-list address to install.</param>
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
@@ -326,6 +348,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Returns the physical slot immediately before a follower in the enemy-slot array.</summary>
+    /// <param name="follower">Follower whose preceding slot contains the expected parent.</param>
+    /// <returns>The preceding physical enemy slot.</returns>
+    /// <exception cref="InvalidDataException">The follower occupies slot zero and has no preceding slot.</exception>
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -336,6 +362,9 @@ public sealed partial class RoomEnemySystem
         return _slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Ensures a follower's preceding slot is a parent using the same Rio definition.</summary>
+    /// <param name="follower">Follower whose parent relationship must be valid.</param>
+    /// <exception cref="InvalidDataException">The preceding slot is not a non-follower Rio parent.</exception>
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -348,12 +377,19 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Rejects movement dispatch when room collision geometry is unavailable.</summary>
+    /// <param name="level">Room geometry required by the Rio's movement handlers.</param>
+    /// <exception cref="InvalidOperationException">No room level data was supplied.</exception>
     private static void RequireLowerNorfairRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
     }
 
+    /// <summary>Gets the initialized Rio state associated with an enemy slot.</summary>
+    /// <param name="slot">Enemy slot whose Rio state is requested.</param>
+    /// <returns>The state projection created during Rio initialization.</returns>
+    /// <exception cref="InvalidOperationException">The slot has no initialized Rio state.</exception>
     private LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
         _lowerNorfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Lower Norfair Rio state.");

@@ -32,15 +32,23 @@ namespace SuperMetroid.Core.Assets;
 /// This disposition covers only these full-body inputs, not other palettes.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
+    /// <summary>Explicit palette words retained where the authored full-body paint differs from shared derivation rules.</summary>
     private readonly Dictionary<int, ushort> colors;
     // Independent channel inputs for the seven remaining Speed Booster endpoints.
+    /// <summary>
+    /// Authored and derived RGB5 channel pairs for Power dim slots 1, 2, and 12 and bright slot 9,
+    /// plus Varia bright slot 10, Varia dim slot 12, and Gravity dim slot 2.
+    /// </summary>
     private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
+    /// <summary>Authored and derived channel pairs for Varia bright slot 10, Varia dim slot 12, and Gravity dim slot 2.</summary>
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
     /// <summary>Active-shinespark blue inputs at9C64/9C84 and9C50; Varia9E84 shares Power9C64.</summary>
     private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
     /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
     private readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
+    /// <summary>Builds the runtime lookup from validated palette words, retaining independent authored channel overrides.</summary>
+    /// <param name="palettes">All compiled suit, family, and shade palettes in canonical pointer order.</param>
     private SamusFullBodyCycleColorCatalog(ushort[][] palettes)
     {
         colors = new Dictionary<int, ushort>();
@@ -118,6 +126,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>Serializer settings shared by loading and writing full-body color documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -135,6 +144,9 @@ public sealed class SamusFullBodyCycleColorCatalog
         return ResolveIndex(index);
     }
 
+    /// <summary>Resolves a flattened palette/color index through explicit values, aliases, and cataloged channel formulas.</summary>
+    /// <param name="index">Canonical index formed from palette row and color slot.</param>
+    /// <returns>The resolved BGR555 color word.</returns>
     private ushort ResolveIndex(int index)
     {
         switch (index)
@@ -180,6 +192,9 @@ public sealed class SamusFullBodyCycleColorCatalog
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
 
+    /// <summary>Calculates the active-shine gold result used as the expected endpoint for one palette.</summary>
+    /// <param name="palette">Canonical palette index whose active-shine slot two is being derived.</param>
+    /// <returns>The calculated RGB5 word before its independently authored channel overrides are applied.</returns>
     private ushort ActiveGoldExpected(int palette)
     {
         _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
@@ -187,6 +202,10 @@ public sealed class SamusFullBodyCycleColorCatalog
         return value;
     }
 
+    /// <summary>Calculates a Screw Attack paint from its corresponding suit base and family-specific tint rule.</summary>
+    /// <param name="palette">Canonical Screw Attack palette index.</param>
+    /// <param name="color">Color slot whose base paint is used.</param>
+    /// <returns>The calculated RGB5 word before stored channel overrides are applied.</returns>
     private ushort ScrewExpected(int palette, int color)
     {
         ushort basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
@@ -240,6 +259,11 @@ public sealed class SamusFullBodyCycleColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates and converts one family of suit shades into canonical BGR555 palette rows.</summary>
+    /// <param name="destination">Palette array indexed by compiled palette pointer.</param>
+    /// <param name="family">Family whose data is being added.</param>
+    /// <param name="source">Three suits of four shades, each containing sixteen RGB5 colors.</param>
+    /// <exception cref="InvalidDataException">The family dimensions, channel ranges, or compiled pointer assignments are invalid.</exception>
     private static void AddFamily(ushort[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
@@ -274,6 +298,9 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>Rejects duplicate property names recursively before deserializing a color document.</summary>
+    /// <param name="value">JSON element tree to inspect.</param>
+    /// <exception cref="InvalidDataException">A property name occurs more than once in an object.</exception>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate full-body color property {name}."));

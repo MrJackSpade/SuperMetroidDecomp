@@ -36,10 +36,14 @@ internal static class MotherBrainGlassPlmDrawDefinitions
     /// columns before replacing the centre supports. Offsets are signed and absolute
     /// from the PLM origin. NTSC source: 84:9717..9846.
     /// </summary>
+    /// <param name="Pointer">Native draw-list pointer identifying one of the compiled glass states.</param>
     internal readonly record struct Draw(ushort Pointer)
     {
+        /// <summary>Whether this pointer describes one of the two full-pane damage layouts.</summary>
         private bool Pane => Pointer is PaneDamage1 or PaneDamage2;
+        /// <summary>Whether this pointer describes one of the later horizontally shifted pane layouts.</summary>
         private bool Shifted => Pointer is ShiftedPane1 or ShiftedPane2 or ShiftedPane3;
+        /// <summary>Number of horizontally offset draw runs in this glass state.</summary>
         internal int RunCount => Pointer switch
         {
             Initial or PaneTransition => 1,
@@ -47,10 +51,16 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             ShiftedPane1 or ShiftedPane2 => 3,
             _ => 4,
         };
+        /// <summary>Validates that a run index belongs to this draw state's run sequence.</summary>
+        /// <param name="run">Zero-based draw run index to validate.</param>
+        /// <exception cref="IndexOutOfRangeException">The index is outside this state's run count.</exception>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Returns the number of tile words emitted by one run, including shortened pane edges.</summary>
+        /// <param name="run">Zero-based draw run whose cells are counted.</param>
+        /// <returns>Number of encoded tile words in the selected run.</returns>
         internal int WordCount(int run)
         {
             CheckRun(run);
@@ -60,17 +70,26 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             if (Shifted) return run == 2 ? 2 : Pointer == ShiftedPane1 ? 4 : Pointer == ShiftedPane2 ? 3 : 2;
             return Pointer == Shatter1 && run >= 2 ? 2 : 4;
         }
+        /// <summary>Indicates whether the run's tile words use vertically reflected artwork.</summary>
+        /// <param name="run">Zero-based draw run being described.</param>
+        /// <returns>True when the run uses the vertical-flip attribute.</returns>
         internal bool Vertical(int run)
         {
             CheckRun(run);
             return Pointer != Initial && !(Shifted && run == 0);
         }
+        /// <summary>Returns the signed PLM-relative horizontal offset from this run to the following run.</summary>
+        /// <param name="run">Zero-based draw run whose successor offset is requested.</param>
+        /// <returns>Signed horizontal tile offset, or zero for the final run.</returns>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
             return Pane ? (sbyte)-1 : (sbyte)(run - 3);
         }
+        /// <summary>Returns the signed PLM-relative vertical offset from this run to the following run.</summary>
+        /// <param name="run">Zero-based draw run whose successor offset is requested.</param>
+        /// <returns>Signed vertical tile offset, or zero for the final run.</returns>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
@@ -78,6 +97,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             return (sbyte)(Pane || Shifted && (run != 0 || Pointer != ShiftedPane1) ||
                 Pointer == Shatter1 && run >= 1 ? 1 : 0);
         }
+        /// <summary>Computes the native tile, palette, flip, and collision word for a cell in a selected run.</summary>
+        /// <param name="run">Zero-based draw run containing the requested cell.</param>
+        /// <param name="cell">Zero-based cell within that run.</param>
+        /// <returns>Encoded PLM draw word for the requested cell.</returns>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -118,6 +141,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         }
     }
 
+    /// <summary>Creates a typed layout description when a pointer belongs to the compiled Mother Brain glass sequence.</summary>
+    /// <param name="pointer">Native bank-$84 glass draw-list pointer to classify.</param>
+    /// <param name="draw">Receives the matching run-layout descriptor, or the default descriptor when unsupported.</param>
+    /// <returns>True when the pointer names one of the eleven supported glass states.</returns>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = pointer is Initial or PaneDamage1 or PaneDamage2 or PaneTransition or
@@ -125,6 +152,8 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         draw = owned ? new(pointer) : default;
         return owned;
     }
+    /// <summary>Enumerates the native draw-list pointers in their authored glass-damage sequence.</summary>
+    /// <returns>The eleven supported pointers from the intact pane through the cleared frame.</returns>
     private static IEnumerable<ushort> Pointers()
     {
         yield return Initial;
@@ -139,6 +168,7 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         yield return Shatter3;
         yield return Cleared;
     }
+    /// <summary>Builds a temporary draw-list DTO for every supported glass state.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -151,6 +181,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         }
     }
     // Temporary artwork DTOs; gameplay calculates individual cells directly.
+    /// <summary>Builds the temporary run-and-cell representation for a supported native draw pointer.</summary>
+    /// <param name="pointer">Native bank-$84 glass draw-list pointer to resolve.</param>
+    /// <param name="list">Receives the generated layout when supported, or the default value otherwise.</param>
+    /// <returns>True when a compiled glass state exists for the pointer.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -165,6 +199,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
+    /// <summary>Resolves a stable artwork identifier to the corresponding temporary draw-list layout.</summary>
+    /// <param name="id">Visual identifier such as <c>pane-damage-1</c> or <c>shatter-3</c>.</param>
+    /// <param name="list">Receives the matching layout, or the default value when the identifier is unknown.</param>
+    /// <returns>True when the identifier matches one of the supported glass states.</returns>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())
@@ -172,6 +210,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         list = default;
         return false;
     }
+    /// <summary>Returns the stable artwork identifier used to address a supported native glass draw pointer.</summary>
+    /// <param name="pointer">Native bank-$84 glass draw-list pointer.</param>
+    /// <returns>Identifier used by installed glass artwork metadata.</returns>
+    /// <exception cref="InvalidDataException">The pointer does not identify a compiled glass state.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         Initial => "initial",

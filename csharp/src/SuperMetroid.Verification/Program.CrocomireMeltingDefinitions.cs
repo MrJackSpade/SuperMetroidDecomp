@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Cross-checks Crocomire's authored melt-column table and transfer records
+    /// against cartridge data, then verifies the production melting path uses compiled definitions.</summary>
+    /// <param name="rom">Retail address space supplying the reference data for these checks.</param>
     private static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         const int columnTable = 0xa49697;
@@ -31,6 +34,8 @@ internal static partial class Program
             "and source-table read guards pass.");
     }
 
+    /// <summary>Confirms the eight-mask cycle repeats across all 49 melt columns and rejects cursors outside that sequence.</summary>
+    /// <param name="rom">Cartridge address space containing the reference mask bytes.</param>
     private static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int cursor = 0; cursor < 49; cursor++)
@@ -40,9 +45,15 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
     }
+    /// <summary>Reads one little-endian word from the melt tables through the address-space interface.</summary>
+    /// <param name="bus">Address space containing the native table bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The word formed from the addressed byte and its successor.</returns>
     private static ushort CrocomireMeltNativeWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    /// <summary>Runs the header, copy-record, upload-record, and production-graphics checks for both melt passes.</summary>
+    /// <param name="rom">Cartridge address space used as the independent source of expected records.</param>
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(rom));
@@ -51,6 +62,8 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomireMeltingGraphicsProduction), () => VerifyCrocomireMeltingGraphicsProduction(rom));
     }
 
+    /// <summary>Checks each pass header's native fields, offsets, and association with its transfer stream.</summary>
+    /// <param name="rom">Cartridge address space containing the two pass headers.</param>
     private static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
         int index = 0;
@@ -79,6 +92,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Transfers(0), "header is not transfer start");
     }
 
+    /// <summary>Compares each parsed graphics-copy pair with the cartridge table and validates its terminator and bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the pass copy records.</param>
     private static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
     {
         foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
@@ -110,6 +125,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks parsed VRAM uploads against their native records, including stream termination and lookup alignment.</summary>
+    /// <param name="rom">Cartridge address space containing the pass upload streams.</param>
     private static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
     {
         foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
@@ -158,6 +175,8 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
     }
+    /// <summary>Exercises production melt-graphics initialization and upload delegates while guarding migrated ROM sources.</summary>
+    /// <param name="rom">Cartridge address space used for expected bytes and unblocked definition reads.</param>
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -229,6 +248,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks the production column-erasure sequence against a cartridge-derived bitplane and height map.</summary>
+    /// <param name="rom">Cartridge address space providing the expected column and mask sequence.</param>
     private static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
@@ -285,6 +306,11 @@ internal static partial class Program
             "Crocomire melt post-table cursor");
     }
 
+    /// <summary>Runs one installed graphics pass with migrated artwork reads blocked and returns its initialized scratch graphics.</summary>
+    /// <param name="rom">Cartridge address space providing reference bytes while forbidden installed-data reads are guarded.</param>
+    /// <param name="artwork">Installed enemy artwork catalog supplied to the production room system.</param>
+    /// <param name="pass">Transfer pass to initialize and upload.</param>
+    /// <returns>The scratch graphics produced by the production initializer.</returns>
     private static byte[] VerifyInstalledCrocomireMeltingPass(SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
@@ -325,6 +351,13 @@ internal static partial class Program
         return scratch;
     }
 
+    /// <summary>Runs the production tilemap initializer and checks its installed tilemap and VRAM copy.</summary>
+    /// <param name="rom">Cartridge address space used for the optional byte-for-byte reference comparison.</param>
+    /// <param name="artwork">Installed enemy artwork catalog supplied to the production room system.</param>
+    /// <param name="sourceAddress">Cartridge address of the tilemap data being initialized.</param>
+    /// <param name="bodyInstructionList">Crocomire body instruction-list pointer used by the initializer.</param>
+    /// <param name="compareRom">Whether to compare the installed words with the cartridge source.</param>
+    /// <returns>The initialized tilemap words copied from the working tilemap.</returns>
     private static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,
         int sourceAddress, ushort bodyInstructionList, bool compareRom = true)
@@ -368,12 +401,22 @@ internal static partial class Program
         return result;
     }
 
+    /// <summary>Address-space proxy that rejects reads from migrated Crocomire definitions and optionally installed artwork.</summary>
+    /// <param name="source">Underlying address space used for reads and writes that pass the guard.</param>
+    /// <param name="blockGraphics">Whether reads from installed tilemaps and graphics-copy sources are also rejected.</param>
     private sealed class CrocomireMeltingDefinitionReadGuard(
         ISnesAddressSpace source, bool blockGraphics = false) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Forwards importer cartridge reads through the same forbidden-range checks.</summary>
+        /// <param name="address">Cartridge address to read.</param>
+        /// <returns>The source byte when the address is permitted.</returns>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects migrated definition ranges and, when enabled, installed graphics sources before forwarding other reads.</summary>
+        /// <param name="address">Address to read from the wrapped space.</param>
+        /// <returns>The underlying byte for an allowed address.</returns>
+        /// <exception cref="InvalidOperationException">The requested address falls in a guarded definition or artwork range.</exception>
         public byte ReadByte(int address)
         {
             if (address is
@@ -403,6 +446,9 @@ internal static partial class Program
             return source.ReadByte(address);
         }
 
+        /// <summary>Forwards writes to the underlying address space without modifying the guard's read policy.</summary>
+        /// <param name="address">Address that receives the byte.</param>
+        /// <param name="value">Byte written to that address.</param>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

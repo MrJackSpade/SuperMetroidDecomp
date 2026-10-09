@@ -21,10 +21,25 @@ public sealed class CrocomireColorCatalog
         Append(content, Band.WallSpikes, "wallSpikes");
     });
 
-    private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
+    /// <summary>Separates Crocomire's independently editable palette transfers.</summary>
+    private enum Band
+    {
+        /// <summary>Eight body and head colors restored during nonwhite hurt updates.</summary>
+        FightBody,
+        /// <summary>Seventeen wall words installed during room initialization.</summary>
+        InitialWall,
+        /// <summary>Seventeen projectile words installed during room initialization.</summary>
+        InitialProjectile,
+        /// <summary>Sixteen OBJ colors installed for the skeleton arm during the wall-break sequence.</summary>
+        SkeletonArm,
+        /// <summary>Sixteen OBJ colors installed for the wall spikes at the rumble-script terminator.</summary>
+        WallSpikes
+    }
     // Only independently supplied differences are stored; every stock ink calculates.
+    /// <summary>Sparse RGB5 overrides keyed by transfer band and color index; absent entries use calculated stock colors.</summary>
     private readonly Dictionary<(Band Band, int Color), ushort> edits = [];
 
+    /// <summary>Builds each transfer from supplied words while storing only colors that differ from the native stock calculation.</summary>
     private CrocomireColorCatalog(ushort[] fightBody, ushort[] initialWall,
         ushort[] initialProjectile, ushort[] skeletonArm, ushort[] wallSpikes)
     {
@@ -45,6 +60,7 @@ public sealed class CrocomireColorCatalog
         Band.WallSpikes => CrocomirePaintDefinitions.WallSpikes(color),
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
+    /// <summary>Returns the number of words in the selected native palette transfer.</summary>
     private static int Count(Band band) => band switch
     {
         Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
@@ -54,12 +70,14 @@ public sealed class CrocomireColorCatalog
         _ => CrocomirePaletteRomData.WallSpikesCount,
     };
 
+    /// <summary>Adds the selected transfer's label and resolved color words to the presentation hash.</summary>
     private void Append(SelectedPresentationHash content, Band band, string label)
     {
         Span<ushort> transfer = stackalloc ushort[Count(band)];
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendWords(label, transfer);
     }
+    /// <summary>Enforces camel-case JSON property names, rejects unknown members, and emits readable documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -127,18 +145,21 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
+    /// <summary>Resolves one transfer color from its override or native stock calculation, rejecting indexes outside that transfer.</summary>
     private ushort Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue((band, index), out ushort edited) ? edited : Stock(band, index);
     }
 
+    /// <summary>Writes every resolved word in a transfer to consecutive CGRAM entries beginning at the native destination.</summary>
     private void Apply(SnesCgram cgram, Band band, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < Count(band); color++)
             cgram.SetColor(destination + color, Get(band, color));
     }
+    /// <summary>Validates a transfer's exact length and RGB5 channels, then packs each color into a 15-bit SNES word.</summary>
     private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -156,6 +177,7 @@ public sealed class CrocomireColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON object properties using ordinal, case-sensitive name comparison.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crocomire color property {name}."));

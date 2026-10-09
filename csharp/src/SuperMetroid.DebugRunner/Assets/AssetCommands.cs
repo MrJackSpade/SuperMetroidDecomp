@@ -5,8 +5,12 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 
+/// <summary>Implements the DebugRunner's asset installation, extraction, and preview command routes.</summary>
 internal static class AssetCommands
 {
+/// <summary>Dispatches an asset subcommand and returns its command-line exit status.</summary>
+/// <param name="args">Arguments following the DebugRunner's <c>assets</c> command name.</param>
+/// <returns>Zero after a successful operation, two for invalid usage, or one when an operation fails.</returns>
 public static int Run(string[] args)
 {
 try
@@ -179,6 +183,10 @@ catch (Exception exception)
 
 }
 
+/// <summary>Resolves a user path against the working directory or the discovered repository root.</summary>
+/// <param name="argument">Absolute or relative path supplied to an asset command.</param>
+/// <param name="mustAlreadyExist">Whether an existing file or directory is required for working-directory resolution.</param>
+/// <returns>The normalized absolute path selected for the command.</returns>
 static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
 {
     ArgumentException.ThrowIfNullOrWhiteSpace(argument);
@@ -217,6 +225,10 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
 }
 
+/// <summary>Parses the audio-replacement loop policy accepted by the command line.</summary>
+/// <param name="value">Either <c>preserve</c>, <c>none</c>, or a non-negative loop sample index.</param>
+/// <returns>The typed loop replacement policy for the audio installer.</returns>
+/// <exception cref="ArgumentException">The value is not one of the supported policies.</exception>
 static PcmSampleLoopReplacement ParseLoopReplacement(string value)
 {
     if (value.Equals("preserve", StringComparison.OrdinalIgnoreCase))
@@ -232,6 +244,9 @@ static PcmSampleLoopReplacement ParseLoopReplacement(string value)
         $"Replacement loop '{value}' must be 'preserve', 'none', or a non-negative PCM sample index.");
 }
 
+/// <summary>Checks whether a path contains the repository's standalone asset directory marker.</summary>
+/// <param name="path">Path whose normalized segments are inspected.</param>
+/// <returns><see langword="true"/> when the path is or contains a <c>standalone-assets</c> segment.</returns>
 static bool ContainsStandaloneAssetsSegment(string path)
 {
     string normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -241,6 +256,8 @@ static bool ContainsStandaloneAssetsSegment(string path)
             StringComparison.OrdinalIgnoreCase);
 }
 
+/// <summary>Searches upward from the process working and application directories for the solution root.</summary>
+/// <returns>The repository directory when the solution marker is found; otherwise, <see langword="null"/>.</returns>
 static string? FindRepositoryRoot()
 {
     // AppContext.BaseDirectory handles a directly launched Debug/Release executable;
@@ -258,6 +275,10 @@ static string? FindRepositoryRoot()
     return null;
 }
 
+/// <summary>Validates that an extracted raw-asset directory includes the required Landing Site level data.</summary>
+/// <param name="path">Directory expected to contain the private raw asset extraction.</param>
+/// <exception cref="DirectoryNotFoundException">The directory does not exist.</exception>
+/// <exception cref="FileNotFoundException">The required Landing Site level data is absent.</exception>
 static void RequireRawAssetDirectory(string path)
 {
     if (!Directory.Exists(path))
@@ -280,6 +301,12 @@ static void RequireRawAssetDirectory(string path)
     }
 }
 
+/// <summary>Expands a complete compressed stream only when its decoded size aligns with the asset format.</summary>
+/// <param name="stored">Bytes read from the extracted asset file.</param>
+/// <param name="palette">Whether the data is a BGR555 palette whose words occupy two bytes.</param>
+/// <param name="format">Tile encoding used to determine decoded alignment, if the file contains visual tiles.</param>
+/// <param name="compressed">Receives whether a valid expanded stream was selected.</param>
+/// <returns>Decoded bytes for a valid aligned stream, or the original bytes when they should remain unchanged.</returns>
 static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format, out bool compressed)
 {
     compressed = false;
@@ -302,6 +329,9 @@ static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format
     return candidate;
 }
 
+/// <summary>Identifies whether a semantically named extracted file can be rendered as a tile sheet.</summary>
+/// <param name="name">Asset filename without its extension.</param>
+/// <returns>The planar or Mode 7 pixel encoding for visual tile assets; otherwise, <see langword="null"/>.</returns>
 static TileFormat? ClassifyTileFormat(string name)
 {
     // These prefixes come from semantic labels in the annotated disassembly. Tile tables,
@@ -322,8 +352,19 @@ static TileFormat? ClassifyTileFormat(string name)
     return TileFormat.Planar4Bpp;
 }
 
-internal enum TileFormat { Planar2Bpp, Planar4Bpp, Mode7 }
+/// <summary>Pixel storage formats supported by the standalone tile-sheet preview decoder.</summary>
+internal enum TileFormat
+{
+    /// <summary>SNES planar tiles with two bitplanes and four palette indexes.</summary>
+    Planar2Bpp,
+    /// <summary>SNES planar tiles with four bitplanes and sixteen palette indexes.</summary>
+    Planar4Bpp,
+    /// <summary>Chunky eight-bit pixels used by Mode 7 tiles.</summary>
+    Mode7
+}
 
+/// <summary>One raw asset's optional generated PNG path in the inventory manifest.</summary>
+/// <param name="Png">Relative preview image path, or null when the asset has no supported visual preview.</param>
 internal sealed record AssetRecord(
     string? Png);
 

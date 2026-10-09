@@ -88,6 +88,8 @@ public static class GitHubErrorReporterSmokeTest
             client.CreatedIssues.Count);
     }
 
+    /// <summary>Builds before/after gameplay snapshots and checks that the reported failure payload preserves both states and replay context.</summary>
+    /// <returns>Formatted diagnostics for the captured frame failure.</returns>
     private static string VerifyFrameFailureSnapshot()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -122,6 +124,7 @@ public static class GitHubErrorReporterSmokeTest
         return diagnostics;
     }
 
+    /// <summary>Checks that repeated audio failures are reported once and do not prevent later frame attempts.</summary>
     private static void VerifyAudioRecovery()
     {
         var recovery = new AudioFrameRecovery();
@@ -147,6 +150,9 @@ public static class GitHubErrorReporterSmokeTest
         Console.WriteLine("PASS audio recovery: repeated failure, reporting disabled, failed reporter, deduplication and subsequent successful frame.");
     }
 
+    /// <summary>Captures a deterministic invalid-data exception with the supplied fixture message.</summary>
+    /// <param name="message">Diagnostic text stored in the exception.</param>
+    /// <returns>The thrown exception instance, including its captured stack trace.</returns>
     private static Exception CaptureFixtureException(string message)
     {
         try
@@ -159,26 +165,43 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
+    /// <summary>Fails the smoke test when a required reporter invariant is false.</summary>
+    /// <param name="condition">Invariant that must hold.</param>
+    /// <param name="message">Failure description used by the thrown exception.</param>
     private static void Require(bool condition, string message)
     {
         if (!condition)
             throw new InvalidOperationException(message);
     }
 
+    /// <summary>In-memory issue client that records reporter operations without contacting GitHub.</summary>
     private sealed class RecordingIssueClient : IGitHubIssueClient
     {
+        /// <summary>Comment bodies submitted for existing issues.</summary>
         public List<string> Comments { get; } = [];
+        /// <summary>Records an issue-comment request and completes without external I/O.</summary>
+        /// <param name="repository">Repository identifier supplied by the reporter.</param>
+        /// <param name="issueUrl">Existing issue receiving the comment.</param>
+        /// <param name="body">Comment text to record.</param>
+        /// <returns>A completed task after recording the request.</returns>
         public Task CommentAsync(string repository, string issueUrl, string body)
         {
             Comments.Add(body);
             return Task.CompletedTask;
         }
+        /// <summary>Fingerprints treated as already present in the remote issue tracker.</summary>
         public HashSet<string> ExistingFingerprints { get; } = new(StringComparer.Ordinal);
 
+        /// <summary>Fingerprint lookups requested by the reporter in call order.</summary>
         public List<string> FindCalls { get; } = [];
 
+        /// <summary>Issue title and body pairs created by the reporter.</summary>
         public List<CreatedIssue> CreatedIssues { get; } = [];
 
+        /// <summary>Records a fingerprint lookup and returns a fixture issue URL only for configured existing fingerprints.</summary>
+        /// <param name="repository">Repository identifier supplied by the reporter.</param>
+        /// <param name="fingerprint">Stable identifier to look up.</param>
+        /// <returns>The fake issue URL when the fingerprint is configured as existing; otherwise <see langword="null"/>.</returns>
         public Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
         {
             FindCalls.Add(fingerprint);
@@ -188,6 +211,11 @@ public static class GitHubErrorReporterSmokeTest
             return Task.FromResult(result);
         }
 
+        /// <summary>Records an issue creation request and returns a deterministic fixture URL.</summary>
+        /// <param name="repository">Repository identifier supplied by the reporter.</param>
+        /// <param name="title">Issue title to record.</param>
+        /// <param name="body">Issue body to record.</param>
+        /// <returns>A completed task containing the fake issue URL.</returns>
         public Task<string> CreateAsync(string repository, string title, string body)
         {
             CreatedIssues.Add(new CreatedIssue(title, body));
@@ -195,6 +223,9 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
+    /// <summary>Issue content captured by the fake client when the reporter creates a new issue.</summary>
+    /// <param name="Title">Title supplied in the create request.</param>
+    /// <param name="Body">Body supplied in the create request.</param>
     private sealed record CreatedIssue(string Title, string Body);
 }
 

@@ -6,10 +6,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored, mirrored eye-door PLM family.</summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Persistent room-system state used to test and set opened-door bits for eye-door PLMs.</summary>
     private Bank80SystemState? _eyeDoorSystem;
+    /// <summary>Provider for Samus state used by eye-door proximity bytecode.</summary>
     private Func<SamusState?>? _eyeDoorSamus;
+    /// <summary>Host callback that creates bank-$86 projectiles requested by eye-door instructions.</summary>
     private Action<EyeDoorProjectileRequest>? _spawnEyeDoorProjectile;
 
+    /// <summary>Determines whether a PLM header selects one of the eye, door, or bottom components in either orientation.</summary>
+    /// <param name="header">Native room PLM header pointer to classify.</param>
+    /// <returns>True for one of the six supported eye-door component headers.</returns>
     private static bool IsEyeDoorHeader(ushort header) => header is
         RoomPlmHeaders.EyeDoorEyeFacingRight or
         RoomPlmHeaders.EyeDoorFacingRight or
@@ -18,6 +24,11 @@ public sealed partial class RoomPlmSystem
         RoomPlmHeaders.EyeDoorFacingLeft or
         RoomPlmHeaders.EyeDoorBottomFacingLeft;
 
+    /// <summary>Creates component state and initializes collision blocks unless the room's persistent door bit is already open.</summary>
+    /// <param name="level">Active room collision allocation updated for a closed eye or door component.</param>
+    /// <param name="slot">Eye-door PLM slot whose header and room argument select its component and persistent bit.</param>
+    /// <exception cref="InvalidOperationException">The PLM system has no persistence owner for eye-door setup.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The slot header does not identify a supported eye-door component.</exception>
     private void SetupEyeDoorSlot(
         RoomLevelData level,
         PlmSlot slot)
@@ -65,6 +76,10 @@ public sealed partial class RoomPlmSystem
         WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
     }
 
+    /// <summary>Processes the eye door's door-bit wakeup and pending missile-hit pre-instructions.</summary>
+    /// <param name="slot">Eye-door PLM whose pre-instruction, hit state, and linked instruction pointer are updated.</param>
+    /// <exception cref="InvalidOperationException">A live eye door has no persistence owner.</exception>
+    /// <exception cref="InvalidDataException">The slot contains an untranslated pre-instruction.</exception>
     private void RunEyeDoorPreInstruction(PlmSlot slot)
     {
         if (slot.EyeDoor is null || slot.PreInstruction == 0)
@@ -116,6 +131,12 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Executes translated eye-door branches, hit thresholds, projectile requests, and blue-door conversions.</summary>
+    /// <param name="bus">Address space used to read operands from the native PLM instruction stream.</param>
+    /// <param name="level">Active room geometry used for proximity checks and collision updates.</param>
+    /// <param name="slot">PLM state whose instruction cursor and component state are being advanced.</param>
+    /// <param name="instruction">Native instruction word to dispatch.</param>
+    /// <returns>True when this method handled the instruction; false when another PLM handler must process it.</returns>
     private bool TryExecuteEyeDoorInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -248,6 +269,12 @@ public sealed partial class RoomPlmSystem
         }
     }
 
+    /// <summary>Reads an optional bytecode parameter, dispatches the requested projectile, and advances past its operands.</summary>
+    /// <param name="bus">Address space used to read a parameter operand when present.</param>
+    /// <param name="slot">PLM slot providing the cursor, block position, and room argument.</param>
+    /// <param name="definitionPointer">Native projectile definition requested by the bytecode.</param>
+    /// <param name="hasParameter">Whether the instruction stream contains a parameter word after its opcode.</param>
+    /// <exception cref="InvalidOperationException">No host projectile-spawn callback is installed.</exception>
     private void SpawnEyeDoorProjectile(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -262,6 +289,11 @@ public sealed partial class RoomPlmSystem
             slot.InstructionPointer + (hasParameter ? 4 : 2)));
     }
 
+    /// <summary>Forwards a projectile request with the PLM's room and block context to the installed spawn owner.</summary>
+    /// <param name="slot">PLM supplying the projectile's room argument and block location.</param>
+    /// <param name="definitionPointer">Native projectile definition to instantiate.</param>
+    /// <param name="parameter">Projectile-specific parameter already resolved from the instruction stream or effect rules.</param>
+    /// <exception cref="InvalidOperationException">No host projectile-spawn callback is installed.</exception>
     private void SpawnEyeDoorProjectile(
         PlmSlot slot,
         ushort definitionPointer,
@@ -276,6 +308,10 @@ public sealed partial class RoomPlmSystem
             slot.RoomArgument));
     }
 
+    /// <summary>Moves the eye PLM up one row and writes the two-row collision geometry for a directional blue door.</summary>
+    /// <param name="level">Room collision allocation receiving the door and extension blocks.</param>
+    /// <param name="slot">Eye PLM whose block index and instruction pointer are advanced.</param>
+    /// <param name="facing">Blue-door behavior value selecting the resulting orientation.</param>
     private static void ConvertEyeToBlueDoor(
         RoomLevelData level,
         PlmSlot slot,
@@ -296,6 +332,7 @@ public sealed partial class RoomPlmSystem
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
     }
 
+    /// <summary>Releases the persistence, Samus, and projectile owners bound for the current eye-door room.</summary>
     private void ResetEyeDoorState()
     {
         _eyeDoorSystem = null;
@@ -303,10 +340,15 @@ public sealed partial class RoomPlmSystem
         _spawnEyeDoorProjectile = null;
     }
 
+    /// <summary>Per-slot mutable hit state for one eye, door, or bottom component of an eye-door PLM.</summary>
+    /// <param name="component">Component identity selected by the slot's native PLM header.</param>
     private sealed class EyeDoorPlmState(EyeDoorComponent component)
     {
+        /// <summary>Eye-door component represented by this slot's state.</summary>
         public EyeDoorComponent Component { get; } = component;
+        /// <summary>Number of accepted hits accumulated by the component's native hit-counter instruction.</summary>
         public byte HitCounter { get; set; }
+        /// <summary>Whether projectile processing has recorded a hit for the pre-instruction to consume.</summary>
         public bool HasPendingHit { get; set; }
     }
 }

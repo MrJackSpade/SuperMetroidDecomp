@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Applies room-setup quake timers and escape event state for the selected callback.</summary>
     private void SetupEscapeRoomEffects(RoomSetupCallback setup)
     {
         // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms

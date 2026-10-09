@@ -11,7 +11,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Exports the native cannon-cover pose/OAM selectors and twelve character tiles.</summary>
 public static class SamusArmCannonArtworkFiles
 {
+    /// <summary>Names the manifest that pins the stock placement and tile files to their cartridge source.</summary>
     private const string ManifestFileName = "samus-arm-cannon-manifest.json";
+
+    /// <summary>Provides the strict camel-case JSON contract used to read and write the artwork manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -131,6 +134,11 @@ public static class SamusArmCannonArtworkFiles
         }
     }
 
+    /// <summary>Records the format, cartridge provenance, and content hashes required to admit the stock arm-cannon artwork.</summary>
+    /// <param name="Version">Artwork-format version expected by the placement and tile loaders.</param>
+    /// <param name="SourceCartridgeSha256">SHA-256 identity of the cartridge from which the stock artwork was extracted.</param>
+    /// <param name="JsonSha256">SHA-256 digest of the stock placement JSON.</param>
+    /// <param name="PngSha256">SHA-256 digest of the stock indexed tile image.</param>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         string JsonSha256, string PngSha256);
 }

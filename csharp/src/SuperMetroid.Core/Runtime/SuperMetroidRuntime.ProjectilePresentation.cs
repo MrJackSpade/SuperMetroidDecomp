@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalledArtworkTransferSource
 {
+    /// <summary>Resolves a legacy bus-address transfer to matching installed immutable artwork when available.</summary>
+    /// <param name="sourceAddress">CPU bus address retained by the pending native queue record.</param>
+    /// <param name="byteCount">Exact transfer byte count requested by that record.</param>
+    /// <param name="data">Receives the selected installed bytes when an exact source/count pair is recognized.</param>
+    /// <returns>Whether the request matched a currently bound artwork source.</returns>
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
@@ -50,10 +55,12 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     }
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
+    /// <summary>Host-owned projectile OAM compositions; this visual data is excluded from save/debug snapshots.</summary>
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
     /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
     [field: NonSerialized]
     public RoomCharacterAtlas? StandardObjectArt { get; set; }
+    /// <summary>Host-selected frame mapping bound to both ordinary and bomb projectile owners.</summary>
     [NonSerialized] private ProjectileFrameBindingCatalog? projectileFrameBindings;
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
@@ -73,6 +80,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     /// <summary>Installed charge-flare OAM compositions selected independently of timing and damage.</summary>
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
+    /// <summary>Installed grapple sprites and associated presentation definitions.</summary>
     [NonSerialized] private GrappleTileAtlas? grappleArtwork;
     /// <summary>Current Grapple artwork and visual definitions. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
     public GrappleTileAtlas? GrappleArtwork
@@ -80,6 +88,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         get => grappleArtwork;
         set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); BindGrapplePresentation(); }
     }
+    /// <summary>Rebinds the active Samus grapple's visual-only swing and flare definitions.</summary>
     private void BindGrapplePresentation()
     {
         if (Samus is not null)
@@ -88,7 +97,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             Samus.Grapple.SwingFrames = grappleArtwork?.SwingFrames;
         }
     }
+    /// <summary>Installed projectile trail textures and frame compositions.</summary>
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+    /// <summary>Defers a newly bound trail-tile upload until after the legacy pending queue drains.</summary>
     [NonSerialized] private bool trailArtworkRefreshPending;
     /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
     public ProjectileTrailCatalog? TrailArtwork
@@ -96,7 +107,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         get => trailArtwork;
         set { trailArtwork = value; trailArtworkRefreshPending = value?.Tiles is not null; }
     }
+    /// <summary>Installed beam tile atlas and optional palette presentation data.</summary>
     [NonSerialized] private BeamTileCatalog? beamArtwork;
+    /// <summary>Defers new beam tiles/palettes to the next accepted display boundary.</summary>
     [NonSerialized] private bool beamArtworkRefreshPending;
 
     /// <summary>Current beam tiles. Rebinding changes the next accepted display, not the retained frame.</summary>
@@ -106,6 +119,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         set { beamArtwork = value; beamArtworkRefreshPending = value is not null; }
     }
 
+    /// <summary>Resolves an installed typed VRAM asset against the currently bound host artwork catalogs.</summary>
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) =>
         asset is VramAssetId.GunshipLiftoffFirstTiles or
             VramAssetId.GunshipLiftoffSecondTiles or
@@ -127,6 +141,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : (beamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
 
+    /// <summary>Uploads pending trail art after restored legacy writes have drained.</summary>
     private void PublishReboundTrailArtwork()
     {
         if (!trailArtworkRefreshPending) return;
@@ -136,6 +151,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         trailArtworkRefreshPending = false;
     }
 
+    /// <summary>Uploads the currently selected beam tiles and safe palette at the display boundary.</summary>
     private void PublishReboundBeamArtwork()
     {
         if (!beamArtworkRefreshPending || Samus is null) return;

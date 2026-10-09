@@ -36,8 +36,11 @@ public enum MaridiaLargeSnailBounceFunction : ushort
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
+    /// <summary>Physical enemy slot backing Oum's six native common variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the debugger projection over an initialized Oum slot.</summary>
+    /// <param name="slot">Physical enemy record whose common variables are exposed.</param>
     internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>
@@ -130,26 +133,42 @@ public sealed class MaridiaLargeSnailEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer identifying Maridia's large snail, Oum.</summary>
     internal const ushort MaridiaLargeSnailDefinition = 0xd37f;
 
+    /// <summary>Strict horizontal half-width of the Samus pushing range, in room pixels.</summary>
     private const ushort MaridiaLargeSnailPushingXDistance = 0x0018;
+    /// <summary>Strict vertical half-height of the Samus pushing range, in room pixels.</summary>
     private const ushort MaridiaLargeSnailPushingYDistance = 0x0020;
+    /// <summary>Strict horizontal range required to begin an attack while rolling.</summary>
     private const ushort MaridiaLargeSnailAttackXDistance = 0x0020;
+    /// <summary>Initial signed-underflow countdown between Oum's attacks.</summary>
     private const ushort MaridiaLargeSnailInitialAttackCooldown = 0x0080;
+    /// <summary>Number of floor impacts in the initial settling sequence.</summary>
     private const ushort MaridiaLargeSnailInitialBounceCount = 3;
+    /// <summary>Quadratic-speed selector increment applied during each bounce update.</summary>
     private const ushort MaridiaLargeSnailBounceAcceleration = 0x0180;
+    /// <summary>Maximum quadratic-speed selector during the falling arc.</summary>
     private const ushort MaridiaLargeSnailMaximumFallIndex = 0x4000;
+    /// <summary>Selector reduction applied after each floor impact.</summary>
     private const ushort MaridiaLargeSnailImpactIndexLoss = 0x1000;
+    /// <summary>Library-two sound requested when Oum splashes out of water.</summary>
     private const ushort MaridiaLargeSnailSplashSound = 0x000e;
+    /// <summary>Library-two sound requested by Oum's post-shot tail.</summary>
     private const ushort MaridiaLargeSnailShotSound = 0x0057;
+    /// <summary>Native AI callback for hitboxes that inflict contact damage.</summary>
     private const ushort MaridiaLargeSnailDamagingTouchAi =
         EnemyAiCodePointers.BankA2.MaridiaLargeSnailDamagingTouch;
+    /// <summary>Native AI callback for hitboxes that push Samus without damage.</summary>
     private const ushort MaridiaLargeSnailNonDamagingTouchAi =
         EnemyAiCodePointers.BankA2.MaridiaLargeSnailNonDamagingTouch;
+    /// <summary>Native AI callback run after Oum's common projectile-hit processing.</summary>
     private const ushort MaridiaLargeSnailShotAi =
         EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot;
+    /// <summary>Shared no-op hitbox callback used by Oum frames without a specialized response.</summary>
     private const ushort MaridiaLargeSnailNoOpHitboxAi = EnemyAiCodePointers.BankA0.NoOp;
 
+    /// <summary>Per-slot debugger state projections for initialized Oum enemies.</summary>
     private readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
         new MaridiaLargeSnailEnemyState?[MaximumEnemyCount];
 
@@ -159,6 +178,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
+    /// <summary>Clears Oum state projections and the frame's published sound request on room reset.</summary>
     private void ResetMaridiaLargeSnailRoomState()
     {
         Array.Clear(_maridiaLargeSnailStates);
@@ -235,6 +255,7 @@ public sealed partial class RoomEnemySystem
         UpdateMaridiaLargeSnailInputStop(slot, state, controllerInput);
     }
 
+    /// <summary>Finishes bounce settling, selects a facing idle list, and enters rolling within push range.</summary>
     private void RunMaridiaLargeSnailIdle(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -269,6 +290,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
+    /// <summary>Maintains floor contact, services the attack cooldown, and moves horizontally when not stopped.</summary>
     private void RunMaridiaLargeSnailRolling(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -326,6 +348,7 @@ public sealed partial class RoomEnemySystem
         MoveMaridiaLargeSnailHorizontally(slot, state, level);
     }
 
+    /// <summary>Waits for the private animation-finished callback before returning to the matching roll list.</summary>
     private static void RunMaridiaLargeSnailAttack(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
@@ -340,6 +363,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
+    /// <summary>Advances Oum's rising or falling quadratic arc and consumes a bounce on floor impact.</summary>
     private void RunMaridiaLargeSnailBounce(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -402,6 +426,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Moves using the native linear speed, temporarily reaching toward Samus and reversing on collision.</summary>
     private void MoveMaridiaLargeSnailHorizontally(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -440,6 +465,7 @@ public sealed partial class RoomEnemySystem
         InstallMaridiaLargeSnailInstructionList(slot, state);
     }
 
+    /// <summary>Recomputes the strict horizontal and vertical pushing window and Samus's side of Oum.</summary>
     private static void UpdateMaridiaLargeSnailSamusProximity(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -463,6 +489,7 @@ public sealed partial class RoomEnemySystem
         state.SamusIsLeft = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
     }
 
+    /// <summary>Publishes Oum's vertical and horizontal displacement to Samus using native ownership rules.</summary>
     private static void CarrySamusWithMaridiaLargeSnail(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -489,6 +516,7 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.ExtraXDisplacement + deltaX));
     }
 
+    /// <summary>Detects opposing directional input, restores Oum's prior X, and defers movement suppression one frame.</summary>
     private static void UpdateMaridiaLargeSnailInputStop(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -581,6 +609,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Changes the list only when the requested selector differs, resetting its instruction timers.</summary>
     private static void InstallMaridiaLargeSnailInstructionList(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
@@ -626,6 +655,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
         LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
+    /// <summary>Returns the initialized Oum debugger state for a slot or reports invalid ownership.</summary>
     private MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
         _maridiaLargeSnailStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Maridia Large Snail state.");

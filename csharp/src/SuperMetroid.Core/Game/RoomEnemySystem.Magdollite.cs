@@ -52,8 +52,12 @@ public enum MagdolliteEnemyFunction : ushort
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
+    /// <summary>Physical enemy record that stores this part's native A-F variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over one slot and records its population role.</summary>
+    /// <param name="slot">Physical enemy record initialized for a Magdollite part.</param>
+    /// <param name="part">Head, rising body, or tracking overlay role decoded from the room data.</param>
     internal MagdolliteEnemyState(RoomEnemySlot slot, MagdollitePart part)
     {
         _slot = slot;
@@ -136,16 +140,25 @@ public sealed class MagdolliteEnemyState
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Enemy definition pointer shared by the head, body, and overlay records.</summary>
     internal const ushort MagdolliteDefinition = 0xe83f;
+    /// <summary>Native power-bomb callback for the Magdollite head.</summary>
     internal const ushort MagdollitePowerBombAi = EnemyAiCodePointers.BankA8.MagdollitePowerBomb;
+    /// <summary>Native contact-damage callback for the Magdollite head.</summary>
     internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
+    /// <summary>Native projectile-hit callback for the Magdollite head.</summary>
     internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
 
+    /// <summary>Typed owners indexed by physical slot for the current room's three-part groups.</summary>
     private readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[MaximumEnemyCount];
+    /// <summary>Countdown for the room-wide animated Magdollite palette.</summary>
     private ushort _magdollitePaletteAnimationTimer;
+    /// <summary>Current frame index in the Magdollite palette cycle.</summary>
     private ushort _magdollitePaletteAnimationIndex;
+    /// <summary>Base CGRAM byte offset captured when the first Magdollite installs its palette effect.</summary>
     private ushort _magdollitePaletteBaseByteOffset;
+    /// <summary>Whether a Magdollite has installed the shared palette animation for this room.</summary>
     private bool _magdollitePaletteAnimationInstalled;
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
@@ -220,6 +233,7 @@ public sealed partial class RoomEnemySystem
         _magdollitePaletteAnimationIndex = 0;
     }
 
+    /// <summary>Initializes the collision-enabled head, captures spawn state, and seeds composite behavior.</summary>
     private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -243,6 +257,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
+    /// <summary>Initializes the following arm/body slot and its vertical movement state.</summary>
     private static void InitializeMagdolliteBody(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -258,6 +273,7 @@ public sealed partial class RoomEnemySystem
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
+    /// <summary>Initializes the hand overlay, captures its spawn coordinates, and installs shared palette animation.</summary>
     private static void InitializeMagdolliteOverlay(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -323,6 +339,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Faces the head toward Samus and starts an attack when range and cooldown permit.</summary>
     private void RunMagdolliteHeadWaiting(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -355,6 +372,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
 
+    /// <summary>Waits for the submerge animation to finish before waking the rising body.</summary>
     private void RunMagdolliteHeadWaitingForAttackAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state)
@@ -368,6 +386,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
+    /// <summary>Waits for the body to land, then selects the head's facing-dependent emergence list.</summary>
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -385,6 +404,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
+    /// <summary>Returns the head to idle after its emergence animation signals completion.</summary>
     private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -402,6 +422,7 @@ public sealed partial class RoomEnemySystem
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
+    /// <summary>Holds the body hidden until the head requests growth, then restores its spawn height.</summary>
     private static void RunMagdolliteBodyDormant(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -416,6 +437,7 @@ public sealed partial class RoomEnemySystem
         body.YPosition = state.OriginY;
     }
 
+    /// <summary>Extends the body using the head's upward velocity until it reaches its height limit.</summary>
     private void RunMagdolliteBodyRising(
         RoomEnemySlot body,
         MagdolliteEnemyState state,
@@ -464,6 +486,7 @@ public sealed partial class RoomEnemySystem
         InstallMagdolliteInstructionList(body, state);
     }
 
+    /// <summary>Shrinks the body using the head's downward velocity and signals the head when it lands.</summary>
     private void RunMagdolliteBodyFalling(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -499,6 +522,7 @@ public sealed partial class RoomEnemySystem
         InstallMagdolliteInstructionList(body, state);
     }
 
+    /// <summary>Waits for the head to begin its attack before tracking body growth.</summary>
     private void RunMagdolliteOverlayWaiting(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -511,6 +535,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>After the throw animation, restores the hand position and starts body shrinkage.</summary>
     private void RunMagdolliteOverlayAnimation(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -531,6 +556,7 @@ public sealed partial class RoomEnemySystem
         UpdateMagdolliteHeadRadius(overlay);
     }
 
+    /// <summary>Tracks the growing body cap and starts the directional throw at the apex.</summary>
     private void RunMagdolliteOverlayTrackingRise(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state,
@@ -561,6 +587,7 @@ public sealed partial class RoomEnemySystem
         UpdateMagdolliteHeadRadius(overlay);
     }
 
+    /// <summary>Follows the shrinking body cap and returns the overlay to its idle function.</summary>
     private void RunMagdolliteOverlayTrackingFall(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -594,6 +621,7 @@ public sealed partial class RoomEnemySystem
         head.YRadius = IsNegative16(radius - 8) ? (ushort)8 : radius;
     }
 
+    /// <summary>Adds fixed-point vertical velocity to an enemy coordinate and returns whole-pixel movement.</summary>
     private static int AddMagdolliteY(
         RoomEnemySlot slot,
         ushort wholeVelocity,
@@ -607,6 +635,7 @@ public sealed partial class RoomEnemySystem
         return wholeDelta;
     }
 
+    /// <summary>Installs a changed instruction list and resets the enemy interpreter timers.</summary>
     private static void InstallMagdolliteInstructionList(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -619,10 +648,12 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Gets the typed state owner for a slot initialized as part of a Magdollite composite.</summary>
     private MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
         _magdolliteStates[slot.SlotIndex] ?? throw new InvalidDataException(
             $"Magdollite slot {slot.SlotIndex} has no typed state.");
 
+    /// <summary>Resolves and validates the consecutive head, body, and overlay slots for a group member.</summary>
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
     {
@@ -782,6 +813,7 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    /// <summary>Returns the next physical enemy slot or fails at the end of the enemy pool.</summary>
     private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot)
     {
         if (slot.SlotIndex + 1 >= MaximumEnemyCount)

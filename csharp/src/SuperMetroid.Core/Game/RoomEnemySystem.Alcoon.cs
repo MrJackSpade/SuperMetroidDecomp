@@ -28,13 +28,26 @@ public enum AlcoonEnemyFunction : ushort
 /// </summary>
 public sealed class AlcoonEnemyState
 {
+    /// <summary>Common enemy-slot words and coordinates shared with the room's enemy system.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot whole-word vertical acceleration used by Alcoon's fixed-point jumps.</summary>
     private readonly ushort[] _yAccelerations;
+    /// <summary>Per-slot fractional vertical acceleration paired with <see cref="_yAccelerations"/>.</summary>
     private readonly ushort[] _ySubaccelerations;
+    /// <summary>Per-slot original X coordinates used for the actor's walking range and retreat reset.</summary>
     private readonly ushort[] _spawnXPositions;
+    /// <summary>Per-slot floor-aligned Y coordinates used by the proximity activation check.</summary>
     private readonly ushort[] _landingYPositions;
+    /// <summary>Per-slot walking-cycle count controlling when Alcoon may request another volley.</summary>
     private readonly ushort[] _stepCounters;
 
+    /// <summary>Creates a typed view over one enemy slot and the parallel arrays holding Alcoon's extra state.</summary>
+    /// <param name="slot">The common room slot whose native variable aliases this view exposes.</param>
+    /// <param name="yAccelerations">Whole-word vertical acceleration storage indexed by enemy slot.</param>
+    /// <param name="ySubaccelerations">Fractional vertical acceleration storage indexed by enemy slot.</param>
+    /// <param name="spawnXPositions">Original X-coordinate storage used to bound walking and restore position.</param>
+    /// <param name="landingYPositions">Landing-height storage used to decide whether Samus is near enough to activate Alcoon.</param>
+    /// <param name="stepCounters">Walking-cycle storage used to pace fire volleys.</param>
     internal AlcoonEnemyState(
         RoomEnemySlot slot,
         ushort[] yAccelerations,
@@ -136,19 +149,31 @@ public sealed class AlcoonEnemyState
 /// <summary>Literal translation of Alcoon enemy <c>$E9BF</c> at <c>$A8:DBE7-$DF9C</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer used to identify Alcoon in the room's enemy data.</summary>
     internal const ushort AlcoonDefinition = 0xe9bf;
 
+    /// <summary>Maximum horizontal separation at which a waiting Alcoon begins its emergence jump, in pixels.</summary>
     private const ushort AlcoonEmergeXDistance = 0x0050;
+    /// <summary>Walking distance from the original X coordinate that triggers Alcoon's retreat, in pixels.</summary>
     private const ushort AlcoonHideXDistance = 0x0070;
+    /// <summary>Native sound-effect identifier emitted when Alcoon starts emerging.</summary>
     private const ushort AlcoonEmergeSound = 0x005e;
+    /// <summary>Native sound-effect identifier associated with Alcoon's fire volley.</summary>
     private const ushort AlcoonFireSound = 0x003f;
+    /// <summary>Safety bound for the initializer's simulated ascent and collision-aware landing search.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
+    /// <summary>Whole-word vertical acceleration values indexed by enemy slot.</summary>
     private readonly ushort[] _alcoonYAccelerations = new ushort[MaximumEnemyCount];
+    /// <summary>Fractional vertical acceleration values paired with <see cref="_alcoonYAccelerations"/>.</summary>
     private readonly ushort[] _alcoonYSubaccelerations = new ushort[MaximumEnemyCount];
+    /// <summary>Original X positions retained so each Alcoon can enforce its walk range and return underground.</summary>
     private readonly ushort[] _alcoonSpawnXPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Floor-aligned Y positions retained for each Alcoon's activation-distance check.</summary>
     private readonly ushort[] _alcoonLandingYPositions = new ushort[MaximumEnemyCount];
+    /// <summary>Walking-cycle counts that pace each Alcoon's next fire volley.</summary>
     private readonly ushort[] _alcoonStepCounters = new ushort[MaximumEnemyCount];
+    /// <summary>Typed views created during initialization; a null entry means the slot is not an initialized Alcoon.</summary>
     private readonly AlcoonEnemyState?[] _alcoonStates =
         new AlcoonEnemyState?[MaximumEnemyCount];
 
@@ -238,6 +263,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Starts Alcoon's jump when Samus is within the stored landing-height and horizontal activation limits.</summary>
     private void WaitForAlcoonActivation(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -268,6 +294,7 @@ public sealed partial class RoomEnemySystem
         LastAlcoonSoundEffect = AlcoonEmergeSound;
     }
 
+    /// <summary>Applies one upward-motion step and switches to falling once vertical velocity turns nonnegative.</summary>
     private static void RunAlcoonEmergingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -283,6 +310,7 @@ public sealed partial class RoomEnemySystem
                 : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
     }
 
+    /// <summary>Moves Alcoon down with room collision, then chooses its walking direction relative to Samus.</summary>
     private void RunAlcoonEmergingFall(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -316,6 +344,7 @@ public sealed partial class RoomEnemySystem
         state.StepCounter = 1;
     }
 
+    /// <summary>Keeps the emerged actor aligned to the floor, retreats at its walk limit, and starts eligible volleys.</summary>
     private void RunEmergedAlcoon(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -362,6 +391,7 @@ public sealed partial class RoomEnemySystem
         state.Function = AlcoonEnemyFunction.WaitingForFireAnimation;
     }
 
+    /// <summary>Applies one retreat ascent step and changes to the falling phase when the jump reaches its apex.</summary>
     private static void RunAlcoonHidingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -370,6 +400,7 @@ public sealed partial class RoomEnemySystem
             state.Function = AlcoonEnemyFunction.HidingFalling;
     }
 
+    /// <summary>Continues the retreat descent and restores whole spawn coordinates once the actor reaches its origin.</summary>
     private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -386,6 +417,7 @@ public sealed partial class RoomEnemySystem
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
     }
 
+    /// <summary>Initializes velocity and half-pixel acceleration words for Alcoon's native jump trajectory.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.YVelocity = unchecked((ushort)-12);
@@ -396,6 +428,7 @@ public sealed partial class RoomEnemySystem
         state.YSubacceleration = 0x8000;
     }
 
+    /// <summary>Adds fractional acceleration and carries overflow into the whole vertical-velocity word.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
         uint fractionalSum = (uint)state.YSubvelocity + state.YSubacceleration;
@@ -404,6 +437,7 @@ public sealed partial class RoomEnemySystem
             state.YVelocity + state.YAcceleration + (fractionalSum >> 16)));
     }
 
+    /// <summary>Adds Alcoon's signed 16.16 vertical velocity to the slot's 16.16 Y coordinate with native wraparound.</summary>
     private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         uint fixedY = ((uint)slot.YPosition << 16) | slot.YSubposition;
@@ -414,6 +448,7 @@ public sealed partial class RoomEnemySystem
         slot.YSubposition = unchecked((ushort)fixedY);
     }
 
+    /// <summary>Rejects initialization if the simulated jump exceeds its bound without finding a landing floor.</summary>
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)
     {
         if (iterations > AlcoonJumpSimulationLimit)
@@ -424,6 +459,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Selects an animation instruction list and makes its first command eligible on the next update.</summary>
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -475,6 +511,7 @@ public sealed partial class RoomEnemySystem
             : AlcoonInstructionProgramDefinitions.WalkingRightFirstFrame;
     }
 
+    /// <summary>Returns the state view created for this slot, failing when Alcoon initialization has not run.</summary>
     private AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
         _alcoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");

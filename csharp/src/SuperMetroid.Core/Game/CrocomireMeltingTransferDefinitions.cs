@@ -1,9 +1,15 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One source-to-scratch copy authored in Crocomire's melt table.</summary>
+/// <param name="SourceWord">Bank-$A4 word address copied into the scratch buffer.</param>
+/// <param name="DestinationWord">Scratch-memory word destination for the copied block.</param>
 internal readonly record struct CrocomireMeltingCopy(ushort SourceWord, ushort DestinationWord);
 
 /// <summary>One eight-byte scratch-to-VRAM transfer authored in the same table.</summary>
+/// <param name="ByteCount">Number of source bytes transferred to VRAM.</param>
+/// <param name="DestinationWord">Destination word address in VRAM.</param>
+/// <param name="SourceBank">Bank containing the source bytes.</param>
+/// <param name="SourceWord">Word address of the source bytes.</param>
 internal readonly record struct CrocomireMeltingUpload(
     ushort ByteCount, ushort DestinationWord, byte SourceBank, ushort SourceWord);
 
@@ -11,6 +17,15 @@ internal readonly record struct CrocomireMeltingUpload(
 /// Fixed control and transfer metadata for one Crocomire dissolve pass. The graphics
 /// bytes at the selected bank-$A4 sources remain presentation data, not mechanics.
 /// </summary>
+/// <param name="HeaderOffset">Byte offset of this pass header from the native table start.</param>
+/// <param name="MaximumAdjustedDestinationY">Largest adjusted destination row accepted by this pass.</param>
+/// <param name="DistortionEndY">Destination row where the melt distortion range ends.</param>
+/// <param name="WordsToCopy">Native count of words copied into scratch memory.</param>
+/// <param name="SourceBank">Bank supplying the upload bytes.</param>
+/// <param name="TransferStartOffset">Offset of the first upload record in the native table.</param>
+/// <param name="TransferEndOffset">Offset of the transfer-list terminator.</param>
+/// <param name="NextHeaderOffset">Offset of the following pass header.</param>
+/// <param name="ChunkCount">Number of copy and upload chunks in this pass.</param>
 internal readonly record struct CrocomireMeltingPass(
     ushort HeaderOffset,
     ushort MaximumAdjustedDestinationY,
@@ -22,7 +37,9 @@ internal readonly record struct CrocomireMeltingPass(
     ushort NextHeaderOffset,
     int ChunkCount)
 {
+    /// <summary>Calculates the source and scratch destination pair for each chunk.</summary>
     internal CrocomireMeltingCopySequence Copies => new(this);
+    /// <summary>Calculates the scratch-to-VRAM upload record for each chunk.</summary>
     internal CrocomireMeltingUploadSequence Uploads => new(this);
 }
 
@@ -39,6 +56,7 @@ internal static class CrocomireMeltingTransferDefinitions
     /// <summary>Second header's native offset from $A4:9BC5.</summary>
     internal const ushort SecondHeaderOffset = 0x0054;
 
+    /// <summary>Provides the two compiled pass headers in native execution order.</summary>
     internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header
@@ -57,6 +75,9 @@ internal static class CrocomireMeltingTransferDefinitions
         return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, (ushort)(end + 2), chunks);
     }
 
+    /// <summary>Resolves a native upload-list start offset to its owning pass header.</summary>
+    /// <param name="offset">Table-relative offset of the transfer list.</param>
+    /// <returns>The pass whose upload records begin at that offset.</returns>
     internal static CrocomireMeltingPass Transfers(ushort offset)
     {
         if (offset == Header(FirstHeaderOffset).TransferStartOffset) return Header(FirstHeaderOffset);
@@ -85,9 +106,13 @@ internal static class CrocomireMeltingTransferDefinitions
 /// <summary>Native copy pairs: consecutive $0200-byte source/scratch strides.
 /// The second pass includes $A4:B87D (palette and adjacent data) as its seventh
 /// source. Preserve that native chunk and the caller's inclusive $0201-word copy.</summary>
+/// <param name="Pass">Pass metadata defining chunk count and source-table region.</param>
 internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Number of source-to-scratch chunks in the selected pass.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Calculates the bank-$A4 source and scratch destination for one chunk.</summary>
+    /// <param name="index">Zero-based chunk position.</param>
     internal CrocomireMeltingCopy this[int index]
     {
         get
@@ -98,19 +123,29 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
         }
     }
 
+    /// <summary>Creates the value enumerator used by foreach over the calculated copy records.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Advances through copy records without allocating an iterator object.</summary>
+    /// <param name="sequence">Calculated sequence whose chunks are enumerated.</param>
     internal struct Enumerator(CrocomireMeltingCopySequence sequence)
     {
+        /// <summary>Index of the most recently yielded chunk, initialized before the first item.</summary>
         private int index = -1;
+        /// <summary>Advances to the next copy record, returning false after the final chunk.</summary>
         public bool MoveNext() => ++index < sequence.Length;
+        /// <summary>The source and scratch destination pair at the current index.</summary>
         public CrocomireMeltingCopy Current => sequence[index];
     }
 }
 /// <summary>Native uploads: $0160 bytes from successive $0200-byte scratch chunks
 /// in bank $7E, to successive $0100-word VRAM destinations.</summary>
+/// <param name="Pass">Pass metadata defining the number of upload chunks.</param>
 internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Number of scratch-to-VRAM transfers in the selected pass.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Calculates the transfer size, VRAM destination, and scratch source for one chunk.</summary>
+    /// <param name="index">Zero-based upload position.</param>
     internal CrocomireMeltingUpload this[int index]
     {
         get
@@ -123,6 +158,8 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
 /// <summary>Enumerates the two native melt passes without stored records.</summary>
 internal readonly record struct CrocomireMeltingPassSequence()
 {
+    /// <summary>Gets one compiled pass in native order.</summary>
+    /// <param name="index">Zero for the first pass or one for the second.</param>
     internal CrocomireMeltingPass this[int index] => index switch
     {
         0 => CrocomireMeltingTransferDefinitions.Header(CrocomireMeltingTransferDefinitions.FirstHeaderOffset),

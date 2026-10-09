@@ -1,9 +1,18 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned offset and hitbox-list identity of one Ridley body component.</summary>
+/// <param name="X">Horizontal pixel offset of this component from Ridley's origin.</param>
+/// <param name="Y">Vertical pixel offset of this component from Ridley's origin.</param>
+/// <param name="HitboxPointer">Bank-$A6 pointer to the collision list assigned to this component.</param>
 internal readonly record struct RidleyCollisionComponent(short X, short Y, ushort HitboxPointer);
 
 /// <summary>Engine-owned rectangle and callbacks; never derived from editable OAM.</summary>
+/// <param name="Left">Left edge of the rectangle relative to the Ridley origin, in pixels.</param>
+/// <param name="Top">Top edge of the rectangle relative to the Ridley origin, in pixels.</param>
+/// <param name="Right">Right edge of the rectangle relative to the Ridley origin, in pixels.</param>
+/// <param name="Bottom">Bottom edge of the rectangle relative to the Ridley origin, in pixels.</param>
+/// <param name="TouchAi">Bank-$A6 touch-collision routine selected for this rectangle.</param>
+/// <param name="ShotAi">Bank-$A6 projectile-collision routine selected for this rectangle.</param>
 internal readonly record struct RidleyCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
@@ -17,7 +26,9 @@ internal static class RidleyCollisionDefinitions
 {
     /// <summary>$A6, shared native bank for both Ceres and Lower Norfair Ridley body maps.</summary>
     internal const byte Bank = 0xa6;
+    /// <summary>Native touch-collision callback stored in each compiled Ridley rectangle.</summary>
     private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
+    /// <summary>Native projectile-collision callback stored in each compiled Ridley rectangle.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
     /// <summary>$A6:DE7A, CheckIfRidleyIsOffScreen: signed world coordinates and the
@@ -32,6 +43,7 @@ internal static class RidleyCollisionDefinitions
             unchecked((short)(relativeY - 288)) >= 0;
     }
 
+    /// <summary>Native bank-$A6 pointers for the eleven compiled extended Ridley body maps.</summary>
     private enum BodyFrame : ushort
     {
         /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>
@@ -74,27 +86,45 @@ internal static class RidleyCollisionDefinitions
     /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
     private const short ForwardYOffset = -6;
 
+    /// <summary>Authored pixel placement of a body component relative to the extended frame origin.</summary>
+    /// <param name="X">Horizontal placement in the left-facing drawing; right-facing frames negate it.</param>
+    /// <param name="Y">Vertical placement shared by both facings.</param>
     private readonly record struct ComponentOffset(short X, short Y);
     // The four left-facing component origins (legs, hand, torso, head) are authored placements
     // for the drawing; right-facing frames negate X.
+    /// <summary>Left-facing pixel origins for the legs, hand, torso, and head components, in that order.</summary>
     private static readonly ComponentOffset[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
+    /// <summary>Enumerable view of the collision components belonging to one compiled body frame.</summary>
+    /// <param name="Frame">Native bank-$A6 extended-spritemap pointer whose components are traversed.</param>
     internal readonly record struct ComponentSequence(ushort Frame)
     {
+        /// <summary>Number of components in the selected frame: one for forward-facing and four otherwise.</summary>
         internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
+        /// <summary>Gets the component at a zero-based position, throwing when the index is outside this frame.</summary>
+        /// <param name="index">Zero-based component position.</param>
         internal RidleyCollisionComponent this[int index] => (uint)index < Length
             ? ComponentAt((BodyFrame)Frame, index)
             : throw new IndexOutOfRangeException();
+        /// <summary>Creates an enumerator that visits this frame's collision components in native component order.</summary>
         public Enumerator GetEnumerator() => new(this);
+        /// <summary>Iterates the one or four collision components associated with a frame.</summary>
+        /// <param name="sequence">The component sequence whose entries are traversed.</param>
         internal struct Enumerator(ComponentSequence sequence)
         {
+            /// <summary>Index of the last yielded component; starts before the first component.</summary>
             private int index = -1;
+            /// <summary>Gets the component at the current enumerator position.</summary>
             public readonly RidleyCollisionComponent Current => sequence[index];
+            /// <summary>Advances to the next component and reports whether one remains.</summary>
             public bool MoveNext() => ++index < sequence.Length;
         }
     }
 
+    /// <summary>Resolves a frame and component index to its authored offset and native hitbox-list pointer.</summary>
+    /// <param name="frame">The extended body frame whose component is requested.</param>
+    /// <param name="component">Zero-based component position within the frame.</param>
     private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
     {
         if (frame == BodyFrame.Forward) return new(0, ForwardYOffset, ForwardHitbox);
@@ -152,12 +182,18 @@ internal static class RidleyCollisionDefinitions
             [new(1, -2, 14, 9, Touch, Shot)],
             [new(-13, -22, 14, 21, Touch, Shot)],
         ]));
+    /// <summary>Checks whether a pointer is one of the compiled frames in the contiguous side-frame run or forward frame.</summary>
+    /// <param name="frame">Candidate bank-$A6 extended-spritemap pointer.</param>
     internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 
+    /// <summary>Returns the component sequence for a compiled frame, rejecting pointers without collision data.</summary>
+    /// <param name="frame">Native extended-spritemap pointer to resolve.</param>
     internal static ComponentSequence ComponentsAt(ushort frame) => HasFrame(frame)
         ? new(frame)
         : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
+    /// <summary>Returns the compiled rectangles for a native hitbox-list pointer.</summary>
+    /// <param name="list">Bank-$A6 pointer to a Ridley hitbox list.</param>
     internal static ReadOnlySpan<RidleyCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out RidleyCollisionHitbox[] hitboxes)
             ? hitboxes

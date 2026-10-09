@@ -50,9 +50,14 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
+    /// <summary>Enumerates boundary, background-row, and regular fake-death draw lists in native order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
+    /// <summary>Maps a compiled PLM draw pointer to its stable artwork identity.</summary>
+    /// <param name="pointer">Bank-$84 draw routine pointer.</param>
+    /// <returns>Schema visual ID used to associate the draw with extracted artwork.</returns>
+    /// <exception cref="InvalidDataException">The pointer has no visual identity in this catalog.</exception>
     internal static string VisualId(ushort pointer) => pointer switch
     {
         FillWall => "fill-wall",
@@ -81,6 +86,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
             $"Mother Brain fake-death draw ${pointer:X4} has no visual ID."),
     };
 
+    /// <summary>Finds a compiled draw list by its stable visual identity.</summary>
+    /// <param name="id">Visual ID associated with the draw.</param>
+    /// <param name="draw">Receives the matching compiled draw list when found.</param>
+    /// <returns><see langword="true"/> when the identity belongs to this catalog.</returns>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -103,20 +112,42 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
     /// clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
+    /// <param name="Pointer">Bank-$84 draw routine pointer that selects the physical pattern.</param>
+    /// <param name="Height">Cell count for a full-height run.</param>
+    /// <param name="Width">Number of horizontal runs in the pattern.</param>
+    /// <param name="Ceiling">Whether cleared runs restore the ceiling endpoint tile.</param>
+    /// <param name="Fill">Whether each cell is a solid fill-wall tile.</param>
+    /// <param name="Side">Signed horizontal offset for side-tube continuations.</param>
     internal readonly record struct RegularDraw(ushort Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
     {
+        /// <summary>Number of horizontally connected runs in this physical draw.</summary>
         internal int RunCount => Width;
+        /// <summary>Gets the cell count for a run, including the single-cell side-tube connector.</summary>
+        /// <param name="run">Zero-based horizontal run index.</param>
+        /// <returns>Number of tile words in the selected run.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run is outside this draw's run count.</exception>
         internal int Count(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return Side != 0 && run == 1 ? 1 : Height;
         }
+        /// <summary>Reports whether the selected run advances vertically between cells.</summary>
+        /// <param name="run">Zero-based horizontal run index.</param>
+        /// <returns>False for solid horizontal fill rows and the side-tube connector.</returns>
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
+        /// <summary>Returns the signed horizontal continuation after a run.</summary>
+        /// <param name="run">Zero-based horizontal run index.</param>
+        /// <returns>Zero after the final run; otherwise the authored side offset or one tile.</returns>
         internal sbyte NextX(int run)
         {
             Count(run);
             return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
         }
+        /// <summary>Calculates the physical tile word for a cell in a regular draw pattern.</summary>
+        /// <param name="run">Zero-based horizontal run index.</param>
+        /// <param name="block">Zero-based cell index within that run.</param>
+        /// <returns>The tilemap word for the fill, endpoint, or cleared tube cell.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run or cell is outside the pattern.</exception>
         internal ushort WordAt(int run, int block)
         {
             int count = Count(run);
@@ -128,6 +159,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Describes a regular fill or tube-clear routine without materializing its draw-list words.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to resolve.</param>
+    /// <param name="draw">Receives the compact geometry description.</param>
+    /// <returns><see langword="true"/> when the pointer is one of the regular draw routines.</returns>
     internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
     {
         draw = pointer switch
@@ -144,6 +179,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return draw.Pointer != 0;
     }
 
+    /// <summary>Expands a regular geometry description into the shared room-PLM draw-list representation.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to resolve.</param>
+    /// <param name="draw">Receives generated run words when the pointer is supported.</param>
+    /// <returns><see langword="true"/> when a regular draw was generated.</returns>
     private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -159,6 +198,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Walks the contiguous regular draw records and yields their compiled room draw lists.</summary>
+    /// <returns>Draw lists from the first unused background row through the exclusive routine end.</returns>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
     {
         // Each next record follows its counts, cells and two-byte continuation pairs.
@@ -200,8 +241,13 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// bytes apart. Top/bottom rows retain collision type one; interior rows
     /// are air. Visual bits remain independent from these physical boundaries.
     /// </summary>
+    /// <param name="Row">Zero-based row in the retained twelve-row background mural.</param>
     internal readonly record struct BackgroundDraw(int Row)
     {
+        /// <summary>Combines the mural's visual cell with collision type for its row.</summary>
+        /// <param name="column">Zero-based cell within the thirteen-cell row.</param>
+        /// <returns>Tile word, including solid collision on the top and bottom rows.</returns>
+        /// <exception cref="IndexOutOfRangeException">The column is outside the row.</exception>
         internal ushort WordAt(int column)
         {
             if ((uint)column >= 13) throw new IndexOutOfRangeException();
@@ -209,6 +255,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves an authored background-row routine from its regular 30-byte pointer spacing.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to resolve.</param>
+    /// <param name="draw">Receives the zero-based mural row when owned.</param>
+    /// <returns><see langword="true"/> for one of the twelve compiled background rows.</returns>
     internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
     {
         int offset = pointer - BackgroundRow2;
@@ -217,6 +267,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Builds a horizontal 13-cell room draw list for one background mural row.</summary>
+    /// <param name="pointer">Bank-$84 row routine pointer.</param>
+    /// <param name="draw">Receives the generated one-run draw list when the row is recognized.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a compiled mural row.</returns>
     private static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -227,6 +281,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Yields each authored background mural row in pointer order.</summary>
+    /// <returns>The twelve horizontal background draw lists.</returns>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
     {
         for (int pointer = BackgroundRow2; pointer <= BackgroundRowD; pointer += 30)
@@ -248,6 +304,11 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     private const ushort DoorLowerInterior = 0x1d0;
 
     // Called only after validating the two-column/four-row door domain.
+    /// <summary>Calculates the authored tile visual for one cell of the two-column escape door.</summary>
+    /// <param name="column">Zero-based door column.</param>
+    /// <param name="row">Zero-based door row.</param>
+    /// <returns>The tile visual word for the selected cell.</returns>
+    /// <exception cref="IndexOutOfRangeException">The row is outside the four-cell door height.</exception>
     private static ushort EscapeDoorVisualAt(int column, int row) => row switch
     {
         0 => (ushort)(DoorUpperEdgeLeft + column),
@@ -263,23 +324,39 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// center tile 340 and are solid. The door's first column has a door parent
     /// above three vertical extensions; its second column is air.
     /// </summary>
+    /// <param name="Pointer">Bank-$84 routine pointer selecting the wall or escape-door geometry.</param>
     internal readonly record struct BoundaryDraw(ushort Pointer)
     {
+        /// <summary>Returns the number of vertical cells in a boundary run.</summary>
+        /// <param name="run">Zero-based wall or door column.</param>
+        /// <returns>Cells emitted by that run.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run is not one of the two columns.</exception>
         internal int Count(int run)
         {
             if ((uint)run >= 2) throw new IndexOutOfRangeException();
             return Pointer == EscapeDoor ? 4 : 2 - run;
         }
+        /// <summary>Returns the horizontal continuation after a boundary run.</summary>
+        /// <param name="run">Zero-based wall or door column.</param>
+        /// <returns>One tile after the first door column, otherwise zero.</returns>
         internal sbyte NextX(int run)
         {
             Count(run);
             return Pointer == EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Returns the vertical continuation after a boundary run.</summary>
+        /// <param name="run">Zero-based wall or door column.</param>
+        /// <returns>Negative one for the wall cap continuation; otherwise zero.</returns>
         internal sbyte NextY(int run)
         {
             Count(run);
             return Pointer == FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Calculates the solid wall or collision-coded escape-door cell word.</summary>
+        /// <param name="run">Zero-based wall or door column.</param>
+        /// <param name="block">Zero-based cell within that run.</param>
+        /// <returns>Combined collision and visual tile word.</returns>
+        /// <exception cref="IndexOutOfRangeException">The run or cell is outside the boundary shape.</exception>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -291,6 +368,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves the wall-fill or escape-door routine to its compact geometry descriptor.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer to resolve.</param>
+    /// <param name="draw">Receives the descriptor when the pointer is supported.</param>
+    /// <returns><see langword="true"/> for the fill wall or escape door.</returns>
     internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
     {
         bool owned = pointer is FillWall or EscapeDoor;
@@ -298,6 +379,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Expands wall or door geometry into two vertical runs for the common PLM renderer.</summary>
+    /// <param name="pointer">Bank-$84 boundary draw pointer.</param>
+    /// <param name="draw">Receives the generated two-run draw list when recognized.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a compiled boundary.</returns>
     private static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -313,6 +398,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Yields the wall-fill and escape-door lists in their catalog order.</summary>
+    /// <returns>The two compiled boundary draw lists.</returns>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
     {
         TryGetBoundary(FillWall, out var wall);

@@ -6,6 +6,7 @@ public sealed partial class SuperMetroidRuntime
 {
     /// <summary>External map content supplied by the host; never serialized into a debugger snapshot.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Defers restored-HUD art upload until the next accepted NMI publication boundary.</summary>
     [NonSerialized] private bool hudArtworkRefreshPending;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
     /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
@@ -49,6 +50,7 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
+    /// <summary>Rebinds host-owned palette and tile artwork to the currently active Samus components.</summary>
     private void BindSamusPalettePresentation()
     {
         if (Samus is null)
@@ -64,6 +66,7 @@ public sealed partial class SuperMetroidRuntime
         Samus.ArmCannon.Artwork = samusBodyArt?.ArmCannon;
     }
 
+    /// <summary>Publishes a pending HUD artwork rebind before ordinary queued VRAM transfers.</summary>
     private void PublishReboundHudArtwork()
     {
         if (!hudArtworkRefreshPending) return;

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class KraidFootCollisionDefinitions
 {
+    /// <summary>ROM bank containing Kraid's foot animation and collision records.</summary>
     internal const byte Bank = 0xa7;
 
     /// <summary>First authored Kraid-foot extended frame at $A7:8CE3.</summary>
@@ -21,6 +22,7 @@ internal static class KraidFootCollisionDefinitions
     /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
     private const int FrameByteCount = 18;
 
+    /// <summary>Number of extended foot-animation frames addressable from <see cref="FirstFrame"/>.</summary>
     internal const int FrameCount = 35;
 
     /// <summary>The fixed component moves two pixels left per frame, then retraces.</summary>
@@ -74,11 +76,16 @@ internal static class KraidFootCollisionDefinitions
         });
     }
 
+    /// <summary>Rejects frame indices outside the compiled extended animation range.</summary>
     private static void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Maps a native frame pointer to its two calculated foot components; the initial pose maps to frame zero.</summary>
+    /// <param name="pointer">Bank-$A7 pointer supplied by the enemy animation.</param>
+    /// <param name="components">Receives the indexed component sequence when the pointer is recognized, or an empty sequence otherwise.</param>
+    /// <returns><see langword="true"/> when the pointer identifies the initial pose or an aligned compiled frame.</returns>
     internal static bool TryGetComponents(ushort pointer,
         out KraidFootComponentSequence components)
     {
@@ -107,8 +114,14 @@ internal static class KraidFootCollisionDefinitions
 }
 
 /// <summary>Two physical components calculated on access; an unsuccessful lookup returns an empty sequence.</summary>
+/// <summary>Provides bounds-checked access to the two calculated foot components of one animation frame.</summary>
+/// <param name="Frame">Zero-based extended animation frame whose component offsets are evaluated on access.</param>
+/// <param name="Length">Number of components exposed by this sequence; zero represents an unsuccessful pointer lookup.</param>
 internal readonly record struct KraidFootComponentSequence(int Frame, int Length)
 {
+    /// <summary>Gets the requested foot component, evaluating its frame-relative offset and shared hitbox pointer.</summary>
+    /// <param name="index">Zero for the fixed component or one for the moving component.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside this sequence's <see cref="Length"/>.</exception>
     internal KraidFootCollisionComponent this[int index]
     {
         get
@@ -119,18 +132,32 @@ internal readonly record struct KraidFootComponentSequence(int Frame, int Length
                 : new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame), KraidFootCollisionDefinitions.HitboxList);
         }
     }
+    /// <summary>Creates a value-type enumerator over the available foot components.</summary>
     public Enumerator GetEnumerator() => new(this);
+
+    /// <summary>Iterates a component sequence without allocating an iterator object.</summary>
+    /// <param name="sequence">Sequence whose components are returned in physical component order.</param>
     internal struct Enumerator(KraidFootComponentSequence sequence)
     {
+        /// <summary>Index of the next component to yield.</summary>
         private int next;
+
+        /// <summary>Advances to the next component and reports whether the sequence has another item.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+
+        /// <summary>Gets the component most recently selected by <see cref="MoveNext"/>.</summary>
         public KraidFootCollisionComponent Current => sequence[next - 1];
     }
 }
 
 /// <summary>Direct construction of the single shared rectangle without a stored hitbox lookup.</summary>
+/// <summary>Provides bounds-checked access to Kraid's shared centered foot hitbox definition.</summary>
+/// <param name="Length">Number of hitbox entries exposed by this sequence.</param>
 internal readonly record struct KraidFootHitboxSequence(int Length)
 {
+    /// <summary>Gets the centered rectangle and its touch/shot AI pointers at the requested index.</summary>
+    /// <param name="index">Zero-based hitbox entry index.</param>
+    /// <exception cref="IndexOutOfRangeException">The index is outside this sequence's <see cref="Length"/>.</exception>
     internal KraidFootCollisionHitbox this[int index]
     {
         get
@@ -140,15 +167,35 @@ internal readonly record struct KraidFootHitboxSequence(int Length)
                 EnemyAiCodePointers.BankA7.KraidNoOpShot);
         }
     }
+    /// <summary>Creates a value-type enumerator over the hitbox entries.</summary>
     public Enumerator GetEnumerator() => new(this);
+
+    /// <summary>Iterates a hitbox sequence without allocating an iterator object.</summary>
+    /// <param name="sequence">Sequence whose hitbox entries are returned.</param>
     internal struct Enumerator(KraidFootHitboxSequence sequence)
     {
+        /// <summary>Index of the next hitbox entry to yield.</summary>
         private int next;
+
+        /// <summary>Advances to the next hitbox entry and reports whether one remains.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+
+        /// <summary>Gets the hitbox entry most recently selected by <see cref="MoveNext"/>.</summary>
         public KraidFootCollisionHitbox Current => sequence[next - 1];
     }
 }
+/// <summary>Frame-relative physical placement of one foot component and the hitbox list used for collision.</summary>
+/// <param name="X">Horizontal offset from Kraid's body origin in pixels.</param>
+/// <param name="Y">Vertical offset from Kraid's body origin in pixels.</param>
+/// <param name="HitboxPointer">Native bank-$A7 pointer to the component's collision definition.</param>
 internal readonly record struct KraidFootCollisionComponent(short X, short Y, ushort HitboxPointer);
 
+/// <summary>Rectangle bounds and native contact callbacks for a Kraid-foot collision entry.</summary>
+/// <param name="Left">Left edge relative to the foot component origin.</param>
+/// <param name="Top">Top edge relative to the foot component origin.</param>
+/// <param name="Right">Right edge relative to the foot component origin.</param>
+/// <param name="Bottom">Bottom edge relative to the foot component origin.</param>
+/// <param name="TouchAi">Native enemy AI pointer invoked for background contact.</param>
+/// <param name="ShotAi">Native enemy AI pointer invoked when the hitbox is shot.</param>
 internal readonly record struct KraidFootCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);

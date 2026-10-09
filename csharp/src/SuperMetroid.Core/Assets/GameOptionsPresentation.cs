@@ -13,15 +13,29 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOptionsPresentation
 {
+    /// <summary>Compiled row-major SNES tilemap words for each authored foreground and background page.</summary>
     private readonly Dictionary<string, byte[]> pages;
+    /// <summary>Compiled six-word tilemap patches for controller glyphs that differ from native defaults.</summary>
     private readonly Dictionary<string, ushort[]> controllerLabels;
+    /// <summary>Authored tile-cell origins when controller glyph placement differs from the native layout; null selects native anchors.</summary>
     private readonly MapLabelPoint[]? controllerLabelAnchors;
+    /// <summary>Authored language highlight regions when they differ from the native primary-page regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[]? languageRegions;
+    /// <summary>Authored enabled and disabled highlight cells when special-toggle regions differ from native defaults.</summary>
     private readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
+    /// <summary>Compiled heading and cursor sprite compositions indexed by their asset identities.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
+    /// <summary>Authored heading origins when they differ from the standard menu layout.</summary>
     private readonly Dictionary<string, MapLabelPoint>? headingAnchors;
+    /// <summary>Authored cursor origins when they differ from the standard menu layout.</summary>
     private readonly Dictionary<string, MapLabelPoint[]>? cursorAnchors;
 
+    /// <summary>Creates the runtime view, retaining custom layout data only where it differs from native presentation defaults.</summary>
+    /// <param name="pages">Compiled background and foreground tilemaps keyed by page identity.</param>
+    /// <param name="controllerLabels">Compiled controller glyph words keyed by button identity.</param>
+    /// <param name="sprites">Compiled heading and cursor artwork keyed by sprite identity.</param>
+    /// <param name="document">Validated source data used to select custom anchors and palette regions.</param>
+    /// <param name="contentIdentity">Digest identifying the exact JSON bytes from which the presentation was loaded.</param>
     private GameOptionsPresentation(
         Dictionary<string, byte[]> pages,
         Dictionary<string, ushort[]> controllerLabels,
@@ -69,15 +83,23 @@ public sealed class GameOptionsPresentation
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
+    /// <summary>Returns an independent mutable copy of a compiled foreground tilemap.</summary>
+    /// <param name="name">Required foreground page identity.</param>
+    /// <exception cref="InvalidDataException">The identity is not a stored options page.</exception>
     internal byte[] CreatePage(string name) =>
         pages.TryGetValue(name, out byte[]? page)
             ? (byte[])page.Clone()
             : throw new InvalidDataException($"Unknown options page {name}.");
 
+    /// <summary>Copies the shared background tilemap into the BG2 tilemap area of video memory.</summary>
+    /// <param name="vram">Video memory receiving the background page.</param>
     internal void LoadBackground(SnesVram vram) =>
         vram.LoadBytes(MenuPpuState.Bg2TilemapWord * sizeof(ushort),
             pages[GameOptionsPresentationDefinitions.BackgroundPage]);
 
+    /// <summary>Recolors the language choice regions on the primary page to reflect the selected language.</summary>
+    /// <param name="primaryPage">Mutable little-endian tilemap words for the primary options page.</param>
+    /// <param name="japanese"><see langword="true"/> selects Japanese; <see langword="false"/> selects English.</param>
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
     {
         if (languageRegions is null)
@@ -98,6 +120,11 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Writes the selected button glyph into the tilemap cells assigned to a controller action.</summary>
+    /// <param name="page">Mutable little-endian tilemap words for the localized controller page.</param>
+    /// <param name="action">Zero-based native controller-action row.</param>
+    /// <param name="button">Native assignable-button selector used to choose the glyph.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The action is outside the native action rows.</exception>
     internal void ApplyControllerLabel(Span<byte> page, int action, int button)
     {
         if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
@@ -117,6 +144,11 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Recolors both labels for a special setting so the active choice uses the selected palette.</summary>
+    /// <param name="page">Mutable little-endian tilemap words for the localized special-settings page.</param>
+    /// <param name="name">Special-toggle identity defined by the options presentation.</param>
+    /// <param name="enabled">Whether the enabled label is the currently selected choice.</param>
+    /// <exception cref="InvalidDataException">A custom presentation does not define the requested toggle.</exception>
     internal void ApplySpecialToggle(Span<byte> page, string name, bool enabled)
     {
         if (specialToggles is null)
@@ -135,6 +167,10 @@ public sealed class GameOptionsPresentation
             enabled ? UnselectedPalette : SelectedPalette);
     }
 
+    /// <summary>Looks up the screen-space cursor origin for a menu selection row.</summary>
+    /// <param name="page">Primary, controller, or special menu layout identity.</param>
+    /// <param name="selectedItem">Zero-based row in that menu's selection table.</param>
+    /// <exception cref="InvalidDataException">A custom layout has no authored point for the requested menu row.</exception>
     internal MapLabelPoint CursorPosition(string page, int selectedItem)
     {
         if (cursorAnchors is null)
@@ -144,6 +180,12 @@ public sealed class GameOptionsPresentation
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
+
+    /// <summary>Adds the selected menu heading composition to OAM at its authored origin adjusted for vertical scrolling.</summary>
+    /// <param name="oam">Object attribute buffer receiving the heading sprites.</param>
+    /// <param name="page">Menu layout identity, independent of the translated foreground page.</param>
+    /// <param name="verticalScroll">Current vertical scroll offset subtracted from the heading's Y coordinate.</param>
+    /// <exception cref="InvalidDataException">A custom layout has no heading origin for the requested menu.</exception>
     internal void DrawHeading(OamBuffer oam, string page, int verticalScroll)
     {
         MapLabelPoint point = headingAnchors is null
@@ -155,6 +197,10 @@ public sealed class GameOptionsPresentation
             PaletteBits(CursorPalette));
     }
 
+    /// <summary>Adds one missile-cursor animation frame to OAM at the supplied screen-space origin.</summary>
+    /// <param name="oam">Object attribute buffer receiving the cursor sprites.</param>
+    /// <param name="frame">Zero-based cursor animation frame identity.</param>
+    /// <param name="point">Screen-space pixel origin used for drawing this frame.</param>
     internal void DrawCursor(OamBuffer oam, int frame, MapLabelPoint point)
     {
         sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
@@ -294,6 +340,10 @@ public sealed class GameOptionsPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Encodes authored atlas coordinates and attributes as little-endian SNES BG tilemap words.</summary>
+    /// <param name="cells">Row-major authored tile cells to compile.</param>
+    /// <param name="owner">Asset identity included in validation errors.</param>
+    /// <exception cref="InvalidDataException">A cell is null or references an unsupported tile coordinate or palette.</exception>
     private static byte[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var bytes = new byte[cells.Length * sizeof(ushort)];
@@ -317,6 +367,10 @@ public sealed class GameOptionsPresentation
         return bytes;
     }
 
+    /// <summary>Replaces only the palette bits of the selected tilemap words.</summary>
+    /// <param name="page">Mutable little-endian tilemap words.</param>
+    /// <param name="cells">Row-major page indexes to recolor.</param>
+    /// <param name="palette">BG palette index to write.</param>
     private static void ApplyPalette(Span<byte> page, IEnumerable<int> cells, int palette)
     {
         foreach (int cell in cells)
@@ -329,6 +383,11 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Checks that a named asset dictionary contains exactly the required keys.</summary>
+    /// <param name="values">Dictionary supplied by the authored document.</param>
+    /// <param name="expected">Required keys in their canonical order.</param>
+    /// <param name="owner">Asset group named in validation errors.</param>
+    /// <exception cref="InvalidDataException">The dictionary is null, has a different size, or omits a required key.</exception>
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
         ReadOnlySpan<string> expected, string owner)
     {
@@ -339,6 +398,11 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
+    /// <summary>Ensures every authored tile index is within the page and unique within its related regions.</summary>
+    /// <param name="cells">Indexes to validate.</param>
+    /// <param name="claimed">Indexes already used by other regions in the same group.</param>
+    /// <param name="owner">Region identity included in validation errors.</param>
+    /// <exception cref="InvalidDataException">An index is outside the page or has already been claimed.</exception>
     private static void ValidateCellSet(int[] cells, HashSet<int> claimed, string owner)
     {
         foreach (int cell in cells)
@@ -346,6 +410,11 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
     }
 
+    /// <summary>Validates a screen-pixel anchor against the options display coordinate range.</summary>
+    /// <param name="point">Nullable authored anchor to validate.</param>
+    /// <param name="owner">Anchor identity included in validation errors.</param>
+    /// <param name="allowOffscreenX">Whether X may span the full 9-bit screen coordinate range.</param>
+    /// <exception cref="InvalidDataException">The point is absent or outside the permitted coordinate range.</exception>
     private static void ValidatePoint(MapLabelPoint? point, string owner, bool allowOffscreenX)
     {
         int maximumX = allowOffscreenX ? 0x1ff : byte.MaxValue;
@@ -354,6 +423,12 @@ public sealed class GameOptionsPresentation
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");
     }
 
+    /// <summary>Checks that a tile-space rectangle fits wholly within one 32-by-32 options page.</summary>
+    /// <param name="point">Nullable tile-cell origin to validate.</param>
+    /// <param name="owner">Anchor identity included in validation errors.</param>
+    /// <param name="width">Rectangle width in tile cells.</param>
+    /// <param name="height">Rectangle height in tile cells.</param>
+    /// <exception cref="InvalidDataException">The origin or rectangle extends outside the page.</exception>
     private static void ValidateTilePoint(MapLabelPoint? point, string owner, int width, int height)
     {
         if (point is null || point.X < 0 || point.Y < 0 ||
@@ -362,12 +437,19 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 
+    /// <summary>Checks that a BG or OBJ palette selector names one of the eight hardware palettes.</summary>
+    /// <param name="palette">Palette index to validate.</param>
+    /// <param name="owner">Asset identity included in validation errors.</param>
+    /// <exception cref="InvalidDataException">The index is outside 0-7.</exception>
     private static void ValidatePalette(int palette, string owner)
     {
         if ((uint)palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"Options {owner} must be 0..7.");
     }
 
+    /// <summary>Encodes a palette index into the attribute-bit position used by an OBJ tile.</summary>
+    /// <param name="index">OBJ palette index.</param>
+    /// <returns>The encoded palette attribute bits.</returns>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
@@ -464,15 +546,20 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
 
+    /// <summary>Required background and foreground tilemap page identities in schema order.</summary>
     private static readonly string[] pageNames =
         [BackgroundPage, PrimaryPage, ControllerEnglishPage, ControllerJapanesePage,
             SpecialEnglishPage, SpecialJapanesePage];
+    /// <summary>Menu layout identities shared by translated pages.</summary>
     private static readonly string[] menuPageNames =
         [PrimaryMenu, ControllerMenu, SpecialMenu];
+    /// <summary>Assignable button glyph identities in native selector order.</summary>
     private static readonly string[] controllerLabelNames =
         ["X", "A", "B", "Select", "Y", "L", "R"];
+    /// <summary>Special-setting visual identities required by the schema.</summary>
     private static readonly string[] specialToggleNames =
         [IconCancelToggle, MoonwalkToggle];
+    /// <summary>Heading and cursor composition identities required by the schema.</summary>
     private static readonly string[] spriteNames =
         ["Heading.Primary", "Heading.Controller", "Heading.Special",
             "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];

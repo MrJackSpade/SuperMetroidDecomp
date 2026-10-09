@@ -7,8 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Indexed artwork and ordered compositions for map sprites; palette inheritance retains live animation.</summary>
 public sealed class MapSpriteCatalog
 {
+    /// <summary>Precompiled compositions for named map markers, indicators, elevators, and world labels.</summary>
     private readonly FrameSet frames;
+    /// <summary>Indexed 4-bpp character atlas shared by the map's sprite compositions.</summary>
     private readonly MapObjectTileArtwork characters;
+
+    /// <summary>Combines validated named compositions with the indexed character artwork they reference.</summary>
+    /// <param name="frames">Resolved compositions for each named map sprite.</param>
+    /// <param name="characters">Character atlas used by those compositions.</param>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
     public void Draw(ushort id, OamBuffer oam, ushort x, ushort y, ushort paletteBits)
@@ -52,6 +58,7 @@ public sealed class MapSpriteCatalog
         _ => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
     };
 
+    /// <summary>Resolves a world-map region identifier to its label composition, if that identifier is a region label.</summary>
     private WorldMapLabelComposition? GetWorldLabel(ushort id) => id switch
     {
         MapSpriteDefinitions.WorldCrateria => frames.WorldCrateria,
@@ -63,6 +70,33 @@ public sealed class MapSpriteCatalog
         _ => null,
     };
 
+    /// <summary>Stores the loaded composition for every map sprite identifier, with a dedicated composition for each world label.</summary>
+    /// <param name="ArrowRight">Right-facing map navigation arrow.</param>
+    /// <param name="ArrowLeft">Left-facing map navigation arrow.</param>
+    /// <param name="ArrowUp">Up-facing map navigation arrow.</param>
+    /// <param name="ArrowDown">Down-facing map navigation arrow.</param>
+    /// <param name="MarkerBoss">Marker shown for an undefeated boss.</param>
+    /// <param name="StationEnergy">Energy recharge station marker.</param>
+    /// <param name="StationMissile">Missile recharge station marker.</param>
+    /// <param name="StationMap">Map station marker.</param>
+    /// <param name="MarkerDefeatedBoss">Marker shown for a defeated boss.</param>
+    /// <param name="MarkerGunship">Gunship marker.</param>
+    /// <param name="IndicatorBacking">Backing sprite beneath the map position indicator.</param>
+    /// <param name="IndicatorFrame0">First animation frame of the map position indicator.</param>
+    /// <param name="IndicatorFrame1">Second animation frame of the map position indicator.</param>
+    /// <param name="IndicatorFrame2">Third animation frame of the map position indicator.</param>
+    /// <param name="ElevatorCrateria">Elevator marker used in Crateria.</param>
+    /// <param name="ElevatorBrinstar">Elevator marker used in Brinstar.</param>
+    /// <param name="ElevatorNorfair">Elevator marker used in Norfair.</param>
+    /// <param name="ElevatorWreckedShip">Elevator marker used at the Wrecked Ship.</param>
+    /// <param name="ElevatorMaridia">Elevator marker used in Maridia.</param>
+    /// <param name="WorldTitle">World-map title composition.</param>
+    /// <param name="WorldCrateria">Region label composition for Crateria.</param>
+    /// <param name="WorldBrinstar">Region label composition for Brinstar.</param>
+    /// <param name="WorldNorfair">Region label composition for Norfair.</param>
+    /// <param name="WorldWreckedShip">Region label composition for the Wrecked Ship.</param>
+    /// <param name="WorldMaridia">Region label composition for Maridia.</param>
+    /// <param name="WorldTourian">Region label composition for Tourian.</param>
     private sealed record FrameSet(
         SpriteComposition? ArrowRight,
         SpriteComposition? ArrowLeft,

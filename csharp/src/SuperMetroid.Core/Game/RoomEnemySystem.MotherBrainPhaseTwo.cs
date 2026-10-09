@@ -8,17 +8,27 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Bank-$A9 body instruction list for Mother Brain's crouched pose.</summary>
     private const ushort MotherBrainCrouchedInstruction = 0x9a02;
+    /// <summary>Bank-$A9 body instruction list that raises Mother Brain slowly from crouching.</summary>
     private const ushort MotherBrainSlowUncrouchInstruction = 0x99aa;
+    /// <summary>Bank-$A9 head instruction list used during the phase-two neck stretch.</summary>
     private const ushort MotherBrainStretchingHeadInstruction = 0x9b7f;
+    /// <summary>Bank-$A9 neutral head instruction list installed after the phase-two stretch.</summary>
     private const ushort MotherBrainNeutralPhaseTwoHeadInstruction = 0x9c87;
+    /// <summary>Bank-$A9 head instruction list for the four onion-ring laser warning.</summary>
     private const ushort MotherBrainFourOnionRingsInstruction = 0x9d3d;
+    /// <summary>Bank-$A9 head instruction list for the phase-two bomb attack posture.</summary>
     private const ushort MotherBrainBombPhaseTwoHeadInstruction = 0x9ecc;
+    /// <summary>Bank-$A9 head instruction list that aims and fires the phase-two laser.</summary>
     private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
+    /// <summary>Callback installing the room's configured default layer-blending mode.</summary>
     private Action<LayerBlendingConfiguration>? _setMotherBrainLayerBlendingDefaultConfig;
+    /// <summary>Callback publishing BG2 scroll changes for the articulated Mother Brain body.</summary>
     private Action<ushort, ushort>? _setMotherBrainBg2Scroll;
 
+    /// <summary>Authored horizontal positions used to place dust actors during Mother Brain's rise.</summary>
     private static readonly ushort[] MotherBrainAscentDustXPositions =
         [0x003d, 0x0054, 0x0020, 0x0035, 0x005a, 0x0043, 0x0067, 0x0029];
 
@@ -182,6 +192,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Restores the brain and head actors, initializes phase-two health, and enters the suspense pause.</summary>
+    /// <param name="state">Multipart Mother Brain state whose body and head are restored.</param>
+    /// <param name="samus">Active player state passed to the same-frame suspense continuation.</param>
     private void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -207,6 +220,9 @@ public sealed partial class RoomEnemySystem
         PauseBeforeMotherBrainRises(state, samus);
     }
 
+    /// <summary>Counts down the authored suspense interval before preparing Mother Brain's rise.</summary>
+    /// <param name="state">Encounter state whose pause timer and next function are advanced.</param>
+    /// <param name="samus">Active player state needed when the pause expires.</param>
     private void PauseBeforeMotherBrainRises(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -219,6 +235,9 @@ public sealed partial class RoomEnemySystem
         PrepareMotherBrainForRising(state, samus);
     }
 
+    /// <summary>Prepares the brain, palette, and actor instructions for the ascent animation.</summary>
+    /// <param name="state">Encounter state receiving ascent setup.</param>
+    /// <param name="samus">Active player state used by the ensuing phase transition.</param>
     private void PrepareMotherBrainForRising(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -239,6 +258,9 @@ public sealed partial class RoomEnemySystem
         LoadMotherBrainLegTiles(state, samus);
     }
 
+    /// <summary>Loads the articulated leg graphics required before the body finishes rising.</summary>
+    /// <param name="state">Encounter state whose tile-transfer sequence is being advanced.</param>
+    /// <param name="samus">Active player state retained for the same native transition path.</param>
     private void LoadMotherBrainLegTiles(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -255,6 +277,9 @@ public sealed partial class RoomEnemySystem
         ContinueMotherBrainAscentPause(state);
     }
 
+    /// <summary>Processes one pending Mother Brain sprite-tile transfer and reports whether loading remains.</summary>
+    /// <param name="state">Encounter state containing the transfer cursor and actor data.</param>
+    /// <returns><see langword="true"/> while another transfer step is pending.</returns>
     private bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
     {
         int index = state.SpriteTileTransferEntryPointer == 0
@@ -279,6 +304,8 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Advances the second ascent pause and starts the rise when its timer expires.</summary>
+    /// <param name="state">Encounter state whose pause function and timer are updated.</param>
     private void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -291,6 +318,8 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
 
+    /// <summary>Starts the ascent music and earthquake before transferring to the rising body state.</summary>
+    /// <param name="state">Encounter state receiving the rise function and timing.</param>
     private void StartMotherBrainAscent(MotherBrainEnemyState state)
     {
         SetMotherBrainInstructionList(state.Body, MotherBrainCrouchedInstruction);
@@ -309,6 +338,8 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
     }
 
+    /// <summary>Raises Mother Brain and advances the authored ascent effects until she is uncrouched.</summary>
+    /// <param name="state">Encounter state whose body position and rise phase are advanced.</param>
     private void RaiseMotherBrain(MotherBrainEnemyState state)
     {
         // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
@@ -332,6 +363,8 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;
     }
 
+    /// <summary>Spawns the next ascent dust actor at its authored horizontal position.</summary>
+    /// <param name="state">Encounter state tracking which dust position is next.</param>
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.BodySubFunctionTimer);
@@ -346,6 +379,8 @@ public sealed partial class RoomEnemySystem
         state.LastSoundEffect = 0x0029;
     }
 
+    /// <summary>Waits for the uncrouch instruction list to finish before starting the gray transition.</summary>
+    /// <param name="state">Encounter state whose body animation and function are inspected.</param>
     private static void WaitForMotherBrainToFinishUncrouching(MotherBrainEnemyState state)
     {
         if (state.Pose != MotherBrainBodyPose.Standing)
@@ -356,6 +391,8 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 0;
     }
 
+    /// <summary>Transitions the revived brain from its gray appearance into the active phase-two presentation.</summary>
+    /// <param name="state">Encounter state whose palette and phase function are advanced.</param>
     private void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -383,6 +420,9 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = 0x0017;
     }
 
+    /// <summary>Runs the authored head shake and chooses the next phase-two posture.</summary>
+    /// <param name="state">Encounter state carrying head pose and body-function timing.</param>
+    /// <param name="samus">Active player state used to select the subsequent attack behavior.</param>
     private static void ShakeMotherBrainHeadMenacingly(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -397,6 +437,9 @@ public sealed partial class RoomEnemySystem
         BringMotherBrainHeadBackUp(state, samus);
     }
 
+    /// <summary>Returns the head from its lowered stretch pose and advances the phase-two handoff.</summary>
+    /// <param name="state">Encounter state whose head animation and body function are updated.</param>
+    /// <param name="samus">Active player state supplied to the next thinking phase.</param>
     private static void BringMotherBrainHeadBackUp(
         MotherBrainEnemyState state,
         SamusState? samus)
@@ -411,6 +454,8 @@ public sealed partial class RoomEnemySystem
         FinishMotherBrainStretching(state);
     }
 
+    /// <summary>Completes the stretch sequence and installs the neutral phase-two head behavior.</summary>
+    /// <param name="state">Encounter state receiving the neutral head list and thinking function.</param>
     private static void FinishMotherBrainStretching(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -420,6 +465,10 @@ public sealed partial class RoomEnemySystem
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
     }
 
+    /// <summary>Selects Mother Brain's next phase-two action while preserving native same-frame dispatch.</summary>
+    /// <param name="state">Encounter state containing attack phase and cooldown values.</param>
+    /// <param name="samus">Active player state used by movement-sensitive attack selection.</param>
+    /// <param name="sharedProjectiles">Optional shared bomb-projectile owner for attacks that emit one.</param>
     private void RunMotherBrainSecondPhaseThinking(
         MotherBrainEnemyState state,
         SamusState? samus,
@@ -587,6 +636,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Identifies Samus movement modes treated as airborne by Mother Brain's attack selector.</summary>
+    /// <param name="movementType">Current Samus movement mode.</param>
+    /// <returns><see langword="true"/> for jump, fall, air-ball, spring-ball, or wall-jump modes.</returns>
     private static bool IsMotherBrainAirAttackMovement(SamusMovementType movementType) =>
         movementType is
             SamusMovementType.NormalJumping or
@@ -690,6 +742,8 @@ public sealed partial class RoomEnemySystem
             FinishMotherBrainBombAttack(state);
     }
 
+    /// <summary>Returns the encounter to phase-two attack selection after the bomb attack completes.</summary>
+    /// <param name="state">Encounter state whose body function is changed.</param>
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
 
@@ -740,6 +794,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Requires the live Samus actor for combat phases that inspect player position or movement.</summary>
+    /// <param name="samus">Optional actor supplied by the room update.</param>
+    /// <returns>The active Samus state.</returns>
+    /// <exception cref="InvalidOperationException">No Samus actor is available for combat dispatch.</exception>
     private static SamusState RequireMotherBrainCombatSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Mother Brain phase-two attack selection requires the active Samus actor.");
@@ -804,6 +862,8 @@ public sealed partial class RoomEnemySystem
         RunMotherBrainSecondPhaseThinking(state, samus);
     }
 
+    /// <summary>Advances Mother Brain's walk decision counter and installs a body walk list when selected.</summary>
+    /// <param name="state">Encounter state containing pose, position, and walk-selection counter.</param>
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // `$A9:C6B8` alters only the walk accumulator and installs a ROM-authored body list;
@@ -837,6 +897,8 @@ public sealed partial class RoomEnemySystem
             StartMotherBrainForwardWalk(state);
     }
 
+    /// <summary>Resets the walk counter and starts the forward walk list while the body remains in range.</summary>
+    /// <param name="state">Encounter state whose body position and walk counter determine list selection.</param>
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
         state.WalkCounter = 0x0080;
@@ -891,6 +953,9 @@ public sealed partial class RoomEnemySystem
             _motherBrain.LastSoundEffectLibrary3 = 0x0016;
     }
 
+    /// <summary>Installs a Mother Brain actor instruction list with its native initial timer values.</summary>
+    /// <param name="slot">Body or head actor receiving the instruction pointer.</param>
+    /// <param name="pointer">Bank-$A9 instruction-list address.</param>
     private static void SetMotherBrainInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
@@ -898,6 +963,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
+    /// <summary>Stores and publishes the BG2 scroll that keeps the large body art aligned with its actor.</summary>
+    /// <param name="state">Encounter state retaining the published scroll override.</param>
+    /// <param name="x">Horizontal BG2 scroll value.</param>
+    /// <param name="y">Vertical BG2 scroll value.</param>
     private void PublishMotherBrainBg2Scroll(
         MotherBrainEnemyState state,
         ushort x,

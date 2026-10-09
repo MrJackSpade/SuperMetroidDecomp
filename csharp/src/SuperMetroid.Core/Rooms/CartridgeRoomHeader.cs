@@ -13,6 +13,18 @@ namespace SuperMetroid.Core.Rooms;
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
 /// </remarks>
+/// <param name="Pointer">Bank-$8F address of the selected room's fixed header.</param>
+/// <param name="RoomIndex">Room number within <paramref name="AreaIndex"/>.</param>
+/// <param name="AreaIndex">Area containing the room.</param>
+/// <param name="MapX">Room's horizontal origin on the area map.</param>
+/// <param name="MapY">Room's vertical origin on the area map.</param>
+/// <param name="WidthInScreens">Room width in SNES screens, as stored in the fixed header.</param>
+/// <param name="HeightInScreens">Room height in SNES screens, as stored in the fixed header.</param>
+/// <param name="UpScroller">Cartridge up-scroller setting for this room.</param>
+/// <param name="DownScroller">Cartridge down-scroller setting for this room.</param>
+/// <param name="CreBitset">CRE bitset copied from the room header.</param>
+/// <param name="DoorListPointer">Bank-relative pointer to the room's door list.</param>
+/// <param name="State">State payload selected from this room's state table.</param>
 public sealed record CartridgeRoomHeader(
     ushort Pointer,
     byte RoomIndex,
@@ -59,6 +71,22 @@ public sealed record CartridgeRoomHeader(
 }
 
 /// <summary>The fields copied by <c>LoadStateHeader</c> at $82:DEF2.</summary>
+/// <param name="Pointer">Bank-$8F address of the selected room-state header.</param>
+/// <param name="CompressedLevelDataAddress">Address of the compressed level block stream.</param>
+/// <param name="GraphicsSet">Graphics-set index loaded for this state.</param>
+/// <param name="MusicDataIndex">Music data-set index requested by the state.</param>
+/// <param name="MusicTrackIndex">Track index within the selected music data set.</param>
+/// <param name="FxPointer">Pointer to the room's environmental-effects definition.</param>
+/// <param name="EnemyPopulationPointer">Pointer to the enemy population list.</param>
+/// <param name="EnemyTilesetPointer">Pointer to the enemy graphics tileset data.</param>
+/// <param name="Layer2ScrollX">Initial horizontal layer-two scroll mode.</param>
+/// <param name="Layer2ScrollY">Initial vertical layer-two scroll mode.</param>
+/// <param name="ScrollPointer">Pointer to the room's scroll data.</param>
+/// <param name="XrayPointer">Pointer to the state's X-Ray block-reveal data.</param>
+/// <param name="MainCodePointer">Native callback pointer run by the room main loop.</param>
+/// <param name="PlmPointer">Pointer to the state's PLM population list.</param>
+/// <param name="BackgroundDataPointer">Pointer to the background data loaded for this state.</param>
+/// <param name="SetupCodePointer">Native callback pointer run during room setup.</param>
 public sealed record CartridgeRoomState(
     ushort Pointer,
     int CompressedLevelDataAddress,
@@ -88,6 +116,10 @@ public sealed record CartridgeRoomState(
 }
 
 /// <summary>Facts inspected by the cartridge's room-state selector functions.</summary>
+/// <param name="Events">Event bytes used by selector conditions; absent bytes are treated as clear.</param>
+/// <param name="BossBits">Defeated-boss bits consulted by selector conditions.</param>
+/// <param name="HasMorphBallAndMissiles">Whether both Morph Ball and Missiles are present.</param>
+/// <param name="HasPowerBombs">Whether Power Bombs are present.</param>
 public readonly record struct RoomStateSelectionContext(
     ReadOnlyMemory<byte> Events,
     BossBits BossBits,

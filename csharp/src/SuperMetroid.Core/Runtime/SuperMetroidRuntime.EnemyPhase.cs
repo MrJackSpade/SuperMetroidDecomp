@@ -7,6 +7,7 @@ public sealed partial class SuperMetroidRuntime
 {
     // Only the remaining dedicated Ceres adapter publishes here. Ordinary shots, Phantoon
     // beams and bombs dispatch per enemy before AI, and Kraid's passes run inside its AI.
+    /// <summary>Resolves the post-update Ceres projectile contacts owned by the remaining dedicated adapter.</summary>
     private void ResolveUpdatedBeamHits()
     {
         Enemies.ResolveCeresRidleyProjectileHits(
@@ -17,6 +18,7 @@ public sealed partial class SuperMetroidRuntime
 
     // Terrain preparation owns the external movement words before alpha. Enemy
     // actors subsequently add platform displacement; beta consumes it unchanged.
+    /// <summary>Prepares producer-owned terrain contacts and external displacement before enemy AI.</summary>
     private void PrepareEnemyFrame()
     {
         if (Camera is not null && Enemies.IsLoaded)

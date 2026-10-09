@@ -14,21 +14,46 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
+    /// <summary>Address space supplying native text instruction words.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Mutable $400-word BG tilemap updated as text characters are revealed.</summary>
     private readonly ushort[] tilemap;
+    /// <summary>Inventory values used to calculate the final collectible percentage.</summary>
     private readonly EndingInventorySnapshot inventory;
+    /// <summary>Selects the Japanese subtitle path when the item percentage message is displayed.</summary>
     private readonly bool japaneseText;
+    /// <summary>Current cursor in the native instruction stream.</summary>
     private ushort instructionPointer;
+    /// <summary>Remaining frames before the next instruction or character is processed.</summary>
     private ushort instructionTimer = 1;
+    /// <summary>Destination word for complete BG tilemap uploads.</summary>
     private readonly ushort tilemapDestination;
+    /// <summary>Host presentation rebound after state restore to compile installed message text.</summary>
     [NonSerialized] private EndingTextPresentation? presentation;
+    /// <summary>Compiled character program for the currently installed sequence.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
+    /// <summary>Sequence identity determines whether item-percentage behavior follows the text.</summary>
     private readonly EndingTextSequence? installedSequence;
+    /// <summary>Index of the next compiled character to install.</summary>
     private int installedCharacterIndex;
+    /// <summary>Tracks whether the sequence's initial delay marker has been consumed.</summary>
     private bool installedInitialMarkerPending = true;
+    /// <summary>Tracks the item-percentage hold between drawing the value and finishing the sequence.</summary>
     private bool installedHoldStarted;
+    /// <summary>Whether all installed text and follow-up presentation work has completed.</summary>
     private bool installedCompleted;
 
+    /// <summary>Creates a post-credit BG text state and compiles the selected installed sequence.</summary>
+    /// <param name="bus">Address space used by native instruction-stream processing.</param>
+    /// <param name="tilemap">Mutable $400-word BG tilemap receiving the text cells.</param>
+    /// <param name="instructionPointer">Starting position in the text instruction stream.</param>
+    /// <param name="inventory">Saved inventory values used by the item-percentage sequence.</param>
+    /// <param name="japaneseText">Whether to draw the installed Japanese subtitle after the percentage.</param>
+    /// <param name="tilemapDestination">VRAM word destination for tilemap uploads.</param>
+    /// <param name="presentation">Compiled presentation assets and localized text.</param>
+    /// <param name="installedSequence">Sequence whose compiled characters are advanced by this state.</param>
+    /// <exception cref="ArgumentException">The supplied tilemap does not contain exactly $400 words.</exception>
+    /// <exception cref="InvalidOperationException">Presentation assets or a sequence are missing.</exception>
     public EndingBackgroundTextState(
         ISnesAddressSpace bus,
         ushort[] tilemap,
@@ -56,9 +81,13 @@ internal sealed class EndingBackgroundTextState
             : null;
     }
 
+    /// <summary>Whether the installed sequence and any percentage hold have finished.</summary>
     public bool Completed => installedCompleted;
+    /// <summary>Whether completion requested the caller's item-percentage screen scroll.</summary>
     public bool RequestedItemPercentageScroll { get; private set; }
 
+    /// <summary>Advances one frame of installed text and publishes tilemap writes when the sequence changes.</summary>
+    /// <param name="vram">VRAM receiving the current complete text tilemap when an update requires publication.</param>
     public void Step(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
@@ -80,6 +109,7 @@ internal sealed class EndingBackgroundTextState
                 $"Saved ending-text cursor {installedCharacterIndex} exceeds the rebound program.");
     }
 
+    /// <summary>Consumes the initial delay, reveals one character per cadence, then applies sequence-specific completion.</summary>
     private void StepInstalled(SnesVram vram)
     {
         if (installedCompleted || instructionTimer-- != 1) return;
@@ -123,6 +153,7 @@ internal sealed class EndingBackgroundTextState
         Upload(vram);
     }
 
+    /// <summary>Counts collectible upgrades and writes the clamped percentage and percent glyph to the tilemap.</summary>
     private void DrawItemPercentage()
     {
         int count = inventory.MaxHealth / 100
@@ -152,6 +183,7 @@ internal sealed class EndingBackgroundTextState
             EndingCreditsRomData.Text.PercentBottomTile;
     }
 
+    /// <summary>Writes one two-tile-high decimal digit at the supplied top-row tilemap index.</summary>
     private void WriteDigit(int topIndex, int digit)
     {
         tilemap[topIndex] = unchecked((ushort)(EndingCreditsRomData.Text.DigitTopTile + digit));
@@ -159,6 +191,7 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
+    /// <summary>Transfers the complete tilemap to the configured VRAM word destination.</summary>
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
             tilemap,
@@ -167,6 +200,14 @@ internal sealed class EndingBackgroundTextState
 
 }
 
+/// <summary>Inventory capacity and collectible bitfields captured for ending-text percentage calculation.</summary>
+/// <param name="MaxHealth">Maximum energy capacity, including all acquired energy tanks.</param>
+/// <param name="MaxReserveEnergy">Maximum reserve-energy capacity.</param>
+/// <param name="MaxMissiles">Maximum missile capacity.</param>
+/// <param name="MaxSuperMissiles">Maximum Super Missile capacity.</param>
+/// <param name="MaxPowerBombs">Maximum Power Bomb capacity.</param>
+/// <param name="CollectedItems">Collected item bitfield, filtered by the ending collectible mask.</param>
+/// <param name="CollectedBeams">Collected beam bitfield, filtered by the ending collectible mask.</param>
 internal readonly record struct EndingInventorySnapshot(
     ushort MaxHealth,
     ushort MaxReserveEnergy,

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Confirms Mother Brain tile transfers use typed mutable-memory reads and reject unbound cartridge sources.</summary>
     private static void VerifyMotherBrainSpriteTransferSources()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -33,17 +34,31 @@ internal static partial class Program
             "Mother Brain cartridge-source refusal names the missing installed artwork");
     }
 
+    /// <summary>Address-space test double that rejects the untyped CPU reader while forwarding typed memory access.</summary>
+    /// <param name="source">Backing test memory for the supported typed reads and writes.</param>
     private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Rejects code paths that try to read through the general CPU address-space interface.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Mother Brain tile transfer used the untyped CPU reader at ${address:X6}.");
+
+        /// <summary>Forwards a WRAM access to the backing mutable test memory.</summary>
         public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
+
+        /// <summary>Forwards an SRAM access to the backing mutable test memory.</summary>
         public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+
+        /// <summary>Forwards an explicitly typed cartridge read to the backing test memory.</summary>
         public byte ReadCartridgeByte(int address) => source.ReadCartridgeByte(address);
+
+        /// <summary>Forwards a write to the backing test memory.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Checks installed Mother Brain special sheets against cartridge transfers and verifies editable PNG overrides.</summary>
+    /// <param name="directory">Directory containing the installed special-sprite PNG files.</param>
+    /// <param name="stock">Loaded stock artwork catalog whose Mother Brain sheets are under verification.</param>
     private static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -152,6 +167,9 @@ internal static partial class Program
             "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
     }
 
+    /// <summary>Compares each compiled leg transfer record and resulting VRAM page with the cartridge data.</summary>
+    /// <param name="stock">Artwork catalog installed on the enemy system during transfer processing.</param>
+    /// <param name="rom">Cartridge address space used as the reference for native transfer records and bytes.</param>
     private static void VerifyMotherBrainLegTileTransfers(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
@@ -217,6 +235,9 @@ internal static partial class Program
             "Misaligned Mother Brain leg transfer pointer should fail explicitly.");
     }
 
+    /// <summary>Verifies installed timer art supplies cartridge-backed pages while mutable corpse WRAM remains readable.</summary>
+    /// <param name="stock">Artwork catalog providing the installed timer atlas.</param>
+    /// <param name="rom">Cartridge address space used to compare transferred timer bytes.</param>
     private static void VerifyMotherBrainInstalledTransferBoundary(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
@@ -272,6 +293,11 @@ internal static partial class Program
             "installed Mother Brain still copies mutable corpse WRAM to VRAM");
     }
 
+    /// <summary>Asserts that a malformed or unavailable installed transfer is rejected instead of reading cartridge art.</summary>
+    /// <param name="method">Transfer method invoked reflectively on the enemy system.</param>
+    /// <param name="enemies">Enemy system whose installed transfer behavior is under check.</param>
+    /// <param name="request">Transfer record expected to be rejected.</param>
+    /// <param name="label">Context included in the failure message if the request is accepted.</param>
     private static void AssertMotherBrainInstalledTransferRejected(
         MethodInfo method, RoomEnemySystem enemies,
         MotherBrainSpriteTileTransferRequest request, string label)
@@ -288,6 +314,10 @@ internal static partial class Program
         throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
     }
 
+    /// <summary>Builds expected VRAM by copying each special-sheet page directly from its cartridge source.</summary>
+    /// <param name="bus">Cartridge address space used for the reference reads.</param>
+    /// <param name="sheet">Source range and destination layout of the special sheet.</param>
+    /// <returns>VRAM populated with the sheet's native pages at their configured destinations.</returns>
     private static SnesVram ReferenceMotherBrainSpecialPages(
         ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
@@ -303,6 +333,11 @@ internal static partial class Program
         }
         return vram;
     }
+    /// <summary>Runs the production tile-transfer path for each page of an installed special sheet.</summary>
+    /// <param name="artwork">Installed enemy artwork supplying the sheet's transfer bytes.</param>
+    /// <param name="bus">Address space passed to the production enemy system for non-artwork accesses.</param>
+    /// <param name="sheet">Page count, source identity, and VRAM destination layout to transfer.</param>
+    /// <returns>VRAM after the production transfer handler processes every page.</returns>
     private static SnesVram TransferMotherBrainSpecialPages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
@@ -328,26 +363,36 @@ internal static partial class Program
         return vram;
     }
 
+    /// <summary>Address-space guard that fails if a special sheet's visual source range is read from the cartridge.</summary>
+    /// <param name="source">Backing address space for reads outside the guarded visual range and for writes.</param>
+    /// <param name="sheet">Special sheet whose cartridge byte range must not be read by runtime transfer code.</param>
     private sealed class MotherBrainSpecialArtworkReadGuard(
         ISnesAddressSpace source, MotherBrainSpecialSpriteSheetDefinition sheet) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Uses the guarded cartridge-read path so visual source reads are intercepted.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads inside the sheet's visual range and forwards other addresses to the backing bus.</summary>
         public byte ReadByte(int address) =>
             address >= sheet.SourceAddress && address < sheet.SourceAddress + sheet.ByteCount
                 ? throw new InvalidOperationException(
                     $"{sheet.FileName} attempted a visual ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the backing address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space guard that prevents rereading the Baby tile-transfer metadata from cartridge ROM.</summary>
+    /// <param name="source">Backing address space for accesses outside the Baby record list and for writes.</param>
     private sealed class MotherBrainBabyTileRecordReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Uses the guarded read path for typed cartridge access.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects reads in the Baby transfer-record range and forwards other addresses.</summary>
         public byte ReadByte(int address) =>
             address is >= MotherBrainTileTransferDefinitionsConstants.BabyTileList and
                 < MotherBrainTileTransferDefinitionsConstants.BabyTileList +
@@ -357,12 +402,16 @@ internal static partial class Program
                     $"Mother Brain read compiled Baby metadata from ROM at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the backing address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Address-space guard that blocks timer-art and corpse-buffer cartridge reads while forwarding mutable-memory access.</summary>
+    /// <param name="source">Backing bus that supplies permitted reads, writes, WRAM, and SRAM.</param>
     private sealed class MotherBrainTimerArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, ISnesMutableMemory
     {
+        /// <summary>Rejects addresses reserved for timer art or the mutable corpse buffer and forwards other reads.</summary>
         public byte ReadByte(int address) =>
             address == MotherBrainCorpseRottingState.GraphicsBufferAddress ||
             (address >= EscapeTimerTileRomData.FirstSourceAddress &&
@@ -372,24 +421,31 @@ internal static partial class Program
                     $"Mother Brain attempted a timer-art ROM read at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the backing address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+        /// <summary>Reads WRAM through the backing mutable-memory interface, failing if it is unavailable.</summary>
         public byte ReadWorkRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Mother Brain transfer guard requires mutable WRAM."))
             .ReadWorkRamByte(address);
 
+        /// <summary>Reads SRAM through the backing mutable-memory interface, failing if it is unavailable.</summary>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Mother Brain transfer guard requires mutable SRAM."))
             .ReadSaveRamByte(address);
     }
 
+    /// <summary>Address-space guard that prevents leg-list or migrated Mother Brain sprite bytes from being reread from ROM.</summary>
+    /// <param name="source">Backing address space for permitted reads and writes.</param>
     private sealed class MotherBrainLegTransferReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Uses the guarded read path for typed cartridge access.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects the migrated list and sprite ranges and forwards unrelated reads.</summary>
         public byte ReadByte(int address) =>
             address >= MotherBrainLegTileTransferDefinitions.NativeListAddress &&
             address < MotherBrainLegTileTransferDefinitions.NativeListAddress +
@@ -402,6 +458,7 @@ internal static partial class Program
                     $"Mother Brain leg loading reread migrated ROM data at ${address:X6}.")
                 : source.ReadByte(address);
 
+        /// <summary>Forwards writes to the backing address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -9,17 +9,27 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Blank tilemap word written across the enemy-owned BG2 working image during initialization.</summary>
     private const ushort PhantoonBlankBg2Tile = 0x0338;
+    /// <summary>VRAM word address where Phantoon's BG2 working tilemap is mirrored.</summary>
     private const ushort PhantoonBg2VramBase = 0x4800;
+    /// <summary>Number of words in the cleared BG2 working image.</summary>
     private const int PhantoonBg2WordCount = 0x0800;
+    /// <summary>Initial invulnerable body list used while the fight introduction runs.</summary>
     private const ushort PhantoonInitialBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
+    /// <summary>Initial closed-eye instruction list for the independent eye record.</summary>
     private const ushort PhantoonInitialEyeInstruction = PhantoonInstructionProgramDefinitions.EyeClosed;
+    /// <summary>Initial animation list for the independent tentacle record.</summary>
     private const ushort PhantoonInitialTentacleInstruction =
         PhantoonInstructionProgramDefinitions.InitialTentacles;
+    /// <summary>Initial animation list for the independent mouth record.</summary>
     private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionProgramDefinitions.InitialMouth;
+    /// <summary>Per-update amplitude decrement during the intro's mouth-wave fade.</summary>
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
+    /// <summary>Maximum intro amplitude reached before control advances to the first-round pattern.</summary>
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
+    /// <summary>Phase increment written to the mouth while the intro wave is active.</summary>
     private const ushort PhantoonWavyPhaseDelta = 0x0008;
 
     /// <summary>Ports <c>InitAI_PhantoonBody</c> at $A7:CDF3.</summary>
@@ -58,6 +68,8 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the shared part initializer at $A7:CE55.</summary>
+    /// <param name="part">Phantoon companion slot with parameter 1, 2, or 3 identifying its role.</param>
+    /// <exception cref="InvalidDataException">The part parameter does not identify a supported companion.</exception>
     private void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = RequirePhantoonState(part);
@@ -240,6 +252,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Spawns the eight introductory flames on timer expiry, then requests the boss door and advances to the pause.</summary>
+    /// <param name="body">Phantoon body slot carrying the spawn index and function timer.</param><param name="state">Four-part state receiving spawn counts, sound context, and door request.</param>
     private void RunPhantoonStartingFlameSpawner(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -263,6 +277,8 @@ public sealed partial class RoomEnemySystem
         state.BossDoorPlmRequest = RoomPlmHeaders.DrawPhantoonDoorDuringBossFight;
     }
 
+    /// <summary>Waits for the post-spawn pause timer, then schedules the orbit-disappearance wait.</summary>
+    /// <param name="body">Body slot whose timer and AI function are updated.</param>
     private static void RunPhantoonStartingFlamePause(RoomEnemySlot body)
     {
         if (!TickPhantoonFunctionTimer(body))
@@ -272,6 +288,8 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.WaitForStartingFlamesToDisappear;
     }
 
+    /// <summary>After the orbit wait, enables the wavy intro, starts its fade and amplitude, and queues fight music.</summary>
+    /// <param name="body">Body slot whose timer and function advance.</param><param name="state">Companion records and wave state updated for the intro.</param>
     private static void RunPhantoonStartingFlameOrbitWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -293,6 +311,8 @@ public sealed partial class RoomEnemySystem
         state.Wave.Begin(PhantoonWaveRomData.IntroMode);
     }
 
+    /// <summary>Fades the body palette while growing the intro wave until the first-round pattern can begin.</summary>
+    /// <param name="body">Body slot providing health and intro timer state.</param><param name="state">Eye, mouth, palette, and wave state used by the transition.</param><param name="nmiFrameCounter8">Cartridge NMI counter value governing frame-synchronized work.</param>
     private void RunPhantoonWavyFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -314,6 +334,8 @@ public sealed partial class RoomEnemySystem
             state.Mouth!.VariableE = 1;
     }
 
+    /// <summary>Chooses the initial figure-eight direction from the native RNG and starts the eye-closed duration.</summary>
+    /// <param name="body">Body slot receiving path direction, speed, and next AI function.</param><param name="state">Eye record whose closed animation state is initialized.</param><param name="nmiFrameCounter8">Current NMI counter supplied to the fight dispatcher.</param>
     private void RunPhantoonPickFirstRoundPattern(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -342,6 +364,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Advances the first path and casual-flame schedule, then opens the eye and spawns spiral flames on expiry.</summary>
+    /// <param name="body">Body slot following the figure-eight path.</param><param name="state">Eye and mouth state for the opening round.</param>
     private void RunPhantoonFirstRoundFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -362,6 +386,8 @@ public sealed partial class RoomEnemySystem
         SpawnPhantoonSpiralFlames(body);
     }
 
+    /// <summary>Moves the body along the compiled figure-eight path using the eye record's direction and body speed state.</summary>
+    /// <param name="body">Body slot whose coordinates and path index advance.</param><param name="eye">Eye slot whose direction flag selects forward or reverse traversal.</param>
     private static void StepPhantoonFigureEight(RoomEnemySlot body, RoomEnemySlot eye)
     {
         if (eye.VariableC != 0)
@@ -390,6 +416,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the forward path's slow/fast acceleration phases and native speed caps.</summary>
+    /// <param name="body">Body slot containing the packed fractional/whole speed and phase words.</param>
     private static void AdjustPhantoonForwardFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
@@ -435,6 +463,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Applies the reverse path's deceleration and acceleration phases with their direction-specific limits.</summary>
+    /// <param name="body">Body slot containing the packed fractional/whole speed and phase words.</param>
     private static void AdjustPhantoonReverseFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
@@ -482,6 +512,8 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Adds a low/high word increment to the packed 16.16 path speed stored in variables B and C.</summary>
+    /// <param name="body">Body slot whose speed words are updated.</param><param name="low">Fractional low word of the increment.</param><param name="high">Whole high word of the increment.</param>
     private static void AddPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
         uint value = ((uint)body.VariableC << 16) | body.VariableB;
@@ -490,6 +522,8 @@ public sealed partial class RoomEnemySystem
         body.VariableC = unchecked((ushort)(value >> 16));
     }
 
+    /// <summary>Subtracts a low/high word decrement from the packed 16.16 path speed stored in variables B and C.</summary>
+    /// <param name="body">Body slot whose speed words are updated.</param><param name="low">Fractional low word of the decrement.</param><param name="high">Whole high word of the decrement.</param>
     private static void SubtractPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
         uint value = ((uint)body.VariableC << 16) | body.VariableB;
@@ -498,6 +532,8 @@ public sealed partial class RoomEnemySystem
         body.VariableC = unchecked((ushort)(value >> 16));
     }
 
+    /// <summary>Advances the mouth's current casual-flame pattern and installs its follow-up list when a spawn is due.</summary>
+    /// <param name="body">Boss body slot owning the shared pattern words.</param><param name="mouth">Mouth slot carrying pattern choice, remaining count, and timer.</param>
     private void StepPhantoonCasualFlameSchedule(RoomEnemySlot body, RoomEnemySlot mouth)
     {
         mouth.VariableB = unchecked((ushort)(mouth.VariableB - 1));
@@ -525,6 +561,8 @@ public sealed partial class RoomEnemySystem
         mouth.VariableB = pattern[mouth.VariableC + 1];
     }
 
+    /// <summary>Updates the health-selected palette fade on eligible NMI frames until the transition counter completes.</summary>
+    /// <param name="body">Body slot supplying health for target palette selection.</param><param name="state">Eye and shared palette state controlling progress.</param><param name="denominator">Fade duration denominator used for interpolation.</param><param name="nmiFrameCounter8">NMI counter used with the native every-other-frame gate.</param>
     private void AdvancePhantoonFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -556,6 +594,8 @@ public sealed partial class RoomEnemySystem
         eye.VariableE = unchecked((ushort)(numerator + 1));
     }
 
+    /// <summary>Interpolates the three five-bit SNES color channels independently for one palette entry.</summary>
+    /// <param name="numerator">Current completed fade step.</param><param name="denominator">Total interpolation denominator.</param><param name="current">Current packed BGR555 color.</param><param name="target">Destination packed BGR555 color.</param><returns>The packed interpolated color.</returns>
     private static ushort CalculatePhantoonTransitionColor(
         ushort numerator,
         ushort denominator,
@@ -571,6 +611,8 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)(red | (green << 5) | (blue << 10)));
     }
 
+    /// <summary>Computes one five-bit color-channel step using the cartridge's signed fixed-point division rule.</summary>
+    /// <param name="numerator">Current fade step.</param><param name="denominator">Fade duration denominator.</param><param name="current">Current five-bit component.</param><param name="target">Destination five-bit component.</param><returns>The interpolated component value.</returns>
     private static int CalculatePhantoonTransitionComponent(
         ushort numerator,
         ushort denominator,
@@ -591,6 +633,8 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)((current << 8) + signedStep)) >> 8;
     }
 
+    /// <summary>Changes mouth-wave amplitude according to its direction flag and reports when a decreasing intro wave reaches zero.</summary>
+    /// <param name="mouth">Mouth slot holding amplitude and direction.</param><param name="delta">Unsigned amplitude change per update.</param><param name="maximum">Upper clamp for a rising wave.</param><returns>True only when a descending wave crosses below zero and is clamped to zero.</returns>
     private static bool AdvancePhantoonWaveAmplitude(
         RoomEnemySlot mouth,
         ushort delta,
@@ -614,6 +658,8 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Decrements the body function timer and recognizes its native one-frame or signed-underflow expiration.</summary>
+    /// <param name="body">Body slot whose timer word is consumed.</param><returns>True when the function timer expires on this update.</returns>
     private static bool TickPhantoonFunctionTimer(RoomEnemySlot body)
     {
         ushort oldTimer = body.VariableE;
@@ -621,6 +667,9 @@ public sealed partial class RoomEnemySystem
         return oldTimer == 1 || unchecked((short)body.VariableE) < 0;
     }
 
+    /// <summary>Requires the body and all three independent companion records before dispatching fight behavior.</summary>
+    /// <param name="body">Phantoon body slot whose state is requested.</param><returns>The complete four-part encounter state.</returns>
+    /// <exception cref="InvalidOperationException">Any eye, tentacle, or mouth record is uninitialized.</exception>
     private PhantoonEnemyState RequireCompletePhantoonState(RoomEnemySlot body)
     {
         PhantoonEnemyState state = RequirePhantoonState(body);
@@ -629,6 +678,9 @@ public sealed partial class RoomEnemySystem
         return state;
     }
 
+    /// <summary>Requires Samus data for Phantoon behaviors whose native decisions depend on the player actor.</summary>
+    /// <param name="samus">Optional current Samus state supplied by the caller.</param><returns>The active Samus state.</returns>
+    /// <exception cref="InvalidOperationException">The behavior was dispatched without Samus state.</exception>
     private static SamusState RequirePhantoonSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Phantoon's eye and swoop programs require the active Samus actor.");
@@ -636,6 +688,8 @@ public sealed partial class RoomEnemySystem
     // The spiral fireballs are the first ordinary combat attack. Their exact bank-$86
     // translation belongs to the next combat slice; retaining the explicit call boundary
     // prevents the eye-opening instruction from being mistaken for completed behavior.
+    /// <summary>Requests the eight ordinary spiral flames after the first eye-opening transition.</summary>
+    /// <param name="body">Phantoon body slot anchoring the flame sequence.</param>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)

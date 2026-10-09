@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>One-shot host request for the sound queued by returning from the gunship message.</summary>
     private bool _gunshipExitSoundRequested;
 
     /// <summary>

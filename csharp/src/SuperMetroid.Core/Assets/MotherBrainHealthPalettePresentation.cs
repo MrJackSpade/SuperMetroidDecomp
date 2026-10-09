@@ -7,9 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation
 {
+    /// <summary>Damage-state color rows used for the body and brain OBJ palettes.</summary>
     private readonly TintPalette body;
+    /// <summary>Damage-state color rows used for Mother Brain's rear-leg palette.</summary>
     private readonly TintPalette backLegs;
 
+    /// <summary>Builds lookup palettes from the validated RGB5 rows loaded from the installed asset.</summary>
+    /// <param name="body">Four body/brain rows, ordered from healthiest to most damaged.</param>
+    /// <param name="backLegs">Four rear-leg rows aligned with <paramref name="body"/> health bands.</param>
     private MotherBrainHealthPalettePresentation(ushort[][] body, ushort[][] backLegs)
     {
         this.body = new TintPalette(body, backLeg: false);
@@ -27,6 +32,11 @@ public sealed class MotherBrainHealthPalettePresentation
     internal static ushort StockDeathStartColor(bool backLeg, int color) =>
         TintColor(StockBaseColor(backLeg, color), 3, backLeg);
 
+    /// <summary>Interpolates a base RGB5 color toward red using the native damage-state tint strength and rear-leg adjustment.</summary>
+    /// <param name="initial">Unmodified RGB5 source color.</param>
+    /// <param name="state">Damage band from zero through three.</param>
+    /// <param name="backLeg">Whether to apply the rear-leg tint increment used for nonzero damage bands.</param>
+    /// <returns>The quantized RGB5 tint, with the shared one-unit RGB8 conversion bias.</returns>
     private static ushort TintColor(ushort initial, int state, bool backLeg)
     {
         int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
@@ -64,10 +74,17 @@ public sealed class MotherBrainHealthPalettePresentation
     /// </summary>
     private sealed class TintPalette
     {
+        /// <summary>Base colors used to calculate tint values when the installed rows follow the native ramp.</summary>
         private readonly BasePalette basis;
+        /// <summary>Controls the extra tint strength applied to nonzero rear-leg damage states.</summary>
         private readonly bool backLeg;
+        /// <summary>Original rows retained when any installed entry differs from the calculated tint ramp.</summary>
         private readonly ushort[][]? supplied;
 
+        /// <summary>Chooses native tint calculation or preserves the supplied rows when they contain custom colors.</summary>
+        /// <param name="rows">Damage-state rows to compare with colors calculated from the first row.</param>
+        /// <param name="backLeg">Selects rear-leg tint strength and palette bases.</param>
+        /// <param name="front">Body palette used as the source of rear-leg base colors.</param>
         public TintPalette(ushort[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
@@ -78,26 +95,46 @@ public sealed class MotherBrainHealthPalettePresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Returns an installed color verbatim when custom rows are needed, otherwise calculates its tint.</summary>
+        /// <param name="state">Damage-state row index.</param>
+        /// <param name="color">Color index within that row.</param>
         public ushort Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
+        /// <summary>Calculates a tint from the selected base color and this palette's rear-leg mode.</summary>
+        /// <param name="state">Damage band controlling the interpolation amount.</param>
+        /// <param name="color">Base-palette color index.</param>
+        /// <returns>The RGB5 color for the requested damage band.</returns>
         private ushort Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     private sealed class BasePalette
     {
+        /// <summary>Body highlight used at palette index zero.</summary>
         private readonly ushort highlight;
+        /// <summary>Body midtone used at palette index one.</summary>
         private readonly ushort midtone;
+        /// <summary>Body shadow used at palette index two.</summary>
         private readonly ushort shadow;
+        /// <summary>Outline endpoint; rear palettes derive theirs from the front palette.</summary>
         private readonly ushort outline;
+        /// <summary>Gray endpoint from which the four plate shades are calculated.</summary>
         private readonly ushort gray;
+        /// <summary>Tissue endpoint from which the five brown shades are calculated.</summary>
         private readonly ushort brown;
+        /// <summary>Selects rear-leg palette derivations and zero-filled palette positions.</summary>
         private readonly bool backLeg;
+        /// <summary>Installed colors retained if native shade calculations do not reproduce every entry.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Front body palette supplying the rear palette's related outline and gray endpoints.</summary>
         private readonly BasePalette? front;
 
+        /// <summary>Canonical palette bases derived from the native body and rear-leg artwork.</summary>
         internal static BasePalette StockBody { get; } = new(false);
+        /// <summary>Canonical rear-leg palette, whose outline and gray shades derive from <see cref="StockBody"/>.</summary>
         internal static BasePalette StockRear { get; } = new(true);
 
+        /// <summary>Initializes canonical paint endpoints, linking the rear palette to the stock body palette.</summary>
+        /// <param name="backLeg">Selects the rear-leg palette variant; false initializes the body endpoints.</param>
         private BasePalette(bool backLeg)
         {
             this.backLeg = backLeg;
@@ -111,6 +148,11 @@ public sealed class MotherBrainHealthPalettePresentation
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
+        /// <summary>Reuses a stock palette when its entries match the supplied base row; otherwise compiles the installed row.</summary>
+        /// <param name="colors">RGB5 base-row values to compare against the selected stock palette.</param>
+        /// <param name="backLeg">Selects the body or rear-leg stock palette.</param>
+        /// <param name="front">Body palette required to derive custom rear-leg endpoints.</param>
+        /// <returns>The matching stock instance or a palette that preserves custom colors.</returns>
         internal static BasePalette Create(ushort[] colors, bool backLeg, BasePalette? front)
         {
             BasePalette stock = backLeg ? StockRear : StockBody;
@@ -120,6 +162,10 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, backLeg, front);
         }
 
+        /// <summary>Compiles paint endpoints and retains the row if calculated shade ramps would alter installed colors.</summary>
+        /// <param name="colors">One base palette row in native fifteen-color order.</param>
+        /// <param name="backLeg">Selects rear-leg slots and endpoint derivation.</param>
+        /// <param name="front">Body palette used to derive a rear palette's outline and gray shades.</param>
         public BasePalette(ushort[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;
@@ -135,8 +181,13 @@ public sealed class MotherBrainHealthPalettePresentation
                 { supplied = colors; return; }
         }
 
+        /// <summary>Returns the exact installed entry when required, or the corresponding native shade calculation.</summary>
+        /// <param name="color">Index in the fifteen-color base palette.</param>
         public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
 
+        /// <summary>Maps a native palette slot to its endpoint, derived shade, or transparent zero.</summary>
+        /// <param name="color">Palette index whose RGB5 value is requested.</param>
+        /// <returns>The calculated color for that slot.</returns>
         private ushort Calculate(int color) => color switch
         {
             0 => backLeg ? (ushort)0 : highlight,
@@ -151,6 +202,7 @@ public sealed class MotherBrainHealthPalettePresentation
 
         // The rear outline keeps the front red/blue and adds one RGB5 green
         // step. This names the chosen rear tint; it is not a universal lighting law.
+        /// <summary>Gets the stored body outline or the rear outline derived by increasing the front green channel.</summary>
         private ushort Outline
         {
             get
@@ -163,6 +215,7 @@ public sealed class MotherBrainHealthPalettePresentation
         }
         // Rear illumination halves the front gray endpoint, rounding R/G upward
         // and B downward before generating its own four shade levels.
+        /// <summary>Gets the stored body gray endpoint or the half-lit rear endpoint used for rear plate shades.</summary>
         private ushort Gray
         {
             get
@@ -173,6 +226,11 @@ public sealed class MotherBrainHealthPalettePresentation
                     (((lit >> 5 & 31) + 1) / 2) << 5 | ((lit >> 10 & 31) / 2) << 10);
             }
         }
+        /// <summary>Scales each RGB5 channel by a rational shade factor with nearest-integer rounding.</summary>
+        /// <param name="source">RGB5 endpoint to scale.</param>
+        /// <param name="numerator">Shade multiplier applied independently to each channel.</param>
+        /// <param name="denominator">Divisor for the channel scaling factor.</param>
+        /// <returns>The independently scaled RGB5 color.</returns>
         private static ushort Shade(ushort source, int numerator, int denominator)
         {
             int result = 0;

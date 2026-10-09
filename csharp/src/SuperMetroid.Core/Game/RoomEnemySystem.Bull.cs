@@ -20,16 +20,35 @@ public enum BullEnemyFunction : ushort
 /// </summary>
 public sealed class BullEnemyState
 {
+    /// <summary>Common enemy-slot words and coordinates exposed through Bull's native aliases.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot unsigned 8.8 maximum-speed threshold selected during initialization.</summary>
     private readonly ushort[] _maxSpeeds;
+    /// <summary>Per-slot latest angle from Bull toward Samus, used to detect when flight is off target.</summary>
     private readonly ushort[] _anglesToSamus;
+    /// <summary>Per-slot captured flight angle, which remains fixed during a normal acceleration cycle.</summary>
     private readonly ushort[] _angles;
+    /// <summary>Per-slot guard flag that prevents repeated immune-shot reactions during cooldown.</summary>
     private readonly ushort[] _shotReactionDisableFlags;
+    /// <summary>Per-slot acceleration interval reload values selected from the population definition.</summary>
     private readonly ushort[] _accelerationTimerResets;
+    /// <summary>Per-slot deceleration interval reload values selected from the population definition.</summary>
     private readonly ushort[] _decelerationTimerResets;
+    /// <summary>Per-slot immune-shot cooldown timer.</summary>
     private readonly ushort[] _shotReactionDisableTimers;
+    /// <summary>Per-slot health snapshot used to distinguish immune projectile hits from damage.</summary>
     private readonly ushort[] _previousHealth;
 
+    /// <summary>Creates a typed view over Bull's common enemy slot and its per-slot extension storage.</summary>
+    /// <param name="slot">The room enemy slot whose common variables and coordinates are exposed.</param>
+    /// <param name="maxSpeeds">Storage for the 8.8 speed ceiling selected for each enemy slot.</param>
+    /// <param name="anglesToSamus">Storage for each slot's most recently calculated Samus angle.</param>
+    /// <param name="angles">Storage for each slot's captured movement angle.</param>
+    /// <param name="shotReactionDisableFlags">Storage for the immune-shot reaction guard flags.</param>
+    /// <param name="accelerationTimerResets">Storage for acceleration interval reload values.</param>
+    /// <param name="decelerationTimerResets">Storage for deceleration interval reload values.</param>
+    /// <param name="shotReactionDisableTimers">Storage for the per-slot immune-shot cooldown timers.</param>
+    /// <param name="previousHealth">Storage for health snapshots used during projectile resolution.</param>
     internal BullEnemyState(
         RoomEnemySlot slot,
         ushort[] maxSpeeds,
@@ -158,19 +177,31 @@ public sealed class BullEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native enemy-definition pointer that identifies Bull population records.</summary>
     internal const ushort BullDefinition = 0xe97f;
 
+    /// <summary>Second-order 8.8 acceleration increment applied at each acceleration interval expiry.</summary>
     private const ushort BullAccelerationDelta = 0x0018;
+    /// <summary>Movement-delay count reloaded before Bull takes another Samus-targeting step.</summary>
     private const ushort BullMovementDelayFrames = 0x0010;
 
+    /// <summary>Typed state views for initialized Bull slots; null entries identify slots without Bull state.</summary>
     private readonly BullEnemyState?[] _bullStates = new BullEnemyState?[MaximumEnemyCount];
+    /// <summary>Per-slot maximum speeds decoded from Bull's population parameter.</summary>
     private readonly ushort[] _bullMaxSpeeds = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot latest direction from the actor to Samus.</summary>
     private readonly ushort[] _bullAnglesToSamus = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot direction captured for the current flight path.</summary>
     private readonly ushort[] _bullAngles = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot guard flags that suppress repeated immune-shot kicks during cooldown.</summary>
     private readonly ushort[] _bullShotReactionDisableFlags = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot acceleration timer reloads selected from the population definition.</summary>
     private readonly ushort[] _bullAccelerationTimerResets = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot deceleration timer reloads selected from the population definition.</summary>
     private readonly ushort[] _bullDecelerationTimerResets = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot cooldown timers for immune-shot reactions.</summary>
     private readonly ushort[] _bullShotReactionDisableTimers = new ushort[MaximumEnemyCount];
+    /// <summary>Per-slot pre-damage health snapshots used to classify projectile hits.</summary>
     private readonly ushort[] _bullPreviousHealth = new ushort[MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
@@ -265,11 +296,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Calculates the cartridge's byte-wrapped direction from Bull's center toward Samus.</summary>
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - slot.XPosition)),
             unchecked((short)(samus.YPosition - slot.YPosition))) - 0x40));
 
+    /// <summary>Counts down the acceleration interval and increases acceleration and speed when it expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -283,6 +316,7 @@ public sealed partial class RoomEnemySystem
         state.Speed = unchecked((ushort)(state.Speed + state.Acceleration));
     }
 
+    /// <summary>Counts down the deceleration interval and reduces acceleration and speed when it expires.</summary>
     private static void DecelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -296,6 +330,7 @@ public sealed partial class RoomEnemySystem
         state.Speed = unchecked((ushort)(state.Speed - state.Acceleration));
     }
 
+    /// <summary>Recomputes Samus's bearing and switches flight to deceleration when its native angular test fails.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemySlot slot,
         BullEnemyState state,
@@ -319,6 +354,7 @@ public sealed partial class RoomEnemySystem
         state.AccelerationDelta = BullAccelerationDelta;
     }
 
+    /// <summary>Projects Bull's captured angle and 8.8 speed into wrapped 16.16 X and Y position changes.</summary>
     private static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
     {
         (slot.XPosition, slot.XSubposition) = AddBullComponent(
@@ -333,9 +369,11 @@ public sealed partial class RoomEnemySystem
             state.Speed);
     }
 
+    /// <summary>Reads the signed 16-bit cartridge sine-table value for an eight-bit turn angle.</summary>
     private static short ReadBullSignedSine(byte angle) =>
         EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
+    /// <summary>Applies one sine-scaled speed component using Bull's native signed fixed-point rounding and wrap.</summary>
     private static (ushort Position, ushort Subposition) AddBullComponent(
         ushort position,
         ushort subposition,
@@ -387,6 +425,7 @@ public sealed partial class RoomEnemySystem
         state.ShotReactionDisabled = true;
     }
 
+    /// <summary>Returns the initialized state view for this slot, failing if it was not initialized as a Bull.</summary>
     private BullEnemyState RequireBullState(RoomEnemySlot slot) =>
         _bullStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");

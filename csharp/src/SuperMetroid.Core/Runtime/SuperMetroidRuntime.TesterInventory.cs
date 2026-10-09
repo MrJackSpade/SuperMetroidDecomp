@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
+    /// <summary>Actor that most recently received tester inventory, preventing per-frame refills.</summary>
     private SamusState? testerInventoryRecipient;
     /// <summary>Whether the host's tester option grants the configured full inventory once to each initialized or restored Samus actor.</summary>
     public bool GrantAllEquipmentEnabled { get; private set; }

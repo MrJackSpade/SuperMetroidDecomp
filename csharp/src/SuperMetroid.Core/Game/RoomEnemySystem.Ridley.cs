@@ -12,6 +12,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Enemy header $A0:E17F, selecting the Lower Norfair boss branches of Ridley's shared bank-$A6 implementation.</summary>
     public const ushort NorfairRidleyDefinition = 0xe17f;
 
+    /// <summary>Identifies the two enemy headers that enter the shared Ridley implementation.</summary>
+    /// <param name="definitionPointer">The enemy definition pointer read from a room slot.</param>
+    /// <returns><see langword="true"/> for the Ceres or Lower Norfair Ridley header.</returns>
     private static bool IsRidleyDefinition(ushort definitionPointer) =>
         definitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition;
 
@@ -133,6 +136,12 @@ public sealed partial class RoomEnemySystem
         UpdateNorfairRidleyHealthPalette(slot, state);
     }
 
+    /// <summary>Executes one Lower Norfair Ridley AI function, including any same-frame transition setup.</summary>
+    /// <param name="slot">The room enemy slot whose position, health, and animation are being updated.</param>
+    /// <param name="state">Ridley's persistent encounter state.</param>
+    /// <param name="samus">Samus state used by attacks and grab decisions, when present.</param>
+    /// <param name="controllerInput">The controller word available to the encounter this frame.</param>
+    /// <param name="level">Room collision data used by terrain-sensitive attacks, when available.</param>
     private void RunNorfairRidleyFunction(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -433,6 +442,12 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.ClearVelocity;
     }
 
+    /// <summary>Chooses the next attack from Samus's movement, Ridley's health, and the encounter RNG byte, then starts it immediately.</summary>
+    /// <param name="slot">The boss slot, whose current health and position inform the choice.</param>
+    /// <param name="state">The AI state whose selected function is replaced.</param>
+    /// <param name="samus">Samus movement and position used to classify the attack situation.</param>
+    /// <param name="controllerInput">Input forwarded if the chosen function consumes it during its setup frame.</param>
+    /// <param name="level">Room collision data forwarded to the selected function when it needs terrain.</param>
     private void SelectNorfairRidleyAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -475,6 +490,9 @@ public sealed partial class RoomEnemySystem
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 
+    /// <summary>Moves Ridley toward the health-stage hover point and returns to attack selection on arrival or timeout.</summary>
+    /// <param name="slot">The boss slot whose position is steered.</param>
+    /// <param name="state">The hover timer, health stage, facing, and velocities.</param>
     private void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (TickRidleyFunctionTimer(state))
@@ -494,6 +512,9 @@ public sealed partial class RoomEnemySystem
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
 
+    /// <summary>Positions Ridley at the facing-dependent start of a swoop before beginning its downward arc.</summary>
+    /// <param name="slot">The boss slot to move toward the swoop start point.</param>
+    /// <param name="state">The facing, velocity, and AI phase state updated by the transition.</param>
     private static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
         ushort targetX = state.FacingDirection != 0 ? (ushort)64 : (ushort)192;
@@ -506,6 +527,14 @@ public sealed partial class RoomEnemySystem
         state.SwoopAngleAccumulator = 0;
     }
 
+    /// <summary>Advances a timed swoop arc and installs its next phase when the current phase timer expires.</summary>
+    /// <param name="state">The accumulated angle, velocity, timer, and current AI function.</param>
+    /// <param name="angleDelta">The signed angular adjustment applied this update.</param>
+    /// <param name="targetAngle">The target angle passed to the swoop velocity calculation.</param>
+    /// <param name="targetMagnitude">The velocity magnitude approached during the phase.</param>
+    /// <param name="nextFunction">The AI phase to select when the timer has elapsed.</param>
+    /// <param name="nextTimer">The duration assigned to that next phase.</param>
+    /// <returns><see langword="true"/> when the phase changed; otherwise <see langword="false"/>.</returns>
     private static bool TickNorfairRidleySwoopPhase(
         RidleyEnemyState state,
         int angleDelta,
@@ -568,6 +597,8 @@ public sealed partial class RoomEnemySystem
         SelectNorfairRidleyFacingInstruction(slot, state);
     }
 
+    /// <summary>Configures the tail and switches the AI into its ground-attack positioning sequence.</summary>
+    /// <param name="state">The encounter state whose tail mode and function are initialized.</param>
     private static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
         state.TailExtensionSpeed = 0xf0;
@@ -576,6 +607,10 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
     }
 
+    /// <summary>Moves Ridley to the facing-dependent horizontal launch point, then begins height alignment.</summary>
+    /// <param name="slot">The boss slot being positioned.</param>
+    /// <param name="state">The function, timer, and movement state for this attack.</param>
+    /// <param name="samus">Samus state passed to the height-alignment tail update.</param>
     private void TickNorfairRidleyGroundAttackMoveToSide(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -594,6 +629,10 @@ public sealed partial class RoomEnemySystem
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
+    /// <summary>Holds the selected horizontal point while rising or falling to the attack height, then starts the pogo strike.</summary>
+    /// <param name="slot">The boss slot whose vertical position is adjusted.</param>
+    /// <param name="state">The timer, tail, and movement state for the attack setup.</param>
+    /// <param name="samus">Samus state used while updating the tail during setup.</param>
     private void TickNorfairRidleyGroundAttackMoveToHeight(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -610,6 +649,11 @@ public sealed partial class RoomEnemySystem
         state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x3f) + 128));
     }
 
+    /// <summary>Runs the descending tail strike, handling a claw grab first and bouncing when the tail contacts terrain.</summary>
+    /// <param name="slot">The boss slot used for claw geometry and impact effects.</param>
+    /// <param name="state">Ridley's movement, tail, and attack state.</param>
+    /// <param name="samus">Samus state used for grab detection and bounce direction.</param>
+    /// <param name="level">Collision map sampled beneath the tail tip and joints.</param>
     private void TickNorfairRidleyGroundAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -658,6 +702,9 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
 
+    /// <summary>Ends the bounce recovery when its timer expires or Samus leaves the low arena, otherwise lifts Ridley back toward the strike.</summary>
+    /// <param name="state">The recovery timer, vertical velocity, and tail mode.</param>
+    /// <param name="samus">Samus position determining whether the low-arena pogo continues.</param>
     private static void TickNorfairRidleyGroundAttackRecovery(
         RidleyEnemyState state,
         SamusState? samus)
@@ -702,6 +749,10 @@ public sealed partial class RoomEnemySystem
             : horizontalMagnitude;
     }
 
+    /// <summary>Checks the tail tip and lower joints against nonempty room collision blocks using the encounter's pixel probes.</summary>
+    /// <param name="state">The tail segments whose coordinates are sampled.</param>
+    /// <param name="level">The room map; absence of collision data means no terrain contact is reported.</param>
+    /// <returns><see langword="true"/> if any in-bounds probe lands in a collidable block.</returns>
     private static bool RidleyTailTouchesTerrain(
         RidleyEnemyState state,
         RoomLevelData? level)
@@ -724,6 +775,10 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    /// <summary>Steers a grab lunge toward Samus and converts a valid claw overlap into a grab; missed or passed targets end the lunge.</summary>
+    /// <param name="slot">The boss slot used for relative-position and claw calculations.</param>
+    /// <param name="state">The facing, movement, and function state of the lunge.</param>
+    /// <param name="samus">The target; a missing or ineligible target makes the lunge miss.</param>
     private void TickNorfairRidleyGrabApproach(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -765,6 +820,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Attaches Samus to Ridley's claw, applies the control and collision locks, and enters carry or the zero-health death route.</summary>
+    /// <param name="slot">The boss slot receiving the Samus-collision property update.</param>
+    /// <param name="state">Ridley's grab and encounter state.</param>
+    /// <param name="samus">The Samus instance to lock and position relative to the claw.</param>
     private static void BeginNorfairRidleyGrab(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -788,6 +847,9 @@ public sealed partial class RoomEnemySystem
         BeginNorfairRidleyCarry(slot, state);
     }
 
+    /// <summary>Sets a facing-dependent carry anchor and begins steering Ridley toward it.</summary>
+    /// <param name="slot">The boss slot whose current position establishes the target height.</param>
+    /// <param name="state">The carry target, timer, function, and initial movement values.</param>
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.TargetX = RidleyMovementTargets.CarryAnchorX(Math.Min(state.FacingDirection, (ushort)2));
@@ -800,6 +862,9 @@ public sealed partial class RoomEnemySystem
         TickRidleyFunctionTimer(state);
     }
 
+    /// <summary>Detaches Samus and restores the movement-specific release invulnerability while the fight remains active.</summary>
+    /// <param name="state">The grab state and timer fields updated for release.</param>
+    /// <param name="samus">The player whose stationary-script lock is removed, when present.</param>
     private void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
@@ -814,6 +879,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Places carried Samus at the claw, easing the initial capture offset toward zero on each update.</summary>
+    /// <param name="slot">The boss slot anchoring the claw position.</param>
+    /// <param name="state">Ridley's grab offsets and facing-related geometry.</param>
+    /// <param name="samus">The captured player whose world coordinates are updated.</param>
     private static void UpdateNorfairRidleyGrabbedSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -827,6 +896,9 @@ public sealed partial class RoomEnemySystem
             GetNorfairRidleyClawY(slot, state) + unchecked((short)state.GrabYOffset)));
     }
 
+    /// <summary>Moves a signed claw-to-player offset four pixels toward zero without crossing it.</summary>
+    /// <param name="offsetWord">The two's-complement offset stored in an unsigned 16-bit word.</param>
+    /// <returns>The signed offset after one frame of easing, represented in the original word format.</returns>
     private static ushort DecayRidleyGrabOffset(ushort offsetWord)
     {
         int offset = unchecked((short)offsetWord);
@@ -837,6 +909,13 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)offset);
     }
 
+    /// <summary>Tests the claw point against Samus's collision radii expanded by the supplied horizontal and vertical margins.</summary>
+    /// <param name="slot">The boss slot anchoring the claw.</param>
+    /// <param name="state">The facing and body geometry used to locate the claw.</param>
+    /// <param name="samus">The player collision box to test.</param>
+    /// <param name="radiusX">Additional horizontal reach beyond Samus's X radius.</param>
+    /// <param name="radiusY">Additional vertical reach beyond Samus's Y radius.</param>
+    /// <returns><see langword="true"/> when both axis distances are strictly inside their expanded radii.</returns>
     private static bool RidleyClawOverlapsSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -848,18 +927,32 @@ public sealed partial class RoomEnemySystem
         Math.Abs(unchecked((short)(samus.YPosition - GetNorfairRidleyClawY(slot, state)))) <
             samus.Kinematics.YRadius + radiusY;
 
+    /// <summary>Returns the claw's world X coordinate using the facing-specific offset.</summary>
+    /// <param name="slot">The boss body position.</param>
+    /// <param name="state">The facing direction selecting the claw offset.</param>
+    /// <returns>The claw X position in room pixels, wrapped to the native 16-bit coordinate word.</returns>
     private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.XPosition + RidleyClawOffsets.ReadX(state.FacingDirection)));
 
+    /// <summary>Returns the claw's world Y coordinate using the current feet-distance index.</summary>
+    /// <param name="slot">The boss body position.</param>
+    /// <param name="state">The feet-distance index selecting the vertical claw offset.</param>
+    /// <returns>The claw Y position in room pixels, wrapped to the native 16-bit coordinate word.</returns>
     private static ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.YPosition + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
 
+    /// <summary>Decrements the unsigned AI timer and reports when its signed interpretation has expired.</summary>
+    /// <param name="state">The encounter state whose function timer is advanced.</param>
+    /// <returns><see langword="true"/> once decrementing reaches the native negative sentinel.</returns>
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         return (short)state.FunctionTimer < 0;
     }
 
+    /// <summary>Starts a turn animation only when Ridley's facing points away from the arena half containing him.</summary>
+    /// <param name="slot">The slot whose instruction and animation timer may change.</param>
+    /// <param name="state">The current facing direction used to choose the turn instruction.</param>
     private static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.FacingDirection == 1)
@@ -896,9 +989,15 @@ public sealed partial class RoomEnemySystem
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
+    /// <summary>Maps the clamped health stage to the divisor row used by hover movement.</summary>
+    /// <param name="state">Ridley's health stage established by the health palette update.</param>
+    /// <returns>The movement divisor table index associated with that stage.</returns>
     private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
         RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 
+    /// <summary>Reports whether the current Samus movement mode is eligible for Ridley's grab behavior.</summary>
+    /// <param name="samus">The player state to inspect; no player is treated as ineligible.</param>
+    /// <returns><see langword="true"/> for movement types accepted by the encounter's grab rules.</returns>
     private bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {
         if (samus is null)
@@ -907,6 +1006,13 @@ public sealed partial class RoomEnemySystem
         return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 
+    /// <summary>Accelerates both signed movement axes toward a target using one inertia divisor and optional reversal boost.</summary>
+    /// <param name="slot">The body coordinates used to determine each axis's direction and distance.</param>
+    /// <param name="state">The horizontal and vertical velocity words updated in place.</param>
+    /// <param name="targetX">Target room X coordinate.</param>
+    /// <param name="targetY">Target room Y coordinate.</param>
+    /// <param name="divisorIndex">Index into the encounter's inertia-divisor definitions.</param>
+    /// <param name="reversalBoost">Extra acceleration applied when reversing an axis already moving away from its target.</param>
     private static void MoveNorfairRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -929,6 +1035,13 @@ public sealed partial class RoomEnemySystem
             reversalBoost);
     }
 
+    /// <summary>Applies the native signed-axis acceleration sequence, preserving its 16-bit carry behavior and velocity limits.</summary>
+    /// <param name="velocityWord">Current signed velocity stored as a 16-bit word.</param>
+    /// <param name="position">Current coordinate on the axis.</param>
+    /// <param name="target">Destination coordinate on the axis.</param>
+    /// <param name="divisor">Positive inertia divisor used to scale distance into an acceleration step.</param>
+    /// <param name="reversalBoost">Additional adjustment used when velocity points away from the target.</param>
+    /// <returns>The updated signed velocity encoded as an unsigned word.</returns>
     private static ushort AccelerateNorfairRidleyAxis(
         ushort velocityWord,
         ushort position,
@@ -987,6 +1100,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Derives the encounter health stage from current HP and applies the matching shared Ridley damage palette.</summary>
+    /// <param name="slot">The boss slot whose health selects a stage.</param>
+    /// <param name="state">The health-stage field updated even when no damage palette is needed.</param>
     private void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.HealthStage = slot.Health switch
@@ -1008,6 +1124,10 @@ public sealed partial class RoomEnemySystem
             .ApplyHealth(_cgram!, row);
     }
 
+    /// <summary>Returns the shared Ridley state after validating the supported header and native slot-zero ownership.</summary>
+    /// <param name="slot">The room enemy slot requesting access to shared Ridley state.</param>
+    /// <returns>The initialized state extension associated with the Ridley encounter.</returns>
+    /// <exception cref="InvalidOperationException">The slot is not a supported Ridley header in slot zero, or the extension is absent.</exception>
     private RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
         if (!IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
@@ -1021,6 +1141,10 @@ public sealed partial class RoomEnemySystem
         return _ridleyState;
     }
 
+    /// <summary>Validates the Lower Norfair header before returning the shared Ridley state.</summary>
+    /// <param name="slot">The room enemy slot expected to host the Lower Norfair boss.</param>
+    /// <returns>The initialized state extension for Lower Norfair Ridley.</returns>
+    /// <exception cref="InvalidOperationException">The slot uses another definition pointer or fails the shared Ridley ownership checks.</exception>
     private RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != NorfairRidleyDefinition)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Supplies how many accepted NMIs the cartridge takes while <c>SendAPUData</c> ($80:8028)
+/// Supplies how many accepted NMIs the cartridge takes while <c>UploadToAPU</c> ($80:8028)
 /// blocks a door transition's music-data upload.
 /// </summary>
 /// <remarks>
@@ -14,6 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 public interface IDoorMusicUploadNmiSource
 {
     /// <summary>Accepted NMIs elapsed while uploading music data set <paramref name="musicDataIndex"/>.</summary>
+    /// <param name="musicDataIndex">Native room music-data selector identifying the upload whose accepted-NMI count is requested.</param>
+    /// <returns>The nonnegative count to apply to native NMI counters, without running extra gameplay updates or delaying the port.</returns>
     int AcceptedNmisDuringUpload(byte musicDataIndex);
 }
 
@@ -22,9 +24,13 @@ public interface IDoorMusicUploadNmiSource
 /// </summary>
 public sealed class LagFreeDoorMusicUploadNmis : IDoorMusicUploadNmiSource
 {
+    /// <summary>Shared stateless policy for normal lag-free play; no upload incurs an emulated NMI stall.</summary>
     public static LagFreeDoorMusicUploadNmis Instance { get; } = new();
 
     private LagFreeDoorMusicUploadNmis() { }
 
+    /// <summary>Reports zero accepted NMIs for every instantaneous music-data upload.</summary>
+    /// <param name="musicDataIndex">Native music-data selector; this policy does not distinguish uploads.</param>
+    /// <returns>Zero, leaving the door transition's native NMI counters unchanged by the upload.</returns>
     public int AcceptedNmisDuringUpload(byte musicDataIndex) => 0;
 }

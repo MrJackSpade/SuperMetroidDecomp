@@ -822,6 +822,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--reserve-refill-rainbow-beam"])
+{
+    Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
+    return 0;
+}
 if (args is ["--moonwalk-ran-into-wall"])
 {
     Suite(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall());
@@ -8022,6 +8027,7 @@ Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRel
 Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
 Suite(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock());
 Suite(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall());
+Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
 Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
 Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
 Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());

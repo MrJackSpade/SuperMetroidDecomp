@@ -24,7 +24,10 @@ internal abstract class YappingMawInstructionProgramDefinitions
     /// <summary><c>InstList_YappingMaw_Cooldown_FacingDownLeft</c> at $A8:A079.</summary>
     internal const ushort CooldownFacingDownLeft = 0xa079;
 
+    /// <summary>Number of compiled control, timing, callback, and loop words across the attack and cooldown programs.</summary>
     public static int MechanicsWordCount => 96;
+
+    /// <summary>Number of compiled frame operands that select installed Yapping Maw artwork.</summary>
     public static int PresentationWordCount => 52;
 
     /// <summary>Yapping Maw animation holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
@@ -81,6 +84,10 @@ internal abstract class YappingMawInstructionProgramDefinitions
         return CooldownWord((ushort)(entry + 8), local - 3);
     }
 
+    /// <summary>Resolves one control or timing word within a directional cooldown program.</summary>
+    /// <param name="entry">Start address of the cooldown loop for the selected vertical and horizontal direction.</param>
+    /// <param name="field">Zero-based mechanics field within the cooldown program segment.</param>
+    /// <returns>The bank-$A8 address and value for that cooldown field.</returns>
     private static InstructionMechanicsWord CooldownWord(ushort entry, int field)
     {
         int offset = field < 5 ? field * 4 : 16 + 2 * (field - 4);
@@ -111,6 +118,10 @@ internal abstract class YappingMawInstructionProgramDefinitions
         return (ushort)(entry + (poseInGroup == 0 ? 4 : 10 + 4 * (poseInGroup - 1)));
     }
 
+    /// <summary>Looks up a compiled attack or cooldown mechanics word by its bank-$A8 address.</summary>
+    /// <param name="address">Instruction address to resolve.</param>
+    /// <returns>The timing, callback, or control-flow value stored at the address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0, high = MechanicsWordCount - 1;

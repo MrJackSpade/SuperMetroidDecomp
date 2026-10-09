@@ -24,5 +24,9 @@ public static class SamusPowerBombFuse
 }
 
 /// <summary>Writes and caller-owned side effects of one native Power Bomb fuse invocation.</summary>
+/// <param name="Timer">The timer value to write, including the expiration sentinel when the fuse reaches zero.</param>
+/// <param name="InstructionPointer">The instruction-list address to retain or switch to the fast animation list.</param>
+/// <param name="SpawnExplosion">Whether the caller should create the fuse's explosion.</param>
+/// <param name="DeleteProjectile">Whether the caller should delete the projectile under the native zero-timer flag condition.</param>
 public readonly record struct PowerBombFuseStep(
     ushort Timer, ushort InstructionPointer, bool SpawnExplosion, bool DeleteProjectile);

@@ -21,8 +21,10 @@ public static class RoomBackgroundTilemapSources
         return false;
     }
 
+    /// <summary>Read-only, ascending view of distinct source addresses used by library-background decompression commands.</summary>
     private sealed class SourceSequence : IReadOnlyList<int>
     {
+        /// <summary>Gets the number of distinct decompressed tilemap sources in the command catalog.</summary>
         public int Count
         {
             get
@@ -33,6 +35,9 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
+        /// <summary>Gets the source address at an ascending, zero-based position in the distinct source view.</summary>
+        /// <param name="index">Zero-based position among the sorted source addresses.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative or greater than or equal to <see cref="Count"/>.</exception>
         public int this[int index]
         {
             get
@@ -45,6 +50,8 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
+        /// <summary>Enumerates each distinct decompressed tilemap source address once, in ascending order.</summary>
+        /// <returns>An enumerator over the derived source identities.</returns>
         public IEnumerator<int> GetEnumerator()
         {
             int previous = int.MinValue;

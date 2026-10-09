@@ -3,6 +3,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of updating one persistent GDI frame surface twice.</summary>
+/// <param name="Width">Width in pixels of the persistent bitmap used for the channel and replacement checks.</param>
+/// <param name="Height">Height in pixels of the persistent bitmap used for the channel and replacement checks.</param>
+/// <param name="FinalPixel">Color stored at the bottom-right pixel after the second raster replaces the first.</param>
 public readonly record struct RgbaBitmapSmokeTestResult(int Width, int Height, Color FinalPixel);
 
 /// <summary>
@@ -36,6 +39,13 @@ public static class RgbaBitmapSmokeTest
         return new RgbaBitmapSmokeTestResult(bitmap.Width, bitmap.Height, final);
     }
 
+    /// <summary>Checks that a bitmap coordinate contains the expected ARGB color and identifies the failed check.</summary>
+    /// <param name="bitmap">Bitmap whose pixel is inspected.</param>
+    /// <param name="x">Horizontal pixel coordinate.</param>
+    /// <param name="y">Vertical pixel coordinate.</param>
+    /// <param name="expected">Expected pixel color, including alpha.</param>
+    /// <param name="subject">Short label included in the failure report.</param>
+    /// <exception cref="InvalidDataException">The pixel's ARGB value differs from the expected color.</exception>
     private static void AssertPixel(Bitmap bitmap, int x, int y, Color expected, string subject)
     {
         Color actual = bitmap.GetPixel(x, y);

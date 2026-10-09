@@ -29,6 +29,10 @@ internal static class ChozoStatuePlmProgramDefinitions
     /// <summary>$84:D14D: restore lowered acid and clear the hand on event-set room entry.</summary>
     private const ushort RestoreLoweredAcid = 0xd14d;
 
+    /// <summary>Reads one complete mechanics word from a bounded translated PLM program.</summary>
+    /// <param name="address">Bank-relative address of the word's first byte.</param>
+    /// <param name="value">Receives the little-endian word when the address is covered.</param>
+    /// <returns><see langword="false"/> outside a compiled range or when only the range's final byte remains.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -36,6 +40,10 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = (ushort)(ByteAt(start, address - start) | ByteAt(start, address - start + 1) << 8);
         return true;
     }
+    /// <summary>Reads a mechanics byte from any address inside a bounded translated PLM program.</summary>
+    /// <param name="address">Bank-relative byte address to inspect.</param>
+    /// <param name="value">Receives the canonical instruction byte when the address is covered.</param>
+    /// <returns><see langword="true"/> when the address lies in one of the compiled program ranges.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -43,6 +51,11 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = ByteAt(start, address - start);
         return true;
     }
+    /// <summary>Finds the compiled list bounds containing a bank-relative address.</summary>
+    /// <param name="address">Address to locate within the translated PLM lists.</param>
+    /// <param name="start">Receives the list's first bank-relative address.</param>
+    /// <param name="length">Receives the list's byte length, or zero when not found.</param>
+    /// <returns><see langword="true"/> if the address belongs to a compiled range.</returns>
     private static bool TryLocate(ushort address, out int start, out int length)
     {
         start = 0; length = 0;
@@ -56,6 +69,10 @@ internal static class ChozoStatuePlmProgramDefinitions
         { start = BlockSlopeStart; length = 8; }
         return length != 0;
     }
+    /// <summary>Projects one little-endian byte from a canonical instruction word.</summary>
+    /// <param name="start">Start address identifying the compiled PLM program.</param>
+    /// <param name="offset">Byte offset within that program.</param>
+    /// <returns>The selected low or high byte of its containing word.</returns>
     private static byte ByteAt(int start, int offset) =>
         (byte)(WordAt(start, offset & ~1) >> ((offset & 1) * 8));
 

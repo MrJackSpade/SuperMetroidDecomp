@@ -16,6 +16,7 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
     /// <summary>Golden Torizo's Samus-position wake function at $AA:D5C2.</summary>
     internal const ushort WakeWhenSamusApproaches = 0xd5c2;
 
+    /// <summary>Number of compiled initial-list words covering tile upload, pose setup, wake callback, and sleep.</summary>
     public static int MechanicsWordCount => 7;
 
     /// <summary>
@@ -40,11 +41,21 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
         };
         return new(address, value);
     }
+
+    /// <summary>Number of extended-spritemap operands in the initial pose program.</summary>
     public static int PresentationWordCount => 1;
+
+    /// <summary>Gets the address of the initial pose's extended-spritemap operand.</summary>
+    /// <param name="index">Zero-based index of the presentation operand; only zero is defined.</param>
+    /// <returns>The bank-$AA address of the initial frame operand.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index does not select the sole presentation operand.</exception>
     public static ushort PresentationWordAddress(int index) => index == 0
         ? InitialFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
+    /// <summary>Tests whether a full banked address names either byte of a compiled mechanics word.</summary>
+    /// <param name="address">24-bit SNES address to classify.</param>
+    /// <returns><see langword="true"/> for a mechanics byte in bank $AA; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)

@@ -22,6 +22,11 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Skree_StopAnimating_A3C694</c> at $A3:C694.</summary>
     internal const ushort SkreeStopAnimating = 0xc694;
 
+    /// <summary>Resolves one indexed control or timing word from the selected Skree or Metaree program set.</summary>
+    /// <param name="metaree"><see langword="true"/> selects Metaree addresses and attack instructions; otherwise Skree is selected.</param>
+    /// <param name="index">Zero-based mechanics-word slot from zero through nineteen.</param>
+    /// <returns>The bank-$A3 address and value represented by that program slot.</returns>
+    /// <exception cref="IndexOutOfRangeException">The slot is outside the twenty compiled words.</exception>
     internal static InstructionMechanicsWord MechanicsWord(bool metaree, int index)
     {
         if ((uint)index >= 20) throw new IndexOutOfRangeException();
@@ -61,9 +66,23 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Reads a mechanics word from a compiled Metaree instruction program.</summary>
+    /// <param name="address">Bank-$A3 address of the requested word.</param>
+    /// <returns>The control or timing value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled Metaree mechanics word.</exception>
     internal static ushort ReadMetareeMechanicsWord(ushort address) => ReadMechanicsWord(true, address);
+
+    /// <summary>Reads a mechanics word from a compiled Skree instruction program.</summary>
+    /// <param name="address">Bank-$A3 address of the requested word.</param>
+    /// <returns>The control or timing value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled Skree mechanics word.</exception>
     internal static ushort ReadSkreeMechanicsWord(ushort address) => ReadMechanicsWord(false, address);
 
+    /// <summary>Finds the compiled mechanics value associated with an address in the selected program set.</summary>
+    /// <param name="metaree"><see langword="true"/> searches Metaree entries; otherwise Skree entries are searched.</param>
+    /// <param name="address">Bank-$A3 address to resolve.</param>
+    /// <returns>The mechanics value paired with the matching instruction address.</returns>
+    /// <exception cref="InvalidDataException">The address is not represented by the selected program set.</exception>
     private static ushort ReadMechanicsWord(bool metaree, ushort address)
     {
         for (int index = 0; index < 20; index++)

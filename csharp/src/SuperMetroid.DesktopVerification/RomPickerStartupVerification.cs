@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification
 {
+    /// <summary>Invokes the game's actual Choose ROM handler, cancels its native picker, and verifies the handler returns.</summary>
+    /// <param name="gameAssemblyPath">Path to the game assembly whose entry-point apartment determines the UI test thread.</param>
     public static void Run(string gameAssemblyPath)
     {
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
@@ -84,11 +86,22 @@ internal static partial class RomPickerStartupVerification
         Console.WriteLine("PASS actual Choose ROM handler: native dialog opened and cancellation returned on the player's STA apartment; no installation or saves touched.");
     }
 
+    /// <summary>Receives each native window handle enumerated on the test-owned UI thread.</summary>
+    /// <param name="window">Handle of the current window.</param>
+    /// <param name="parameter">Opaque value forwarded from the enumeration call.</param>
+    /// <returns><see langword="true"/> to continue enumerating windows.</returns>
     private delegate bool WindowCallback(nint window, nint parameter);
+
+    /// <summary>Gets the operating-system identifier of the calling thread for native window enumeration.</summary>
     [LibraryImport("kernel32.dll")] private static partial uint GetCurrentThreadId();
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EnumThreadWindows(uint thread, WindowCallback callback, nint parameter);
+    /// <summary>Reads a native window's class name so the test can identify the common file dialog.</summary>
+    /// <param name="window">Handle of the window to inspect.</param>
+    /// <param name="name">Buffer receiving the Unicode class name.</param>
+    /// <param name="capacity">Maximum number of characters available in the buffer.</param>
+    /// <returns>Number of characters copied, or zero if the class name could not be retrieved.</returns>
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(nint window, System.Text.StringBuilder name, int capacity);
     [LibraryImport("user32.dll", EntryPoint = "PostMessageW")]
     [return: MarshalAs(UnmanagedType.Bool)]

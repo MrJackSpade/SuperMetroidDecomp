@@ -7,6 +7,12 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>
+    /// Uploads scene memory and dispatches each supported layer in order, followed by title-gradient and brightness passes.
+    /// </summary>
+    /// <param name="packet">Frame-level presentation data, including additional brightness passes.</param>
+    /// <param name="scene">Layer sequence, VRAM/CGRAM/OAM snapshot, and object-selection state to render.</param>
+    /// <param name="gradient">Optional title-gradient scanline colors; an empty span skips that pass.</param>
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
         ReadOnlySpan<Core.Frontend.TitleGradientLine> gradient = default)
     {
@@ -94,6 +100,29 @@ public sealed partial class D3D11FrameRenderer
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, level: level);
     }
 
+    /// <summary>
+    /// Packs one tile-compute operation and its layer-specific operands into the shader constants, then dispatches the screen grid.
+    /// </summary>
+    /// <param name="operation">Tile operation selected by the active render layer or final color pass.</param>
+    /// <param name="map">VRAM tilemap word offset, when the operation reads a tilemap.</param>
+    /// <param name="characters">VRAM character-data word offset for the tile layer.</param>
+    /// <param name="x">Horizontal tilemap scroll or viewport origin.</param>
+    /// <param name="y">Vertical tilemap scroll or viewport origin.</param>
+    /// <param name="width">Tilemap width in tiles.</param>
+    /// <param name="height">Tilemap height in tiles.</param>
+    /// <param name="priority">Encoded layer-priority selector.</param>
+    /// <param name="transparentZero">Whether palette index zero is transparent for the operation.</param>
+    /// <param name="level">Brightness level for a brightness operation.</param>
+    /// <param name="red">Red component of a fixed-color operation.</param>
+    /// <param name="green">Green component of a fixed-color operation.</param>
+    /// <param name="blue">Blue component of a fixed-color operation or packed fixed color for object insertion.</param>
+    /// <param name="objectCount">Number of modeled objects available to object operations.</param>
+    /// <param name="objectSelection">Selection mask or mode used when resolving modeled objects.</param>
+    /// <param name="firstScanline">First scanline included by a clipped operation.</param>
+    /// <param name="endScanline">Exclusive final scanline included by a clipped operation.</param>
+    /// <param name="windows">Window registers consumed by windowed color operations.</param>
+    /// <param name="windowMask">Main-screen layer mask filtered by the window operation.</param>
+    /// <param name="windowTarget">Layer targeted by the window operation.</param>
     private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,
         uint x = 0, uint y = 0, uint width = 32, uint height = 32, uint priority = 0,
         uint transparentZero = 1, uint level = 15, uint red = 0, uint green = 0, uint blue = 0,
@@ -114,8 +143,21 @@ public sealed partial class D3D11FrameRenderer
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Encodes optional layer priority as the shader's default, low, or high priority selector.</summary>
+    /// <param name="priority">Null for the operation's default priority; otherwise the selected priority bit.</param>
+    /// <returns>Zero when unspecified, one when false, or two when true.</returns>
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
+    /// <summary>
+    /// Uploads Mode 7 matrix and offset registers with optional object color math and scanline clipping, then dispatches the screen grid.
+    /// </summary>
+    /// <param name="registers">Native Mode 7 transformation and overflow registers for the frame.</param>
+    /// <param name="firstScanline">First scanline included in this Mode 7 pass.</param>
+    /// <param name="endScanline">Exclusive final scanline included in this Mode 7 pass.</param>
+    /// <param name="subtractObj">Whether object subscreen color is subtracted from Mode 7 output.</param>
+    /// <param name="addBg1">Whether BG1 subscreen color is added to Mode 7 output.</param>
+    /// <param name="objectCount">Number of modeled objects eligible for the color-math pass.</param>
+    /// <param name="objectSelection">Object selection mask or mode used by the pass.</param>
     private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
         bool subtractObj = false, bool addBg1 = false, int objectCount = 0, byte objectSelection = 0)
     {

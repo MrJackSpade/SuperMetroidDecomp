@@ -5,12 +5,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool members of <see cref="CompiledEnemyVisualSelectors"/>; never linked by player hosts.</summary>
 internal static class CompiledEnemyVisualSelectorsTooling
 {
+    /// <summary>Number of selector entries derived from instruction programs instead of stored as literal catalog records.</summary>
     internal static int CalculatedCount => BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount + BotwoonInstructionProgramDefinitions.PresentationWordCount + BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount + PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
+
+    /// <summary>Total number of literal and calculated enemy visual selector entries.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
+
+    /// <summary>Gets the selector at its address-sorted position in the combined tooling catalog.</summary>
+    /// <param name="index">Zero-based position from zero through <see cref="Count"/> minus one.</param>
+    /// <returns>The literal or calculated selector at that sorted position.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the combined catalog.</exception>
     internal static CompiledEnemyVisualSelector At(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -35,6 +43,10 @@ internal static class CompiledEnemyVisualSelectorsTooling
         }
         return CompiledEnemyVisualSelectors.Entries[index - low];
     }
+
+    /// <summary>Builds one selector record from the ordered calculated portion of the catalog.</summary>
+    /// <param name="index">Zero-based ordinal within the calculated selector entries.</param>
+    /// <returns>The bank-resolved address and presentation pointer derived for that ordinal.</returns>
     internal static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
         if (index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)

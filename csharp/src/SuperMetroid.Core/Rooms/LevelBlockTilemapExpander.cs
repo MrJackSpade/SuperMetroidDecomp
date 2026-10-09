@@ -66,6 +66,10 @@ public static class LevelBlockTilemapExpander
 }
 
 /// <summary>Four row-major SNES tilemap words forming a visual 16x16 block.</summary>
+/// <param name="TopLeft">Tilemap word for the block's upper-left 8x8 quadrant after parent flips are applied.</param>
+/// <param name="TopRight">Tilemap word for the upper-right 8x8 quadrant after parent flips are applied.</param>
+/// <param name="BottomLeft">Tilemap word for the lower-left 8x8 quadrant after parent flips are applied.</param>
+/// <param name="BottomRight">Tilemap word for the lower-right 8x8 quadrant after parent flips are applied.</param>
 public readonly record struct ExpandedBlockTiles(
     ushort TopLeft,
     ushort TopRight,

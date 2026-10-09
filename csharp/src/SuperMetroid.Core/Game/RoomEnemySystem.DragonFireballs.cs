@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 half of Dragon's arcing fireball projectile.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Initial signed 8.8 vertical velocity that sends a newly spawned fireball upward.</summary>
     private const ushort DragonFireballInitialYVelocity = 0xfc3f;
+    /// <summary>Signed 8.8 horizontal velocity used when Dragon launches a fireball to the left.</summary>
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
+    /// <summary>Signed 8.8 horizontal velocity used when Dragon launches a fireball to the right.</summary>
     private const ushort DragonFireballRightXVelocity = 0x02c0;
+    /// <summary>Per-update 8.8 vertical acceleration added after movement, carrying the fireball through its apex into descent.</summary>
     private const ushort DragonFireballGravity = 0x0020;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>

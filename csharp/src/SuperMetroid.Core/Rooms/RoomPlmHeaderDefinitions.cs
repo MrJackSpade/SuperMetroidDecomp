@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Native setup and first-instruction pointers for one retail room PLM header.</summary>
+/// <param name="Header">The bank-$84 PLM header address selected by a room's PLM population.</param>
+/// <param name="Setup">The native setup callback pointer associated with the header.</param>
+/// <param name="InitialInstruction">The first instruction-list pointer used to initialize this PLM.</param>
 public readonly record struct RoomPlmHeaderDefinition(
     ushort Header, ushort Setup, ushort InitialInstruction);
 
@@ -14,6 +17,10 @@ public readonly record struct RoomPlmHeaderDefinition(
 internal static partial class RoomPlmHeaderDefinitions
 {
 
+    /// <summary>Resolves a compiled retail PLM header to its setup and initial-instruction pointers.</summary>
+    /// <param name="header">The bank-$84 PLM header address referenced by room data.</param>
+    /// <returns>The native callback and instruction-list pointers registered for the header.</returns>
+    /// <exception cref="InvalidDataException">The header is not present in the compiled retail dispatch.</exception>
     internal static RoomPlmHeaderDefinition Get(ushort header) =>
         TrySelect(header, out var definition) ? definition : throw new InvalidDataException(
             $"Compiled room PLM headers lack retail header $84:{header:X4}.");

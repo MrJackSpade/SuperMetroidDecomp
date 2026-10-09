@@ -116,6 +116,12 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
+    /// <summary>Builds the whole-pixel future center used by the broad overlap check along the requested axis.</summary>
+    /// <param name="state">Current position and subpixel coordinates from which movement begins.</param>
+    /// <param name="direction">Axis and sign of the directional probe.</param>
+    /// <param name="distance">Whole-pixel portion of the movement magnitude.</param>
+    /// <param name="distanceSubposition">Fractional portion of the movement magnitude.</param>
+    /// <returns>A target whose probed coordinate uses the native outward pixel rounding rules.</returns>
     private static (ushort X, ushort Y) BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
@@ -147,6 +153,12 @@ public static class SamusSolidEnemyCollision
         return (targetX, targetY);
     }
 
+    /// <summary>Subtracts a 16.16 distance and applies the native borrow-sensitive outward rounding.</summary>
+    /// <param name="position">Starting whole-pixel coordinate.</param>
+    /// <param name="subposition">Starting fractional coordinate.</param>
+    /// <param name="distance">Whole-pixel amount to subtract.</param>
+    /// <param name="distanceSubposition">Fractional amount to subtract.</param>
+    /// <returns>The wrapped 16-bit whole-pixel coordinate used by the broad collision test.</returns>
     private static ushort RoundNegative(
         ushort position,
         ushort subposition,
@@ -175,6 +187,12 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
+    /// <summary>Adds a 16.16 distance and applies the native carry-sensitive outward rounding.</summary>
+    /// <param name="position">Starting whole-pixel coordinate.</param>
+    /// <param name="subposition">Starting fractional coordinate.</param>
+    /// <param name="distance">Whole-pixel amount to add.</param>
+    /// <param name="distanceSubposition">Fractional amount to add.</param>
+    /// <returns>The wrapped 16-bit whole-pixel coordinate used by the broad collision test.</returns>
     private static ushort RoundPositive(
         ushort position,
         ushort subposition,
@@ -203,6 +221,12 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
+    /// <summary>Tests axis-aligned collision extents using the native strict center-distance comparison.</summary>
+    /// <param name="firstPosition">Center coordinate of the first body.</param>
+    /// <param name="firstRadius">Half-extent of the first body on this axis.</param>
+    /// <param name="secondPosition">Center coordinate of the second body.</param>
+    /// <param name="secondRadius">Half-extent of the second body on this axis.</param>
+    /// <returns><see langword="true"/> only when the extents overlap; exact tangency is excluded.</returns>
     private static bool StrictlyOverlaps(
         ushort firstPosition,
         ushort firstRadius,

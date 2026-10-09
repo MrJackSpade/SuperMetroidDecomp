@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SamusProjectileInheritance
 {
+    /// <summary>Combines the projectile's base speed with the native direction-dependent WRAM inheritance records.</summary>
+    /// <param name="memory">Live SNES memory containing the movement and camera subspeed words.</param>
+    /// <param name="directionWord">Projectile direction word; its low nibble selects the inherited axes.</param>
+    /// <param name="baseSpeed">Unsigned-magnitude launch speed applied along the selected direction.</param>
+    /// <returns>Signed horizontal and vertical projectile velocities.</returns>
+    /// <exception cref="InvalidDataException">The low direction nibble is outside the supported native range 0 through 9.</exception>
     internal static (short X, short Y) ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
     {
         int direction = directionWord & 15;
@@ -39,9 +45,17 @@ internal static class SamusProjectileInheritance
             bus.WriteByte(address, 0);
     }
 
+    /// <summary>Publishes the camera's Y fractional movement word, whose adjacent byte participates in native projectile inheritance.</summary>
+    /// <param name="bus">Address space receiving the WRAM update.</param>
+    /// <param name="value">Current camera Y subspeed word.</param>
     internal static void PublishCameraYSubspeed(ISnesAddressSpace bus, ushort value) =>
         WriteWord(bus, SamusProjectileInheritanceAddresses.CameraYSubspeed, value);
 
+    /// <summary>Stores one accepted directional movement displacement in the native projectile-inheritance record.</summary>
+    /// <param name="bus">Address space receiving the high and fractional words.</param>
+    /// <param name="direction">Axis direction whose latest movement record is replaced.</param>
+    /// <param name="signedDisplacement">Signed fixed-point displacement accepted by that movement call.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is not a directional movement axis.</exception>
     internal static void Record(ISnesAddressSpace bus, SamusCollisionDirection direction, int signedDisplacement)
     {
         int address = direction switch
@@ -56,6 +70,10 @@ internal static class SamusProjectileInheritance
         WriteWord(bus, address + 2, unchecked((ushort)signedDisplacement));
     }
 
+    /// <summary>Writes a 16-bit value to adjacent WRAM bytes in SNES little-endian order.</summary>
+    /// <param name="bus">Address space receiving the bytes.</param>
+    /// <param name="address">WRAM address of the low byte.</param>
+    /// <param name="value">Word to store.</param>
     private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
     {
         bus.WriteByte(address, unchecked((byte)value));

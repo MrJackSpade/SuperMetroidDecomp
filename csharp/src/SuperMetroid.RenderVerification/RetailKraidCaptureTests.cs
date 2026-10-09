@@ -7,8 +7,12 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Captures Kraid's retail rise, growth, defeat, and exit-room restoration transitions.</summary>
 internal static class RetailKraidCaptureTests
 {
+    /// <summary>Runs the Kraid encounter and compares selected runtime frames with the Direct3D readback.</summary>
+    /// <param name="device">The render device used to label and perform pixel readback.</param>
+    /// <param name="renderer">The frame renderer used to compare captured gameplay packets.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -124,6 +128,11 @@ internal static class RetailKraidCaptureTests
             KraidAuditDefinitions.RightExitDoor, KraidAuditDefinitions.RightExitDestination, "defeated Kraid right");
     }
 
+    /// <summary>Stages a missile at Kraid's open-mouth hitbox and sends it through the gameplay collision dispatcher.</summary>
+    /// <param name="bus">The address space used to resolve the native or compiled mouth hitbox.</param>
+    /// <param name="runtime">The running encounter whose enemy collision path processes the shot.</param>
+    /// <param name="body">Kraid's body slot, used to position the staged missile relative to the hitbox.</param>
+    /// <param name="boss">Kraid's state containing the currently active mouth-hitbox identity.</param>
     private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
     {
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
@@ -147,6 +156,7 @@ internal static class RetailKraidCaptureTests
     }
 }
 
+/// <summary>Native room and projectile words needed to construct the retail Kraid capture scenario.</summary>
 internal static class KraidCaptureDefinitions
 {
     /// <summary>Retail incoming door $83:91B6 used by the existing Kraid rise audit.</summary>

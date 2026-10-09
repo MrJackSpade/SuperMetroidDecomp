@@ -17,6 +17,10 @@ internal static class DoorScrollPrograms
 
     // A null target probes callback ownership without performing writes.
     // The same named cases own both recognition and execution.
+    /// <summary>Recognizes a translated door callback and optionally applies its ordered room-scroll writes.</summary>
+    /// <param name="pointer">Native bank-$8F callback pointer to resolve.</param>
+    /// <param name="scrolls">Destination grid, or <see langword="null"/> to check ownership without mutation.</param>
+    /// <returns><see langword="true"/> when the pointer names a translated callback; otherwise <see langword="false"/>.</returns>
     private static bool Dispatch(ushort pointer, RoomScrollGrid? scrolls)
     {
         switch (pointer)
@@ -317,7 +321,18 @@ internal static class DoorScrollPrograms
         }
     }
 
+    /// <summary>Marks one storage cell as a red room boundary when execution has a destination grid.</summary>
+    /// <param name="scrolls">Grid to update, or <see langword="null"/> during ownership probing.</param>
+    /// <param name="index">Storage-cell index written by the native callback.</param>
     private static void Red(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.RedBoundary);
+
+    /// <summary>Marks one storage cell as blue when execution has a destination grid.</summary>
+    /// <param name="scrolls">Grid to update, or <see langword="null"/> during ownership probing.</param>
+    /// <param name="index">Storage-cell index written by the native callback.</param>
     private static void Blue(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Blue);
+
+    /// <summary>Marks one storage cell as green when execution has a destination grid.</summary>
+    /// <param name="scrolls">Grid to update, or <see langword="null"/> during ownership probing.</param>
+    /// <param name="index">Storage-cell index written by the native callback.</param>
     private static void Green(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Green);
 }

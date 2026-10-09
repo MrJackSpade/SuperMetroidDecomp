@@ -39,14 +39,22 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the laser loop at $86:D308.
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
+
+    /// <summary>Number of interleaved sprite operands in the shared animation program.</summary>
     public static int PresentationWordCount => 7;
 
+    /// <summary>Returns the bank-$86 address of one editable sprite operand.</summary>
+    /// <param name="index">Zero-based presentation slot index.</param>
+    /// <returns>Address of the selected spritemap word.</returns>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Initial + 4 * index + 2);
     }
+    /// <summary>Reports whether a projectile kind uses the shared Work Robot laser program.</summary>
+    /// <param name="kind">Projectile kind to classify.</param>
+    /// <returns><see langword="true"/> for one of the five directional Work Robot lasers.</returns>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
@@ -54,6 +62,10 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
         RoomEnemyProjectileKind.WorkRobotLaserUpRight or
         RoomEnemyProjectileKind.WorkRobotLaserDownRight;
 
+    /// <summary>Resolves a compiled duration or loop instruction at its native address.</summary>
+    /// <param name="address">Bank-relative instruction-stream address.</param>
+    /// <returns>The fixed duration or loop operand stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == LoopCommand)

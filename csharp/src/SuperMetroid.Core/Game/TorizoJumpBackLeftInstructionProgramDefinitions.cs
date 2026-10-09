@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
 {
+    /// <summary>Native bank-$AA origin of the shared left-facing backward-jump instruction lists.</summary>
     internal const ushort Start = 0xbc96;
 
     /// <summary><c>InstList_Torizo_FacingLeft_Walking_RightLegMoving</c> at $AA:B96C.</summary>
@@ -54,6 +55,7 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiles both left-facing backward-jump variants and indexes their eight presentation selectors.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc96),
         Entry(Start),
@@ -87,6 +89,12 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingLeftLegMoving, GTLandedFromBackwardsJumpFacingLeftRightFootFwd),
         Op(TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsRightFootFwd0, FacingLeftSonicBoomsRightFootForward0),
         Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingLeftLegMoving));
+    /// <summary>Gets the number of interleaved frame-pointer selectors in the compiled lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Gets the bank-local address of a presentation selector in the compiled lists.</summary>
+    /// <param name="index">The zero-based selector index.</param>
+    /// <returns>The address of the selected native frame-pointer word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index does not identify one of the eight selectors.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

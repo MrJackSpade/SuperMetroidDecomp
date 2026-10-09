@@ -39,6 +39,13 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Advances a resident scroll trigger, applying its ordered writes once it has been touched.</summary>
+    /// <param name="level">Room collision and foreground data updated when the scroll program completes.</param>
+    /// <param name="scrolls">Active scroll grid receiving program writes; required for a triggered slot.</param>
+    /// <param name="slot">Resident scroll-trigger PLM whose wait state or program is advanced.</param>
+    /// <returns><see langword="true"/> when the slot is a scroll trigger, including while it remains dormant.</returns>
+    /// <exception cref="InvalidDataException">The program is truncated, malformed, or lacks its negative terminator.</exception>
+    /// <exception cref="InvalidOperationException">A triggered scroll trigger is advanced without its active scroll grid.</exception>
     private static bool TryStepScrollPlm(
         RoomLevelData level,
         RoomScrollGrid? scrolls,
@@ -87,6 +94,9 @@ public sealed partial class RoomPlmSystem
             $"Scroll PLM data $8F:{slot.RoomArgument:X4} has no negative terminator.");
     }
 
+    /// <summary>Restores the trigger's special-air block and waiting instruction after its scroll writes finish.</summary>
+    /// <param name="level">Room data whose trigger block is restored.</param>
+    /// <param name="slot">Scroll-trigger slot whose latch and instruction pointer are reset.</param>
     private static void FinishScrollMutation(RoomLevelData level, PlmSlot slot)
     {
         // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -142,8 +152,10 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
+    /// <summary>Runtime latch and source data for a resident scroll-trigger PLM.</summary>
     private sealed class ScrollPlmState
     {
+        /// <summary>Whether contact has awakened this trigger's instruction list to apply its scroll writes.</summary>
         public bool Triggered { get; set; }
         /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
         public ushort? CompiledSource { get; set; }

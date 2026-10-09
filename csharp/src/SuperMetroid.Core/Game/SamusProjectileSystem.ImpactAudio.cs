@@ -6,7 +6,9 @@ public sealed partial class SamusProjectileSystem
 {
     // Frame-publication data, not persistent cartridge state. Reinitialize before enemy
     // collision as well as projectile movement: either owner can cause an impact.
+    /// <summary>Requests for projectile impacts recorded during the current owner frame.</summary>
     [NonSerialized] private List<SamusSoundRequest>? _impactSoundRequests;
+    /// <summary>Whether cinematic mode suppresses missile impact requests in the current owner frame.</summary>
     [NonSerialized] private bool _cinematicImpactAudioSuppressed;
 
     /// <summary>Borrowed current-owner-frame missile impact requests for library two with queue limit six; reading the list does not consume or play them.</summary>
@@ -21,10 +23,14 @@ public sealed partial class SamusProjectileSystem
         _cinematicImpactAudioSuppressed = cinematicActive;
     }
 
+    /// <summary>Records the beam-impact sound request, marking it suppressed while a Power Bomb is active.</summary>
+    /// <param name="powerBomb">Current Power Bomb state used to set the request's native sound-suppression flag.</param>
     private void RequestBeamImpactSound(SamusPowerBombExplosionState powerBomb) =>
         (_impactSoundRequests ??= []).Add(new(SoundEffectLibrary2Sounds.BeamImpact, 6,
             SoundSuppressed: powerBomb.IsActive));
 
+    /// <summary>Records a missile-impact sound request unless the current frame is in cinematic mode.</summary>
+    /// <param name="powerBomb">Current Power Bomb state used to set the request's native sound-suppression flag.</param>
     private void RequestMissileImpactSound(SamusPowerBombExplosionState powerBomb)
     {
         if (!_cinematicImpactAudioSuppressed)

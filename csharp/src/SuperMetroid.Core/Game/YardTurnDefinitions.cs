@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One physical lookahead and callback-selector record for a Yard surface turn.</summary>
+/// <param name="LookaheadX">Horizontal displacement from Samus to the native turn-probe position.</param>
+/// <param name="LookaheadY">Vertical displacement from Samus to the native turn-probe position.</param>
+/// <param name="OutsideTurnInstructionList">Callback list selected when the outside-side turn probe finds a surface.</param>
+/// <param name="InsideTurnInstructionList">Callback list selected when the inside-side turn probe finds a surface.</param>
 internal readonly record struct YardTurnDefinition(
     short LookaheadX,
     short LookaheadY,

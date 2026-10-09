@@ -1,6 +1,10 @@
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of changing status text above a fixed gameplay viewport.</summary>
+/// <param name="BeforeCanvasBounds">Gameplay-canvas bounds after layout with the shorter status text.</param>
+/// <param name="AfterCanvasBounds">Gameplay-canvas bounds after layout with the longer status text.</param>
+/// <param name="BeforeToolbarPreferredSize">Toolbar's preferred size before the status text expands.</param>
+/// <param name="AfterToolbarPreferredSize">Toolbar's preferred size after the status text expands.</param>
 public readonly record struct HostViewportLayoutSmokeTestResult(
     Rectangle BeforeCanvasBounds,
     Rectangle AfterCanvasBounds,

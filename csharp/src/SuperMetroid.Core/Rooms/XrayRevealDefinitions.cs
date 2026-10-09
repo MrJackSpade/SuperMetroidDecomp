@@ -175,15 +175,32 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>Builds a copy-one reveal that places a single tile at the target location.</summary>
+    /// <param name="tile">Tile copied into the target location.</param>
+    /// <returns>The copy-one reveal definition.</returns>
     private static XrayRevealDefinition One(ushort tile) =>
         new(XrayRevealCodePointers.CopyOne, tile, 0, 0, 0);
 
+    /// <summary>Builds a copy-wide reveal using two tiles across the top row.</summary>
+    /// <param name="left">Tile for the left cell.</param>
+    /// <param name="right">Tile for the right cell.</param>
+    /// <returns>The copy-wide reveal definition.</returns>
     private static XrayRevealDefinition Wide(ushort left, ushort right) =>
         new(XrayRevealCodePointers.CopyWide, left, right, 0, 0);
 
+    /// <summary>Builds a copy-tall reveal using two tiles down the left column.</summary>
+    /// <param name="top">Tile for the upper cell.</param>
+    /// <param name="bottom">Tile for the lower cell.</param>
+    /// <returns>The copy-tall reveal definition.</returns>
     private static XrayRevealDefinition Tall(ushort top, ushort bottom) =>
         new(XrayRevealCodePointers.CopyTall, top, 0, bottom, 0);
 
+    /// <summary>Builds a copy-square reveal from four tiles arranged in a two-by-two block.</summary>
+    /// <param name="topLeft">Tile for the upper-left cell.</param>
+    /// <param name="topRight">Tile for the upper-right cell.</param>
+    /// <param name="bottomLeft">Tile for the lower-left cell.</param>
+    /// <param name="bottomRight">Tile for the lower-right cell.</param>
+    /// <returns>The copy-square reveal definition.</returns>
     private static XrayRevealDefinition Square(
         ushort topLeft,
         ushort topRight,

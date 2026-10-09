@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(EnemyProjectileInstructionMechanicsDefinitions))]
 internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the mechanics-word total across the blue-ring data and all timed projectile programs.</summary>
     public static int MechanicsWordCount
     {
         get
@@ -20,8 +21,17 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : 
             return count;
         }
     }
+    /// <summary>Tests whether either byte at a full bank-$86 address belongs to a compiled mechanics word.</summary>
+    /// <param name="address">The full SNES address to classify.</param>
+    /// <returns><see langword="true"/> when the address identifies either byte of a catalog mechanics word.</returns>
     public static bool IsCompiledMechanicsByte(int address) => (address & 0xff0000) == 0x860000 &&
         (EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord((ushort)address, out _) || EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord(unchecked((ushort)(address - 1)), out _));
+
+    /// <summary>Gets one mechanics word from the catalog's stable address enumeration.</summary>
+    /// <param name="index">The zero-based position in the mechanics-word list.</param>
+    /// <returns>The native bank-$86 address and decoded value at that position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the mechanics-word list.</exception>
+    /// <exception cref="InvalidOperationException">The enumerated address count disagrees with the compiled programs.</exception>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -29,6 +39,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : 
             if (index-- == 0) return new(address, EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address));
         throw new InvalidOperationException("Projectile mechanics enumeration count disagrees with its programs.");
     }
+    /// <summary>Enumerates native addresses for mechanics words, omitting presentation operands and preserving catalog order.</summary>
     internal static IEnumerable<ushort> MechanicsAddresses()
     {
         for (int frame = 0; frame < EnemyProjectileInstructionMechanicsDefinitions.BlueRingRadiusCount; frame++)

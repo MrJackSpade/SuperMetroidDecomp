@@ -33,6 +33,7 @@ public enum ZebesExplosionAmbientPaletteFxProgramOwner
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>The afterglow and lava mechanics descriptors in ambient-owner order.</summary>
     private static readonly ZebesExplosionAmbientPaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -52,6 +53,7 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
             colorsPerFrame: 1,
             cycleFrames: 70),
     ];
+    /// <summary>Read-only collection view used to expose the compiled descriptors through <see cref="All"/>.</summary>
     private static readonly IReadOnlyList<ZebesExplosionAmbientPaletteFxProgramDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
@@ -72,6 +74,11 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Returns the cartridge-authored record duration for one ambient program frame.</summary>
+    /// <param name="owner">Ambient palette loop whose duration rule is applied.</param>
+    /// <param name="frame">Zero-based record index; lava records use indices 0 through 9, while afterglow has a fixed duration.</param>
+    /// <returns>The record duration in frames.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0 through 9 for an owner using the frame-based duration rule.</exception>
     internal static ushort Duration(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         int frame) => owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow
@@ -84,6 +91,14 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
 public sealed class ZebesExplosionAmbientPaletteFxProgramDefinition
 {
+    /// <summary>Creates the immutable layout and timing descriptor for one ambient palette-FX loop.</summary>
+    /// <param name="owner">Afterglow or lava loop represented by the descriptor.</param>
+    /// <param name="definitionPointer">Bank-$8D definition pointer that selects the loop.</param>
+    /// <param name="programStart">Bank-$8D address of the loop's color-index setup instruction.</param>
+    /// <param name="colorByteIndex">First destination byte in CGRAM for colors emitted by the loop.</param>
+    /// <param name="frameCount">Number of timed records before the terminal loop instruction.</param>
+    /// <param name="colorsPerFrame">Number of live BGR555 color words written by each record.</param>
+    /// <param name="cycleFrames">Total authored duration of one loop cycle in frames.</param>
     internal ZebesExplosionAmbientPaletteFxProgramDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         ushort definitionPointer,

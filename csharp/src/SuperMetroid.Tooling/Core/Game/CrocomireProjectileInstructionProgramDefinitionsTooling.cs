@@ -6,8 +6,16 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CrocomireProjectileInstructionProgramDefinitions))]
 internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of sprite-frame operands across Crocomire's projectile instruction programs.</summary>
     public static int PresentationWordCount => CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount;
+
+    /// <summary>Returns the address of one interleaved spritemap operand in the compiled projectile programs.</summary>
+    /// <param name="index">Zero-based position among the projectile programs' presentation operands.</param>
+    /// <returns>The bank-local address whose word selects the spritemap for a frame.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside <see cref="PresentationWordCount"/>.</exception>
     public static ushort PresentationWordAddress(int index) => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+
+    /// <summary>Gets the number of duration and control words exposed for Crocomire's projectile programs.</summary>
     public static int MechanicsWordCount => 22;
     /// <summary>Enumerates each program's timed frames followed by its control
     /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
@@ -24,6 +32,9 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling 
         ushort address = (ushort)(start + offset);
         return new(address, CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Tests whether a full SNES address belongs to a compiled mechanics word in these projectile programs.</summary>
+    /// <param name="address">Full SNES address to classify.</param>
+    /// <returns><see langword="true"/> for duration-word bytes or the contiguous control trailer; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;

@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of the non-GUI cartridge audio diagnostic.</summary>
+/// <param name="FramesGenerated">The number of title-music update frames rendered by the smoke test.</param>
+/// <param name="NonZeroSamples">The count of nonzero PCM samples produced during title-music rendering.</param>
+/// <param name="PeakAmplitude">The greatest absolute PCM sample magnitude observed during title-music rendering.</param>
+/// <param name="PowerBeamNonZeroSamples">The count of nonzero PCM samples from the separate power-beam sound check.</param>
 public readonly record struct CartridgeAudioSmokeTestResult(
     int FramesGenerated,
     int NonZeroSamples,

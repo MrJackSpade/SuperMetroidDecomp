@@ -69,6 +69,7 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
     /// <summary>Native program bank $B2.</summary>
     internal const byte Bank = 0xb2;
 
+    /// <summary>Address-ordered instruction layout, distinguishing compiled mechanics words from editable spritemap slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecc0),
         Entry(FireAndJumpLeft),
@@ -181,9 +182,20 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
         Frame(8),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, PirateWallMovingUpRightWall1),
         Op(PirateWallRandomlyChooseADirectionRightWall));
+
+    /// <summary>Total editable spritemap operands across the wall-pirate instruction programs.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native bank-$B2 address of an editable spritemap operand by ordinal.</summary>
+    /// <param name="index">Zero-based index into the layout's presentation slots.</param>
+    /// <returns>The address of the selected presentation word.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the layout's presentation-slot range.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled mechanics word while rejecting presentation slots and unowned addresses.</summary>
+    /// <param name="address">Native bank-$B2 word address to read.</param>
+    /// <returns>The mechanics value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a mechanics word in this layout.</exception>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>
 /// One calculated downward-gate shot-block setup action for bank $84.
 /// </summary>
+/// <param name="InstructionList">Native instruction-list pointer for the room-argument variant.</param>
+/// <param name="LeftBlockWord">BTS word to write for the left trigger block, or zero when that side is untouched.</param>
+/// <param name="RightBlockWord">BTS word to write for the right trigger block, or zero when that side is untouched.</param>
 internal readonly record struct DownwardGateShotBlockDefinition(
     ushort InstructionList,
     ushort LeftBlockWord,
@@ -14,6 +17,7 @@ internal readonly record struct DownwardGateShotBlockDefinition(
 internal static class DownwardGateShotBlockDefinitions
 {
 
+    /// <summary>Largest even room argument accepted by the compiled shot-block table.</summary>
     private const ushort LastRoomArgument = 14;
 
     /// <summary>

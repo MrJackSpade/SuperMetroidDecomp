@@ -8,8 +8,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Captures and compares retail Ceres door-transition frames through the Direct3D11 renderer.</summary>
 internal static class RetailDoorCaptureTests
 {
+    /// <summary>Runs the leftward and rightward retail hallway door captures.</summary>
+    /// <param name="device">Rendering device used to label the captured sequence.</param>
+    /// <param name="renderer">Renderer whose readback is compared with the runtime frame.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (bool left in new[] { false, true })
@@ -28,6 +32,15 @@ internal static class RetailDoorCaptureTests
         }
     }
 
+    /// <summary>Advances a retail door transition to its destination while comparing each rendered frame.</summary>
+    /// <param name="device">Rendering device associated with the capture.</param>
+    /// <param name="renderer">Renderer used for frame readback.</param>
+    /// <param name="runtime">Initialized runtime containing the source room and Samus state.</param>
+    /// <param name="bus">Cartridge address space used to resolve and publish the authored door.</param>
+    /// <param name="door">Native door pointer that the fixture must open.</param>
+    /// <param name="destination">Expected destination room pointer after scrolling completes.</param>
+    /// <param name="context">Label included in comparison errors and completion output.</param>
+    /// <param name="publish">Optional callback receiving each serialized frame snapshot.</param>
     internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer,
         SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context,
         Action<RenderFrameSnapshot>? publish = null)
@@ -53,6 +66,11 @@ internal static class RetailDoorCaptureTests
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }
 
+    /// <summary>Finds a room collision for the requested door and publishes its production door side effects.</summary>
+    /// <param name="runtime">Runtime whose loaded room contains the door collision.</param>
+    /// <param name="bus">Cartridge address space used to resolve each collision's door pointer.</param>
+    /// <param name="pointer">Native door pointer to locate and publish.</param>
+    /// <exception cref="InvalidOperationException">No room collision resolves to the requested door.</exception>
     internal static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)
     {
         // Same staged approach as the existing visual regression: discover the real

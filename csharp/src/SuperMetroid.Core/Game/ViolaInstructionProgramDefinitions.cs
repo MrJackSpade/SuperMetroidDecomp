@@ -17,7 +17,10 @@ internal abstract class ViolaInstructionProgramDefinitions
     /// <summary><c>InstList_Viola_Normal</c> at $A3:B5EF.</summary>
     internal const ushort NormalLoop = 0xb5ef;
 
+    /// <summary>Gets the 30 compiled engine-control words across the four entry programs and shared normal loop.</summary>
     public static int MechanicsWordCount => 30;
+
+    /// <summary>Gets the 14 live spritemap operands interleaved with the normal-loop frame durations.</summary>
     public static int PresentationWordCount => 14;
 
     /// <summary>Four axis-setting entries converge on fourteen ten-tick frames; the last entry falls through.</summary>
@@ -42,12 +45,19 @@ internal abstract class ViolaInstructionProgramDefinitions
             : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? CommonEnemyInstructionCodes.Goto : NormalLoop);
     }
 
+    /// <summary>Returns the address of a spritemap operand in Viola's shared normal loop.</summary>
+    /// <param name="index">Zero-based index of one of the 14 normal-loop frames.</param>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the presentation operands.</exception>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(NormalLoop + 2 + 4 * index);
     }
+    /// <summary>Resolves a bank-$A3 address to its compiled Viola mechanics word.</summary>
+    /// <param name="address">Address of the mechanics word to read.</param>
+    /// <returns>The compiled value at the exact matching address.</returns>
+    /// <exception cref="InvalidDataException">The address is not among the compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

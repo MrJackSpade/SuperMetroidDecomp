@@ -6,6 +6,8 @@ using SuperMetroid.Core.Game;
 /// <summary>Conspicuous, valid disk edits used only by the paired Samus isolation fixtures.</summary>
 internal static class SamusIsolationArtworkEdits
 {
+    /// <summary>Writes valid body-layout and death-palette overrides with deliberately shifted or recolored values.</summary>
+    /// <param name="installation">Installation whose stock assets are read and whose override directory receives the edits.</param>
     internal static void WriteBody(GameInstallation installation)
     {
         Edit(SamusBodyArtworkFiles.ManifestFileName, document =>
@@ -63,6 +65,10 @@ internal static class SamusIsolationArtworkEdits
         return (stock, compile(editedStream));
     }
 
+    /// <summary>Adds an offset to every integer in a JSON array and stores each result as a byte-sized value.</summary>
+    /// <param name="node">JSON array of authored offsets to change.</param>
+    /// <param name="amount">Integer added to each array element before conversion.</param>
+    /// <param name="signed">When true, converts results through <see cref="sbyte"/>; otherwise uses <see cref="byte"/>.</param>
     private static void Shift(JsonNode node, int amount, bool signed)
     {
         JsonArray values = node.AsArray();
@@ -73,6 +79,8 @@ internal static class SamusIsolationArtworkEdits
         }
     }
 
+    /// <summary>Inverts the lower fifteen bits of every integer in a possibly nested JSON palette array.</summary>
+    /// <param name="node">Palette value or nested array containing the packed color words to alter.</param>
     private static void RecolorWords(JsonNode node)
     {
         JsonArray values = node.AsArray();
@@ -81,6 +89,8 @@ internal static class SamusIsolationArtworkEdits
             else values[index] = values[index]!.GetValue<int>() ^ 0x7fff;
     }
 
+    /// <summary>Recursively inverts each 5-bit RGB channel in color records throughout a JSON object or array.</summary>
+    /// <param name="node">JSON value containing RGB records, nested objects, or nested arrays.</param>
     private static void RecolorRgb(JsonNode node)
     {
         if (node is JsonObject record)

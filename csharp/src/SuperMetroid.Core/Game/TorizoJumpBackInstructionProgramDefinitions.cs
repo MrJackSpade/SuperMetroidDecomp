@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoJumpBackInstructionProgramDefinitions
 {
+    /// <summary>Start address of the compiled backward-jump instruction lists in bank $AA.</summary>
     internal const ushort Start = 0xc110;
 
     /// <summary><c>InstList_Torizo_FacingRight_Walking_LeftLegMoving</c> at $AA:BDE2.</summary>
@@ -54,6 +55,7 @@ internal abstract class TorizoJumpBackInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiled backward-jump mechanics and presentation-operand layout shared by Bomb and Golden Torizo.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc110),
         Entry(Start),
@@ -87,6 +89,12 @@ internal abstract class TorizoJumpBackInstructionProgramDefinitions
         Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingRightFacelessWalkingRightLegMoving, GTLandedFromBackwardsJumpFacingRightLeftFootFwd),
         Op(TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingRightSpewingChozoOrbsLeftFootFwd0, FacingRightSonicBoomsLeftFootForward0),
         Op(CommonEnemyInstructionCodes.Goto, FacingRightWalkingRightLegMoving));
+    /// <summary>Number of interleaved spritemap operands supplied by extracted presentation data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    /// <summary>Returns the native instruction address for a presentation operand's zero-based slot.</summary>
+    /// <param name="index">Ordinal among the presentation slots in the compiled layout.</param>
+    /// <returns>Instruction address at which that spritemap operand is consumed.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the layout's presentation slots.</exception>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

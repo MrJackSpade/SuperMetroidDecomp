@@ -10,6 +10,10 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static partial class InstalledSamusArtworkTests
 {
+    /// <summary>Runs the finite installed-artwork acceptance checks and reports comparison counts for the active renderer.</summary>
+    /// <param name="fixture">Paired stock and edited artwork assets used by the checks.</param>
+    /// <param name="device">Graphics device receiving the verification draws.</param>
+    /// <param name="renderer">Renderer used for software/GPU pixel comparisons.</param>
     internal static void Run(InstalledSamusArtworkFixture fixture,
         D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -24,6 +28,11 @@ internal static partial class InstalledSamusArtworkTests
             $"{check.Comparisons} exact software/GPU comparisons, {check.ChangedPixels} recolored pixels.");
     }
 
+    /// <summary>Confirms each Samus pose renders identically in placement and visibility while edited pixels leave physical state unchanged.</summary>
+    /// <param name="fixture">Stock and edited assets bound to otherwise matching Samus states.</param>
+    /// <param name="memory">Cartridge-free address space required by the draw and radius paths.</param>
+    /// <param name="check">Pixel comparator that records each stock/edited render pair.</param>
+    /// <returns>The number of poses checked.</returns>
     private static int CheckPoseDrawing(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
     {
@@ -55,6 +64,9 @@ internal static partial class InstalledSamusArtworkTests
 
     // Deliberately excludes derived spritemap indices and DMA flags. Those are the
     // rendering outputs; pose timing, collision radii and fixed-point motion are not.
+    /// <summary>Captures gameplay-relevant Samus fields while omitting derived rendering outputs.</summary>
+    /// <param name="samus">State whose pose, movement, collision, damage, and animation fields are sampled.</param>
+    /// <returns>A deterministic string snapshot used to detect state changes during artwork drawing.</returns>
     private static string PhysicalState(SamusState samus) => string.Join("|",
         samus.Pose, samus.XPosition, samus.YPosition, samus.Health,
         samus.AnimationFrame, samus.AnimationFrameTimer, samus.AnimationFrameBuffer,
@@ -65,6 +77,10 @@ internal static partial class InstalledSamusArtworkTests
         samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed,
         samus.Kinematics.XRadius, samus.Kinematics.YRadius);
 
+    /// <summary>Stops the acceptance run when a required artwork invariant is false.</summary>
+    /// <param name="condition">Invariant that must hold for the check to pass.</param>
+    /// <param name="message">Diagnostic text identifying the failed invariant.</param>
+    /// <exception cref="InvalidOperationException">The condition is false.</exception>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 }

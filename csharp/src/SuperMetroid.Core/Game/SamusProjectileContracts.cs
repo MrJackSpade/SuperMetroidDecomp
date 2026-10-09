@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
 public sealed class SamusProjectileSlot
 {
+    /// <summary>Creates the host view for one ordinary projectile slot and records its native slot index.</summary>
+    /// <param name="slotIndex">Zero-based host index; the corresponding native byte index is twice this value.</param>
     internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Host slot 0..4; native byte index is this value times two.</summary>
@@ -173,6 +175,8 @@ public enum SamusProjectilePreInstruction : byte
 /// </summary>
 public sealed class SamusProjectileTrailSlot
 {
+    /// <summary>Creates one trail allocation with independent left- and right-side animation state.</summary>
+    /// <param name="slotIndex">Zero-based index of this trail allocation.</param>
     internal SamusProjectileTrailSlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -187,6 +191,7 @@ public sealed class SamusProjectileTrailSlot
     /// <summary>Gets the right-side trail animation state.</summary>
     public SamusProjectileTrailSide Right { get; }
 
+    /// <summary>Clears both trail sides when this allocation is released.</summary>
     internal void ClearFields()
     {
         Left.ClearFields();
@@ -208,6 +213,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public ushort TileNumberAttributes { get; internal set; }
 
+    /// <summary>Resets the position, animation cursor, and tile attributes for this trail side.</summary>
     internal void ClearFields()
     {
         XPosition = 0;

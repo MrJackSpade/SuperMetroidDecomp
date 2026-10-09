@@ -16,7 +16,10 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort FacingUp = 0xec5c;
 
+    /// <summary>Number of frame-duration and sleep-command words in the two body-pose lists.</summary>
     public static int MechanicsWordCount => 4;
+
+    /// <summary>Number of spritemap operands selecting the down- and up-facing body poses.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>$86:EC56-EC61 contains two six-byte single-pose/sleep programs, down then up.</summary>
@@ -27,8 +30,18 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
         return new((ushort)(FacingDown + index / 2 * 6 + operation * 4),
             operation == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
     }
+
+    /// <summary>Gets the bank-$86 address of a down- or up-pose spritemap operand.</summary>
+    /// <param name="index">Zero-based index selecting one of the two pose presentation words.</param>
+    /// <returns>The instruction-list address of the selected spritemap operand.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the two-pose range.</exception>
     public static ushort PresentationWordAddress(int index) => (uint)index < PresentationWordCount
         ? (ushort)(FacingDown + index * 6 + sizeof(ushort)) : throw new IndexOutOfRangeException();
+
+    /// <summary>Resolves a frame duration or sleep opcode from either compiled body-pose list.</summary>
+    /// <param name="address">Bank-$86 address of the mechanics word to resolve.</param>
+    /// <returns>The duration or sleep-command value stored at that address.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

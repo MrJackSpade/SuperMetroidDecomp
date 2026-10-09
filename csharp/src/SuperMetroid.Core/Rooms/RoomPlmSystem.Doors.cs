@@ -6,8 +6,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored door-cap reactions owned by bank $84's PLM pool.</summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Persistence state used to record opened bits when resident colored doors reach their hit threshold.</summary>
     private Bank80SystemState? _coloredDoorSystem;
 
+    /// <summary>Applies the shootable-solid collision and resident-projectile-trigger BTS for a colored cap.</summary>
+    /// <param name="level">Room level whose PLM block metadata is updated.</param>
+    /// <param name="blockIndex">Index of the cap's collision block.</param>
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
@@ -55,6 +59,15 @@ public sealed partial class RoomPlmSystem
             wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }
 
+    /// <summary>Advances a resident colored-door actor through its waiting, hit, flash, opening, or room-entry phase.</summary>
+    /// <param name="bus">Address space used to read native list operands and draw data.</param>
+    /// <param name="level">Room level receiving collision or colored-cap updates.</param>
+    /// <param name="streamer">Background streamer receiving draw-list changes.</param>
+    /// <param name="slot">PLM actor whose attached colored-door state is advanced.</param>
+    /// <param name="layer1XPosition">Current horizontal Layer 1 position.</param>
+    /// <param name="layer1YPosition">Current vertical Layer 1 position.</param>
+    /// <param name="bg1XOffset">Horizontal BG1 offset used to place the PLM draw.</param>
+    /// <returns><see langword="true"/> when this actor remains owned by the colored-door handler for the pass.</returns>
     private bool TryStepColoredDoor(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -183,6 +196,11 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>Decodes a native colored-door header into its color family and six-byte orientation slot.</summary>
+    /// <param name="header">Bank-$84 PLM header pointer to classify.</param>
+    /// <param name="color">Receives the matching yellow, green, or red door family.</param>
+    /// <param name="orientation">Receives the left, right, up, or down cap orientation.</param>
+    /// <returns><see langword="true"/> only for one of the recognized colored-door headers.</returns>
     private static bool TryIdentifyColoredDoor(
         ushort header,
         out ColoredDoorColor color,

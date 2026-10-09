@@ -30,6 +30,10 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads one byte from either compiled left- or right-facing cannon instruction list.</summary>
+    /// <param name="address">Bank-$84 address to resolve.</param>
+    /// <param name="value">Receives the byte at the address when it belongs to a compiled list; otherwise zero.</param>
+    /// <returns><see langword="true"/> when the address lies within either supported list.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -38,6 +42,11 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Maps a bank-$84 address in either supported list to its list start and byte offset.</summary>
+    /// <param name="address">Address to locate in a left- or right-facing cannon list.</param>
+    /// <param name="start">Receives the matching list start, or zero when the address is outside both lists.</param>
+    /// <param name="offset">Receives the byte offset from <paramref name="start"/>, or zero on failure.</param>
+    /// <returns><see langword="true"/> when the address belongs to a supported list.</returns>
     private static bool TryLocate(ushort address, out int start, out int offset)
     {
         start = address >= RightStart && address <= RightEnd ? RightStart :
@@ -46,6 +55,10 @@ internal static class DraygonCannonPlmProgramDefinitions
         return start != 0;
     }
 
+    /// <summary>Extracts one byte from the packed, parity-overlapping mechanics view of a cannon list.</summary>
+    /// <param name="start">Start address identifying the left- or right-facing list.</param>
+    /// <param name="offset">Byte offset within that list.</param>
+    /// <returns>The compiled byte at the requested position.</returns>
     private static byte ByteAt(int start, int offset)
     {
         if (offset == 20) return 3;
@@ -53,6 +66,10 @@ internal static class DraygonCannonPlmProgramDefinitions
         return (byte)(WordAt(start, wordOffset) >> ((offset - wordOffset) * 8));
     }
 
+    /// <summary>Resolves one mechanics word by list-relative offset, including orientation-specific drawing commands.</summary>
+    /// <param name="start">Start address identifying the left- or right-facing list.</param>
+    /// <param name="offset">Word offset within the compiled list.</param>
+    /// <returns>The instruction, duration, or draw operand represented at that position.</returns>
     private static ushort WordAt(int start, int offset)
     {
         bool right = start == RightStart;

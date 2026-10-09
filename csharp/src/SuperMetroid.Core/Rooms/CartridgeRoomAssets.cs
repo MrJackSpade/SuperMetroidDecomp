@@ -15,6 +15,14 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class CartridgeRoomAssets
 {
+    /// <summary>Creates the assembled room assets after their cartridge sources have been resolved and decoded.</summary>
+    /// <param name="header">The selected room-state header that identifies the source data and dimensions.</param>
+    /// <param name="levelData">The decoded collision, behavior, and visual-reference planes with their native allocation.</param>
+    /// <param name="scrolls">The room's screen-indexed scroll-control grid.</param>
+    /// <param name="creCharacters">The shared common-room-element character data installed before area characters.</param>
+    /// <param name="roomCharacters">The graphics set's character data, installed after shared characters.</param>
+    /// <param name="paletteBytes">The graphics set's expanded little-endian BGR555 palette data.</param>
+    /// <param name="tileset">The selected graphics-set definition used to resolve the installed assets.</param>
     private CartridgeRoomAssets(
         CartridgeRoomHeader header,
         RoomLevelData levelData,
@@ -124,6 +132,12 @@ public sealed class CartridgeRoomAssets
             destinationIndex: 0);
     }
 
+    /// <summary>Builds runtime room planes from the compressed level stream and selected visual layout.</summary>
+    /// <param name="header">The room header providing visible dimensions and native source identity.</param>
+    /// <param name="levelStream">The decompressed stream containing BG1 words, BTS bytes, and any authored BG2 words.</param>
+    /// <param name="blockDefinitions">The combined metatile definitions used to resolve block references.</param>
+    /// <param name="visualLayout">Optional installed-artwork tile references for the room's visual plane.</param>
+    /// <returns>Level data retaining native collision/BTS contents, authored visual words, and required streaming allocation.</returns>
     private static RoomLevelData ParseLevelData(
         CartridgeRoomHeader header,
         byte[] levelStream,
@@ -219,6 +233,10 @@ public sealed class CartridgeRoomAssets
             visualLayout);
     }
 
+    /// <summary>Creates the screen-indexed scroll-control grid selected by the room-state header.</summary>
+    /// <param name="bus">The address space used to read the native scroll definitions.</param>
+    /// <param name="header">The selected room header supplying the scroll pointer and screen dimensions.</param>
+    /// <returns>The room's scroll grid for boundary-camera initialization.</returns>
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)
         => RoomScrollDefinitions.CreateGrid(
             bus,
@@ -226,6 +244,9 @@ public sealed class CartridgeRoomAssets
             header.WidthInScreens,
             header.HeightInScreens);
 
+    /// <summary>Decodes complete consecutive byte pairs as little-endian 16-bit words.</summary>
+    /// <param name="bytes">The byte span to convert; a final unpaired byte is not represented in the result.</param>
+    /// <returns>The words decoded from the input, in source order.</returns>
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
     {
         var words = new ushort[bytes.Length / 2];

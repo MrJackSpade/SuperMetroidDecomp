@@ -8,8 +8,10 @@
 /// </summary>
 internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>First word at <c>$AA:CDAF</c> in the four-case Golden Torizo landing program.</summary>
     internal const ushort Start = 0xcdaf;
 
+    /// <summary>Twenty compiled mechanics words: five control-flow operands for each landing case.</summary>
     public static int MechanicsWordCount => 4 * 5;
 
     /// <summary>
@@ -46,6 +48,9 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
         return new((ushort)(Start + index * sizeof(ushort)), value);
     }
 
+    /// <summary>Reports whether an address names either byte of a compiled landing-program mechanics word.</summary>
+    /// <param name="address">24-bit cartridge address to test.</param>
+    /// <returns><see langword="true"/> when the address falls on a mechanics word byte in bank <c>$AA</c>.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)

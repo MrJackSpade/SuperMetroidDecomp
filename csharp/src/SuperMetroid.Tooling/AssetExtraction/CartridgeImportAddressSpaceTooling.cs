@@ -5,6 +5,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Development-tool members of <see cref="CartridgeImportAddressSpace"/>; never linked by player hosts.</summary>
 internal static class CartridgeImportAddressSpaceTooling
 {
+    /// <summary>Loads a retail ROM image, accepting either a bare image or a 512-byte copier header before the ROM data.</summary>
+    /// <param name="path">File path to the retail Super Metroid ROM.</param>
+    /// <returns>An address space backed by the validated ROM image.</returns>
+    /// <exception cref="InvalidDataException">The file size or LoROM header title does not match the supported retail image.</exception>
     public static CartridgeImportAddressSpace LoadRetailRom(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -31,8 +35,10 @@ internal static class CartridgeImportAddressSpaceTooling
 /// <summary>Development-tool instance members of <see cref="CartridgeImportAddressSpace"/>.</summary>
 internal static class CartridgeImportAddressSpaceToolingExtensions
 {
+    /// <summary>Provides development-tool access to the immutable ROM bytes owned by an imported address space.</summary>
     extension(CartridgeImportAddressSpace self)
     {
+        /// <summary>Gets the imported cartridge image without exposing mutable storage.</summary>
         public ReadOnlySpan<byte> Rom => self._rom;
     }
 }

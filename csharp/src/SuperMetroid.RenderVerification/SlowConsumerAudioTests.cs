@@ -10,6 +10,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class SwapchainTests
 {
+    /// <summary>Checks audio and gameplay agreement with an available or deliberately blocked render consumer.</summary>
+    /// <param name="selection">Graphics-device selection used by each render worker.</param>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
         foreach (ushort room in new[] { SlowConsumerFixture.AlphaPowerBombRoom, SlowConsumerFixture.MaridiaTubeRoom })
@@ -17,6 +19,10 @@ internal static partial class SwapchainTests
                 RunSlowConsumerAudioRoom(selection, room, blockConsumer);
     }
 
+    /// <summary>Compares legacy, captured, and headless audio/gameplay through a bounded room slice.</summary>
+    /// <param name="selection">Graphics-device selection used to create the render worker.</param>
+    /// <param name="room">Retail room header used for the pause and movement portion of the fixture.</param>
+    /// <param name="blockConsumer">Whether the render worker is held temporarily to exercise mailbox replacement.</param>
     private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, ushort room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -159,6 +165,7 @@ internal static partial class SwapchainTests
     }
 }
 
+/// <summary>Retail room headers selected for the slow-consumer power-bomb and Maridia liquid scenarios.</summary>
 internal static class SlowConsumerFixture
 {
     /// <summary>Retail $8F:A3AE room header: room-local gameplay/pause fixture, matching portable capture tests.</summary>

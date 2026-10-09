@@ -11,6 +11,9 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
+    /// <summary>Runs paced hidden-rendering and silent-audio soak scenes, then writes timing and resource metrics.</summary>
+    /// <param name="seconds">Duration of each gameplay and paused scene, from 5 through 300 seconds.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The requested per-scene duration is outside 5..300 seconds.</exception>
     private static async Task RunHiddenSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds), "Use 5..300 seconds per scene.");
@@ -106,6 +109,13 @@ internal static partial class Program
         Console.WriteLine($"Hidden soak report: {report}");
     }
 
+    /// <summary>Renders a captured frame's audio, submits its PCM, acknowledges consumed commands, and updates soak counters.</summary>
+    /// <param name="audio">Synthesizer used to produce PCM from the frame's audio commands.</param>
+    /// <param name="output">Silent waveOut device receiving the rendered samples.</param>
+    /// <param name="game">Game instance whose audio command consumption is acknowledged.</param>
+    /// <param name="frame">Captured frame supplying the commands to render and submit.</param>
+    /// <param name="nonzero">Running count of nonzero PCM samples.</param>
+    /// <param name="count">Running count of submitted PCM samples.</param>
     private static void MixAndSubmit(SpcAudioEngine audio, WaveOutAudioDevice output, SuperMetroidGame game,
         CapturedFrontendFrame frame, ref long nonzero, ref long count)
     {
@@ -117,6 +127,7 @@ internal static partial class Program
     }
 }
 
+/// <summary>Retail room addresses used to exercise hidden gameplay and paused soak scenes.</summary>
 internal static class HiddenSoakRooms
 {
     /// <summary>Retail $8F:A3AE room-local ordinary gameplay fixture.</summary>

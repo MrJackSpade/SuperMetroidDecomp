@@ -70,6 +70,9 @@ internal static partial class Program
         return (oam.ToArray(), bg2.ToArray());
     }
 
+    /// <summary>Returns independently compiled physical component positions and native hitbox pointers for a boss frame.</summary>
+    /// <param name="frame">The decoded visual frame whose bank and pointer select the collision definition.</param>
+    /// <returns>Each component's signed offset and native hitbox pointer in frame order.</returns>
     private static (short X, short Y, ushort Pointer)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
@@ -81,6 +84,10 @@ internal static partial class Program
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
 
+    /// <summary>Reads a boss component's collision rectangles as their six native 16-bit record fields.</summary>
+    /// <param name="bank">The enemy-data bank that identifies the boss collision catalog.</param>
+    /// <param name="pointer">The native pointer to the component's hitbox list.</param>
+    /// <returns>One six-word record per rectangle, preserving native list order.</returns>
     private static ushort[][] BossPhysicalHitboxes(byte bank, ushort pointer) => bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.HitboxesAt(pointer).ToArray()
@@ -92,6 +99,14 @@ internal static partial class Program
         _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 
+    /// <summary>Encodes a collision rectangle and its touch/shot AI selectors in native word order.</summary>
+    /// <param name="left">Signed left edge of the rectangle.</param>
+    /// <param name="top">Signed top edge of the rectangle.</param>
+    /// <param name="right">Signed right edge of the rectangle.</param>
+    /// <param name="bottom">Signed bottom edge of the rectangle.</param>
+    /// <param name="touch">Touch-collision AI selector.</param>
+    /// <param name="shot">Projectile-collision AI selector.</param>
+    /// <returns>The six 16-bit fields as stored in the native collision record.</returns>
     private static ushort[] Words(short left, short top, short right, short bottom, ushort touch, ushort shot) =>
         [unchecked((ushort)left), unchecked((ushort)top), unchecked((ushort)right), unchecked((ushort)bottom), touch, shot];
 }

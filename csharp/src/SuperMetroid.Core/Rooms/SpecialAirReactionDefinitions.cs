@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Rooms;
 /// One fixed bank-$94 special-air dispatch result paired with the setup callback stored
 /// by its bank-$84 PLM header.
 /// </summary>
+/// <param name="HeaderPointer">Bank-$84 PLM header selected by the special-air dispatch table.</param>
+/// <param name="SetupPointer">Bank-$84 setup routine invoked by that PLM header.</param>
 public readonly record struct SpecialAirReactionDefinition(
     ushort HeaderPointer,
     ushort SetupPointer);
@@ -147,6 +149,11 @@ public static class SpecialAirReactionDefinitions
         };
     }
 
+    /// <summary>Rejects non-retail areas and BTS indexes outside the sixteen entries authored for each area.</summary>
+    /// <param name="area">Area whose identity must map to a retail area index.</param>
+    /// <param name="areaReactionIndex">Zero-based special-air reaction index selected from the area's table.</param>
+    /// <param name="context">Dispatch context included in an invalid-index error message.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The reaction index is at least <see cref="EntriesPerArea"/>.</exception>
     private static void Validate(AreaId area, byte areaReactionIndex, string context)
     {
         _ = AreaIds.ToIndex(area);

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that morph-ball contact activates the Chozo statue and carries Samus through its full sequence.</summary>
     private static void VerifyChozoStatueState()
     {
         VerifyChozoHandRejectsStandingAndLivingBoss();
@@ -74,6 +75,10 @@ internal static partial class Program
         Console.WriteLine($"Verified hand collision, per-frame carry alignment, slope restoration and {soundFrames} sound frames.");
     }
 
+    /// <summary>Reads a little-endian word from the retail ROM for comparison with the statue's hand-offset tables.</summary>
+    /// <param name="bus">Fixture address space associated with the check; the reference value is read from the retail ROM image.</param>
+    /// <param name="address">ROM address of the first byte in the word.</param>
+    /// <returns>The two ROM bytes combined in little-endian order.</returns>
     private static ushort ReadChozoWord(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus, int address)
     {
         var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -81,6 +86,7 @@ internal static partial class Program
         return (ushort)(reference.ReadCartridgeByte(address) | reference.ReadCartridgeByte(address + 1) << 8);
     }
 
+    /// <summary>Confirms the hand trigger rejects both standing contact and morph contact while the area boss remains alive.</summary>
     private static void VerifyChozoHandRejectsStandingAndLivingBoss()
     {
         foreach (bool bossAlive in new[] { false, true })

@@ -4,8 +4,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Captures Norfair's animated foreground glow and compares software output with the Direct3D renderer.</summary>
 internal static class NorfairGlowCaptureTests
 {
+    /// <summary>Verifies runtime and GPU frame agreement while checking that the isolated glow visibly animates.</summary>
+    /// <param name="device">Active Direct3D device used for readback.</param>
+    /// <param name="renderer">Renderer used to capture GPU output for pixel comparison.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -53,6 +57,7 @@ internal static class NorfairGlowCaptureTests
     }
 }
 
+/// <summary>Room and CGRAM selections used to isolate Cathedral's foreground glow animation.</summary>
 internal static class NorfairGlowFixture
 {
     /// <summary>$8F:A788 Cathedral, a heated Norfair room with glowing foreground rock.</summary>

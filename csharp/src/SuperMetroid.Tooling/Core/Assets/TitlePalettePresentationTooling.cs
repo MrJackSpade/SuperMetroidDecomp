@@ -10,10 +10,15 @@ internal static class TitlePalettePresentationTooling
     /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
     internal static IReadOnlyCollection<ushort> ColorPointers => new AmbientPointerSequence();
 
+    /// <summary>Enumerates every color-word address referenced by the compiled title ambient-palette programs.</summary>
     internal sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
     {
+        /// <summary>Gets the total number of color-word addresses across all program frames.</summary>
         public int Count => TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Sum(
             program => program.FrameCount * program.ColorsPerFrame);
+
+        /// <summary>Returns each frame's color-word addresses in program, frame, and color order.</summary>
+        /// <returns>An enumerator over ambient palette color-word addresses.</returns>
         public IEnumerator<ushort> GetEnumerator()
         {
             foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)

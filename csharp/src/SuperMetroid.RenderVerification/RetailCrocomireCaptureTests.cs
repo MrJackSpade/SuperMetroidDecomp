@@ -4,8 +4,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Captures and compares retail Crocomire fight and death rendering, including the transition into scanline-distorted melting phases.</summary>
 internal static class RetailCrocomireCaptureTests
 {
+    /// <summary>Runs the retail-room Crocomire rendering audit through corpse completion and checks selected frames against both renderers.</summary>
+    /// <param name="device">Direct3D device used to render readback frames.</param>
+    /// <param name="renderer">Direct3D frame renderer compared with the runtime renderer.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +72,7 @@ internal static class RetailCrocomireCaptureTests
     }
 }
 
+/// <summary>Retail room identity and actor positions that place the Crocomire capture in its audited arena and death sequence.</summary>
 internal static class CrocomireCaptureFixture
 {
     /// <summary>Retail bank-$8F Crocomire room header, shared with the production death audit.</summary>

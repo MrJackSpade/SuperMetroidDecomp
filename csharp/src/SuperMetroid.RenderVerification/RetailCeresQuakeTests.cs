@@ -5,8 +5,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks retail Ceres quake displacement across captured and rendered frames.</summary>
 internal static class RetailCeresQuakeTests
 {
+    /// <summary>Replays both Ceres escape rooms and verifies exact rendering over 240 frames each.</summary>
+    /// <param name="device">Graphics device used to render readback frames.</param>
+    /// <param name="renderer">Frame renderer used for the captured gameplay snapshots.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (ushort room in new[] { RoomHeaderPointers.CeresDeadScientistRoom, RoomHeaderPointers.CeresFinalHallway })
@@ -41,6 +45,7 @@ internal static class RetailCeresQuakeTests
     }
 }
 
+/// <summary>Native state values needed to activate Ceres escape quake behavior in the retail fixtures.</summary>
 internal static class CeresQuakeFixture
 {
     /// <summary>Native Ceres status word after Ridley's departure enables door earthquake producers.</summary>

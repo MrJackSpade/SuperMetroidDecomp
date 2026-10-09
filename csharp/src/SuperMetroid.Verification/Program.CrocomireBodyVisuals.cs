@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that all native Crocomire instruction selectors map to the ordered compiled body-frame geometry.</summary>
+    /// <param name="rom">The retail address space used to read the original instruction operands and frame records.</param>
     private static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var original = new SortedSet<ushort>();
@@ -38,6 +40,8 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
+    /// <summary>Verifies the generated BG2 catalog preserves native frame pointers, extracted writes, and loadable streams.</summary>
+    /// <param name="rom">The retail address space used as the source for native frame and tilemap data.</param>
     private static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>();
@@ -72,6 +76,10 @@ internal static partial class Program
                 "generated catalog loads every native BG2 stream by its published key");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
+    /// <summary>Compares installed Crocomire OAM and BG2 output with native rendering while checking visual-read isolation and edits.</summary>
+    /// <param name="rom">The retail address space supplying the native reference and gameplay state.</param>
+    /// <param name="stockDirectory">Directory containing the installed stock artwork files.</param>
+    /// <param name="stock">The loaded catalogs whose rendering is compared with the native reference.</param>
     private static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)

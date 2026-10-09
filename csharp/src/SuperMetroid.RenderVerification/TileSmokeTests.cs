@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks GPU tile decoding and color math against the software renderer, including the fourth-plane byte regression.</summary>
 internal static class TileSmokeTests
 {
+    /// <summary>Runs deterministic tile geometry, priority, scrolling, and color-math comparisons.</summary>
+    /// <param name="device">Direct3D device whose adapter is included in the smoke-test results.</param>
+    /// <param name="renderer">GPU renderer used to read back each constructed frame.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         VerifyFourthPlaneByteSelection(device, renderer);
@@ -38,6 +42,9 @@ internal static class TileSmokeTests
         }
     }
 
+    /// <summary>Confirms flipped 4bpp decoding reads plane three from the correct byte of packed VRAM data.</summary>
+    /// <param name="device">Direct3D device used for the pixel comparison.</param>
+    /// <param name="renderer">GPU renderer whose output is checked against the software-rendered fixture.</param>
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new byte[SnesPpuLayout.VramByteCount];

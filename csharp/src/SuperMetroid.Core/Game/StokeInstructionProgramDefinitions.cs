@@ -22,8 +22,12 @@ internal abstract class StokeInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
     // Attack holds of 16 are the same authored cadence (reviewed under #1165).
+    /// <summary>Number of duration and control words across Stoke's left- and right-facing programs.</summary>
     public static int MechanicsWordCount => 26;
 
+    /// <summary>Calculates one mechanics word in source order across both walking and attack programs.</summary>
+    /// <param name="index">Zero-based mechanics-word index, from 0 through <see cref="MechanicsWordCount"/> minus one.</param>
+    /// <returns>The native address and value of the selected duration, movement, spawn, or loop-control word.</returns>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -50,6 +54,11 @@ internal abstract class StokeInstructionProgramDefinitions
         };
         return new((ushort)(attack + offset), value);
     }
+
+    /// <summary>Resolves an exact compiled mechanics-word address to its native value.</summary>
+    /// <param name="address">The bank-relative instruction address to resolve.</param>
+    /// <returns>The duration, operation, operand, or loop target stored at that mechanics position.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the compiled mechanics-word positions.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

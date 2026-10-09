@@ -6,8 +6,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(TourianEntranceStatueInstructionProgramDefinitions))]
 internal abstract class TourianEntranceStatueInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of live stop-script words in the three entrance-statue lists.</summary>
     public static int MechanicsWordCount => TourianEntranceStatueInstructionProgramDefinitions.MechanicsWordCount;
+
+    /// <summary>Returns a live stop-script word in the core instruction catalog's native order.</summary>
+    /// <param name="index">Zero-based list index, from 0 through <see cref="MechanicsWordCount"/> minus one.</param>
     public static InstructionMechanicsWord MechanicsWord(int index) => TourianEntranceStatueInstructionProgramDefinitions.MechanicsWord(index);
+
+    /// <summary>Reports whether a full address names either byte of a compiled entrance-statue stop-script word.</summary>
+    /// <param name="address">The full SNES address to test; only bank $AA can be owned by these definitions.</param>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xaa0000)

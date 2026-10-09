@@ -6,8 +6,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares serialized gameplay captures from the retail Morph Ball eye scene with managed and D3D11 frame rendering.</summary>
 internal static class RetailEyeCaptureTests
 {
+    /// <summary>Replays 96 frames of the retail eye activation and beam widening, checking captures through the GPU readback path.</summary>
+    /// <param name="device">Graphics device whose rendered output is compared with the managed frame.</param>
+    /// <param name="renderer">D3D11 renderer used to render each serialized gameplay capture.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -37,6 +41,7 @@ internal static class RetailEyeCaptureTests
     }
 }
 
+/// <summary>Camera coordinates that frame the Morph Ball eye scene used by the retail capture regression.</summary>
 internal static class EyeCaptureFixture
 {
     /// <summary>World camera X used by the production Morph Ball eye apex regression.</summary>

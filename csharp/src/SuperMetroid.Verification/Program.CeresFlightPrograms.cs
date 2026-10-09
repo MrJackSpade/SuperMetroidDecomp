@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the three bank-$8B rear-flight instruction ranges and their stream boundaries.</summary>
+    /// <param name="rom">Retail address space supplying the original bytes used for comparison.</param>
     private static void VerifyCeresRearPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc47, 0xcc4f, true, true));
@@ -10,6 +12,8 @@ internal static partial class Program
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc57, 0xcc63, false, true));
     }
 
+    /// <summary>Checks Ceres flight program bytes, word reads, aliases, and rejection of unowned addresses.</summary>
+    /// <param name="rom">Retail address space supplying the original instruction bytes.</param>
     private static void VerifyCeresFlightPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(rom));
@@ -22,6 +26,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares one compiled flight range with the cartridge and simulates its looping instruction stream.</summary>
+    /// <param name="rom">Retail address space containing the original program bytes.</param>
+    /// <param name="start">Inclusive bank-$8B address at which this program begins.</param>
+    /// <param name="end">Exclusive bank-$8B address ending this program's byte range.</param>
+    /// <param name="crossesIntoNext"><see langword="true"/> when the native program permits a word read crossing into the following list.</param>
+    /// <param name="destructionAlias"><see langword="true"/> when the destruction-program catalog must expose the same native bytes.</param>
     private static void VerifyCeresFlightProgram(ISnesAddressSpace rom, ushort start, ushort end, bool crossesIntoNext, bool destructionAlias)
     {
         ushort OriginalWord(ushort p) => (ushort)(rom.ReadByte(0x8b0000 | p) | rom.ReadByte(0x8b0000 | (p + 1)) << 8);

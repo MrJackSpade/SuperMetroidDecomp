@@ -1,7 +1,9 @@
 using SuperMetroid.Android;
 
+/// <summary>Checks that the Android session command mailbox completes queued work and propagates worker shutdown failures.</summary>
 internal static class AndroidSessionCommandVerification
 {
+    /// <summary>Exercises successful dispatch, pending and late command failures after shutdown, and concurrent enqueue/close races.</summary>
     public static void Run()
     {
         var commands = new AndroidSessionCommands();
@@ -33,6 +35,9 @@ internal static class AndroidSessionCommandVerification
         Console.WriteLine("PASS Android command shutdown: normal result, pending/late failure, and 100 enqueue/close races.");
     }
 
+    /// <summary>Requires a command task to fault with the exact exception used to close its mailbox.</summary>
+    /// <param name="result">Command task returned before or after mailbox shutdown.</param>
+    /// <param name="expected">Exception instance supplied to mailbox completion.</param>
     private static void CheckFailure(Task<string> result, Exception expected)
     {
         if (!result.IsFaulted || result.Exception?.InnerException != expected)

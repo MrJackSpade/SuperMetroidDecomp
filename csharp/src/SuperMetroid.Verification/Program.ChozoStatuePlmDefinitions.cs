@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Chozo statue terrain headers, instruction programs, callbacks, collision, and installed visuals against cartridge data.</summary>
     private static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
@@ -29,6 +30,8 @@ internal static partial class Program
             "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");
     }
 
+    /// <summary>Checks the five supported terrain headers, their spawn setup, and Wrecked Ship hand collision.</summary>
+    /// <param name="rom">Cartridge address space supplying the original header words.</param>
     private static void VerifyChozoTerrainHeaders(SuperMetroidAddressSpace rom)
     {
         ChozoStatuePlmDefinition[] definitions = ChozoStatuePlmDefinitions.All.ToArray();
@@ -109,6 +112,10 @@ internal static partial class Program
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
 
+    /// <summary>Reads a little-endian word from two adjacent cartridge bytes.</summary>
+    /// <param name="bus">Cartridge address space to read.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The 16-bit word beginning at <paramref name="address"/>.</returns>
     private static ushort ReadChozoStatuePlmWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

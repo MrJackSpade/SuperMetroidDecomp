@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies extracted credits against native rows, playback cadence, editable overrides, and strict schema rejection.</summary>
+    /// <param name="romPath">Path to the retail ROM used to extract the source credit schedule.</param>
     private static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -82,6 +84,10 @@ internal static partial class Program
             "runtime cadence, overrides and strict validation pass.");
     }
 
+    /// <summary>Applies one invalid edit to an extracted credit document and confirms that loading rejects it.</summary>
+    /// <param name="extracted">Valid UTF-8 credits JSON used as the starting document.</param>
+    /// <param name="mutate">The single schema or content change that makes the document invalid.</param>
+    /// <param name="identity">Diagnostic label for the rejection assertion.</param>
     private static void VerifyBadCreditDocument(byte[] extracted,
         Action<JsonObject> mutate, string identity)
     {
@@ -93,6 +99,10 @@ internal static partial class Program
             new MemoryStream(bytes, writable: false)), identity);
     }
 
+    /// <summary>Checks that a staff-credit override changes selected rows, removing it restores stock rows, and corrupt input is rejected.</summary>
+    /// <param name="stockDirectory">Directory containing the installed stock credits and related presentation assets.</param>
+    /// <param name="overrideDirectory">Directory used to load and remove the temporary credits override.</param>
+    /// <param name="original">The stock area-map presentation catalog used for row and identity comparisons.</param>
     private static void VerifyStaffCreditsAssets(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original)
     {

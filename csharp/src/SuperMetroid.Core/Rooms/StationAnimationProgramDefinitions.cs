@@ -12,6 +12,9 @@ internal static class StationAnimationProgramDefinitions
     /// <summary>Missile station idle/recharged cycle at $84:AE50.</summary>
     internal const ushort Missile = 0xae50;
 
+    /// <summary>One timed station animation frame paired with the draw list shown during its hold.</summary>
+    /// <param name="Duration">Number of game ticks to retain this frame before advancing the animation.</param>
+    /// <param name="DrawPointer">Native room-PLM draw-list pointer selected for this frame.</param>
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
     /// <summary>

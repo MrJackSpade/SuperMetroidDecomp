@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CrocomireTongueInstructionProgramDefinitions))]
 internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of compiled timing and control words owned by mechanics in the fight and melting lists.</summary>
     public static int MechanicsWordCount => 14;
+
+    /// <summary>Number of sprite-selection operands in the fight and melting frame loops.</summary>
     public static int PresentationWordCount => 9;
     /// <summary>Enumerates four fight durations and their loop, terminal sleep,
     /// then five melting durations and their loop, in native address order.</summary>
@@ -28,6 +31,9 @@ internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : II
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? CrocomireTongueInstructionProgramDefinitions.Fight + 2 + 4 * index : CrocomireTongueInstructionProgramDefinitions.Melting + 2 + 4 * (index - 4));
     }
+    /// <summary>Checks whether a full bus address points to a byte owned by the compiled mechanics data.</summary>
+    /// <param name="address">24-bit cartridge bus address to classify.</param>
+    /// <returns><see langword="true"/> for an A4-bank duration, control, or sleep byte; otherwise <see langword="false"/>.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa40000) return false;

@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(ZoaInstructionProgramDefinitions))]
 internal abstract class ZoaInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Number of mechanics words across Zoa's left- and right-facing instruction lists.</summary>
     public static int MechanicsWordCount => 26;
+
+    /// <summary>Number of interleaved sprite-pointer operands exposed across both facings.</summary>
     public static int PresentationWordCount => 12;
     /// <summary>Enumerates the thirteen mechanics words per facing in native address order.
     /// Shooting has three callback/timer pairs and a loop pair; rising has three
@@ -30,6 +33,9 @@ internal abstract class ZoaInstructionProgramDefinitionsTooling : IInstructionPr
         int frame = index % 6;
         return (ushort)(start + (frame < 3 ? 4 + 6 * frame : 24 + 4 * (frame - 3)));
     }
+    /// <summary>Checks whether a full bus address refers to a byte owned by an instruction's mechanics data.</summary>
+    /// <param name="address">24-bit bank-$A3 address to classify.</param>
+    /// <returns><see langword="true"/> for callbacks, timers, or loop-control bytes in either facing; sprite-pointer bytes are excluded.</returns>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa30000) return false;

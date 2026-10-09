@@ -6,9 +6,12 @@ using System.Diagnostics;
 /// </summary>
 internal static class ConsoleStartupBoundaryTests
 {
+    /// <summary>Command-line argument that makes the child process throw after checking the no-dialog policy.</summary>
     public const string FailingChildFlag = "--console-startup-failure-child";
+    /// <summary>Exception text required on the child's standard error to prove the process boundary reported the failure.</summary>
     public const string ExpectedFailure = "Expected console startup-boundary fixture failure.";
 
+    /// <summary>Starts the failing child fixture and requires a nonzero exit with its exception reported on standard error.</summary>
     public static void Run()
     {
         var start = new ProcessStartInfo("dotnet")

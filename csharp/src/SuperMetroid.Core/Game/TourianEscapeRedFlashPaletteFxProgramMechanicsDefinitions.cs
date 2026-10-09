@@ -32,6 +32,7 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     /// <summary>Both loops contain fourteen timed records.</summary>
     public const int FrameCount = 14;
 
+    /// <summary>Canonical shutter and background mechanics used for pointer resolution.</summary>
     private static readonly TourianEscapeRedFlashPaletteFxProgramDefinition[] Definitions =
     [
         new(TourianEscapeRedFlashPaletteOwner.Shutter,
@@ -39,6 +40,7 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
         new(TourianEscapeRedFlashPaletteOwner.Background,
             BackgroundDefinitionPointer, BackgroundProgramStart, 0x0070, 4, 4),
     ];
+    /// <summary>Read-only view exposed to presentation consumers without exposing the backing array.</summary>
     private static readonly IReadOnlyList<TourianEscapeRedFlashPaletteFxProgramDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
@@ -63,6 +65,13 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete early Tourian escape red-flash control program.</summary>
 public sealed class TourianEscapeRedFlashPaletteFxProgramDefinition
 {
+    /// <summary>Initializes the control-flow and palette-placement mechanics for one red-flash loop.</summary>
+    /// <param name="owner">The escape palette that receives this loop's colors.</param>
+    /// <param name="definitionPointer">The ROM pointer of the palette-FX definition that selects the loop.</param>
+    /// <param name="programStart">The ROM pointer to the loop's color-index setup instruction.</param>
+    /// <param name="colorByteIndex">The destination CGRAM byte index configured by the setup instruction.</param>
+    /// <param name="duration">The number of ticks each timed color record remains active.</param>
+    /// <param name="colorsPerFrame">The number of live color words in each timed record.</param>
     internal TourianEscapeRedFlashPaletteFxProgramDefinition(
         TourianEscapeRedFlashPaletteOwner owner,
         ushort definitionPointer,

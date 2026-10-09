@@ -6,6 +6,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     /// <summary><c>$84:930F</c>: clear nine consecutive wall blocks.</summary>
     internal const ushort ClearPointer = 0x930f;
 
+    /// <summary>Number of consecutive wall blocks cleared by the native draw instruction.</summary>
     internal const int BlockCount = 9;
 
     /// <summary>$84:9311-$9322: nine identical air blocks; indexed only within
@@ -17,6 +18,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     }
 
     // Export DTOs are materialized only for asset tooling; gameplay evaluates the fill.
+    /// <summary>Builds the tooling draw description for the nine-block clear operation.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -30,6 +32,10 @@ internal static class BotwoonWallPlmDrawDefinitions
         }
     }
 
+    /// <summary>Returns the stable visual identity for the clear-wall instruction pointer.</summary>
+    /// <param name="pointer">Native PLM draw pointer to resolve.</param>
+    /// <returns>The export identity associated with <see cref="ClearPointer"/>.</returns>
+    /// <exception cref="InvalidDataException">The pointer is not the compiled wall-clear draw.</exception>
     internal static string VisualId(ushort pointer) => pointer == ClearPointer
         ? "clear-wall"
         : throw new InvalidDataException(

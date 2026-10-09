@@ -19,6 +19,10 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>First byte of the following treadmill program at $84:AD38.</summary>
     internal const ushort EndExclusive = 0xad38;
 
+    /// <summary>Reads two consecutive compiled plant mechanics bytes as a little-endian instruction word.</summary>
+    /// <param name="address">The bank-$84 address of the word's low byte.</param>
+    /// <param name="value">Receives the assembled word, or zero if either byte is outside the compiled lists.</param>
+    /// <returns><see langword="true"/> when both bytes belong to the compiled floor or ceiling program range.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (TryReadMechanicsByte(address, out byte low) &&
@@ -31,6 +35,10 @@ internal static class SamusEaterPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves one control, timing, draw, or sound byte from either compiled plant list.</summary>
+    /// <param name="address">The bank-$84 byte address to inspect.</param>
+    /// <param name="value">Receives the compiled byte, or zero when the address is outside both lists.</param>
+    /// <returns><see langword="true"/> when the address is within the compiled floor or ceiling program range.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address < FloorStart || address >= EndExclusive)
@@ -62,6 +70,12 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>Library-two sound $31 at $84:ACCD/$AD0D accompanies each chewing loop.</summary>
     private const byte ChewSound = 0x31;
 
+    /// <summary>Returns the instruction word at a decoded aligned offset in a floor or ceiling plant list.</summary>
+    /// <param name="offset">The instruction-byte offset relative to the selected list.</param>
+    /// <param name="ceiling">Whether to select ceiling-specific draw operands and loop values.</param>
+    /// <param name="start">The start address used to form the list's loop-back target.</param>
+    /// <returns>The compiled instruction word at the offset.</returns>
+    /// <exception cref="InvalidOperationException">The offset is not a defined instruction boundary.</exception>
     private static ushort InstructionWord(int offset, bool ceiling, int start) => offset switch
     {
         0 => RoomPlmInstructionCodes.InstallPreInstruction,

@@ -10,6 +10,8 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class InstalledSamusFileContractTests
 {
+    /// <summary>Checks extracted Samus artwork admission, override, schema, and content-identity contracts.</summary>
+    /// <param name="installationRoot">The installation root containing the stock Samus artwork files under test.</param>
     internal static void Run(string installationRoot)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -193,8 +195,15 @@ internal static class InstalledSamusFileContractTests
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
+    /// <summary>Determines whether a resource may be selected from the override directory.</summary>
+    /// <param name="name">The installation-relative Samus resource filename.</param>
+    /// <returns><see langword="true"/> for the body manifest and non-manifest resources.</returns>
     private static bool IsOverridable(string name) => name == SamusBodyArtworkFiles.ManifestFileName ||
         (!name.EndsWith("manifest.json", StringComparison.Ordinal));
+
+    /// <summary>Records a fixture failure when a required contract condition is false.</summary>
+    /// <param name="condition">The condition that must hold for the fixture to pass.</param>
+    /// <param name="description">Diagnostic context included if the condition fails.</param>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidOperationException(description);

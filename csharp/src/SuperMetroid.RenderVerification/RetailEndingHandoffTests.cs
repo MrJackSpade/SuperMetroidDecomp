@@ -8,8 +8,13 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Compares legacy and captured rendering/audio through the gunship-driven escape fade and credits handoff.</summary>
 internal static class RetailEndingHandoffTests
 {
+    /// <summary>Runs the focused retail-ROM ending handoff comparison and verifies frontend cadence, audio, and rendered pixels.</summary>
+    /// <param name="device">The render device whose backend is included in pixel-comparison diagnostics.</param>
+    /// <param name="renderer">The renderer used to read back frames from the captured gameplay snapshots.</param>
+    /// <exception cref="InvalidOperationException">Startup misses the handoff window or captured execution diverges from legacy behavior.</exception>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -65,6 +70,7 @@ internal static class RetailEndingHandoffTests
     }
 }
 
+/// <summary>Provides the staged Samus coordinate for the focused gunship liftoff handoff fixture.</summary>
 internal static class EndingHandoffFixtureDefinitions
 {
     /// <summary>Stage Samus near the gunship top-hull Y=256 escape threshold; the native attachment places the hull above her.</summary>

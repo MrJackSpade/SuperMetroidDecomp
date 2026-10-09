@@ -2,6 +2,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks that a full bounded audio queue pauses playback before input polling, then resumes frames in order without dropping PCM.</summary>
     private static void VerifyAudioQueueBackpressure()
     {
         using var device = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0);
@@ -40,6 +41,8 @@ internal static partial class Program
         Console.WriteLine("Audio backpressure: full real queue defers input/gameplay, then resumes without dropping PCM.");
     }
 
+    /// <summary>Checks that native waveOut startup and explicit reset are excluded from starvation counts while a real drain/refill is recorded.</summary>
+    /// <returns>A task that completes after the native queue drain and refill checks finish.</returns>
     private static async Task VerifyNativeAudioQueueHealth()
     {
         using var device = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0);
@@ -63,6 +66,7 @@ internal static partial class Program
         Console.WriteLine("Native waveOut: silent startup, observed drain/refill, and reset exclusion passed.");
     }
 
+    /// <summary>Checks queue-health snapshots for startup/reset exclusion, genuine empty-before-refill events, and occupancy extrema.</summary>
     private static void VerifyAudioQueueHealth()
     {
         var health = new WaveOutQueueHealth();

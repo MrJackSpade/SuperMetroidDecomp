@@ -3,8 +3,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Android state and save import guarantees together with cartridge-free mutable-memory behavior.</summary>
 internal static class AndroidImportVerification
 {
+    /// <summary>Verifies imports preserve existing data on failure, retain backups, and activate staged saves at the next launch.</summary>
+    /// <param name="root">Isolated installation directory containing the fixture slots and save files.</param>
+    /// <param name="rom">Retail ROM path used to construct the restarted Android session.</param>
+    /// <param name="audio">Audio resource path required by the restarted session.</param>
+    /// <param name="validSeed">Valid state file used to verify successful slot import.</param>
     public static void Run(string root, string rom, string audio, string validSeed)
     {
         VerifyMutableMemoryWithoutCartridge();
@@ -58,6 +64,7 @@ internal static class AndroidImportVerification
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }
 
+    /// <summary>Confirms a runtime-only address space retains WRAM and SRAM writes and rejects cartridge reads at the capability boundary.</summary>
     private static void VerifyMutableMemoryWithoutCartridge()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

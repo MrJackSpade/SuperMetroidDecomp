@@ -170,6 +170,10 @@ internal static partial class Program
             "audible PCM change and malformed-bank rejection pass.");
     }
 
+    /// <summary>Deserializes the audio asset manifest at a path using the repository's audio JSON settings.</summary>
+    /// <param name="path">Manifest file to read.</param>
+    /// <returns>The populated manifest document.</returns>
+    /// <exception cref="InvalidDataException">The file deserializes to a null manifest.</exception>
     private static AudioAssetManifest ReadAudioManifest(string path)
     {
         using var input = File.OpenRead(path);
@@ -177,12 +181,18 @@ internal static partial class Program
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
+    /// <summary>Serializes an audio asset manifest to the specified file using the repository's JSON settings.</summary>
+    /// <param name="path">Manifest file to create or replace.</param>
+    /// <param name="manifest">Manifest data to serialize.</param>
     private static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
         JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
     }
 
+    /// <summary>Copies an audio asset tree recursively while preserving each file's relative path.</summary>
+    /// <param name="source">Root directory containing the source audio assets.</param>
+    /// <param name="destination">Root directory to create and populate with the copied tree.</param>
     private static void CopyAudioDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

@@ -19,6 +19,10 @@ internal static partial class Program
         return total;
     }
 
+    /// <summary>Compares each extended Draygon map command's authored words with the loaded BG2 tilemap.</summary>
+    /// <param name="runtime">Gameplay state whose VRAM contains the rendered encounter map.</param>
+    /// <param name="body">Enemy slot whose extended spritemap components are audited.</param>
+    /// <returns>The number of tilemap words checked, or zero when the slot has no extended spritemap.</returns>
     private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
     {
         if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
@@ -102,6 +106,15 @@ internal static partial class Program
 
     // Deliberately decode bitplanes here instead of calling the production sampler:
     // the assertion must detect a fused-renderer priority/addressing regression.
+    /// <summary>Decodes one tilemap pixel's opacity, priority bit, and CGRAM palette index.</summary>
+    /// <param name="memory">Captured VRAM containing the map and character bitplanes.</param>
+    /// <param name="map">Word offset of the tilemap in VRAM.</param>
+    /// <param name="characters">Word offset of the character data in VRAM.</param>
+    /// <param name="width">Tilemap width in tiles; coordinates wrap across this extent.</param>
+    /// <param name="height">Tilemap height in tiles; coordinates wrap across this extent.</param>
+    /// <param name="x">Horizontal pixel coordinate before tilemap wrapping.</param>
+    /// <param name="y">Vertical pixel coordinate before tilemap wrapping.</param>
+    /// <returns>Whether the pixel is opaque, whether its tile has high priority, and its palette color index.</returns>
     private static (bool Opaque, bool High, int Palette) ReadDraygonAuditPixel(
         PpuMemorySnapshot memory, int map, int characters, int width, int height, int x, int y)
     {
@@ -121,6 +134,7 @@ internal static partial class Program
     }
 }
 
+/// <summary>Native stream markers and address base used to audit Draygon's extended tilemap commands.</summary>
 internal static class DraygonTilemapAuditDefinitions
 {
     /// <summary>$A0:96CA ProcessExtendedTilemap writes into tilemap_stuff at $7E:2000.</summary>

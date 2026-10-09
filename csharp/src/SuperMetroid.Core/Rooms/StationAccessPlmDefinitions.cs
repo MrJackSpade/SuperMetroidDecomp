@@ -46,10 +46,14 @@ internal static class StationAccessPlmDefinitions
 }
 
 /// <summary>One station-access BTS paired with its PLM header and initial instruction list.</summary>
+/// <param name="RetractedDrawPointer">Native draw-list operand used while the access block is retracted.</param>
+/// <param name="ExtendedDrawPointer">Native draw-list operand used after the access block extends.</param>
 internal readonly record struct StationAccessPlmDefinition(
     ushort RetractedDrawPointer,
     ushort ExtendedDrawPointer)
 {
+    /// <summary>Selects the draw-list operand for the access block's current animation phase.</summary>
+    /// <param name="extended"><see langword="true"/> selects the extended phase; otherwise selects the retracted phase.</param>
     internal ushort DrawPointer(bool extended) =>
         extended ? ExtendedDrawPointer : RetractedDrawPointer;
 }

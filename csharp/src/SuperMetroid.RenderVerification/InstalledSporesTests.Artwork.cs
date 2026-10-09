@@ -5,6 +5,11 @@ using SuperMetroid.Core.Game;
 
 internal static partial class InstalledSporesTests
 {
+    /// <summary>Checks spore-frame bytes against pinned cartridge art and verifies that appending them preserves existing atlas geometry and edits.</summary>
+    /// <param name="stock">The installed FX atlas used to resolve each native spore-frame source.</param>
+    /// <param name="maps">Directory containing the installed map and artwork assets.</param>
+    /// <param name="romPath">Path to the retail ROM used for the unchanged native atlas comparison.</param>
+    /// <param name="nativeArtworkDirectory">Directory containing the pinned extracted spore-frame byte files.</param>
     private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {
@@ -76,6 +81,9 @@ internal static partial class InstalledSporesTests
         Console.WriteLine("Pinned three-frame spores art and unchanged historical atlas prefix pass; all three older PNG geometries retain edits and stock tails.");
     }
 
+    /// <summary>Creates selected spore artwork, layer-three tilemap, and palette overrides for catalog-resolution checks.</summary>
+    /// <param name="maps">Directory containing the stock assets to edit.</param>
+    /// <param name="overrides">Output directory receiving the edited presentation files.</param>
     private static void WriteOverrides(string maps, string overrides)
     {
         using var input = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFormat.FileName));
@@ -102,6 +110,9 @@ internal static partial class InstalledSporesTests
         File.WriteAllText(Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName), palettes.ToJsonString());
     }
 
+    /// <summary>Checks that missing, malformed, and hash-valid malformed stock files or malformed overrides are rejected with their selected paths identified.</summary>
+    /// <param name="maps">Directory containing the manifest and stock presentation files.</param>
+    /// <param name="overrides">Directory containing override files tested for malformed-data rejection.</param>
     private static void CheckFileFailures(string maps, string overrides)
     {
         string manifestPath = Path.Combine(maps, AreaMapCatalogFormat.ManifestFile);

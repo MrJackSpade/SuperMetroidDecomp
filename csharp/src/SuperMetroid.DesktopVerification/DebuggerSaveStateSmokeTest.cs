@@ -255,6 +255,7 @@ public static class DebuggerSaveStateSmokeTest
         File.WriteAllBytes(store.GetSlotPath(3), legacy);
     }
 
+    /// <summary>Confirms that the object-graph serializer restores a closed generic delegate with the same named method identity.</summary>
     private static void VerifyNamedDelegateRoundTrip()
     {
         using var stream = new MemoryStream();
@@ -266,6 +267,10 @@ public static class DebuggerSaveStateSmokeTest
             throw new InvalidDataException("Named generic delegate identity did not round-trip.");
     }
 
+    /// <summary>Checks that an installed-game input recording preserves the source ROM digest, recorded input, and selected-content identity.</summary>
+    /// <param name="dataDirectory">The temporary installation root used for the recorder output.</param>
+    /// <param name="saveRam">The save-RAM snapshot attached to the recording.</param>
+    /// <param name="contentIdentity">The selected installed content identity embedded in the recording.</param>
     private static void VerifyInstalledRecorder(
         string dataDirectory,
         ReadOnlySpan<byte> saveRam,
@@ -293,5 +298,8 @@ public static class DebuggerSaveStateSmokeTest
         }
     }
 
+    /// <summary>Returns its argument unchanged as a named generic target for delegate-serialization checks.</summary>
+    /// <param name="value">The value passed through the delegate.</param>
+    /// <returns>The same value supplied by the caller.</returns>
     private static T Identity<T>(T value) => value;
 }

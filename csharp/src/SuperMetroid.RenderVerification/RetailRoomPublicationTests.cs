@@ -6,8 +6,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies that selected retail room publications remain pixel-identical through capture, serialization, and rendering.</summary>
 internal static class RetailRoomPublicationTests
 {
+    /// <summary>Captures and compares frames from retail room-local fixtures on the supplied renderer.</summary>
+    /// <param name="device">The render device whose identity is included in comparison diagnostics.</param>
+    /// <param name="renderer">The Direct3D renderer used to read back and compare published frames.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         ushort[] rooms = [RoomHeaderPointers.LandingSite, RoomHeaderPointers.ParlorAndAlcatraz,
@@ -52,6 +56,7 @@ internal static class RetailRoomPublicationTests
     }
 }
 
+/// <summary>Room addresses and authored liquid coordinates used by the retail publication fixtures.</summary>
 internal static class RoomPublicationFixtureDefinitions
 {
     /// <summary>Retail Brinstar water room $01/$27, header $8F:A3DD.</summary>

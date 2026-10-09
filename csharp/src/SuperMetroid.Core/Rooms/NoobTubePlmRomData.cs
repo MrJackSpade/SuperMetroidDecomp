@@ -46,6 +46,9 @@ public static class NoobTubePlmRomData
 }
 
 /// <summary>One native room-graphics enemy-projectile spawn emitted by PLM $D70C.</summary>
+/// <param name="DefinitionPointer">Bank-$86 initializer selecting the crack, shard, or released-air-bubble projectile.</param>
+/// <param name="Parameter">Initializer-specific native argument, including the even byte offset that selects shard or bubble data.</param>
+/// <param name="PlmBlockIndex">Room PLM block index retained to place the projectile relative to its source PLM.</param>
 public readonly record struct NoobTubeProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,

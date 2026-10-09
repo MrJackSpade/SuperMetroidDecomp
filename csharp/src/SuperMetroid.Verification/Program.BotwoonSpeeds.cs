@@ -4,12 +4,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Runs the native-data and runtime checks for Botwoon's phase-dependent speeds and spacing.</summary>
+    /// <param name="rom">Retail address space used as the independent source of native values.</param>
     private static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonSpeedAlgorithm), () => VerifyBotwoonSpeedAlgorithm(rom));
         Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));
     }
 
+    /// <summary>Checks native movement and spit speeds against the production health-phase transition logic.</summary>
+    /// <param name="rom">Retail address space containing the three native speed records.</param>
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -41,6 +45,8 @@ internal static partial class Program
         Console.WriteLine("Botwoon speed algorithm: both three-word native views and 3,001 real health transitions match; hidden phases remain held.");
     }
 
+    /// <summary>Checks each health phase's segment spacing against Botwoon's native body-history data.</summary>
+    /// <param name="rom">Retail address space containing the native spacing words.</param>
     private static void VerifyBotwoonSpacingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)

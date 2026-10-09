@@ -6,6 +6,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Compares native cinematic Flash ownership traces with translated Mother Brain, Super Metroid, and Ceres transitions.</summary>
+    /// <param name="nativeTracePath">CSV trace containing native movement-pointer and palette snapshots for the cinematic scenarios.</param>
     private static void VerifyCinematicCrystalFlash(string nativeTracePath)
     {
         Suite(nameof(VerifyNativeCinematicFlashOwnership), () => VerifyNativeCinematicFlashOwnership(nativeTracePath));
@@ -185,6 +187,8 @@ internal static partial class Program
             "Cinematic Crystal Flash: native ownership, Mother Brain beta suspension/resume, Super Metroid success/failure, immobility/X-Ray recovery and Ceres replacement pass.");
     }
 
+    /// <summary>Checks native trace rows for Flash movement-pointer retention or replacement and special-palette ownership.</summary>
+    /// <param name="path">CSV file containing the captured native cinematic Flash state transitions.</param>
     private static void VerifyNativeCinematicFlashOwnership(string path)
     {
         string[] lines = File.ReadAllLines(path);
@@ -242,6 +246,10 @@ internal static partial class Program
             "native post-crouch Flash restores ordinary input");
     }
 
+    /// <summary>Creates a retail-backed runtime with Samus initialized for Crystal Flash and advances its movement handler.</summary>
+    /// <param name="movementCalls">Number of Crystal Flash movement updates to run before returning the fixture.</param>
+    /// <param name="admitFlash">When <see langword="false"/>, omits the X input so the fixture returns without an admitted Flash.</param>
+    /// <returns>The cartridge bus, initialized runtime, and its Samus state.</returns>
     private static (SuperMetroidAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus)
         CreateCinematicFlashRuntime(int movementCalls, bool admitFlash = true)
     {

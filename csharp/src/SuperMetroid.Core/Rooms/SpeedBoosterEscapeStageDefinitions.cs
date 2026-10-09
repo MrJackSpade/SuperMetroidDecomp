@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One physical lava stage used by the Speed Booster escape controller.</summary>
+/// <param name="TargetSamusX">Unsigned Samus X checkpoint threshold that triggers this escape action.</param>
+/// <param name="MaximumFxY">Unsigned maximum lava-effect Y coordinate associated with this checkpoint.</param>
+/// <param name="PackedYVelocity">The native packed signed 8.8 upward velocity applied at this checkpoint.</param>
 internal readonly record struct SpeedBoosterEscapeStageDefinition(
     ushort TargetSamusX,
     ushort MaximumFxY,

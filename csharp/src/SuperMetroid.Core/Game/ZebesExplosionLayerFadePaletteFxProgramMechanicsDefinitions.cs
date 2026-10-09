@@ -38,6 +38,7 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 34;
 
+    /// <summary>Compiled control records for the crust and grey-cloud fades in owner order.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -53,6 +54,7 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
             colorByteIndex: 0x00a2,
             frameDuration: 14),
     ];
+    /// <summary>Read-only view of <see cref="Definitions"/> exposed to catalog consumers.</summary>
     private static readonly IReadOnlyList<ZebesExplosionLayerFadePaletteFxProgramDefinition>
         ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
 
@@ -77,6 +79,12 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
 /// <summary>One complete exploding-Zebes layer-fade control program.</summary>
 public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
 {
+    /// <summary>Creates a control-program definition for one exploding-Zebes layer fade.</summary>
+    /// <param name="owner">The crust or grey-cloud layer controlled by this program.</param>
+    /// <param name="definitionPointer">Bank-relative palette-FX definition identity that selects the program.</param>
+    /// <param name="programStart">Bank-relative address of the instruction-list entry.</param>
+    /// <param name="colorByteIndex">First CGRAM destination byte written by the timed records.</param>
+    /// <param name="frameDuration">Number of frames each color record remains active.</param>
     internal ZebesExplosionLayerFadePaletteFxProgramDefinition(
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
         ushort definitionPointer,

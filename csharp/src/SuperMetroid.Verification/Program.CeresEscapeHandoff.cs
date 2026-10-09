@@ -67,6 +67,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the delayed Ceres ejection initialization, wall-contact handoff to ordinary movement, and preservation of pose and knockback state.</summary>
     private static void VerifyCeresRidleyEjectionHandler()
     {
         var bus = new TestAddressSpace();
@@ -173,6 +174,7 @@ internal static partial class Program
             "bottom alignment against the previous hurt pose leaves Y unchanged");
     }
 
+    /// <summary>Checks the shaft's rotation-record progression and the gated, one-frame publication of its Samus departure trigger.</summary>
     private static void VerifyCeresElevatorShaftRoomMain()
     {
         var bus = new TestAddressSpace();
@@ -240,6 +242,7 @@ internal static partial class Program
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 
+    /// <summary>Confirms the departure state's 60-frame hold followed by the fifteen-step fade to forced blank.</summary>
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();

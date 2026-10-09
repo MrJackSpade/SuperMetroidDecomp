@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 /// </summary>
 internal static class DebuggerRetiredFieldTests
 {
+    /// <summary>Confirms registered legacy debugger fields are drained while unregistered fields remain rejected.</summary>
     internal static void Run()
     {
         var state = (RidleyEnemyState)RuntimeHelpers.GetUninitializedObject(typeof(RidleyEnemyState));
@@ -27,6 +28,9 @@ internal static class DebuggerRetiredFieldTests
         Console.WriteLine("Debugger retired fields: registered legacy fields drain; other unknown fields are rejected.");
     }
 
+    /// <summary>Serializes an object with the debugger's production object-graph serializer.</summary>
+    /// <param name="value">Object graph to encode.</param>
+    /// <returns>The serialized debugger state bytes.</returns>
     private static byte[] Serialize(object value)
     {
         using var stream = new MemoryStream();
@@ -34,6 +38,10 @@ internal static class DebuggerRetiredFieldTests
         return stream.ToArray();
     }
 
+    /// <summary>Restores a reference-type object through the debugger's production deserializer.</summary>
+    /// <typeparam name="T">Expected root object type.</typeparam>
+    /// <param name="bytes">Serialized debugger state to restore.</param>
+    /// <returns>The restored root object.</returns>
     private static T Deserialize<T>(byte[] bytes) where T : class
     {
         using var stream = new MemoryStream(bytes);

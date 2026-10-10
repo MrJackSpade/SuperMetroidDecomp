@@ -133,7 +133,7 @@ internal static partial class Program
 
     private static void AdvanceXrayToFinish(ISnesAddressSpace bus, SamusState samus)
     {
-        while (samus.Xray.SetupStage != 0)
+        while (samus.Xray.SetupStage != XraySetupStage.Complete)
             samus.Xray.StepBeam(bus, samus, controllerInput: 0);
         while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)
             samus.Xray.StepBeam(bus, samus, controllerInput: 0);

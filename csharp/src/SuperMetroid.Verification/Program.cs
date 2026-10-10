@@ -8006,6 +8006,7 @@ Suite(nameof(VerifyMotherBrainWalkBackwardsPose), () => VerifyMotherBrainWalkBac
 Suite(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth());
 Suite(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed());
 Suite(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics());
+Suite(nameof(VerifyXraySetupStageDomain), () => VerifyXraySetupStageDomain());
 Suite(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake());
 Suite(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset());
 Suite(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes());

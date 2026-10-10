@@ -41,7 +41,8 @@ internal static partial class Program
         VerifySnippet("using System; class C { public void M(int width, int height) { if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width)); } }");
     }
 
-    private static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null)
+    private static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
+        DiagnosticAnalyzer? analyzer = null)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
         var compilation = CSharpCompilation.Create(
@@ -53,7 +54,7 @@ internal static partial class Program
         if (errors.Length != 0)
             throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");
 
-        var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new EnsureUsageAnalyzer());
+        var analyzers = ImmutableArray.Create(analyzer ?? new EnsureUsageAnalyzer());
         var diagnostics = compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
         if (expectedId is null)
         {
@@ -68,6 +69,46 @@ internal static partial class Program
             throw new InvalidOperationException(
                 $"Expected one {expectedId} warning containing '{expectedMessage}', got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
         }
+    }
+
+    /// <summary>#627 primitive-domain rules: positive and negative cases for each diagnostic.</summary>
+    private static void VerifyPrimitiveDomainAnalyzer()
+    {
+        var analyzer = new PrimitiveDomainAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string catalog = "static class Stage { public const byte Read = 2; public const byte Build = 4; }";
+
+        // SME6270: a primitive switched over two named constants of one catalog.
+        Expect(catalog + " class C { void M(byte stage) { switch (stage) { case Stage.Read: break; case Stage.Build: break; } } }",
+            PrimitiveDomainAnalyzer.PrimitiveSwitchId, "named constants of Stage");
+        Expect(catalog + " class C { int M(byte stage) => stage switch { Stage.Read => 1, Stage.Build => 2, _ => throw new System.Exception() }; }",
+            PrimitiveDomainAnalyzer.PrimitiveSwitchId);
+        // Open numeric quantities switched over literals, or a single constant, are not flagged.
+        Expect("class C { int M(int count) => count switch { 0 => 1, 1 => 2, _ => 3 }; }");
+        Expect(catalog + " class C { void M(byte stage) { switch (stage) { case Stage.Build: break; } } }");
+
+        // SME6271: a repository-owned enum switch that ignores unexpected values.
+        const string domain = "enum Mode : byte { A, B, C }";
+        Expect(domain + " class C { void M(Mode m) { switch (m) { case Mode.A: break; default: break; } } }",
+            PrimitiveDomainAnalyzer.SilentEnumSwitchId, "default that does not fail");
+        Expect(domain + " class C { void M(Mode m) { switch (m) { case Mode.A: break; case Mode.B: break; } } }",
+            PrimitiveDomainAnalyzer.SilentEnumSwitchId, "leaves members unhandled");
+        Expect(domain + " class C { int M(Mode m) => m switch { Mode.A => 1, _ => 0 }; }",
+            PrimitiveDomainAnalyzer.SilentEnumSwitchId, "discard arm that does not fail");
+        // Exhaustive handling, a throwing default, and a non-owned enum are accepted.
+        Expect(domain + " class C { void M(Mode m) { switch (m) { case Mode.A: case Mode.B: case Mode.C: break; } } }");
+        Expect(domain + " class C { void M(Mode m) { switch (m) { case Mode.A: break; default: throw new System.ArgumentOutOfRangeException(nameof(m)); } } }");
+        Expect(domain + " class C { int M(Mode m) => m switch { Mode.A => 1, Mode.B => 2, Mode.C => 3, _ => throw new System.ArgumentOutOfRangeException(nameof(m)) }; }");
+        Expect("class C { int M(System.DayOfWeek d) => d switch { System.DayOfWeek.Monday => 1, _ => 0 }; }");
+
+        // SME6272: a masked or shifted local switched as a selector.
+        Expect("class C { int M(byte header) { int direction = header & 3; return direction switch { 0 => 1, 1 => 2, _ => 3 }; } }",
+            PrimitiveDomainAnalyzer.MaskedSelectorId, "by mask");
+        Expect("class C { int M(ushort word) { int high = word >> 8; return high switch { 0 => 1, _ => 2 }; } }",
+            PrimitiveDomainAnalyzer.MaskedSelectorId, "by shift");
+        // A masked value used as arithmetic, not as a selector, is accepted.
+        Expect("class C { int M(byte header) { int low = header & 3; return low + 1; } }");
     }
 
     private static MetadataReference[] BuildReferences()

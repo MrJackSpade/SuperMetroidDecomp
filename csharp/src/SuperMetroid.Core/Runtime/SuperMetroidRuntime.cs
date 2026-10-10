@@ -1333,7 +1333,8 @@ public sealed partial class SuperMetroidRuntime
             LastDeathSequenceStep = null;
             if (Samus.Xray.IsActive && !Samus.DeathSequence.IsActive)
             {
-                PrepareXrayTilemap(Samus.Xray.SetupStage);
+                if (Samus.Xray.SetupStage == XraySetupStage.BuildRevealReadBg2FirstScreen)
+                    BuildXrayRevealTilemap();
                 LastXrayBeamStep = Samus.Xray.StepBeam(
                     _addressSpace,
                     Samus,

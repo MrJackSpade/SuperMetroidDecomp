@@ -82,7 +82,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
-        typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SetupStage))!.SetValue(samus.Xray, (byte)3);
+        typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SetupStage))!.SetValue(samus.Xray, XraySetupStage.ReadBg1FirstScreen);
         runtime.RunNmi(0, mainLoopRequestedNmi: true);
         var tile = new byte[32];
         for (int row = 0; row < 8; row++) tile[row * 2] = 255;

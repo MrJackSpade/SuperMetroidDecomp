@@ -181,6 +181,8 @@ internal static class DebuggerObjectGraphSerializer
     private sealed class GraphReader(BinaryReader reader, bool legacyDelegateTokens)
     {
         private readonly Dictionary<int, object> references = [];
+        // Nesting depth inside struct elements of array storage (see ReadArray).
+        private int structElementDepth;
         // One restore reports each legacy omission once, not once per restored instance.
         private readonly HashSet<string> reportedWarnings = [];
         // Every object repeats its type and field names; decode each distinct name once.
@@ -279,7 +281,7 @@ internal static class DebuggerObjectGraphSerializer
             else if (type == typeof(TimeSpan)) value = TimeSpan.FromTicks(reader.ReadInt64());
             else if (type == typeof(Guid)) value = new Guid(reader.ReadBytes(16));
             else throw new NotSupportedException($"Debugger state primitive {type.FullName} is unsupported.");
-            return serializedType.IsEnum ? Enum.ToObject(serializedType, value) : value;
+            return serializedType.IsEnum ? DebuggerEnumValues.Decode(serializedType, value, structElementDepth > 0) : value;
         }
 
         private Array ReadPrimitiveArray(Type type, int referenceId)
@@ -315,11 +317,16 @@ internal static class DebuggerObjectGraphSerializer
                 ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");
             Array array = CreateArray(elementType);
             Register(referenceId, array);
+            // Struct elements of collection storage (List<T>._items past Count) are zero-filled
+            // slots, not domain values; their zero enum fields are storage, not undefined members.
+            bool structElements = elementType.IsValueType && !elementType.IsPrimitive && !elementType.IsEnum;
+            if (structElements) structElementDepth++;
             if (IsVector(array))
                 for (int index = 0; index < array.Length; index++) array.SetValue(Read(), index);
             else
                 foreach (int[] indices in EnumerateArrayIndices(array))
                     array.SetValue(Read(), indices);
+            if (structElements) structElementDepth--;
             return array;
         }
 
@@ -423,7 +430,17 @@ internal static class DebuggerObjectGraphSerializer
                         $"Serialized field {declaringName}.{fieldName} is unknown or duplicated " +
                         $"in the supported {type.FullName} layout.");
                 }
-                field.SetValue(instance, Read());
+                object? restoredValue;
+                try
+                {
+                    restoredValue = DebuggerEnumValues.AdaptToField(field, Read(), structElementDepth > 0);
+                }
+                catch (InvalidDataException exception)
+                {
+                    // Name the field path so an invalid nested value is diagnosable.
+                    throw new InvalidDataException($"{declaringName}.{fieldName}: {exception.Message}", exception);
+                }
+                field.SetValue(instance, restoredValue);
                 restored.Add(field);
             }
             if (hasRetiredIdentity && (!discardedIdentity || restored.Count != currentFields.Length))

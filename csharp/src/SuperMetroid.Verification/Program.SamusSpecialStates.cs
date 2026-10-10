@@ -392,7 +392,7 @@ static void VerifySamusXray()
     AssertEqual(0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
     AssertEqual(SnesAngle.QuarterTurn.TableIndex, standing.Xray.Angle.TableIndex,
         "right X-ray initial angle");
-    AssertEqual(1, standing.Xray.SetupStage, "X-ray starts setup stage one");
+    AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
     AssertTrue(standing.Xray.ConsumeActivationSoundRequest(),
@@ -420,7 +420,7 @@ static void VerifySamusXray()
     // The eighth call clears SetupStage; the next call changes X-ray state zero to one.
     for (int stage = 1; stage <= 8; stage++)
         standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
-    AssertEqual(0, standing.Xray.SetupStage, "eight X-ray setup stages complete");
+    AssertEqual(XraySetupStage.Complete, standing.Xray.SetupStage, "eight X-ray setup stages complete");
     AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
     standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
@@ -617,10 +617,10 @@ static void VerifySamusXray()
         "interrupted X-Mode retains beam lifecycle and frozen time");
     AssertTrue(!interrupted.Xray.OwnsSamusControl,
         "interrupted X-Mode retains normal Samus handler ownership");
-    AssertEqual(1, interrupted.Xray.SetupStage,
+    AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, interrupted.Xray.SetupStage,
         "interrupted X-Mode retains first HDMA setup stage");
     interrupted.Xray.StepBeam(bus, interrupted, (ushort)SnesButton.B);
-    AssertEqual(2, interrupted.Xray.SetupStage,
+    AssertEqual(XraySetupStage.ReadBg1SecondScreen, interrupted.Xray.SetupStage,
         "interrupted X-Mode continues the independent beam setup program");
 
     // Admission failures are kept independent so no broad host-side `grounded` boolean can

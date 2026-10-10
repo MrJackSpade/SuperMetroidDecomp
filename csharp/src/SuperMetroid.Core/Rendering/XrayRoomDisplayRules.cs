@@ -28,8 +28,6 @@ public static class XrayRoomDisplayRules
     private static bool PreservesBossBackground(ushort bossId) => bossId is 3 or 6 or 7 or 8 or 10;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public const ushort ActiveBackdrop = 0x0C63;
-    /// <summary>$91:D223 installs $91:D27F before setup call one; its first execution is call two, leaving next-stage counter three.</summary>
-    public const byte FirstBlendedSetupStage = 3;
 
     /// <summary>CGADSUB assignments from $88:817B, $88:81A4 and $88:81DB, preserving the room's subtraction bit.</summary>
     public static SnesColorMathControl ColorMath(XrayRoomBlendMode mode, bool subtract)

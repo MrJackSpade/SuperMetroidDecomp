@@ -23,6 +23,12 @@ public enum SamusSpecialPaletteType : ushort
 /// </summary>
 public enum LayerBlendingConfiguration : ushort
 {
+    /// <summary>
+    /// <c>LayerBlending_Config</c> zero: <c>LayerBlending_Handler</c> branches past initialization
+    /// and the configuration table (<c>$88:8008</c> <c>BEQ</c>), leaving the layer registers as set.
+    /// </summary>
+    Unconfigured = 0x0000,
+
     /// <summary>Bank-$88 dispatcher offset <c>$02</c>, used by ordinary gameplay without a special room effect.</summary>
     NormalGameplay = 0x0002,
 

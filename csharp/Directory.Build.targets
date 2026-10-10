@@ -2,6 +2,8 @@
   <PropertyGroup>
     <!-- #620 starts as advisory while existing guards are migrated. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6201</WarningsNotAsErrors>
+    <!-- #627 primitive-domain rules report the audit inventory until each rule reaches zero. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6270;SME6271;SME6272</WarningsNotAsErrors>
   </PropertyGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj"

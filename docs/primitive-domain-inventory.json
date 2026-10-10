@@ -1,0 +1,3790 @@
+{
+ "ticket": 627,
+ "rules": {
+  "SME6270": "closed domain switched as a primitive",
+  "SME6271": "closed-domain switch ignores unexpected values",
+  "SME6272": "masked primitive used as a selector"
+ },
+ "open": {
+  "AnimatedTileInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTilesState.cs",
+    "line": 120,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'instructionOrDuration' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/TourianStatueSequence.cs",
+    "line": 114,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'code' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillAnimatedTilesState.cs",
+    "line": 150,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "AnimatedTileObjectPointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs",
+    "line": 41,
+    "column": 21,
+    "rule": "SME6270",
+    "message": "'ObjectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs",
+    "line": 30,
+    "column": 48,
+    "rule": "SME6270",
+    "message": "'ObjectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs",
+    "line": 22,
+    "column": 94,
+    "rule": "SME6270",
+    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomTreadmillAnimatedTilesState.cs",
+    "line": 25,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'definition' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs",
+    "line": 30,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs",
+    "line": 28,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'objectPointer' is a ushort switched over named constants of AnimatedTileObjectPointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Apu": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioCommand.cs",
+    "line": 44,
+    "column": 35,
+    "rule": "SME6270",
+    "message": "'port' is a int switched over named constants of Apu; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "AreaId": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyProjectileDamageDefinitions.cs",
+    "line": 15,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over AreaId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "BabyAnimation": [
+   {
+    "file": "csharp/test-support/VerificationAccess/CoreFrontendAccess.cs",
+    "line": 160,
+    "column": 68,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of BabyAnimation; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidFinalHealthPaintDefinitions.cs",
+    "line": 36,
+    "column": 48,
+    "rule": "SME6270",
+    "message": "'color' is a int switched over named constants of BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPalette.cs",
+    "line": 27,
+    "column": 51,
+    "rule": "SME6270",
+    "message": "'color' is a int switched over named constants of BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BabyMetroidRouteDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs",
+    "line": 71,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'movementFunction' is a ushort switched over named constants of BabyMetroidRouteDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Band": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+    "line": 54,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over Band has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "BeaconPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/BeaconPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 98,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of BeaconPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BeamTileAtlasDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
+    "line": 39,
+    "column": 64,
+    "rule": "SME6270",
+    "message": "'sourceAddress' is a int switched over named constants of BeamTileAtlasDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BodyFrame": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
+    "line": 109,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over BodyFrame has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
+    "line": 117,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over BodyFrame has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "BombTorizoDormantInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Tooling/Core/Game/BombTorizoDormantInstructionProgramDefinitions.cs",
+    "line": 39,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of BombTorizoDormantInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BombTorizoDroolInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoDroolInstructionProgramDefinitions.cs",
+    "line": 59,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of BombTorizoDroolInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.BombTorizoDroolInstructionProgramDefinitions.cs",
+    "line": 152,
+    "column": 25,
+    "rule": "SME6270",
+    "message": "'expectedPrograms[selection]' is a ushort switched over named constants of BombTorizoDroolInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BombTorizoGreyDoorPlmProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/BombTorizoGreyDoorPlmProgramDefinitions.cs",
+    "line": 93,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'start' is a int switched over named constants of BombTorizoGreyDoorPlmProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BombTorizoHandPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlmDrawDefinitions.cs",
+    "line": 102,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of BombTorizoHandPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BotwoonCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Botwoon.cs",
+    "line": 1001,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of BotwoonCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BotwoonInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/BotwoonInstructionProgramDefinitions.cs",
+    "line": 75,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'movement' is a ushort switched over named constants of BotwoonInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BotwoonProjectileCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BotwoonProjectiles.cs",
+    "line": 66,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'XVelocity' is a ushort switched over named constants of BotwoonProjectileCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "BotwoonWallPlmProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmProgramDefinitions.cs",
+    "line": 39,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of BotwoonWallPlmProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CeresCinematicLightPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 127,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of CeresCinematicLightPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CeresDestructionPhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionCinematicState.cs",
+    "line": 203,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over CeresDestructionPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "CeresEnemyCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
+    "line": 733,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'BabyFunction' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
+    "line": 543,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CeresEnemyCodePointers, RoomEnemySystem": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresDoor.cs",
+    "line": 85,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'VariableA' is a ushort switched over named constants of CeresEnemyCodePointers, RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CeresMode7TransferDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
+    "line": 57,
+    "column": 59,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of CeresMode7TransferDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ChargeFlarePlacementDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs",
+    "line": 47,
+    "column": 40,
+    "rule": "SME6270",
+    "message": "'direction' is a int switched over named constants of ChargeFlarePlacementDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ChootFallingPathDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs",
+    "line": 143,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ChootFallingPathDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ChozoStatueInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ChozoStatue.cs",
+    "line": 295,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of ChozoStatueInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ChozoStatuePlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/ChozoStatuePlmDrawDefinitions.cs",
+    "line": 113,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ChozoStatuePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ChozoStatuePlmRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/ChozoStatuePlmDefinitions.cs",
+    "line": 26,
+    "column": 77,
+    "rule": "SME6270",
+    "message": "'headerPointer' is a ushort switched over named constants of ChozoStatuePlmRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.ChozoStatue.cs",
+    "line": 102,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of ChozoStatuePlmRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CinematicCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionCinematicState.Actors.cs",
+    "line": 225,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
+    "line": 803,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
+    "line": 212,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
+    "line": 238,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
+    "line": 259,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstructionPointer' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicObjectSystem.cs",
+    "line": 356,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'instructionOrDuration' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicObjectSystem.cs",
+    "line": 401,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'instructionOrDuration' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroDiscoverySprite.cs",
+    "line": 127,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroRinkaSystem.cs",
+    "line": 93,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroRinkaSystem.cs",
+    "line": 160,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstructionPointer' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroScientistCutsceneState.cs",
+    "line": 98,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceState.cs",
+    "line": 462,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'durationOrCommand' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
+    "line": 2722,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Connections": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.Connection.cs",
+    "line": 270,
+    "column": 38,
+    "rule": "SME6270",
+    "message": "'handler' is a ushort switched over named constants of Connections; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs",
+    "line": 807,
+    "column": 34,
+    "rule": "SME6270",
+    "message": "'function' is a ushort switched over named constants of Connections; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ControllerInputRecordingFormat": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/ControllerInputRecording.cs",
+    "line": 136,
+    "column": 31,
+    "rule": "SME6270",
+    "message": "'version' is a uint switched over named constants of ControllerInputRecordingFormat; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireArenaPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs",
+    "line": 45,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of CrocomireArenaPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs",
+    "line": 93,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of CrocomireArenaPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireArenaPlmProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmProgramDefinitions.cs",
+    "line": 37,
+    "column": 18,
+    "rule": "SME6270",
+    "message": "'address - 2' is a int switched over named constants of CrocomireArenaPlmProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireBg2ScrollDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireBg2ScrollDefinitions.cs",
+    "line": 47,
+    "column": 52,
+    "rule": "SME6270",
+    "message": "'frame' is a ushort switched over named constants of CrocomireBg2ScrollDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireInstructions.cs",
+    "line": 34,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CrocomireCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireInstructions.cs",
+    "line": 131,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of CrocomireCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireDeathPhases": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireDeath.cs",
+    "line": 11,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'DeathSequenceIndex' is a ushort switched over named constants of CrocomireDeathPhases; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireMeltingArtworkAddresses": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
+    "line": 71,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'sourceAddress' is a int switched over named constants of CrocomireMeltingArtworkAddresses; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireMeltingTransferDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingTransferDefinitions.cs",
+    "line": 49,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'offset' is a ushort switched over named constants of CrocomireMeltingTransferDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "CrocomireTongueCollisionDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireTongueCollisionDefinitions.cs",
+    "line": 61,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'frame' is a ushort switched over named constants of CrocomireTongueCollisionDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireTongueCollisionDefinitions.cs",
+    "line": 73,
+    "column": 55,
+    "rule": "SME6270",
+    "message": "'list' is a ushort switched over named constants of CrocomireTongueCollisionDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DachoraPalettePhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
+    "line": 105,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over DachoraPalettePhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "DeadMonsterRottingDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
+    "line": 74,
+    "column": 34,
+    "rule": "SME6270",
+    "message": "'table' is a ushort switched over named constants of DeadMonsterRottingDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DeclarationShape": [
+   {
+    "file": "csharp/src/SuperMetroid.ReachabilityAudit/ReachabilityFindings.cs",
+    "line": 44,
+    "column": 21,
+    "rule": "SME6271",
+    "message": "Switch over DeclarationShape has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "Demonstration": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
+    "line": 548,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over Demonstration has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "DoorCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs",
+    "line": 22,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.DoorSetup.cs",
+    "line": 31,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'SetupCodePointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.DoorSetup.cs",
+    "line": 137,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'setupCodePointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DoorHeaderRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/DoorDefinitions.cs",
+    "line": 15,
+    "column": 66,
+    "rule": "SME6270",
+    "message": "'doorPointer' is a ushort switched over named constants of DoorHeaderRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DownwardGatePreInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Gates.cs",
+    "line": 152,
+    "column": 21,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of DownwardGatePreInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DownwardGateTriggerBehavior": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Gates.cs",
+    "line": 216,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over DownwardGateTriggerBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "DraygonCannonPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlmDrawDefinitions.cs",
+    "line": 133,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of DraygonCannonPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DraygonCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
+    "line": 221,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'VariableA' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
+    "line": 850,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "DraygonCollisionDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
+    "line": 86,
+    "column": 28,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of DraygonCollisionDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EffectType": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs",
+    "line": 72,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over EffectType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "ElevatorPlatformPlmDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs",
+    "line": 74,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ElevatorPlatformPlmDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EndingCreditsPhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
+    "line": 595,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over EndingCreditsPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "EndingGunshipPaletteInk": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EndingGunshipPaletteInputView.cs",
+    "line": 109,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over EndingGunshipPaletteInk has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "EndingLogoWrapAtlas": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
+    "line": 109,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'tile' is a int switched over named constants of EndingLogoWrapAtlas; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EndingReward": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
+    "line": 920,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over EndingReward has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "EndingRewardActorDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
+    "line": 55,
+    "column": 84,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of EndingRewardActorDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardGesture.cs",
+    "line": 52,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of EndingRewardActorDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EndingRewardActorDefinitions, EndingRewardJumpDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
+    "line": 34,
+    "column": 73,
+    "rule": "SME6270",
+    "message": "'definition' is a ushort switched over named constants of EndingRewardActorDefinitions, EndingRewardJumpDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EndingRewardJumpDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardJump.cs",
+    "line": 89,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of EndingRewardJumpDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EndingRewardSpriteFrame": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EndingRewardShootingSceneParts.cs",
+    "line": 72,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over EndingRewardSpriteFrame has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "EndingSpriteRole": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.Rendering.cs",
+    "line": 168,
+    "column": 21,
+    "rule": "SME6271",
+    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.SpritePreInstructions.cs",
+    "line": 8,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over EndingSpriteRole has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
+    "line": 792,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
+    "line": 946,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "EnemyAiCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
+    "line": 1279,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'address' is a int switched over named constants of EnemyAiCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
+    "line": 1738,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'address' is a int switched over named constants of EnemyAiCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyExtendedFrameDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs",
+    "line": 115,
+    "column": 29,
+    "rule": "SME6270",
+    "message": "'Version' is a int switched over named constants of EnemyExtendedFrameDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyProjectileCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NoobTubeProjectiles.cs",
+    "line": 112,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WalkingSpacePirate.cs",
+    "line": 445,
+    "column": 32,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyProjectileCodePointers, DownwardGateEnemyProjectileRomData, EyeDoorEnemyProjectileRomData, MotherBrainDeathRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyFireballs.cs",
+    "line": 900,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers, DownwardGateEnemyProjectileRomData, EyeDoorEnemyProjectileRomData, MotherBrainDeathRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyProjectileCodePointers, KagoBugProjectileInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyFireballs.cs",
+    "line": 1616,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of EnemyProjectileCodePointers, KagoBugProjectileInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyProjectileInstructionMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
+    "line": 318,
+    "column": 71,
+    "rule": "SME6270",
+    "message": "'program' is a ushort switched over named constants of EnemyProjectileInstructionMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemyProjectileSpritemapDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
+    "line": 101,
+    "column": 72,
+    "rule": "SME6270",
+    "message": "'Version' is a int switched over named constants of EnemyProjectileSpritemapDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.EnemyProjectileLegacyOverrides.cs",
+    "line": 93,
+    "column": 100,
+    "rule": "SME6270",
+    "message": "'version' is a int switched over named constants of EnemyProjectileSpritemapDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EnemySpritemapDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs",
+    "line": 85,
+    "column": 29,
+    "rule": "SME6270",
+    "message": "'Version' is a int switched over named constants of EnemySpritemapDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EscapeAnimalInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
+    "line": 230,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
+    "line": 258,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EscapeAnimalPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/EscapeAnimalPlmDrawDefinitions.cs",
+    "line": 17,
+    "column": 23,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of EscapeAnimalPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ExplodingZebesFadePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 66,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ExplodingZebesFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EyeDoorEnemyProjectileRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EyeDoorProjectiles.cs",
+    "line": 24,
+    "column": 40,
+    "rule": "SME6270",
+    "message": "'DefinitionPointer' is a ushort switched over named constants of EyeDoorEnemyProjectileRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "EyeDoorPlmRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
+    "line": 75,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of EyeDoorPlmRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "FakeKraidProjectileInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileInstructionProgramDefinitions.cs",
+    "line": 44,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of FakeKraidProjectileInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "FileSelectMapNavigationPhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.Capture.cs",
+    "line": 36,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over FileSelectMapNavigationPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs",
+    "line": 149,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over FileSelectMapNavigationPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs",
+    "line": 205,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over FileSelectMapNavigationPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "FrameFamily": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
+    "line": 207,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over FrameFamily has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "GameplayMessageId": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs",
+    "line": 55,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over GameplayMessageId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs",
+    "line": 156,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over GameplayMessageId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "GameplayMessageTitleDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
+    "line": 158,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'character' is a int switched over named constants of GameplayMessageTitleDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Global": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+    "line": 159,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'address' is a byte switched over named constants of Global; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "GrappleBeamTilePatterns": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs",
+    "line": 41,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'frame' is a int switched over named constants of GrappleBeamTilePatterns; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "GrappleEnemyReaction": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs",
+    "line": 307,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over GrappleEnemyReaction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "GrappleOriginDirection": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+    "line": 62,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over GrappleOriginDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
+    "line": 70,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over GrappleOriginDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "GunshipCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
+    "line": 2218,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'VariableF' is a ushort switched over named constants of GunshipCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "GunshipVisualDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GunshipVisualDefinitions.cs",
+    "line": 34,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of GunshipVisualDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "HibashiInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/HibashiInstructionProgramDefinitions.cs",
+    "line": 39,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'address' is a int switched over named constants of HibashiInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "HostKeyboardInputState": [
+   {
+    "file": "csharp/src/SuperMetroid.Desktop/HostKeyboardInputState.cs",
+    "line": 33,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'message' is a int switched over named constants of HostKeyboardInputState; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "HyperBeamPaletteFxProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/HyperBeamPaletteFxProgramDefinitions.cs",
+    "line": 38,
+    "column": 31,
+    "rule": "SME6270",
+    "message": "'instructionPointer' is a ushort switched over named constants of HyperBeamPaletteFxProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "InWorldCollectibleKind": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs",
+    "line": 129,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over InWorldCollectibleKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs",
+    "line": 634,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over InWorldCollectibleKind has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "InstructionItemKind": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/InstructionProgramLayout.cs",
+    "line": 109,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over InstructionItemKind has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "Instructions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs",
+    "line": 1118,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'durationOrOpcode' is a ushort switched over named constants of Instructions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Input/DemoInputState.cs",
+    "line": 251,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of Instructions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "IntroBabyDiscoveryRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
+    "line": 166,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of IntroBabyDiscoveryRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "IntroCeresFlightPhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCeresFlightState.cs",
+    "line": 115,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over IntroCeresFlightPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "IntroEggCell": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/IntroEggCrackingParts.cs",
+    "line": 56,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over IntroEggCell has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "IntroNarrationDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs",
+    "line": 130,
+    "column": 52,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of IntroNarrationDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidAiFunction": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidDeath.cs",
+    "line": 19,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over KraidAiFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs",
+    "line": 42,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over KraidAiFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "KraidInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidInstructions.cs",
+    "line": 29,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of KraidInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidLintInitializationDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/KraidLintInitializationDefinitions.cs",
+    "line": 19,
+    "column": 61,
+    "rule": "SME6270",
+    "message": "'slot' is a int switched over named constants of KraidLintInitializationDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidMouthHitboxes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/KraidMouthHitboxes.cs",
+    "line": 39,
+    "column": 97,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of KraidMouthHitboxes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidRoomPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
+    "line": 66,
+    "column": 52,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
+    "line": 84,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
+    "line": 133,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs",
+    "line": 47,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidRoomPlmProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmProgramDefinitions.cs",
+    "line": 64,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of KraidRoomPlmProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "KraidSinkCallbacks": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/KraidPlmDefinitions.cs",
+    "line": 83,
+    "column": 23,
+    "rule": "SME6270",
+    "message": "'callback' is a ushort switched over named constants of KraidSinkCallbacks; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "LayoutKind": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
+    "line": 59,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over LayoutKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
+    "line": 100,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over LayoutKind has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "LoadingSuitColorPointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
+    "line": 64,
+    "column": 48,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of LoadingSuitColorPointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
+    "line": 96,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of LoadingSuitColorPointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "LowerNorfairRioInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.LowerNorfairRio.cs",
+    "line": 245,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of LowerNorfairRioInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "LowerNorfairRioInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
+    "line": 45,
+    "column": 54,
+    "rule": "SME6270",
+    "message": "'program' is a ushort switched over named constants of LowerNorfairRioInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
+    "line": 92,
+    "column": 66,
+    "rule": "SME6270",
+    "message": "'program' is a ushort switched over named constants of LowerNorfairRioInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MagdolliteInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Magdollite.cs",
+    "line": 685,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of MagdolliteInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MagicNumberCategory": [
+   {
+    "file": "csharp/tools/ProductionMagicNumberAudit.cs",
+    "line": 423,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over MagicNumberCategory has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "MamaTurtleEnemyDefinitionCatalog": [
+   {
+    "file": "csharp/test-support/VerificationAccess/CoreGameAccess.cs",
+    "line": 919,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of MamaTurtleEnemyDefinitionCatalog; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MamaTurtleEnemyDefinitionCatalog, RoomEnemySystem, FuneNamiheDefinitions, PipeBugDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs",
+    "line": 1611,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'enemyDefinition' is a ushort switched over named constants of MamaTurtleEnemyDefinitionCatalog, RoomEnemySystem, FuneNamiheDefinitions, PipeBugDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MapScrollDirection": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMapScroll.cs",
+    "line": 36,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over MapScrollDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "MapSpriteDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "line": 23,
+    "column": 49,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "line": 43,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "line": 58,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
+    "line": 99,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs",
+    "line": 30,
+    "column": 55,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs",
+    "line": 55,
+    "column": 67,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapLabelComposition.cs",
+    "line": 30,
+    "column": 46,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/MapSpriteDefinitions.cs",
+    "line": 105,
+    "column": 53,
+    "rule": "SME6270",
+    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MaridiaLargeSnailInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MaridiaLargeSnail.cs",
+    "line": 562,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of MaridiaLargeSnailInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MotherBrainBodyPose": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs",
+    "line": 732,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over MotherBrainBodyPose has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "MotherBrainEscapeGatePlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs",
+    "line": 64,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of MotherBrainEscapeGatePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MotherBrainFakeDeathPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs",
+    "line": 56,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of MotherBrainFakeDeathPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs",
+    "line": 133,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of MotherBrainFakeDeathPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MotherBrainGlassPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs",
+    "line": 43,
+    "column": 34,
+    "rule": "SME6270",
+    "message": "'Pointer' is a ushort switched over named constants of MotherBrainGlassPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs",
+    "line": 175,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of MotherBrainGlassPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MotherBrainInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BabyMetroidCutscene.cs",
+    "line": 271,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrain.cs",
+    "line": 569,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
+    "line": 549,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'VariableA' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.ResourceAudit/EnemyVisualProgramSpecializations.cs",
+    "line": 135,
+    "column": 59,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "MotherBrainProjectileType": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainShotReaction.cs",
+    "line": 29,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over MotherBrainProjectileType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "MotherBrainRainbowShadeProfile": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs",
+    "line": 71,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over MotherBrainRainbowShadeProfile has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs",
+    "line": 87,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over MotherBrainRainbowShadeProfile has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "MotherBrainRoomColorRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line": 209,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'color' is a int switched over named constants of MotherBrainRoomColorRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line": 288,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'color' is a int switched over named constants of MotherBrainRoomColorRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Music": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/SpcMusicDefinitionCodec.cs",
+    "line": 381,
+    "column": 60,
+    "rule": "SME6270",
+    "message": "'opcode' is a byte switched over named constants of Music; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Native": [
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/CreditsPresentationExtractor.cs",
+    "line": 78,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of Native; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "NintendoLogoFadePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 73,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of NintendoLogoFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "NoobTubePlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
+    "line": 34,
+    "column": 34,
+    "rule": "SME6270",
+    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
+    "line": 53,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
+    "line": 70,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
+    "line": 138,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "NoobTubePlmRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NoobTubeProjectiles.cs",
+    "line": 22,
+    "column": 40,
+    "rule": "SME6270",
+    "message": "'DefinitionPointer' is a ushort switched over named constants of NoobTubePlmRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.NoobTube.cs",
+    "line": 42,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of NoobTubePlmRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "NorfairRioInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NorfairRio.cs",
+    "line": 243,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of NorfairRioInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 55,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Palette": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rendering/GameplayMessageBoxRenderer.cs",
+    "line": 122,
+    "column": 39,
+    "rule": "SME6270",
+    "message": "'paletteIndex' is a int switched over named constants of Palette; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PaletteFxInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
+    "line": 358,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
+    "line": 471,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'word' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PaletteFxPreInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
+    "line": 244,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of PaletteFxPreInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PaletteFxSetupCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
+    "line": 204,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'setup' is a ushort switched over named constants of PaletteFxSetupCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PauseEquipmentCategories": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs",
+    "line": 126,
+    "column": 42,
+    "rule": "SME6270",
+    "message": "'Category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/PauseSelectorDefinitions.cs",
+    "line": 68,
+    "column": 26,
+    "rule": "SME6270",
+    "message": "'category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs",
+    "line": 117,
+    "column": 73,
+    "rule": "SME6270",
+    "message": "'category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.EquipmentInput.cs",
+    "line": 117,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'selectedCategory' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PauseReserveTankRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs",
+    "line": 43,
+    "column": 55,
+    "rule": "SME6270",
+    "message": "'identity' is a ushort switched over named constants of PauseReserveTankRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs",
+    "line": 32,
+    "column": 21,
+    "rule": "SME6270",
+    "message": "'nativeIdentity' is a ushort switched over named constants of PauseReserveTankRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PhantoonBg2FrameDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
+    "line": 66,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of PhantoonBg2FrameDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PhantoonCollisionDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
+    "line": 77,
+    "column": 66,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of PhantoonCollisionDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PhantoonInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PhantoonInstructions.cs",
+    "line": 16,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'function' is a ushort switched over named constants of PhantoonInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Phase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CeresHazeState.cs",
+    "line": 48,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over Phase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "PipeBugDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
+    "line": 21,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'enemyDefinition' is a ushort switched over named constants of PipeBugDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 69,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "PrePhantoonRoomProjectileInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/PrePhantoonRoomProjectileInstructionProgramDefinitions.cs",
+    "line": 18,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of PrePhantoonRoomProjectileInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ProjectileTrailCoordinateDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 370,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'family' is a int switched over named constants of ProjectileTrailCoordinateDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ProjectileTrailDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs",
+    "line": 63,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'selection' is a int switched over named constants of ProjectileTrailDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "QuicksandRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/QuicksandDefinitions.cs",
+    "line": 40,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of QuicksandRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RidleyExplosionParts": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
+    "line": 100,
+    "column": 36,
+    "rule": "SME6270",
+    "message": "'parameter' is a ushort switched over named constants of RidleyExplosionParts; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RidleyMovementTargets": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
+    "line": 24,
+    "column": 55,
+    "rule": "SME6270",
+    "message": "'facing' is a int switched over named constants of RidleyMovementTargets; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
+    "line": 33,
+    "column": 54,
+    "rule": "SME6270",
+    "message": "'facing' is a int switched over named constants of RidleyMovementTargets; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RingGrowthPhase": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
+    "line": 263,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over RingGrowthPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "RinkaInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
+    "line": 379,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of RinkaInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomCollisionType": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CommonMovement.cs",
+    "line": 384,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CommonMovement.cs",
+    "line": 445,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs",
+    "line": 1168,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
+    "line": 721,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over RoomCollisionType has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs",
+    "line": 91,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "RoomEnemyProjectileKind": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/KraidRockProjectileInstructionProgramDefinitions.cs",
+    "line": 78,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over RoomEnemyProjectileKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "RoomEnemySystem": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs",
+    "line": 15,
+    "column": 25,
+    "rule": "SME6270",
+    "message": "'enemyDefinition' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs",
+    "line": 47,
+    "column": 31,
+    "rule": "SME6270",
+    "message": "'enemyDefinition' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
+    "line": 359,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'Function' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
+    "line": 468,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireCombat.cs",
+    "line": 17,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'callback' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs",
+    "line": 96,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'VariableA' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",
+    "line": 93,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'definitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
+    "line": 70,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'EnemyDefinitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.FuneNamiheFireballs.cs",
+    "line": 60,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Grapple.cs",
+    "line": 42,
+    "column": 45,
+    "rule": "SME6270",
+    "message": "'GrappleAiPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Grapple.cs",
+    "line": 84,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'GrappleAiPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KiHunter.cs",
+    "line": 888,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'EnemyDefinitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PolypRocks.cs",
+    "line": 47,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.StokeProjectiles.cs",
+    "line": 42,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'Variable0' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomFxPaletteBlendDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
+    "line": 126,
+    "column": 63,
+    "rule": "SME6270",
+    "message": "'selection' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
+    "line": 321,
+    "column": 60,
+    "rule": "SME6270",
+    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
+    "line": 358,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs",
+    "line": 378,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomFxType": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTilesState.cs",
+    "line": 45,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over RoomFxType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomLayer3FxState.cs",
+    "line": 411,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over RoomFxType has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "RoomHeaderPointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Desktop/PlayableGameControl.cs",
+    "line": 891,
+    "column": 67,
+    "rule": "SME6270",
+    "message": "'roomPointer' is a ushort switched over named constants of RoomHeaderPointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomMainCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomCallbackDefinitions.cs",
+    "line": 122,
+    "column": 67,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomMainCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmBombBlockRestoreDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombBlockRestoreDrawDefinitions.cs",
+    "line": 36,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombBlockRestoreDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmBombBlockRestoreDrawDefinitions, RoomPlmContactCrumbleRestoreDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreDrawDefinitions.cs",
+    "line": 14,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombBlockRestoreDrawDefinitions, RoomPlmContactCrumbleRestoreDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmBombedRevealDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombedRevealDrawDefinitions.cs",
+    "line": 17,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombedRevealDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmContactCrumbleRestoreDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs",
+    "line": 36,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmContactCrumbleRestoreDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmHeaders": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/ResidentDoorClosingDefinitions.cs",
+    "line": 70,
+    "column": 54,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.DraygonCannons.cs",
+    "line": 18,
+    "column": 48,
+    "rule": "SME6270",
+    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
+    "line": 25,
+    "column": 72,
+    "rule": "SME6270",
+    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Scrolls.cs",
+    "line": 110,
+    "column": 49,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
+    "line": 140,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
+    "line": 339,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
+    "line": 400,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
+    "line": 507,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.ResourceAudit/PlmProgramAudit.cs",
+    "line": 104,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.BombTorizoHand.cs",
+    "line": 112,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.DraygonCannons.cs",
+    "line": 92,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
+    "line": 129,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.MotherBrainGlass.cs",
+    "line": 120,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.NoobTube.cs",
+    "line": 89,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmInstructionCodes, SamusEaterPlmRomData, ChozoStatuePlmRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.ResourceAudit/PlmInstructionFormats.cs",
+    "line": 14,
+    "column": 65,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of RoomPlmInstructionCodes, SamusEaterPlmRomData, ChozoStatuePlmRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmInstructionLists": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmProgramDefinitions.cs",
+    "line": 48,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'start' is a int switched over named constants of RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombedRevealProgramDefinitions.cs",
+    "line": 35,
+    "column": 18,
+    "rule": "SME6270",
+    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockProgramDefinitions.cs",
+    "line": 52,
+    "column": 54,
+    "rule": "SME6270",
+    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockProgramDefinitions.cs",
+    "line": 62,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/StationAnimationProgramDefinitions.cs",
+    "line": 32,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'list' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmShotBlockDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
+    "line": 67,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmShotBlockDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomPlmStationDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
+    "line": 115,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
+    "line": 190,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomSetup": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.AttractDemo.cs",
+    "line": 122,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomSetup; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomSetupCallback": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.EscapeEffects.cs",
+    "line": 22,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over RoomSetupCallback has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "RoomSetupCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomCallbackDefinitions.cs",
+    "line": 148,
+    "column": 69,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of RoomSetupCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomSpriteObjectInstructionProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.SpriteObjects.cs",
+    "line": 186,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'InstructionTimer' is a ushort switched over named constants of RoomSpriteObjectInstructionProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "RoomStateSelectorCodes": [
+   {
+    "file": "csharp/test-support/Importers/CartridgeRoomHeaderImporter.cs",
+    "line": 24,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'code' is a ushort switched over named constants of RoomStateSelectorCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Routines, Attract": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/AttractDemoInput.cs",
+    "line": 31,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of Routines, Attract; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.AttractInputFixture.cs",
+    "line": 26,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of Routines, Attract; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Rows": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/GameOptionsMenuState.cs",
+    "line": 312,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'SelectedItem' is a int switched over named constants of Rows; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusAnimationCommand": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs",
+    "line": 90,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusAnimationCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs",
+    "line": 105,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusAnimationCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusArmCannonArtworkFormat": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
+    "line": 721,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of SamusArmCannonArtworkFormat; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusAtmosphericEffectDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
+    "line": 70,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'roomIndex' is a byte switched over named constants of SamusAtmosphericEffectDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusBeamFlags": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
+    "line": 312,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
+    "line": 324,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 350,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 419,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs",
+    "line": 110,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
+    "line": 106,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
+    "line": 162,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSoundRoutingDefinitions.cs",
+    "line": 49,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusCollisionDirection": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusSolidEnemyCollision.cs",
+    "line": 128,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusCollisionDirection has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusDeathTileAtlasAddresses": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs",
+    "line": 93,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'tile' is a int switched over named constants of SamusDeathTileAtlasAddresses; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusEaterPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs",
+    "line": 80,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SamusEaterPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs",
+    "line": 111,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SamusEaterPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusEaterPlmRomData, QuicksandRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusInsideBlockReactions.cs",
+    "line": 55,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'setup' is a ushort switched over named constants of SamusEaterPlmRomData, QuicksandRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusEaterPlmRomData, RoomPlmInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
+    "line": 1214,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'instruction' is a ushort switched over named constants of SamusEaterPlmRomData, RoomPlmInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusLiquidPhysicsState": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAerialMovement.cs",
+    "line": 552,
+    "column": 34,
+    "rule": "SME6270",
+    "message": "'medium' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs",
+    "line": 161,
+    "column": 39,
+    "rule": "SME6270",
+    "message": "'liquidMedium' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusLiquidPhysicsState.cs",
+    "line": 239,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'DetermineRawMediumAtBoundary(bottomMinusOne)' is a ushort switched over named constants of SamusLiquidPhysicsState; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusMovementType": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RidleySamusInteractionDefinitions.cs",
+    "line": 26,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
+    "line": 55,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
+    "line": 53,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
+    "line": 64,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs",
+    "line": 62,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs",
+    "line": 81,
+    "column": 25,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusXrayState.cs",
+    "line": 725,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusPoseId": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonPlacementDefinitions.cs",
+    "line": 159,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusPoseId has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyPlacementDefinitions.cs",
+    "line": 83,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusPoseId has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs",
+    "line": 79,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusPoseId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputDefinitions.cs",
+    "line": 364,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusPoseId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusPoseIds": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
+    "line": 36,
+    "column": 50,
+    "rule": "SME6270",
+    "message": "'pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkProjectileRomData.cs",
+    "line": 22,
+    "column": 37,
+    "rule": "SME6270",
+    "message": "'pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs",
+    "line": 330,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'targetPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusState.AerialTransitions.cs",
+    "line": 520,
+    "column": 27,
+    "rule": "SME6270",
+    "message": "'genericPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs",
+    "line": 1908,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'Pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.SamusTerrainMovement.cs",
+    "line": 1267,
+    "column": 29,
+    "rule": "SME6270",
+    "message": "'landingPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.SamusTerrainMovement.cs",
+    "line": 1296,
+    "column": 29,
+    "rule": "SME6270",
+    "message": "'landingPose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusPoseInputDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
+    "line": 9,
+    "column": 100,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SamusPoseInputDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
+    "line": 9,
+    "column": 100,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SamusPoseInputDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusProjectileCooldownDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileCooldownDefinitions.cs",
+    "line": 48,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'address - NonBeamCooldowns' is a int switched over named constants of SamusProjectileCooldownDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusProjectileDamageDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs",
+    "line": 52,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'address' is a int switched over named constants of SamusProjectileDamageDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
+    "line": 124,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'address - 2' is a int switched over named constants of SamusProjectileDamageDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusProjectileDirection": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
+    "line": 1097,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 368,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 398,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusProjectileFamily": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidCollisions.cs",
+    "line": 123,
+    "column": 21,
+    "rule": "SME6271",
+    "message": "Switch over SamusProjectileFamily has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
+    "line": 221,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over SamusProjectileFamily has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SamusSetup": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
+    "line": 530,
+    "column": 21,
+    "rule": "SME6270",
+    "message": "'SamusSetupFor(demonstration)' is a ushort switched over named constants of SamusSetup; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.AttractDemo.cs",
+    "line": 89,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SamusSetup; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusTerrainHazardRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusTerrainHazardCollision.cs",
+    "line": 50,
+    "column": 25,
+    "rule": "SME6270",
+    "message": "'Behavior' is a byte switched over named constants of SamusTerrainHazardRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SamusVerticalMotionDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
+    "line": 20,
+    "column": 91,
+    "rule": "SME6270",
+    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
+    "line": 28,
+    "column": 92,
+    "rule": "SME6270",
+    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
+    "line": 41,
+    "column": 20,
+    "rule": "SME6270",
+    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
+    "line": 50,
+    "column": 83,
+    "rule": "SME6270",
+    "message": "'medium' is a ushort switched over named constants of SamusVerticalMotionDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Scene": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
+    "line": 167,
+    "column": 92,
+    "rule": "SME6271",
+    "message": "Switch over Scene has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "ScrollingSky": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs",
+    "line": 33,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'pointerTable' is a int switched over named constants of ScrollingSky; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ShaktoolInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Shaktool.cs",
+    "line": 498,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of ShaktoolInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Shape": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
+    "line": 54,
+    "column": 90,
+    "rule": "SME6271",
+    "message": "Switch over Shape has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "ShellProgram": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
+    "line": 122,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over ShellProgram has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
+    "line": 132,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over ShellProgram has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SkreeMetareeParticleVisualDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs",
+    "line": 21,
+    "column": 62,
+    "rule": "SME6270",
+    "message": "'operandAddress' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.ResourceAudit/EnemyVisualProgramAudit.cs",
+    "line": 193,
+    "column": 30,
+    "rule": "SME6270",
+    "message": "'operand' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.ResourceAudit/ProjectileDefinitionAudit.cs",
+    "line": 18,
+    "column": 26,
+    "rule": "SME6270",
+    "message": "'operand' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SmCompressionCommand": [
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompression.cs",
+    "line": 155,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over SmCompressionCommand has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionFormat.cs",
+    "line": 53,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SmCompressionCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SnesButton": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Input/ControllerBindings.cs",
+    "line": 88,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SnesButton has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "SpacePirateInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NinjaSpacePirate.cs",
+    "line": 677,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WallSpacePirate.cs",
+    "line": 394,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SpcSoundEffectOpcodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectProgramCodec.cs",
+    "line": 44,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'opcode' is a byte switched over named constants of SpcSoundEffectOpcodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SpeedBoosterEscapePlmRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.SpeedBoosterEscape.cs",
+    "line": 49,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of SpeedBoosterEscapePlmRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SpeedBoosterEscapeStageDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterEscapeStageDefinitions.cs",
+    "line": 45,
+    "column": 16,
+    "rule": "SME6270",
+    "message": "'tableByteOffset' is a ushort switched over named constants of SpeedBoosterEscapeStageDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SporeSpawnCeilingPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs",
+    "line": 55,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SporeSpawnCeilingPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SporeSpawnCeilingPlmProgramDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmProgramDefinitions.cs",
+    "line": 36,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'address' is a ushort switched over named constants of SporeSpawnCeilingPlmProgramDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SporeSpawnCollisionDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs",
+    "line": 143,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of SporeSpawnCollisionDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SporeSpawnInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.SporeSpawnInstructions.cs",
+    "line": 20,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of SporeSpawnInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "StationAccessBehavior": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
+    "line": 308,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over StationAccessBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
+    "line": 337,
+    "column": 17,
+    "rule": "SME6271",
+    "message": "Switch over StationAccessBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "StationAnimationProgramDefinitions, RoomPlmInstructionLists": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/StationAnimationProgramDefinitions.cs",
+    "line": 40,
+    "column": 28,
+    "rule": "SME6270",
+    "message": "'list' is a ushort switched over named constants of StationAnimationProgramDefinitions, RoomPlmInstructionLists; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "SuperMetroidGameState": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.AttractDemo.cs",
+    "line": 18,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SuperMetroidGameState has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.Random.cs",
+    "line": 35,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SuperMetroidGameState has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.Random.cs",
+    "line": 45,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SuperMetroidGameState has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs",
+    "line": 1279,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over SuperMetroidGameState has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "TitleLogoFadePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/TitleLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 64,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of TitleLogoFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "TorizoInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizoInstructions.cs",
+    "line": 49,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of TorizoInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "TourianAccessPlmDrawDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs",
+    "line": 59,
+    "column": 56,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of TourianAccessPlmDrawDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "TourianGlowPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/TourianGlowPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 80,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of TourianGlowPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "TourianStatueRomData": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
+    "line": 48,
+    "column": 40,
+    "rule": "SME6270",
+    "message": "'definition' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
+    "line": 70,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'PreInstruction' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
+    "line": 103,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'code' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Trails": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
+    "line": 356,
+    "column": 21,
+    "rule": "SME6270",
+    "message": "'instructionOrTimer' is a ushort switched over named constants of Trails; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "UnusedCinematicFadePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 69,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of UnusedCinematicFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 60,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "VerticalMotion": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
+    "line": 83,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'address' is a int switched over named constants of VerticalMotion; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "Voice": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+    "line": 107,
+    "column": 13,
+    "rule": "SME6270",
+    "message": "'voiceRegister' is a int switched over named constants of Voice; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "VramAssetId": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs",
+    "line": 68,
+    "column": 13,
+    "rule": "SME6271",
+    "message": "Switch over VramAssetId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "WorkRobotInstructionCodes": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobot.cs",
+    "line": 196,
+    "column": 9,
+    "rule": "SME6270",
+    "message": "'opcode' is a ushort switched over named constants of WorkRobotInstructionCodes; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "WorkRobotLaserDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobotLasers.cs",
+    "line": 33,
+    "column": 32,
+    "rule": "SME6270",
+    "message": "'definition' is a ushort switched over named constants of WorkRobotLaserDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "XrayRevealCodePointers": [
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/XrayRevealVisualFiles.cs",
+    "line": 230,
+    "column": 53,
+    "rule": "SME6270",
+    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/XrayRevealVisualFiles.cs",
+    "line": 256,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Verification/Program.XrayReveal.cs",
+    "line": 49,
+    "column": 24,
+    "rule": "SME6270",
+    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "YardMovementFunction": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Yard.cs",
+    "line": 195,
+    "column": 9,
+    "rule": "SME6271",
+    "message": "Switch over YardMovementFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
+    "status": "open"
+   }
+  ],
+  "ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs",
+    "line": 85,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 86,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 70,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
+    "line": 74,
+    "column": 17,
+    "rule": "SME6270",
+    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "ZoaSpeedDefinitions": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
+    "line": 32,
+    "column": 22,
+    "rule": "SME6270",
+    "message": "'offset / 4' is a int switched over named constants of ZoaSpeedDefinitions; model the domain as a type",
+    "status": "open"
+   }
+  ],
+  "masked selector beam": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.Combos.cs",
+    "line": 23,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'beam' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector character": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
+    "line": 157,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'character' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector choice": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
+    "line": 537,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'choice' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector coordinate": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+    "line": 680,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'coordinate' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector direction": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileInheritance.cs",
+    "line": 14,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/DoorOpeningScrollState.cs",
+    "line": 77,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.RoomLoading.cs",
+    "line": 461,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   },
+   {
+    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.RoomLoading.cs",
+    "line": 1376,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector filter": [
+   {
+    "file": "csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
+    "line": 286,
+    "column": 17,
+    "rule": "SME6272",
+    "message": "Local 'filter' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector frame": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/CeresRidleyGetawayDefinitions.cs",
+    "line": 17,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'frame' extracts a field by shift and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector rawDirection": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Cacatac.cs",
+    "line": 143,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'rawDirection' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector type": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PhantoonProjectiles.cs",
+    "line": 54,
+    "column": 14,
+    "rule": "SME6272",
+    "message": "Local 'type' extracts a field by shift and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ],
+  "masked selector voiceRegister": [
+   {
+    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
+    "line": 104,
+    "column": 13,
+    "rule": "SME6272",
+    "message": "Local 'voiceRegister' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
+    "status": "open"
+   }
+  ]
+ },
+ "resolved": {
+  "XraySetupStage": {
+   "previous": "SamusXrayState.SetupStage (byte), PrepareXrayTilemap(byte), XraySetupMemory stage constants, XrayRoomDisplayRules.FirstBlendedSetupStage",
+   "type": "enum XraySetupStage : byte (Complete + the eight $91:D22E-$D26F setup calls)",
+   "closedProof": "InstList_HDMAObject_Xray_0 calls exactly eight setup routines before installing PreInstruction_Xray_Main",
+   "transitions": "XraySetupStages.Advance (bounded; Complete and undefined values throw)",
+   "boundary": "debugger state: DebuggerEnumValues decodes older byte payloads and rejects undefined values",
+   "invalidValues": "throw at the boundary and in every exhaustive switch",
+   "consumers": "SamusXrayState, SuperMetroidRuntime.BuildXrayRevealTilemap/TransferXrayBg1Read, GameplayDisplayCapture.CaptureXray, verification"
+  }
+ },
+ "summary": {
+  "openFindings": 409,
+  "openDomains": 244,
+  "byRule": {
+   "SME6271": 95,
+   "SME6270": 301,
+   "SME6272": 13
+  }
+ }
+}

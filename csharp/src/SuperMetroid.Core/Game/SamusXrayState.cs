@@ -72,7 +72,7 @@ public sealed class SamusXrayState
     /// The eight setup calls in `$91:D22E-$D26F` which prepare/transfer the two BG2 screens
     /// before the bank-$88 main pre-instruction begins changing the beam state.
     /// </summary>
-    public byte SetupStage { get; private set; }
+    public XraySetupStage SetupStage { get; private set; }
 
     /// <summary>WRAM `$0A7A`; values zero through five index `$88:8726`.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
@@ -230,7 +230,7 @@ public sealed class SamusXrayState
         AngularWidthDelta = 0;
         AngularSubwidthDelta = 0;
         BeamSizeFlag = 0;
-        SetupStage = 1;
+        SetupStage = XraySetupStage.FreezeTimeBackupBg2Registers;
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
         SuspendedSubsystems = XraySuspendedSubsystems.All;
@@ -310,7 +310,7 @@ public sealed class SamusXrayState
 
         IsActive = false;
         OwnsSamusControl = false;
-        SetupStage = 0;
+        SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = SnesAngle.Zero;
         AngularWidth = 0;
@@ -435,11 +435,11 @@ public sealed class SamusXrayState
         SnesAngle angleAtStart = Angle;
         ushort widthAtStart = AngularWidth;
 
-        if (SetupStage != 0)
+        if (SetupStage != XraySetupStage.Complete)
         {
-            // Stages one through eight execute in order. After stage eight the instruction
-            // list installs `$88:86EF`; state zero itself first runs on the following call.
-            SetupStage = SetupStage >= 8 ? (byte)0 : unchecked((byte)(SetupStage + 1));
+            // The eight calls execute in order. After the eighth the instruction list
+            // installs `$88:86EF`; beam state zero itself first runs on the following call.
+            SetupStage = SetupStage.Advance();
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
@@ -692,7 +692,7 @@ public sealed class SamusXrayState
         SuspendedSubsystems = XraySuspendedSubsystems.None;
         IsActive = false;
         OwnsSamusControl = false;
-        SetupStage = 0;
+        SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = SnesAngle.Zero;
         AngularWidth = 0;

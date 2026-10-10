@@ -12,8 +12,8 @@ public static partial class GameplayDisplayCapture
     {
         bool finishedThisFrame = runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
         if (runtime.Samus is not { } samus || !samus.Xray.IsActive && !finishedThisFrame) return null;
-        bool settingUp = samus.Xray.SetupStage != 0;
-        if (settingUp && samus.Xray.SetupStage < XrayRoomDisplayRules.FirstBlendedSetupStage) return null;
+        if (!samus.Xray.SetupStage.ShowsBlendedRoom()) return null;
+        bool settingUp = samus.Xray.SetupStage != XraySetupStage.Complete;
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         var room = runtime.ActiveRoom ?? throw new InvalidOperationException("X-ray has no room.");

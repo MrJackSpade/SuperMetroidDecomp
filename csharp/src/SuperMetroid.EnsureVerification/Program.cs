@@ -20,6 +20,7 @@ internal static partial class Program
                 throw new ArgumentException("Unknown verification arguments.", nameof(args));
             VerifyEnsure();
             VerifyAnalyzer();
+            VerifyPrimitiveDomainAnalyzer();
             VerifyPaletteFxDependencyContract();
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;

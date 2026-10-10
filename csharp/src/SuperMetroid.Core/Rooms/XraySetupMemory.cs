@@ -2,15 +2,9 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>WRAM scratch buffers and setup-stage identities used by the native X-ray tilemap transfers.</summary>
+/// <summary>WRAM scratch buffers used by the native X-ray tilemap transfers.</summary>
 public static class XraySetupMemory
 {
-    /// <summary>$91:CB1C reads the second BG1 screen during setup call two.</summary>
-    public const byte ReadSecondScreenStage = 2;
-    /// <summary>$91:CB57 reads the first BG1 screen during setup call three.</summary>
-    public const byte ReadFirstScreenStage = 3;
-    /// <summary>$91:CB8E constructs the reveal map once during setup call four.</summary>
-    public const byte BuildRevealStage = 4;
     /// <summary>$7E:6000, first BG1 screen captured by $91:CB57.</summary>
     public const int SavedBg1 = 0x7E6000;
     /// <summary>$7E:6800, second BG1 screen captured by $91:CB1C.</summary>

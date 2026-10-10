@@ -28,7 +28,7 @@ internal static partial class Program
     }
     private static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
-        if (samus.Xray.SetupStage != 0 || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
+        if (samus.Xray.SetupStage != XraySetupStage.Complete || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
         foreach (var scroll in new[] { (0, 0), (160, 0), (220, 180) })
         {
             var source = new Rgba32(248, 128, 64);

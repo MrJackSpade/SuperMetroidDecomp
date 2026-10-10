@@ -41,7 +41,7 @@ internal static partial class Program
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemySlot member = enemies.Slots[headSlot + part];
-                member.EnemyDefinitionPointer = 0xe83f;
+                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
                 member.Parameter1 = (ushort)part;
                 member.Parameter2 = 0;
                 member.XPosition = 0x01d8;

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -110,13 +110,13 @@ internal static class CompiledEnemyVisualSelectorsTooling
         if (index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operand));
+            return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operand));
         }
         index -= FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < KraidNailInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa70000 | operand, KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operand));
+            return new(0xa70000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.KraidNail, operand));
         }
         index -= KraidNailInstructionProgramDefinitions.PresentationWordCount;
         if (index < PhantoonInstructionProgramDefinitions.PresentationWordCount)

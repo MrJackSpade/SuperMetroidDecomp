@@ -25,9 +25,9 @@ internal static partial class Program
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        Dictionary<ushort, List<RoomEnemyPopulationRecord>> populations =
+        Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>> populations =
             ReadRetailEnemyPopulationRecords(rom);
-        ushort[] definitions = ReadNamedRetailEnemyDefinitions();
+        EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
 
         const BindingFlags flags = BindingFlags.Static | BindingFlags.Instance |
             BindingFlags.NonPublic;
@@ -42,11 +42,11 @@ internal static partial class Program
         FieldInfo readRandomField = typeof(RoomEnemySystem).GetField(
             "_readRandomNumber", flags)!;
 
-        var translated = new HashSet<ushort>();
-        var owned = new HashSet<ushort>();
+        var translated = new HashSet<EnemyDefinitionId>();
+        var owned = new HashSet<EnemyDefinitionId>();
         var unresolved = new List<string>();
 
-        foreach (ushort definitionPointer in definitions)
+        foreach (EnemyDefinitionId definitionPointer in definitions)
         {
             RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
                 rom, definitionPointer);
@@ -124,7 +124,7 @@ internal static partial class Program
                 else
                 {
                     unresolved.Add(
-                        $"${definitionPointer:X4} -> ${definition.Bank:X2}:" +
+                        $"${(int)definitionPointer:X4} -> ${definition.Bank:X2}:" +
                         $"{slot.CurrentInstruction:X4}");
                 }
             }
@@ -153,7 +153,7 @@ internal static partial class Program
 
         var unknown = new RoomEnemySlot(0)
         {
-            EnemyDefinitionPointer = 0x9000,
+            EnemyDefinitionPointer = (EnemyDefinitionId)0x9000,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 },
             CurrentInstruction = 0x9000,
         };
@@ -210,14 +210,14 @@ internal static partial class Program
 
     private static bool IsUntranslatedEnemyInitializer(
         Exception? exception,
-        ushort definitionPointer) =>
+        EnemyDefinitionId definitionPointer) =>
         exception is InvalidDataException invalid &&
         invalid.Message.StartsWith(
-            $"Enemy ${definitionPointer:X4} initialization AI $",
+            $"Enemy ${(int)definitionPointer:X4} initialization AI $",
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 
-    private static ushort[] ReadNamedRetailEnemyDefinitions()
+    private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
@@ -226,22 +226,22 @@ internal static partial class Program
             .Where(fields => fields.Length == 2 &&
                 fields[0].StartsWith("0xa0", StringComparison.Ordinal) &&
                 fields[1].StartsWith("kEnemyDef_", StringComparison.Ordinal))
-            .Select(fields => ushort.Parse(
+            .Select(fields => EnemyDefinitionIds.FromHeaderPointer(ushort.Parse(
                 fields[0].AsSpan(4),
                 NumberStyles.AllowHexSpecifier,
-                CultureInfo.InvariantCulture))
+                CultureInfo.InvariantCulture)))
             .Distinct()
             .Order()
             .ToArray();
     }
 
-    private static Dictionary<ushort, List<RoomEnemyPopulationRecord>>
+    private static Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
         CartridgeRoomState[] states = RoomStateDefinitions.All.ToArray();
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Length,
             "owner fixture enumerates every retail room state");
-        var records = new Dictionary<ushort, List<RoomEnemyPopulationRecord>>();
+        var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>();
 
         foreach (ushort populationPointer in states
                      .Select(state => state.EnemyPopulationPointer)
@@ -252,9 +252,10 @@ internal static partial class Program
                  recordIndex < RoomEnemySystem.MaximumEnemyCount;
                  recordIndex++, cursor += 16)
             {
-                ushort definitionPointer = ReadEnemyOwnerAuditWord(rom, cursor);
-                if (definitionPointer == 0xffff)
+                ushort definitionPointerWord = ReadEnemyOwnerAuditWord(rom, cursor);
+                if (definitionPointerWord == 0xffff)
                     break;
+                EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
                 var record = new RoomEnemyPopulationRecord(
                     definitionPointer,

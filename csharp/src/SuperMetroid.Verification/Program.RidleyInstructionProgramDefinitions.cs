@@ -12,8 +12,7 @@ internal static partial class Program
     private static void VerifyRidleyInstructionProgramDefinitions()
     {
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        ushort ceresRidleyDefinition = (ushort)typeof(RoomEnemySystem)
-            .GetField("CeresRidleyDefinition", staticFlags)!.GetRawConstantValue()!;
+        EnemyDefinitionId ceresRidleyDefinition = EnemyDefinitionId.RidleyCeres;
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0;
@@ -54,7 +53,7 @@ internal static partial class Program
         RunProgram(rom, executedOperands, guard,
             RidleyInstructionProgramDefinitions.TransitionToFlying,
             facingDirection: 2,
-            RoomEnemySystem.NorfairRidleyDefinition);
+            EnemyDefinitionId.Ridley);
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ridley execution avoids compiled mechanics bytes");
@@ -105,7 +104,7 @@ internal static partial class Program
         RidleyInstructionReadGuard guard,
         ushort program,
         ushort facingDirection,
-        ushort enemyDefinition)
+        EnemyDefinitionId enemyDefinition)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
@@ -118,8 +117,7 @@ internal static partial class Program
 
         RoomEnemySlot slot = enemies.Slots[0];
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        slot.EnemyDefinitionPointer = (ushort)typeof(RoomEnemySystem)
-            .GetField("CeresRidleyDefinition", staticFlags)!.GetRawConstantValue()!;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         typeof(RoomEnemySystem).GetMethod("InitializeCeresRidley", flags)!
             .Invoke(enemies, [slot]);

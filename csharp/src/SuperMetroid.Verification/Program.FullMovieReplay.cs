@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
@@ -274,7 +275,7 @@ internal static partial class Program
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
-                Console.WriteLine($"  enemy {actor.NativeIndex / MovieDesyncMemory.EnemyStride} {actor.EnemyDefinitionPointer:X4} " +
+                Console.WriteLine($"  enemy {actor.NativeIndex / MovieDesyncMemory.EnemyStride} {(int)actor.EnemyDefinitionPointer:X4} " +
                     $"port inst={actor.CurrentInstruction:X4}/{actor.InstructionTimer:X4} prop={actor.Properties:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)}");
             }
@@ -407,8 +408,8 @@ internal static partial class Program
         {
             int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
             string owner = $"Enemy {actor.SlotIndex}";
-            Check(owner + " identity", actor.EnemyDefinitionPointer, address + MovieDesyncMemory.EnemyIdentityOffset);
-            if (actor.EnemyDefinitionPointer == 0) continue;
+            Check(owner + " identity", (ushort)actor.EnemyDefinitionPointer, address + MovieDesyncMemory.EnemyIdentityOffset);
+            if (actor.EnemyDefinitionPointer == EnemyDefinitionId.None) continue;
             Check(owner + " X", actor.XPosition, address + MovieDesyncMemory.EnemyXOffset);
             Check(owner + " X fraction", actor.XSubposition, address + MovieDesyncMemory.EnemyXFractionOffset);
             Check(owner + " Y", actor.YPosition, address + MovieDesyncMemory.EnemyYOffset);

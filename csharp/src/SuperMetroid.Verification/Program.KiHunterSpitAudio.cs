@@ -26,7 +26,7 @@ internal static partial class Program
         samus.InputLocked = true;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        var body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.KiHunterDefinition);
+        var body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64]!;
         body.XPosition = 128; body.YPosition = 128;
         state.Function = KiHunterEnemyFunction.NoOp;

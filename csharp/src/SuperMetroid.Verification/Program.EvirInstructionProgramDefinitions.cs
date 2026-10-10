@@ -14,23 +14,23 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        (ushort Entry, int Frames, ushort Definition, string Name)[] loops =
+        (ushort Entry, int Frames, EnemyDefinitionId Definition, string Name)[] loops =
         [
             (EvirInstructionProgramDefinitions.BodyFacingLeft,
                 EvirInstructionProgramDefinitions.BodyFrameCount,
-                RoomEnemySystem.EvirDefinition,
+                EnemyDefinitionId.Evir,
                 "left body"),
             (EvirInstructionProgramDefinitions.ArmsFacingLeft,
                 EvirInstructionProgramDefinitions.ArmsFrameCount,
-                RoomEnemySystem.EvirDefinition,
+                EnemyDefinitionId.Evir,
                 "left arms"),
             (EvirInstructionProgramDefinitions.BodyFacingRight,
                 EvirInstructionProgramDefinitions.BodyFrameCount,
-                RoomEnemySystem.EvirDefinition,
+                EnemyDefinitionId.Evir,
                 "right body"),
             (EvirInstructionProgramDefinitions.ArmsFacingRight,
                 EvirInstructionProgramDefinitions.ArmsFrameCount,
-                RoomEnemySystem.EvirDefinition,
+                EnemyDefinitionId.Evir,
                 "right arms"),
         ];
 
@@ -51,7 +51,7 @@ internal static partial class Program
 
         var guard = new EvirInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        foreach ((ushort entry, int frameCount, ushort definition, string name) in loops)
+        foreach ((ushort entry, int frameCount, EnemyDefinitionId definition, string name) in loops)
         {
             var enemies = NewEvirInstructionSystem(guard, flags);
             RoomEnemySlot slot = enemies.Slots[0];
@@ -72,7 +72,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             PrepareEvirInstructionSlot(
                 slot,
-                RoomEnemySystem.EvirProjectileDefinition,
+                EnemyDefinitionId.EvirProjectile,
                 EvirInstructionProgramDefinitions.ProjectileNormal);
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0];
@@ -91,7 +91,7 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[2];
             PrepareEvirInstructionSlot(
                 slot,
-                RoomEnemySystem.EvirProjectileDefinition,
+                EnemyDefinitionId.EvirProjectile,
                 EvirInstructionProgramDefinitions.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose;
             // $A8:879B/$87B6 follow the body's installed list, so the offset starts at +8.
@@ -181,7 +181,7 @@ internal static partial class Program
 
     private static void PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
-        ushort definition,
+        EnemyDefinitionId definition,
         ushort entry)
     {
         slot.EnemyDefinitionPointer = definition;

@@ -79,7 +79,7 @@ public readonly record struct RoomEnemyDefinition(
 /// <param name="Parameter1">Record +$0C first actor-specific spawn parameter; units and meaning belong to the selected enemy AI.</param>
 /// <param name="Parameter2">Record +$0E second actor-specific spawn parameter; units and meaning belong to the selected enemy AI.</param>
 public readonly record struct RoomEnemyPopulationRecord(
-    ushort DefinitionPointer,
+    EnemyDefinitionId DefinitionPointer,
     ushort XPosition,
     ushort YPosition,
     ushort InitializationParameter,
@@ -96,7 +96,7 @@ public readonly record struct RoomEnemyPopulationRecord(
 /// <param name="StagingOffset">Byte offset from the enemy VRAM byte base, selected sequentially or from the explicit placement bits.</param>
 /// <param name="TileByteCount">Actual planar character upload size in bytes, with the header size word's placement bit removed.</param>
 public readonly record struct RoomEnemyGraphicsSetEntry(
-    ushort DefinitionPointer,
+    EnemyDefinitionId DefinitionPointer,
     ushort VramDestination,
     ushort VramTilesIndex,
     RoomEnemyDefinition Definition,
@@ -127,7 +127,7 @@ public sealed class RoomEnemySlot
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
     public ushort NativeIndex { get; }
     /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
-    public ushort EnemyDefinitionPointer { get; internal set; }
+    public EnemyDefinitionId EnemyDefinitionPointer { get; internal set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; internal set; }
     /// <summary>Original population and character-offset values retained independently of mutable live slot fields.</summary>
@@ -225,7 +225,7 @@ public sealed class RoomEnemySlot
     /// </summary>
     internal ushort ReadNativeWord(int offset) => offset switch
     {
-        0x00 => EnemyDefinitionPointer,
+        0x00 => (ushort)EnemyDefinitionPointer,
         0x02 => XPosition,
         0x04 => XSubposition,
         0x06 => YPosition,

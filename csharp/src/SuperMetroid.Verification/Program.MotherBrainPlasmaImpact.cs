@@ -11,7 +11,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         var head = enemies.Slots[1];
-        head.EnemyDefinitionPointer = 0xec3f;
+        head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         head.XPosition = head.YPosition = 128;

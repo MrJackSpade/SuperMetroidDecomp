@@ -36,7 +36,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot ghost = enemies.Slots[0];
-        ghost.EnemyDefinitionPointer = RoomEnemySystem.WreckedShipGhostDefinition;
+        ghost.EnemyDefinitionPointer = EnemyDefinitionId.Coven;
         ghost.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(ghost);
         AssertEqual(WreckedShipGhostInstructionProgramDefinitions.Floating,

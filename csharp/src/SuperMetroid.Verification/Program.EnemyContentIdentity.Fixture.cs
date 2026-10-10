@@ -100,20 +100,20 @@ internal static partial class Program
         {
             Register("dma-source");
             Register("sheet-id");
-            ushort firstId = (ushort)(edit == "sheet-id" ? 3 : 1);
+            EnemyDefinitionId firstId = (EnemyDefinitionId)(edit == "sheet-id" ? 3 : 1);
             var sheets = Ordered(new[]
             {
                 KeyValuePair.Create(firstId, Characters("sheet-first", RoomCharacterAtlasFormat.BytesPerTile)),
-                KeyValuePair.Create((ushort)2, Characters("sheet-second", RoomCharacterAtlasFormat.BytesPerTile, 1)),
+                KeyValuePair.Create((EnemyDefinitionId)2, Characters("sheet-second", RoomCharacterAtlasFormat.BytesPerTile, 1)),
             });
             var palettes = Ordered(new[]
             {
                 KeyValuePair.Create(firstId, EnemyPaletteSheet.Load(Json(new EnemyPaletteSheetDocument
                     { Version = 1, Colors = Colors("palette-first", EnemyPaletteSheet.ColorCount) }))),
-                KeyValuePair.Create((ushort)2, EnemyPaletteSheet.Load(Json(new EnemyPaletteSheetDocument
+                KeyValuePair.Create((EnemyDefinitionId)2, EnemyPaletteSheet.Load(Json(new EnemyPaletteSheetDocument
                     { Version = 1, Colors = Colors("palette-second", EnemyPaletteSheet.ColorCount) }))),
             });
-            var dma = Ordered(new[] { KeyValuePair.Create(firstId, edit == "dma-source" ? 3 : 1), KeyValuePair.Create((ushort)2, 2) });
+            var dma = Ordered(new[] { KeyValuePair.Create(firstId, edit == "dma-source" ? 3 : 1), KeyValuePair.Create((EnemyDefinitionId)2, 2) });
             var heads = Ordered(new[]
             {
                 KeyValuePair.Create((ushort)1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument

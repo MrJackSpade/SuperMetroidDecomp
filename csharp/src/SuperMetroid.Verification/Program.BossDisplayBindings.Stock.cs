@@ -20,7 +20,7 @@ internal static partial class Program
         EnemyTileArtworkCatalog installed = EnemyTileArtworkFiles.Load(path, null);
         int frames = 0, parts = 0, runs = 0, tiles = 0;
         var nativeLists = new HashSet<int>();
-        foreach ((ushort definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
         {
             var fixture = new BossDisplayFixture(definition, installed);
             foreach (EnemyExtendedFrameDefinition frame in family)

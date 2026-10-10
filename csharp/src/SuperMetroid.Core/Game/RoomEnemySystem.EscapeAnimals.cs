@@ -70,8 +70,6 @@ public sealed class EscapeDachoraEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort EscapeEtecoonDefinition = 0xf2d3;
-    internal const ushort EscapeDachoraDefinition = 0xf313;
 
     private const ushort EmptyBankB3Spritemap = 0x804d;
 
@@ -224,7 +222,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer == EscapeEtecoonDefinition)
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
         {
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
             switch (opcode)
@@ -253,7 +251,7 @@ public sealed partial class RoomEnemySystem
                     return true;
             }
         }
-        else if (slot.EnemyDefinitionPointer == EscapeDachoraDefinition)
+        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape)
         {
             switch (opcode)
             {

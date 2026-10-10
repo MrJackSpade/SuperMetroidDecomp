@@ -30,7 +30,7 @@ internal static partial class Program
         var guard = new GunshipInstructionReadGuard(rom);
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.EntrancePadOpening,
-            GunshipEnemyDefinitions.BottomEntrance,
+            EnemyDefinitionId.ShipBottomEntrance,
             frames: 123,
             expectedCursor: 0xa5ea,
             expectedTimer: 4,
@@ -38,7 +38,7 @@ internal static partial class Program
             "opening pad reaches its open loop"));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.EntrancePadClosing,
-            GunshipEnemyDefinitions.BottomEntrance,
+            EnemyDefinitionId.ShipBottomEntrance,
             frames: 79,
             expectedCursor: 0xa612,
             expectedTimer: 8,
@@ -46,7 +46,7 @@ internal static partial class Program
             "closing pad falls through to its closed loop"));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.BottomEntrancePad,
-            GunshipEnemyDefinitions.BottomEntrance,
+            EnemyDefinitionId.ShipBottomEntrance,
             frames: 9,
             expectedCursor: 0xa612,
             expectedTimer: 8,
@@ -54,7 +54,7 @@ internal static partial class Program
             "closed pad loops"));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.TopHull,
-            GunshipEnemyDefinitions.Top,
+            EnemyDefinitionId.ShipTop,
             frames: 2,
             expectedCursor: 0xa61a,
             expectedTimer: 0,
@@ -62,7 +62,7 @@ internal static partial class Program
             "top hull sleeps on its static frame"));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.BottomHull,
-            GunshipEnemyDefinitions.BottomEntrance,
+            EnemyDefinitionId.ShipBottomEntrance,
             frames: 2,
             expectedCursor: 0xa620,
             expectedTimer: 0,
@@ -107,7 +107,7 @@ internal static partial class Program
 
         void VerifyProgram(
             ushort program,
-            ushort enemyDefinition,
+            EnemyDefinitionId enemyDefinition,
             int frames,
             ushort expectedCursor,
             ushort expectedTimer,
@@ -139,7 +139,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             RoomEnemySlot top = enemies.Slots[0];
-            top.EnemyDefinitionPointer = GunshipEnemyDefinitions.Top;
+            top.EnemyDefinitionPointer = EnemyDefinitionId.ShipTop;
             top.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             top.YPosition = 0x0200;
             typeof(RoomEnemySystem).GetMethod("InitializeGunshipTop", flags)!
@@ -148,7 +148,7 @@ internal static partial class Program
                 "real gunship-top initializer installs compiled top program");
 
             RoomEnemySlot bottom = enemies.Slots[1];
-            bottom.EnemyDefinitionPointer = GunshipEnemyDefinitions.BottomEntrance;
+            bottom.EnemyDefinitionPointer = EnemyDefinitionId.ShipBottomEntrance;
             bottom.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             bottom.YPosition = 0x0200;
             bottom.Parameter2 = 0;
@@ -160,7 +160,7 @@ internal static partial class Program
                 "real gunship-bottom initializer installs compiled bottom program");
 
             RoomEnemySlot pad = enemies.Slots[2];
-            pad.EnemyDefinitionPointer = GunshipEnemyDefinitions.BottomEntrance;
+            pad.EnemyDefinitionPointer = EnemyDefinitionId.ShipBottomEntrance;
             pad.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             pad.Parameter2 = 1;
             typeof(RoomEnemySystem).GetMethod("InitializeGunshipBottom", flags)!

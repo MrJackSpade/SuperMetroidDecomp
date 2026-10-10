@@ -180,7 +180,7 @@ public sealed partial class RoomEnemySystem
         // $A0:B95D scatters sixteen room-graphics pickups over the visible boss arena.
         // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
         SpawnEnemyDropScatter(
-            PhantoonBodyDefinition,
+            EnemyDefinitionId.PhantoonBody,
             count: 16,
             xBase: 64,
             xMask: 0x007f,

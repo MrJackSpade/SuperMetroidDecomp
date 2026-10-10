@@ -171,7 +171,7 @@ internal static partial class Program
                 enemies,
                 (Func<ushort>)(() => 0));
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GreyWallSpacePirateDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWall;
             slot.Definition = default(RoomEnemyDefinition) with
             {
                 Bank = 0xb2,

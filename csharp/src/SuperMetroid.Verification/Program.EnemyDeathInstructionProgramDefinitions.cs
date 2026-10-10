@@ -68,7 +68,7 @@ internal static partial class Program
             // ($0000) would make native read them from enemy WRAM, which this guard lacks.
             var enemy = new RoomEnemySlot(0)
             {
-                EnemyDefinitionPointer = RoomEnemySystem.HZoomerDefinition,
+                EnemyDefinitionPointer = EnemyDefinitionId.HZoomer,
                 XPosition = 0x0080,
                 YPosition = 0x0070,
             };

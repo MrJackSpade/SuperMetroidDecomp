@@ -73,7 +73,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0x9804);
-        var body=runtime.Enemies.Slots.First(e=>e.EnemyDefinitionPointer==0xeeff);
+        var body=runtime.Enemies.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
         var state=(TorizoEnemyState)typeof(RoomEnemySystem).GetField("_torizoState",flags)!.GetValue(runtime.Enemies)!;
         state.Function=0xc6ff;state.PreInstruction=0xc82c;state.ReturnInstruction=0xbc88;
         state.VerticalVelocity=0x400;state.VerticalAcceleration=40;state.HorizontalVelocity=0;

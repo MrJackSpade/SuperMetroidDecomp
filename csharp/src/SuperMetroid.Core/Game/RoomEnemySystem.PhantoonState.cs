@@ -168,10 +168,6 @@ public readonly record struct PhantoonFlameDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort PhantoonBodyDefinition = 0xe4bf;
-    internal const ushort PhantoonEyeDefinition = 0xe4ff;
-    internal const ushort PhantoonTentaclesDefinition = 0xe53f;
-    internal const ushort PhantoonMouthDefinition = 0xe57f;
     private readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
@@ -186,15 +182,15 @@ public sealed partial class RoomEnemySystem
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
-            _slots[0].EnemyDefinitionPointer != PhantoonBodyDefinition)
+            _slots[0].EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
-                $"Enemy ${slot.EnemyDefinitionPointer:X4} requires Phantoon's retail body in slot zero.");
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} requires Phantoon's retail body in slot zero.");
         }
         return Phantoon;
     }
 
-    private static bool IsPhantoonPartDefinition(ushort definition) => definition is
-        PhantoonBodyDefinition or PhantoonEyeDefinition or
-        PhantoonTentaclesDefinition or PhantoonMouthDefinition;
+    private static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
+        EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
 }

@@ -16,14 +16,14 @@ public sealed partial class RoomEnemySystem
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         string? family = null;
         bool found = false;
-        if (slot.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
             slot.Definition.Bank == MotherBrainBodyVisualDefinitions.Bank &&
             MotherBrainBodyVisualDefinitions.HasBg2(selected))
         {
             family = "Mother Brain body";
             found = TileArtwork!.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
         }
-        else if (slot.EnemyDefinitionPointer == CrocomireDefinition &&
+        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             slot.Definition.Bank == CrocomireBodyVisualDefinitions.Bank &&
             CrocomireBodyVisualDefinitions.HasBg2(selected))
         {

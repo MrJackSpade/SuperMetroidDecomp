@@ -36,7 +36,7 @@ internal static partial class Program
 
             if (killerLethal)
             {
-                AssertEqual(killerRespawns ? EnemyLifecycleDefinitions.RespawnPlaceholder : (ushort)0,
+                AssertEqual(killerRespawns ? EnemyDefinitionId.Respawn : (ushort)0,
                     higher.EnemyDefinitionPointer, label + ": higher slot dies first");
             }
             AssertEqual(expectLowerHit ? (ushort)48 : (ushort)0, lower.InvincibilityTimer,
@@ -46,7 +46,7 @@ internal static partial class Program
 
         static RoomEnemySlot Place(RoomEnemySlot actor, ushort x, ushort health)
         {
-            actor.EnemyDefinitionPointer = RoomEnemySystem.AtomicDefinition;
+            actor.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
             actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
             actor.AiBank = actor.Definition.Bank;
             actor.Health = health;

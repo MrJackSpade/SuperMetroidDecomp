@@ -33,11 +33,11 @@ internal static partial class Program
         {
             ushort address = OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadOwtchInstructionWord(rom, 0xa20000 | address),
-                OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, address),
+                OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, address),
                 $"compiled Owtch frame selector $A2:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
-            () => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, 0xa3ad),
+            () => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, 0xa3ad),
             "Owtch timing word is not a visual selector");
 
         var guard = new OwtchInstructionProgramReadGuard(rom);
@@ -92,7 +92,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeOwtch", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.OwtchDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Owtch;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = (ushort)initialState;
             initialize(slot);

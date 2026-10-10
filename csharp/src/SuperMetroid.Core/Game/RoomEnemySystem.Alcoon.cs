@@ -136,7 +136,6 @@ public sealed class AlcoonEnemyState
 /// <summary>Literal translation of Alcoon enemy <c>$E9BF</c> at <c>$A8:DBE7-$DF9C</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort AlcoonDefinition = 0xe9bf;
 
     private const ushort AlcoonEmergeXDistance = 0x0050;
     private const ushort AlcoonHideXDistance = 0x0070;

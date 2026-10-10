@@ -23,6 +23,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>A primitive local extracted by mask or shift is then treated as a closed selector.</summary>
     public const string MaskedSelectorId = "SME6272";
 
+    /// <summary>An enum is interpolated with a numeric format string, which throws at run time.</summary>
+    public const string EnumNumericFormatId = "SME6273";
+
     private static readonly DiagnosticDescriptor PrimitiveSwitchRule = new(
         PrimitiveSwitchId,
         "Closed domain switched as a primitive",
@@ -54,9 +57,18 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             "A switch with relational patterns is a piecewise numeric function, not a selector, and a switch expression " +
             "whose catch-all throws is itself the validating decoder at the raw boundary; neither is reported.");
 
+    private static readonly DiagnosticDescriptor EnumNumericFormatRule = new(
+        EnumNumericFormatId,
+        "Enum interpolated with a numeric format string",
+        "'{0}' is a {1} formatted as '{2}'; enums accept only G, D, X and F, so this throws FormatException. Format the underlying value instead",
+        "Correctness",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Enum.ToString accepts only the G, D, X and F format strings; a width such as X4 compiles but throws at run time.");
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [PrimitiveSwitchRule, SilentEnumSwitchRule, MaskedSelectorRule];
+        [PrimitiveSwitchRule, SilentEnumSwitchRule, MaskedSelectorRule, EnumNumericFormatRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -65,6 +77,23 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterOperationAction(AnalyzeSwitchStatement, OperationKind.Switch);
         context.RegisterOperationAction(AnalyzeSwitchExpression, OperationKind.SwitchExpression);
+        context.RegisterOperationAction(AnalyzeInterpolation, OperationKind.Interpolation);
+    }
+
+    private static void AnalyzeInterpolation(OperationAnalysisContext context)
+    {
+        var operation = (IInterpolationOperation)context.Operation;
+        if (operation.FormatString is not ILiteralOperation { ConstantValue: { HasValue: true, Value: string format } })
+            return;
+        if (format is "G" or "g" or "D" or "d" or "X" or "x" or "F" or "f")
+            return;
+        ITypeSymbol? type = operation.Expression.Type;
+        if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable)
+            type = nullable.TypeArguments[0];
+        if (type is not INamedTypeSymbol { TypeKind: TypeKind.Enum })
+            return;
+        Report(context, EnumNumericFormatRule, operation.Syntax.GetLocation(),
+            operation.Expression.Syntax.ToString(), type.Name, format);
     }
 
     private static void AnalyzeSwitchStatement(OperationAnalysisContext context)

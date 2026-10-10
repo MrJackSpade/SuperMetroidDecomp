@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot corpse = enemies.Slots[0];
-        corpse.EnemyDefinitionPointer = RoomEnemySystem.DeadTorizoDefinition;
+        corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
         corpse.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         initialize(corpse);
         AssertEqual(DeadTorizoInstructionProgramDefinitions.Stationary,

@@ -130,7 +130,6 @@ public sealed class MaridiaLargeSnailEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MaridiaLargeSnailDefinition = 0xd37f;
 
     private const ushort MaridiaLargeSnailPushingXDistance = 0x0018;
     private const ushort MaridiaLargeSnailPushingYDistance = 0x0020;
@@ -555,7 +554,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != MaridiaLargeSnailDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Oum)
             return false;
 
         MaridiaLargeSnailEnemyState state = RequireMaridiaLargeSnailState(slot);

@@ -20,7 +20,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_incrementMotherBrainGlassRoomArgument", flags)!
             .SetValue(enemies, (Action)(() => glassHits++));
         var head = enemies.Slots[1];
-        head.EnemyDefinitionPointer = 0xec3f;
+        head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
         head.XPosition = head.YPosition = 128;
         head.XRadius = head.YRadius = 16;

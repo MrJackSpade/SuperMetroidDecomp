@@ -89,7 +89,7 @@ internal static partial class Program
         AssertEqual((ushort)0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.Slots[0];
-        target.EnemyDefinitionPointer = RoomEnemySystem.RipperDefinition;
+        target.EnemyDefinitionPointer = EnemyDefinitionId.Ripper;
         target.Definition = RoomEnemyDefinitionCatalog.Get(target.EnemyDefinitionPointer);
         target.XPosition = samus.XPosition;
         target.YPosition = samus.YPosition;

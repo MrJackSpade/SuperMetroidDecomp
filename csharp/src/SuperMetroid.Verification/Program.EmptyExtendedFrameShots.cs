@@ -17,7 +17,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xa521);
-        RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xf693);
+        RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGreenWalking);
         SamusState samus = runtime.Samus!;
         samus.InputLocked = true;
 

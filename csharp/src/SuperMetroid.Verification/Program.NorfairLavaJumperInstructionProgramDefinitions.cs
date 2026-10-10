@@ -37,7 +37,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot parent = enemies.Slots[0];
-        parent.EnemyDefinitionPointer = RoomEnemySystem.NorfairLavaJumpingEnemyDefinition;
+        parent.EnemyDefinitionPointer = EnemyDefinitionId.Squeept;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         parent.XPosition = 0x0100;
         parent.YPosition = 0x01e0;
@@ -68,7 +68,7 @@ internal static partial class Program
             "jump program publishes its real animation handshake");
 
         RoomEnemySlot follower = enemies.Slots[1];
-        follower.EnemyDefinitionPointer = RoomEnemySystem.NorfairLavaJumpingEnemyDefinition;
+        follower.EnemyDefinitionPointer = EnemyDefinitionId.Squeept;
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
         initialize(follower);

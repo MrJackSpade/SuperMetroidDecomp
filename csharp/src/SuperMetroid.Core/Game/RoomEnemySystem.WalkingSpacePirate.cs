@@ -77,12 +77,6 @@ public sealed class WalkingSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort GreyWalkingSpacePirateDefinition = 0xf653;
-    internal const ushort GreenWalkingSpacePirateDefinition = 0xf693;
-    internal const ushort RedWalkingSpacePirateDefinition = 0xf6d3;
-    internal const ushort GoldWalkingSpacePirateDefinition = 0xf713;
-    internal const ushort MagentaWalkingSpacePirateDefinition = 0xf753;
-    internal const ushort SilverWalkingSpacePirateDefinition = 0xf793;
 
     private const ushort PirateMotherBrainLaserSound = 0x0067;
     private const int WalkingPirateOnePixelDown = 1 << 16;
@@ -108,13 +102,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastSpacePirateSoundEffect { get; private set; }
 
-    internal static bool IsWalkingSpacePirateDefinition(ushort definition) => definition is
-        GreyWalkingSpacePirateDefinition or
-        GreenWalkingSpacePirateDefinition or
-        RedWalkingSpacePirateDefinition or
-        GoldWalkingSpacePirateDefinition or
-        MagentaWalkingSpacePirateDefinition or
-        SilverWalkingSpacePirateDefinition;
+    internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.PirateGreyWalking or
+        EnemyDefinitionId.PirateGreenWalking or
+        EnemyDefinitionId.PirateRedWalking or
+        EnemyDefinitionId.PirateGoldWalking or
+        EnemyDefinitionId.PirateMagentaWalking or
+        EnemyDefinitionId.PirateSilverWalking;
 
     /// <summary>Ports <c>InitAI_PirateWalking</c> at <c>$B2:FD02</c>.</summary>
     private void InitializeWalkingSpacePirate(RoomEnemySlot slot)

@@ -47,7 +47,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot owner = enemies.Slots[0];
-            owner.EnemyDefinitionPointer = RoomEnemySystem.YappingMawDefinition;
+            owner.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             owner.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             owner.XPosition = 128;
             owner.YPosition = 112;

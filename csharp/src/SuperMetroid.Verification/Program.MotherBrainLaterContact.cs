@@ -13,7 +13,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", flags)!
             .SetValue(enemies, (Action<ushort, ushort>)((_, _) => { }));
         var body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = 0xec7f;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);
         var state = new MotherBrainEnemyState(body) { Head = enemies.Slots[1], Form = 2, HitboxesEnabled = 7 };
         state.Head.XPosition = state.Head.YPosition = 500;

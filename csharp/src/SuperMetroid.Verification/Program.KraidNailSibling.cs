@@ -47,7 +47,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
-        enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         ushort random = 0;
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => throw new InvalidOperationException("Nail initialization must not advance RNG.")));

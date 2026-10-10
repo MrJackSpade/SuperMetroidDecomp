@@ -15,7 +15,7 @@ internal static partial class Program
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.Slots[index];
-            slot.EnemyDefinitionPointer = 0xe5bf;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
             slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
             slot.AiBank = slot.Definition.Bank;
             slot.Health = slot.Definition.Health;

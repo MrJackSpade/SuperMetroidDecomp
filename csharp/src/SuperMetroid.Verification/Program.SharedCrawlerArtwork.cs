@@ -7,12 +7,12 @@ internal static partial class Program
     private static void VerifyInstalledSharedCrawlerFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        ushort[] definitions =
+        EnemyDefinitionId[] definitions =
         [
-            RoomEnemySystem.ZeelaDefinition,
-            RoomEnemySystem.SovaDefinition,
-            RoomEnemySystem.ZoomerDefinition,
-            RoomEnemySystem.StoneZoomerDefinition,
+            EnemyDefinitionId.Zeela,
+            EnemyDefinitionId.Sova,
+            EnemyDefinitionId.Zoomer,
+            EnemyDefinitionId.MZoomer,
         ];
         for (int index = 0;
              index < SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -26,11 +26,11 @@ internal static partial class Program
             AssertTrue(stock.Spritemaps!.TryGet(
                     EnemySpritemapDefinitions.HZoomerBank, compiled, out _),
                 $"Shared crawler $A3:{operand:X4} uses installed HZoomer artwork");
-            foreach (ushort definition in definitions)
+            foreach (EnemyDefinitionId definition in definitions)
             {
                 AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                         definition, operand, out ushort selected) && selected == compiled,
-                    $"Shared crawler ${definition:X4} compiles visual operand $A3:{operand:X4}");
+                    $"Shared crawler ${(int)definition:X4} compiles visual operand $A3:{operand:X4}");
             }
         }
         AssertThrows<InvalidDataException>(

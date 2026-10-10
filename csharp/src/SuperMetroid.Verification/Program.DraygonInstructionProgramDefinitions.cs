@@ -27,19 +27,19 @@ internal static partial class Program
                 $"Draygon mechanics word $A5:{definition.Address:X4}");
         }
 
-        ushort[] definitions =
+        EnemyDefinitionId[] definitions =
         [
-            ReadDraygonDefinition("DraygonBodyDefinition", staticFlags),
-            ReadDraygonDefinition("DraygonEyeDefinition", staticFlags),
-            ReadDraygonDefinition("DraygonTailDefinition", staticFlags),
-            ReadDraygonDefinition("DraygonArmsDefinition", staticFlags),
+            EnemyDefinitionId.DraygonBody,
+            EnemyDefinitionId.DraygonEye,
+            EnemyDefinitionId.DraygonTail,
+            EnemyDefinitionId.DraygonArms,
         ];
         var enemies = new RoomEnemySystem();
         var guard = new DraygonInstructionReadGuard();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
             "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
-        foreach (ushort enemyDefinition in definitions)
+        foreach (EnemyDefinitionId enemyDefinition in definitions)
         {
             var slot = new RoomEnemySlot(0)
             {
@@ -55,7 +55,7 @@ internal static partial class Program
                 AssertEqual(
                     word.Value,
                     (ushort)readMechanics.Invoke(enemies, [slot, word.Address])!,
-                    $"Draygon definition ${enemyDefinition:X4} owns $A5:{word.Address:X4}");
+                    $"Draygon definition ${(int)enemyDefinition:X4} owns $A5:{word.Address:X4}");
             }
         }
         AssertEqual(0, guard.ReadAttempts,
@@ -135,9 +135,6 @@ internal static partial class Program
             $"{DraygonInstructionProgramDefinitionsTooling.PresentationWordCount} live presentation " +
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
-
-    private static ushort ReadDraygonDefinition(string name, BindingFlags flags) =>
-        (ushort)typeof(RoomEnemySystem).GetField(name, flags)!.GetRawConstantValue()!;
 
     private static ushort ReadDraygonWord(SuperMetroidAddressSpace source, int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));

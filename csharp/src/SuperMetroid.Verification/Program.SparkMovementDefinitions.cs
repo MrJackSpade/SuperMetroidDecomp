@@ -81,7 +81,7 @@ internal static partial class Program
                 programSystem,
                 programGuard);
             RoomEnemySlot programSlot = programSystem.Slots[0];
-            programSlot.EnemyDefinitionPointer = RoomEnemySystem.SparkDefinition;
+            programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Spark;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
             programSlot.InstructionTimer = 1;

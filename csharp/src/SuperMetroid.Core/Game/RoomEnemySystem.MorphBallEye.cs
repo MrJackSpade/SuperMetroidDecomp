@@ -164,7 +164,6 @@ public readonly record struct MorphBallEyeBeamRenderSnapshot(
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MorphBallEyeDefinition = 0xe6bf;
 
     private const ushort MorphBallItemMask = 0x0004;
     private const ushort EyeActivateXDistance = 0x0080;
@@ -340,7 +339,7 @@ public sealed partial class RoomEnemySystem
         // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
         // different layout catches a malformed/custom population instead of quietly aiming
         // the room-global beam from whichever actor happened to request it.
-        if (eye.SlotIndex != 1 || eye.EnemyDefinitionPointer != MorphBallEyeDefinition)
+        if (eye.SlotIndex != 1 || eye.EnemyDefinitionPointer != EnemyDefinitionId.Eye)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye beam requires the body in retail enemy slot 1, got {eye.SlotIndex}.");
@@ -456,7 +455,7 @@ public sealed partial class RoomEnemySystem
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
         if ((uint)index >= _slots.Length ||
-            _slots[index].EnemyDefinitionPointer != MorphBallEyeDefinition ||
+            _slots[index].EnemyDefinitionPointer != EnemyDefinitionId.Eye ||
             unchecked((short)_slots[index].Parameter2) < 0)
         {
             throw new InvalidDataException(

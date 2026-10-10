@@ -50,7 +50,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot puyo = enemies.Slots[0];
-        puyo.EnemyDefinitionPointer = RoomEnemySystem.PuyoDefinition;
+        puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
         puyo.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(puyo);
         AssertEqual(PuyoInstructionProgramDefinitions.GroundedFast,

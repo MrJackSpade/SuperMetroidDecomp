@@ -23,7 +23,7 @@ internal static partial class Program
             AssertEqual(nativePointer, YardVisualDefinitions.FrameAt(operand),
                 $"Yard visual selector {index} matches pinned cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.YardDefinition, operand,
+                    EnemyDefinitionId.Yard, operand,
                     out ushort installedPointer),
                 $"Yard selector {index} is installed");
             AssertEqual(nativePointer, installedPointer,

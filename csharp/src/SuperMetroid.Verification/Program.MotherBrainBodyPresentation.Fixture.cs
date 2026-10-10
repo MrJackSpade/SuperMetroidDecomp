@@ -19,8 +19,7 @@ internal static partial class Program
         internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
         {
             Inner = new EnemyAnimationFixture(artwork, golden: false);
-            ushort bodyId = (ushort)typeof(RoomEnemySystem).GetField("MotherBrainBodyDefinition",
-                BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
+            EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
             Body.EnemyDefinitionPointer = bodyId;
             Body.Definition = RoomEnemyDefinitionCatalog.Get(bodyId);
             Body.AiBank = Body.Definition.Bank;

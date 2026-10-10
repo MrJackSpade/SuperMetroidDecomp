@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>Bank-$A0 enemy definition $ED7F for the dead-sidehopper family, initialized by $A9:D7B6 as an initially alive victim or an already dead Tourian corpse.</summary>
-    public const ushort DeadSidehopperDefinition = 0xed7f;
 
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const ushort DeadMonsterSolidProperty = 0x8000;

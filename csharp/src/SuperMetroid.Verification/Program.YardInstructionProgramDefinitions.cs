@@ -105,7 +105,7 @@ internal static partial class Program
         for (int index = 0; index < YardInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort address = YardInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.YardDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Yard,
                 0xa3, address, $"Yard $A3:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
@@ -139,7 +139,7 @@ internal static partial class Program
             (Func<ushort>)(() => 0));
 
         yard = enemies.Slots[0];
-        yard.EnemyDefinitionPointer = RoomEnemySystem.YardDefinition;
+        yard.EnemyDefinitionPointer = EnemyDefinitionId.Yard;
         yard.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         var state = new YardEnemyState(yard);
         var states = (YardEnemyState?[])typeof(RoomEnemySystem)

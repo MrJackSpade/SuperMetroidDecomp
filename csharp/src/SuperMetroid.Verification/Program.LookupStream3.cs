@@ -2192,9 +2192,9 @@ internal static partial class Program
                 if (start < 0xe477)
                 {
                     ushort expected = (ushort)(rom.ReadByte(0xa20000 | address) | rom.ReadByte(0xa20000 | (address + 1)) << 8);
-                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(RoomEnemySystem.GRipperDefinition, address),
+                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.GRipper, address),
                         "stream 3 GRipper preserves shared operand domain");
-                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(RoomEnemySystem.Ripper2Definition, address),
+                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.Ripper2, address),
                         "stream 3 Ripper II preserves shared operand domain");
                 }
             }
@@ -2209,7 +2209,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "stream 3 Ripper visual bounds");
         foreach (ushort invalid in new ushort[] { 0xe19b, 0xe1ad, 0xe1bf, 0xe477, 0xffff })
-            AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(RoomEnemySystem.GRipperDefinition, invalid),
+            AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(EnemyDefinitionId.GRipper, invalid),
                 "stream 3 Ripper rejects nonvisual and foreign-family operands");
         AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(0, 0xe19d),
             "stream 3 Ripper rejects foreign enemy");

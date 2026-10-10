@@ -21,7 +21,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);
             RoomEnemySlot enemy = enemies.Slots[0];
-            enemy.EnemyDefinitionPointer = 0xd77f;
+            enemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
             enemy.XPosition = unchecked((ushort)(0xfff0 + animation));
             enemy.YPosition = unchecked((ushort)(0x0100 + animation));
 
@@ -41,7 +41,7 @@ internal static partial class Program
         var clamped = new RoomEnemySystem();
         busField.SetValue(clamped, guarded);
         RoomEnemySlot clampedEnemy = clamped.Slots[0];
-        clampedEnemy.EnemyDefinitionPointer = 0xd77f;
+        clampedEnemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
         clamped.StartGenericEnemyDeath(clampedEnemy, 5);
         AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer(
                 (ushort)EnemyDeathAnimation.SmallExplosion),

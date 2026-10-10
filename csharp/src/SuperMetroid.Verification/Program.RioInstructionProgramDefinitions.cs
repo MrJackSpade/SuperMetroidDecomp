@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot rio = enemies.Slots[0];
-        rio.EnemyDefinitionPointer = RoomEnemySystem.RioDefinition;
+        rio.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
         rio.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(rio);
         AssertEqual(RioInstructionProgramDefinitions.Idle,

@@ -16,7 +16,7 @@ internal static partial class Program
         {
             var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            ReferenceDeadTourianCorpseGraphics(nativeBus, RoomEnemySystem.DeadSidehopperDefinition, parameter / 2);
+            ReferenceDeadTourianCorpseGraphics(nativeBus, EnemyDefinitionId.CorpseSidehopper, parameter / 2);
             InitializeDeadSidehopperArtwork(installedBus, stock, parameter);
             for (int offset = 0; offset < 0x1000; offset++)
                 AssertEqual(nativeBus.ReadByte(0x7e2000 + offset),
@@ -24,11 +24,11 @@ internal static partial class Program
                     $"dead-sidehopper parameter {parameter} installed corpse WRAM parity");
         }
 
-        foreach ((ushort definition, int variantCount) in new (ushort, int)[]
+        foreach ((EnemyDefinitionId definition, int variantCount) in new (EnemyDefinitionId, int)[]
         {
-            (RoomEnemySystem.DeadZoomerDefinition, 3),
-            (RoomEnemySystem.DeadRipperDefinition, 2),
-            (RoomEnemySystem.DeadSkreeDefinition, 3),
+            (EnemyDefinitionId.CorpseZoomer, 3),
+            (EnemyDefinitionId.CorpseRipper, 2),
+            (EnemyDefinitionId.CorpseSkree, 3),
         })
         {
             for (int variant = 0; variant < variantCount; variant++)
@@ -40,18 +40,18 @@ internal static partial class Program
                 for (int offset = 0; offset < 0x1000; offset++)
                     AssertEqual(nativeBus.ReadByte(0x7e2000 + offset),
                         installedBus.ReadByte(0x7e2000 + offset),
-                        $"dead ${definition:X4} variant {variant} installed corpse WRAM parity");
+                        $"dead ${(int)definition:X4} variant {variant} installed corpse WRAM parity");
             }
         }
 
         var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>());
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
-        string fileName = EnemyTileArtworkFormat.FileName(RoomEnemySystem.DeadSidehopperDefinition);
+        string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseSidehopper);
         using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x0e00);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
@@ -108,9 +108,9 @@ internal static partial class Program
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.FrameAt(operand),
                 $"dead Tourian corpse selector {index} matches cartridge");
-            ushort definition = index < 3 ? RoomEnemySystem.DeadZoomerDefinition :
-                index < 5 ? RoomEnemySystem.DeadRipperDefinition :
-                RoomEnemySystem.DeadSkreeDefinition;
+            EnemyDefinitionId definition = index < 3 ? EnemyDefinitionId.CorpseZoomer :
+                index < 5 ? EnemyDefinitionId.CorpseRipper :
+                EnemyDefinitionId.CorpseSkree;
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     definition, operand, out ushort installedPointer),
                 $"dead Tourian corpse program {index} has an installed selector");
@@ -144,7 +144,7 @@ internal static partial class Program
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),
                 $"dead Sidehopper selector {index} matches cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.DeadSidehopperDefinition, operand,
+                    EnemyDefinitionId.CorpseSidehopper, operand,
                     out ushort installedPointer),
                 $"dead Sidehopper selector {index} is installed");
             AssertEqual(nativePointer, installedPointer,
@@ -177,28 +177,28 @@ internal static partial class Program
     // Independent copy spans from the pinned sm_a9.c corpse initializers
     // $A9:DEC1-$E052. Keep these separate from the runtime's layout definitions.
     private static void ReferenceDeadTourianCorpseGraphics(
-        SuperMetroidAddressSpace bus, ushort definition, int variant)
+        SuperMetroidAddressSpace bus, EnemyDefinitionId definition, int variant)
     {
         (int Source, int Destination, int Length)[] copies = (definition, variant) switch
         {
-            (RoomEnemySystem.DeadSidehopperDefinition, 0) =>
+            (EnemyDefinitionId.CorpseSidehopper, 0) =>
                 [(64, 0x040, 0x60), (512, 0x0a0, 0xa0), (1024, 0x140, 0xa0),
                  (1536, 0x1e0, 0xa0), (2048, 0x280, 0xa0)],
-            (RoomEnemySystem.DeadSidehopperDefinition, 1) =>
+            (EnemyDefinitionId.CorpseSidehopper, 1) =>
                 [(288, 0x320, 0x40), (800, 0x3c0, 0xa0), (1312, 0x460, 0xa0),
                  (1824, 0x500, 0xa0), (2336, 0x5a0, 0xa0)],
-            (RoomEnemySystem.DeadZoomerDefinition, 0) => [(2656, 0x940, 0x60), (3168, 0x9a0, 0x60)],
-            (RoomEnemySystem.DeadZoomerDefinition, 1) => [(2752, 0xa00, 0x60), (3264, 0xa60, 0x60)],
-            (RoomEnemySystem.DeadZoomerDefinition, 2) => [(2848, 0xac0, 0x60), (3360, 0xb20, 0x60)],
-            (RoomEnemySystem.DeadRipperDefinition, 0) => [(2560, 0xb80, 0x60), (3072, 0xbe0, 0x60)],
-            (RoomEnemySystem.DeadRipperDefinition, 1) => [(2944, 0xc40, 0x60), (3456, 0xca0, 0x60)],
-            (RoomEnemySystem.DeadSkreeDefinition, 0) =>
+            (EnemyDefinitionId.CorpseZoomer, 0) => [(2656, 0x940, 0x60), (3168, 0x9a0, 0x60)],
+            (EnemyDefinitionId.CorpseZoomer, 1) => [(2752, 0xa00, 0x60), (3264, 0xa60, 0x60)],
+            (EnemyDefinitionId.CorpseZoomer, 2) => [(2848, 0xac0, 0x60), (3360, 0xb20, 0x60)],
+            (EnemyDefinitionId.CorpseRipper, 0) => [(2560, 0xb80, 0x60), (3072, 0xbe0, 0x60)],
+            (EnemyDefinitionId.CorpseRipper, 1) => [(2944, 0xc40, 0x60), (3456, 0xca0, 0x60)],
+            (EnemyDefinitionId.CorpseSkree, 0) =>
                 [(672, 0x640, 0x40), (1184, 0x680, 0x40), (1696, 0x6c0, 0x40), (2208, 0x700, 0x40)],
-            (RoomEnemySystem.DeadSkreeDefinition, 1) =>
+            (EnemyDefinitionId.CorpseSkree, 1) =>
                 [(224, 0x740, 0x40), (736, 0x780, 0x40), (1248, 0x7c0, 0x40), (1760, 0x800, 0x40)],
-            (RoomEnemySystem.DeadSkreeDefinition, 2) =>
+            (EnemyDefinitionId.CorpseSkree, 2) =>
                 [(448, 0x840, 0x40), (960, 0x880, 0x40), (1472, 0x8c0, 0x40), (1984, 0x900, 0x40)],
-            _ => throw new InvalidDataException($"Unknown native corpse fixture {definition:X4}/{variant}."),
+            _ => throw new InvalidDataException($"Unknown native corpse fixture {(ushort)definition:X4}/{variant}."),
         };
         foreach (var copy in copies)
             for (int offset = 0; offset < copy.Length; offset++)
@@ -221,7 +221,7 @@ internal static partial class Program
 
     private static void InitializeDeadTourianCorpseArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
-        ushort definition, int variant)
+        EnemyDefinitionId definition, int variant)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };

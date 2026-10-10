@@ -342,7 +342,7 @@ internal static partial class Program
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
-                                slot => slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                                slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
                         }
@@ -357,7 +357,7 @@ internal static partial class Program
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
-                                slot => slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                                slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction =
                                 GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
                             boss.InstructionTimer = 1;
@@ -374,7 +374,7 @@ internal static partial class Program
                         {
                             RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
                             RoomEnemySlot boss = enemies.Slots.Single(slot =>
-                                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
                             boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
@@ -412,7 +412,7 @@ internal static partial class Program
                         {
                             RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
                             RoomEnemySlot boss = enemies.Slots.Single(slot =>
-                                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+                                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
                             enemies.GoldenTorizo!.ReturnInstruction =
@@ -584,7 +584,7 @@ internal static partial class Program
         RoomEnemySlot? awakenedGoldenTorizo = roomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
             ? installed.RuntimeForVerification!.Enemies.Slots.FirstOrDefault(slot =>
-                slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition)
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
             : null;
         if (roomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
         {

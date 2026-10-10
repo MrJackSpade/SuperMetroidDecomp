@@ -62,7 +62,7 @@ internal static partial class Program
                 ZebetiteDefinitions.SpawnPopulation(linkedHalf);
             ushort[] actual =
             [
-                population.DefinitionPointer,
+                (ushort)population.DefinitionPointer,
                 population.XPosition,
                 population.YPosition,
                 population.InitializationParameter,

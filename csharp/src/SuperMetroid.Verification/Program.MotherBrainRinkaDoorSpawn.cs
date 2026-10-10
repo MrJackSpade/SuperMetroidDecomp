@@ -53,7 +53,7 @@ internal static partial class Program
         AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.ActiveRoom!.Pointer, "Samus is in Mother Brain's room");
 
         RoomEnemySlot[] rinkas = runtime.Enemies.Slots
-            .Where(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.RinkaDefinition && slot.Parameter1 != 0)
+            .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && slot.Parameter1 != 0)
             .OrderBy(slot => slot.SlotIndex)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");

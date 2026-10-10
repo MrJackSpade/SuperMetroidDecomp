@@ -29,7 +29,7 @@ internal static partial class Program
         var walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,

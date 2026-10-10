@@ -160,7 +160,6 @@ public sealed class ChootEnemyState
 /// <summary>Literal translation of Choot enemy <c>$D3BF</c> at <c>$A2:D82C-$E143</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort ChootDefinition = 0xd3bf;
 
     private const ushort ChootActivationDistance = 0x0050;
 

@@ -9,9 +9,9 @@ internal static class OwtchStokeVisualDefinitions
     private const ushort OwtchFirstFrame = 0xa589;
     /// <summary>$A2:8ACA begins Stoke's left-facing maps: two, three, two, two, four OAM objects.</summary>
     private const ushort StokeFirstFrame = 0x8aca;
-    internal static ushort FrameAt(ushort enemyDefinition, ushort address)
+    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
-        if (enemyDefinition == RoomEnemySystem.OwtchDefinition)
+        if (enemyDefinition == EnemyDefinitionId.Owtch)
         {
             int offset = address - OwtchInstructionProgramDefinitions.MovingLeft;
             int within = offset % 18;
@@ -22,7 +22,7 @@ internal static class OwtchStokeVisualDefinitions
                 return (ushort)(OwtchFirstFrame + frame * 7);
             }
         }
-        else if (enemyDefinition == RoomEnemySystem.StokeDefinition)
+        else if (enemyDefinition == EnemyDefinitionId.Stoke)
         {
             int offset = address - StokeInstructionProgramDefinitions.MovingLeft;
             if ((uint)offset < 76)
@@ -35,7 +35,7 @@ internal static class OwtchStokeVisualDefinitions
                     return (ushort)(StokeFirstFrame + offset / 38 * 75 + frame * 12 + (frame >= 2 ? 5 : 0));
             }
         }
-        else throw new InvalidDataException($"Enemy ${enemyDefinition:X4} has no compiled Owtch/Stoke visuals.");
-        throw new InvalidDataException($"Owtch/Stoke ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+        else throw new InvalidDataException($"Enemy ${(int)enemyDefinition:X4} has no compiled Owtch/Stoke visuals.");
+        throw new InvalidDataException($"Owtch/Stoke ${(int)enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
     }
 }

@@ -32,7 +32,7 @@ public sealed partial class RoomEnemySystem
             return 0;
 
         RoomEnemySlot body = state.Body;
-        if (body.EnemyDefinitionPointer != PhantoonBodyDefinition ||
+        if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
             body.SpritemapPointer is 0 or 0x804d ||
             body.InvincibilityTimer != 0 ||
             body.Properties.HasAny(

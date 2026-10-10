@@ -10,7 +10,7 @@ internal static partial class Program
         var stock = new BossDisplayDocuments(edited: false);
         var edits = new BossDisplayDocuments(edited: true);
         int frames = 0, hitSamples = 0, hits = 0;
-        foreach ((ushort definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
         {
             var baseline = new BossDisplayFixture(definition, stock.Build());
             var replacement = new BossDisplayFixture(definition, edits.Build());

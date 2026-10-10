@@ -19,7 +19,7 @@ internal static partial class Program
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Slots[index];
-            enemy.EnemyDefinitionPointer = RoomEnemySystem.BeetomDefinition;
+            enemy.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
             enemy.Definition = RoomEnemyDefinitionCatalog.Get(enemy.EnemyDefinitionPointer);
             enemy.XPosition = enemy.YPosition = 128;
             enemy.XRadius = enemy.Definition.XRadius;

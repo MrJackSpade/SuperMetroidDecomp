@@ -66,7 +66,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         var body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         var foot = enemies.Slots[5];
         var part = new KraidPartState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

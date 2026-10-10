@@ -73,7 +73,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!
             .SetValue(enemies, new RidleySupplementReadGuard(rom));
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = 0xe13f;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         slot.XPosition = 200;
         slot.YPosition = 100;
         var state = new RidleyEnemyState

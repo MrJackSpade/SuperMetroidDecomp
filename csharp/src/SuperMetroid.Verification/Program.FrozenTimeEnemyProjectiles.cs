@@ -19,7 +19,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
         runtime.Samus!.InputLocked = true;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        RoomEnemySlot victim = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xd77f);
+        RoomEnemySlot victim = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         typeof(RoomEnemySystem).GetMethod("StartGenericEnemyDeath", flags)!.Invoke(runtime.Enemies, [victim, (ushort)2]);
         RoomEnemyProjectileSlot explosion = runtime.Enemies.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);

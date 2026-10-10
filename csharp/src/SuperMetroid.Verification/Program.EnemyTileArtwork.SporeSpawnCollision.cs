@@ -32,7 +32,7 @@ internal static partial class Program
                 Bank = DraygonBg2FrameDefinitions.Bank,
             };
         // The test-only cartridge walker supplies an independent reference.
-        installedSlot.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
+        installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         installedSlot.XPosition = 0x100;
         installedSlot.YPosition = 0x100;
 

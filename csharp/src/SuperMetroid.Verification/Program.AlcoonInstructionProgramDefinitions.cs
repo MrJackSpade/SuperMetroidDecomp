@@ -89,7 +89,7 @@ internal static partial class Program
         {
             ushort expected = ReadAlcoonInstructionWord(rom, address);
             AssertEqual(expected, EnemySpritemapDefinitions.AlcoonFrameAt(address), "Alcoon direct native visual");
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(RoomEnemySystem.AlcoonDefinition, address, out ushort frame),
+            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.Alcoon, address, out ushort frame),
                 "Alcoon actor visual dispatch");
             AssertEqual(expected, frame, "Alcoon actor selected visual");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared), "Alcoon shared visual dispatch");
@@ -170,7 +170,7 @@ internal static partial class Program
             enemies.StepFrame(cameraX, 0, false, samus, level: assets.LevelData);
             foreach (RoomEnemySlot slot in enemies.Slots)
             {
-                if (slot.EnemyDefinitionPointer != RoomEnemySystem.AlcoonDefinition)
+                if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon)
                     continue;
                 ushort selectedOperand = unchecked((ushort)(slot.CurrentInstruction - 2));
                 if (AlcoonInstructionProgramDefinitions.IsPresentationWord(selectedOperand))

@@ -10,15 +10,16 @@ internal static partial class Program
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var referencedPointers = new HashSet<ushort>();
+        var referencedPointers = new HashSet<EnemyDefinitionId>();
         foreach (CartridgeRoomState state in RoomStateDefinitions.All)
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
                 state.EnemyPopulationPointer;
             for (int slot = 0; slot < RoomEnemySystem.MaximumEnemyCount; slot++)
             {
-                ushort pointer = ReadVerificationWord(bus, populationAddress);
-                if (pointer == 0xffff) break;
+                ushort pointerWord = ReadVerificationWord(bus, populationAddress);
+                if (pointerWord == 0xffff) break;
+                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(pointerWord);
                 referencedPointers.Add(pointer);
                 populationAddress += 16;
             }
@@ -27,8 +28,9 @@ internal static partial class Program
                 state.EnemyTilesetPointer;
             for (int slot = 0; slot < 4; slot++)
             {
-                ushort pointer = ReadVerificationWord(bus, graphicsAddress);
-                if (pointer == 0xffff) break;
+                ushort pointerWord = ReadVerificationWord(bus, graphicsAddress);
+                if (pointerWord == 0xffff) break;
+                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(pointerWord);
                 referencedPointers.Add(pointer);
                 graphicsAddress += 4;
             }
@@ -38,33 +40,33 @@ internal static partial class Program
             "compiled enemy-header catalog covers every retail room population and graphics set");
         AssertTrue(referencedPointers.Order().SequenceEqual(RoomEnemyDefinitionCatalog.Pointers),
             "compiled enemy-header identities exactly match the independent room-state ROM walk");
-        foreach (ushort pointer in referencedPointers)
+        foreach (EnemyDefinitionId pointer in referencedPointers)
         {
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer),
                 RoomEnemyDefinitionCatalog.Get(pointer),
-                $"compiled enemy header $A0:{pointer:X4} retains all 33 native fields");
+                $"compiled enemy header $A0:{(int)pointer:X4} retains all 33 native fields");
         }
-        ushort[] auxiliaryPointers =
+        EnemyDefinitionId[] auxiliaryPointers =
             RoomEnemyAuxiliaryDefinitionCatalog.Pointers.Order().ToArray();
-        AssertTrue(auxiliaryPointers.SequenceEqual(new ushort[]
+        AssertTrue(auxiliaryPointers.SequenceEqual(new EnemyDefinitionId[]
             {
-                EnemyLifecycleDefinitions.RespawnPlaceholder,
-                EnemyDefinitionPointers.SporeSpawnStalk,
-                MotherBrainBabyMetroidDefinitions.EnemyDefinition,
-                EnemyDefinitionPointers.MotherBrainFallingTube,
-                TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader,
-                TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader,
+                EnemyDefinitionId.Respawn,
+                EnemyDefinitionId.SporeSpawnStalk,
+                EnemyDefinitionId.BabyMetroidCutscene,
+                EnemyDefinitionId.MotherBrainTubes,
+                EnemyDefinitionId.BombTorizoOrb,
+                EnemyDefinitionId.GoldenTorizoOrb,
             }),
             "all runtime-created enemy headers outside retail room lists are catalogued");
         AssertTrue(auxiliaryPointers.All(pointer => !referencedPointers.Contains(pointer)),
             "auxiliary headers do not duplicate a room-selected definition");
-        foreach (ushort pointer in auxiliaryPointers)
+        foreach (EnemyDefinitionId pointer in auxiliaryPointers)
         {
             AssertTrue(RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer,
                     out RoomEnemyDefinition compiled),
-                $"auxiliary enemy header $A0:{pointer:X4} resolves");
+                $"auxiliary enemy header $A0:{(int)pointer:X4} resolves");
             AssertEqual(ReadNativeEnemyDefinition(bus, pointer), compiled,
-                $"auxiliary enemy header $A0:{pointer:X4} retains all 33 native fields");
+                $"auxiliary enemy header $A0:{(int)pointer:X4} retains all 33 native fields");
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomEnemyDefinitionCatalog.Get(0),
@@ -100,7 +102,7 @@ internal static partial class Program
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
             var native = new RoomEnemyPopulationRecord(
-                words[0], words[1], words[2], words[3],
+                EnemyDefinitionIds.FromHeaderPointer(words[0]), words[1], words[2], words[3],
                 words[4], words[5], words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(pointer),
                 $"Mother Brain falling-tube record $A9:{pointer:X4} matches all eight native words");
@@ -125,9 +127,9 @@ internal static partial class Program
         var fixture = new TestAddressSpace();
         byte[] header = Enumerable.Range(0, 64)
             .Select(offset => rom.ReadByte(0xa00000 |
-                (EnemyDefinitionPointers.MotherBrainFallingTube + offset)))
+                ((ushort)EnemyDefinitionId.MotherBrainTubes + offset)))
             .ToArray();
-        fixture.WriteBytes(0xa00000 | EnemyDefinitionPointers.MotherBrainFallingTube, header);
+        fixture.WriteBytes(0xa00000 | (ushort)EnemyDefinitionId.MotherBrainTubes, header);
         int fixtureAddress = 0xa90000 | MotherBrainFallingTubePopulationDefinitions.BottomLeft;
         byte[] authoredRecord = Enumerable.Range(0, 16)
             .Select(offset => rom.ReadByte(fixtureAddress + offset))
@@ -147,9 +149,9 @@ internal static partial class Program
     }
 
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
-        ISnesAddressSpace bus, ushort pointer)
+        ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
-        int address = RoomEnemyRomLayout.DefinitionBank | pointer;
+        int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadByte(address + offset);
         return new RoomEnemyDefinition(

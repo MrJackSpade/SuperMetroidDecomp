@@ -99,7 +99,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetMethod("InitializeZoa", flags)!
                 .Invoke(enemies, [slot = enemies.Slots[0]]);
-            slot.EnemyDefinitionPointer = RoomEnemySystem.ZoaDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Zoa;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             ZoaEnemyState state = enemies.ZoaStates[0]!;
             state.PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None

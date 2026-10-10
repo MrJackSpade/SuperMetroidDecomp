@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
-        foreach ((ushort definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
         {
             EnemyExtendedFrameDefinition frame = family.First(frame => edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length != 0);
             var missing = new BossDisplayFixture(definition, edits.Build(omitBg2Bank: frame.Bank));
@@ -64,9 +64,9 @@ internal static partial class Program
     {
         var programs = new[]
         {
-            (Definition: RoomEnemySystem.CrocomireDefinition, Program: CrocomireInstructionProgramDefinitions.StepForwardAfterDelay, Duration: 180, Count: 1),
-            (Definition: RoomEnemySystem.PhantoonTentaclesDefinition, Program: PhantoonInstructionProgramDefinitions.InitialTentacles, Duration: 8, Count: 4),
-            (Definition: DraygonEnemyDefinitionPointers.Arms, Program: DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle, Duration: 5, Count: 6),
+            (Definition: EnemyDefinitionId.Crocomire, Program: CrocomireInstructionProgramDefinitions.StepForwardAfterDelay, Duration: 180, Count: 1),
+            (Definition: EnemyDefinitionId.PhantoonTentacles, Program: PhantoonInstructionProgramDefinitions.InitialTentacles, Duration: 8, Count: 4),
+            (Definition: EnemyDefinitionId.DraygonArms, Program: DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle, Duration: 5, Count: 6),
         };
         int transitions = 0;
         foreach (var program in programs)

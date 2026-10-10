@@ -136,7 +136,6 @@ public sealed class MagdolliteEnemyState
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MagdolliteDefinition = 0xe83f;
     internal const ushort MagdollitePowerBombAi = EnemyAiCodePointers.BankA8.MagdollitePowerBomb;
     internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
     internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
@@ -633,9 +632,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head = _slots[headIndex];
         RoomEnemySlot body = _slots[headIndex + 1];
         RoomEnemySlot overlay = _slots[headIndex + 2];
-        if (head.EnemyDefinitionPointer != MagdolliteDefinition || head.Parameter1 != 0 ||
-            body.EnemyDefinitionPointer != MagdolliteDefinition || body.Parameter1 != 1 ||
-            overlay.EnemyDefinitionPointer != MagdolliteDefinition || overlay.Parameter1 != 2)
+        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || head.Parameter1 != 0 ||
+            body.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || body.Parameter1 != 1 ||
+            overlay.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || overlay.Parameter1 != 2)
         {
             throw new InvalidDataException(
                 $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered 0/1/2 composite.");
@@ -678,7 +677,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        if (slot.EnemyDefinitionPointer != MagdolliteDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite)
             return false;
 
         MagdolliteEnemyState state = RequireMagdolliteState(slot);

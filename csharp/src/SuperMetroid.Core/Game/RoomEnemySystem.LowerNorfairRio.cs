@@ -70,7 +70,6 @@ public sealed class LowerNorfairRioEnemyState
 /// <summary>Literal translation of Lower Norfair Rio AI $A2:C6D2-$C8B5.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort LowerNorfairRioDefinition = 0xd33f;
 
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
     private const ushort LowerNorfairRioGravity = 32;
@@ -238,7 +237,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != LowerNorfairRioDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Holtz)
             return false;
 
         LowerNorfairRioEnemyState state = RequireLowerNorfairRioState(slot);
@@ -339,7 +338,7 @@ public sealed partial class RoomEnemySystem
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
-        if (parent.EnemyDefinitionPointer != LowerNorfairRioDefinition ||
+        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
             (parent.Parameter1 & 0x8000) != 0)
         {
             throw new InvalidDataException(

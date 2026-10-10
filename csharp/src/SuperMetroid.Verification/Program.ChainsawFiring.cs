@@ -170,7 +170,7 @@ internal static partial class Program
             (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.Slots[0];
-        target.EnemyDefinitionPointer = 0x9000;
+        target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,

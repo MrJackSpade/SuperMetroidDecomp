@@ -16,7 +16,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xb6ee);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.Slots[0];
-        AssertEqual((ushort)0xe6ff, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
+        AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
         runtime.Enemies.StepFrame(cameraX, cameraY, false, runtime.Samus, level: runtime.LevelData);
         var oam = new OamBuffer();

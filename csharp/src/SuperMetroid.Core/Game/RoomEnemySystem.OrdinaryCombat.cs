@@ -116,85 +116,85 @@ public sealed partial class RoomEnemySystem
                 continue;
             if (contactDamageIndex != 0)
                 samus.InvincibilityTimer = 0;
-            bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
+            bool isFireflea = slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                 slot.Definition.TouchAiPointer == FirefleaTouchAi;
             bool isPlatform = IsPlatformDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == PlatformNoOpTouchAi;
-            bool isBeetom = slot.EnemyDefinitionPointer == BeetomDefinition &&
+            bool isBeetom = slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                 slot.Definition.TouchAiPointer == BeetomTouchAi;
-            bool isPowamp = slot.EnemyDefinitionPointer == PowampDefinition &&
+            bool isPowamp = slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                 slot.Definition.TouchAiPointer == PowampTouchAi;
             bool isWorkRobot = IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == WorkRobotTouchAi;
-            bool isFakeKraid = slot.EnemyDefinitionPointer == FakeKraidDefinition &&
+            bool isFakeKraid = slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                 slot.Definition.TouchAiPointer == FakeKraidTouchAi;
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == SpacePirateTouchAi;
-            bool isMamaTurtle = slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer &&
+            bool isMamaTurtle = slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle &&
                 slot.Definition.TouchAiPointer == MamaTurtleTouchAi;
-            bool isBabyTurtle = slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
+            bool isBabyTurtle = slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                 slot.Definition.TouchAiPointer == BabyTurtleTouchAi;
-            bool isMagdollite = slot.EnemyDefinitionPointer == MagdolliteDefinition &&
+            bool isMagdollite = slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                 slot.Definition.TouchAiPointer == MagdolliteTouchAi;
-            bool isRinka = slot.EnemyDefinitionPointer == RinkaDefinition &&
+            bool isRinka = slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                 slot.Definition.TouchAiPointer == RinkaTouchAi;
             bool isMaridiaLargeSnail =
-                slot.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                 slot.Definition.TouchAiPointer == MaridiaLargeSnailNonDamagingTouchAi;
-            bool isDragon = slot.EnemyDefinitionPointer == DragonDefinition &&
+            bool isDragon = slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
                 slot.Definition.TouchAiPointer == DragonTouchAi;
             bool isVerticalShutter = IsVerticalShutterDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == VerticalShutterTouchAi;
             bool isHorizontalShutter =
-                slot.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
                 slot.Definition.TouchAiPointer == HorizontalShutterTouchAi;
-            bool isMetroid = slot.EnemyDefinitionPointer == MetroidDefinition &&
+            bool isMetroid = slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                 slot.Definition.TouchAiPointer == MetroidTouchAi;
-            bool isZebetite = slot.EnemyDefinitionPointer == ZebetiteDefinition &&
+            bool isZebetite = slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                 slot.Definition.TouchAiPointer == ZebetiteTouchAi;
-            bool isEvir = slot.EnemyDefinitionPointer == EvirDefinition &&
+            bool isEvir = slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                 slot.Parameter1 == 0 &&
                 slot.Definition.TouchAiPointer == EvirTouchAi;
-            bool isYappingMaw = slot.EnemyDefinitionPointer == YappingMawDefinition &&
+            bool isYappingMaw = slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                 slot.Definition.TouchAiPointer == YappingMawTouchAi;
-            bool isBotwoon = slot.EnemyDefinitionPointer == BotwoonDefinition &&
+            bool isBotwoon = slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
                 slot.Definition.TouchAiPointer == BotwoonTouchAi;
-            bool isSporeSpawn = slot.EnemyDefinitionPointer == SporeSpawnDefinition &&
+            bool isSporeSpawn = slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                 slot.Definition.TouchAiPointer == SporeSpawnTouchAi;
-            bool isCeresSteam = slot.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
+            bool isCeresSteam = slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
                 slot.Definition.TouchAiPointer == CeresSteamTouchAi;
-            bool isBombTorizo = slot.EnemyDefinitionPointer == BombTorizoDefinition &&
+            bool isBombTorizo = slot.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
-            bool isGoldenTorizo = slot.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            bool isGoldenTorizo = slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo &&
                 slot.Definition.TouchAiPointer == BombTorizoTouchAi;
             bool isTorizo = isBombTorizo || isGoldenTorizo;
-            bool isShaktool = slot.EnemyDefinitionPointer == ShaktoolDefinition &&
+            bool isShaktool = slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                 slot.Definition.TouchAiPointer == ShaktoolTouchAi;
-            bool isCrocomire = slot.EnemyDefinitionPointer == CrocomireDefinition &&
+            bool isCrocomire = slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                 slot.Definition.TouchAiPointer == CrocomireHeaderTouchAi;
-            bool isCrocomireTongue = slot.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+            bool isCrocomireTongue = slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
                 slot.Definition.TouchAiPointer == CommonNormalEnemyTouchAi;
-            bool isPhantoon = slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+            bool isPhantoon = slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
                 slot.Definition.TouchAiPointer == PhantoonCollisionDefinitions.TouchAi;
-            bool isDraygonBody = slot.EnemyDefinitionPointer == DraygonBodyDefinition &&
+            bool isDraygonBody = slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                 slot.Definition.TouchAiPointer == DraygonTouchAi;
-            bool isMotherBrainHead = slot.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            bool isMotherBrainHead = slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                 slot.Definition.TouchAiPointer == MotherBrainHeadTouchAi;
-            bool isKraidArm = slot.EnemyDefinitionPointer == KraidArmDefinition &&
+            bool isKraidArm = slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
                 slot.Definition.TouchAiPointer == KraidArmTouchAi;
             bool isKraidNail =
-                slot.EnemyDefinitionPointer == KraidGoodNailDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail &&
                 slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidNailTouch ||
-                slot.EnemyDefinitionPointer == KraidBadNailDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad &&
                 slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidBadNailTouch;
-            bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
+            bool isDeadTorizo = slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
-                slot.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                 slot.Definition.TouchAiPointer == DeadSidehopperTouchAi;
             bool isDeadTourianCorpse = HasDeadTourianCorpseTouchOrShotCallback(slot);
-            bool isShitroid = slot.EnemyDefinitionPointer == ShitroidDefinition &&
+            bool isShitroid = slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                 slot.Definition.TouchAiPointer == ShitroidTouchAi;
             // Fifteen inventoried header/hitbox callbacks are literal RTL routines. Classify
             // their bank-qualified identities rather than probing executable ROM bytes at
@@ -240,9 +240,9 @@ public sealed partial class RoomEnemySystem
                 isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpTouchAi ||
-                slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
-                slot.EnemyDefinitionPointer == YardDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                 slot.Definition.TouchAiPointer == YardTouchAi;
 
             // Native touch collision does not interpret property $0100 as a collision bit;
@@ -293,7 +293,7 @@ public sealed partial class RoomEnemySystem
             // $A0:A10E-A11F: on the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
             if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
-                slot.EnemyDefinitionPointer != EnemyLifecycleDefinitions.RespawnPlaceholder)
+                slot.EnemyDefinitionPointer != EnemyDefinitionId.Respawn)
             {
                 continue;
             }
@@ -567,7 +567,7 @@ public sealed partial class RoomEnemySystem
                 if (contactDamageIndex != 0)
                     ReactHorizontalShutter(slot);
             }
-            else if (slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid)
+            else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid)
             {
                 ResolveMochtroidTouch(
                     slot,
@@ -584,7 +584,7 @@ public sealed partial class RoomEnemySystem
                 // transfers Samus input/position ownership to the mouth state machine.
                 ResolveYappingMawTouch(RequireYappingMawState(slot), samus);
             }
-            else if (slot.EnemyDefinitionPointer == YardDefinition)
+            else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard)
             {
                 ResolveYardTouch(
                     slot,
@@ -685,104 +685,104 @@ public sealed partial class RoomEnemySystem
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
-            bool isYard = enemy.EnemyDefinitionPointer == YardDefinition &&
+            bool isYard = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                 enemy.Definition.ShotAiPointer == YardShotAi;
-            bool isMetaree = enemy.EnemyDefinitionPointer == MetareeDefinition &&
+            bool isMetaree = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
                 enemy.Definition.ShotAiPointer == MetareeShotAi;
-            bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+            bool isFireflea = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                 enemy.Definition.ShotAiPointer == FirefleaShotAi;
-            bool isTripper = enemy.EnemyDefinitionPointer == TripperDefinition &&
+            bool isTripper = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
                 enemy.Definition.ShotAiPointer == TripperShotAi;
-            bool isBeetom = enemy.EnemyDefinitionPointer == BeetomDefinition &&
+            bool isBeetom = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                 enemy.Definition.ShotAiPointer == BeetomShotAi;
-            bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+            bool isPowamp = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                 enemy.Definition.ShotAiPointer == PowampShotAi;
             bool isWorkRobot = IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer is WorkRobotShotAi or WorkRobotNoPowerShotAi;
-            bool isBull = enemy.EnemyDefinitionPointer == BullDefinition &&
+            bool isBull = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
                 enemy.Definition.ShotAiPointer == BullShotAi;
-            bool isSpark = enemy.EnemyDefinitionPointer == SparkDefinition &&
+            bool isSpark = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
                 enemy.Definition.ShotAiPointer == SparkShotAi;
             bool isBlueBrinstarFaceBlock =
-                enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
                 enemy.Definition.ShotAiPointer == BlueBrinstarFaceBlockShotAi;
-            bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+            bool isFakeKraid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                 enemy.Definition.ShotAiPointer == FakeKraidShotAi;
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer == SpacePirateShotAi;
-            bool isBabyTurtle = enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
+            bool isBabyTurtle = enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                 enemy.Definition.ShotAiPointer == BabyTurtleShotAi;
-            bool isOwtch = enemy.EnemyDefinitionPointer == OwtchDefinition &&
+            bool isOwtch = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                 enemy.Definition.ShotAiPointer == OwtchShotAi;
-            bool isKago = enemy.EnemyDefinitionPointer == KagoDefinition &&
+            bool isKago = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                 enemy.Definition.ShotAiPointer == KagoShotAi;
-            bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+            bool isMagdollite = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                 enemy.Definition.ShotAiPointer == MagdolliteShotAi;
-            bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+            bool isRinka = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                 enemy.Definition.ShotAiPointer == RinkaShotAi;
             bool isMaridiaLargeSnail =
-                enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                 enemy.Definition.ShotAiPointer == MaridiaLargeSnailShotAi;
             bool isGRipperOrRipper2 =
-                enemy.EnemyDefinitionPointer is GRipperDefinition or Ripper2Definition &&
+                enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                 enemy.Definition.ShotAiPointer == GRipperRipper2ShotAi;
-            bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
+            bool isDragon = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
                 enemy.Definition.ShotAiPointer == DragonShotAi;
             bool isReactionOnlyVerticalShutter =
                 enemy.EnemyDefinitionPointer is
-                    ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+                    EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                 enemy.Definition.ShotAiPointer == ShootableVerticalShutterShotAi;
             bool isDestroyableVerticalShutter =
-                enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                 enemy.Definition.ShotAiPointer == DestroyableVerticalShutterShotAi;
             bool isHorizontalShutter =
-                enemy.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
                 enemy.Definition.ShotAiPointer == HorizontalShutterShotAi;
-            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+            bool isMetroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                 enemy.Definition.ShotAiPointer == MetroidShotAi;
-            bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
+            bool isZebetite = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                 enemy.Definition.ShotAiPointer == ZebetiteShotAi;
-            bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
+            bool isEvir = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                 enemy.Parameter1 == 0 &&
                 enemy.Definition.ShotAiPointer == EvirShotAi;
-            bool isYappingMaw = enemy.EnemyDefinitionPointer == YappingMawDefinition &&
+            bool isYappingMaw = enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                 enemy.Definition.ShotAiPointer == YappingMawShotAi;
             bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer == KiHunterShotAi;
-            bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+            bool isBotwoon = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
                 enemy.Definition.ShotAiPointer == BotwoonShotAi;
-            bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+            bool isSporeSpawn = enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                 enemy.Definition.ShotAiPointer == SporeSpawnShotAi;
-            bool isCeresSteam = enemy.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
+            bool isCeresSteam = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
                 enemy.Definition.ShotAiPointer == CeresSteamNoOpShotAi;
-            bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+            bool isNorfairRidley = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
                 enemy.Definition.ShotAiPointer == RidleyShotAi;
-            bool isBombTorizo = enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
+            bool isBombTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo &&
                 enemy.Definition.ShotAiPointer == BombTorizoShotAi;
-            bool isGoldenTorizo = enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+            bool isGoldenTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo &&
                 enemy.Definition.ShotAiPointer == GoldenTorizoShotAi;
             bool isTorizo = isBombTorizo || isGoldenTorizo;
-            bool isShaktool = enemy.EnemyDefinitionPointer == ShaktoolDefinition &&
+            bool isShaktool = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                 enemy.Definition.ShotAiPointer == ShaktoolShotAi;
-            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+            bool isCrocomire = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                 enemy.Definition.ShotAiPointer == 0;
             bool isCrocomireTongue =
-                enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
                 enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
-            bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+            bool isDraygonBody = enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                 enemy.Definition.ShotAiPointer == DraygonShotAi;
-            bool isMotherBrainBody = enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+            bool isMotherBrainBody = enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                 enemy.Definition.ShotAiPointer == MotherBrainBodyShotAi;
-            bool isMotherBrainHead = enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+            bool isMotherBrainHead = enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                 enemy.Definition.ShotAiPointer == MotherBrainHeadShotAi;
-            bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+            bool isDeadTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
                 enemy.Definition.ShotAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
-                enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                 enemy.Definition.ShotAiPointer == DeadSidehopperShotAi;
             bool isDeadTourianCorpse = HasDeadTourianCorpseShotCallback(enemy);
-            bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+            bool isShitroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                 enemy.Definition.ShotAiPointer == ShitroidShotAi;
             // Several retail helper/projectile definitions point their shot callback at a
             // literal RTL in their own enemy bank. Radius collision still dispatches those
@@ -795,7 +795,7 @@ public sealed partial class RoomEnemySystem
                 enemy.Definition.Bank,
                 enemy.Definition.ShotAiPointer);
             bool usesTranslatedShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi ||
-                enemy.EnemyDefinitionPointer == SkreeDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                 enemy.Definition.ShotAiPointer == SkreeShotAi ||
                 isMetaree ||
                 isFireflea ||
@@ -840,14 +840,14 @@ public sealed partial class RoomEnemySystem
                 isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpShotAi ||
-                enemy.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
 
             // The shot pass likewise admits visually invisible actors, but rejects the
             // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
             // these meanings separate mirrors the bank-$A0 list/collision machinery.
-            if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition ||
+            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ||
                 !usesTranslatedShotAi ||
                 enemy.SpritemapPointer is 0 or 0x804d ||
                 enemy.InvincibilityTimer != 0 ||
@@ -861,7 +861,7 @@ public sealed partial class RoomEnemySystem
             // Powered definition $E8FF explicitly returns before common shot AI while
             // Phantoon's area-boss bit is clear. The projectile therefore does not begin an
             // impact, and the deactivated-looking body does not enter its recoil sequence.
-            if (enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
+            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Robot &&
                 !RequireAreaBossDefeated())
             {
                 continue;
@@ -1154,15 +1154,15 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (enemy.EnemyDefinitionPointer is KraidArmDefinition or KraidFootDefinition)
+                if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
                 {
                     if (!usesExtendedHitboxes ||
                         hitboxShotAi is not (KraidNoOpShotAi or KraidArmShotAi) ||
-                        enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
                             hitboxShotAi != KraidNoOpShotAi)
                     {
                         throw new InvalidDataException(
-                            $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
+                            $"Kraid part ${(int)enemy.EnemyDefinitionPointer:X4} selected " +
                             $"shot AI $A7:{hitboxShotAi:X4}.");
                     }
 
@@ -1639,7 +1639,7 @@ public sealed partial class RoomEnemySystem
                         // $A3:C7F5 adds Skree's four debris actors after the shared normal
                         // shot handler reports death, before the common death animation
                         // releases the enemy slot.
-                        if (enemy.EnemyDefinitionPointer == SkreeDefinition)
+                        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree)
                             SpawnSkreeParticleBurst(enemy);
                         else if (isMetaree)
                         {
@@ -1665,7 +1665,7 @@ public sealed partial class RoomEnemySystem
                         // before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8) spawns the drops.
                         bool spawnsGoldNinjaDrops = isOrdinarySpacePirate &&
                             hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot &&
-                            enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition;
+                            enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja;
                         ushort dropOriginX = enemy.XPosition;
                         ushort dropOriginY = enemy.YPosition;
                         if (isFakeKraid)
@@ -1680,7 +1680,7 @@ public sealed partial class RoomEnemySystem
                         if (spawnsGoldNinjaDrops)
                         {
                             SpawnEnemyDropScatterAround(
-                                GoldNinjaSpacePirateDefinition,
+                                EnemyDefinitionId.PirateGoldNinja,
                                 count: 5,
                                 dropOriginX,
                                 dropOriginY);
@@ -1787,9 +1787,9 @@ public sealed partial class RoomEnemySystem
         {
             ushort nativeIndex = onlyNativeEnemyIndex ?? _interactiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
-            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+            bool isMetroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                 enemy.Definition.ShotAiPointer == MetroidShotAi;
-            bool isBeetom = enemy.EnemyDefinitionPointer == BeetomDefinition &&
+            bool isBeetom = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                 enemy.Definition.ShotAiPointer == BeetomShotAi;
             bool usesCommonShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
             bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
@@ -1802,7 +1802,7 @@ public sealed partial class RoomEnemySystem
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
                 IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer);
-            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+            bool isCrocomire = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                 enemy.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
             if ((!isMetroid && !usesCommonShotAi && !usesLiteralNoOpShotAi &&
                     !usesTranslatedPrivateShotAi && !isCrocomire) ||
@@ -1890,14 +1890,14 @@ public sealed partial class RoomEnemySystem
                         selectedShotAi);
                 }
                 else if (enemy.EnemyDefinitionPointer is
-                        KraidArmDefinition or KraidFootDefinition)
+                        EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
                 {
                     if (selectedShotAi is not (KraidNoOpShotAi or KraidArmShotAi) ||
-                        enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
                             selectedShotAi != KraidNoOpShotAi)
                     {
                         throw new InvalidDataException(
-                            $"Kraid part ${enemy.EnemyDefinitionPointer:X4} selected " +
+                            $"Kraid part ${(int)enemy.EnemyDefinitionPointer:X4} selected " +
                             $"normal-bomb shot AI $A7:{selectedShotAi:X4}.");
                     }
 
@@ -1913,7 +1913,7 @@ public sealed partial class RoomEnemySystem
                             bomb.YPosition);
                     }
                 }
-                else if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition &&
+                else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&
                     usesExtendedHitboxes && selectedShotAi != EnemyAiCodePointers.BankB2.CommonShot)
                 {
                     PirateHitboxShotAction pirateAction =
@@ -1933,7 +1933,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 }
                 else if (enemy.EnemyDefinitionPointer is
-                        ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+                        EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                     selectedShotAi == ShootableVerticalShutterShotAi)
                 {
                     // `$A2:F0A2` never calls common shot AI. Bomb collision has already
@@ -1957,7 +1957,7 @@ public sealed partial class RoomEnemySystem
                             samus);
                     }
                 }
-                else if (enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+                else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                     selectedShotAi == ShitroidShotAi)
                 {
                     // `$A9:F842` reads damage from the selected physical projectile slot,
@@ -1967,7 +1967,7 @@ public sealed partial class RoomEnemySystem
                     // direction. It never enters vulnerability or health damage.
                     ResolveShitroidShot(enemy, bomb.Damage, ordinaryProjectiles.Slots[0]);
                 }
-                else if (enemy.EnemyDefinitionPointer == CeresRidleyDefinition &&
+                else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres &&
                     selectedShotAi == RidleyShotAi)
                 {
                     // `$A6:DF8A` branches on area index before it ever reaches common
@@ -1978,50 +1978,50 @@ public sealed partial class RoomEnemySystem
                     ResolveCeresRidleyShotAfterCollision(enemy);
                 }
                 else if (enemy.EnemyDefinitionPointer is
-                        BombTorizoDefinition or GoldenTorizoDefinition)
+                        EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo)
                 {
                     ResolveTorizoNormalBomb(enemy, bomb, selectedShotAi);
                 }
-                else if (enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+                else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                     selectedShotAi == MotherBrainBodyShotAi)
                 {
                     // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already
                     // marked the physical explosion, and the body callback performs no
                     // health, phase, or multipart-state work of its own.
                 }
-                else if (enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+                else if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                     selectedShotAi == MotherBrainHeadShotAi)
                 {
                     ResolveMotherBrainHeadNormalBomb(enemy, bomb);
                 }
                 else if (!selectedLiteralNoOp)
                 {
-                    bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+                    bool isDeadTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
                         selectedShotAi == DeadTorizoTouchAndShotAi;
                     bool isDeadSidehopper =
-                        enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                         selectedShotAi == DeadSidehopperShotAi;
                     bool isDeadTourianCorpse = HasDeadTourianCorpseShotCallback(enemy) &&
                         selectedShotAi == enemy.Definition.ShotAiPointer;
-                    bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                    bool isDraygonBody = enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                         selectedShotAi == DraygonShotAi;
                     bool isNorfairRidley =
-                        enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
                         selectedShotAi == RidleyShotAi;
                     bool isPhantoonBody =
-                        enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
                         selectedShotAi == PhantoonCollisionDefinitions.ShotAi;
-                    bool isSporeSpawn = enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                    bool isSporeSpawn = enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                         selectedShotAi == SporeSpawnShotAi;
                     bool isBossDudHitbox =
-                        enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                             selectedShotAi == DraygonDudHitboxShotAi ||
-                        enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                             selectedShotAi == SporeSpawnDudHitboxShotAi;
                     bool clearsBombCollisionMark =
-                        enemy.EnemyDefinitionPointer == SparkDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
                             selectedShotAi == SparkShotAi ||
-                        enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+                        enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
                             selectedShotAi == BlueBrinstarFaceBlockShotAi;
                     if (isDeadTorizo)
                     {
@@ -2054,17 +2054,17 @@ public sealed partial class RoomEnemySystem
                     }
                     else
                     {
-                        bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+                        bool isRinka = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                             selectedShotAi == RinkaShotAi;
-                        bool isSkree = enemy.EnemyDefinitionPointer == SkreeDefinition &&
+                        bool isSkree = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                             selectedShotAi == SkreeShotAi;
-                        bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+                        bool isPowamp = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                             selectedShotAi == PowampShotAi;
-                        bool isZebetite = enemy.EnemyDefinitionPointer == ZebetiteDefinition &&
+                        bool isZebetite = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                             selectedShotAi == ZebetiteShotAi;
-                        bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+                        bool isBotwoon = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
                             selectedShotAi == BotwoonShotAi;
-                        bool isShaktool = enemy.EnemyDefinitionPointer == ShaktoolDefinition &&
+                        bool isShaktool = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                             selectedShotAi == ShaktoolShotAi;
 
                         // Owtch's shell accepts common damage only during its vulnerable state
@@ -2072,10 +2072,10 @@ public sealed partial class RoomEnemySystem
                         // Bank $A0 has already marked the bomb in either case, so callback
                         // rejection belongs here rather than in collision admission.
                         bool privateCallbackRejected =
-                            enemy.EnemyDefinitionPointer == OwtchDefinition &&
+                            enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                                 selectedShotAi == OwtchShotAi &&
                                 !OwtchAcceptsOrdinaryShot(RequireOwtchState(enemy)) ||
-                            enemy.EnemyDefinitionPointer == WorkRobotDefinition &&
+                            enemy.EnemyDefinitionPointer == EnemyDefinitionId.Robot &&
                                 selectedShotAi == WorkRobotShotAi &&
                                 !RequireAreaBossDefeated();
                         if (!privateCallbackRejected)
@@ -2096,7 +2096,7 @@ public sealed partial class RoomEnemySystem
                                     !isRinka && !isSkree && !isPowamp && !isZebetite &&
                                     !isDraygonBody && !isSporeSpawn && !isBotwoon &&
                                     !isNorfairRidley && !isPhantoonBody &&
-                                    enemy.EnemyDefinitionPointer != FakeKraidDefinition);
+                                    enemy.EnemyDefinitionPointer != EnemyDefinitionId.MiniKraid);
 
                             if (isPhantoonBody)
                             {
@@ -2121,30 +2121,30 @@ public sealed partial class RoomEnemySystem
                                     appliedDamage);
                             }
 
-                            if (enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                 selectedShotAi == BabyTurtleShotAi)
                             {
                                 ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
                             }
                             if (isRinka)
                                 ResolveRinkaCombatAfterCommon(enemy);
-                            if (enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                 selectedShotAi == MaridiaLargeSnailShotAi)
                             {
                                 ResolveMaridiaLargeSnailShotAfterCommon();
                             }
                             if (enemy.EnemyDefinitionPointer is
-                                    GRipperDefinition or Ripper2Definition &&
+                                    EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                 selectedShotAi == GRipperRipper2ShotAi)
                             {
                                 ResolveGRipperRipper2ShotAfterCommon(enemy);
                             }
-                            if (enemy.EnemyDefinitionPointer == DragonDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
                                 selectedShotAi == DragonShotAi)
                             {
                                 ResolveDragonCombatAfterCommon(enemy);
                             }
-                            if (enemy.EnemyDefinitionPointer == MetareeDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
                                 selectedShotAi == MetareeShotAi &&
                                 enemy.Health == 0)
                             {
@@ -2155,13 +2155,13 @@ public sealed partial class RoomEnemySystem
                                 enemy.VramTilesIndex = 0;
                                 enemy.PaletteIndex = 0;
                             }
-                            if (enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                 selectedShotAi == FirefleaShotAi &&
                                 enemy.Health == 0)
                             {
                                 AdvanceFirefleaDarknessLevel();
                             }
-                            if (enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                                 selectedShotAi == FakeKraidShotAi &&
                                 enemyHealthBefore != 0 && enemy.Health == 0)
                             {
@@ -2170,7 +2170,7 @@ public sealed partial class RoomEnemySystem
                                 // The host keeps those coordinates in the typed drop request.
                                 KillFakeKraid(enemy);
                             }
-                            if (enemy.EnemyDefinitionPointer == TripperDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
                                 selectedShotAi == TripperShotAi &&
                                 enemy.FrozenTimer != 0)
                             {
@@ -2194,7 +2194,7 @@ public sealed partial class RoomEnemySystem
                                 ResolveBotwoonCombatAfterCommon(enemy);
                             if (isShaktool)
                                 ResolveShaktoolShotAfterCommon(enemy);
-                            if (enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                                 selectedShotAi == DestroyableVerticalShutterShotAi)
                             {
                                 ReactVerticalShutter(enemy, _shutterCameraX, _shutterCameraY);
@@ -2204,10 +2204,10 @@ public sealed partial class RoomEnemySystem
                             // routines as beams. Normal bombs cannot freeze, but their damage,
                             // staged-death, child synchronization, recoil, release, and attack
                             // side effects are otherwise byte-for-byte the same callback tails.
-                            if (enemy.EnemyDefinitionPointer == EvirDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                                 selectedShotAi == EvirShotAi)
                                 ResolveEvirCombatAfterCommon(enemy);
-                            if (enemy.EnemyDefinitionPointer == YappingMawDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                 selectedShotAi == YappingMawShotAi)
                             {
                                 ResolveYappingMawShotAfterCommon(
@@ -2215,10 +2215,10 @@ public sealed partial class RoomEnemySystem
                                     RequireYappingMawState(enemy),
                                     samus);
                             }
-                            if (enemy.EnemyDefinitionPointer == KagoDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                 selectedShotAi == KagoShotAi)
                                 ResolveKagoShotAfterCommon(enemy, RequireKagoState(enemy));
-                            if (enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                                 selectedShotAi == MagdolliteShotAi)
                                 ResolveMagdolliteCombatAfterCommon(enemy);
                             // Common damage can clear a lethally hit slot before this
@@ -2234,7 +2234,7 @@ public sealed partial class RoomEnemySystem
                             {
                                 ResolveWorkRobotShotAfterCommon(enemy, samus);
                             }
-                            if (enemy.EnemyDefinitionPointer == BullDefinition &&
+                            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
                                 selectedShotAi == BullShotAi)
                             {
                                 BullEnemyState bullState = RequireBullState(enemy);
@@ -2279,69 +2279,69 @@ public sealed partial class RoomEnemySystem
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
         ushort callback) =>
-        enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer && callback == BabyTurtleShotAi ||
-        enemy.EnemyDefinitionPointer == OwtchDefinition && callback == OwtchShotAi ||
-        enemy.EnemyDefinitionPointer == RinkaDefinition && callback == RinkaShotAi ||
-        enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle && callback == BabyTurtleShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch && callback == OwtchShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && callback == RinkaShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
             callback == MaridiaLargeSnailShotAi ||
-        enemy.EnemyDefinitionPointer is GRipperDefinition or Ripper2Definition &&
+        enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
             callback == GRipperRipper2ShotAi ||
-        enemy.EnemyDefinitionPointer == DragonDefinition && callback == DragonShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon && callback == DragonShotAi ||
         enemy.EnemyDefinitionPointer is
-                ShootableVerticalShutterDefinition or KamerVerticalPlatformDefinition &&
+                EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
             callback == ShootableVerticalShutterShotAi ||
-        enemy.EnemyDefinitionPointer == DestroyableVerticalShutterDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
             callback == DestroyableVerticalShutterShotAi ||
-        enemy.EnemyDefinitionPointer == MetareeDefinition && callback == MetareeShotAi ||
-        enemy.EnemyDefinitionPointer == FirefleaDefinition && callback == FirefleaShotAi ||
-        enemy.EnemyDefinitionPointer == TripperDefinition && callback == TripperShotAi ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid && callback == MochtroidShotAi ||
-        enemy.EnemyDefinitionPointer == SkreeDefinition && callback == SkreeShotAi ||
-        enemy.EnemyDefinitionPointer == YardDefinition && callback == YardShotAi ||
-        enemy.EnemyDefinitionPointer == EvirDefinition && callback == EvirShotAi ||
-        enemy.EnemyDefinitionPointer == YappingMawDefinition && callback == YappingMawShotAi ||
-        enemy.EnemyDefinitionPointer == KagoDefinition && callback == KagoShotAi ||
-        enemy.EnemyDefinitionPointer == MagdolliteDefinition && callback == MagdolliteShotAi ||
-        enemy.EnemyDefinitionPointer == BeetomDefinition && callback == BeetomShotAi ||
-        enemy.EnemyDefinitionPointer == PowampDefinition && callback == PowampShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree && callback == MetareeShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea && callback == FirefleaShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper && callback == TripperShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid && callback == MochtroidShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree && callback == SkreeShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard && callback == YardShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir && callback == EvirShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw && callback == YappingMawShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago && callback == KagoShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite && callback == MagdolliteShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom && callback == BeetomShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp && callback == PowampShotAi ||
         IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
             callback is WorkRobotShotAi or WorkRobotNoPowerShotAi ||
-        enemy.EnemyDefinitionPointer == BullDefinition && callback == BullShotAi ||
-        enemy.EnemyDefinitionPointer == SparkDefinition && callback == SparkShotAi ||
-        enemy.EnemyDefinitionPointer == BlueBrinstarFaceBlockDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull && callback == BullShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark && callback == SparkShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
             callback == BlueBrinstarFaceBlockShotAi ||
         IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) && callback == KiHunterShotAi ||
-        enemy.EnemyDefinitionPointer == FakeKraidDefinition && callback == FakeKraidShotAi ||
-        enemy.EnemyDefinitionPointer == ZebetiteDefinition && callback == ZebetiteShotAi ||
-        enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid && callback == FakeKraidShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite && callback == ZebetiteShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
             callback == DeadTorizoTouchAndShotAi ||
-        enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
             callback == DeadSidehopperShotAi ||
         HasDeadTourianCorpseShotCallback(enemy) &&
             callback == enemy.Definition.ShotAiPointer ||
-        enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
             callback is DraygonShotAi or DraygonDudHitboxShotAi ||
-        enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
             callback is SporeSpawnShotAi or SporeSpawnDudHitboxShotAi ||
-        enemy.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
             callback == PhantoonCollisionDefinitions.ShotAi ||
-        enemy.EnemyDefinitionPointer == MotherBrainBodyDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
             callback == MotherBrainBodyShotAi ||
-        enemy.EnemyDefinitionPointer == MotherBrainHeadDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
             callback == MotherBrainHeadShotAi ||
-        enemy.EnemyDefinitionPointer == BombTorizoDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo &&
             callback is BombTorizoShotAi or TorizoStandUpSitDownShotAi ||
-        enemy.EnemyDefinitionPointer == GoldenTorizoDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo &&
             callback is GoldenTorizoShotAi or BombTorizoShotAi or
                 TorizoStandUpSitDownShotAi ||
-        enemy.EnemyDefinitionPointer == ShaktoolDefinition && callback == ShaktoolShotAi ||
-        enemy.EnemyDefinitionPointer == KraidArmDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool && callback == ShaktoolShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
             callback == KraidArmShotAi ||
-        enemy.EnemyDefinitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition &&
+        enemy.EnemyDefinitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley &&
             callback == RidleyShotAi ||
-        enemy.EnemyDefinitionPointer == ShitroidDefinition && callback == ShitroidShotAi ||
-        enemy.EnemyDefinitionPointer == BotwoonDefinition && callback == BotwoonShotAi ||
-        enemy.EnemyDefinitionPointer is CrocomireDefinition or CrocomireTongueDefinition &&
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid && callback == ShitroidShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon && callback == BotwoonShotAi ||
+        enemy.EnemyDefinitionPointer is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue &&
             callback is CrocomireNoOpHitboxShotAi or
                 CrocomireDustHitboxShotAi or
                 CrocomireMouthShotAi or
@@ -2425,7 +2425,7 @@ public sealed partial class RoomEnemySystem
                 horizontalRadius = deathScratch;
             _enemyDeathRespawnScratch = null;
             RoomEnemySlot enemy = _slots[slotIndex];
-            if (enemy.EnemyDefinitionPointer is 0 or 0xdaff ||
+            if (enemy.EnemyDefinitionPointer is 0 or EnemyDefinitionId.Respawn ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
             {
@@ -2447,28 +2447,28 @@ public sealed partial class RoomEnemySystem
                 continue;
 
             ushort reactionPointer = enemy.Definition.PowerBombReactionPointer;
-            bool isFireflea = enemy.EnemyDefinitionPointer == FirefleaDefinition &&
+            bool isFireflea = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                 reactionPointer == FirefleaPowerBombAi;
-            bool isPowamp = enemy.EnemyDefinitionPointer == PowampDefinition &&
+            bool isPowamp = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                 reactionPointer == PowampPowerBombAi;
-            bool isFakeKraid = enemy.EnemyDefinitionPointer == FakeKraidDefinition &&
+            bool isFakeKraid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                 reactionPointer == FakeKraidShotAi;
-            bool isMagdollite = enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
+            bool isMagdollite = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                 reactionPointer == MagdollitePowerBombAi;
-            bool isRinka = enemy.EnemyDefinitionPointer == RinkaDefinition &&
+            bool isRinka = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                 reactionPointer == RinkaPowerBombAi;
-            bool isDragon = enemy.EnemyDefinitionPointer == DragonDefinition &&
+            bool isDragon = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
                 reactionPointer == DragonPowerBombAi;
             // Touch and shot collision lists exclude the arms through property $0400, but
             // $A0:A306's power-bomb walker does not. Both body and arms therefore dispatch
             // $A8:8B0C and its intentionally physical +$40/+80 follow-up aliases.
-            bool isEvir = enemy.EnemyDefinitionPointer == EvirDefinition &&
+            bool isEvir = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                 reactionPointer == EvirPowerBombAi;
             bool isKiHunter = IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == KiHunterShotAi;
-            bool isBotwoon = enemy.EnemyDefinitionPointer == BotwoonDefinition &&
+            bool isBotwoon = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
                 reactionPointer == BotwoonPowerBombAi;
-            bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+            bool isCrocomire = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                 reactionPointer == CrocomirePowerBombAi;
             // Literal no-ops still receive the native collision prelude. Classify their
             // compiled bank-qualified identities without fetching executable ROM bytes.
@@ -2478,27 +2478,27 @@ public sealed partial class RoomEnemySystem
                 IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == VerticalShutterPowerBombAi;
             bool isHorizontalShutterReaction =
-                enemy.EnemyDefinitionPointer == ShootableHorizontalShutterDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
                 reactionPointer == HorizontalShutterPowerBombAi;
             bool isSpacePiratePowerBombReaction =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == SpacePiratePowerBombAi;
-            bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
+            bool isMetroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                 reactionPointer == MetroidPowerBombAi;
-            bool isNorfairRidley = enemy.EnemyDefinitionPointer == NorfairRidleyDefinition &&
+            bool isNorfairRidley = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
                 reactionPointer == RidleyPowerBombAi;
-            bool isCeresRidley = enemy.EnemyDefinitionPointer == CeresRidleyDefinition &&
+            bool isCeresRidley = enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres &&
                 reactionPointer == RidleyPowerBombAi;
             bool isRidleyPowerBombReaction = isNorfairRidley || isCeresRidley;
-            bool isDraygonBody = enemy.EnemyDefinitionPointer == DraygonBodyDefinition &&
+            bool isDraygonBody = enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                 reactionPointer == DraygonPowerBombAi;
-            bool isDeadTorizo = enemy.EnemyDefinitionPointer == DeadTorizoDefinition &&
+            bool isDeadTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
                 reactionPointer == DeadTorizoPowerBombAi;
             bool isDeadSidehopper =
-                enemy.EnemyDefinitionPointer == DeadSidehopperDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                 reactionPointer == DeadSidehopperPowerBombAi;
             bool isDeadTourianCorpse = HasDeadTourianCorpsePowerBombCallback(enemy);
-            bool isShitroid = enemy.EnemyDefinitionPointer == ShitroidDefinition &&
+            bool isShitroid = enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                 reactionPointer == ShitroidPowerBombAi;
             if (isRinka && enemy.Properties.HasAny(EnemyProperties.Invisible))
                 continue;
@@ -2522,7 +2522,7 @@ public sealed partial class RoomEnemySystem
                 !isShitroid)
             {
                 throw new InvalidDataException(
-                    $"Enemy ${enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
+                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
                     $"${enemy.Definition.Bank:X2}:{reactionPointer:X4} is not translated.");
             }
 
@@ -2850,7 +2850,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == SporeSpawnDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
             SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer))
         {
@@ -2942,7 +2942,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == CeresSteamDefinitions.EnemyDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
             enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
             (CeresSteamCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
              TileArtwork is not null))
@@ -2973,7 +2973,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
             enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
             (MaridiaLargeSnailCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
              TileArtwork is not null))
@@ -3000,7 +3000,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == CrocomireDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
             CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer))
         {
@@ -3030,7 +3030,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == CrocomireTongueDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
             enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
             (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
              TileArtwork is not null))
@@ -3045,7 +3045,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer is BombTorizoDefinition or GoldenTorizoDefinition &&
+        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
             enemy.Definition.Bank == TorizoCollisionDefinitions.Bank)
         {
             foreach (GoldenTorizoCollisionComponent component in
@@ -3071,7 +3071,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == KraidFootDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
             enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
             KraidFootCollisionDefinitions.TryGetComponents(
                 enemy.SpritemapPointer, out var footComponents))
@@ -3100,7 +3100,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer == KraidArmDefinition &&
+        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
             enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
             KraidArmCollisionDefinitions.TryGetComponents(
                 enemy.SpritemapPointer, out var kraidComponents))
@@ -3131,7 +3131,7 @@ public sealed partial class RoomEnemySystem
             return false;
         }
 
-        if (enemy.EnemyDefinitionPointer is MotherBrainBodyDefinition or MotherBrainHeadDefinition &&
+        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
             enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank)
         {
             // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
@@ -3159,7 +3159,7 @@ public sealed partial class RoomEnemySystem
         }
 
         throw new InvalidDataException(
-            $"Enemy ${enemy.EnemyDefinitionPointer:X4} extended collision frame " +
+            $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} extended collision frame " +
             $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
     }
 
@@ -3191,17 +3191,17 @@ public sealed partial class RoomEnemySystem
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
         (IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
          enemy.EnemyDefinitionPointer is
-            MaridiaLargeSnailDefinition or
-            BombTorizoDefinition or
-            GoldenTorizoDefinition or
-            CrocomireDefinition or
-            CrocomireTongueDefinition or
-            SporeSpawnDefinition or
-            CeresSteamDefinitions.EnemyDefinition or
-            KraidArmDefinition or
-            KraidFootDefinition or
-            PhantoonBodyDefinition or
-            DraygonBodyDefinition);
+            EnemyDefinitionId.Oum or
+            EnemyDefinitionId.BombTorizo or
+            EnemyDefinitionId.GoldenTorizo or
+            EnemyDefinitionId.Crocomire or
+            EnemyDefinitionId.CrocomireTongue or
+            EnemyDefinitionId.SporeSpawn or
+            EnemyDefinitionId.Steam or
+            EnemyDefinitionId.KraidArm or
+            EnemyDefinitionId.KraidFoot or
+            EnemyDefinitionId.PhantoonBody or
+            EnemyDefinitionId.DraygonBody);
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
@@ -3216,20 +3216,20 @@ public sealed partial class RoomEnemySystem
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
         (IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
          enemy.EnemyDefinitionPointer is
-            MaridiaLargeSnailDefinition or
-            BombTorizoDefinition or
-            GoldenTorizoDefinition or
-            CrocomireDefinition or
-            CrocomireTongueDefinition or
-            SporeSpawnDefinition or
-            CeresSteamDefinitions.EnemyDefinition or
-            KraidDefinition or
-            KraidArmDefinition or
-            KraidFootDefinition or
-            NorfairRidleyDefinition or
-            DraygonBodyDefinition or
-            MotherBrainBodyDefinition or
-            MotherBrainHeadDefinition);
+            EnemyDefinitionId.Oum or
+            EnemyDefinitionId.BombTorizo or
+            EnemyDefinitionId.GoldenTorizo or
+            EnemyDefinitionId.Crocomire or
+            EnemyDefinitionId.CrocomireTongue or
+            EnemyDefinitionId.SporeSpawn or
+            EnemyDefinitionId.Steam or
+            EnemyDefinitionId.Kraid or
+            EnemyDefinitionId.KraidArm or
+            EnemyDefinitionId.KraidFoot or
+            EnemyDefinitionId.Ridley or
+            EnemyDefinitionId.DraygonBody or
+            EnemyDefinitionId.MotherBrainBody or
+            EnemyDefinitionId.MotherBrainHead);
 
     /// <summary>
     /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the
@@ -3251,7 +3251,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Space Pirate hitbox shot AI $B2:{hitboxShotAi:X4} is not translated.");
         }
-        if (enemy.EnemyDefinitionPointer != GoldNinjaSpacePirateDefinition)
+        if (enemy.EnemyDefinitionPointer != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = projectile.PackedType.Family;
@@ -3306,7 +3306,7 @@ public sealed partial class RoomEnemySystem
                 $"Space Pirate normal-bomb hitbox AI $B2:{hitboxShotAi:X4} is not translated.");
         }
 
-        return enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition
+        return enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja
             ? PirateHitboxShotAction.Ignore
             : PirateHitboxShotAction.Normal;
     }

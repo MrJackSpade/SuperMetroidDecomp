@@ -41,8 +41,6 @@ public enum CeresSteamFunction : ushort
 /// <summary>Compiled fixed initialization records for the Ceres steam actor.</summary>
 public static class CeresSteamDefinitions
 {
-    /// <summary>The Ceres steam enemy header at <c>$A0:E1FF</c>.</summary>
-    public const ushort EnemyDefinition = 0xe1ff;
 
     /// <summary>
     /// The parallel instruction/function tables at <c>$A6:EFF5-$A6:F00C</c>, indexed

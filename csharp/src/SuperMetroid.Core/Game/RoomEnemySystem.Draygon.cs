@@ -8,17 +8,13 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort DraygonBodyDefinition = DraygonEnemyDefinitionPointers.Body;
-    private const ushort DraygonEyeDefinition = DraygonEnemyDefinitionPointers.Eye;
-    private const ushort DraygonTailDefinition = DraygonEnemyDefinitionPointers.Tail;
-    private const ushort DraygonArmsDefinition = DraygonEnemyDefinitionPointers.Arms;
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
     public DraygonEnemyState? Draygon { get; private set; }
 
-    private static bool IsDraygonDefinition(ushort definition) => definition is
-        DraygonBodyDefinition or DraygonEyeDefinition or
-        DraygonTailDefinition or DraygonArmsDefinition;
+    private static bool IsDraygonDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
+        EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
 
     private void ResetDraygonRoomState() => Draygon = null;
 
@@ -69,7 +65,7 @@ public sealed partial class RoomEnemySystem
         part.InstructionTimer = 1;
         switch (part.EnemyDefinitionPointer)
         {
-            case DraygonEyeDefinition:
+            case EnemyDefinitionId.DraygonEye:
                 if (part.SlotIndex != 1)
                     throw new InvalidDataException("Draygon's eye must own native slot $0040.");
                 part.CurrentInstruction = DraygonInstructionProgramDefinitions.EyeFacingLeftIdle;
@@ -77,7 +73,7 @@ public sealed partial class RoomEnemySystem
                 state.Eye = part;
                 return;
 
-            case DraygonTailDefinition:
+            case EnemyDefinitionId.DraygonTail:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
                 part.CurrentInstruction = DraygonInstructionProgramDefinitions.TailFacingLeftInitialFakeWhip;
@@ -85,7 +81,7 @@ public sealed partial class RoomEnemySystem
                 state.Tail = part;
                 return;
 
-            case DraygonArmsDefinition:
+            case EnemyDefinitionId.DraygonArms:
                 if (part.SlotIndex != 3)
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
@@ -98,7 +94,7 @@ public sealed partial class RoomEnemySystem
 
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${part.EnemyDefinitionPointer:X4} is not a Draygon part.");
+                    $"Enemy ${(int)part.EnemyDefinitionPointer:X4} is not a Draygon part.");
         }
     }
 
@@ -213,9 +209,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
     private void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
-        if (part.EnemyDefinitionPointer is DraygonTailDefinition or DraygonArmsDefinition)
+        if (part.EnemyDefinitionPointer is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
-        if (part.EnemyDefinitionPointer != DraygonEyeDefinition)
+        if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
         switch (part.VariableA)
@@ -245,7 +241,7 @@ public sealed partial class RoomEnemySystem
         {
             if (state.FunctionTimer == 0)
             {
-                RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EvirDefinition);
+                RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir);
                 if ((evir.TileDataSize & 0x7fff) !=
                     DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(

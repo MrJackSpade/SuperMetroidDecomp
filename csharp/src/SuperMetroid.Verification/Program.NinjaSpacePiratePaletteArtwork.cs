@@ -11,7 +11,7 @@ internal static partial class Program
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus,
-            NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition);
+            EnemyDefinitionId.PirateGoldWall);
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
             shared.Bank << 16 | shared.PalettePointer,
             "Installed gold-Pirate sheet owns the native ninja target-palette source");
@@ -43,7 +43,7 @@ internal static partial class Program
         string overrideDirectory = Path.Combine(stockDirectory, "ninja-palette-overrides");
         Directory.CreateDirectory(overrideDirectory);
         string fileName = EnemyTileArtworkFormat.PaletteFileName(
-            NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition);
+            EnemyDefinitionId.PirateGoldWall);
         string overridePath = Path.Combine(overrideDirectory, fileName);
         JsonNode edit = JsonNode.Parse(File.ReadAllText(Path.Combine(stockDirectory, fileName)))!;
         JsonNode red = edit["colors"]![4]!["red"]!;
@@ -84,7 +84,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, colors);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GreyNinjaSpacePirateDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.XPosition = 0x0100;
             slot.YPosition = 0x0100;

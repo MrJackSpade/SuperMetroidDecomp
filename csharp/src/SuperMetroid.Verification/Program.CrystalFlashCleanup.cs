@@ -153,7 +153,7 @@ internal static partial class Program
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {
-    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+    public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         RoomEnemyDefinitionCatalog.Get(pointer);
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
@@ -180,9 +180,9 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
 
     public byte ReadByte(int address)
     {
-        ReadOnlySpan<ushort> population = [CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
+        ReadOnlySpan<ushort> population = [(ushort)CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
             CrystalFlashContactDefinitions.Properties, 0, 0, 0, 0xffff, 0];
-        ReadOnlySpan<ushort> tileset = [CrystalFlashContactDefinitions.RipperHeader, 0, 0xffff];
+        ReadOnlySpan<ushort> tileset = [(ushort)CrystalFlashContactDefinitions.RipperHeader, 0, 0xffff];
         int offset = address - CrystalFlashContactDefinitions.PopulationAddress;
         if ((uint)offset < population.Length * 2)
             return (byte)(population[offset / 2] >> ((offset & 1) * 8));
@@ -204,7 +204,7 @@ internal static class CrystalFlashContactDefinitions
     /// <summary>Constructed tileset occupies $B4:8000.</summary>
     public const int TilesetAddress = 0xb48000;
     /// <summary>Retail Ripper enemy header $A0:D47F.</summary>
-    public const ushort RipperHeader = 0xd47f;
+    public const EnemyDefinitionId RipperHeader = EnemyDefinitionId.Ripper;
     /// <summary>Ripper AI and instruction-list bank $A2.</summary>
     public const int AiBank = 0xa20000;
     /// <summary>Population flags: process instructions and process off screen.</summary>

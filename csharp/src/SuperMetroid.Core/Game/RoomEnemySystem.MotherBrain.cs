@@ -12,10 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainBodyDefinition = 0xec7f;
-    private const ushort MotherBrainHeadDefinition = 0xec3f;
-    private const ushort MotherBrainFallingTubeDefinition =
-        EnemyDefinitionPointers.MotherBrainFallingTube;
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
     private Action? _incrementMotherBrainGlassRoomArgument;
 
@@ -26,8 +22,8 @@ public sealed partial class RoomEnemySystem
         TileArtwork?.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
-    private static bool IsMotherBrainDefinition(ushort definition) =>
-        definition is MotherBrainBodyDefinition or MotherBrainHeadDefinition;
+    private static bool IsMotherBrainDefinition(EnemyDefinitionId definition) =>
+        definition is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead;
 
     private void ResetMotherBrainRoomState() => MotherBrain = null;
 

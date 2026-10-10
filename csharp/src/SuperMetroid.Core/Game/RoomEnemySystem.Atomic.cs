@@ -109,7 +109,6 @@ public sealed class AtomicEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort AtomicDefinition = 0xe9ff;
 
     private readonly AtomicEnemyState?[] _atomicStates =
         new AtomicEnemyState?[MaximumEnemyCount];

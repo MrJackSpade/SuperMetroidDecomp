@@ -103,7 +103,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, WaverEnemyState>>();
 
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.WaverDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Waver;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             initialize(slot);
             WaverEnemyState state = enemies.WaverStates[0]!;

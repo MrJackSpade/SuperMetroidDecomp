@@ -85,7 +85,6 @@ internal enum ShaktoolMotionFlags : ushort
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort ShaktoolDefinition = 0xf07f;
     internal const ushort ShaktoolTouchAi = EnemyAiCodePointers.BankAA.ShaktoolTouch;
     internal const ushort ShaktoolShotAi = EnemyAiCodePointers.BankAA.ShaktoolShot;
 
@@ -491,7 +490,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != ShaktoolDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Shaktool)
             return false;
 
         ShaktoolSegmentState state = RequireShaktoolState(slot);

@@ -18,7 +18,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MetalPirates);
         var samus = runtime.Samus!;
         RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.GoldNinjaSpacePirateDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja);
         samus.InputLocked = true;
         // The Gold Ninja is invincible in almost every frame. Install
         // ExtendedSpritemaps_PirateNinja_28 ($B2:8EA2), whose lower piece

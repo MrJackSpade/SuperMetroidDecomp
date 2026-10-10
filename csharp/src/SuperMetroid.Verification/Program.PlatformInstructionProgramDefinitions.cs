@@ -57,8 +57,8 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = testCase.IsKamer
-                ? RoomEnemySystem.KamerDefinition
-                : RoomEnemySystem.TripperDefinition;
+                ? EnemyDefinitionId.Kamer2
+                : EnemyDefinitionId.Tripper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.Parameter1 = (ushort)testCase.Direction;
             slot.Parameter2 = 0x0101;

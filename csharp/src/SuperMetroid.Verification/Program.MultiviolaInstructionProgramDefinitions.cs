@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.MultiviolaDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Multiviola;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.Parameter1 = 0x0058;
         slot.Parameter2 = 1;

@@ -62,7 +62,7 @@ internal static partial class Program
         {
             ushort address =
                 DragonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.DragonDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Dragon,
                 0xa2, address, $"Dragon $A2:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -100,7 +100,7 @@ internal static partial class Program
                 "InstallDragonInstructionList", flags)!;
 
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.DragonDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or
                 DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0;

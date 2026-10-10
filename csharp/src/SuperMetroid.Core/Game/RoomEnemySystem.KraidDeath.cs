@@ -201,7 +201,7 @@ public sealed partial class RoomEnemySystem
         // pickup gets a random position in Kraid's 256x64 floor strip and independently
         // rolls header $E2BF's six-byte chance table.
         SpawnEnemyDropScatter(
-            KraidDefinition,
+            EnemyDefinitionId.Kraid,
             count: 16,
             xBase: 128,
             xMask: 0x00ff,

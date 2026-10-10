@@ -158,7 +158,6 @@ public sealed class BullEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BullDefinition = 0xe97f;
 
     private const ushort BullAccelerationDelta = 0x0018;
     private const ushort BullMovementDelayFrames = 0x0010;

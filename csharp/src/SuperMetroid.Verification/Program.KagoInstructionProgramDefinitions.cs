@@ -36,7 +36,7 @@ internal static partial class Program
         MethodInfo resolveShot = enemySystemType.GetMethod(
             "ResolveKagoShotAfterCommon", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.KagoDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Kago;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.Parameter1 = 10;
         initialize(slot);

@@ -32,7 +32,7 @@ internal static partial class Program
         }
 
         internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             extendedFrames: extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null,
             crocomireBg2Frames: omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)),
             phantoonBg2Frames: omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)),
@@ -55,14 +55,14 @@ internal static partial class Program
             return [];
         }
 
-        internal static IEnumerable<(ushort Definition, EnemyExtendedFrameDefinition[] Frames)> Families()
+        internal static IEnumerable<(EnemyDefinitionId Definition, EnemyExtendedFrameDefinition[] Frames)> Families()
         {
             EnemyExtendedFrameDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
-            yield return (RoomEnemySystem.CrocomireDefinition, all.Where(frame =>
+            yield return (EnemyDefinitionId.Crocomire, all.Where(frame =>
                 frame.Bank == CrocomireBodyVisualDefinitions.Bank && frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)).ToArray());
-            yield return (RoomEnemySystem.PhantoonBodyDefinition, all.Where(frame =>
+            yield return (EnemyDefinitionId.PhantoonBody, all.Where(frame =>
                 frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer)).ToArray());
-            yield return (DraygonEnemyDefinitionPointers.Body, all.Where(frame => frame.Bank == DraygonBg2FrameDefinitions.Bank &&
+            yield return (EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameDefinitions.Bank &&
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 

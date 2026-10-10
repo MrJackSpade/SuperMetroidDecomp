@@ -112,7 +112,6 @@ public sealed class EtecoonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort EtecoonDefinition = 0xe5bf;
 
     private const ushort EtecoonWakeSound = 0x0035;
     private const ushort EtecoonJumpSound = 0x0033;

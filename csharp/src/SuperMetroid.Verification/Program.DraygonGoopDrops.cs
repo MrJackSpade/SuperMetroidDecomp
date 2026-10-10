@@ -35,7 +35,7 @@ internal static partial class Program
         AssertEqual(2, burstMaps.Count, "retail goop burst displays both spritemaps");
         enemies.StepEnemyProjectiles(runtime.LevelData!, runtime.Samus);
         AssertTrue(!goop.IsActive, "drop callback returns into native goto/delete tail");
-        var pickup = enemies.EnemyProjectiles.Single(projectile => projectile.EnemyHeaderPointer == 0xde7f);
+        var pickup = enemies.EnemyProjectiles.Single(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye);
         AssertTrue(pickup.IsActive && pickup.SpritemapPointer != 0,
             "critical-energy drop becomes a live rendered pickup in the same handler pass");
         AssertEqual(120, pickup.XPosition, "drop uses destroyed goop world X");
@@ -43,7 +43,7 @@ internal static partial class Program
         AssertEqual(goop.SlotIndex - 1, pickup.SlotIndex,
             "drop allocation occurs before parent deletion in the descending shared pool");
         enemies.StepEnemyProjectiles(runtime.LevelData!, runtime.Samus);
-        AssertEqual(1, enemies.EnemyProjectiles.Count(projectile => projectile.EnemyHeaderPointer == 0xde7f),
+        AssertEqual(1, enemies.EnemyProjectiles.Count(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye),
             "deleted goop cannot repeatedly spawn its drop");
         Console.WriteLine("Draygon goop: two burst images, native drop timing/header/position/slot, and deletion pass.");
     }

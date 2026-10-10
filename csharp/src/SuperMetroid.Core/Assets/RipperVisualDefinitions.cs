@@ -10,14 +10,14 @@ internal static class RipperVisualDefinitions
     /// <summary>$A2:E527, the three left-facing ordinary Ripper two-part compositions, followed by right-facing ones.</summary>
     private const ushort OrdinaryLeftFrame = 0xe527;
 
-    internal static ushort FrameAt(ushort enemyDefinition, ushort address)
+    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
         bool ordinary = enemyDefinition switch
         {
-            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition => false,
-            RoomEnemySystem.RipperDefinition => true,
+            EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 => false,
+            EnemyDefinitionId.Ripper => true,
             _ => throw new InvalidDataException(
-                $"Enemy ${enemyDefinition:X4} has no compiled Ripper visuals."),
+                $"Enemy ${(int)enemyDefinition:X4} has no compiled Ripper visuals."),
         };
         int offset = address - (ordinary ? RipperInstructionProgramDefinitions.RipperMovingRight :
             RipperInstructionProgramDefinitions.GRipperMovingLeft) - 2;
@@ -25,7 +25,7 @@ internal static class RipperVisualDefinitions
             offset = address - RipperInstructionProgramDefinitions.Ripper2MovingRight - 2;
         if (!IsVisualOffset(offset))
             throw new InvalidDataException(
-                $"Ripper-family ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+                $"Ripper-family ${(int)enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
 
         int direction = offset / 20;
         int timedFrame = (offset % 20) / 4;

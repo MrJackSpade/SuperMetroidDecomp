@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -10,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void AssertCompiledEnemyVisualSelector(
         SuperMetroidAddressSpace rom,
-        ushort enemyDefinition,
+        EnemyDefinitionId enemyDefinition,
         byte bank,
         ushort operandAddress,
         string context)

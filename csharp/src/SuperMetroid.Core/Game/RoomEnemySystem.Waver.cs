@@ -61,7 +61,6 @@ public sealed class WaverEnemyState
 /// <summary>Literal translation of Waver enemy AI <c>$A3:8687-$881D</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort WaverDefinition = 0xd63f;
 
     private const int WaverHorizontalSpeedFixed = 0x00018000;
     private const int WaverVerticalRadius = 4;

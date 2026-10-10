@@ -50,7 +50,7 @@ public sealed partial class RoomEnemySystem
                 GrappleAttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
                 GrappleHurtSamus => GrappleEnemyReaction.HurtSamus,
                 _ => throw new InvalidDataException(
-                    $"Enemy ${enemy.EnemyDefinitionPointer:X4} grapple AI " +
+                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
                     $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} " +
                     "is not one of the translated common reactions."),
             };
@@ -146,7 +146,7 @@ public sealed partial class RoomEnemySystem
 
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${enemy.EnemyDefinitionPointer:X4} grapple AI " +
+                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
                     $"${enemy.Definition.Bank:X2}:{enemy.Definition.GrappleAiPointer:X4} is not translated.");
         }
     }

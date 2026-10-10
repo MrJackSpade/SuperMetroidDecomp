@@ -22,7 +22,7 @@ internal static partial class Program
         const ushort header = 0x9000;
         WriteWord(fixture.Bus, 0xa00000 | header | 58, NativeDropChancePointer);
         var enemy = fixture.System.Slots[0];
-        enemy.EnemyDefinitionPointer = header;
+        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)header;
         enemy.Definition = default(RoomEnemyDefinition) with
         {
             GrappleAiPointer = EnemyAiCodePointers.BankA0.GrappleKill,
@@ -43,7 +43,7 @@ internal static partial class Program
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.XPosition, "death explosion preserves enemy X");
         AssertEqual(100, explosion.YPosition, "death explosion preserves enemy Y");
-        AssertEqual(header, explosion.EnemyHeaderPointer, "death actor retains drop-table identity");
+        AssertEqual((EnemyDefinitionId)header, explosion.EnemyHeaderPointer, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -88,7 +88,7 @@ internal static partial class Program
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
             var enemy = fixture.System.Slots[0];
-            enemy.EnemyDefinitionPointer = 0x9000;
+            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with
             {
                 GrappleAiPointer = EnemyAiCodePointers.BankA0.GrappleKill,

@@ -83,7 +83,7 @@ internal static partial class Program
             busField.SetValue(enemies, new MotherBrainHeadInstructionReadGuard(rom));
             var head = new RoomEnemySlot(1)
             {
-                EnemyDefinitionPointer = 0xec3f,
+                EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead,
                 Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
             };
             var state = new MotherBrainEnemyState(new RoomEnemySlot(0)) { Head = head };

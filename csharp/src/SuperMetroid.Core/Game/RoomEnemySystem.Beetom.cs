@@ -141,7 +141,6 @@ public sealed class BeetomEnemyState
 /// <summary>Literal translation of Beetom enemy <c>$E87F</c> at <c>$A8:B696-$BED2</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BeetomDefinition = 0xe87f;
 
     private const ushort BeetomProximityDistance = 0x0060;
     private const ushort BeetomMashCount = 0x0040;

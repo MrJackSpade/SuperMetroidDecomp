@@ -64,7 +64,6 @@ public sealed class ZoaEnemyState
 /// <summary>Literal translation of Zoa enemy AI $A3:B3C1-$B556.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort ZoaDefinition = 0xda7f;
 
     private const int ZoaActivationColumnDistance = 0x0080;
     private const int ZoaRisingSubpixelSpeed = 0x00008000;

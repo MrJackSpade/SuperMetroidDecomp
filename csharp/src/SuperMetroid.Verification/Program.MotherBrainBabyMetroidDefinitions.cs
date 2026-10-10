@@ -17,7 +17,7 @@ internal static partial class Program
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
         ushort[] actual =
         [
-            population.DefinitionPointer,
+            (ushort)population.DefinitionPointer,
             population.XPosition,
             population.YPosition,
             population.InitializationParameter,
@@ -31,7 +31,7 @@ internal static partial class Program
             AssertEqual(ReadWord(rom, populationAddress + word * 2), actual[word],
                 $"Mother Brain Baby population word {word}");
         }
-        AssertEqual(MotherBrainBabyMetroidDefinitions.EnemyDefinition,
+        AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             population.DefinitionPointer,
             "Mother Brain Baby population definition");
 
@@ -42,7 +42,7 @@ internal static partial class Program
             .SetValue(enemies, new SnesCgram());
 
         RoomEnemySlot body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = 0xec7f;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         var state = new MotherBrainEnemyState(body)
         {
             RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(),
@@ -58,7 +58,7 @@ internal static partial class Program
         RoomEnemySlot baby = state.BabyMetroidSlot ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         AssertEqual(1, baby.SlotIndex, "Mother Brain Baby first free physical slot");
-        AssertEqual(MotherBrainBabyMetroidDefinitions.EnemyDefinition,
+        AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             baby.EnemyDefinitionPointer,
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.Spawn.Population,

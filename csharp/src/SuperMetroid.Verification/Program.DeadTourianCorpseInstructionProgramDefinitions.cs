@@ -24,11 +24,11 @@ internal static partial class Program
                 $"Dead Tourian corpse mechanics word $A9:{definition.Address:X4}");
         }
 
-        (DeadTourianCorpseSpecies Species, ushort EnemyDefinition, int VariantCount)[] families =
+        (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount)[] families =
         [
-            (DeadTourianCorpseSpecies.Zoomer, RoomEnemySystem.DeadZoomerDefinition, 3),
-            (DeadTourianCorpseSpecies.Ripper, RoomEnemySystem.DeadRipperDefinition, 2),
-            (DeadTourianCorpseSpecies.Skree, RoomEnemySystem.DeadSkreeDefinition, 3),
+            (DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer, 3),
+            (DeadTourianCorpseSpecies.Ripper, EnemyDefinitionId.CorpseRipper, 2),
+            (DeadTourianCorpseSpecies.Skree, EnemyDefinitionId.CorpseSkree, 3),
         ];
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

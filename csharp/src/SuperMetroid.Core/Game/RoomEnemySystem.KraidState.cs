@@ -269,14 +269,6 @@ public sealed class KraidEnemyState
 
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KraidDefinition = 0xe2bf;
-    internal const ushort KraidArmDefinition = 0xe2ff;
-    internal const ushort KraidTopLintDefinition = 0xe33f;
-    internal const ushort KraidMiddleLintDefinition = 0xe37f;
-    internal const ushort KraidBottomLintDefinition = 0xe3bf;
-    internal const ushort KraidFootDefinition = 0xe3ff;
-    internal const ushort KraidGoodNailDefinition = 0xe43f;
-    internal const ushort KraidBadNailDefinition = 0xe47f;
     private readonly List<KraidPlmRequest> _kraidPlmRequests = [];
 
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
@@ -301,7 +293,7 @@ public sealed partial class RoomEnemySystem
         if (Kraid is null)
         {
             throw new InvalidOperationException(
-                $"Enemy ${slot.EnemyDefinitionPointer:X4} requires Kraid's body to have initialized this room.");
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} requires Kraid's body to have initialized this room.");
         }
         return Kraid;
     }

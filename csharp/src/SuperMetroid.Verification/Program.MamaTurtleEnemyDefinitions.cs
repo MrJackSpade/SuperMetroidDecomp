@@ -13,16 +13,16 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = new MamaTurtleDefinitionReadGuard(rom);
-        foreach (ushort pointer in new ushort[]
+        foreach (EnemyDefinitionId pointer in new EnemyDefinitionId[]
                  {
-                     MamaTurtleEnemyDefinitionCatalog.MamaPointer,
-                     MamaTurtleEnemyDefinitionCatalog.BabyPointer,
+                     EnemyDefinitionId.MamaTurtle,
+                     EnemyDefinitionId.BabyTurtle,
                  })
         {
             RoomEnemyDefinition expected = ReadNativeEnemyDefinition(rom, pointer);
-            AssertTrue(MamaTurtleEnemyDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition actual),
-                $"Mama Turtle header $A0:{pointer:X4} is compiled");
-            AssertEqual(expected, actual, $"compiled enemy header $A0:{pointer:X4}");
+            AssertTrue(MamaTurtleEnemyDefinitionCatalogAccess.TryGet(pointer, out RoomEnemyDefinition actual),
+                $"Mama Turtle header $A0:{(int)pointer:X4} is compiled");
+            AssertEqual(expected, actual, $"compiled enemy header $A0:{(int)pointer:X4}");
         }
 
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
@@ -44,15 +44,15 @@ internal static partial class Program
             samus: new SamusState());
 
         AssertEqual(5, enemies.EnemyCount, "Mama Turtle retail population count");
-        AssertEqual(MamaTurtleEnemyDefinitionCatalog.MamaPointer,
+        AssertEqual(EnemyDefinitionId.MamaTurtle,
             enemies.Slots[0].EnemyDefinitionPointer, "Mama Turtle parent header identity");
-        AssertEqual(MamaTurtleEnemyDefinitionCatalog.BabyPointer,
+        AssertEqual(EnemyDefinitionId.BabyTurtle,
             enemies.Slots[1].EnemyDefinitionPointer, "Baby Turtle header identity");
-        AssertEqual(ReadNativeEnemyDefinition(rom, MamaTurtleEnemyDefinitionCatalog.MamaPointer),
+        AssertEqual(ReadNativeEnemyDefinition(rom, EnemyDefinitionId.MamaTurtle),
             enemies.Slots[0].Definition, "Mama Turtle loaded definition");
         for (int slot = 1; slot < 5; slot++)
         {
-            AssertEqual(ReadNativeEnemyDefinition(rom, MamaTurtleEnemyDefinitionCatalog.BabyPointer),
+            AssertEqual(ReadNativeEnemyDefinition(rom, EnemyDefinitionId.BabyTurtle),
                 enemies.Slots[slot].Definition, $"Baby Turtle loaded definition slot {slot}");
         }
 

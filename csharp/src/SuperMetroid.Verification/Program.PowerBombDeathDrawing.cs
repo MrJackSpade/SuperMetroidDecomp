@@ -11,16 +11,16 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var spritemaps = EnemySpritemapCatalog.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: spritemaps);
 
-        Confirm(RoomEnemySystem.AtomicDefinition, respawns: false, lethal: true);
-        Confirm(RoomEnemySystem.SidehopperDefinition, respawns: false, lethal: true);
-        Confirm(RoomEnemySystem.SidehopperDefinition, respawns: true, lethal: true);
-        Confirm(RoomEnemySystem.AtomicDefinition, respawns: false, lethal: false);
+        Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);
+        Confirm(EnemyDefinitionId.Sidehopper, respawns: false, lethal: true);
+        Confirm(EnemyDefinitionId.Sidehopper, respawns: true, lethal: true);
+        Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: false);
         Console.WriteLine("Power-bomb death drawing: cleared slots and respawn placeholders emit no OAM; surviving enemies retain their display; missing live artwork still fails.");
 
-        void Confirm(ushort header, bool respawns, bool lethal)
+        void Confirm(EnemyDefinitionId header, bool respawns, bool lethal)
         {
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
@@ -51,7 +51,7 @@ internal static partial class Program
             enemies.DrawLayers(after, 0, 0, 0, 7);
             if (lethal)
             {
-                AssertEqual(respawns ? EnemyLifecycleDefinitions.RespawnPlaceholder : (ushort)0,
+                AssertEqual(respawns ? EnemyDefinitionId.Respawn : (ushort)0,
                     actor.EnemyDefinitionPointer, "lethal power bomb clears or reserves the physical slot");
                 AssertEqual(0, after.NextByteOffset, "dead enemy emits no sprite records");
                 AssertEqual((ushort)1, enemies.EnemiesKilled, "death is counted once");

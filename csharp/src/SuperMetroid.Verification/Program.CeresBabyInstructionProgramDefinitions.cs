@@ -62,7 +62,7 @@ internal static partial class Program
             CeresRidleyColors = CeresRidleyColorCatalog.Load(
                 new MemoryStream(colorJson, writable: false)),
         };
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         // $A6:BFCF samples the live RNG word; it never calls GenerateRandomNumber.
@@ -160,8 +160,8 @@ internal static partial class Program
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: installed);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
             new CeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
@@ -205,8 +205,8 @@ internal static partial class Program
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: EnemySpritemapCatalog.Load(
                 new MemoryStream(editedJson, writable: false)));
         baby.BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial;

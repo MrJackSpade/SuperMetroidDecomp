@@ -19,11 +19,11 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        ushort populationDefinition = (ushort)(rom.ReadByte(population) |
-            rom.ReadByte(population + 1) << 8);
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(rom.ReadByte(population) |
+            rom.ReadByte(population + 1) << 8));
         ushort extraProperties = (ushort)(rom.ReadByte(population + 10) |
             rom.ReadByte(population + 11) << 8);
-        AssertEqual(RoomEnemySystem.FakeKraidDefinition, populationDefinition,
+        AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue((extraProperties &
                 (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
@@ -72,7 +72,7 @@ internal static partial class Program
         Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(rom));
         AssertThrows<InvalidDataException>(
             () => KraidVisualDefinitions.FrameAt(
-                RoomEnemySystem.FakeKraidDefinition, 0x9a42),
+                EnemyDefinitionId.MiniKraid, 0x9a42),
             "unlisted Fake Kraid visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Fake Kraid mechanics byte");
@@ -170,7 +170,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
 
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.FakeKraidDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.MiniKraid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.XPosition = 0x0100;
             slot.YPosition = 0x0100;

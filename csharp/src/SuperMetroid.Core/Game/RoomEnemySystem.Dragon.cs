@@ -110,7 +110,6 @@ public sealed class DragonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort DragonDefinition = 0xd4bf;
     internal const ushort DragonTouchAi = EnemyAiCodePointers.BankA2.DragonTouch;
     internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
     internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;
@@ -368,7 +367,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
         RoomEnemySlot wing = _slots[body.SlotIndex + 1];
-        if (body.Parameter1 != 0 || wing.EnemyDefinitionPointer != DragonDefinition ||
+        if (body.Parameter1 != 0 || wing.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
             wing.Parameter1 == 0)
         {
             throw new InvalidDataException(

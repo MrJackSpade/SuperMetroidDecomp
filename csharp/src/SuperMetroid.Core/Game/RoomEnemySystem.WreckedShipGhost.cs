@@ -118,7 +118,6 @@ public sealed class WreckedShipGhostEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort WreckedShipGhostDefinition = 0xe77f;
 
     private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
     private const ushort WreckedShipGhostVisibleDuration = 0x0078;

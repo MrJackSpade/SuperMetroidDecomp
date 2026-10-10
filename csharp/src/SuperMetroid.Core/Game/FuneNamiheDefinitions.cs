@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled cartridge identities and instruction selectors for Fune/Namihe.</summary>
 internal static class FuneNamiheDefinitions
 {
-    /// <summary>Enemy definition $E6FF (Fune) in bank $A0.</summary>
-    internal const ushort FuneEnemyDefinition = 0xe6ff;
-
-    /// <summary>Enemy definition $E73F (Namihe) in bank $A0.</summary>
-    internal const ushort NamiheEnemyDefinition = 0xe73f;
 
     /// <summary>$A8:96D7, Fune idle-left selector cursor.</summary>
     internal const ushort FuneIdleLeftCursor = 0x96d7;

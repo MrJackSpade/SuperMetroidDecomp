@@ -14,7 +14,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         var actor = enemies.Slots[0];
-        actor.EnemyDefinitionPointer = RoomEnemySystem.BombTorizoDefinition;
+        actor.EnemyDefinitionPointer = EnemyDefinitionId.BombTorizo;
         actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
         var state = new TorizoEnemyState(actor, false);
         typeof(RoomEnemySystem).GetField("_torizoState", flags)!.SetValue(enemies, state);

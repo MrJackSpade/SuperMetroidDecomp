@@ -219,7 +219,7 @@ public static partial class SamusGrappleMovement
 
                 default:
                     throw new InvalidDataException(
-                        $"Grapple block type ${block.CollisionType:X1} escaped the complete " +
+                        $"Grapple block type ${(int)block.CollisionType:X1} escaped the complete " +
                         $"sixteen-entry dispatcher at ({resolvedX},{resolvedY}).");
             }
         }

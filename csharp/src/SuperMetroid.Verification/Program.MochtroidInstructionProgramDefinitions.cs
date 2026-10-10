@@ -36,7 +36,7 @@ internal static partial class Program
             BindingFlags.Static | BindingFlags.NonPublic)!;
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
         RoomEnemySlot mochtroid = enemies.Slots[0];
-        mochtroid.EnemyDefinitionPointer = EnemyDefinitionPointers.Mochtroid;
+        mochtroid.EnemyDefinitionPointer = EnemyDefinitionId.Mochtroid;
         mochtroid.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         initialize(mochtroid);
         MochtroidEnemyState state = enemies.MochtroidStates[0]!;
@@ -66,7 +66,7 @@ internal static partial class Program
              index++)
         {
             ushort operand = MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionPointers.Mochtroid,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Mochtroid,
                 0xa3, operand, $"Mochtroid $A3:{operand:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

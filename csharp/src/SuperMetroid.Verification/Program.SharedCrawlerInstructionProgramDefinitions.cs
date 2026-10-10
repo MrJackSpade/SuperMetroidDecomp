@@ -28,18 +28,18 @@ internal static partial class Program
                 $"shared-crawler mechanics word $A3:{definition.Address:X4}");
         }
 
-        ushort[] enemyDefinitions =
+        EnemyDefinitionId[] enemyDefinitions =
         [
-            RoomEnemySystem.ZeelaDefinition,
-            RoomEnemySystem.SovaDefinition,
-            RoomEnemySystem.ZoomerDefinition,
-            RoomEnemySystem.StoneZoomerDefinition,
+            EnemyDefinitionId.Zeela,
+            EnemyDefinitionId.Sova,
+            EnemyDefinitionId.Zoomer,
+            EnemyDefinitionId.MZoomer,
         ];
         var guard = new SharedCrawlerInstructionReadGuard(
             rom, forbidPresentation: true);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        foreach (ushort enemyDefinition in enemyDefinitions)
+        foreach (EnemyDefinitionId enemyDefinition in enemyDefinitions)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -55,7 +55,7 @@ internal static partial class Program
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.Shared, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
-                $"shared crawler ${enemyDefinition:X4} selects {orientation}");
+                $"shared crawler ${(int)enemyDefinition:X4} selects {orientation}");
             ExecuteSharedCrawlerProgram(enemies, process, slot, callCount: 6);
             CrawlerEnemyFunction expected = orientation is
                 CrawlerSurfaceOrientation.UpsideRight or
@@ -63,9 +63,9 @@ internal static partial class Program
                     ? CrawlerEnemyFunction.CrawlingVertically
                     : CrawlerEnemyFunction.CrawlingHorizontally;
             AssertEqual(expected, enemies.CrawlerStates[0]!.Function,
-                $"shared crawler ${enemyDefinition:X4}/{orientation} publishes native movement");
+                $"shared crawler ${(int)enemyDefinition:X4}/{orientation} publishes native movement");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
-                $"shared crawler ${enemyDefinition:X4}/{orientation} loops all five frames");
+                $"shared crawler ${(int)enemyDefinition:X4}/{orientation} loops all five frames");
         }
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,

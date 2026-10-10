@@ -1,14 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Named enemy definitions for the three-part Landing Site gunship actor.</summary>
-internal static class GunshipEnemyDefinitions
-{
-    /// <summary>Enemy definition <c>EnemyDefs_ShipTop</c> at $A0:D07F.</summary>
-    public const ushort Top = 0xd07f;
-    /// <summary>Enemy definition <c>EnemyDefs_ShipBottomEntrance</c> at $A0:D0BF.</summary>
-    public const ushort BottomEntrance = 0xd0bf;
-}
-
 /// <summary>
 /// Compiled engine-control words for the gunship hull and entrance-pad programs.
 /// Interleaved visual selectors are compiled identities; their editable OAM

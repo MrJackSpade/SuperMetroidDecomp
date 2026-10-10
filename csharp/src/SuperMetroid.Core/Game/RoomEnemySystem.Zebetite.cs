@@ -75,7 +75,6 @@ public sealed class ZebetiteEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort ZebetiteDefinition = 0xe27f;
 
     private const ushort ZebetiteMaximumHealth = 1000;
     private const ushort ZebetiteShotSound = 9;
@@ -248,11 +247,11 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyPopulationRecord population =
             ZebetiteDefinitions.SpawnPopulation(linkedHalf);
-        if (population.DefinitionPointer != ZebetiteDefinition)
+        if (population.DefinitionPointer != EnemyDefinitionId.Zebetite)
         {
             throw new InvalidDataException(
                 $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn record names enemy " +
-                $"${population.DefinitionPointer:X4}.");
+                $"${(int)population.DefinitionPointer:X4}.");
         }
 
         RoomEnemySlot spawned = _slots[slotIndex];

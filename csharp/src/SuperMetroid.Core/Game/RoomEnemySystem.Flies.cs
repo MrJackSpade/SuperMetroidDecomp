@@ -72,9 +72,6 @@ public sealed class FlyEnemyState
 /// <summary>Shared Mellow/Mella/Memu AI translated literally from $A2:B06B-$B1E7.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MellowDefinition = 0xd0ff;
-    internal const ushort MellaDefinition = 0xd13f;
-    internal const ushort MemuDefinition = 0xd17f;
 
     private const int FlyAttackHorizontalRange = 0x70;
     private readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[MaximumEnemyCount];

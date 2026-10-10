@@ -100,8 +100,6 @@ public readonly record struct SporeSpawnDropRequest();
 
 public sealed partial class RoomEnemySystem
 {
-    /// <summary><c>EnemyHeaders_SporeSpawn</c> at <c>$A0:DF3F</c>; bank-relative body definition identity, distinct from stalk header $DF7F.</summary>
-    public const ushort SporeSpawnDefinition = 0xdf3f;
 
     private const ushort SporeSpawnDeathCenterX = 128;
     private const ushort SporeSpawnDeathCenterY = 624;

@@ -49,7 +49,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot shitroid = enemies.Slots[0];
-        shitroid.EnemyDefinitionPointer = RoomEnemySystem.ShitroidDefinition;
+        shitroid.EnemyDefinitionPointer = EnemyDefinitionId.BabyMetroid;
         shitroid.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         initialize(shitroid, 0);
         AssertEqual(ShitroidInstructionProgramDefinitions.Normal,

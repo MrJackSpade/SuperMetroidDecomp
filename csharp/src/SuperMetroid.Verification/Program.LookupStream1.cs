@@ -194,12 +194,12 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializePowamp", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
             var balloon = enemies.Slots[0];
-            balloon.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+            balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
             balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             balloon.Parameter1 = 1;
             initialize(balloon);
             var body = enemies.Slots[1];
-            body.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+            body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             initialize(body);
             body.YPosition = 100;
@@ -2399,15 +2399,15 @@ internal static partial class Program
             else AssertThrows<InvalidDataException>(() => OwtchInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Owtch noncontrol rejection");
             if (visuals.Contains(pointer))
                 AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Owtch native visual order");
-            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, (ushort)pointer), "Owtch nonvisual rejection");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, (ushort)pointer), "Owtch nonvisual rejection");
         }
         var stokeVisuals = new HashSet<int>();
         for (int side = 0; side < 2; side++)
             foreach (int offset in new[] { 4, 8, 12, 16, 24, 32 }) stokeVisuals.Add(0x8932 + side * 38 + offset);
         for (int pointer = 0x8931; pointer <= 0x897f; pointer++)
             if (stokeVisuals.Contains(pointer))
-                AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke native visual selection");
-            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke nonvisual rejection");
+                AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, (ushort)pointer), "Stoke native visual selection");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, (ushort)pointer), "Stoke nonvisual rejection");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Owtch control bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })

@@ -15,7 +15,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireTongueDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
         slot.Definition = default(RoomEnemyDefinition) with
         { Bank = CrocomireTongueCollisionDefinitions.Bank };
         var seen = new HashSet<ushort>();
@@ -94,8 +94,8 @@ internal static partial class Program
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with
             { Bank = CrocomireTongueCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
-        compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireTongueDefinition;
+        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
         AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");
 

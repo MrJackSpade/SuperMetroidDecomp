@@ -266,7 +266,7 @@ internal static partial class Program
             var slot = runtime.Enemies.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
-                AssertTrue(slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
+                AssertTrue((ushort)slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
             for (int word = 0; word < slotWords.Length; word++)
                 typeof(RoomEnemySlot).GetProperty(slotWords[word])!.SetValue(slot, W(address + word * 2));
             for (int word = 0; word < 6; word++)

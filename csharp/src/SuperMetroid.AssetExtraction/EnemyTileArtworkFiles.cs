@@ -40,11 +40,12 @@ public static class EnemyTileArtworkFiles
             int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
-                ushort definitionPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
-                if (definitionPointer == 0xffff) break;
+                ushort headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
+                if (headerWord == 0xffff) break;
                 if (slot == 4)
                     throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");
-                if (entries.ContainsKey(definitionPointer)) continue;
+                if (entries.ContainsKey(headerWord)) continue;
+                EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
 
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
@@ -59,7 +60,7 @@ public static class EnemyTileArtworkFiles
                 RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
                     new MemoryStream(encoded, writable: false), byteCount);
                 if (!roundtrip.Transfer.Span.SequenceEqual(planar))
-                    throw new InvalidDataException($"Enemy ${definitionPointer:X4} tile PNG changed native pixels.");
+                    throw new InvalidDataException($"Enemy ${headerWord:X4} tile PNG changed native pixels.");
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -70,7 +71,7 @@ public static class EnemyTileArtworkFiles
                 {
                     ushort word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
                     if ((word & 0x8000) != 0)
-                        throw new InvalidDataException($"Enemy ${definitionPointer:X4} palette has an unrepresentable high bit.");
+                        throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
                         Red = word & 31,
@@ -89,10 +90,10 @@ public static class EnemyTileArtworkFiles
                 EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
                     .LoadTo(compiledCgram, 0);
                 if (!nativeCgram.Colors.SequenceEqual(compiledCgram.Colors))
-                    throw new InvalidDataException($"Enemy ${definitionPointer:X4} palette JSON changed native colors.");
+                    throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,
                     EnemyTileArtworkFormat.PaletteFileName(definitionPointer)), paletteJson);
-                entries.Add(definitionPointer, new EnemyTileFileEntry(
+                entries.Add(headerWord, new EnemyTileFileEntry(
                     byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
                     Convert.ToHexString(SHA256.HashData(paletteJson))));
             }
@@ -464,15 +465,16 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 "Enemy tile manifest omits or substitutes a Ceres escape tile page.");
 
-        var sheets = new Dictionary<ushort, RoomCharacterAtlas>();
-        var palettes = new Dictionary<ushort, EnemyPaletteSheet>();
-        var dmaSources = new Dictionary<ushort, int>();
-        foreach ((ushort definitionPointer, EnemyTileFileEntry entry) in manifest.Entries)
+        var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
+        var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
+        var dmaSources = new Dictionary<EnemyDefinitionId, int>();
+        foreach ((ushort manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
+            EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
             RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
             if (entry.NativeByteCount != (definition.TileDataSize & 0x7fff))
                 throw new InvalidDataException(
-                    $"Enemy ${definitionPointer:X4} manifest DMA size differs from retail.");
+                    $"Enemy ${manifestKey:X4} manifest DMA size differs from retail.");
             dmaSources.Add(definitionPointer, definition.TileDataAddress);
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
             string fileName = EnemyTileArtworkFormat.FileName(definitionPointer);

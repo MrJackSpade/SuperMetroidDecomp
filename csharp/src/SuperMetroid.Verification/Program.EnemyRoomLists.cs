@@ -30,8 +30,11 @@ internal static partial class Program
             ReadOnlySpan<RoomEnemyPopulationRecord> records = compiled.Records.Span;
             for (int index = 0; index < records.Length; index++, address += 16)
             {
+                ushort definitionWord = ReadVerificationWord(bus, address);
+                AssertTrue(definitionWord != 0xffff,
+                    $"population $A1:{pointer:X4} has no early terminator");
                 RoomEnemyPopulationRecord native = new(
-                    ReadVerificationWord(bus, address),
+                    EnemyDefinitionIds.FromHeaderPointer(definitionWord),
                     ReadVerificationWord(bus, address + 2),
                     ReadVerificationWord(bus, address + 4),
                     ReadVerificationWord(bus, address + 6),
@@ -41,8 +44,6 @@ internal static partial class Program
                     ReadVerificationWord(bus, address + 14));
                 AssertEqual(native, records[index],
                     $"population $A1:{pointer:X4} ordered slot {index}");
-                AssertTrue(native.DefinitionPointer != 0xffff,
-                    $"population $A1:{pointer:X4} has no early terminator");
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"population $A1:{pointer:X4} length reaches its native terminator");
@@ -61,13 +62,14 @@ internal static partial class Program
             ReadOnlySpan<RoomEnemyGraphicsSetHeader> records = compiled.Records.Span;
             for (int index = 0; index < records.Length; index++, address += 4)
             {
+                ushort definitionWord = ReadVerificationWord(bus, address);
+                AssertTrue(definitionWord != 0xffff,
+                    $"graphics set $B4:{pointer:X4} has no early terminator");
                 RoomEnemyGraphicsSetHeader native = new(
-                    ReadVerificationWord(bus, address),
+                    EnemyDefinitionIds.FromHeaderPointer(definitionWord),
                     ReadVerificationWord(bus, address + 2));
                 AssertEqual(native, records[index],
                     $"graphics set $B4:{pointer:X4} ordered member {index}");
-                AssertTrue(native.DefinitionPointer != 0xffff,
-                    $"graphics set $B4:{pointer:X4} has no early terminator");
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"graphics set $B4:{pointer:X4} length reaches its native terminator");

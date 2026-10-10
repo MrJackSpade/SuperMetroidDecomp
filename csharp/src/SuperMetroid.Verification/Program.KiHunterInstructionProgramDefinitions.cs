@@ -168,12 +168,12 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
 
             RoomEnemySlot body = enemies.Slots[0];
-            body.EnemyDefinitionPointer = RoomEnemySystem.KiHunterDefinition;
+            body.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreen;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             body.XPosition = 0x0080;
             body.YPosition = 0x0080;
             RoomEnemySlot wings = enemies.Slots[1];
-            wings.EnemyDefinitionPointer = RoomEnemySystem.KiHunterWingsDefinition;
+            wings.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreenWings;
             wings.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             initializeBody(body);
             initializeWings(wings);

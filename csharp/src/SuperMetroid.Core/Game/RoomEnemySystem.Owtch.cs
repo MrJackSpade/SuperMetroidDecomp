@@ -87,7 +87,6 @@ public sealed class OwtchEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort OwtchDefinition = 0xd03f;
     internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
     private const ushort OwtchMaximumBurialDepth = 16;

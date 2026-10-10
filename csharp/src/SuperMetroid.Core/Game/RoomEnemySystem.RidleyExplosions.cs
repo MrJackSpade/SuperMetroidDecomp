@@ -17,7 +17,7 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(
             _bus!,
-            RidleyExplosionDefinitions.EnemyDefinition);
+            EnemyDefinitionId.RidleyExplosion);
         RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
 
         void SpawnPart(ushort parameter)
@@ -35,7 +35,7 @@ public sealed partial class RoomEnemySystem
             // property $2C00, and one even parameter. Initialization replaces position and
             // instruction from the still-live shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
-                RidleyExplosionDefinitions.EnemyDefinition,
+                EnemyDefinitionId.RidleyExplosion,
                 XPosition: 0,
                 YPosition: 0,
                 InitializationParameter: 0,

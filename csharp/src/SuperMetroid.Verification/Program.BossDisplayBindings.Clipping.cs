@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
@@ -6,7 +7,7 @@ internal static partial class Program
     private static void VerifyBossDisplayClipping()
     {
         int checks = 0;
-        foreach ((ushort definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
+        foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
         {
             EnemyExtendedFrameDefinition? bg2 = family.Cast<EnemyExtendedFrameDefinition?>()
                 .FirstOrDefault(frame => frame.HasValue && EnemyExtendedFrameDefinitions.IsBg2Only(frame.Value));

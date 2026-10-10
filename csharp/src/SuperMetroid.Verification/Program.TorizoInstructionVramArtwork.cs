@@ -23,7 +23,7 @@ internal static partial class Program
         MethodInfo applyTransfer = typeof(RoomEnemySystem).GetMethod(
             "ApplyEnemyInstructionVramTransfer", instanceFlags)!;
         RoomEnemySlot installedSlot = installedEnemies.Slots[0];
-        installedSlot.EnemyDefinitionPointer = RoomEnemySystem.GoldenTorizoDefinition;
+        installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
         installedSlot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = TorizoInstructionVramTransferDefinitions.Bank,
@@ -132,7 +132,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_vram", instanceFlags)!
             .SetValue(editedEnemies, editedVram);
         RoomEnemySlot editedSlot = editedEnemies.Slots[0];
-        editedSlot.EnemyDefinitionPointer = RoomEnemySystem.GoldenTorizoDefinition;
+        editedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
         editedSlot.Definition = installedSlot.Definition;
         applyTransfer.Invoke(editedEnemies,
             [editedSlot, GoldenTorizoInitialInstructionProgramDefinitions.Initial]);

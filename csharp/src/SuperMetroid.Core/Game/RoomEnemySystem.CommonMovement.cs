@@ -303,7 +303,7 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.GrappleBlock or
             RoomCollisionType.BombableBlock => true,
             _ => throw new InvalidDataException(
-                $"Enemy horizontal collision type ${block.CollisionType:X1} is invalid."),
+                $"Enemy horizontal collision type ${(int)block.CollisionType:X1} is invalid."),
         };
     }
 
@@ -349,7 +349,7 @@ public sealed partial class RoomEnemySystem
             RoomCollisionType.GrappleBlock or
             RoomCollisionType.BombableBlock => true,
             _ => throw new InvalidDataException(
-                $"Enemy vertical collision type ${block.CollisionType:X1} is invalid."),
+                $"Enemy vertical collision type ${(int)block.CollisionType:X1} is invalid."),
         };
     }
 

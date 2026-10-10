@@ -11,16 +11,16 @@ public static class RoomEnemyDefinitionImporter
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
     /// <param name="pointer">Bank-$A0 pointer to the native enemy definition.</param>
     /// <returns>The decoded enemy definition.</returns>
-    public static RoomEnemyDefinition Load(ISnesAddressSpace bus, ushort pointer)
+    public static RoomEnemyDefinition Load(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge,
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)(pointer + offset)));
+            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
         byte Byte(int offset) => cartridge.ReadCartridgeByte(
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)(pointer + offset)));
+            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge,
-            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)(pointer + offset)));
+            RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));
         return new RoomEnemyDefinition(
             TileDataSize: Word(0),
             PalettePointer: Word(2),

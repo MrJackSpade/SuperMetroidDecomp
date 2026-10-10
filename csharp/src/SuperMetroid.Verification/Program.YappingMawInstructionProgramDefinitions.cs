@@ -147,7 +147,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.YappingMawDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             slot.XPosition = 128;
             slot.YPosition = 128;
@@ -177,7 +177,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.YappingMawDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;

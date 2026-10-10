@@ -35,7 +35,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot balloon = enemies.Slots[0];
-        balloon.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+        balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
         balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         balloon.Parameter1 = 1;
         initialize(balloon);
@@ -44,7 +44,7 @@ internal static partial class Program
             "real Powamp balloon initializer installs compiled deflated program");
 
         RoomEnemySlot body = enemies.Slots[1];
-        body.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(body);
         AssertEqual(PowampInstructionProgramDefinitions.BodySlow,

@@ -25,11 +25,11 @@ internal static partial class Program
         }
 
         var guard = new FlyInstructionProgramReadGuard(rom);
-        foreach (ushort definition in new ushort[]
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  {
-                     RoomEnemySystem.MellowDefinition,
-                     RoomEnemySystem.MellaDefinition,
-                     RoomEnemySystem.MemuDefinition,
+                     EnemyDefinitionId.Mellow,
+                     EnemyDefinitionId.Mella,
+                     EnemyDefinitionId.Menu,
                  })
         {
             var enemies = new RoomEnemySystem();
@@ -41,7 +41,7 @@ internal static partial class Program
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(slot);
             AssertEqual(FlyInstructionProgramDefinitions.Flight, slot.CurrentInstruction,
-                $"fly ${definition:X4} initializer program");
+                $"fly ${(int)definition:X4} initializer program");
 
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
@@ -51,7 +51,7 @@ internal static partial class Program
                 process.Invoke(enemies, arguments);
             AssertEqual(unchecked((ushort)(FlyInstructionProgramDefinitions.Flight + 4)),
                 slot.CurrentInstruction,
-                $"fly ${definition:X4} completes native animation loop");
+                $"fly ${(int)definition:X4} completes native animation loop");
         }
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,

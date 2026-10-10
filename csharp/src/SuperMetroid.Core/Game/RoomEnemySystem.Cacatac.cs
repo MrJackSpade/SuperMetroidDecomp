@@ -129,7 +129,6 @@ public sealed class CacatacEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort CacatacDefinition = 0xcfff;
 
     private const ushort CacatacSpikeSound = 0x0034;
 

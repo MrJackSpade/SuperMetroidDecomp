@@ -117,8 +117,8 @@ internal static partial class Program
         var missing = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(),
-                new Dictionary<ushort, EnemyPaletteSheet>()),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>()),
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(missing, guarded);
         ExpectMissing(() => emergency.Invoke(missing, [new VramWriteQueue()]),

@@ -178,7 +178,7 @@ internal static partial class Program
                 .SetValue(enemies, isBossDefeated);
             slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer =
-                CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer;
+                EnemyDefinitionId.CeresDoor;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.XPosition = 0x0080;
             slot.YPosition = 0x0080;

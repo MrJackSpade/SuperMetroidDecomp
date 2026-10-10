@@ -51,7 +51,6 @@ public sealed class MultiviolaEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MultiviolaDefinition = 0xd1bf;
 
     private const ushort MultiviolaCosineOffset = 0x0040;
     private const ushort MultiviolaSineOffset = 0x0080;

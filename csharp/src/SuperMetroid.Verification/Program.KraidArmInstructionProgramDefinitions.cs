@@ -109,9 +109,9 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, state);
 
         RoomEnemySlot body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         RoomEnemySlot arm = enemies.Slots[1];
-        arm.EnemyDefinitionPointer = RoomEnemySystem.KraidArmDefinition;
+        arm.EnemyDefinitionPointer = EnemyDefinitionId.KraidArm;
         arm.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
         return enemies;
     }

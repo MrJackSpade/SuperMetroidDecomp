@@ -22,9 +22,9 @@ internal static class KraidVisualDefinitions
     /// and spitting advances three mouth poses then returns to the middle pose.
     /// Only native visual operands are accepted; unsupported selectors throw.
     /// </summary>
-    internal static ushort FrameAt(ushort enemyDefinition, ushort address)
+    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
-        if (enemyDefinition is RoomEnemySystem.KraidGoodNailDefinition or RoomEnemySystem.KraidBadNailDefinition)
+        if (enemyDefinition is EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad)
         {
             int distance = address - FirstNailOperand;
             if ((uint)distance <= 28 && distance % 4 == 0)
@@ -33,7 +33,7 @@ internal static class KraidVisualDefinitions
                 return (ushort)(InitialNailFrame + 34 * (frame / 2) + 12 * (frame % 2));
             }
         }
-        else if (enemyDefinition == RoomEnemySystem.FakeKraidDefinition)
+        else if (enemyDefinition == EnemyDefinitionId.MiniKraid)
         {
             int facing = address >= FirstFakeOperand + FacingProgramStride ? 1 : 0;
             int offset = address - FirstFakeOperand - facing * FacingProgramStride;
@@ -50,9 +50,9 @@ internal static class KraidVisualDefinitions
         }
         else
         {
-            throw new InvalidDataException($"Enemy ${enemyDefinition:X4} has no compiled Kraid-family visuals.");
+            throw new InvalidDataException($"Enemy ${(int)enemyDefinition:X4} has no compiled Kraid-family visuals.");
         }
         throw new InvalidDataException(
-            $"Kraid-family ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+            $"Kraid-family ${(int)enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
     }
 }

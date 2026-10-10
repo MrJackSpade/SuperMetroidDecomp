@@ -20,7 +20,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.LowerNorfairFireflea);
         var samus = runtime.Samus!;
         RoomEnemySlot fireflea = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.FirefleaDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);
         ushort x = fireflea.XPosition, y = fireflea.YPosition;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
         samus.HorizontalSpeed.ContactDamageIndex = 3;
@@ -37,7 +37,7 @@ internal static partial class Program
         var cleared = explosions.Single(p => p != real);
         AssertEqual((ushort)0, cleared.XPosition, "the second explosion reads the cleared X position");
         AssertEqual((ushort)0, cleared.YPosition, "the second explosion reads the cleared Y position");
-        AssertEqual((ushort)0, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
+        AssertEqual(EnemyDefinitionId.None, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.SmallExplosion, cleared.InstructionPointer,
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual((ushort)(killsBefore + 2), runtime.Enemies.EnemiesKilled, "both deaths count a kill");

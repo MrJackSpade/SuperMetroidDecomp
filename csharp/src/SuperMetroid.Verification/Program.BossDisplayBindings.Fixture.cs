@@ -19,7 +19,7 @@ internal static partial class Program
         private delegate bool HitboxQuery(RoomEnemySlot actor, ushort x, ushort y,
             ushort radiusX, ushort radiusY, bool shot, out ushort callback);
 
-        internal BossDisplayFixture(ushort definition, EnemyTileArtworkCatalog artwork)
+        internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork)
         {
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
             Bind("_bus", Memory); Bind("_vram", Vram); Bind("_cgram", new SnesCgram());

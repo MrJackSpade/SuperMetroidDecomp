@@ -35,7 +35,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.SciserDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.CurrentInstruction = (ushort)orientation;
             slot.Parameter1 = 0;

@@ -26,7 +26,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.Slots[0];
-            actor.EnemyDefinitionPointer = variant == 0 ? RoomEnemySystem.BombTorizoDefinition : RoomEnemySystem.GoldenTorizoDefinition;
+            actor.EnemyDefinitionPointer = variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo;
             for (int properties = 0; properties <= ushort.MaxValue; properties++)
             {
                 actor.Properties = (ushort)properties;

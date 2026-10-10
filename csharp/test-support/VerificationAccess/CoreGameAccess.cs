@@ -836,7 +836,7 @@ internal static class LayerBlendingConfigurationsAccess
     }
 }
 
-/// <summary>Verification access to <see cref="MamaTurtleEnemyDefinitionCatalog"/> members production does not use.</summary>
+/// <summary>Independent compiled Mama Turtle family headers that verification compares with the cartridge.</summary>
 internal static class MamaTurtleEnemyDefinitionCatalogAccess
 {
     /// <summary>Compiled Mama Turtle enemy definition.</summary>
@@ -911,24 +911,13 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         VulnerabilityPointer: 0xeec6,
         NamePointer: 0x0000);
 
-    extension(MamaTurtleEnemyDefinitionCatalog)
+    /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
+    internal static bool TryGet(EnemyDefinitionId pointer, out RoomEnemyDefinition definition)
     {
-        /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
-        internal static bool TryGet(ushort pointer, out RoomEnemyDefinition definition)
-        {
-            switch (pointer)
-            {
-                case MamaTurtleEnemyDefinitionCatalog.MamaPointer:
-                    definition = Mama;
-                    return true;
-                case MamaTurtleEnemyDefinitionCatalog.BabyPointer:
-                    definition = Baby;
-                    return true;
-                default:
-                    definition = default;
-                    return false;
-            }
-        }
+        definition = pointer == EnemyDefinitionId.MamaTurtle ? Mama
+            : pointer == EnemyDefinitionId.BabyTurtle ? Baby
+            : default;
+        return pointer is EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle;
     }
 }
 
@@ -1318,7 +1307,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalogAccess
     extension(RoomEnemyAuxiliaryDefinitionCatalog)
     {
         /// <summary>The five auxiliary header identities missing from room lists.</summary>
-        internal static IEnumerable<ushort> Pointers => PrivateState.StaticField<IReadOnlyDictionary<ushort, RoomEnemyDefinition>>(typeof(RoomEnemyAuxiliaryDefinitionCatalog), "Definitions").Keys;
+        internal static IEnumerable<EnemyDefinitionId> Pointers => PrivateState.StaticField<IReadOnlyDictionary<EnemyDefinitionId, RoomEnemyDefinition>>(typeof(RoomEnemyAuxiliaryDefinitionCatalog), "Definitions").Keys;
     }
 }
 
@@ -1328,7 +1317,7 @@ internal static class RoomEnemyDefinitionCatalogAccess
     extension(RoomEnemyDefinitionCatalog)
     {
         /// <summary>Enumerates every compiled native definition pointer for ROM-oracle tests.</summary>
-        internal static IEnumerable<ushort> Pointers => PrivateState.StaticField<(ushort Pointer, RoomEnemyDefinition Definition)[]>(typeof(RoomEnemyDefinitionCatalog), "Definitions").Select(entry => entry.Pointer);
+        internal static IEnumerable<EnemyDefinitionId> Pointers => PrivateState.StaticField<(EnemyDefinitionId Pointer, RoomEnemyDefinition Definition)[]>(typeof(RoomEnemyDefinitionCatalog), "Definitions").Select(entry => entry.Pointer);
     }
 }
 
@@ -1361,7 +1350,7 @@ internal static class RoomEnemySystemAccess
             ArgumentNullException.ThrowIfNull(sharedProjectiles);
             var kraid = PrivateState.Field<KraidEnemyState?>(self, "<Kraid>k__BackingField");
             RoomEnemySlot body = self.Slots[0];
-            if (kraid is null || body.EnemyDefinitionPointer != RoomEnemySystem.KraidDefinition ||
+            if (kraid is null || body.EnemyDefinitionPointer != EnemyDefinitionId.Kraid ||
                 body.Properties.HasAny(EnemyProperties.Deleted))
                 return 0;
             object shots = PrivateState.Construct(PrivateState.Nested(typeof(RoomEnemySystem), "KraidShotSlots"),

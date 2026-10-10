@@ -16,7 +16,7 @@ internal static partial class Program
         {
             ushort operand = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.AlcoonDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Alcoon, operand, out ushort frame),
                 $"Alcoon visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadAlcoonInstructionWord(rom, operand), frame,
                 $"Alcoon frame selector $A8:{operand:X4} matches the pinned cartridge");
@@ -36,7 +36,7 @@ internal static partial class Program
         {
             ushort operand = BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.BeetomDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Beetom, operand, out ushort frame),
                 $"Beetom visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadBeetomInstructionWord(rom, operand), frame,
                 $"Beetom selector $A8:{operand:X4} matches the pinned cartridge");
@@ -50,13 +50,13 @@ internal static partial class Program
     private static void VerifyInstalledHopperInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        ushort[] definitions =
+        EnemyDefinitionId[] definitions =
         [
-            RoomEnemySystem.SidehopperDefinition,
-            RoomEnemySystem.DessgeegaDefinition,
-            RoomEnemySystem.LargeSidehopperDefinition,
-            RoomEnemySystem.TourianSidehopperDefinition,
-            RoomEnemySystem.LargeDessgeegaDefinition,
+            EnemyDefinitionId.Sidehopper,
+            EnemyDefinitionId.Dessgeega,
+            EnemyDefinitionId.SidehopperLarge,
+            EnemyDefinitionId.SidehopperTourian,
+            EnemyDefinitionId.DessgeegaLarge,
         ];
         for (int index = 0;
              index < HopperInstructionProgramDefinitions.PresentationWordCount;
@@ -66,11 +66,11 @@ internal static partial class Program
             ushort compiled = EnemySpritemapDefinitions.HopperFrameAt(operand);
             AssertEqual(ReadHopperAnimationWord(rom, 0xa30000 | operand), compiled,
                 $"Hopper visual selector $A3:{operand:X4} matches the pinned cartridge");
-            foreach (ushort definition in definitions)
+            foreach (EnemyDefinitionId definition in definitions)
             {
                 AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                         definition, operand, out ushort selected) && selected == compiled,
-                    $"Hopper family ${definition:X4} compiles visual operand $A3:{operand:X4}");
+                    $"Hopper family ${(int)definition:X4} compiles visual operand $A3:{operand:X4}");
             }
         }
         AssertThrows<InvalidDataException>(
@@ -89,7 +89,7 @@ internal static partial class Program
         {
             ushort operand = ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.ChootDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Choot, operand, out ushort frame),
                 $"Choot visual operand $A2:{operand:X4} is compiled");
             AssertEqual(ReadChootInstructionWord(rom, 0xa20000 | operand), frame,
                 $"Choot selector $A2:{operand:X4} matches the pinned cartridge");
@@ -110,7 +110,7 @@ internal static partial class Program
         {
             ushort operand = BullInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.BullDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Bull, operand, out ushort frame),
                 $"Bull visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadBullInstructionWord(rom, 0xa80000 | operand), frame,
                 $"Bull frame selector $A8:{operand:X4} matches the pinned cartridge");
@@ -124,7 +124,7 @@ internal static partial class Program
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         RoomEnemySlot bull = enemies.Slots[0];
-        bull.EnemyDefinitionPointer = RoomEnemySystem.BullDefinition;
+        bull.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
         bull.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.BullBank };
         type.GetMethod("InitializeBull", flags)!
@@ -164,7 +164,7 @@ internal static partial class Program
         {
             ushort operand = PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.PuyoDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Puyo, operand, out ushort frame),
                 $"Puyo visual operand $A2:{operand:X4} is compiled");
             AssertEqual(ReadPuyoInstructionWord(rom, operand), frame,
                 $"Puyo frame selector $A2:{operand:X4} matches the pinned cartridge");
@@ -178,7 +178,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         RoomEnemySlot puyo = enemies.Slots[0];
-        puyo.EnemyDefinitionPointer = RoomEnemySystem.PuyoDefinition;
+        puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
         puyo.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.PuyoBank };
         typeof(RoomEnemySystem).GetMethod("InitializePuyo", flags)!
@@ -395,7 +395,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
                 rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.KiHunterDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.KihunterGreen, operand, out ushort selected),
                 $"KiHunter visual selector $A8:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"KiHunter visual selector $A8:{operand:X4} matches cartridge");
@@ -422,7 +422,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
                 rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.YappingMawDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.YappingMaw, operand, out ushort selected),
                 $"Yapping Maw visual selector $A8:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"Yapping Maw visual selector $A8:{operand:X4} matches cartridge");
@@ -469,7 +469,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
                 rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.ElevatorDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Elevator, operand, out ushort selected),
                 $"elevator visual selector $A3:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"elevator visual selector $A3:{operand:X4} matches cartridge");
@@ -485,7 +485,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.KamerVerticalPlatformDefinition,
+                    EnemyDefinitionId.Kamer,
                     operand, out ushort selected),
                 $"Kamer visual selector $A2:{operand:X4} is installed");
             AssertEqual(native, selected,
@@ -499,9 +499,9 @@ internal static partial class Program
              index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
             ushort operand = FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
-                ? FuneNamiheDefinitions.FuneEnemyDefinition
-                : FuneNamiheDefinitions.NamiheEnemyDefinition;
+            EnemyDefinitionId definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
+                ? EnemyDefinitionId.Fune
+                : EnemyDefinitionId.Namihe;
             ushort native = unchecked((ushort)(rom.ReadByte(0xa80000 | operand) |
                 rom.ReadByte(0xa80000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
@@ -528,14 +528,17 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.SbugFrameAt(
                 SbugInstructionProgramDefinitions.UpLeft),
             "Sbug rejects an adjacent mechanics operand as presentation");
-        AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(0xffff, 0xe312, out _),
-            "unknown enemy family keeps the existing cartridge selector path");
+        AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.TourianStatue, 0xe312, out _),
+            "an enemy family without a compiled selector keeps its own selector path");
+        AssertThrows<InvalidOperationException>(
+            () => EnemySpritemapDefinitions.TryFrameAt((EnemyDefinitionId)0xffff, 0xe312, out _),
+            "an undefined enemy identity fails instead of resolving no selector");
         for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort operand = RioInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.RioDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Rio, operand, out ushort frame),
                 $"Rio presentation operand $A2:{operand:X4} uses the installed selector");
             AssertEqual(ReadRioInstructionWord(rom, operand), frame,
                 $"Rio selector $A2:{operand:X4} matches the pinned cartridge");
@@ -548,7 +551,7 @@ internal static partial class Program
         var installedRio = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installedRio, rioGuard);
         RoomEnemySlot rioSlot = installedRio.Slots[0];
-        rioSlot.EnemyDefinitionPointer = RoomEnemySystem.RioDefinition;
+        rioSlot.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
         rioSlot.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.RioBank };
         typeof(RoomEnemySystem).GetMethod("InitializeRio", flags)!
@@ -574,7 +577,7 @@ internal static partial class Program
             ushort operand = LowerNorfairRioInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.LowerNorfairRioDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Holtz, operand, out ushort frame),
                 $"Lower Norfair Rio presentation operand $A2:{operand:X4} is compiled");
             AssertEqual(ReadLowerNorfairRioInstructionWord(rom, operand), frame,
                 $"Lower Norfair Rio selector $A2:{operand:X4} matches the cartridge");
@@ -614,7 +617,7 @@ internal static partial class Program
             ushort operand = NorfairRioInstructionProgramDefinitions
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.NorfairRioDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.Geruta, operand, out ushort frame),
                 $"Norfair Rio presentation operand $A2:{operand:X4} is compiled");
             AssertEqual(ReadNorfairRioInstructionWord(rom, operand), frame,
                 $"Norfair Rio selector $A2:{operand:X4} matches the cartridge");
@@ -665,7 +668,7 @@ internal static partial class Program
         {
             ushort operand = SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.SciserDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Sciser, operand, out ushort selected),
                 $"Sciser visual operand $A3:{operand:X4} is compiled");
             AssertEqual(ReadSciserInstructionWord(rom, operand), selected,
                 $"Sciser selector $A3:{operand:X4} matches the pinned cartridge");
@@ -678,15 +681,15 @@ internal static partial class Program
         {
             ushort operand = FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort expected = ReadFlyInstructionWord(rom, 0xa20000 | operand);
-            foreach (ushort definition in new ushort[]
-                     { RoomEnemySystem.MellowDefinition, RoomEnemySystem.MellaDefinition,
-                       RoomEnemySystem.MemuDefinition })
+            foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
+                     { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella,
+                       EnemyDefinitionId.Menu })
             {
                 AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                         definition, operand, out ushort selected),
-                    $"fly ${definition:X4} visual operand $A2:{operand:X4} is compiled");
+                    $"fly ${(int)definition:X4} visual operand $A2:{operand:X4} is compiled");
                 AssertEqual(expected, selected,
-                    $"fly ${definition:X4} selector $A2:{operand:X4} matches the cartridge");
+                    $"fly ${(int)definition:X4} selector $A2:{operand:X4} matches the cartridge");
             }
         }
         AssertThrows<InvalidDataException>(
@@ -697,7 +700,7 @@ internal static partial class Program
         {
             ushort operand = KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.KagoDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Kago, operand, out ushort selected),
                 $"Kago visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadKagoInstructionWord(rom, 0xa80000 | operand), selected,
                 $"Kago selector $A8:{operand:X4} matches the cartridge");
@@ -712,7 +715,7 @@ internal static partial class Program
             ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.BlueBrinstarFaceBlockDefinition, operand,
+                    EnemyDefinitionId.FaceBlock, operand,
                     out ushort selected),
                 $"face-block visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadBlueBrinstarFaceBlockWord(rom, 0xa80000 | operand), selected,
@@ -729,7 +732,7 @@ internal static partial class Program
             ushort operand = MorphBallEyeInstructionProgramDefinitions
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.MorphBallEyeDefinition, operand,
+                    EnemyDefinitionId.Eye, operand,
                     out ushort selected),
                 $"Morph Ball eye visual operand $A8:{operand:X4} is compiled");
             AssertEqual(ReadMorphBallEyeInstructionWord(rom, operand), selected,
@@ -746,7 +749,7 @@ internal static partial class Program
             ushort operand = GrowingShutterInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.GrowingShutterDefinition, operand,
+                    EnemyDefinitionId.ShutterGrowing, operand,
                     out ushort selected),
                 $"growing-shutter visual operand $A2:{operand:X4} is compiled");
             AssertEqual(ReadGrowingShutterInstructionWord(rom, 0xa20000 | operand),
@@ -754,21 +757,21 @@ internal static partial class Program
         }
         ushort verticalOperand =
             VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
-        foreach (ushort definition in new ushort[]
-                 { RoomEnemySystem.ShootableVerticalShutterDefinition,
-                   RoomEnemySystem.DestroyableVerticalShutterDefinition })
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
+                 { EnemyDefinitionId.ShutterShootable,
+                   EnemyDefinitionId.ShutterDestroyable })
         {
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(definition,
                     verticalOperand, out ushort selected),
-                $"vertical shutter ${definition:X4} selector is compiled");
+                $"vertical shutter ${(int)definition:X4} selector is compiled");
             AssertEqual(ReadVerticalShutterInstructionWord(rom,
                     0xa20000 | verticalOperand), selected,
-                $"vertical shutter ${definition:X4} selector matches the cartridge");
+                $"vertical shutter ${(int)definition:X4} selector matches the cartridge");
         }
         ushort horizontalOperand =
             HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                RoomEnemySystem.ShootableHorizontalShutterDefinition,
+                EnemyDefinitionId.ShutterHorizShootable,
                 horizontalOperand, out ushort horizontalSelected),
             "horizontal-shutter visual selector is compiled");
         AssertEqual(ReadHorizontalShutterInstructionWord(rom,
@@ -776,7 +779,7 @@ internal static partial class Program
             "horizontal-shutter selector matches the cartridge");
         AssertThrows<InvalidDataException>(
             () => ShutterVisualDefinitions.FrameAt(
-                RoomEnemySystem.GrowingShutterDefinition,
+                EnemyDefinitionId.ShutterGrowing,
                 GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(0)),
             "shutter visual selector rejects adjacent frame timing");
         for (int index = 0;
@@ -786,7 +789,7 @@ internal static partial class Program
             ushort operand = MetroidInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.MetroidDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Metroid, operand, out ushort selected),
                 $"ordinary-Metroid visual operand $A3:{operand:X4} is compiled");
             AssertEqual(ReadMetroidInstructionWord(rom, operand), selected,
                 $"ordinary-Metroid selector $A3:{operand:X4} matches the cartridge");
@@ -806,7 +809,7 @@ internal static partial class Program
             ushort operand = ShaktoolInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.ShaktoolDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Shaktool, operand, out ushort selected),
                 $"Shaktool visual operand $AA:{operand:X4} is compiled");
             ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
                 rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
@@ -834,14 +837,14 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
                 rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
-            foreach (ushort definition in new[]
-                     { RoomEnemySystem.TripperDefinition, RoomEnemySystem.KamerDefinition })
+            foreach (EnemyDefinitionId definition in new[]
+                     { EnemyDefinitionId.Tripper, EnemyDefinitionId.Kamer2 })
             {
                 AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                         definition, operand, out ushort selected),
-                    $"platform ${definition:X4} visual operand $A3:{operand:X4} is compiled");
+                    $"platform ${(int)definition:X4} visual operand $A3:{operand:X4} is compiled");
                 AssertEqual(native, selected,
-                    $"platform ${definition:X4} selector $A3:{operand:X4} matches cartridge");
+                    $"platform ${(int)definition:X4} selector $A3:{operand:X4} matches cartridge");
             }
             AssertTrue(platformFramePointers.Contains(native),
                 $"platform selector $A3:{operand:X4} has installed art");
@@ -873,7 +876,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.DragonDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Dragon, operand, out ushort selected),
                 $"Dragon visual selector $A2:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"Dragon visual selector $A2:{operand:X4} matches the cartridge");
@@ -901,7 +904,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.MultiviolaDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Multiviola, operand, out ushort selected),
                 $"Multiviola visual selector $A2:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"Multiviola visual selector $A2:{operand:X4} matches the cartridge");
@@ -932,7 +935,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.NorfairLavaJumpingEnemyDefinition,
+                    EnemyDefinitionId.Squeept,
                     operand, out ushort selected),
                 $"lava-jumper visual selector $A2:{operand:X4} is installed");
             AssertEqual(native, selected,
@@ -961,7 +964,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xaa0000 | operand) |
                 rom.ReadByte(0xaa0000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    ChozoStatueEnemyDefinitions.EnemyDefinitionPointer,
+                    EnemyDefinitionId.Chozo,
                     operand, out ushort selected),
                 $"Chozo statue visual selector $AA:{operand:X4} is installed");
             AssertEqual(native, selected,
@@ -988,7 +991,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa30000 | operand) |
                 rom.ReadByte(0xa30000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.ViolaDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Viola, operand, out ushort selected),
                 $"Viola visual selector $A3:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"Viola visual selector $A3:{operand:X4} matches the cartridge");
@@ -1013,7 +1016,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadByte(0xa20000 | operand) |
                 rom.ReadByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.RinkaDefinition, operand, out ushort selected),
+                    EnemyDefinitionId.Rinka, operand, out ushort selected),
                 $"Rinka visual selector $A2:{operand:X4} is installed");
             AssertEqual(native, selected,
                 $"Rinka visual selector $A2:{operand:X4} matches the cartridge");
@@ -1062,135 +1065,135 @@ internal static partial class Program
                 continue;
             var room = DrawEnemy(stock, new FrameReadGuard(rom, frame.Name), frame.Pointer,
                 frame.Name.StartsWith("boyon_", StringComparison.Ordinal)
-                    ? RoomEnemySystem.BoyonDefinition
+                    ? EnemyDefinitionId.Boyon
                     : frame.Name.StartsWith("mochtroid_", StringComparison.Ordinal)
-                        ? EnemyDefinitionPointers.Mochtroid
+                        ? EnemyDefinitionId.Mochtroid
                     : frame.Name.StartsWith("evir_projectile_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.EvirProjectileDefinition
+                        ? EnemyDefinitionId.EvirProjectile
                     : frame.Name.StartsWith("evir_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.EvirDefinition
+                        ? EnemyDefinitionId.Evir
                     : frame.Name.StartsWith("work_robot_unpowered_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.WorkRobotNoPowerDefinition
+                        ? EnemyDefinitionId.RobotNoPower
                     : frame.Name.StartsWith("work_robot_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.WorkRobotDefinition
+                        ? EnemyDefinitionId.Robot
                     : frame.Name.StartsWith("yard_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.YardDefinition
+                        ? EnemyDefinitionId.Yard
                     : frame.Name.StartsWith("botwoon_head_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.BotwoonDefinition
+                        ? EnemyDefinitionId.Botwoon
                     : frame.Name.StartsWith("sciser_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.SciserDefinition
+                        ? EnemyDefinitionId.Sciser
                     : frame.Name.StartsWith("fly_shared_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.MellowDefinition
+                        ? EnemyDefinitionId.Mellow
                     : frame.Name.StartsWith("kago_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.KagoDefinition
+                        ? EnemyDefinitionId.Kago
                     : frame.Name.StartsWith("face_block_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.BlueBrinstarFaceBlockDefinition
+                        ? EnemyDefinitionId.FaceBlock
                     : frame.Name.StartsWith("morph_eye_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.MorphBallEyeDefinition
+                        ? EnemyDefinitionId.Eye
                     : frame.Name.StartsWith("metroid_body_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.MetroidDefinition
+                        ? EnemyDefinitionId.Metroid
                     : frame.Name.StartsWith("shaktool_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ShaktoolDefinition
+                        ? EnemyDefinitionId.Shaktool
                     : frame.Name.StartsWith("tripper_kamer_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.KamerDefinition
+                        ? EnemyDefinitionId.Kamer2
                     : frame.Name.StartsWith("tripper_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.TripperDefinition
+                        ? EnemyDefinitionId.Tripper
                     : frame.Name.StartsWith("dragon_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.DragonDefinition
+                        ? EnemyDefinitionId.Dragon
                     : frame.Name.StartsWith("multiviola_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.MultiviolaDefinition
+                        ? EnemyDefinitionId.Multiviola
                     : frame.Name.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.NorfairLavaJumpingEnemyDefinition
+                        ? EnemyDefinitionId.Squeept
                     : frame.Name.StartsWith("chozo_statue_aa_", StringComparison.Ordinal)
-                        ? ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
+                        ? EnemyDefinitionId.Chozo
                     : frame.Name.StartsWith("viola_spin_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ViolaDefinition
+                        ? EnemyDefinitionId.Viola
                     : frame.Name.StartsWith("rinka_spin_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.RinkaDefinition
+                        ? EnemyDefinitionId.Rinka
                     : frame.Name.StartsWith("shutter_growing_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.GrowingShutterDefinition
+                        ? EnemyDefinitionId.ShutterGrowing
                     : frame.Name.StartsWith("shutter_vertical_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ShootableVerticalShutterDefinition
+                        ? EnemyDefinitionId.ShutterShootable
                     : frame.Name.StartsWith("shutter_horizontal", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ShootableHorizontalShutterDefinition
+                        ? EnemyDefinitionId.ShutterHorizShootable
                     : frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.NorfairRioDefinition
+                        ? EnemyDefinitionId.Geruta
                     : frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.LowerNorfairRioDefinition
+                        ? EnemyDefinitionId.Holtz
                     : frame.Name.StartsWith("rio_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.RioDefinition
+                        ? EnemyDefinitionId.Rio
                     : frame.Name.StartsWith("puyo_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.PuyoDefinition
+                        ? EnemyDefinitionId.Puyo
                     : frame.Name.StartsWith("bull_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.BullDefinition
+                        ? EnemyDefinitionId.Bull
                     : frame.Name.StartsWith("alcoon_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.AlcoonDefinition
+                        ? EnemyDefinitionId.Alcoon
                     : frame.Name.StartsWith("beetom_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.BeetomDefinition
+                        ? EnemyDefinitionId.Beetom
                     : frame.Name.StartsWith("large_sidehopper_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.LargeSidehopperDefinition
+                        ? EnemyDefinitionId.SidehopperLarge
                     : frame.Name.StartsWith("sidehopper_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.SidehopperDefinition
+                        ? EnemyDefinitionId.Sidehopper
                     : frame.Name.StartsWith("large_dessgeega_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.LargeDessgeegaDefinition
+                        ? EnemyDefinitionId.DessgeegaLarge
                     : frame.Name.StartsWith("dessgeega_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.DessgeegaDefinition
+                        ? EnemyDefinitionId.Dessgeega
                     : frame.Name.StartsWith("choot_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ChootDefinition
+                        ? EnemyDefinitionId.Choot
                     : frame.Name.StartsWith("hzoomer_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.HZoomerDefinition
+                        ? EnemyDefinitionId.HZoomer
                     : frame.Name.StartsWith("sbug_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.SbugDefinition
+                        ? EnemyDefinitionId.Sbug
                     : frame.Name.StartsWith("fune_", StringComparison.Ordinal)
-                        ? FuneNamiheDefinitions.FuneEnemyDefinition
+                        ? EnemyDefinitionId.Fune
                     : frame.Name.StartsWith("namihe_", StringComparison.Ordinal)
-                        ? FuneNamiheDefinitions.NamiheEnemyDefinition
+                        ? EnemyDefinitionId.Namihe
                     : frame.Name.StartsWith("kamer_platform_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.KamerVerticalPlatformDefinition
+                        ? EnemyDefinitionId.Kamer
                     : frame.Name.StartsWith("elevator_platform_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.ElevatorDefinition
+                        ? EnemyDefinitionId.Elevator
                     : frame.Name.StartsWith("cacatac_", StringComparison.Ordinal)
-                        ? RoomEnemySystem.CacatacDefinition
+                        ? EnemyDefinitionId.Cacatac
                         : frame.Name.StartsWith("boulder_", StringComparison.Ordinal)
-                            ? RoomEnemySystem.BoulderDefinition
+                            ? EnemyDefinitionId.Boulder
                             : frame.Name.StartsWith("skultera_", StringComparison.Ordinal)
-                                ? RoomEnemySystem.SkulteraDefinition
+                                ? EnemyDefinitionId.Skultera
                                 : frame.Name.StartsWith("waver_", StringComparison.Ordinal)
-                                    ? RoomEnemySystem.WaverDefinition
+                                    ? EnemyDefinitionId.Waver
                                     : frame.Name.StartsWith("zoa_", StringComparison.Ordinal)
-                                        ? RoomEnemySystem.ZoaDefinition
+                                        ? EnemyDefinitionId.Zoa
                                         : frame.Name.StartsWith("metaree_", StringComparison.Ordinal)
-                                            ? RoomEnemySystem.MetareeDefinition
+                                            ? EnemyDefinitionId.Metaree
                                             : frame.Name.StartsWith("skree_", StringComparison.Ordinal)
-                                                ? RoomEnemySystem.SkreeDefinition
+                                                ? EnemyDefinitionId.Skree
                                                 : frame.Name.StartsWith("pipe_brinstar_strong_", StringComparison.Ordinal)
-                                                    ? PipeBugDefinitions.StrongBrinstarEnemyDefinition
+                                                    ? EnemyDefinitionId.Zebbo
                                                     : frame.Name.StartsWith("pipe_brinstar_", StringComparison.Ordinal)
-                                                        ? PipeBugDefinitions.BrinstarEnemyDefinition
+                                                        ? EnemyDefinitionId.Zeb
                                                         : frame.Name.StartsWith("pipe_norfair_", StringComparison.Ordinal)
-                                                            ? PipeBugDefinitions.NorfairEnemyDefinition
+                                                            ? EnemyDefinitionId.Gamet
                                                             : frame.Name.StartsWith("pipe_yellow_", StringComparison.Ordinal)
-                                                                ? PipeBugDefinitions.YellowEnemyDefinition
+                                                                ? EnemyDefinitionId.Geega
                                                                 : frame.Name.StartsWith("fake_kraid_", StringComparison.Ordinal)
-                                                                    ? RoomEnemySystem.FakeKraidDefinition
+                                                                    ? EnemyDefinitionId.MiniKraid
                                                                 : frame.Name.StartsWith("kraid_nail_", StringComparison.Ordinal)
-                                                                        ? RoomEnemySystem.KraidGoodNailDefinition
+                                                                        ? EnemyDefinitionId.KraidNail
                                                                         : frame.Name.StartsWith("owtch_", StringComparison.Ordinal)
-                                                                            ? RoomEnemySystem.OwtchDefinition
+                                                                            ? EnemyDefinitionId.Owtch
                                                                             : frame.Name.StartsWith("stoke_", StringComparison.Ordinal)
-                                                                                ? RoomEnemySystem.StokeDefinition
+                                                                                ? EnemyDefinitionId.Stoke
                                                                                 : frame.Name.StartsWith("ripper_shared_", StringComparison.Ordinal)
-                                                                                    ? RoomEnemySystem.GRipperDefinition
+                                                                                    ? EnemyDefinitionId.GRipper
                                                                                     : frame.Name.StartsWith("ripper_", StringComparison.Ordinal)
-                                                                                        ? RoomEnemySystem.RipperDefinition
+                                                                                        ? EnemyDefinitionId.Ripper
                                                                                         : frame.Name.StartsWith("fireflea_", StringComparison.Ordinal)
-                                                                                            ? RoomEnemySystem.FirefleaDefinition
+                                                                                            ? EnemyDefinitionId.Fireflea
                                                                 : frame.Name.StartsWith("ceres_door_", StringComparison.Ordinal) ||
                                                                   frame.Name.StartsWith("ceres_baby_", StringComparison.Ordinal)
-                                                                    ? CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
+                                                                    ? EnemyDefinitionId.CeresDoor
                                                                 : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
-                                                                                                ? RoomEnemySystem.MagdolliteDefinition
-                                : RoomEnemySystem.AtomicDefinition, spritemapBank: frame.Bank);
+                                                                                                ? EnemyDefinitionId.Magdollite
+                                : EnemyDefinitionId.Atomic, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -1828,83 +1831,83 @@ internal static partial class Program
         OamBuffer stockDragon = DrawEnemy(stock, new FrameReadGuard(rom),
             DragonVisualDefinitions.FrameAt(
                 DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.DragonDefinition);
+            EnemyDefinitionId.Dragon);
         OamBuffer editedDragon = DrawEnemy(edited, new FrameReadGuard(rom),
             DragonVisualDefinitions.FrameAt(
                 DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.DragonDefinition);
+            EnemyDefinitionId.Dragon);
         AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
             editedDragon.LowTable[0],
             "Dragon authored body offset changes installed room OAM");
         OamBuffer stockMultiviola = DrawEnemy(stock, new FrameReadGuard(rom),
             MultiviolaVisualDefinitions.FrameAt(
                 MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.MultiviolaDefinition);
+            EnemyDefinitionId.Multiviola);
         OamBuffer editedMultiviola = DrawEnemy(edited, new FrameReadGuard(rom),
             MultiviolaVisualDefinitions.FrameAt(
                 MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.MultiviolaDefinition);
+            EnemyDefinitionId.Multiviola);
         AssertEqual(unchecked((byte)(stockMultiviola.LowTable[0] + 1)),
             editedMultiviola.LowTable[0],
             "Multiviola authored body offset changes installed room OAM");
         OamBuffer stockLavaJumper = DrawEnemy(stock, new FrameReadGuard(rom),
             NorfairLavaJumperVisualDefinitions.FrameAt(
                 NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition);
+            EnemyDefinitionId.Squeept);
         OamBuffer editedLavaJumper = DrawEnemy(edited, new FrameReadGuard(rom),
             NorfairLavaJumperVisualDefinitions.FrameAt(
                 NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition);
+            EnemyDefinitionId.Squeept);
         AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
             editedLavaJumper.LowTable[0],
             "lava-jumper authored OAM offset changes installed room presentation");
         OamBuffer stockChozo = DrawEnemy(stock, new FrameReadGuard(rom),
             ChozoStatueVisualDefinitions.FrameAt(
                 ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
-            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.Chozo);
         OamBuffer editedChozo = DrawEnemy(edited, new FrameReadGuard(rom),
             ChozoStatueVisualDefinitions.FrameAt(
                 ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
-            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.Chozo);
         AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
             editedChozo.LowTable[0],
             "Chozo authored body offset changes installed room OAM");
         OamBuffer stockViola = DrawEnemy(stock, new FrameReadGuard(rom),
             ViolaVisualDefinitions.FrameAt(
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.ViolaDefinition);
+            EnemyDefinitionId.Viola);
         OamBuffer editedViola = DrawEnemy(edited, new FrameReadGuard(rom),
             ViolaVisualDefinitions.FrameAt(
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.ViolaDefinition);
+            EnemyDefinitionId.Viola);
         AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
             editedViola.LowTable[0],
             "Viola authored body offset changes installed room OAM");
         OamBuffer stockRinka = DrawEnemy(stock, new FrameReadGuard(rom),
             RinkaVisualDefinitions.FrameAt(
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.RinkaDefinition);
+            EnemyDefinitionId.Rinka);
         OamBuffer editedRinka = DrawEnemy(edited, new FrameReadGuard(rom),
             RinkaVisualDefinitions.FrameAt(
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
-            RoomEnemySystem.RinkaDefinition);
+            EnemyDefinitionId.Rinka);
         AssertEqual(unchecked((byte)(stockRinka.LowTable[0] + 1)),
             editedRinka.LowTable[0],
             "Rinka authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
-            RoomEnemySystem.SciserDefinition);
+            EnemyDefinitionId.Sciser);
         OamBuffer editedSciser = DrawEnemy(edited, new FrameReadGuard(rom),
             SciserVisualDefinitions.FrameAt(
                 SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
-            RoomEnemySystem.SciserDefinition);
+            EnemyDefinitionId.Sciser);
         AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
             editedSciser.LowTable[0],
             "Sciser authored OAM offset changes installed room presentation");
-        foreach (ushort definition in new ushort[]
-                 { RoomEnemySystem.MellowDefinition, RoomEnemySystem.MellaDefinition,
-                   RoomEnemySystem.MemuDefinition })
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
+                 { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella,
+                   EnemyDefinitionId.Menu })
         {
             OamBuffer stockFly = DrawEnemy(stock, new FrameReadGuard(rom),
                 FlyVisualDefinitions.FrameAt(
@@ -1914,44 +1917,44 @@ internal static partial class Program
                     FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
-                $"fly ${definition:X4} uses edited shared presentation");
+                $"fly ${(int)definition:X4} uses edited shared presentation");
         }
         OamBuffer stockKago = DrawEnemy(stock, new FrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
                 KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
-            RoomEnemySystem.KagoDefinition);
+            EnemyDefinitionId.Kago);
         OamBuffer editedKago = DrawEnemy(edited, new FrameReadGuard(rom),
             KagoVisualDefinitions.FrameAt(
                 KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
-            RoomEnemySystem.KagoDefinition);
+            EnemyDefinitionId.Kago);
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
             "Kago authored offset changes installed presentation");
         ushort faceBlockPointer = BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
             BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(6));
         OamBuffer stockFaceBlock = DrawEnemy(stock, new FrameReadGuard(rom),
-            faceBlockPointer, RoomEnemySystem.BlueBrinstarFaceBlockDefinition);
+            faceBlockPointer, EnemyDefinitionId.FaceBlock);
         OamBuffer editedFaceBlock = DrawEnemy(edited, new FrameReadGuard(rom),
-            faceBlockPointer, RoomEnemySystem.BlueBrinstarFaceBlockDefinition);
+            faceBlockPointer, EnemyDefinitionId.FaceBlock);
         AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
             editedFaceBlock.LowTable[0],
             "face-block authored offset changes installed presentation");
         ushort morphEyePointer = MorphBallEyeVisualDefinitions.FrameAt(
             MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(34));
         OamBuffer stockMorphEye = DrawEnemy(stock, new FrameReadGuard(rom),
-            morphEyePointer, RoomEnemySystem.MorphBallEyeDefinition);
+            morphEyePointer, EnemyDefinitionId.Eye);
         OamBuffer editedMorphEye = DrawEnemy(edited, new FrameReadGuard(rom),
-            morphEyePointer, RoomEnemySystem.MorphBallEyeDefinition);
+            morphEyePointer, EnemyDefinitionId.Eye);
         AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
             editedMorphEye.LowTable[0],
             "Morph Ball eye mount art edit changes installed presentation");
         ushort shutterPointer = ShutterVisualDefinitions.FrameAt(
-            RoomEnemySystem.GrowingShutterDefinition,
+            EnemyDefinitionId.ShutterGrowing,
             GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(3));
-        foreach (ushort definition in new ushort[]
-                 { RoomEnemySystem.GrowingShutterDefinition,
-                   RoomEnemySystem.ShootableVerticalShutterDefinition,
-                   RoomEnemySystem.DestroyableVerticalShutterDefinition })
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
+                 { EnemyDefinitionId.ShutterGrowing,
+                   EnemyDefinitionId.ShutterShootable,
+                   EnemyDefinitionId.ShutterDestroyable })
         {
             OamBuffer stockShutter = DrawEnemy(stock, new FrameReadGuard(rom),
                 shutterPointer, definition);
@@ -1959,16 +1962,16 @@ internal static partial class Program
                 shutterPointer, definition);
             AssertEqual(unchecked((byte)(stockShutter.LowTable[0] + 1)),
                 editedShutter.LowTable[0],
-                $"shutter ${definition:X4} uses edited shared forty-pixel art");
+                $"shutter ${(int)definition:X4} uses edited shared forty-pixel art");
             AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
-                $"shutter ${definition:X4} visual edit leaves physical Y unchanged");
+                $"shutter ${(int)definition:X4} visual edit leaves physical Y unchanged");
         }
         ushort metroidPointer = MetroidVisualDefinitions.FrameAt(
             MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockMetroid = DrawEnemy(stock, new FrameReadGuard(rom),
-            metroidPointer, RoomEnemySystem.MetroidDefinition);
+            metroidPointer, EnemyDefinitionId.Metroid);
         OamBuffer editedMetroid = DrawEnemy(edited, new FrameReadGuard(rom),
-            metroidPointer, RoomEnemySystem.MetroidDefinition);
+            metroidPointer, EnemyDefinitionId.Metroid);
         AssertEqual(unchecked((byte)(stockMetroid.LowTable[0] + 1)),
             editedMetroid.LowTable[0],
             "ordinary-Metroid body art edit changes live OAM X without a ROM read");
@@ -2000,18 +2003,18 @@ internal static partial class Program
         AssertEqual(stockRidleyWing.LowTable[1], editedRidleyWing.LowTable[1],
             "Ridley wing artwork edit leaves physical Y placement unchanged");
         OamBuffer stockMaw = DrawEnemy(stock, new FrameReadGuard(rom),
-            mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
+            mawIdlePointer, EnemyDefinitionId.YappingMaw);
         OamBuffer editedMaw = DrawEnemy(edited, new FrameReadGuard(rom),
-            mawIdlePointer, RoomEnemySystem.YappingMawDefinition);
+            mawIdlePointer, EnemyDefinitionId.YappingMaw);
         AssertEqual(unchecked((byte)(stockMaw.LowTable[1] + 1)),
             editedMaw.LowTable[1],
             "editable Yapping Maw OAM offset changes its displayed frame");
         AssertEqual(stockMaw.LowTable[0], editedMaw.LowTable[0],
             "Yapping Maw visual edit leaves physical X placement unchanged");
         OamBuffer stockHunter = DrawEnemy(stock, new FrameReadGuard(rom),
-            hunterIdlePointer, RoomEnemySystem.KiHunterDefinition);
+            hunterIdlePointer, EnemyDefinitionId.KihunterGreen);
         OamBuffer editedHunter = DrawEnemy(edited, new FrameReadGuard(rom),
-            hunterIdlePointer, RoomEnemySystem.KiHunterDefinition);
+            hunterIdlePointer, EnemyDefinitionId.KihunterGreen);
         AssertEqual(unchecked((byte)(stockHunter.LowTable[1] + 1)),
             editedHunter.LowTable[1],
             "editable KiHunter OAM offset changes its displayed frame");
@@ -2036,27 +2039,27 @@ internal static partial class Program
         AssertEqual(stockDeathEvir.LowTable[0], editedDeathEvir.LowTable[0],
             "shared sprite-object edit leaves physical X placement unchanged");
         OamBuffer stockFune = DrawEnemy(stock, new FrameReadGuard(rom),
-            0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
+            0x94cb, EnemyDefinitionId.Fune);
         OamBuffer editedFune = DrawEnemy(edited, new FrameReadGuard(rom),
-            0x94cb, FuneNamiheDefinitions.FuneEnemyDefinition);
+            0x94cb, EnemyDefinitionId.Fune);
         AssertEqual(unchecked((byte)(stockFune.LowTable[1] + 1)),
             editedFune.LowTable[1],
             "editable Fune idle OAM offset changes the displayed enemy frame");
         AssertEqual(stockFune.LowTable[0], editedFune.LowTable[0],
             "Fune visual edit does not change physical X position");
         OamBuffer stockKamer = DrawEnemy(stock, new FrameReadGuard(rom),
-            0xf468, RoomEnemySystem.KamerVerticalPlatformDefinition);
+            0xf468, EnemyDefinitionId.Kamer);
         OamBuffer editedKamer = DrawEnemy(edited, new FrameReadGuard(rom),
-            0xf468, RoomEnemySystem.KamerVerticalPlatformDefinition);
+            0xf468, EnemyDefinitionId.Kamer);
         AssertEqual(unchecked((byte)(stockKamer.LowTable[1] + 1)),
             editedKamer.LowTable[1],
             "editable Kamer platform OAM offset changes its displayed frame");
         AssertEqual(stockKamer.LowTable[0], editedKamer.LowTable[0],
             "Kamer visual edit leaves its physical X position unchanged");
         OamBuffer stockElevator = DrawEnemy(stock, new FrameReadGuard(rom),
-            0x962f, RoomEnemySystem.ElevatorDefinition);
+            0x962f, EnemyDefinitionId.Elevator);
         OamBuffer editedElevator = DrawEnemy(edited, new FrameReadGuard(rom),
-            0x962f, RoomEnemySystem.ElevatorDefinition);
+            0x962f, EnemyDefinitionId.Elevator);
         AssertEqual(unchecked((byte)(stockElevator.LowTable[1] + 1)),
             editedElevator.LowTable[1],
             "editable elevator OAM offset changes its displayed frame");
@@ -2064,9 +2067,9 @@ internal static partial class Program
             "elevator visual edit leaves its physical X position unchanged");
         ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
         var stockOam = DrawEnemy(stock, new FrameReadGuard(rom), framePointer,
-            RoomEnemySystem.BoyonDefinition);
+            EnemyDefinitionId.Boyon);
         var editedOam = DrawEnemy(edited, new FrameReadGuard(rom), framePointer,
-            RoomEnemySystem.BoyonDefinition);
+            EnemyDefinitionId.Boyon);
         AssertEqual(unchecked((byte)(stockOam.LowTable[0] + 1)),
             editedOam.LowTable[0], "authored Boyon X offset changes live room OAM");
         AssertEqual(unchecked((byte)(stockOam.LowTable[2] + 1)),
@@ -2074,9 +2077,9 @@ internal static partial class Program
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "visual override leaves Boyon Y unchanged");
         OamBuffer stockCeresDoor = DrawEnemy(stock, new FrameReadGuard(rom),
-            0xfa13, CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            0xfa13, EnemyDefinitionId.CeresDoor);
         OamBuffer editedCeresDoor = DrawEnemy(edited, new FrameReadGuard(rom),
-            0xfa13, CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer,
+            0xfa13, EnemyDefinitionId.CeresDoor,
             slot =>
             {
                 AssertEqual((ushort)0xfa13, slot.SpritemapPointer,
@@ -2091,18 +2094,18 @@ internal static partial class Program
             "Ceres door visual edit leaves physical X unchanged");
         OamBuffer stockCeresBaby = DrawEnemy(stock, new FrameReadGuard(rom),
             CeresBabyInstructionProgramDefinitions.RoundFrame,
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.CeresDoor);
         OamBuffer editedCeresBaby = DrawEnemy(edited, new FrameReadGuard(rom),
             CeresBabyInstructionProgramDefinitions.RoundFrame,
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.CeresDoor);
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
             "authored Ceres Baby Y offset changes installed OAM");
         ushort cacatacPointer = EnemySpritemapDefinitions.CacatacFrameAt(0x9e8e);
         var stockCacatac = DrawEnemy(stock, new FrameReadGuard(rom),
-            cacatacPointer, RoomEnemySystem.CacatacDefinition);
+            cacatacPointer, EnemyDefinitionId.Cacatac);
         var editedCacatac = DrawEnemy(edited, new FrameReadGuard(rom),
-            cacatacPointer, RoomEnemySystem.CacatacDefinition);
+            cacatacPointer, EnemyDefinitionId.Cacatac);
         AssertEqual(unchecked((byte)(stockCacatac.LowTable[1] + 1)),
             editedCacatac.LowTable[1],
             "authored Cacatac Y offset changes live room OAM");
@@ -2110,9 +2113,9 @@ internal static partial class Program
             "Cacatac visual override leaves X unchanged");
         ushort boulderPointer = EnemySpritemapDefinitions.BoulderFrameAt(0x86a9);
         var stockBoulder = DrawEnemy(stock, new FrameReadGuard(rom),
-            boulderPointer, RoomEnemySystem.BoulderDefinition);
+            boulderPointer, EnemyDefinitionId.Boulder);
         var editedBoulder = DrawEnemy(edited, new FrameReadGuard(rom),
-            boulderPointer, RoomEnemySystem.BoulderDefinition);
+            boulderPointer, EnemyDefinitionId.Boulder);
         AssertEqual(unchecked((byte)(stockBoulder.LowTable[1] + 1)),
             editedBoulder.LowTable[1],
             "authored Boulder Y offset changes live room OAM");
@@ -2120,9 +2123,9 @@ internal static partial class Program
             "Boulder visual override leaves X unchanged");
         ushort atomicPointer = EnemySpritemapDefinitions.AtomicFrameAt(0xe312);
         var stockAtomic = DrawEnemy(stock, new FrameReadGuard(rom),
-            atomicPointer, RoomEnemySystem.AtomicDefinition);
+            atomicPointer, EnemyDefinitionId.Atomic);
         var editedAtomic = DrawEnemy(edited, new FrameReadGuard(rom),
-            atomicPointer, RoomEnemySystem.AtomicDefinition);
+            atomicPointer, EnemyDefinitionId.Atomic);
         AssertEqual(unchecked((byte)(stockAtomic.LowTable[1] + 1)),
             editedAtomic.LowTable[1],
             "authored Atomic Y offset changes live room OAM");
@@ -2130,9 +2133,9 @@ internal static partial class Program
             "Atomic visual override leaves X unchanged");
         ushort skulteraPointer = EnemySpritemapDefinitions.SkulteraFrameAt(0x902e);
         var stockSkultera = DrawEnemy(stock, new FrameReadGuard(rom),
-            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+            skulteraPointer, EnemyDefinitionId.Skultera);
         var editedSkultera = DrawEnemy(edited, new FrameReadGuard(rom),
-            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+            skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(unchecked((byte)(stockSkultera.LowTable[1] + 1)),
             editedSkultera.LowTable[1],
             "authored Skultera Y offset changes live room OAM");
@@ -2140,22 +2143,22 @@ internal static partial class Program
             "Skultera visual override leaves X unchanged");
         ushort waverPointer = EnemySpritemapDefinitions.WaverFrameAt(0x86a9);
         var stockWaver = DrawEnemy(stock, new FrameReadGuard(rom),
-            waverPointer, RoomEnemySystem.WaverDefinition);
+            waverPointer, EnemyDefinitionId.Waver);
         var editedWaver = DrawEnemy(edited, new FrameReadGuard(rom),
-            waverPointer, RoomEnemySystem.WaverDefinition);
+            waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(unchecked((byte)(stockWaver.LowTable[1] + 1)),
             editedWaver.LowTable[1],
             "authored Waver Y offset changes live room OAM");
         AssertEqual(stockWaver.LowTable[0], editedWaver.LowTable[0],
             "Waver visual override leaves X unchanged");
-        foreach ((ushort pointer, ushort definition, string name) in new[]
+        foreach ((ushort pointer, EnemyDefinitionId definition, string name) in new[]
                  {
                      (EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5),
-                         RoomEnemySystem.ZoaDefinition, "Zoa"),
+                         EnemyDefinitionId.Zoa, "Zoa"),
                      (EnemySpritemapDefinitions.SkreeMetareeFrameAt(true, 0x8912),
-                         RoomEnemySystem.MetareeDefinition, "Metaree"),
+                         EnemyDefinitionId.Metaree, "Metaree"),
                      (EnemySpritemapDefinitions.SkreeMetareeFrameAt(false, 0xc660),
-                         RoomEnemySystem.SkreeDefinition, "Skree"),
+                         EnemyDefinitionId.Skree, "Skree"),
                  })
         {
             OamBuffer nativeFrame = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -2168,15 +2171,15 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((ushort definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
                  {
-                     (PipeBugDefinitions.BrinstarEnemyDefinition, (ushort)0x87ad,
+                     (EnemyDefinitionId.Zeb, (ushort)0x87ad,
                          "Brinstar Pipe Bug"),
-                     (PipeBugDefinitions.StrongBrinstarEnemyDefinition, (ushort)0x8a1f,
+                     (EnemyDefinitionId.Zebbo, (ushort)0x8a1f,
                          "strong Brinstar Pipe Bug"),
-                     (PipeBugDefinitions.NorfairEnemyDefinition, (ushort)0x8ae3,
+                     (EnemyDefinitionId.Gamet, (ushort)0x8ae3,
                          "Norfair Pipe Bug"),
-                     (PipeBugDefinitions.YellowEnemyDefinition, (ushort)0x8efe,
+                     (EnemyDefinitionId.Geega, (ushort)0x8efe,
                          "yellow Pipe Bug"),
                  })
         {
@@ -2191,10 +2194,10 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((ushort definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
                  {
-                     (RoomEnemySystem.FakeKraidDefinition, (ushort)0x99b0, "Fake Kraid"),
-                     (RoomEnemySystem.KraidGoodNailDefinition, (ushort)0x8b0c,
+                     (EnemyDefinitionId.MiniKraid, (ushort)0x99b0, "Fake Kraid"),
+                     (EnemyDefinitionId.KraidNail, (ushort)0x8b0c,
                          "Kraid fingernail"),
                  })
         {
@@ -2209,10 +2212,10 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((ushort definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
                  {
-                     (RoomEnemySystem.OwtchDefinition, (ushort)0xa3af, "Owtch"),
-                     (RoomEnemySystem.StokeDefinition, (ushort)0x8936, "Stoke"),
+                     (EnemyDefinitionId.Owtch, (ushort)0xa3af, "Owtch"),
+                     (EnemyDefinitionId.Stoke, (ushort)0x8936, "Stoke"),
                  })
         {
             ushort pointer = OwtchStokeVisualDefinitions.FrameAt(definition, operand);
@@ -2226,11 +2229,11 @@ internal static partial class Program
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((ushort definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
                  {
-                     (RoomEnemySystem.GRipperDefinition, (ushort)0xe19d, "GRipper"),
-                     (RoomEnemySystem.Ripper2Definition, (ushort)0xe2e2, "Ripper II"),
-                     (RoomEnemySystem.RipperDefinition, (ushort)0xe479, "Ripper"),
+                     (EnemyDefinitionId.GRipper, (ushort)0xe19d, "GRipper"),
+                     (EnemyDefinitionId.Ripper2, (ushort)0xe2e2, "Ripper II"),
+                     (EnemyDefinitionId.Ripper, (ushort)0xe479, "Ripper"),
                  })
         {
             ushort pointer = RipperVisualDefinitions.FrameAt(definition, operand);
@@ -2246,18 +2249,18 @@ internal static partial class Program
         }
         OamBuffer stockFrozen = DrawEnemy(stock, new FrameReadGuard(rom),
             RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
-            RoomEnemySystem.GRipperDefinition);
+            EnemyDefinitionId.GRipper);
         OamBuffer editedFrozen = DrawEnemy(edited, new FrameReadGuard(rom),
             RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
-            RoomEnemySystem.GRipperDefinition);
+            EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
         ushort firefleaPointer = EnemySpritemapDefinitions.FirefleaFrameAt(
             FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockFireflea = DrawEnemy(stock, new FrameReadGuard(rom),
-            firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+            firefleaPointer, EnemyDefinitionId.Fireflea);
         OamBuffer editedFireflea = DrawEnemy(edited, new FrameReadGuard(rom),
-            firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+            firefleaPointer, EnemyDefinitionId.Fireflea);
         AssertEqual(unchecked((byte)(stockFireflea.LowTable[1] + 1)),
             editedFireflea.LowTable[1],
             "authored Fireflea Y offset changes live room OAM");
@@ -2266,9 +2269,9 @@ internal static partial class Program
         ushort magdollitePointer = EnemySpritemapDefinitions.MagdolliteFrameAt(
             MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockMagdollite = DrawEnemy(stock, new FrameReadGuard(rom),
-            magdollitePointer, RoomEnemySystem.MagdolliteDefinition);
+            magdollitePointer, EnemyDefinitionId.Magdollite);
         OamBuffer editedMagdollite = DrawEnemy(edited, new FrameReadGuard(rom),
-            magdollitePointer, RoomEnemySystem.MagdolliteDefinition);
+            magdollitePointer, EnemyDefinitionId.Magdollite);
         AssertEqual(unchecked((byte)(stockMagdollite.LowTable[1] + 1)),
             editedMagdollite.LowTable[1],
             "authored Magdollite Y offset changes live room OAM");
@@ -2277,9 +2280,9 @@ internal static partial class Program
         ushort rioPointer = EnemySpritemapDefinitions.RioFrameAt(
             RioInstructionProgramDefinitions.PresentationWordAddress(0));
         OamBuffer stockRio = DrawEnemy(stock, new FrameReadGuard(rom),
-            rioPointer, RoomEnemySystem.RioDefinition);
+            rioPointer, EnemyDefinitionId.Rio);
         OamBuffer editedRio = DrawEnemy(edited, new FrameReadGuard(rom),
-            rioPointer, RoomEnemySystem.RioDefinition);
+            rioPointer, EnemyDefinitionId.Rio);
         AssertEqual(unchecked((byte)(stockRio.LowTable[1] + 1)),
             editedRio.LowTable[1],
             "authored Rio Y offset changes installed room OAM");
@@ -2288,9 +2291,9 @@ internal static partial class Program
         ushort lowerRioPointer = EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
             LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockLowerRio = DrawEnemy(stock, new FrameReadGuard(rom),
-            lowerRioPointer, RoomEnemySystem.LowerNorfairRioDefinition);
+            lowerRioPointer, EnemyDefinitionId.Holtz);
         OamBuffer editedLowerRio = DrawEnemy(edited, new FrameReadGuard(rom),
-            lowerRioPointer, RoomEnemySystem.LowerNorfairRioDefinition);
+            lowerRioPointer, EnemyDefinitionId.Holtz);
         AssertEqual(unchecked((byte)(stockLowerRio.LowTable[1] + 1)),
             editedLowerRio.LowTable[1],
             "authored Lower Norfair Rio Y offset changes installed room OAM");
@@ -2299,9 +2302,9 @@ internal static partial class Program
         ushort norfairRioPointer = EnemySpritemapDefinitions.NorfairRioFrameAt(
             NorfairRioInstructionProgramDefinitions.PresentationWordAddress(0));
         OamBuffer stockNorfairRio = DrawEnemy(stock, new FrameReadGuard(rom),
-            norfairRioPointer, RoomEnemySystem.NorfairRioDefinition);
+            norfairRioPointer, EnemyDefinitionId.Geruta);
         OamBuffer editedNorfairRio = DrawEnemy(edited, new FrameReadGuard(rom),
-            norfairRioPointer, RoomEnemySystem.NorfairRioDefinition);
+            norfairRioPointer, EnemyDefinitionId.Geruta);
         AssertEqual(unchecked((byte)(stockNorfairRio.LowTable[1] + 1)),
             editedNorfairRio.LowTable[1],
             "authored Norfair Rio Y offset changes installed room OAM");
@@ -2310,9 +2313,9 @@ internal static partial class Program
         ushort puyoPointer = EnemySpritemapDefinitions.PuyoFrameAt(
             PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockPuyo = DrawEnemy(stock, new FrameReadGuard(rom),
-            puyoPointer, RoomEnemySystem.PuyoDefinition);
+            puyoPointer, EnemyDefinitionId.Puyo);
         OamBuffer editedPuyo = DrawEnemy(edited, new FrameReadGuard(rom),
-            puyoPointer, RoomEnemySystem.PuyoDefinition);
+            puyoPointer, EnemyDefinitionId.Puyo);
         AssertEqual(unchecked((byte)(stockPuyo.LowTable[1] + 1)),
             editedPuyo.LowTable[1],
             "authored Puyo Y offset changes installed room OAM");
@@ -2321,9 +2324,9 @@ internal static partial class Program
         ushort bullPointer = EnemySpritemapDefinitions.BullFrameAt(
             BullInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockBull = DrawEnemy(stock, new FrameReadGuard(rom),
-            bullPointer, RoomEnemySystem.BullDefinition);
+            bullPointer, EnemyDefinitionId.Bull);
         OamBuffer editedBull = DrawEnemy(edited, new FrameReadGuard(rom),
-            bullPointer, RoomEnemySystem.BullDefinition);
+            bullPointer, EnemyDefinitionId.Bull);
         AssertEqual(unchecked((byte)(stockBull.LowTable[1] + 1)),
             editedBull.LowTable[1],
             "authored Bull Y offset changes installed room OAM");
@@ -2332,9 +2335,9 @@ internal static partial class Program
         ushort alcoonPointer = EnemySpritemapDefinitions.AlcoonFrameAt(
             AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockAlcoon = DrawEnemy(stock, new FrameReadGuard(rom),
-            alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+            alcoonPointer, EnemyDefinitionId.Alcoon);
         OamBuffer editedAlcoon = DrawEnemy(edited, new FrameReadGuard(rom),
-            alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+            alcoonPointer, EnemyDefinitionId.Alcoon);
         AssertEqual(unchecked((byte)(stockAlcoon.LowTable[1] + 1)),
             editedAlcoon.LowTable[1],
             "authored Alcoon Y offset changes installed room OAM");
@@ -2343,9 +2346,9 @@ internal static partial class Program
         ushort beetomPointer = EnemySpritemapDefinitions.BeetomFrameAt(
             BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockBeetom = DrawEnemy(stock, new FrameReadGuard(rom),
-            beetomPointer, RoomEnemySystem.BeetomDefinition);
+            beetomPointer, EnemyDefinitionId.Beetom);
         OamBuffer editedBeetom = DrawEnemy(edited, new FrameReadGuard(rom),
-            beetomPointer, RoomEnemySystem.BeetomDefinition);
+            beetomPointer, EnemyDefinitionId.Beetom);
         AssertEqual(unchecked((byte)(stockBeetom.LowTable[1] + 1)),
             editedBeetom.LowTable[1],
             "authored Beetom Y offset changes installed room OAM");
@@ -2354,9 +2357,9 @@ internal static partial class Program
         ushort hopperPointer = EnemySpritemapDefinitions.HopperFrameAt(
             HopperInstructionProgramDefinitions.PresentationWordAddress(0));
         OamBuffer stockHopper = DrawEnemy(stock, new FrameReadGuard(rom),
-            hopperPointer, RoomEnemySystem.SidehopperDefinition);
+            hopperPointer, EnemyDefinitionId.Sidehopper);
         OamBuffer editedHopper = DrawEnemy(edited, new FrameReadGuard(rom),
-            hopperPointer, RoomEnemySystem.SidehopperDefinition);
+            hopperPointer, EnemyDefinitionId.Sidehopper);
         AssertEqual(unchecked((byte)(stockHopper.LowTable[1] + 1)),
             editedHopper.LowTable[1],
             "authored Sidehopper Y offset changes installed room OAM");
@@ -2365,9 +2368,9 @@ internal static partial class Program
         ushort chootPointer = EnemySpritemapDefinitions.ChootFrameAt(
             ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockChoot = DrawEnemy(stock, new FrameReadGuard(rom),
-            chootPointer, RoomEnemySystem.ChootDefinition);
+            chootPointer, EnemyDefinitionId.Choot);
         OamBuffer editedChoot = DrawEnemy(edited, new FrameReadGuard(rom),
-            chootPointer, RoomEnemySystem.ChootDefinition);
+            chootPointer, EnemyDefinitionId.Choot);
         AssertEqual(unchecked((byte)(stockChoot.LowTable[1] + 1)),
             editedChoot.LowTable[1],
             "authored Choot Y offset changes installed room OAM");
@@ -2376,9 +2379,9 @@ internal static partial class Program
         ushort hzoomerPointer = EnemySpritemapDefinitions.HZoomerFrameAt(
             HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
         OamBuffer stockHZoomer = DrawEnemy(stock, new FrameReadGuard(rom),
-            hzoomerPointer, RoomEnemySystem.HZoomerDefinition);
+            hzoomerPointer, EnemyDefinitionId.HZoomer);
         OamBuffer editedHZoomer = DrawEnemy(edited, new FrameReadGuard(rom),
-            hzoomerPointer, RoomEnemySystem.HZoomerDefinition);
+            hzoomerPointer, EnemyDefinitionId.HZoomer);
         AssertEqual(unchecked((byte)(stockHZoomer.LowTable[1] + 1)),
             editedHZoomer.LowTable[1],
             "authored HZoomer Y offset changes installed room OAM");
@@ -2386,8 +2389,8 @@ internal static partial class Program
             "HZoomer visual edit leaves physical X unchanged");
         ushort sbugPointer = EnemySpritemapDefinitions.SbugFrameAt(
             SbugInstructionProgramDefinitions.PresentationWordAddress(0));
-        foreach (ushort definition in new ushort[]
-                 { RoomEnemySystem.SbugDefinition, RoomEnemySystem.Sbug2Definition })
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
+                 { EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2 })
         {
             OamBuffer stockSbug = DrawEnemy(stock, new FrameReadGuard(rom),
                 sbugPointer, definition);
@@ -2395,17 +2398,17 @@ internal static partial class Program
                 sbugPointer, definition);
             AssertEqual(unchecked((byte)(stockSbug.LowTable[1] + 1)),
                 editedSbug.LowTable[1],
-                $"authored Sbug Y offset changes installed enemy ${definition:X4}");
+                $"authored Sbug Y offset changes installed enemy ${(int)definition:X4}");
             AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
-                $"Sbug visual edit leaves enemy ${definition:X4} physical X unchanged");
+                $"Sbug visual edit leaves enemy ${(int)definition:X4} physical X unchanged");
         }
         Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(rom, edited));
-        foreach (ushort definition in new ushort[]
+        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  {
-                     RoomEnemySystem.ZeelaDefinition,
-                     RoomEnemySystem.SovaDefinition,
-                     RoomEnemySystem.ZoomerDefinition,
-                     RoomEnemySystem.StoneZoomerDefinition,
+                     EnemyDefinitionId.Zeela,
+                     EnemyDefinitionId.Sova,
+                     EnemyDefinitionId.Zoomer,
+                     EnemyDefinitionId.MZoomer,
                  })
         {
             OamBuffer stockCrawler = DrawEnemy(stock, new FrameReadGuard(rom),
@@ -2414,9 +2417,9 @@ internal static partial class Program
                 hzoomerPointer, definition);
             AssertEqual(unchecked((byte)(stockCrawler.LowTable[1] + 1)),
                 editedCrawler.LowTable[1],
-                $"shared crawler ${definition:X4} uses the edited visual Y offset");
+                $"shared crawler ${(int)definition:X4} uses the edited visual Y offset");
             AssertEqual(stockCrawler.LowTable[0], editedCrawler.LowTable[0],
-                $"shared crawler ${definition:X4} retains physical X");
+                $"shared crawler ${(int)definition:X4} retains physical X");
         }
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(rom, edited));
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
@@ -2824,9 +2827,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preElevatorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preElevatorUpgraded, new FrameReadGuard(rom), 0x962f,
-                RoomEnemySystem.ElevatorDefinition).LowTable
+                EnemyDefinitionId.Elevator).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x962f,
-                RoomEnemySystem.ElevatorDefinition).LowTable),
+                EnemyDefinitionId.Elevator).LowTable),
             "version-twenty-nine override inherits stock elevator OAM without ROM reads");
         var preKamerFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("kamer_platform_", StringComparison.Ordinal))
@@ -2846,9 +2849,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preKamerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preKamerUpgraded, new FrameReadGuard(rom), 0xf468,
-                RoomEnemySystem.KamerVerticalPlatformDefinition).LowTable
+                EnemyDefinitionId.Kamer).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0xf468,
-                RoomEnemySystem.KamerVerticalPlatformDefinition).LowTable),
+                EnemyDefinitionId.Kamer).LowTable),
             "version-twenty-eight override inherits stock Kamer OAM without ROM reads");
         var preFuneFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("fune_", StringComparison.Ordinal) &&
@@ -2871,13 +2874,13 @@ internal static partial class Program
         EnemyTileArtworkCatalog preFuneUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer inheritedFune = DrawEnemy(preFuneUpgraded,
             new FrameReadGuard(rom), 0x94cb,
-            FuneNamiheDefinitions.FuneEnemyDefinition);
+            EnemyDefinitionId.Fune);
         AssertTrue(inheritedFune.LowTable.SequenceEqual(stockFune.LowTable),
             "version-twenty-seven override inherits stock Fune OAM without ROM reads");
         AssertTrue(DrawEnemy(preFuneUpgraded, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable
+                EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(edited, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable),
+                EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-seven override retains existing Boyon edits");
         var preSbugFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("sbug_", StringComparison.Ordinal) &&
@@ -2904,9 +2907,9 @@ internal static partial class Program
                 EnemySpritemapDefinitions.SbugBank, sbugPointer, out _),
             "version-twenty-six override inherits stock Sbug artwork");
         AssertTrue(DrawEnemy(preSbugUpgraded, new FrameReadGuard(rom),
-                0x88da, RoomEnemySystem.BoyonDefinition).LowTable
+                0x88da, EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom),
-                0x88e1, RoomEnemySystem.BoyonDefinition).LowTable),
+                0x88e1, EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-six override retains edited display binding");
         var preHZoomerFrames = preDraygonFrames
             .Where(pair => !pair.Key.StartsWith("hzoomer_", StringComparison.Ordinal) &&
@@ -2931,13 +2934,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preHZoomerUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHZoomerEdit = DrawEnemy(preHZoomerUpgraded,
-            new FrameReadGuard(rom), chootPointer, RoomEnemySystem.ChootDefinition);
+            new FrameReadGuard(rom), chootPointer, EnemyDefinitionId.Choot);
         AssertEqual(editedChoot.LowTable[1], retainedPreHZoomerEdit.LowTable[1],
             "version-twenty-five override retains edited Choot artwork");
         AssertTrue(DrawEnemy(preHZoomerUpgraded, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable
+                EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
-                RoomEnemySystem.BoyonDefinition).LowTable),
+                EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-five override retains edited display binding");
         AssertTrue(preHZoomerUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.HZoomerBank, hzoomerPointer, out _),
@@ -2960,13 +2963,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preChootUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreChootEdit = DrawEnemy(preChootUpgraded,
-            new FrameReadGuard(rom), hopperPointer, RoomEnemySystem.SidehopperDefinition);
+            new FrameReadGuard(rom), hopperPointer, EnemyDefinitionId.Sidehopper);
         AssertEqual(editedHopper.LowTable[1], retainedPreChootEdit.LowTable[1],
             "version-twenty-four override retains edited Sidehopper artwork");
         AssertTrue(DrawEnemy(preChootUpgraded, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable
+                EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
-                RoomEnemySystem.BoyonDefinition).LowTable),
+                EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-four override retains edited display binding");
         AssertTrue(preChootUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.ChootBank, chootPointer, out _),
@@ -2992,13 +2995,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preHopperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreHopperEdit = DrawEnemy(preHopperUpgraded,
-            new FrameReadGuard(rom), beetomPointer, RoomEnemySystem.BeetomDefinition);
+            new FrameReadGuard(rom), beetomPointer, EnemyDefinitionId.Beetom);
         AssertEqual(editedBeetom.LowTable[1], retainedPreHopperEdit.LowTable[1],
             "version-twenty-three override retains edited Beetom artwork");
         AssertTrue(DrawEnemy(preHopperUpgraded, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable
+                EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
-                RoomEnemySystem.BoyonDefinition).LowTable),
+                EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-three override retains edited display binding");
         AssertTrue(preHopperUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.HopperBank, hopperPointer, out _),
@@ -3021,13 +3024,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preBeetomUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBeetomEdit = DrawEnemy(preBeetomUpgraded,
-            new FrameReadGuard(rom), alcoonPointer, RoomEnemySystem.AlcoonDefinition);
+            new FrameReadGuard(rom), alcoonPointer, EnemyDefinitionId.Alcoon);
         AssertEqual(editedAlcoon.LowTable[1], retainedPreBeetomEdit.LowTable[1],
             "version-twenty-two override retains an edited Alcoon frame");
         AssertTrue(DrawEnemy(preBeetomUpgraded, new FrameReadGuard(rom), 0x88da,
-                RoomEnemySystem.BoyonDefinition).LowTable
+                EnemyDefinitionId.Boyon).LowTable
             .SequenceEqual(DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
-                RoomEnemySystem.BoyonDefinition).LowTable),
+                EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-two override retains its edited display binding");
         AssertTrue(preBeetomUpgraded.Spritemaps!.TryGet(
                 EnemySpritemapDefinitions.BeetomBank, beetomPointer, out _),
@@ -3049,7 +3052,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preAlcoonUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreAlcoonEdit = DrawEnemy(preAlcoonUpgraded,
-            new FrameReadGuard(rom), bullPointer, RoomEnemySystem.BullDefinition);
+            new FrameReadGuard(rom), bullPointer, EnemyDefinitionId.Bull);
         AssertEqual(editedBull.LowTable[1], retainedPreAlcoonEdit.LowTable[1],
             "version-twenty-one override retains an edited Bull frame");
         AssertTrue(preAlcoonUpgraded.Spritemaps!.TryGet(
@@ -3072,7 +3075,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preBullUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPreBullEdit = DrawEnemy(preBullUpgraded,
-            new FrameReadGuard(rom), puyoPointer, RoomEnemySystem.PuyoDefinition);
+            new FrameReadGuard(rom), puyoPointer, EnemyDefinitionId.Puyo);
         AssertEqual(editedPuyo.LowTable[1], retainedPreBullEdit.LowTable[1],
             "version-twenty override retains an edited Puyo frame");
         AssertTrue(preBullUpgraded.Spritemaps!.TryGet(
@@ -3095,7 +3098,7 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog prePuyoUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer retainedPrePuyoEdit = DrawEnemy(prePuyoUpgraded,
-            new FrameReadGuard(rom), framePointer, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), framePointer, EnemyDefinitionId.Boyon);
         AssertEqual(editedOam.LowTable[1], retainedPrePuyoEdit.LowTable[1],
             "version-nineteen override retains an edited older enemy frame");
         AssertTrue(prePuyoUpgraded.Spritemaps!.TryGet(
@@ -3119,9 +3122,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preNorfairRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorNorfairRioEraRemap = DrawEnemy(preNorfairRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorNorfairRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorNorfairRioEraSelected.LowTable.SequenceEqual(
                 priorNorfairRioEraRemap.LowTable),
             "version-eighteen override retains its display binding");
@@ -3148,9 +3151,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preLowerRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorLowerRioEraRemap = DrawEnemy(preLowerRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorLowerRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorLowerRioEraSelected.LowTable.SequenceEqual(
                 priorLowerRioEraRemap.LowTable),
             "version-seventeen override retains its display binding");
@@ -3179,9 +3182,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preRioUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorRioEraRemap = DrawEnemy(preRioUpgraded,
-            new FrameReadGuard(rom), 0x88da, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorRioEraSelected = DrawEnemy(stock,
-            new FrameReadGuard(rom), 0x88e1, RoomEnemySystem.BoyonDefinition);
+            new FrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorRioEraSelected.LowTable.SequenceEqual(priorRioEraRemap.LowTable),
             "version-sixteen override retains its display binding");
         AssertTrue(preRioUpgraded.Spritemaps!.TryGet(
@@ -3213,9 +3216,9 @@ internal static partial class Program
         EnemyTileArtworkCatalog preCeresBabyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorCeresRemap = DrawEnemy(preCeresBabyUpgraded,
             new FrameReadGuard(rom), 0xfa13,
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.CeresDoor);
         OamBuffer priorCeresSelected = DrawEnemy(stock, new FrameReadGuard(rom),
-            0xfa3d, CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            0xfa3d, EnemyDefinitionId.CeresDoor);
         AssertTrue(priorCeresSelected.LowTable.SequenceEqual(priorCeresRemap.LowTable),
             "version-fifteen override retains its Ceres door display binding");
         AssertTrue(preCeresBabyUpgraded.Spritemaps!.TryGet(
@@ -3241,13 +3244,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preCeresDoorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, new FrameReadGuard(rom),
-            0x88da, RoomEnemySystem.BoyonDefinition);
+            0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorSelected = DrawEnemy(stock, new FrameReadGuard(rom),
-            0x88e1, RoomEnemySystem.BoyonDefinition);
+            0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorSelected.LowTable.SequenceEqual(priorRemap.LowTable),
             "version-fourteen override retains its edited display binding");
         OamBuffer priorEditedCacatac = DrawEnemy(preCeresDoorUpgraded,
-            new FrameReadGuard(rom), cacatacPointer, RoomEnemySystem.CacatacDefinition);
+            new FrameReadGuard(rom), cacatacPointer, EnemyDefinitionId.Cacatac);
         AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
             "version-fourteen override also retains its edited frame parts");
         AssertTrue(preCeresDoorUpgraded.Spritemaps!.TryGet(
@@ -3279,12 +3282,12 @@ internal static partial class Program
         EnemyTileArtworkCatalog preMagdolliteUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedMagdollite = DrawEnemy(preMagdolliteUpgraded,
             new FrameReadGuard(rom), magdollitePointer,
-            RoomEnemySystem.MagdolliteDefinition);
+            EnemyDefinitionId.Magdollite);
         AssertTrue(stockMagdollite.LowTable.SequenceEqual(upgradedMagdollite.LowTable),
             "version-twelve override gains stock Magdollite composition");
         OamBuffer retainedFireflea = DrawEnemy(preMagdolliteUpgraded,
             new FrameReadGuard(rom), firefleaPointer,
-            RoomEnemySystem.FirefleaDefinition);
+            EnemyDefinitionId.Fireflea);
         AssertEqual(editedFireflea.LowTable[1], retainedFireflea.LowTable[1],
             "version-twelve override retains edited Fireflea composition");
         var preFirefleaFrames = preMagdolliteFrames
@@ -3300,13 +3303,13 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preFirefleaUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedFireflea = DrawEnemy(preFirefleaUpgraded,
-            new FrameReadGuard(rom), firefleaPointer, RoomEnemySystem.FirefleaDefinition);
+            new FrameReadGuard(rom), firefleaPointer, EnemyDefinitionId.Fireflea);
         AssertTrue(stockFireflea.LowTable.SequenceEqual(upgradedFireflea.LowTable),
             "version-eleven override gains stock Fireflea composition");
         OamBuffer retainedRipper = DrawEnemy(preFirefleaUpgraded,
-            new FrameReadGuard(rom), 0xe54b, RoomEnemySystem.RipperDefinition);
+            new FrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
         OamBuffer editedRipper = DrawEnemy(edited,
-            new FrameReadGuard(rom), 0xe54b, RoomEnemySystem.RipperDefinition);
+            new FrameReadGuard(rom), 0xe54b, EnemyDefinitionId.Ripper);
         AssertEqual(editedRipper.LowTable[1], retainedRipper.LowTable[1],
             "version-eleven override retains edited Ripper composition");
         var preRipperFrames = preFirefleaFrames
@@ -3322,15 +3325,15 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preRipperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, new FrameReadGuard(rom),
-            0xe54b, RoomEnemySystem.RipperDefinition);
+            0xe54b, EnemyDefinitionId.Ripper);
         OamBuffer stockRipper = DrawEnemy(stock, new FrameReadGuard(rom),
-            0xe54b, RoomEnemySystem.RipperDefinition);
+            0xe54b, EnemyDefinitionId.Ripper);
         AssertTrue(stockRipper.LowTable.SequenceEqual(upgradedRipper.LowTable),
             "version-ten override gains stock Ripper composition");
         OamBuffer retainedStoke = DrawEnemy(preRipperUpgraded,
-            new FrameReadGuard(rom), 0x8aca, RoomEnemySystem.StokeDefinition);
+            new FrameReadGuard(rom), 0x8aca, EnemyDefinitionId.Stoke);
         OamBuffer editedStoke = DrawEnemy(edited, new FrameReadGuard(rom),
-            0x8aca, RoomEnemySystem.StokeDefinition);
+            0x8aca, EnemyDefinitionId.Stoke);
         AssertEqual(editedStoke.LowTable[1], retainedStoke.LowTable[1],
             "version-ten override retains edited Stoke composition");
         var preOwtchStokeFrames = preRipperFrames
@@ -3347,11 +3350,11 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preOwtchStokeUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort owtchPointer = OwtchStokeVisualDefinitions.FrameAt(
-            RoomEnemySystem.OwtchDefinition, 0xa3af);
+            EnemyDefinitionId.Owtch, 0xa3af);
         OamBuffer stockOwtch = DrawEnemy(stock, new FrameReadGuard(rom),
-            owtchPointer, RoomEnemySystem.OwtchDefinition);
+            owtchPointer, EnemyDefinitionId.Owtch);
         OamBuffer upgradedOwtch = DrawEnemy(preOwtchStokeUpgraded,
-            new FrameReadGuard(rom), owtchPointer, RoomEnemySystem.OwtchDefinition);
+            new FrameReadGuard(rom), owtchPointer, EnemyDefinitionId.Owtch);
         AssertTrue(stockOwtch.LowTable.SequenceEqual(upgradedOwtch.LowTable),
             "version-nine override gains stock Owtch composition");
         var previousFrames = preOwtchStokeFrames
@@ -3369,21 +3372,21 @@ internal static partial class Program
         EnemyTileArtworkCatalog upgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort nailPointer = KraidVisualDefinitions.InitialNailFrame;
         OamBuffer stockNail = DrawEnemy(stock, new FrameReadGuard(rom),
-            nailPointer, RoomEnemySystem.KraidGoodNailDefinition);
+            nailPointer, EnemyDefinitionId.KraidNail);
         OamBuffer upgradedNail = DrawEnemy(upgraded, new FrameReadGuard(rom),
-            nailPointer, RoomEnemySystem.KraidGoodNailDefinition);
+            nailPointer, EnemyDefinitionId.KraidNail);
         AssertTrue(stockNail.LowTable.SequenceEqual(upgradedNail.LowTable),
             "previous-version override gains stock Kraid fingernail composition");
         OamBuffer retainedWaver = DrawEnemy(upgraded, new FrameReadGuard(rom),
-            waverPointer, RoomEnemySystem.WaverDefinition);
+            waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], retainedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
         ushort retainedPipePointer = PipeBugVisualDefinitions.FrameAt(
-            PipeBugDefinitions.NorfairEnemyDefinition, 0x8ae3);
+            EnemyDefinitionId.Gamet, 0x8ae3);
         OamBuffer editedPipe = DrawEnemy(edited, new FrameReadGuard(rom),
-            retainedPipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+            retainedPipePointer, EnemyDefinitionId.Gamet);
         OamBuffer retainedPipe = DrawEnemy(upgraded, new FrameReadGuard(rom),
-            retainedPipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+            retainedPipePointer, EnemyDefinitionId.Gamet);
         AssertEqual(editedPipe.LowTable[1], retainedPipe.LowTable[1],
             "previous-version override retains edited Pipe Bug composition");
         var priorFrames = previousFrames
@@ -3399,11 +3402,11 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog priorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         ushort pipePointer = PipeBugVisualDefinitions.FrameAt(
-            PipeBugDefinitions.NorfairEnemyDefinition, 0x8ae3);
+            EnemyDefinitionId.Gamet, 0x8ae3);
         OamBuffer stockPipe = DrawEnemy(stock, new FrameReadGuard(rom),
-            pipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+            pipePointer, EnemyDefinitionId.Gamet);
         OamBuffer upgradedPipe = DrawEnemy(priorUpgraded, new FrameReadGuard(rom),
-            pipePointer, PipeBugDefinitions.NorfairEnemyDefinition);
+            pipePointer, EnemyDefinitionId.Gamet);
         AssertTrue(stockPipe.LowTable.SequenceEqual(upgradedPipe.LowTable),
             "prior-version override gains stock Pipe Bug composition");
         var earlierFrames = priorFrames
@@ -3421,22 +3424,22 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog earlierUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var upgradedBoyon = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
-            framePointer, RoomEnemySystem.BoyonDefinition);
+            framePointer, EnemyDefinitionId.Boyon);
         var upgradedSkultera = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
-            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+            skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(editedOam.LowTable[0], upgradedBoyon.LowTable[0],
             "previous-version override retains edited Boyon composition");
         AssertEqual(editedSkultera.LowTable[1], upgradedSkultera.LowTable[1],
             "previous-version override retains edited Skultera composition");
         var upgradedWaver = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
-            waverPointer, RoomEnemySystem.WaverDefinition);
+            waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
         ushort zoaPointer = EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5);
         var stockZoa = DrawEnemy(stock, new FrameReadGuard(rom),
-            zoaPointer, RoomEnemySystem.ZoaDefinition);
+            zoaPointer, EnemyDefinitionId.Zoa);
         var upgradedZoa = DrawEnemy(earlierUpgraded, new FrameReadGuard(rom),
-            zoaPointer, RoomEnemySystem.ZoaDefinition);
+            zoaPointer, EnemyDefinitionId.Zoa);
         AssertTrue(stockZoa.LowTable.SequenceEqual(upgradedZoa.LowTable),
             "previous-version override gains stock Zoa composition");
         var intermediateFrames = earlierFrames
@@ -3452,9 +3455,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog intermediateUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var intermediateBoyon = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
-            framePointer, RoomEnemySystem.BoyonDefinition);
+            framePointer, EnemyDefinitionId.Boyon);
         var intermediateWaver = DrawEnemy(intermediateUpgraded, new FrameReadGuard(rom),
-            waverPointer, RoomEnemySystem.WaverDefinition);
+            waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedOam.LowTable[0], intermediateBoyon.LowTable[0],
             "intermediate override retains edited Boyon composition");
         AssertTrue(stockWaver.LowTable.SequenceEqual(intermediateWaver.LowTable),
@@ -3472,9 +3475,9 @@ internal static partial class Program
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog legacyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
         var legacyBoyon = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
-            framePointer, RoomEnemySystem.BoyonDefinition);
+            framePointer, EnemyDefinitionId.Boyon);
         var legacySkultera = DrawEnemy(legacyUpgraded, new FrameReadGuard(rom),
-            skulteraPointer, RoomEnemySystem.SkulteraDefinition);
+            skulteraPointer, EnemyDefinitionId.Skultera);
         AssertEqual(editedOam.LowTable[0], legacyBoyon.LowTable[0],
             "legacy override retains edited Boyon composition");
         AssertTrue(stockSkultera.LowTable.SequenceEqual(legacySkultera.LowTable),
@@ -3490,7 +3493,7 @@ internal static partial class Program
         EnemyTileArtworkCatalog upgradedBindings = stock.WithSpritemaps(LoadSpritemapOverride());
         AssertEqual(editedOam.LowTable[0],
             DrawEnemy(upgradedBindings, new FrameReadGuard(rom), framePointer,
-                RoomEnemySystem.BoyonDefinition).LowTable[0],
+                EnemyDefinitionId.Boyon).LowTable[0],
             "version-thirteen art override retains edits with stock display bindings");
 
         // A binding may change only the presentation frame. The native pointer,
@@ -3503,11 +3506,11 @@ internal static partial class Program
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog swappedArt = stock.WithSpritemaps(LoadSpritemapOverride());
         OamBuffer nativeFirst = DrawEnemy(stock, new FrameReadGuard(rom), 0x88da,
-            RoomEnemySystem.BoyonDefinition);
+            EnemyDefinitionId.Boyon);
         OamBuffer nativeSecond = DrawEnemy(stock, new FrameReadGuard(rom), 0x88e1,
-            RoomEnemySystem.BoyonDefinition);
+            EnemyDefinitionId.Boyon);
         OamBuffer displayedSecond = DrawEnemy(swappedArt, new FrameReadGuard(rom),
-            0x88da, RoomEnemySystem.BoyonDefinition, slot =>
+            0x88da, EnemyDefinitionId.Boyon, slot =>
             {
                 AssertEqual((ushort)0x88da, slot.SpritemapPointer,
                     "display override retains native collision frame pointer");
@@ -3548,7 +3551,7 @@ internal static partial class Program
             "malformed enemy composition override fails loudly");
 
         static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
-            ISnesAddressSpace guard, ushort pointer, ushort definition,
+            ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
@@ -3559,106 +3562,106 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
-                { Bank = definition == RoomEnemySystem.YappingMawDefinition
+                { Bank = definition == EnemyDefinitionId.YappingMaw
                     ? YappingMawVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.KiHunterDefinition or
-                        RoomEnemySystem.KiHunterWingsDefinition or
-                        RoomEnemySystem.RedKiHunterDefinition or
-                        RoomEnemySystem.RedKiHunterWingsDefinition or
-                        RoomEnemySystem.GoldKiHunterDefinition or
-                        RoomEnemySystem.GoldKiHunterWingsDefinition
+                    : definition is EnemyDefinitionId.KihunterGreen or
+                        EnemyDefinitionId.KihunterGreenWings or
+                        EnemyDefinitionId.KihunterYellow or
+                        EnemyDefinitionId.KihunterYellowWings or
+                        EnemyDefinitionId.KihunterRed or
+                        EnemyDefinitionId.KihunterRedWings
                     ? KiHunterVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.FakeKraidDefinition
+                    : definition == EnemyDefinitionId.MiniKraid
                     ? EnemySpritemapDefinitions.FakeKraidBank
-                    : definition is RoomEnemySystem.KraidGoodNailDefinition or
-                        RoomEnemySystem.KraidBadNailDefinition
+                    : definition is EnemyDefinitionId.KraidNail or
+                        EnemyDefinitionId.KraidNailBad
                         ? EnemySpritemapDefinitions.KraidNailBank
-                    : definition is PipeBugDefinitions.BrinstarEnemyDefinition or
-                    PipeBugDefinitions.StrongBrinstarEnemyDefinition or
-                    PipeBugDefinitions.NorfairEnemyDefinition or
-                    PipeBugDefinitions.YellowEnemyDefinition
+                    : definition is EnemyDefinitionId.Zeb or
+                    EnemyDefinitionId.Zebbo or
+                    EnemyDefinitionId.Gamet or
+                    EnemyDefinitionId.Geega
                     ? EnemySpritemapDefinitions.PipeBugBank
-                    : definition == CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
+                    : definition == EnemyDefinitionId.CeresDoor
                         ? CeresDoorInstructionProgramDefinitions.Bank
-                    : definition == RoomEnemySystem.BoulderDefinition
+                    : definition == EnemyDefinitionId.Boulder
                     ? EnemySpritemapDefinitions.BoulderBank
-                    : definition == RoomEnemySystem.AtomicDefinition
+                    : definition == EnemyDefinitionId.Atomic
                         ? EnemySpritemapDefinitions.AtomicBank
-                    : definition == RoomEnemySystem.MagdolliteDefinition
+                    : definition == EnemyDefinitionId.Magdollite
                         ? EnemySpritemapDefinitions.MagdolliteBank
-                    : definition is FuneNamiheDefinitions.FuneEnemyDefinition or
-                        FuneNamiheDefinitions.NamiheEnemyDefinition
+                    : definition is EnemyDefinitionId.Fune or
+                        EnemyDefinitionId.Namihe
                         ? EnemySpritemapDefinitions.FuneNamiheBank
-                    : definition == RoomEnemySystem.BullDefinition
+                    : definition == EnemyDefinitionId.Bull
                         ? EnemySpritemapDefinitions.BullBank
-                    : definition == RoomEnemySystem.AlcoonDefinition
+                    : definition == EnemyDefinitionId.Alcoon
                         ? EnemySpritemapDefinitions.AlcoonBank
-                    : definition == RoomEnemySystem.BeetomDefinition
+                    : definition == EnemyDefinitionId.Beetom
                         ? EnemySpritemapDefinitions.BeetomBank
-                    : definition is RoomEnemySystem.SidehopperDefinition or
-                        RoomEnemySystem.DessgeegaDefinition or
-                        RoomEnemySystem.LargeSidehopperDefinition or
-                        RoomEnemySystem.TourianSidehopperDefinition or
-                        RoomEnemySystem.LargeDessgeegaDefinition
+                    : definition is EnemyDefinitionId.Sidehopper or
+                        EnemyDefinitionId.Dessgeega or
+                        EnemyDefinitionId.SidehopperLarge or
+                        EnemyDefinitionId.SidehopperTourian or
+                        EnemyDefinitionId.DessgeegaLarge
                         ? EnemySpritemapDefinitions.HopperBank
-                    : definition == RoomEnemySystem.ChootDefinition
+                    : definition == EnemyDefinitionId.Choot
                         ? EnemySpritemapDefinitions.ChootBank
-                    : definition is RoomEnemySystem.MellowDefinition or
-                        RoomEnemySystem.MellaDefinition or RoomEnemySystem.MemuDefinition
+                    : definition is EnemyDefinitionId.Mellow or
+                        EnemyDefinitionId.Mella or EnemyDefinitionId.Menu
                         ? FlyVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.KagoDefinition
+                    : definition == EnemyDefinitionId.Kago
                         ? KagoVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.BlueBrinstarFaceBlockDefinition
+                    : definition == EnemyDefinitionId.FaceBlock
                         ? BlueBrinstarFaceBlockVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.MorphBallEyeDefinition
+                    : definition == EnemyDefinitionId.Eye
                         ? MorphBallEyeVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.MetroidDefinition
+                    : definition == EnemyDefinitionId.Metroid
                         ? MetroidVisualDefinitions.Bank
-                    : definition == EnemyDefinitionPointers.Mochtroid
+                    : definition == EnemyDefinitionId.Mochtroid
                         ? MochtroidVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.EvirDefinition or
-                        RoomEnemySystem.EvirProjectileDefinition
+                    : definition is EnemyDefinitionId.Evir or
+                        EnemyDefinitionId.EvirProjectile
                         ? EvirVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.WorkRobotDefinition or
-                        RoomEnemySystem.WorkRobotNoPowerDefinition
+                    : definition is EnemyDefinitionId.Robot or
+                        EnemyDefinitionId.RobotNoPower
                         ? WorkRobotVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.YardDefinition
+                    : definition == EnemyDefinitionId.Yard
                         ? YardVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.BotwoonDefinition
+                    : definition == EnemyDefinitionId.Botwoon
                         ? BotwoonVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.ShaktoolDefinition
+                    : definition == EnemyDefinitionId.Shaktool
                         ? ShaktoolVisualDefinitions.Bank
-                    : definition == ChozoStatueEnemyDefinitions.EnemyDefinitionPointer
+                    : definition == EnemyDefinitionId.Chozo
                         ? ChozoStatueVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.ViolaDefinition
+                    : definition == EnemyDefinitionId.Viola
                         ? ViolaVisualDefinitions.Bank
-                    : definition == RoomEnemySystem.RinkaDefinition
+                    : definition == EnemyDefinitionId.Rinka
                         ? RinkaVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.TripperDefinition or
-                        RoomEnemySystem.KamerDefinition
+                    : definition is EnemyDefinitionId.Tripper or
+                        EnemyDefinitionId.Kamer2
                         ? TripperKamerVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.GrowingShutterDefinition or
-                        RoomEnemySystem.ShootableVerticalShutterDefinition or
-                        RoomEnemySystem.DestroyableVerticalShutterDefinition or
-                        RoomEnemySystem.ShootableHorizontalShutterDefinition
+                    : definition is EnemyDefinitionId.ShutterGrowing or
+                        EnemyDefinitionId.ShutterShootable or
+                        EnemyDefinitionId.ShutterDestroyable or
+                        EnemyDefinitionId.ShutterHorizShootable
                         ? ShutterVisualDefinitions.Bank
-                    : definition is RoomEnemySystem.HZoomerDefinition or
-                        RoomEnemySystem.SciserDefinition or
-                        RoomEnemySystem.ZeelaDefinition or
-                        RoomEnemySystem.SovaDefinition or
-                        RoomEnemySystem.ZoomerDefinition or
-                        RoomEnemySystem.StoneZoomerDefinition
+                    : definition is EnemyDefinitionId.HZoomer or
+                        EnemyDefinitionId.Sciser or
+                        EnemyDefinitionId.Zeela or
+                        EnemyDefinitionId.Sova or
+                        EnemyDefinitionId.Zoomer or
+                        EnemyDefinitionId.MZoomer
                         ? EnemySpritemapDefinitions.HZoomerBank
-                    : definition is RoomEnemySystem.SbugDefinition or
-                        RoomEnemySystem.Sbug2Definition
+                    : definition is EnemyDefinitionId.Sbug or
+                        EnemyDefinitionId.Sbug2
                         ? EnemySpritemapDefinitions.SbugBank
-                        : definition is RoomEnemySystem.ElevatorDefinition or
-                          RoomEnemySystem.SkulteraDefinition or
-                          RoomEnemySystem.WaverDefinition or
-                          RoomEnemySystem.FirefleaDefinition or
-                          RoomEnemySystem.ZoaDefinition or
-                          RoomEnemySystem.MetareeDefinition or
-                          RoomEnemySystem.SkreeDefinition
+                        : definition is EnemyDefinitionId.Elevator or
+                          EnemyDefinitionId.Skultera or
+                          EnemyDefinitionId.Waver or
+                          EnemyDefinitionId.Fireflea or
+                          EnemyDefinitionId.Zoa or
+                          EnemyDefinitionId.Metaree or
+                          EnemyDefinitionId.Skree
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
             // The catalog-wide composition check includes families newer than the

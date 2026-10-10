@@ -77,7 +77,7 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
             WriteByte(startAddress + index, values[index]);
     }
 
-    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+    public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
 
 
@@ -87,7 +87,7 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         ushort Word(int offset) => (ushort)(ReadByte(address + offset) |
             ReadByte(address + offset + 1) << 8);
         return new RoomEnemyPopulationRecord(
-            Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
+            (EnemyDefinitionId)Word(0), Word(2), Word(4), Word(6), Word(8), Word(10),
             Word(12), Word(14));
     }
 
@@ -97,10 +97,11 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         var records = new List<RoomEnemyPopulationRecord>();
         for (int slot = 0; slot <= RoomEnemySystem.MaximumEnemyCount; slot++)
         {
-            ushort definitionPointer = ReadFixtureWord(cursor);
-            if (definitionPointer == 0xffff)
+            ushort definitionPointerWord = ReadFixtureWord(cursor);
+            if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
                     pointer, records.ToArray(), ReadByte(cursor + 2));
+            EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == RoomEnemySystem.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
             records.Add(new RoomEnemyPopulationRecord(
@@ -119,9 +120,10 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
         var records = new List<RoomEnemyGraphicsSetHeader>();
         for (int slot = 0; slot <= 4; slot++)
         {
-            ushort definitionPointer = ReadFixtureWord(cursor);
-            if (definitionPointer == 0xffff)
+            ushort definitionPointerWord = ReadFixtureWord(cursor);
+            if (definitionPointerWord == 0xffff)
                 return new RoomEnemyGraphicsSetDefinition(pointer, records.ToArray());
+            EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
             records.Add(new RoomEnemyGraphicsSetHeader(

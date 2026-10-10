@@ -3577,7 +3577,7 @@ Landed: true, HitCeiling: false);
                             continue;
                         }
                         throw new InvalidDataException(
-                            $"Save station published unexpected message ${station.MessageBoxIndex:X2}.");
+                            $"Save station published unexpected message ${(int)station.MessageBoxIndex:X2}.");
                     }
                     if (MessageBox.IsActive)
                     {

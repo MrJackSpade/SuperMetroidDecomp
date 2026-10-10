@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal interface IRoomEnemyFixtureSource
 {
-    RoomEnemyDefinition ReadEnemyDefinition(ushort pointer);
+    RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer);
     RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer);
     RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer);
 }

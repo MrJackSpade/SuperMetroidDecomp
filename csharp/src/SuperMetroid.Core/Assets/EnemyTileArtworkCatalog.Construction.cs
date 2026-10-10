@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -10,8 +11,8 @@ public sealed partial class EnemyTileArtworkCatalog
     /// The Ceres and Torizo transfer extensions are required; other boss attachments retain
     /// their independently validated contracts and are not certified here.
     /// </summary>
-    public static EnemyTileArtworkCatalog FromInstalledArtwork(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
+    public static EnemyTileArtworkCatalog FromInstalledArtwork(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
         CrocomireMeltingArtwork? crocomireMelting = null,
         EnemySpritemapCatalog? spritemaps = null,
         EnemyExtendedFrameCatalog? extendedFrames = null,
@@ -19,7 +20,7 @@ public sealed partial class EnemyTileArtworkCatalog
         KraidColorCatalog? kraidColors = null,
         GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
         CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<ushort, int>? dmaSources = null,
+        IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
         MagdollitePaletteCycle? magdollitePaletteCycle = null,
         WorkRobotPaletteCycle? workRobotPaletteCycle = null,
@@ -51,8 +52,8 @@ public sealed partial class EnemyTileArtworkCatalog
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
-        sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
-        palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
+        sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(sheets);
+        palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(palettes);
         ValidateInstalledSheets(sheets, palettes);
         if (ceresEscapeTiles is null || ceresEscapeOverlayTilemaps is null)
             throw new InvalidDataException("Installed enemy DMA artwork requires both Ceres transfer providers.");
@@ -71,8 +72,8 @@ public sealed partial class EnemyTileArtworkCatalog
             auxiliaryColors, motherBrainBodyBg2Frames);
     }
 
-    private EnemyTileArtworkCatalog(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
+    private EnemyTileArtworkCatalog(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
         CrocomireMeltingArtwork? crocomireMelting = null,
         EnemySpritemapCatalog? spritemaps = null,
         EnemyExtendedFrameCatalog? extendedFrames = null,
@@ -80,7 +81,7 @@ public sealed partial class EnemyTileArtworkCatalog
         KraidColorCatalog? kraidColors = null,
         GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
         CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<ushort, int>? dmaSources = null,
+        IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
         MagdollitePaletteCycle? magdollitePaletteCycle = null,
         WorkRobotPaletteCycle? workRobotPaletteCycle = null,
@@ -114,16 +115,16 @@ public sealed partial class EnemyTileArtworkCatalog
         ArgumentNullException.ThrowIfNull(palettes);
         if (sheets.Count != palettes.Count || sheets.Keys.Any(pointer => !palettes.ContainsKey(pointer)))
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
-        this.sheets = new Dictionary<ushort, RoomCharacterAtlas>(sheets);
-        this.palettes = new Dictionary<ushort, EnemyPaletteSheet>(palettes);
+        this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(sheets);
+        this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(palettes);
         byDmaSource = new Dictionary<(int, int), RoomCharacterAtlas>();
         if (dmaSources is not null)
         {
-            foreach ((ushort pointer, int sourceAddress) in dmaSources)
+            foreach ((EnemyDefinitionId pointer, int sourceAddress) in dmaSources)
             {
                 if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
                     throw new InvalidDataException(
-                        $"Enemy ${pointer:X4} DMA source has no installed sheet.");
+                        $"Enemy ${(int)pointer:X4} DMA source has no installed sheet.");
                 var key = (sourceAddress, atlas.Transfer.Length);
                 if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
                 {
@@ -171,8 +172,8 @@ public sealed partial class EnemyTileArtworkCatalog
         AuxiliaryColors = auxiliaryColors;
     }
 
-    private static void ValidateInstalledSheets(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes)
+    private static void ValidateInstalledSheets(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);
@@ -184,10 +185,10 @@ public sealed partial class EnemyTileArtworkCatalog
                 sheet.Transfer.Length != definition.ByteCount ||
                 !palettes.TryGetValue(definition.DefinitionPointer, out EnemyPaletteSheet? palette) || palette is null)
                 throw new InvalidDataException(
-                    $"Installed enemy ${definition.DefinitionPointer:X4} lacks its complete tile sheet or palette.");
+                    $"Installed enemy ${(int)definition.DefinitionPointer:X4} lacks its complete tile sheet or palette.");
     }
 
-    private static Dictionary<ushort, int> InstalledDmaSources(IReadOnlyDictionary<ushort, int>? sources)
+    private static Dictionary<EnemyDefinitionId, int> InstalledDmaSources(IReadOnlyDictionary<EnemyDefinitionId, int>? sources)
     {
         var expected = EnemyTileSourceDefinitions.All.ToDictionary(
             definition => definition.DefinitionPointer, definition => definition.SourceAddress);

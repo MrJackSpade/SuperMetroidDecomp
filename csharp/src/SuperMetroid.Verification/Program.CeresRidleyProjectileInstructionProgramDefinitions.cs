@@ -42,8 +42,7 @@ internal static partial class Program
             "SpawnDirectionalAfterburn", instanceFlags)!;
         MethodInfo beginFinal = typeof(RoomEnemySystem).GetMethod(
             "BeginAfterburnFinalAnimation", staticFlags)!;
-        ushort ceresRidleyDefinition = (ushort)typeof(RoomEnemySystem).GetField(
-            "CeresRidleyDefinition", staticFlags)!.GetRawConstantValue()!;
+        EnemyDefinitionId ceresRidleyDefinition = EnemyDefinitionId.RidleyCeres;
 
         RoomEnemySystem fireballSystem = NewSystem();
         RoomEnemySlot ridley = fireballSystem.Slots[0];

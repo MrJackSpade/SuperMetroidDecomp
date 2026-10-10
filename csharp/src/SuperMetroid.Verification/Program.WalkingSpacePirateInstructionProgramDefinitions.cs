@@ -141,7 +141,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWalking;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.XPosition = 0x0100;
             slot.YPosition = 0x0100;

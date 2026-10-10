@@ -69,8 +69,8 @@ internal static partial class Program
             .SetValue(enemies, new DragonAnimationReadGuard(rom));
         RoomEnemySlot body = enemies.Slots[0];
         RoomEnemySlot wing = enemies.Slots[1];
-        body.EnemyDefinitionPointer = RoomEnemySystem.DragonDefinition;
-        wing.EnemyDefinitionPointer = RoomEnemySystem.DragonDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
+        wing.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Parameter1 = 0;
         wing.Parameter1 = 1;
         body.XPosition = wing.XPosition = 0x0100;

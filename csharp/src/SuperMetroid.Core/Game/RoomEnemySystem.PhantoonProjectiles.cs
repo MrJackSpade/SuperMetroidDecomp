@@ -330,7 +330,7 @@ public sealed partial class RoomEnemySystem
                 $"Projectile {flame.Kind} reached Phantoon drop opcode $980E.");
         }
 
-        RoomEnemyDefinition eye = ResolveRoomEnemyDefinition(_bus!, PhantoonEyeDefinition);
+        RoomEnemyDefinition eye = ResolveRoomEnemyDefinition(_bus!, EnemyDefinitionId.PhantoonEye);
         _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         SpawnEnemyDropFromChanceTable(
             flame.XPosition,

@@ -42,7 +42,7 @@ internal static partial class Program
         samus.HorizontalSpeed.ContactDamageIndex = 4;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.Slots[0];
-        enemy.EnemyDefinitionPointer = 0x9000;
+        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         enemy.Definition = default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
@@ -59,7 +59,7 @@ internal static partial class Program
         var projectiles = new SamusProjectileSystem();
         fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
             samusProjectiles: projectiles, resolveSamusContactBeforeAi: true);
-        AssertEqual((ushort)0xdaff, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
+        AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
         AssertEqual(EnemyAiCodePointers.RTL_A3804C,
@@ -326,7 +326,7 @@ internal static partial class Program
         const ushort enemyHeader = 0x9000;
         WriteWord(fixture.Bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
         RoomEnemySlot enemy = fixture.System.Slots[0];
-        enemy.EnemyDefinitionPointer = enemyHeader;
+        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
         enemy.XPosition = 321;
         enemy.YPosition = 123;
         enemy.VramTilesIndex = 0x0200;
@@ -336,7 +336,7 @@ internal static partial class Program
         // Variant nine proves the common routine applies the native >=5 clamp before it
         // indexes the five-pointer death-animation table.
         fixture.System.StartGenericEnemyDeath(enemy, deathAnimation: 9);
-        AssertEqual((ushort)0xdaff, enemy.EnemyDefinitionPointer,
+        AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.AiBank,
             "respawning death leaves native placeholder AI bank");
@@ -346,7 +346,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot explosion = fixture.System.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual(enemyHeader, explosion.EnemyHeaderPointer,
+        AssertEqual((EnemyDefinitionId)enemyHeader, explosion.EnemyHeaderPointer,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.XPosition,
             "death actor retains killed enemy X position");
@@ -412,8 +412,8 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
-            placeholder[i] = retail.ReadByte(0xa00000 + EnemyLifecycleDefinitions.RespawnPlaceholder + i);
-        bus.WriteBytes(0xa00000 + EnemyLifecycleDefinitions.RespawnPlaceholder, placeholder);
+            placeholder[i] = retail.ReadByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
+        bus.WriteBytes(0xa00000 + (ushort)EnemyDefinitionId.Respawn, placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         bus.WriteBytes(0xa19000, [0xff, 0xff]);
 

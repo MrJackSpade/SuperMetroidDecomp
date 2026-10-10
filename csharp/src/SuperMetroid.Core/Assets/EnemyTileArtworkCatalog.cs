@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -15,9 +16,9 @@ public sealed partial class EnemyTileArtworkCatalog
     /// </summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-bundle-v1", content =>
         {
-            foreach ((ushort definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
+            foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
             {
-                content.Append("definition", definition);
+                content.Append("definition", (ushort)definition);
                 content.Append("tiles", sheet.Transfer.Span);
                 content.AppendIdentity("palette", palettes[definition].ContentIdentity);
             }
@@ -64,8 +65,8 @@ public sealed partial class EnemyTileArtworkCatalog
             content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
         });
 
-    private readonly Dictionary<ushort, RoomCharacterAtlas> sheets;
-    private readonly Dictionary<ushort, EnemyPaletteSheet> palettes;
+    private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
 
@@ -196,21 +197,21 @@ public sealed partial class EnemyTileArtworkCatalog
     }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
-    public void LoadTo(ushort definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
+    public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
     {
         if (!sheets.TryGetValue(definitionPointer, out RoomCharacterAtlas? atlas))
-            throw new InvalidDataException($"Enemy ${definitionPointer:X4} has no installed tile sheet.");
+            throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed tile sheet.");
         if (atlas.Transfer.Length != byteCount)
             throw new InvalidDataException(
-                $"Enemy ${definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Transfer.Length}.");
+                $"Enemy ${(int)definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Transfer.Length}.");
         atlas.LoadTo(vram, destinationByteAddress);
     }
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(ushort definitionPointer, SnesCgram cgram, int destinationColor)
+    public void LoadPaletteTo(EnemyDefinitionId definitionPointer, SnesCgram cgram, int destinationColor)
     {
         if (!palettes.TryGetValue(definitionPointer, out EnemyPaletteSheet? palette))
-            throw new InvalidDataException($"Enemy ${definitionPointer:X4} has no installed palette.");
+            throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed palette.");
         palette.LoadTo(cgram, destinationColor);
     }
 }
@@ -238,7 +239,7 @@ public static class EnemyTileArtworkFormat
         "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
 
     /// <summary>Creates the indexed-PNG filename for a bank-$A0 enemy-definition pointer.</summary>
-    public static string FileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-tiles.png";
+    public static string FileName(EnemyDefinitionId definitionPointer) => $"enemy-{(ushort)definitionPointer:X4}-tiles.png";
     /// <summary>Creates the RGB5 palette JSON filename for a bank-$A0 enemy-definition pointer.</summary>
-    public static string PaletteFileName(ushort definitionPointer) => $"enemy-{definitionPointer:X4}-colors.json";
+    public static string PaletteFileName(EnemyDefinitionId definitionPointer) => $"enemy-{(ushort)definitionPointer:X4}-colors.json";
 }

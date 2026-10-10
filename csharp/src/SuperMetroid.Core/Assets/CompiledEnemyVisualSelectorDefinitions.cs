@@ -75,9 +75,9 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? TripperKamerVisualDefinitions.FrameAt(operandAddress) : EnemySpritemapDefinitions.ElevatorFrameAt(operandAddress),
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
-                    : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
+                    : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
                 0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? PhantoonInstructionProgramDefinitions.FrameAt(operandAddress)
-                    : KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
+                    : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.KraidNail, operandAddress),
                 0xb3 => BotwoonVisualDefinitions.FrameAt(operandAddress),
                 _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)

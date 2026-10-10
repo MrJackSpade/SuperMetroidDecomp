@@ -129,7 +129,6 @@ public sealed class YappingMawEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort YappingMawDefinition = 0xe7bf;
 
     private const ushort YappingMawGrabSafetyDistance = 32;
     private const ushort YappingMawMaximumCurl = 128;

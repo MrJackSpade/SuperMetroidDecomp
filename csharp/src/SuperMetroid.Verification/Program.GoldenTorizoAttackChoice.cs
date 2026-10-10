@@ -20,7 +20,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
         var samus = runtime.Samus!;
         RoomEnemySlot torizo = runtime.Enemies.Slots.Single(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
 
         // Native inputs at the movie's landing: (X >> 1) + carry + $05B6 has bit 3 clear,
         // while the same sum with $05B5 ($2D) has it set.

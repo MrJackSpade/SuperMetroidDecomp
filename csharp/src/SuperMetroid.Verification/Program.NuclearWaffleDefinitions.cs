@@ -92,7 +92,7 @@ internal static partial class Program
             programSystem,
             programGuard);
         RoomEnemySlot programSlot = programSystem.Slots[0];
-        programSlot.EnemyDefinitionPointer = NuclearWaffleDefinitions.EnemyDefinition;
+        programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Puromi;
         programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programSlot.CurrentInstruction = NuclearWaffleInstructionProgramDefinitions.BodyLoop;
         programSlot.InstructionTimer = 1;

@@ -365,7 +365,7 @@ public static partial class SamusBlockCollision
 
                     default:
                         throw new InvalidDataException(
-                            $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
+                            $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +
                             "complete horizontal collision dispatcher.");
                 }
 
@@ -770,7 +770,7 @@ public static partial class SamusBlockCollision
 
                 default:
                     throw new InvalidDataException(
-                        $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
+                        $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +
                         "complete vertical collision dispatcher.");
             }
 
@@ -1183,7 +1183,7 @@ public static partial class SamusBlockCollision
             if ((uint)targetIndex >= (uint)blockCount)
             {
                 throw new InvalidDataException(
-                    $"Collision extension block {block.Index} type ${block.CollisionType:X1}/" +
+                    $"Collision extension block {block.Index} type ${(int)block.CollisionType:X1}/" +
                     $"BTS ${block.Behavior:X2} resolves outside room level data.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);

@@ -91,7 +91,6 @@ public sealed class BoulderEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BoulderDefinition = 0xdfbf;
 
     private const ushort BoulderImpactSound = 0x0042;
     private const ushort BoulderBreakSound = 0x0043;

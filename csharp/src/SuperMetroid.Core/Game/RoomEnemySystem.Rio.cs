@@ -73,7 +73,6 @@ public sealed class RioEnemyState
 /// <summary>Literal translation of Rio enemy AI $A2:BBC3-$BD6B.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort RioDefinition = 0xd27f;
 
     private const ushort RioTriggerDistance = 0x00a0;
     private const ushort RioDiveSound = 0x0065;
@@ -270,7 +269,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != RioDefinition ||
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Rio ||
             opcode != RioInstructionCodes.SetAnimationFinished)
             return false;
 

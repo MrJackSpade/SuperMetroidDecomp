@@ -57,7 +57,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "9E546C3E2FC69B26020FEDF3EAAD3186F91A3C69EE84384F419E1AE0A8D0BBC9"),
         new("csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs", "486A2FE7ED4E39832B490081EEFED79EB36AB4F1FA6577F913958AA0D30D0FB2"),
         new("csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs", "4C843F0DA75BB2AB134408B809ADCCDEC92DC669A6382A81114DC524C5A3FCD8"),
-        new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs", "898670E7E4C91841889ED94ABC75359A1CB9B1712D8F1C8672B98DD2A7D010E6"),
+        new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs", "8BD5A78D074B5B07B48CAE003974C0930D721C22382835DF039A50B10DB87CC4"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs", "2567A18836A07341333FBD7AD7C60C0BEF691CCFB3467644B6999D2D74BB4342"),
         new("csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs", "391DCB7682DB5199CAC1C37EA1DE9DE8FF1C1025EEF9E30CF2EAAD64DA057DFE"),
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs", "4A7E4B22DBCB64DD115D35E0F3A0EBF99F26F1AAC3AE4ECC9C425BA4E8C212D4"),

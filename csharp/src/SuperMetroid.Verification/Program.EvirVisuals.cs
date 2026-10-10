@@ -20,10 +20,10 @@ internal static partial class Program
                 rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer, EvirVisualDefinitions.FrameAt(operand),
                 $"Evir visual selector {index} matches pinned cartridge");
-            ushort definition = operand >=
+            EnemyDefinitionId definition = operand >=
                 unchecked((ushort)(EvirInstructionProgramDefinitions.ProjectileNormal + 2))
-                ? RoomEnemySystem.EvirProjectileDefinition
-                : RoomEnemySystem.EvirDefinition;
+                ? EnemyDefinitionId.EvirProjectile
+                : EnemyDefinitionId.Evir;
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     definition, operand, out ushort installedPointer),
                 $"Evir selector {index} is installed for its native actor");
@@ -59,10 +59,10 @@ internal static partial class Program
         {
             ushort operand = EvirInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort definition = operand >=
+            EnemyDefinitionId definition = operand >=
                 unchecked((ushort)(EvirInstructionProgramDefinitions.ProjectileNormal + 2))
-                    ? RoomEnemySystem.EvirProjectileDefinition
-                    : RoomEnemySystem.EvirDefinition;
+                    ? EnemyDefinitionId.EvirProjectile
+                    : EnemyDefinitionId.Evir;
             RoomEnemySystem enemies = NewEvirInstructionSystem(guard, flags);
             enemies.TileArtwork = stock;
             RoomEnemySlot slot = enemies.Slots[0];

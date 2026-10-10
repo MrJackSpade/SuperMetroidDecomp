@@ -53,12 +53,12 @@ internal static partial class Program
                 NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | address),
                 PipeBugVisualDefinitions.FrameAt(
-                    PipeBugDefinitions.NorfairEnemyDefinition, address),
+                    EnemyDefinitionId.Gamet, address),
                 $"compiled Norfair Pipe Bug frame $B3:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
             () => PipeBugVisualDefinitions.FrameAt(
-                PipeBugDefinitions.NorfairEnemyDefinition, 0x8b61),
+                EnemyDefinitionId.Gamet, 0x8b61),
             "unlisted Norfair Pipe Bug visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Norfair Pipe Bug mechanics bytes");
@@ -91,7 +91,7 @@ internal static partial class Program
             MethodInfo install = typeof(RoomEnemySystem).GetMethod(
                 "InstallPipeBugInstruction", flags)!;
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = PipeBugDefinitions.NorfairEnemyDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             initialize(slot);
             install.Invoke(null, [slot, program]);

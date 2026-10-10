@@ -20,7 +20,7 @@ internal static partial class Program
             AssertEqual(nativePointer, MochtroidVisualDefinitions.FrameAt(operand),
                 $"Mochtroid visual selector {index} matches pinned cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionPointers.Mochtroid, operand,
+                    EnemyDefinitionId.Mochtroid, operand,
                     out ushort installedPointer),
                 $"Mochtroid selector {index} is installed");
             AssertEqual(nativePointer, installedPointer,

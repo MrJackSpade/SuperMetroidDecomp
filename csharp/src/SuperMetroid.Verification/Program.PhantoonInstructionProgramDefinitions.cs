@@ -205,10 +205,10 @@ internal static partial class Program
         RoomEnemySlot eye = enemies.Slots[1];
         RoomEnemySlot tentacles = enemies.Slots[2];
         RoomEnemySlot mouth = enemies.Slots[3];
-        body.EnemyDefinitionPointer = RoomEnemySystem.PhantoonBodyDefinition;
-        eye.EnemyDefinitionPointer = RoomEnemySystem.PhantoonEyeDefinition;
-        tentacles.EnemyDefinitionPointer = RoomEnemySystem.PhantoonTentaclesDefinition;
-        mouth.EnemyDefinitionPointer = RoomEnemySystem.PhantoonMouthDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
+        eye.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonEye;
+        tentacles.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonTentacles;
+        mouth.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonMouth;
         foreach (RoomEnemySlot slot in new[] { body, eye, tentacles, mouth })
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
 

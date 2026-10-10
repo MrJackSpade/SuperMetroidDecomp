@@ -16,20 +16,20 @@ internal static class PipeBugVisualDefinitions
     /// <summary>Each native Pipe Bug OAM composition has a two-byte count and one five-byte part.</summary>
     private const int FrameBytes = 2 + 5;
 
-    internal static ushort FrameAt(ushort enemyDefinition, ushort address)
+    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
         switch (enemyDefinition)
         {
-            case PipeBugDefinitions.BrinstarEnemyDefinition:
+            case EnemyDefinitionId.Zeb:
                 return FivePoseFrame(address, BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft, BrinstarFrames);
-            case PipeBugDefinitions.NorfairEnemyDefinition:
+            case EnemyDefinitionId.Gamet:
                 return FivePoseFrame(address, NorfairPipeBugInstructionProgramDefinitions.RisingLeft, NorfairFrames);
-            case PipeBugDefinitions.StrongBrinstarEnemyDefinition:
+            case EnemyDefinitionId.Zebbo:
                 return ThreePoseFrame(address, BrinstarPipeBugInstructionProgramDefinitions.StrongRisingLeft, StrongBrinstarFrames, risingFirst: true);
-            case PipeBugDefinitions.YellowEnemyDefinition:
+            case EnemyDefinitionId.Geega:
                 return ThreePoseFrame(address, YellowPipeBugInstructionProgramDefinitions.FlyingLeft, YellowFrames, risingFirst: false);
             default:
-                throw new InvalidDataException($"Enemy ${enemyDefinition:X4} has no compiled Pipe Bug visuals.");
+                throw new InvalidDataException($"Enemy ${(int)enemyDefinition:X4} has no compiled Pipe Bug visuals.");
         }
     }
 

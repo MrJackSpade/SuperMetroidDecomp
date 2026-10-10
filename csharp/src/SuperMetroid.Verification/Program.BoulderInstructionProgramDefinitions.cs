@@ -144,7 +144,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
 
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.BoulderDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Boulder;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.CurrentInstruction = 0x0008;
             slot.InstructionTimer = 1;

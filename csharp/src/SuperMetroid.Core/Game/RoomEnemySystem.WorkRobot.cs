@@ -70,8 +70,6 @@ public sealed class WorkRobotEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort WorkRobotDefinition = 0xe8ff;
-    internal const ushort WorkRobotNoPowerDefinition = 0xe93f;
 
     private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
     private const ushort WorkRobotFacingRightVelocity = 0x0200;
@@ -90,8 +88,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastWorkRobotSoundEffect { get; private set; }
 
-    private static bool IsWorkRobotDefinition(ushort definitionPointer) =>
-        definitionPointer is WorkRobotDefinition or WorkRobotNoPowerDefinition;
+    private static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
     /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
     private void InitializeWorkRobot(RoomEnemySlot slot)
@@ -100,7 +98,7 @@ public sealed partial class RoomEnemySystem
         _workRobotStates[slot.SlotIndex] = state;
 
         bool areaBossDefeated = RequireAreaBossDefeated();
-        if (slot.EnemyDefinitionPointer != WorkRobotDefinition || !areaBossDefeated)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || !areaBossDefeated)
         {
             InitializeWorkRobotNoPower(slot, state);
             return;
@@ -426,7 +424,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState? samus)
     {
-        if (robot.EnemyDefinitionPointer != WorkRobotDefinition || robot.Health == 0)
+        if (robot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || robot.Health == 0)
             return;
         if (!RequireAreaBossDefeated())
             return;

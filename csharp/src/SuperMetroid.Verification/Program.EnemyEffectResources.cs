@@ -37,8 +37,8 @@ internal static partial class Program
     private static void VerifyDeadTourianMissingArtwork()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        foreach ((ushort definition, int variants) in new[] { (RoomEnemySystem.DeadZoomerDefinition, 3),
-            (RoomEnemySystem.DeadRipperDefinition, 2), (RoomEnemySystem.DeadSkreeDefinition, 3) })
+        foreach ((EnemyDefinitionId definition, int variants) in new[] { (EnemyDefinitionId.CorpseZoomer, 3),
+            (EnemyDefinitionId.CorpseRipper, 2), (EnemyDefinitionId.CorpseSkree, 3) })
         for (int variant = 0; variant < variants; variant++)
         foreach (bool emptyCatalog in new[] { false, true })
         {
@@ -47,7 +47,7 @@ internal static partial class Program
             expected.Slots[0].EnemyDefinitionPointer = actual.Slots[0].EnemyDefinitionPointer = definition;
             expected.Slots[0].Parameter1 = actual.Slots[0].Parameter1 = (ushort)(variant * 2);
             if (emptyCatalog) actual.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>());
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>());
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(actual, memory);
             Action<RoomEnemySlot> initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(actual);

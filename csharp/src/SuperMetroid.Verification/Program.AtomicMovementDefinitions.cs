@@ -175,7 +175,7 @@ internal static partial class Program
                 programSystem,
                 programGuard);
             RoomEnemySlot programSlot = programSystem.Slots[0];
-            programSlot.EnemyDefinitionPointer = RoomEnemySystem.AtomicDefinition;
+            programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
             programSlot.InstructionTimer = 1;

@@ -95,7 +95,7 @@ internal static partial class Program
 
         RoomEnemySlot mochtroid = runtime.Enemies.Slots.Single(
             slot => slot.NativeIndex == expected.EnemyNativeIndex);
-        AssertEqual(EnemyDefinitionPointers.Mochtroid, mochtroid.EnemyDefinitionPointer,
+        AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.EnemyDefinitionPointer,
             $"{expected.Case} fixture selects retail Mochtroid slot");
         foreach (RoomEnemySlot slot in runtime.Enemies.Slots.Where(
                      slot => slot.NativeIndex != expected.EnemyNativeIndex))

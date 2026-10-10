@@ -44,7 +44,6 @@ public sealed class PolypEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort PolypDefinition = 0xd1ff;
 
     private const ushort PolypProximity = 0x0040;
     private const ushort PolypRandomSeed = 0x0011;

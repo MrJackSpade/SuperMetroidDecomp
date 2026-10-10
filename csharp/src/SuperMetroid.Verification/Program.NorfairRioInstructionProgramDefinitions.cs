@@ -138,7 +138,7 @@ internal static partial class Program
             flags)!;
 
         RoomEnemySlot parent = enemies.Slots[0];
-        parent.EnemyDefinitionPointer = RoomEnemySystem.NorfairRioDefinition;
+        parent.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize.Invoke(enemies, [parent]);
         AssertEqual(NorfairRioInstructionProgramDefinitions.Idle,
@@ -146,7 +146,7 @@ internal static partial class Program
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.Slots[1];
-        follower.EnemyDefinitionPointer = RoomEnemySystem.NorfairRioDefinition;
+        follower.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
         initialize.Invoke(enemies, [follower]);
@@ -167,7 +167,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRioDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;

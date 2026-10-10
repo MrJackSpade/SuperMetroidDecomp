@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot corpse = enemies.Slots[0];
-        corpse.EnemyDefinitionPointer = RoomEnemySystem.DeadSidehopperDefinition;
+        corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseSidehopper;
         corpse.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         corpse.Parameter1 = 0;
         initialize(corpse);
@@ -87,7 +87,7 @@ internal static partial class Program
         {
             ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.DeadSidehopperDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.CorpseSidehopper,
                 0xa9, operand, $"Dead sidehopper $A9:{operand:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

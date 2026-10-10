@@ -23,8 +23,8 @@ internal static partial class Program
         RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(KraidBackgroundRomData.PriorityBit);
         var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<ushort, KraidHeadTilemapAtlas>(),
             new EnemyIdentityFixture().Build().KraidBackground!.RoomBackgroundTiles);
-        var catalog = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(), kraidBackground: art);
+        var catalog = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), kraidBackground: art);
         KraidEnemyState working = BuildKraidWorkingMap(catalog);
         for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
         {

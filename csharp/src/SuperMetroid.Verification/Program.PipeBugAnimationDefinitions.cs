@@ -23,8 +23,8 @@ internal static partial class Program
                 .SetValue(initializedEnemies, guarded);
             RoomEnemySlot initializedSlot = initializedEnemies.Slots[0];
             initializedSlot.EnemyDefinitionPointer = strong
-                ? PipeBugDefinitions.StrongBrinstarEnemyDefinition
-                : PipeBugDefinitions.BrinstarEnemyDefinition;
+                ? EnemyDefinitionId.Zebbo
+                : EnemyDefinitionId.Zeb;
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initializedSlot.XPosition = 0x0100;
             initializedSlot.YPosition = 0x0080;

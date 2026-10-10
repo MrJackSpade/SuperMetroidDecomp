@@ -78,7 +78,7 @@ internal static partial class Program
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
             RoomEnemySlot etecoon = enemies.Slots[0];
-            etecoon.EnemyDefinitionPointer = RoomEnemySystem.EtecoonDefinition;
+            etecoon.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
             etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             initialize(etecoon);
             AssertEqual(EtecoonInstructionProgramDefinitions.Initial,

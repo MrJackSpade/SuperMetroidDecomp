@@ -115,7 +115,6 @@ public sealed class MetroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MetroidDefinition = 0xdd7f;
 
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
@@ -472,7 +471,7 @@ public sealed partial class RoomEnemySystem
             ushort x = unchecked((ushort)(originX + (random & 0x001f) - 16));
             ushort y = unchecked((ushort)(originY + ((random & 0x1f00) >> 8) - 16));
             _metroidDropRequests.Add(new MetroidDropRequest());
-            SpawnEnemyDropFromEnemyHeader(x, y, MetroidDefinition);
+            SpawnEnemyDropFromEnemyHeader(x, y, EnemyDefinitionId.Metroid);
         }
     }
 

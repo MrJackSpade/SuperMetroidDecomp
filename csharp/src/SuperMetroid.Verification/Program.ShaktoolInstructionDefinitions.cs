@@ -140,7 +140,7 @@ internal static partial class Program
         {
             ushort address =
                 ShaktoolInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.ShaktoolDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Shaktool,
                 0xaa, address, $"Shaktool $AA:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -212,7 +212,7 @@ internal static partial class Program
         for (int index = 0; index < 7; index++)
         {
             RoomEnemySlot slot = enemies.Slots[index];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.ShaktoolDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.XPosition = unchecked((ushort)(0x0100 + index * 16));

@@ -2435,7 +2435,7 @@ internal static partial class Program
         byte[] identities = new byte[500];
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
-        var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body,
+        var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
         var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>();
         for(int index=0;index<250;index++)
@@ -2499,7 +2499,7 @@ internal static partial class Program
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             if(edit is -1 or 0 or 48 or 74)
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
                 typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,actual); typeof(RoomEnemySystem).GetField("_vram",flags)!.SetValue(enemies,vram);
                 typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
@@ -2567,7 +2567,7 @@ internal static partial class Program
             }
             if(edit is -1 or 0 or 47)
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram); typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
                 var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
@@ -2629,7 +2629,7 @@ internal static partial class Program
             }
             if(edit is -1 or 0 or 47)
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),draygonColors:selected);
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram);
                 typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
@@ -2682,7 +2682,7 @@ internal static partial class Program
             }
             if (edit is -1 or 0 or 95)
             {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(), new Dictionary<ushort,EnemyPaletteSheet>(), draygonColors: selected);
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), draygonColors: selected);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
@@ -2819,14 +2819,14 @@ internal static partial class Program
             if (edit is -1 or 0 or 629)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), norfairRidleyColors: selected);
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), norfairRidleyColors: selected);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
-                RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+                RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
                 RidleyEnemyState state = enemies.Ridley!;
                 state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
@@ -2916,14 +2916,14 @@ internal static partial class Program
             if (edit is -1 or 0 or 95)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), norfairRidleyColors: selected);
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), norfairRidleyColors: selected);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var guard = new ProjectileCompositionForbiddenBus();
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
                 RoomEnemySlot slot = enemies.Slots[0];
-                slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
@@ -2998,7 +2998,7 @@ internal static partial class Program
             if (edit is -1 or 0 or 383)
             {
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), botwoonColors: catalog);
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), botwoonColors: catalog);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 var guard = new BotwoonColorReadGuard(rom);
@@ -3089,7 +3089,7 @@ internal static partial class Program
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = new RoomEnemySystem();
-            foreach (RoomEnemySlot slot in enemies.Slots) slot.EnemyDefinitionPointer = 0xffff;
+            foreach (RoomEnemySlot slot in enemies.Slots) slot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
             for (int index = 1; index <= freeSlots; index++) enemies.Slots[index].Clear();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
             int randomCalls = 0;

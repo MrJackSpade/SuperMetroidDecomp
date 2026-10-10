@@ -249,11 +249,6 @@ public sealed class HorizontalShutterEnemyState
 /// <summary>Shared identity, lifecycle, and fixed-point helpers for bank-$A2 shutters.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort GrowingShutterDefinition = 0xd4ff;
-    internal const ushort ShootableVerticalShutterDefinition = 0xd53f;
-    internal const ushort ShootableHorizontalShutterDefinition = 0xd57f;
-    internal const ushort DestroyableVerticalShutterDefinition = 0xd5bf;
-    internal const ushort KamerVerticalPlatformDefinition = 0xd5ff;
 
     internal const ushort VerticalShutterTouchAi = EnemyAiCodePointers.BankA2.VerticalShutterTouch;
     internal const ushort ShootableVerticalShutterShotAi = EnemyAiCodePointers.BankA2.ShootableVerticalShutterShot;
@@ -292,9 +287,9 @@ public sealed partial class RoomEnemySystem
         LastShutterSoundEffect = null;
     }
 
-    private static bool IsVerticalShutterDefinition(ushort definition) => definition is
-        ShootableVerticalShutterDefinition or DestroyableVerticalShutterDefinition or
-        KamerVerticalPlatformDefinition;
+    private static bool IsVerticalShutterDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or
+        EnemyDefinitionId.Kamer;
 
     /// <summary>Adds a signed 16.16 velocity using the same wrapping carry as ADC.</summary>
     private static (ushort Position, ushort Subposition) AddShutterVelocity(

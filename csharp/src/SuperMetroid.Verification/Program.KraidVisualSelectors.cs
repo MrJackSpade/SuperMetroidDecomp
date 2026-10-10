@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
-        foreach (ushort enemy in new[] { RoomEnemySystem.KraidGoodNailDefinition, RoomEnemySystem.KraidBadNailDefinition })
+        foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad })
             VerifyKraidVisualSelectorDomain(rom, 0xa70000, enemy, operands);
     }
 
@@ -19,11 +19,11 @@ internal static partial class Program
             0x99de, 0x99e4, 0x99ea, 0x99ee, 0x99fe, 0x9a02, 0x9a06, 0x9a0a,
             0x9a16, 0x9a1c, 0x9a20, 0x9a24, 0x9a2c, 0x9a32, 0x9a38, 0x9a3c,
         ];
-        Suite(nameof(VerifyKraidVisualSelectorDomain), () => VerifyKraidVisualSelectorDomain(rom, 0xa60000, RoomEnemySystem.FakeKraidDefinition, operands));
+        Suite(nameof(VerifyKraidVisualSelectorDomain), () => VerifyKraidVisualSelectorDomain(rom, 0xa60000, EnemyDefinitionId.MiniKraid, operands));
     }
 
     private static void VerifyKraidVisualSelectorDomain(SuperMetroidAddressSpace rom, int bank,
-        ushort enemy, ushort[] operands)
+        EnemyDefinitionId enemy, ushort[] operands)
     {
         // Operand identities are independently recorded from native timed-frame instructions.
         var valid = operands.ToHashSet();

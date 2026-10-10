@@ -32,14 +32,14 @@ internal static partial class Program
             CeresStatus = 1,
             TileArtwork = RepositoryInstallation.EnemyTiles,
         };
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(
             enemies,
             new RidleyEnemyState { MovementAnimationEnabled = 0 });
         RoomEnemySlot door = enemies.Slots[1];
-        door.EnemyDefinitionPointer = 0xe23f;
+        door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
         door.VariableB = 1;
         door.XPosition = 100;
         door.YPosition = 80;
@@ -47,8 +47,8 @@ internal static partial class Program
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: installed);
         short[] expectedOffsets = [0, 0, -4, -1];
         int? baseX = null;
@@ -90,8 +90,8 @@ internal static partial class Program
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: EnemySpritemapCatalog.Load(
                 new MemoryStream(editedJson, writable: false)));
         var editedOverlay = new OamBuffer();

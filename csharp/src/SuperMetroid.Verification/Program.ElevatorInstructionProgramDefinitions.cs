@@ -26,7 +26,7 @@ internal static partial class Program
         MethodInfo initialize = type.GetMethod("InitializeElevator", flags)!;
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
         RoomEnemySlot elevator = enemies.Slots[0];
-        elevator.EnemyDefinitionPointer = RoomEnemySystem.ElevatorDefinition;
+        elevator.EnemyDefinitionPointer = EnemyDefinitionId.Elevator;
         elevator.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         initialize.Invoke(enemies, [elevator, null]);
         AssertEqual(ElevatorInstructionProgramDefinitions.Loop,

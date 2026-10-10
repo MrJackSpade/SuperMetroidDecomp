@@ -103,7 +103,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_hasEvent", flags)!
             .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
         RoomEnemySlot dachora = enemies.Slots[0];
-        dachora.EnemyDefinitionPointer = RoomEnemySystem.EscapeDachoraDefinition;
+        dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
         dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
         dachora.XPosition = 0x0100;
         dachora.YPosition = 0x00c8;

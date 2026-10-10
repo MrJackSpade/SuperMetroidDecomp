@@ -43,7 +43,7 @@ internal static partial class Program
             instanceFlags)!;
 
         RoomEnemySlot body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.DragonDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         body.XPosition = 0x0180;
         body.YPosition = 0x00a0;

@@ -15,7 +15,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.MaridiaLargeSnailDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
         slot.Definition = default(RoomEnemyDefinition) with
         { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
         var seen = new HashSet<ushort>();
@@ -58,8 +58,8 @@ internal static partial class Program
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with
             { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
-        compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.MaridiaLargeSnailDefinition;
+        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.HitboxPointers.Count(),

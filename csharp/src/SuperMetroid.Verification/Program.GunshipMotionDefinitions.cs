@@ -113,7 +113,7 @@ internal static partial class Program
     private sealed class GunshipMotionDefinitionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, IRoomEnemyFixtureSource
     {
-        public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+        public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyDefinition(pointer)
                 : RoomEnemyDefinitionCatalog.Get(pointer);

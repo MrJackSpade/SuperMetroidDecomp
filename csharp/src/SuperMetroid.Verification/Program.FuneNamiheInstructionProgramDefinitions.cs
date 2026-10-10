@@ -200,8 +200,8 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = program.Namihe
-            ? FuneNamiheDefinitions.NamiheEnemyDefinition
-            : FuneNamiheDefinitions.FuneEnemyDefinition;
+            ? EnemyDefinitionId.Namihe
+            : EnemyDefinitionId.Fune;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.Parameter1 = unchecked((ushort)(
             (program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0)));

@@ -109,11 +109,6 @@ public sealed class HopperEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort SidehopperDefinition = 0xd93f;
-    internal const ushort DessgeegaDefinition = 0xd97f;
-    internal const ushort LargeSidehopperDefinition = 0xd9bf;
-    internal const ushort TourianSidehopperDefinition = 0xd9ff;
-    internal const ushort LargeDessgeegaDefinition = 0xda3f;
 
     private const ushort HopperRandomSeed = 0x0025;
     private const ushort MaximumHopperYSpeedTableIndex = 0x0040;
@@ -121,12 +116,12 @@ public sealed partial class RoomEnemySystem
     private readonly HopperEnemyState?[] _hopperStates =
         new HopperEnemyState?[MaximumEnemyCount];
 
-    private static bool IsHopperDefinition(ushort definitionPointer) => definitionPointer is
-        SidehopperDefinition or
-        DessgeegaDefinition or
-        LargeSidehopperDefinition or
-        TourianSidehopperDefinition or
-        LargeDessgeegaDefinition;
+    private static bool IsHopperDefinition(EnemyDefinitionId definitionPointer) => definitionPointer is
+        EnemyDefinitionId.Sidehopper or
+        EnemyDefinitionId.Dessgeega or
+        EnemyDefinitionId.SidehopperLarge or
+        EnemyDefinitionId.SidehopperTourian or
+        EnemyDefinitionId.DessgeegaLarge;
 
     /// <summary>Ports <c>InitAI_Hopper</c> at $A3:AB09.</summary>
     private void InitializeHopper(RoomEnemySlot slot)
@@ -134,7 +129,7 @@ public sealed partial class RoomEnemySystem
         if (slot.Definition.VariantIndex > 3)
         {
             throw new InvalidDataException(
-                $"Hopper definition ${slot.EnemyDefinitionPointer:X4} variant " +
+                $"Hopper definition ${(int)slot.EnemyDefinitionPointer:X4} variant " +
                 $"{slot.Definition.VariantIndex} exceeds its four-entry animation tables.");
         }
         if (_setRandomNumber is null)

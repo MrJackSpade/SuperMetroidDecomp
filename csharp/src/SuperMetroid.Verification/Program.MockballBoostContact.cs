@@ -26,7 +26,7 @@ internal static partial class Program
             speed.ExtraRunSpeed = 7;
             speed.SpeedBoostCounter = 0x0401;
             var enemy = fixture.System.Slots[0];
-            enemy.EnemyDefinitionPointer = 0x9000;
+            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with
             {
                 Bank = 0xa3, TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,

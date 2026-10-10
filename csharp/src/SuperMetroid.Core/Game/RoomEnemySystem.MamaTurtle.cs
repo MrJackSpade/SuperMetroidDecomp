@@ -276,11 +276,11 @@ public sealed partial class RoomEnemySystem
         for (int childOffset = 1; childOffset <= 4; childOffset++)
         {
             RoomEnemySlot child = _slots[mama.SlotIndex + childOffset];
-            if (child.EnemyDefinitionPointer != MamaTurtleEnemyDefinitionCatalog.BabyPointer)
+            if (child.EnemyDefinitionPointer != EnemyDefinitionId.BabyTurtle)
             {
                 throw new InvalidDataException(
                     $"Mama Turtle slot {mama.SlotIndex} expected Baby Turtle in following " +
-                    $"slot {child.SlotIndex}, found ${child.EnemyDefinitionPointer:X4}.");
+                    $"slot {child.SlotIndex}, found ${(int)child.EnemyDefinitionPointer:X4}.");
             }
 
             BabyTurtleEnemyState childState = RequireBabyTurtleState(child);
@@ -884,11 +884,11 @@ public sealed partial class RoomEnemySystem
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = SlotFromNativeIndex(child.ParentNativeIndex);
-        if (parent.EnemyDefinitionPointer != MamaTurtleEnemyDefinitionCatalog.MamaPointer)
+        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.MamaTurtle)
         {
             throw new InvalidDataException(
                 $"Baby Turtle parent index ${child.ParentNativeIndex:X4} names enemy " +
-                $"${parent.EnemyDefinitionPointer:X4}, not Mama Turtle.");
+                $"${(int)parent.EnemyDefinitionPointer:X4}, not Mama Turtle.");
         }
         return RequireMamaTurtleState(parent);
     }

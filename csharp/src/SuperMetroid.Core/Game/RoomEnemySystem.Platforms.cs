@@ -186,8 +186,6 @@ public sealed class PlatformEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort TripperDefinition = 0xd7ff;
-    internal const ushort KamerDefinition = 0xd83f;
 
     internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
     internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;
@@ -203,13 +201,13 @@ public sealed partial class RoomEnemySystem
     private readonly PlatformEnemyState?[] _platformStates =
         new PlatformEnemyState?[MaximumEnemyCount];
 
-    private static bool IsPlatformDefinition(ushort definition) =>
-        definition is TripperDefinition or KamerDefinition;
+    private static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
+        definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
     /// <summary>Ports the two entry points and common initializer at $A3:9C9F-$9D15.</summary>
     private void InitializePlatform(RoomEnemySlot slot)
     {
-        bool isKamer = slot.EnemyDefinitionPointer == KamerDefinition;
+        bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState(
             slot,
             _platformYMovementFunctions,

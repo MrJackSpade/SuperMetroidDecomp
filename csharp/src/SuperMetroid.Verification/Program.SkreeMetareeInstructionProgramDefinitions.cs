@@ -125,7 +125,7 @@ internal static partial class Program
 
             if (metaree)
             {
-                slot.EnemyDefinitionPointer = RoomEnemySystem.MetareeDefinition;
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Metaree;
                 typeof(RoomEnemySystem).GetMethod("InitializeMetaree", flags)!
                     .Invoke(enemies, [slot]);
                 MetareeEnemyState state = enemies.MetareeStates[0]!;
@@ -139,7 +139,7 @@ internal static partial class Program
             }
             else
             {
-                slot.EnemyDefinitionPointer = RoomEnemySystem.SkreeDefinition;
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Skree;
                 typeof(RoomEnemySystem).GetMethod("InitializeSkree", flags)!
                     .Invoke(enemies, [slot]);
                 SkreeEnemyState state = enemies.SkreeStates[0]!;

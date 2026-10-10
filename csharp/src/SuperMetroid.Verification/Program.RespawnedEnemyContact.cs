@@ -9,7 +9,7 @@ internal static partial class Program
     // beside Samus therefore hurts her one frame after it reappears, not on that frame.
     private static void VerifyRespawnedEnemyContact()
     {
-        const ushort respawningEnemy = 0xf1d3;
+        const EnemyDefinitionId respawningEnemy = EnemyDefinitionId.Zebbo;
         const ushort respawnX = 0x1e0;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);

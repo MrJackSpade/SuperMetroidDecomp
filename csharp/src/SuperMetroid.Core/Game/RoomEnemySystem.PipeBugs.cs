@@ -78,7 +78,7 @@ public sealed class PipeBugEnemyState
     /// to address the record's variables through fixed <c>+$40</c> aliases. Species-aware
     /// typed views must therefore use this immutable owner, not the disposable live word.
     /// </summary>
-    public ushort DefinitionAtInitialization { get; }
+    public EnemyDefinitionId DefinitionAtInitialization { get; }
 
     /// <summary>Native variable A for Norfair/yellow bugs, or direction for Brinstar bugs.</summary>
     public ushort VariableA
@@ -103,8 +103,8 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets whether the initialized owner is either Brinstar Pipe Bug variant.</summary>
     public bool IsBrinstar =>
         DefinitionAtInitialization is
-            PipeBugDefinitions.BrinstarEnemyDefinition or
-            PipeBugDefinitions.StrongBrinstarEnemyDefinition;
+            EnemyDefinitionId.Zeb or
+            EnemyDefinitionId.Zebbo;
 
     // The names below follow their role in the currently selected species. They are kept
     // together because the cartridge overlays all of them in one Enemy_PipeBug structure.
@@ -173,9 +173,9 @@ public sealed partial class RoomEnemySystem
     private readonly PipeBugEnemyState?[] _pipeBugStates =
         new PipeBugEnemyState?[MaximumEnemyCount];
 
-    private static bool IsBrinstarPipeBugDefinition(ushort definition) =>
-        definition is PipeBugDefinitions.BrinstarEnemyDefinition or
-            PipeBugDefinitions.StrongBrinstarEnemyDefinition;
+    private static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
+        definition is EnemyDefinitionId.Zeb or
+            EnemyDefinitionId.Zebbo;
 
     private void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
 
@@ -577,12 +577,12 @@ public sealed partial class RoomEnemySystem
         {
             RoomEnemySlot member = _slots[leader.SlotIndex + index];
             PipeBugEnemyState? state = _pipeBugStates[member.SlotIndex];
-            if (state?.DefinitionAtInitialization != PipeBugDefinitions.NorfairEnemyDefinition)
+            if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
             {
                 throw new InvalidDataException(
                     $"Norfair Pipe Bug formation slot {leader.SlotIndex + index} is " +
-                    $"owned by initialized enemy ${state?.DefinitionAtInitialization ?? 0:X4}, " +
-                    $"expected ${PipeBugDefinitions.NorfairEnemyDefinition:X4}.");
+                    $"owned by initialized enemy ${(int)(state?.DefinitionAtInitialization ?? 0):X4}, " +
+                    $"expected ${(int)EnemyDefinitionId.Gamet:X4}.");
             }
             // `$B3:8BCD/$8BFF/$8C52` never re-check the live definition. They read and
             // write five consecutive 64-byte records even after generic death has changed

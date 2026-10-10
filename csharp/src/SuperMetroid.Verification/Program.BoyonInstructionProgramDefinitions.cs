@@ -147,7 +147,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.BoyonDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Boyon;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 0;
             slot.Parameter2 = 0x0040;

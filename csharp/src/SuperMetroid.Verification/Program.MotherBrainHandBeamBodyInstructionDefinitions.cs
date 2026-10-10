@@ -18,7 +18,7 @@ internal static partial class Program
         busField.SetValue(enemies, new MotherBrainHandBeamListReadGuard(rom));
         var body = new RoomEnemySlot(0)
         {
-            EnemyDefinitionPointer = 0xec7f,
+            EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
         };
 

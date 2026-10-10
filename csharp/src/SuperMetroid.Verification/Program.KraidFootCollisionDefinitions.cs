@@ -18,7 +18,7 @@ internal static partial class Program
         RoomEnemySlot installedFoot = installed.Slots[0];
         installedFoot.Definition =
             default(RoomEnemyDefinition) with { Bank = 0xa7 };
-        installedFoot.EnemyDefinitionPointer = RoomEnemySystem.KraidFootDefinition;
+        installedFoot.EnemyDefinitionPointer = EnemyDefinitionId.KraidFoot;
         AssertEqual(35, KraidFootCollisionDefinitions.FrameCount,
             "Kraid foot walking extended-frame count");
         ushort[] frames =

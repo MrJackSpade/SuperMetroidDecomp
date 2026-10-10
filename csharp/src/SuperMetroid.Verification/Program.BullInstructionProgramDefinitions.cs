@@ -34,7 +34,7 @@ internal static partial class Program
         MethodInfo resolveShot = typeof(RoomEnemySystem).GetMethod(
             "ResolveBullImmuneShot", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.BullDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(slot);
         AssertEqual(BullInstructionProgramDefinitions.Normal, slot.CurrentInstruction,

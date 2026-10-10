@@ -91,8 +91,6 @@ public sealed class EvirEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort EvirDefinition = 0xe63f;
-    internal const ushort EvirProjectileDefinition = 0xe67f;
 
     private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
     private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;
@@ -174,7 +172,7 @@ public sealed partial class RoomEnemySystem
         _evirStates[slot.SlotIndex] = state;
         InstallEvirInstruction(slot, state);
 
-        RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EvirDefinition, "projectile body", initializing: true);
+        RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own. Native copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
         slot.PaletteIndex = body.PaletteIndex;
@@ -203,7 +201,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot projectile = RequireEvirRelativeSlot(
             slot,
             2,
-            EvirProjectileDefinition,
+            EnemyDefinitionId.EvirProjectile,
             "body projectile");
         EvirEnemyState projectileState = RequireEvirState(projectile);
 
@@ -296,7 +294,7 @@ public sealed partial class RoomEnemySystem
 
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
     {
-        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EvirDefinition, "arms body", initializing);
+        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
         EvirEnemyState bodyState = RequireEvirState(body);
         state.FacingDirection = bodyState.FacingDirection;
         arms.XPosition = unchecked((ushort)(
@@ -315,7 +313,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = RequireEvirRelativeSlot(
             projectile,
             -2,
-            EvirDefinition,
+            EnemyDefinitionId.Evir,
             "projectile body");
         EvirEnemyState bodyState = RequireEvirState(body);
         state.FacingDirection = bodyState.FacingDirection;
@@ -334,7 +332,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = RequireEvirRelativeSlot(
             projectile,
             -2,
-            EvirDefinition,
+            EnemyDefinitionId.Evir,
             "projectile body");
         if (!IsWithinStrictModularDistance(
                 activeSamus.XPosition,
@@ -398,7 +396,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = RequireEvirRelativeSlot(
             projectile,
             -2,
-            EvirDefinition,
+            EnemyDefinitionId.Evir,
             "projectile body");
         if (body.FrozenTimer != 0)
             return;
@@ -417,7 +415,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = RequireEvirRelativeSlot(
             projectile,
             -2,
-            EvirDefinition,
+            EnemyDefinitionId.Evir,
             "projectile body");
         if (body.FrozenTimer != 0)
             return;
@@ -508,7 +506,7 @@ public sealed partial class RoomEnemySystem
     private RoomEnemySlot RequireEvirRelativeSlot(
         RoomEnemySlot owner,
         int relativeSlot,
-        ushort expectedDefinition,
+        EnemyDefinitionId expectedDefinition,
         string relationship,
         bool initializing = false)
     {
@@ -522,7 +520,7 @@ public sealed partial class RoomEnemySystem
                 (initializing || _evirStates[targetIndex] is null)))
         {
             throw new InvalidDataException(
-                $"Evir {relationship} expected definition ${expectedDefinition:X4} " +
+                $"Evir {relationship} expected definition ${(int)expectedDefinition:X4} " +
                 $"at relative slot {relativeSlot:+#;-#;0} from {owner.SlotIndex}.");
         }
         return _slots[targetIndex];

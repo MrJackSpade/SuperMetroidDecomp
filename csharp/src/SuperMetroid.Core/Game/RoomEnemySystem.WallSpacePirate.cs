@@ -117,12 +117,6 @@ public sealed class WallSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort GreyWallSpacePirateDefinition = 0xf353;
-    internal const ushort GreenWallSpacePirateDefinition = 0xf393;
-    internal const ushort RedWallSpacePirateDefinition = 0xf3d3;
-    internal const ushort GoldWallSpacePirateDefinition = 0xf413;
-    internal const ushort MagentaWallSpacePirateDefinition = 0xf453;
-    internal const ushort SilverWallSpacePirateDefinition = 0xf493;
 
     private const int WallPirateSamusDetectionBand = 32;
     private const int WallPirateLaserMuzzleYOffset = 16;
@@ -132,15 +126,15 @@ public sealed partial class RoomEnemySystem
     private readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
         new WallSpacePirateEnemyState?[MaximumEnemyCount];
 
-    internal static bool IsWallSpacePirateDefinition(ushort definition) => definition is
-        GreyWallSpacePirateDefinition or
-        GreenWallSpacePirateDefinition or
-        RedWallSpacePirateDefinition or
-        GoldWallSpacePirateDefinition or
-        MagentaWallSpacePirateDefinition or
-        SilverWallSpacePirateDefinition;
+    internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.PirateGreyWall or
+        EnemyDefinitionId.PirateGreenWall or
+        EnemyDefinitionId.PirateRedWall or
+        EnemyDefinitionId.PirateGoldWall or
+        EnemyDefinitionId.PirateMagentaWall or
+        EnemyDefinitionId.PirateSilverWall;
 
-    internal static bool IsOrdinarySpacePirateDefinition(ushort definition) =>
+    internal static bool IsOrdinarySpacePirateDefinition(EnemyDefinitionId definition) =>
         IsWallSpacePirateDefinition(definition) ||
         IsWalkingSpacePirateDefinition(definition) ||
         IsNinjaSpacePirateDefinition(definition);

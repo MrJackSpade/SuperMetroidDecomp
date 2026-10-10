@@ -41,7 +41,6 @@ public sealed class BlueBrinstarFaceBlockEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BlueBrinstarFaceBlockDefinition = 0xea7f;
     internal const ushort BlueBrinstarFaceBlockShotAi =
         EnemyAiCodePointers.BankA8.BlueBrinstarFaceBlockShot;
 

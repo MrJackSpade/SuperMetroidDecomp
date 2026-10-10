@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort TourianEntranceStatueDefinition = 0xefff;
 
     /// <summary>
     /// Native <c>tourian_entrance_statue_finished</c> bit $8000. The translated enemy-

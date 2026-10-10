@@ -245,11 +245,11 @@ internal static partial class Program
                 !walkingFramePointers.Contains(pointer);
             slot.EnemyDefinitionPointer = compiledPirate switch
             {
-                false => 0xffff,
+                false => (EnemyDefinitionId)0xffff,
                 true when ninjaFramePointers.Contains(pointer) =>
-                    RoomEnemySystem.GreyNinjaSpacePirateDefinition,
-                true when wallFrame => RoomEnemySystem.GreyWallSpacePirateDefinition,
-                _ => RoomEnemySystem.GreyWalkingSpacePirateDefinition,
+                    EnemyDefinitionId.PirateGreyNinja,
+                true when wallFrame => EnemyDefinitionId.PirateGreyWall,
+                _ => EnemyDefinitionId.PirateGreyWalking,
             };
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.SpritemapPointer = pointer;
@@ -264,7 +264,7 @@ internal static partial class Program
         {
             object?[] arguments =
                 [slot, x, y, radiusX, radiusY, shot, (ushort)0];
-            bool hit = slot.EnemyDefinitionPointer == 0xffff
+            bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : (bool)walker.Invoke(enemies, arguments)!;
             return (hit, (ushort)arguments[6]!);

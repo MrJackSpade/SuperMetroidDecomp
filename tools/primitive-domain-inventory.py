@@ -24,6 +24,7 @@ RULES = {
     "SME6270": "closed domain switched as a primitive",
     "SME6271": "closed-domain switch ignores unexpected values",
     "SME6272": "masked primitive used as a selector",
+    "SME6273": "enum interpolated with a numeric format specifier",
 }
 
 

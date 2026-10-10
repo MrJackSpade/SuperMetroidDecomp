@@ -135,7 +135,6 @@ public sealed class SkulteraEnemyState
 /// <summary>Literal translation of Skultera enemy <c>$D6FF</c> at <c>$A3:902A-$9287</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort SkulteraDefinition = 0xd6ff;
 
     private readonly ushort[] _skulteraRadii = new ushort[MaximumEnemyCount];
     private readonly ushort[] _skulteraTurnFinishedFlags = new ushort[MaximumEnemyCount];

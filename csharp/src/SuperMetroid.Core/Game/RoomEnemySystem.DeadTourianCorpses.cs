@@ -8,12 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>$A0:EDFF, EnemyHeaders_CorpseZoomer: dead Zoomer header initialized by $A9:D849, with parameter-1 variants 0, 2, and 4 sharing the corpse-rotting engine.</summary>
-    public const ushort DeadZoomerDefinition = 0xedff;
-    /// <summary>$A0:EE3F, EnemyHeaders_CorpseRipper: dead Ripper header initialized by $A9:D876, with parameter-1 variants 0 and 2 sharing the corpse-rotting engine.</summary>
-    public const ushort DeadRipperDefinition = 0xee3f;
-    /// <summary>$A0:EE7F, EnemyHeaders_CorpseSkree: dead Skree header initialized by $A9:D89F, with parameter-1 variants 0, 2, and 4 sharing the corpse-rotting engine.</summary>
-    public const ushort DeadSkreeDefinition = 0xee7f;
 
     private const ushort DeadTourianCorpseNoOperationFunction = 0xda63;
 
@@ -86,15 +80,15 @@ public sealed partial class RoomEnemySystem
     private void ResetDeadTourianCorpseRoomState() =>
         Array.Clear(_deadTourianCorpseStates);
 
-    private static bool IsDeadTourianCorpseDefinition(ushort definitionPointer) =>
-        definitionPointer is DeadZoomerDefinition or DeadRipperDefinition or DeadSkreeDefinition;
+    private static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
-    private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(ushort definitionPointer) =>
+    private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionPointer) =>
         definitionPointer switch
         {
-            DeadZoomerDefinition => DeadZoomerProfile,
-            DeadRipperDefinition => DeadRipperProfile,
-            DeadSkreeDefinition => DeadSkreeProfile,
+            EnemyDefinitionId.CorpseZoomer => DeadZoomerProfile,
+            EnemyDefinitionId.CorpseRipper => DeadRipperProfile,
+            EnemyDefinitionId.CorpseSkree => DeadSkreeProfile,
             _ => throw new ArgumentOutOfRangeException(nameof(definitionPointer)),
         };
 

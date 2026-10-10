@@ -53,12 +53,12 @@ internal static partial class Program
                 YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadYellowPipeBugInstructionWord(rom, 0xb30000 | address),
                 PipeBugVisualDefinitions.FrameAt(
-                    PipeBugDefinitions.YellowEnemyDefinition, address),
+                    EnemyDefinitionId.Geega, address),
                 $"compiled Yellow Pipe Bug frame $B3:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
             () => PipeBugVisualDefinitions.FrameAt(
-                PipeBugDefinitions.YellowEnemyDefinition, 0x8f4c),
+                EnemyDefinitionId.Geega, 0x8f4c),
             "unlisted Yellow Pipe Bug visual operand fails loudly");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Yellow Pipe Bug mechanics bytes");
@@ -91,7 +91,7 @@ internal static partial class Program
             MethodInfo install = typeof(RoomEnemySystem).GetMethod(
                 "InstallPipeBugInstruction", flags)!;
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = PipeBugDefinitions.YellowEnemyDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Geega;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             initialize(slot);
             install.Invoke(null, [slot, program]);

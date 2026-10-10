@@ -169,9 +169,9 @@ internal static partial class Program
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot publishes one drop");
             // The drop callback spawns its pickup from the selected header's chance table at
             // the orb's position; that pickup is the observable trace of header and placement.
-            ushort expectedHeader = golden
-                ? TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader
-                : TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader;
+            EnemyDefinitionId expectedHeader = golden
+                ? EnemyDefinitionId.GoldenTorizoOrb
+                : EnemyDefinitionId.BombTorizoOrb;
             RoomEnemyDefinition expectedDefinition =
                 RoomEnemyAuxiliaryDefinitionCatalog.TryGet(expectedHeader, out RoomEnemyDefinition auxiliary)
                     ? auxiliary

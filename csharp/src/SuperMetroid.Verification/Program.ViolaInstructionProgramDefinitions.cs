@@ -35,7 +35,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.ViolaDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Viola;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             // InitAI_Viola ($A3:B678) selects with the property bits; a different
             // population parameter proves the parameter is not the source.
@@ -70,7 +70,7 @@ internal static partial class Program
         {
             ushort address =
                 ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.ViolaDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Viola,
                 0xa3, address, $"Viola $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

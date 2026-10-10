@@ -374,7 +374,7 @@ public sealed class RoomEnemyProjectileSlot
     /// metadata. Death explosions use offset $3A of this record to find their six-byte
     /// bank-$B4 drop table.
     /// </summary>
-    public ushort EnemyHeaderPointer { get; internal set; }
+    public EnemyDefinitionId EnemyHeaderPointer { get; internal set; }
     /// <summary>
     /// Direct bank-$B4 drop-table pointer used by the few boss/projectile instructions
     /// which already resolved a special drop table before allocating pickup $F337. Zero
@@ -401,7 +401,8 @@ public sealed class RoomEnemyProjectileSlot
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
-        EnemyHeaderPointer = ItemDropChancesPointerOverride = 0;
+        EnemyHeaderPointer = EnemyDefinitionId.None;
+        ItemDropChancesPointerOverride = 0;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }
@@ -2003,13 +2004,13 @@ public sealed partial class RoomEnemySystem
                 case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances:
                     // The native callback allocates the pickup before its caller's goto/
                     // delete tail releases this projectile, preserving shared slot order.
-                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, DraygonEyeDefinition);
+                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.DraygonEye);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances:
                     // Allocate before the following goto/delete frees the impact actor.
                     // There is no inline operand; the next word remains an instruction.
-                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, CrocomireDefinition);
+                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.Crocomire);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case KagoBugProjectileInstructionProgramDefinitions.StartJumpInstruction:

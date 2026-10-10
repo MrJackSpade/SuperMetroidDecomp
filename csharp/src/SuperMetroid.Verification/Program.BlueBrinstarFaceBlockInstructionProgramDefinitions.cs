@@ -100,7 +100,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
 
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.BlueBrinstarFaceBlockDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.FaceBlock;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             slot.Parameter1 = 0x0040;
             slot.Parameter2 = parameter2;

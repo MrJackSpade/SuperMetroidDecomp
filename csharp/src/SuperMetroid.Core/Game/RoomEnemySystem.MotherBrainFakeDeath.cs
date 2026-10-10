@@ -509,11 +509,11 @@ public sealed partial class RoomEnemySystem
         RoomEnemyPopulationRecord population = _bus is IRoomEnemyFallingTubeFixtureSource fixture
             ? fixture.ReadFallingTubePopulation(populationPointer)
             : MotherBrainFallingTubePopulationDefinitions.Get(populationPointer);
-        if (population.DefinitionPointer != MotherBrainFallingTubeDefinition)
+        if (population.DefinitionPointer != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
                 $"Mother Brain tube record $A9:{populationPointer:X4} names enemy " +
-                $"${population.DefinitionPointer:X4}, not $ECFF.");
+                $"${(int)population.DefinitionPointer:X4}, not $ECFF.");
         }
 
         RoomEnemySlot tube = _slots[slotIndex];

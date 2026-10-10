@@ -41,7 +41,7 @@ internal static partial class Program
         {
             RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
                 slot => slot.EnemyDefinitionPointer ==
-                    RoomEnemySystem.GoldenTorizoDefinition);
+                    EnemyDefinitionId.GoldenTorizo);
             AssertTrue(boss.SpritemapPointer !=
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame,
                 "forced left-turn starts before the shared facing-screen frame");

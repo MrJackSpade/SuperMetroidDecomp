@@ -220,7 +220,7 @@ internal static partial class Program
             ushort address =
                 BotwoonInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.BotwoonDefinition, address, out ushort frame),
+                    EnemyDefinitionId.Botwoon, address, out ushort frame),
                 $"production execution resolves Botwoon presentation word $B3:{address:X4}");
             AssertEqual(ReadBotwoonInstructionWord(rom, 0xb30000 | address), frame,
                 $"compiled Botwoon presentation word $B3:{address:X4} matches ROM");
@@ -264,7 +264,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             RoomEnemySlot head = enemies.Slots[0];
-            head.EnemyDefinitionPointer = RoomEnemySystem.BotwoonDefinition;
+            head.EnemyDefinitionPointer = EnemyDefinitionId.Botwoon;
             head.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             head.CurrentInstruction = program;
             head.InstructionTimer = 1;

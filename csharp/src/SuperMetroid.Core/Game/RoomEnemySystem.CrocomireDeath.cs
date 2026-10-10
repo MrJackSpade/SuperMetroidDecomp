@@ -547,7 +547,7 @@ public sealed partial class RoomEnemySystem
         // authored arena rectangle. These are not a single pickup at the corpse position:
         // each actor advances RNG again while selecting its own drop from header $DDBF.
         SpawnEnemyDropScatter(
-            CrocomireDefinition,
+            EnemyDefinitionId.Crocomire,
             count: 16,
             xBase: 576,
             xMask: 0x007f,

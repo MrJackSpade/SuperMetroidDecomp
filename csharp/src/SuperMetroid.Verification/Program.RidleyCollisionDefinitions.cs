@@ -23,8 +23,8 @@ internal static partial class Program
             default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
-        compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
         AssertEqual(17, RidleyCollisionDefinitions.HitboxPointers.Count(),

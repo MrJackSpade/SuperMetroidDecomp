@@ -193,8 +193,8 @@ internal static class EnemyTileArtworkCatalogAccess
     extension(EnemyTileArtworkCatalog)
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
-        internal static EnemyTileArtworkCatalog FromArtworkForVerification(IReadOnlyDictionary<ushort, RoomCharacterAtlas> sheets,
-            IReadOnlyDictionary<ushort, EnemyPaletteSheet> palettes,
+        internal static EnemyTileArtworkCatalog FromArtworkForVerification(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+            IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
             CrocomireMeltingArtwork? crocomireMelting = null,
             EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
@@ -202,7 +202,7 @@ internal static class EnemyTileArtworkCatalogAccess
             KraidColorCatalog? kraidColors = null,
             GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
             CeresDoorVisualCatalog? ceresDoorVisual = null,
-            IReadOnlyDictionary<ushort, int>? dmaSources = null,
+            IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
             MagdollitePaletteCycle? magdollitePaletteCycle = null,
             WorkRobotPaletteCycle? workRobotPaletteCycle = null,
@@ -231,7 +231,7 @@ internal static class EnemyTileArtworkCatalogAccess
             CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
             EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
             MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null) =>
-            ((EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), (IReadOnlyDictionary<ushort, RoomCharacterAtlas>)(sheets), (IReadOnlyDictionary<ushort, EnemyPaletteSheet>)(palettes), (CrocomireMeltingArtwork?)(crocomireMelting), (EnemySpritemapCatalog?)(spritemaps), (EnemyExtendedFrameCatalog?)(extendedFrames), (KraidBackgroundArtwork?)(kraidBackground), (KraidColorCatalog?)(kraidColors), (GunshipLiftoffArtworkCatalog?)(gunshipLiftoff), (CeresDoorVisualCatalog?)(ceresDoorVisual), (IReadOnlyDictionary<ushort, int>?)(dmaSources), (EnemyProjectileSpritemapCatalog?)(projectileSpritemaps), (MagdollitePaletteCycle?)(magdollitePaletteCycle), (WorkRobotPaletteCycle?)(workRobotPaletteCycle), (CrocomireColorCatalog?)(crocomireColors), (DraygonColorCatalog?)(draygonColors), (PhantoonColorCatalog?)(phantoonColors), (ChozoAndTubeColorCatalog?)(chozoAndTubeColors), (SporeSpawnColorCatalog?)(sporeSpawnColors), (DachoraColorCatalog?)(dachoraColors), (ShitroidColorCatalog?)(shitroidColors), (BabyMetroidCutsceneColorCatalog?)(babyMetroidCutsceneColors), (BotwoonColorCatalog?)(botwoonColors), (MotherBrainDeathColorCatalog?)(motherBrainDeathColors), (ZebetiteColorCatalog?)(zebetiteColors), (NorfairRidleyColorCatalog?)(norfairRidleyColors), (TourianStatueColorCatalog?)(tourianStatueColors), (PhantoonBg2FrameCatalog?)(phantoonBg2Frames), (DraygonBg2FrameCatalog?)(draygonBg2Frames), (RoomCharacterAtlas?)(motherBrainCorpse), (RoomCharacterAtlas?)(motherBrainEscapeText), (MotherBrainSpecialSpriteArtworkCatalog?)(motherBrainSpecialSprites), (CrocomireSkeletonArtwork?)(crocomireSkeleton), (CrocomireBg2FrameCatalog?)(crocomireBg2Frames), (TorizoInstructionVramArtwork?)(torizoInstructionVram), (CeresEscapeTileArtwork?)(ceresEscapeTiles), (CeresEscapeOverlayTilemapCatalog?)(ceresEscapeOverlayTilemaps), (EnemyAuxiliaryColorCatalog?)(auxiliaryColors), (MotherBrainBodyBg2FrameCatalog?)(motherBrainBodyBg2Frames)));
+            ((EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), (IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas>)(sheets), (IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet>)(palettes), (CrocomireMeltingArtwork?)(crocomireMelting), (EnemySpritemapCatalog?)(spritemaps), (EnemyExtendedFrameCatalog?)(extendedFrames), (KraidBackgroundArtwork?)(kraidBackground), (KraidColorCatalog?)(kraidColors), (GunshipLiftoffArtworkCatalog?)(gunshipLiftoff), (CeresDoorVisualCatalog?)(ceresDoorVisual), (IReadOnlyDictionary<EnemyDefinitionId, int>?)(dmaSources), (EnemyProjectileSpritemapCatalog?)(projectileSpritemaps), (MagdollitePaletteCycle?)(magdollitePaletteCycle), (WorkRobotPaletteCycle?)(workRobotPaletteCycle), (CrocomireColorCatalog?)(crocomireColors), (DraygonColorCatalog?)(draygonColors), (PhantoonColorCatalog?)(phantoonColors), (ChozoAndTubeColorCatalog?)(chozoAndTubeColors), (SporeSpawnColorCatalog?)(sporeSpawnColors), (DachoraColorCatalog?)(dachoraColors), (ShitroidColorCatalog?)(shitroidColors), (BabyMetroidCutsceneColorCatalog?)(babyMetroidCutsceneColors), (BotwoonColorCatalog?)(botwoonColors), (MotherBrainDeathColorCatalog?)(motherBrainDeathColors), (ZebetiteColorCatalog?)(zebetiteColors), (NorfairRidleyColorCatalog?)(norfairRidleyColors), (TourianStatueColorCatalog?)(tourianStatueColors), (PhantoonBg2FrameCatalog?)(phantoonBg2Frames), (DraygonBg2FrameCatalog?)(draygonBg2Frames), (RoomCharacterAtlas?)(motherBrainCorpse), (RoomCharacterAtlas?)(motherBrainEscapeText), (MotherBrainSpecialSpriteArtworkCatalog?)(motherBrainSpecialSprites), (CrocomireSkeletonArtwork?)(crocomireSkeleton), (CrocomireBg2FrameCatalog?)(crocomireBg2Frames), (TorizoInstructionVramArtwork?)(torizoInstructionVram), (CeresEscapeTileArtwork?)(ceresEscapeTiles), (CeresEscapeOverlayTilemapCatalog?)(ceresEscapeOverlayTilemaps), (EnemyAuxiliaryColorCatalog?)(auxiliaryColors), (MotherBrainBodyBg2FrameCatalog?)(motherBrainBodyBg2Frames)));
     }
 
     extension(EnemyTileArtworkCatalog self)

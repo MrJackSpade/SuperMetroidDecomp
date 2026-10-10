@@ -88,7 +88,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", instance)!;
             RoomEnemySlot snail = enemies.Slots[0];
-            snail.EnemyDefinitionPointer = RoomEnemySystem.MaridiaLargeSnailDefinition;
+            snail.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
             snail.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(snail);
 
@@ -119,7 +119,7 @@ internal static partial class Program
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", instance)!;
             RoomEnemySlot snail = enemies.Slots[0];
-            snail.EnemyDefinitionPointer = RoomEnemySystem.MaridiaLargeSnailDefinition;
+            snail.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
             snail.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(snail);
             ExecuteMaridiaLargeSnailProgram(rom, executedOperands,

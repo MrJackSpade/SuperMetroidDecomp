@@ -208,7 +208,6 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BotwoonDefinition = 0xf293;
     internal const ushort BotwoonTouchAi = EnemyAiCodePointers.BankB3.BotwoonTouch;
     internal const ushort BotwoonShotAi = EnemyAiCodePointers.BankB3.BotwoonShot;
     internal const ushort BotwoonPowerBombAi = EnemyAiCodePointers.BankB3.BotwoonPowerBomb;
@@ -995,7 +994,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (head.EnemyDefinitionPointer != BotwoonDefinition)
+        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Botwoon)
             return false;
         BotwoonEnemyState state = RequireBotwoonState(head);
         switch (opcode)

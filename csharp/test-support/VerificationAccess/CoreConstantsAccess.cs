@@ -2148,21 +2148,13 @@ internal static class LoadStationRomDataConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="MamaTurtleEnemyDefinitionCatalog"/> that only verification reads.</summary>
+/// <summary>Cartridge layout of the Mama Turtle family headers that only verification reads.</summary>
 internal static class MamaTurtleEnemyDefinitionCatalogConstants
 {
     /// <summary>First source byte occupied by the two contiguous native headers.</summary>
     public const int SourceAddress = 0xa0cf3f;
     /// <summary>Total byte length of the two native 64-byte headers.</summary>
     public const int SourceByteLength = 128;
-
-    extension(MamaTurtleEnemyDefinitionCatalog)
-    {
-        /// <inheritdoc cref="MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress"/>
-        internal static int SourceAddress => MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress;
-        /// <inheritdoc cref="MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength"/>
-        internal static int SourceByteLength => MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength;
-    }
 }
 
 /// <summary>Cartridge values of <see cref="MamaTurtleShellContourDefinitions"/> that only verification reads.</summary>

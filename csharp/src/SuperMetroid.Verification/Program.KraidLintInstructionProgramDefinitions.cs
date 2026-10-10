@@ -20,18 +20,18 @@ internal static partial class Program
 
         var guard = new KraidLintInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
-        ushort[] definitions =
+        EnemyDefinitionId[] definitions =
         [
-            RoomEnemySystem.KraidTopLintDefinition,
-            RoomEnemySystem.KraidMiddleLintDefinition,
-            RoomEnemySystem.KraidBottomLintDefinition,
+            EnemyDefinitionId.KraidLintTop,
+            EnemyDefinitionId.KraidLintMiddle,
+            EnemyDefinitionId.KraidLintBottom,
         ];
         ushort[] programs =
         [
             KraidLintInstructionProgramDefinitions.Initial,
             KraidLintInstructionProgramDefinitions.PostGrowth,
         ];
-        foreach (ushort definition in definitions)
+        foreach (EnemyDefinitionId definition in definitions)
         {
             foreach (ushort program in programs)
             {
@@ -50,12 +50,12 @@ internal static partial class Program
                     [lint, null, null, (ushort)0, (ushort)0, (ushort)0]);
                 VerifyExecutedEnemySelector(rom, lint, executedOperands);
                 AssertEqual((ushort)0x7fff, lint.InstructionTimer,
-                    $"Kraid lint ${definition:X4}/${program:X4} installs native duration");
+                    $"Kraid lint ${(int)definition:X4}/${program:X4} installs native duration");
                 AssertEqual(unchecked((ushort)(program + 4)), lint.CurrentInstruction,
-                    $"Kraid lint ${definition:X4}/${program:X4} advances to sleep");
+                    $"Kraid lint ${(int)definition:X4}/${program:X4} advances to sleep");
                 AssertEqual(ReadKraidLintInstructionWord(rom, 0xa70000 | program + 2),
                     lint.SpritemapPointer,
-                    $"Kraid lint ${definition:X4}/${program:X4} keeps native spritemap");
+                    $"Kraid lint ${(int)definition:X4}/${program:X4} keeps native spritemap");
             }
         }
 

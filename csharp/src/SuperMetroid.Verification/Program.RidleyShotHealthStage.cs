@@ -22,7 +22,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = true;
         RoomEnemySlot ridley = runtime.Enemies.Slots[0];
-        AssertEqual((ushort)0xe17f, ridley.EnemyDefinitionPointer, "slot zero is Norfair Ridley");
+        AssertEqual(EnemyDefinitionId.Ridley, ridley.EnemyDefinitionPointer, "slot zero is Norfair Ridley");
         var state = (RidleyEnemyState)typeof(RoomEnemySystem)
             .GetMethod("RequireNorfairRidley", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(runtime.Enemies, [ridley])!;

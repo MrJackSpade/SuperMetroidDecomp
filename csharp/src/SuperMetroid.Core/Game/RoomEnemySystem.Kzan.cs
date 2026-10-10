@@ -128,8 +128,6 @@ public sealed class KzanEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KzanTopDefinition = 0xdfff;
-    internal const ushort KzanBottomDefinition = 0xe03f;
 
     private const ushort KzanLandingSoundEffect = 0x001b;
     private const ushort KzanNtscRiseWaitFrames = 0x0040;

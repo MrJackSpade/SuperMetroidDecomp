@@ -31,7 +31,7 @@ internal static partial class Program
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeKzanTop", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.KzanTopDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.KzanTop;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         slot.YPosition = 0x0080;
         initialize(slot);

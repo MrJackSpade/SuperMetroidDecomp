@@ -139,9 +139,9 @@ internal static partial class Program
                 enemies,
                 new KraidEnemyState());
 
-        enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         RoomEnemySlot foot = enemies.Slots[5];
-        foot.EnemyDefinitionPointer = RoomEnemySystem.KraidFootDefinition;
+        foot.EnemyDefinitionPointer = EnemyDefinitionId.KraidFoot;
         foot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
         return enemies;
     }

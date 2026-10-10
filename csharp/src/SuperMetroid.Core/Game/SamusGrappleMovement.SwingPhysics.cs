@@ -436,7 +436,7 @@ public static partial class SamusGrappleMovement
 
                 default:
                     throw new InvalidDataException(
-                        $"Invalid grapple swing collision type ${block.CollisionType:X1}.");
+                        $"Invalid grapple swing collision type ${(int)block.CollisionType:X1}.");
             }
         }
 

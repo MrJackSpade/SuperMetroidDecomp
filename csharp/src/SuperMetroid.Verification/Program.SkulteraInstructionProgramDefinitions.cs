@@ -119,7 +119,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSkultera", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.SkulteraDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Skultera;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.Parameter1 = startsLeft ? (ushort)0x0100 : (ushort)0x0000;
             slot.Parameter2 = 0x0120;

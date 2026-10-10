@@ -97,7 +97,6 @@ public sealed class FirefleaEnemyState
 /// <summary>Literal translation of Fireflea enemy <c>$D6BF</c> at <c>$A3:8C0F-$8EA4</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort FirefleaDefinition = 0xd6bf;
 
     private readonly ushort[] _firefleaMinimumYPositions =
         new ushort[MaximumEnemyCount];

@@ -70,14 +70,6 @@ public sealed class CrawlerEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort SciserDefinition = 0xd77f;
-    internal const ushort ZeroDefinition = 0xd7bf;
-    internal const ushort ViolaDefinition = 0xdabf;
-    internal const ushort ZeelaDefinition = 0xdc7f;
-    internal const ushort SovaDefinition = 0xdcbf;
-    internal const ushort HZoomerDefinition = 0xdc3f;
-    internal const ushort ZoomerDefinition = 0xdcff;
-    internal const ushort StoneZoomerDefinition = 0xdd3f;
 
     private readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[MaximumEnemyCount];
@@ -142,15 +134,15 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static bool IsSharedCrawlerDefinition(ushort definitionPointer) =>
+    private static bool IsSharedCrawlerDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is
-            SciserDefinition or
-            ZeroDefinition or
-            ViolaDefinition or
-            ZeelaDefinition or
-            SovaDefinition or
-            ZoomerDefinition or
-            StoneZoomerDefinition;
+            EnemyDefinitionId.Sciser or
+            EnemyDefinitionId.Zero or
+            EnemyDefinitionId.Viola or
+            EnemyDefinitionId.Zeela or
+            EnemyDefinitionId.Sova or
+            EnemyDefinitionId.Zoomer or
+            EnemyDefinitionId.MZoomer;
 
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
     private void InitializeHZoomer(RoomEnemySlot slot)

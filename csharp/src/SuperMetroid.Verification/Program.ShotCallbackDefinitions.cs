@@ -160,7 +160,7 @@ internal static partial class Program
                 flags)!.GetValue(enemies)!;
             RoomEnemySlot enemy = enemies.Slots[0];
             interactive.Add(enemy.NativeIndex);
-            enemy.EnemyDefinitionPointer = 0x1234;
+            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x1234;
             enemy.SpritemapPointer = 1;
             enemy.XPosition = enemy.YPosition = 0x0100;
             enemy.XRadius = enemy.YRadius = 8;

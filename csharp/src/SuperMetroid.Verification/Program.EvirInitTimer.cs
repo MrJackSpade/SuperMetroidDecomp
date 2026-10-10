@@ -18,7 +18,7 @@ internal static partial class Program
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.Slots)
         {
-            if (slot.EnemyDefinitionPointer != RoomEnemySystem.EvirDefinition || slot.Parameter1 != 0)
+            if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Evir || slot.Parameter1 != 0)
                 continue;
             int speedOffset = (byte)slot.Parameter2 * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;

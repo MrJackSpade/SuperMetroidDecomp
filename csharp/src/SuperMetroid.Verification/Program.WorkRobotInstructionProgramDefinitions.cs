@@ -98,7 +98,7 @@ internal static partial class Program
              index++)
         {
             ushort address = WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.WorkRobotDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Robot,
                 0xa8, address, $"Work Robot $A8:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
@@ -132,7 +132,7 @@ internal static partial class Program
             (Func<ushort>)(() => 0));
 
         robot = enemies.Slots[0];
-        robot.EnemyDefinitionPointer = RoomEnemySystem.WorkRobotDefinition;
+        robot.EnemyDefinitionPointer = EnemyDefinitionId.Robot;
         robot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         robot.XRadius = 8;
         robot.YRadius = 16;

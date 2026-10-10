@@ -20,7 +20,7 @@ internal static partial class Program
         MotherBrainEnemyState state = runtime.Enemies.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         var collapse = typeof(RoomEnemySystem).GetMethod("RunMotherBrainTubeCollapse", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        const ushort fallingTube = 0xecff; // EnemyHeaders_MotherBrainTubeFalling
+        const EnemyDefinitionId fallingTube = EnemyDefinitionId.MotherBrainTubes;
         int Tubes() => runtime.Enemies.Slots.Count(slot => slot.EnemyDefinitionPointer == fallingTube);
 
         state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;

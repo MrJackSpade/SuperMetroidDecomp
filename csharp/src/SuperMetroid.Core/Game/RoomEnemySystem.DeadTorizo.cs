@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Retail Dead Torizo actor and its bank-$A9 corpse-rotting graphics path.</summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>Bank-$A0 enemy definition $ED3F for the Tourian Torizo corpse, initialized by $A9:D308 and required to own native enemy slot zero.</summary>
-    public const ushort DeadTorizoDefinition = 0xed3f;
 
     private const ushort DeadTorizoWaitFunction = 0xd3ad;
     private const ushort DeadTorizoPreRotFunction = 0xd3c8;

@@ -25,7 +25,7 @@ internal static partial class Program
             "InitializeHorizontalShutter", flags)!;
         MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.ShootableHorizontalShutterDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.ShutterHorizShootable;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = 0x0100;
         slot.ExtraProperties = 0x0101;

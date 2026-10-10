@@ -115,6 +115,12 @@ internal static partial class Program
         Expect("class C { int M(byte header) { int low = header & 3; return low + 1; } }");
         // A piecewise numeric function over a shifted index is not a selector.
         Expect("class C { int M(int index) { int frame = index >> 1; return frame switch { < 32 => 1, 70 => 2, _ => 3 }; } }");
+        // SME6273: an enum with a width or other numeric format throws at run time.
+        Expect(domain + " class C { string M(Mode m) => $\"{m:X4}\"; }",
+            PrimitiveDomainAnalyzer.EnumNumericFormatId, "formatted as 'X4'");
+        Expect(domain + " class C { string M(Mode? m) => $\"{m:D2}\"; }",
+            PrimitiveDomainAnalyzer.EnumNumericFormatId, "formatted as 'D2'");
+        Expect(domain + " class C { string M(Mode m) => $\"{m:X} {m:G} {(byte)m:X4}\"; }");
         // A switch expression that throws for every unnamed value is the boundary decoder itself.
         Expect("class C { char M(ushort word) { int tile = word & 0x3ff; return tile switch { 1 => 'a', 2 => 'b', _ => throw new System.IO.InvalidDataException() }; } }");
         // A statement switch that dispatches on a masked selector is still reported, even with a throwing default.

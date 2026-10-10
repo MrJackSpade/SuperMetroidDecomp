@@ -38,7 +38,7 @@ internal static partial class Program
         for (int index = 0; index < 3; index++)
         {
             RoomEnemySlot slot = enemies.Slots[index];
-            slot.EnemyDefinitionPointer = 0xe83f;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
             slot.Parameter1 = (ushort)index;
             slot.Parameter2 = 0;
             slot.XPosition = 0x0200;

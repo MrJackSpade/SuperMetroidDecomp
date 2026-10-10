@@ -33,33 +33,33 @@ internal static partial class Program
              index++)
         {
             ushort address = RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort definition = address >= RipperInstructionProgramDefinitions.RipperMovingRight
-                ? RoomEnemySystem.RipperDefinition
+            EnemyDefinitionId definition = address >= RipperInstructionProgramDefinitions.RipperMovingRight
+                ? EnemyDefinitionId.Ripper
                 : address >= RipperInstructionProgramDefinitions.Ripper2MovingRight
-                    ? RoomEnemySystem.Ripper2Definition
-                    : RoomEnemySystem.GRipperDefinition;
+                    ? EnemyDefinitionId.Ripper2
+                    : EnemyDefinitionId.GRipper;
             AssertEqual(ReadRipperInstructionWord(rom, 0xa20000 | address),
                 RipperVisualDefinitions.FrameAt(definition, address),
                 $"compiled Ripper-family frame selector $A2:{address:X4}");
         }
-        foreach ((int record, ushort definition) in new[]
+        foreach ((int record, EnemyDefinitionId definition) in new[]
                  {
                      (EnemyRomTablePointersRipper.GRipperPopulationRecord,
-                         RoomEnemySystem.GRipperDefinition),
+                         EnemyDefinitionId.GRipper),
                      (EnemyRomTablePointersRipper.Ripper2PopulationRecord,
-                         RoomEnemySystem.Ripper2Definition),
+                         EnemyDefinitionId.Ripper2),
                      (EnemyRomTablePointersRipper.RipperPopulationRecord,
-                         RoomEnemySystem.RipperDefinition),
+                         EnemyDefinitionId.Ripper),
                  })
         {
-            AssertEqual(definition, ReadRipperInstructionWord(rom, record),
+            AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(ReadRipperInstructionWord(rom, record)),
                 $"retail Ripper population ${record:X6} definition");
             ushort extra = ReadRipperInstructionWord(rom, record + 10);
             AssertTrue(!extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
         AssertThrows<InvalidDataException>(
-            () => RipperVisualDefinitions.FrameAt(RoomEnemySystem.RipperDefinition, 0xe477),
+            () => RipperVisualDefinitions.FrameAt(EnemyDefinitionId.Ripper, 0xe477),
             "Ripper timing word is not a visual selector");
 
         var guard = new RipperInstructionProgramReadGuard(rom);
@@ -119,7 +119,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeGRipper", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GRipperDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.GRipper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = packedSelector;
             slot.Parameter1 = 0;
@@ -136,7 +136,7 @@ internal static partial class Program
             MethodInfo reverse = typeof(RoomEnemySystem).GetMethod(
                 "ReverseRipperVariant", flags)!;
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GRipperDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.GRipper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = 1;
             slot.Parameter1 = 0;
@@ -161,7 +161,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeRipper2", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.Ripper2Definition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Ripper2;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 1;
             slot.Parameter2 = initialDirection;
@@ -175,7 +175,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeRipper", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>();
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.RipperDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Ripper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 1;
             slot.Parameter2 = initialDirection;

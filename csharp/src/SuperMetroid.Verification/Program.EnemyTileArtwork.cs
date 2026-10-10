@@ -88,28 +88,30 @@ internal static partial class Program
             }
             foreach (string file in files)
             {
-                ushort pointer = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
+                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
+                    Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
-                    $"enemy ${pointer:X4} queued VRAM DMA resolves its installed PNG");
+                    $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
                 stock.LoadTo(pointer, byteCount, vram, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
-                    $"enemy ${pointer:X4} PNG preserves every native tile byte");
+                    $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 var nativeCgram = new SnesCgram();
                 var installedCgram = new SnesCgram();
                 SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, (definition.Bank << 16) | definition.PalettePointer,
                     EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
                 stock.LoadPaletteTo(pointer, installedCgram, 8 * 16);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
-                    $"enemy ${pointer:X4} RGB5 JSON preserves all native palette slots");
+                    $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
 
             string editedFile = files[0];
-            ushort editedPointer = Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16);
+            EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
+                Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
             RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
             int editedByteCount = editedDefinition.TileDataSize & 0x7fff;
             int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;

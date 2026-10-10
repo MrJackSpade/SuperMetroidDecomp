@@ -45,7 +45,7 @@ internal static partial class Program
             Bind("_isAreaTorizoDefeated", (Func<bool>)(() => BossBitCalls != 0));
             Bind("_setAreaTorizoDefeated", (Action)(() => BossBitCalls++));
 
-            Actor.EnemyDefinitionPointer = golden ? RoomEnemySystem.GoldenTorizoDefinition : RoomEnemySystem.BoyonDefinition;
+            Actor.EnemyDefinitionPointer = golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon;
             Actor.Definition = RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer);
             Actor.AiBank = Actor.Definition.Bank;
             Actor.Health = Actor.Definition.Health;

@@ -28,8 +28,8 @@ internal static partial class Program
             { Bank = CrocomireBodyCollisionDefinitions.Bank };
         // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
-        compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireDefinition;
+        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
         nativeSlot.XPosition = compiledSlot.XPosition = 0x1000;
         nativeSlot.YPosition = compiledSlot.YPosition = 0x1000;
 

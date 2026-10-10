@@ -110,8 +110,6 @@ public sealed class CrocomireEnemyState
 /// <summary>Literal fight-phase translation for enemy $DDBF and tongue $DDFF.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort CrocomireDefinition = 0xddbf;
-    internal const ushort CrocomireTongueDefinition = 0xddff;
 
     private const ushort CrocomireBridgeThreshold = 0x0640;
     private const ushort CrocomireSpikeWallThreshold = 0x0300;

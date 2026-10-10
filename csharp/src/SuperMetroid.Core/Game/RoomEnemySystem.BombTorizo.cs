@@ -98,8 +98,6 @@ public readonly record struct TorizoOrbDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BombTorizoDefinition = 0xeeff;
-    internal const ushort GoldenTorizoDefinition = 0xef7f;
     internal const ushort BombTorizoTouchAi = EnemyAiCodePointers.BankAA.BombTorizoTouch;
     internal const ushort BombTorizoShotAi = EnemyAiCodePointers.BankAA.BombTorizoShot;
     internal const ushort TorizoStandUpSitDownShotAi = EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot;
@@ -122,8 +120,8 @@ public sealed partial class RoomEnemySystem
         SamusBombProjectileSlot bomb,
         ushort selectedShotAi)
     {
-        bool isBombTorizo = torizo.EnemyDefinitionPointer == BombTorizoDefinition;
-        bool isGoldenTorizo = torizo.EnemyDefinitionPointer == GoldenTorizoDefinition;
+        bool isBombTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo;
+        bool isGoldenTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
         if (!isBombTorizo && !isGoldenTorizo)
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
@@ -222,7 +220,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ushort controllerInput)
     {
-        bool isGolden = torizo.EnemyDefinitionPointer == GoldenTorizoDefinition;
+        bool isGolden = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden);
         _torizoState = state;
 
@@ -640,7 +638,7 @@ public sealed partial class RoomEnemySystem
         MaybeSpawnBombTorizoLowHealthDrool(torizo);
         if ((torizo.FlashTimer & 1) == 0)
         {
-            if (torizo.EnemyDefinitionPointer == GoldenTorizoDefinition)
+            if (torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo.Health);
             else
                 LoadTorizoDeathPalette();
@@ -679,7 +677,7 @@ public sealed partial class RoomEnemySystem
         // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden
         // Torizo uses a 256x64 strip much lower in its room.
         SpawnEnemyDropScatter(
-            BombTorizoDefinition,
+            EnemyDefinitionId.BombTorizo,
             count: 16,
             xBase: state.IsGolden ? (ushort)128 : (ushort)64,
             xMask: state.IsGolden ? (ushort)0x00ff : (ushort)0x007f,

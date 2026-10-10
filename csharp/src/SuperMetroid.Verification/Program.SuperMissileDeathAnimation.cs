@@ -11,14 +11,14 @@ internal static partial class Program
     /// </summary>
     private static void VerifySuperMissileDeathAnimation()
     {
-        AssertEqual(EnemyDeathInstructionProgramDefinitions.BigExplosion, SuperMissileKillProgram(0xd4bf),
+        AssertEqual(EnemyDeathInstructionProgramDefinitions.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
             "a Super Missile kill keeps the Dragon's big explosion");
-        AssertEqual(EnemyDeathInstructionProgramDefinitions.NormalExplosion, SuperMissileKillProgram(0xdcbf),
+        AssertEqual(EnemyDeathInstructionProgramDefinitions.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
             "a Super Missile kill raises Sova's small explosion to explosion two");
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
-    private static ushort SuperMissileKillProgram(ushort enemyDefinition)
+    private static ushort SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);

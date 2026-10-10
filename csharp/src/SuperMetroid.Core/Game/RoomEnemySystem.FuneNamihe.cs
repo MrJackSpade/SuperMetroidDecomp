@@ -98,9 +98,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
-    private static bool IsFuneNamiheDefinition(ushort definitionPointer) =>
-        definitionPointer is FuneNamiheDefinitions.FuneEnemyDefinition or
-            FuneNamiheDefinitions.NamiheEnemyDefinition;
+    private static bool IsFuneNamiheDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is EnemyDefinitionId.Fune or
+            EnemyDefinitionId.Namihe;
 
     /// <summary>Ports shared initializer <c>$A8:96E3</c>.</summary>
     private void InitializeFuneNamihe(RoomEnemySlot slot)

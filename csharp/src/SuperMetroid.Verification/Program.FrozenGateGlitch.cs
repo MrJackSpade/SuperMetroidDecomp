@@ -62,7 +62,7 @@ internal static partial class Program
             "Caterpillar retail downward gate block");
 
         RoomEnemySlot[] zeros = runtime.Enemies.Slots
-            .Where(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.ZeroDefinition)
+            .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero)
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
         RoomEnemySlot zero = zeros[0];

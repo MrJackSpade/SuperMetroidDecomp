@@ -216,7 +216,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = art };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.PhantoonBodyDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitions.Bank,
@@ -244,7 +244,7 @@ internal static partial class Program
             .GetField("_drawQueues", flags)!.GetValue(enemies)!;
         queues[0].Add(0);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = 0xe4bf;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitions.Bank,

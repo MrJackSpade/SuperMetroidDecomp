@@ -1605,212 +1605,243 @@ internal static class EnemySpritemapDefinitions
     /// Other families use the compiled selector catalog at the interpreter boundary.
     /// Known families reject an unlisted operand rather than reading adjacent data.
     /// </summary>
-    internal static bool TryFrameAt(ushort enemyDefinition, ushort operandAddress,
+    internal static bool TryFrameAt(EnemyDefinitionId enemyDefinition, ushort operandAddress,
         out ushort frame)
     {
         frame = enemyDefinition switch
         {
-            MamaTurtleEnemyDefinitionCatalog.MamaPointer or MamaTurtleEnemyDefinitionCatalog.BabyPointer =>
+            EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle =>
                 MamaTurtleVisualDefinitions.FrameAt(operandAddress),
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer =>
+            EnemyDefinitionId.CeresDoor =>
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
-            RoomEnemySystem.BoyonDefinition => BoyonFrameAt(operandAddress),
-            RoomEnemySystem.SciserDefinition => SciserVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.ZeroDefinition => ZeroVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
-            RoomEnemySystem.MemuDefinition => FlyVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.KagoDefinition => KagoVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.BlueBrinstarFaceBlockDefinition =>
+            EnemyDefinitionId.Boyon => BoyonFrameAt(operandAddress),
+            EnemyDefinitionId.Sciser => SciserVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Zero => ZeroVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
+            EnemyDefinitionId.Menu => FlyVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Kago => KagoVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.FaceBlock =>
                 BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.MorphBallEyeDefinition =>
+            EnemyDefinitionId.Eye =>
                 MorphBallEyeVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.MetroidDefinition =>
+            EnemyDefinitionId.Metroid =>
                 MetroidVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.ShaktoolDefinition =>
+            EnemyDefinitionId.Shaktool =>
                 ShaktoolVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.TripperDefinition or RoomEnemySystem.KamerDefinition =>
+            EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 =>
                 TripperKamerVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.DragonDefinition =>
+            EnemyDefinitionId.Dragon =>
                 DragonVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.MultiviolaDefinition =>
+            EnemyDefinitionId.Multiviola =>
                 MultiviolaVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition =>
+            EnemyDefinitionId.Squeept =>
                 NorfairLavaJumperVisualDefinitions.FrameAt(operandAddress),
-            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer =>
+            EnemyDefinitionId.Chozo =>
                 ChozoStatueVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.ViolaDefinition =>
+            EnemyDefinitionId.Viola =>
                 ViolaVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.RinkaDefinition =>
+            EnemyDefinitionId.Rinka =>
                 RinkaVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.DeadTorizoDefinition =>
+            EnemyDefinitionId.CorpseTorizo =>
                 DeadTorizoArtworkDefinitions.StationaryFrameAt(operandAddress),
-            RoomEnemySystem.DeadZoomerDefinition or
-                RoomEnemySystem.DeadRipperDefinition or
-                RoomEnemySystem.DeadSkreeDefinition =>
+            EnemyDefinitionId.CorpseZoomer or
+                EnemyDefinitionId.CorpseRipper or
+                EnemyDefinitionId.CorpseSkree =>
                 DeadTourianCorpseVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.DeadSidehopperDefinition =>
+            EnemyDefinitionId.CorpseSidehopper =>
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operandAddress),
-            EnemyDefinitionPointers.Mochtroid =>
+            EnemyDefinitionId.Mochtroid =>
                 MochtroidVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.EvirDefinition or RoomEnemySystem.EvirProjectileDefinition =>
+            EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile =>
                 EvirVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.WorkRobotDefinition or
-                RoomEnemySystem.WorkRobotNoPowerDefinition =>
+            EnemyDefinitionId.Robot or
+                EnemyDefinitionId.RobotNoPower =>
                 WorkRobotVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.YardDefinition =>
+            EnemyDefinitionId.Yard =>
                 YardVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.BotwoonDefinition =>
+            EnemyDefinitionId.Botwoon =>
                 BotwoonVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.GrowingShutterDefinition or
-                RoomEnemySystem.ShootableVerticalShutterDefinition or
-                RoomEnemySystem.DestroyableVerticalShutterDefinition or
-                RoomEnemySystem.ShootableHorizontalShutterDefinition =>
+            EnemyDefinitionId.ShutterGrowing or
+                EnemyDefinitionId.ShutterShootable or
+                EnemyDefinitionId.ShutterDestroyable or
+                EnemyDefinitionId.ShutterHorizShootable =>
                 ShutterVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            RoomEnemySystem.RioDefinition => RioFrameAt(operandAddress),
-            RoomEnemySystem.LowerNorfairRioDefinition =>
+            EnemyDefinitionId.Rio => RioFrameAt(operandAddress),
+            EnemyDefinitionId.Holtz =>
                 LowerNorfairRioFrameAt(operandAddress),
-            RoomEnemySystem.NorfairRioDefinition => NorfairRioFrameAt(operandAddress),
-            RoomEnemySystem.PuyoDefinition => PuyoFrameAt(operandAddress),
-            RoomEnemySystem.BullDefinition => BullFrameAt(operandAddress),
-            RoomEnemySystem.AlcoonDefinition => AlcoonFrameAt(operandAddress),
-            RoomEnemySystem.BeetomDefinition => BeetomFrameAt(operandAddress),
-            RoomEnemySystem.SidehopperDefinition or
-                RoomEnemySystem.DessgeegaDefinition or
-                RoomEnemySystem.LargeSidehopperDefinition or
-                RoomEnemySystem.TourianSidehopperDefinition or
-                RoomEnemySystem.LargeDessgeegaDefinition => HopperFrameAt(operandAddress),
-            RoomEnemySystem.ChootDefinition => ChootFrameAt(operandAddress),
-            RoomEnemySystem.HZoomerDefinition => HZoomerFrameAt(operandAddress),
-            RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition =>
+            EnemyDefinitionId.Geruta => NorfairRioFrameAt(operandAddress),
+            EnemyDefinitionId.Puyo => PuyoFrameAt(operandAddress),
+            EnemyDefinitionId.Bull => BullFrameAt(operandAddress),
+            EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
+            EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
+            EnemyDefinitionId.Sidehopper or
+                EnemyDefinitionId.Dessgeega or
+                EnemyDefinitionId.SidehopperLarge or
+                EnemyDefinitionId.SidehopperTourian or
+                EnemyDefinitionId.DessgeegaLarge => HopperFrameAt(operandAddress),
+            EnemyDefinitionId.Choot => ChootFrameAt(operandAddress),
+            EnemyDefinitionId.HZoomer => HZoomerFrameAt(operandAddress),
+            EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 =>
                 SbugFrameAt(operandAddress),
-            FuneNamiheDefinitions.FuneEnemyDefinition or
-                FuneNamiheDefinitions.NamiheEnemyDefinition =>
+            EnemyDefinitionId.Fune or
+                EnemyDefinitionId.Namihe =>
                 FuneNamiheFrameAt(operandAddress),
-            RoomEnemySystem.KamerVerticalPlatformDefinition =>
+            EnemyDefinitionId.Kamer =>
                 KamerPlatformFrameAt(operandAddress),
-            RoomEnemySystem.ElevatorDefinition => ElevatorFrameAt(operandAddress),
-            RoomEnemySystem.YappingMawDefinition =>
+            EnemyDefinitionId.Elevator => ElevatorFrameAt(operandAddress),
+            EnemyDefinitionId.YappingMaw =>
                 YappingMawVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.KiHunterDefinition or
-                RoomEnemySystem.KiHunterWingsDefinition or
-                RoomEnemySystem.RedKiHunterDefinition or
-                RoomEnemySystem.RedKiHunterWingsDefinition or
-                RoomEnemySystem.GoldKiHunterDefinition or
-                RoomEnemySystem.GoldKiHunterWingsDefinition =>
+            EnemyDefinitionId.KihunterGreen or
+                EnemyDefinitionId.KihunterGreenWings or
+                EnemyDefinitionId.KihunterYellow or
+                EnemyDefinitionId.KihunterYellowWings or
+                EnemyDefinitionId.KihunterRed or
+                EnemyDefinitionId.KihunterRedWings =>
                 KiHunterVisualDefinitions.FrameAt(operandAddress),
-            RoomEnemySystem.ZeelaDefinition or
-                RoomEnemySystem.SovaDefinition or
-                RoomEnemySystem.ZoomerDefinition or
-                RoomEnemySystem.StoneZoomerDefinition =>
+            EnemyDefinitionId.Zeela or
+                EnemyDefinitionId.Sova or
+                EnemyDefinitionId.Zoomer or
+                EnemyDefinitionId.MZoomer =>
                 SharedCrawlerFrameAt(operandAddress),
-            RoomEnemySystem.CacatacDefinition => CacatacFrameAt(operandAddress),
-            RoomEnemySystem.FirefleaDefinition => FirefleaFrameAt(operandAddress),
-            RoomEnemySystem.MagdolliteDefinition => MagdolliteFrameAt(operandAddress),
-            RoomEnemySystem.BoulderDefinition => BoulderFrameAt(operandAddress),
-            RoomEnemySystem.AtomicDefinition => AtomicFrameAt(operandAddress),
-            RoomEnemySystem.SkulteraDefinition => SkulteraFrameAt(operandAddress),
-            RoomEnemySystem.WaverDefinition => WaverFrameAt(operandAddress),
-            RoomEnemySystem.ZoaDefinition => ZoaFrameAt(operandAddress),
-            RoomEnemySystem.MetareeDefinition => SkreeMetareeFrameAt(true, operandAddress),
-            RoomEnemySystem.SkreeDefinition => SkreeMetareeFrameAt(false, operandAddress),
-            PipeBugDefinitions.BrinstarEnemyDefinition or
-                PipeBugDefinitions.StrongBrinstarEnemyDefinition or
-                PipeBugDefinitions.NorfairEnemyDefinition or
-                PipeBugDefinitions.YellowEnemyDefinition =>
+            EnemyDefinitionId.Cacatac => CacatacFrameAt(operandAddress),
+            EnemyDefinitionId.Fireflea => FirefleaFrameAt(operandAddress),
+            EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
+            EnemyDefinitionId.Boulder => BoulderFrameAt(operandAddress),
+            EnemyDefinitionId.Atomic => AtomicFrameAt(operandAddress),
+            EnemyDefinitionId.Skultera => SkulteraFrameAt(operandAddress),
+            EnemyDefinitionId.Waver => WaverFrameAt(operandAddress),
+            EnemyDefinitionId.Zoa => ZoaFrameAt(operandAddress),
+            EnemyDefinitionId.Metaree => SkreeMetareeFrameAt(true, operandAddress),
+            EnemyDefinitionId.Skree => SkreeMetareeFrameAt(false, operandAddress),
+            EnemyDefinitionId.Zeb or
+                EnemyDefinitionId.Zebbo or
+                EnemyDefinitionId.Gamet or
+                EnemyDefinitionId.Geega =>
                 PipeBugVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            RoomEnemySystem.FakeKraidDefinition or
-                RoomEnemySystem.KraidGoodNailDefinition or
-                RoomEnemySystem.KraidBadNailDefinition =>
+            EnemyDefinitionId.MiniKraid or
+                EnemyDefinitionId.KraidNail or
+                EnemyDefinitionId.KraidNailBad =>
                 KraidVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition =>
+            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke =>
                 OwtchStokeVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
-                RoomEnemySystem.RipperDefinition =>
+            EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or
+                EnemyDefinitionId.Ripper =>
                 RipperVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            _ => 0,
+            EnemyDefinitionId.None or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or
+                EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Oum or EnemyDefinitionId.Respawn or
+                EnemyDefinitionId.Bang or EnemyDefinitionId.Reflec or EnemyDefinitionId.Crocomire or
+                EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.DraygonBody or
+                EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms or
+                EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.KzanTop or
+                EnemyDefinitionId.KzanBottom or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or
+                EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or
+                EnemyDefinitionId.Steam or EnemyDefinitionId.Zebetite or EnemyDefinitionId.Kraid or
+                EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or
+                EnemyDefinitionId.KraidLintMiddle or EnemyDefinitionId.KraidLintBottom or
+                EnemyDefinitionId.KraidFoot or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
+                EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth or
+                EnemyDefinitionId.Etecoon or EnemyDefinitionId.Dachora or EnemyDefinitionId.Coven or
+                EnemyDefinitionId.Powamp or EnemyDefinitionId.Spark or EnemyDefinitionId.MotherBrainHead or
+                EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene or
+                EnemyDefinitionId.MotherBrainTubes or EnemyDefinitionId.CorpseSidehopper2 or
+                EnemyDefinitionId.BabyMetroid or EnemyDefinitionId.BombTorizo or EnemyDefinitionId.BombTorizoOrb or
+                EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb or
+                EnemyDefinitionId.TourianStatue or EnemyDefinitionId.TourianStatueGhost or
+                EnemyDefinitionId.NoobTubeCrack or EnemyDefinitionId.UnusedSpinningTurtleEye or
+                EnemyDefinitionId.EtecoonEscape or EnemyDefinitionId.DachoraEscape or
+                EnemyDefinitionId.PirateGreyWall or EnemyDefinitionId.PirateGreenWall or
+                EnemyDefinitionId.PirateRedWall or EnemyDefinitionId.PirateGoldWall or
+                EnemyDefinitionId.PirateMagentaWall or EnemyDefinitionId.PirateSilverWall or
+                EnemyDefinitionId.PirateGreyNinja or EnemyDefinitionId.PirateGreenNinja or
+                EnemyDefinitionId.PirateRedNinja or EnemyDefinitionId.PirateGoldNinja or
+                EnemyDefinitionId.PirateMagentaNinja or EnemyDefinitionId.PirateSilverNinja or
+                EnemyDefinitionId.PirateGreyWalking or EnemyDefinitionId.PirateGreenWalking or
+                EnemyDefinitionId.PirateRedWalking or EnemyDefinitionId.PirateGoldWalking or
+                EnemyDefinitionId.PirateMagentaWalking or EnemyDefinitionId.PirateSilverWalking => 0,
+            _ => throw new InvalidOperationException($"Undefined EnemyDefinitionId {enemyDefinition}."),
         };
         return enemyDefinition is
-            MamaTurtleEnemyDefinitionCatalog.MamaPointer or MamaTurtleEnemyDefinitionCatalog.BabyPointer or
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer or
-            RoomEnemySystem.BoyonDefinition or
-            RoomEnemySystem.SciserDefinition or
-            RoomEnemySystem.ZeroDefinition or
-            RoomEnemySystem.MellowDefinition or RoomEnemySystem.MellaDefinition or
-            RoomEnemySystem.MemuDefinition or
-            RoomEnemySystem.KagoDefinition or
-            RoomEnemySystem.BlueBrinstarFaceBlockDefinition or
-            RoomEnemySystem.MorphBallEyeDefinition or
-            RoomEnemySystem.MetroidDefinition or
-            RoomEnemySystem.ShaktoolDefinition or
-            RoomEnemySystem.TripperDefinition or RoomEnemySystem.KamerDefinition or
-            RoomEnemySystem.DragonDefinition or
-            RoomEnemySystem.MultiviolaDefinition or
-            RoomEnemySystem.NorfairLavaJumpingEnemyDefinition or
-            ChozoStatueEnemyDefinitions.EnemyDefinitionPointer or
-            RoomEnemySystem.ViolaDefinition or
-            RoomEnemySystem.RinkaDefinition or
-            RoomEnemySystem.DeadTorizoDefinition or
-            RoomEnemySystem.DeadZoomerDefinition or
-            RoomEnemySystem.DeadRipperDefinition or
-            RoomEnemySystem.DeadSkreeDefinition or
-            RoomEnemySystem.DeadSidehopperDefinition or
-            EnemyDefinitionPointers.Mochtroid or
-            RoomEnemySystem.EvirDefinition or
-            RoomEnemySystem.EvirProjectileDefinition or
-            RoomEnemySystem.WorkRobotDefinition or
-            RoomEnemySystem.WorkRobotNoPowerDefinition or
-            RoomEnemySystem.YardDefinition or
-            RoomEnemySystem.BotwoonDefinition or
-            RoomEnemySystem.GrowingShutterDefinition or
-            RoomEnemySystem.ShootableVerticalShutterDefinition or
-            RoomEnemySystem.DestroyableVerticalShutterDefinition or
-            RoomEnemySystem.ShootableHorizontalShutterDefinition or
-            RoomEnemySystem.RioDefinition or
-            RoomEnemySystem.LowerNorfairRioDefinition or
-            RoomEnemySystem.NorfairRioDefinition or
-            RoomEnemySystem.PuyoDefinition or
-            RoomEnemySystem.BullDefinition or
-            RoomEnemySystem.AlcoonDefinition or
-            RoomEnemySystem.BeetomDefinition or
-            RoomEnemySystem.SidehopperDefinition or
-            RoomEnemySystem.DessgeegaDefinition or
-            RoomEnemySystem.LargeSidehopperDefinition or
-            RoomEnemySystem.TourianSidehopperDefinition or
-            RoomEnemySystem.LargeDessgeegaDefinition or
-            RoomEnemySystem.ChootDefinition or
-            RoomEnemySystem.HZoomerDefinition or
-            RoomEnemySystem.SbugDefinition or RoomEnemySystem.Sbug2Definition or
-            FuneNamiheDefinitions.FuneEnemyDefinition or
-            FuneNamiheDefinitions.NamiheEnemyDefinition or
-            RoomEnemySystem.KamerVerticalPlatformDefinition or
-            RoomEnemySystem.ElevatorDefinition or
-            RoomEnemySystem.YappingMawDefinition or
-            RoomEnemySystem.KiHunterDefinition or
-            RoomEnemySystem.KiHunterWingsDefinition or
-            RoomEnemySystem.RedKiHunterDefinition or
-            RoomEnemySystem.RedKiHunterWingsDefinition or
-            RoomEnemySystem.GoldKiHunterDefinition or
-            RoomEnemySystem.GoldKiHunterWingsDefinition or
-            RoomEnemySystem.ZeelaDefinition or
-            RoomEnemySystem.SovaDefinition or
-            RoomEnemySystem.ZoomerDefinition or
-            RoomEnemySystem.StoneZoomerDefinition or
-            RoomEnemySystem.CacatacDefinition or RoomEnemySystem.FirefleaDefinition or
-            RoomEnemySystem.MagdolliteDefinition or
-            RoomEnemySystem.BoulderDefinition or
-            RoomEnemySystem.AtomicDefinition or RoomEnemySystem.SkulteraDefinition or
-            RoomEnemySystem.WaverDefinition or RoomEnemySystem.ZoaDefinition or
-            RoomEnemySystem.MetareeDefinition or RoomEnemySystem.SkreeDefinition or
-            PipeBugDefinitions.BrinstarEnemyDefinition or
-            PipeBugDefinitions.StrongBrinstarEnemyDefinition or
-            PipeBugDefinitions.NorfairEnemyDefinition or
-            PipeBugDefinitions.YellowEnemyDefinition or
-            RoomEnemySystem.FakeKraidDefinition or
-            RoomEnemySystem.KraidGoodNailDefinition or
-            RoomEnemySystem.KraidBadNailDefinition or
-            RoomEnemySystem.OwtchDefinition or RoomEnemySystem.StokeDefinition or
-            RoomEnemySystem.GRipperDefinition or RoomEnemySystem.Ripper2Definition or
-            RoomEnemySystem.RipperDefinition;
+            EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
+            EnemyDefinitionId.CeresDoor or
+            EnemyDefinitionId.Boyon or
+            EnemyDefinitionId.Sciser or
+            EnemyDefinitionId.Zero or
+            EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
+            EnemyDefinitionId.Menu or
+            EnemyDefinitionId.Kago or
+            EnemyDefinitionId.FaceBlock or
+            EnemyDefinitionId.Eye or
+            EnemyDefinitionId.Metroid or
+            EnemyDefinitionId.Shaktool or
+            EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
+            EnemyDefinitionId.Dragon or
+            EnemyDefinitionId.Multiviola or
+            EnemyDefinitionId.Squeept or
+            EnemyDefinitionId.Chozo or
+            EnemyDefinitionId.Viola or
+            EnemyDefinitionId.Rinka or
+            EnemyDefinitionId.CorpseTorizo or
+            EnemyDefinitionId.CorpseZoomer or
+            EnemyDefinitionId.CorpseRipper or
+            EnemyDefinitionId.CorpseSkree or
+            EnemyDefinitionId.CorpseSidehopper or
+            EnemyDefinitionId.Mochtroid or
+            EnemyDefinitionId.Evir or
+            EnemyDefinitionId.EvirProjectile or
+            EnemyDefinitionId.Robot or
+            EnemyDefinitionId.RobotNoPower or
+            EnemyDefinitionId.Yard or
+            EnemyDefinitionId.Botwoon or
+            EnemyDefinitionId.ShutterGrowing or
+            EnemyDefinitionId.ShutterShootable or
+            EnemyDefinitionId.ShutterDestroyable or
+            EnemyDefinitionId.ShutterHorizShootable or
+            EnemyDefinitionId.Rio or
+            EnemyDefinitionId.Holtz or
+            EnemyDefinitionId.Geruta or
+            EnemyDefinitionId.Puyo or
+            EnemyDefinitionId.Bull or
+            EnemyDefinitionId.Alcoon or
+            EnemyDefinitionId.Beetom or
+            EnemyDefinitionId.Sidehopper or
+            EnemyDefinitionId.Dessgeega or
+            EnemyDefinitionId.SidehopperLarge or
+            EnemyDefinitionId.SidehopperTourian or
+            EnemyDefinitionId.DessgeegaLarge or
+            EnemyDefinitionId.Choot or
+            EnemyDefinitionId.HZoomer or
+            EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 or
+            EnemyDefinitionId.Fune or
+            EnemyDefinitionId.Namihe or
+            EnemyDefinitionId.Kamer or
+            EnemyDefinitionId.Elevator or
+            EnemyDefinitionId.YappingMaw or
+            EnemyDefinitionId.KihunterGreen or
+            EnemyDefinitionId.KihunterGreenWings or
+            EnemyDefinitionId.KihunterYellow or
+            EnemyDefinitionId.KihunterYellowWings or
+            EnemyDefinitionId.KihunterRed or
+            EnemyDefinitionId.KihunterRedWings or
+            EnemyDefinitionId.Zeela or
+            EnemyDefinitionId.Sova or
+            EnemyDefinitionId.Zoomer or
+            EnemyDefinitionId.MZoomer or
+            EnemyDefinitionId.Cacatac or EnemyDefinitionId.Fireflea or
+            EnemyDefinitionId.Magdollite or
+            EnemyDefinitionId.Boulder or
+            EnemyDefinitionId.Atomic or EnemyDefinitionId.Skultera or
+            EnemyDefinitionId.Waver or EnemyDefinitionId.Zoa or
+            EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
+            EnemyDefinitionId.Zeb or
+            EnemyDefinitionId.Zebbo or
+            EnemyDefinitionId.Gamet or
+            EnemyDefinitionId.Geega or
+            EnemyDefinitionId.MiniKraid or
+            EnemyDefinitionId.KraidNail or
+            EnemyDefinitionId.KraidNailBad or
+            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke or
+            EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or
+            EnemyDefinitionId.Ripper;
     }
 
     /// <summary>Selects opening/recovery poses in the two directional sprite strips.

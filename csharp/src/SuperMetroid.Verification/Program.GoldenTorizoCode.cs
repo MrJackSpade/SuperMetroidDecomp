@@ -13,14 +13,14 @@ internal static partial class Program
         ushort input = Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
-        Check(RoomEnemySystem.GoldenTorizoDefinition, input, false, true);
-        Check(RoomEnemySystem.GoldenTorizoDefinition, (ushort)(input | 0x20), false, false);
-        Check(RoomEnemySystem.GoldenTorizoDefinition, (ushort)(input & ~0x80), false, false);
-        Check(RoomEnemySystem.GoldenTorizoDefinition, input, true, false);
-        Check(RoomEnemySystem.BombTorizoDefinition, input, false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, input, false, true);
+        Check(EnemyDefinitionId.GoldenTorizo, (ushort)(input | 0x20), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (ushort)(input & ~0x80), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, input, true, false);
+        Check(EnemyDefinitionId.BombTorizo, input, false, false);
         Console.WriteLine("Golden Torizo code: production initialization grants exact ROM inventory only for the exact held chord on the undefeated Golden encounter; reserve mode and reserve missiles remain unchanged.");
 
-        void Check(ushort header, ushort held, bool defeated, bool grants)
+        void Check(EnemyDefinitionId header, ushort held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -46,7 +46,7 @@ internal static partial class Program
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]
                 : before;
             AssertTrue(expected.AsSpan().SequenceEqual(Snapshot(samus)),
-                $"GT code inventory: header ${header:X4}, held ${held:X4}, defeated {defeated}");
+                $"GT code inventory: header ${(int)header:X4}, held ${held:X4}, defeated {defeated}");
             AssertEqual((ushort)2, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }

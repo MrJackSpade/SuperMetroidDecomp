@@ -10,11 +10,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>Enemy header $A0:E17F, selecting the Lower Norfair boss branches of Ridley's shared bank-$A6 implementation.</summary>
-    public const ushort NorfairRidleyDefinition = 0xe17f;
 
-    private static bool IsRidleyDefinition(ushort definitionPointer) =>
-        definitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition;
+    private static bool IsRidleyDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
     /// <summary>
     /// Ports the area-two branch of the shared initializer at $A6:A0F5. A defeated Ridley
@@ -1022,11 +1020,11 @@ public sealed partial class RoomEnemySystem
 
     private RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
     {
-        if (slot.EnemyDefinitionPointer != NorfairRidleyDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Ridley)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed Lower Norfair Ridley code as " +
-                $"definition ${slot.EnemyDefinitionPointer:X4}.");
+                $"definition ${(int)slot.EnemyDefinitionPointer:X4}.");
         }
         return RequireRidley(slot);
     }

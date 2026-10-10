@@ -26,7 +26,7 @@ public sealed partial class RoomEnemySystem
         ref ushort cursor,
         ushort cameraX)
     {
-        if (slot.EnemyDefinitionPointer != CrocomireDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Crocomire)
             return false;
 
         CrocomireEnemyState state = RequireCrocomire(slot);
@@ -392,7 +392,7 @@ public sealed partial class RoomEnemySystem
     private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
         // The instruction callbacks pass INT16_SHL16(±4) into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
-        slot.EnemyDefinitionPointer == CrocomireDefinition &&
+        slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, pixels << 16);
 
     private ushort ReadCrocomireRandom() => RequireRandomNumber();

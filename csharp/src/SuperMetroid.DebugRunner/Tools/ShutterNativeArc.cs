@@ -127,7 +127,7 @@ internal static partial class AssetTools
         {
             int offset = i * 64;
             var slot = runtime.Enemies.Slots[i];
-            Word(0xF78 + offset, slot.EnemyDefinitionPointer);
+            Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
             Word(0xF8E + offset, slot.SpritemapPointer);
             ram[0xFA6 + offset] = slot.Definition.Bank;
             Word(0xF7A + offset, slot.XPosition); Word(0xF7E + offset, slot.YPosition);

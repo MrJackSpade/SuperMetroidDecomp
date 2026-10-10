@@ -14,10 +14,6 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
     internal const ushort FloorImpact = 0xab41;
     /// <summary><c>InstList_EnemyProjectile_Shot_TorizoChozoOrbs</c> at $86:AB68.</summary>
     internal const ushort Shot = 0xab68;
-    /// <summary><c>EnemyHeaders_BombTorizoOrb</c> at $A0:EF3F.</summary>
-    internal const ushort BombOrbEnemyHeader = 0xef3f;
-    /// <summary><c>EnemyHeaders_GoldenTorizoOrb</c> at $A0:EFBF.</summary>
-    internal const ushort GoldenOrbEnemyHeader = 0xefbf;
 
     public static int MechanicsWordCount => 40;
     public static int PresentationWordCount => 18;
@@ -68,8 +64,8 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
             2 => (4, (ushort)0x5000),
             8 => (26, shot ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances
                 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-            9 => (28, BombOrbEnemyHeader),
-            10 => (30, GoldenOrbEnemyHeader),
+            9 => (28, (ushort)EnemyDefinitionId.BombTorizoOrb),
+            10 => (30, (ushort)EnemyDefinitionId.GoldenTorizoOrb),
             _ => (32, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
         };
         return new((ushort)(start + offset), value);

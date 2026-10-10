@@ -140,8 +140,6 @@ public sealed class ShitroidEnemyState
 /// <summary>Retail Shitroid actor at $A9:EED1-$F99A.</summary>
 public sealed partial class RoomEnemySystem
 {
-    /// <summary>Bank-$A9 enemy-definition pointer identifying the retail Shitroid actor.</summary>
-    public const ushort ShitroidDefinition = 0xeebf;
 
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;

@@ -1436,7 +1436,7 @@ internal static partial class Program
         // A non-Ridley definition lets the focused OAM comparison isolate the
         // extended body from Ridley's separately drawn tail and wings.
         slot.EnemyDefinitionPointer = bank == EnemyExtendedFrameDefinitions.Bank
-            ? PirateDefinitionForFrame(pointer) : RoomEnemySystem.BoyonDefinition;
+            ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = bank,
@@ -1486,20 +1486,20 @@ internal static partial class Program
         return (ushort)arguments[6]!;
     }
 
-    private static ushort PirateDefinitionForFrame(ushort pointer)
+    private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)
     {
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             if (frame.Pointer != pointer)
                 continue;
             if (frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal))
-                return RoomEnemySystem.GreyNinjaSpacePirateDefinition;
+                return EnemyDefinitionId.PirateGreyNinja;
             if (frame.Name.StartsWith("wall_pirate_", StringComparison.Ordinal))
-                return RoomEnemySystem.GreyWallSpacePirateDefinition;
-            return RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+                return EnemyDefinitionId.PirateGreyWall;
+            return EnemyDefinitionId.PirateGreyWalking;
         }
         if (pointer == EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap)
-            return RoomEnemySystem.GreyWalkingSpacePirateDefinition;
+            return EnemyDefinitionId.PirateGreyWalking;
         throw new InvalidDataException(
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
     }

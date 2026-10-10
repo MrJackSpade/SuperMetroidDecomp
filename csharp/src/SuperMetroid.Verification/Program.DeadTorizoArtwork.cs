@@ -39,13 +39,13 @@ internal static partial class Program
             "Dead Torizo private hook retains its above-screen cull");
 
         var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>());
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>());
         AssertThrows<InvalidDataException>(() => InitializeDeadTorizoArtwork(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
-        string fileName = EnemyTileArtworkFormat.FileName(RoomEnemySystem.DeadTorizoDefinition);
+        string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseTorizo);
         using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x1800);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
@@ -91,7 +91,7 @@ internal static partial class Program
         AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
             "Dead Torizo stationary visual identity matches its native list");
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                RoomEnemySystem.DeadTorizoDefinition,
+                EnemyDefinitionId.CorpseTorizo,
                 DeadTorizoArtworkDefinitions.StationaryOperand, out ushort compiledPointer),
             "Dead Torizo stationary visual selector is installed");
         AssertEqual(nativePointer, compiledPointer,

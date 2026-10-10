@@ -30,7 +30,7 @@ internal static partial class Program
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
         typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainFallingTube", flags)!
             .Invoke(runtime.Enemies, [MotherBrainFallingTubePopulationDefinitions.Main]);
-        RoomEnemySlot tube = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xecff);
+        RoomEnemySlot tube = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
         tube.VariableA = MotherBrainInstructionCodes.Function_MotherBrainTubes_MainTube_Falling;
         tube.VariableC = 0;
         tube.YPosition = 0x00fc; // the head follows at Y-$38 = $C4, the landing height

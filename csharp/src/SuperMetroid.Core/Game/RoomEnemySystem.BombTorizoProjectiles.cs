@@ -603,18 +603,19 @@ public sealed partial class RoomEnemySystem
         }
 
         bool golden = GoldenTorizo is not null;
-        ushort header = ReadEnemyProjectileInstructionMechanicsWord(
+        ushort operand = ReadEnemyProjectileInstructionMechanicsWord(
             projectile,
             unchecked((ushort)(instructionCursor + (golden ? 4 : 2))));
-        ushort expectedHeader = golden
-            ? TorizoChozoOrbInstructionProgramDefinitions.GoldenOrbEnemyHeader
-            : TorizoChozoOrbInstructionProgramDefinitions.BombOrbEnemyHeader;
-        if (header != expectedHeader)
+        EnemyDefinitionId expectedHeader = golden
+            ? EnemyDefinitionId.GoldenTorizoOrb
+            : EnemyDefinitionId.BombTorizoOrb;
+        if (operand != (ushort)expectedHeader)
         {
             throw new InvalidDataException(
-                $"Torizo-orb drop operand selected header ${header:X4}; expected " +
-                $"${expectedHeader:X4} for golden={golden}.");
+                $"Torizo-orb drop operand selected header ${operand:X4}; expected " +
+                $"${(ushort)expectedHeader:X4} for golden={golden}.");
         }
+        EnemyDefinitionId header = expectedHeader;
 
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!, header);
         _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());

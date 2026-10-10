@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresRidleyDefinition = EnemyDefinitionPointers.CeresRidley;
 
     /// <summary>
     /// Runs Ceres Ridley's bank-$A6 shot-overlap seam against the five ordinary Samus
@@ -24,7 +23,7 @@ public sealed partial class RoomEnemySystem
             return 0;
 
         RoomEnemySlot slot = _slots[0];
-        if (slot.EnemyDefinitionPointer != CeresRidleyDefinition ||
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
                 EnemyProperties.Deleted |
@@ -64,11 +63,11 @@ public sealed partial class RoomEnemySystem
     private void ResolveCeresRidleyShotAfterCollision(RoomEnemySlot slot)
     {
         RidleyEnemyState state = RequireRidley(slot);
-        if (slot.EnemyDefinitionPointer != CeresRidleyDefinition)
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
-                $"definition ${slot.EnemyDefinitionPointer:X4}.");
+                $"definition ${(int)slot.EnemyDefinitionPointer:X4}.");
         }
 
         // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects
@@ -1053,7 +1052,7 @@ public sealed partial class RoomEnemySystem
 
     private RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
-        if (slot.EnemyDefinitionPointer != CeresRidleyDefinition ||
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             slot.SlotIndex != 0 ||
             Ridley is null)
         {

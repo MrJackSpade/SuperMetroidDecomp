@@ -8,8 +8,6 @@ internal readonly record struct HibashiActivityDefinition(
 /// <summary>Compiled cartridge definitions for Hibashi/fire pillars.</summary>
 internal static class HibashiDefinitions
 {
-    /// <summary>Enemy definition $E07F (Hibashi) in bank $A6.</summary>
-    internal const ushort EnemyDefinition = 0xe07f;
 
     /// <summary>$A6:8D1B, instruction list for Hibashi's visible graphics part.</summary>
     internal const ushort GraphicsInstructionList =

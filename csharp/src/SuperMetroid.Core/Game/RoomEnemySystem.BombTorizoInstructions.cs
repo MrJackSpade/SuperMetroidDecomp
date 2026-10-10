@@ -26,7 +26,7 @@ public sealed partial class RoomEnemySystem
     {
         pauseInterpreter = false;
         if (torizo.EnemyDefinitionPointer is not (
-                BombTorizoDefinition or GoldenTorizoDefinition))
+                EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return false;
 
         TorizoEnemyState state = RequireBombTorizoState(torizo);

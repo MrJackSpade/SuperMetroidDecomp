@@ -744,7 +744,7 @@ internal static partial class Program
         AssertEqual((ushort)0xa4e1, runtime.NmiFrameCounter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.Slots[6];
-        AssertEqual(PipeBugDefinitions.StrongBrinstarEnemyDefinition, actor.EnemyDefinitionPointer, "native source-room pipe bug");
+        AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
         actor.CurrentInstruction = NativeSnapshotMemory.PipeBugBeforeFadeInstruction;
         actor.InstructionTimer = 1;
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
@@ -907,7 +907,7 @@ internal static partial class Program
                 if (color != DoorTransitionPaletteDefinitions.VisorColorIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.Slots)
-                words.AddRange([actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
+                words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
                     actor.YPosition, actor.YSubposition, actor.Health, actor.SpritemapPointer,
                     actor.CurrentInstruction, actor.InstructionTimer]);
             return words.ToArray();
@@ -1243,7 +1243,7 @@ internal static partial class Program
                 if (deferLoadingOwners) continue;
                 int address = NativeSnapshotMemory.EnemyBase + actor.NativeIndex;
                 string owner = $"Enemy {actor.SlotIndex}";
-                Check(owner + " identity", actor.EnemyDefinitionPointer, address);
+                Check(owner + " identity", (ushort)actor.EnemyDefinitionPointer, address);
                 if (actor.EnemyDefinitionPointer == 0 || W(address) == 0) continue;
                 Check(owner + " X", actor.XPosition, address + 2);
                 Check(owner + " X fraction", actor.XSubposition, address + 4);
@@ -1269,7 +1269,7 @@ internal static partial class Program
                 Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.Ridley is { } ridleyState &&
-                W(NativeSnapshotMemory.EnemyBase) == RoomEnemySystem.NorfairRidleyDefinition)
+                W(NativeSnapshotMemory.EnemyBase) == (ushort)EnemyDefinitionId.Ridley)
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
                 if (runtime.Enemies.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
@@ -1556,7 +1556,7 @@ internal static partial class Program
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity.
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
-                        Check(owner + " source enemy header", projectile.EnemyHeaderPointer, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                        Check(owner + " source enemy header", (ushort)projectile.EnemyHeaderPointer, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     Check(owner + " killed enemy index", projectile.KilledEnemyNativeIndex, NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

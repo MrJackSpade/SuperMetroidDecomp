@@ -17,8 +17,8 @@ static void VerifyRoomEnemyLoading()
 {
     const ushort populationPointer = 0x9100;
     const ushort tilesetPointer = 0x9100;
-    const ushort primaryDefinitionPointer = 0xd000;
-    const ushort specialDefinitionPointer = 0xd040;
+    const EnemyDefinitionId primaryDefinitionPointer = (EnemyDefinitionId)0xd000;
+    const EnemyDefinitionId specialDefinitionPointer = (EnemyDefinitionId)0xd040;
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
@@ -66,14 +66,14 @@ static void VerifyRoomEnemyLoading()
     for (int word = 0; word < 7; word++)
         WriteWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
 
-    WriteWord(bus, 0xb40000 | tilesetPointer, primaryDefinitionPointer);
+    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)primaryDefinitionPointer);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0003);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, specialDefinitionPointer);
+    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, (ushort)specialDefinitionPointer);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 6, 0x1004);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 8, 0xffff);
 
     int populationAddress = 0xa10000 | populationPointer;
-    WriteWord(bus, populationAddress, primaryDefinitionPointer);
+    WriteWord(bus, populationAddress, (ushort)primaryDefinitionPointer);
     WriteWord(bus, populationAddress + 2, 0x0456);
     WriteWord(bus, populationAddress + 4, 0x0789);
     WriteWord(bus, populationAddress + 6, 0xabcd);
@@ -85,9 +85,9 @@ static void VerifyRoomEnemyLoading()
     bus.WriteByte(populationAddress + 18, 1);
 
     // Import the explicitly seeded fixture art before exercising the installed-only loader.
-    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
-    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
-    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
+    var stockSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
+    var stockColors = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
+    foreach ((EnemyDefinitionId pointer, int source, int byteCount, int paletteSource) in new[]
              {
                  (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
                  (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
@@ -195,8 +195,8 @@ static void VerifyRoomEnemyLoading()
     AssertEqual(slot.Definition.XRadius, installedEnemies.Slots[0].Definition.XRadius,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>())
+        EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>())
             .LoadTo(primaryDefinitionPointer, 0x40, new SnesVram(), 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
@@ -232,7 +232,7 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
-    public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
+    public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         source.ReadEnemyDefinition(pointer);
 
 
@@ -382,7 +382,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false,
     string? nativeXrayTimerTrace = null)
 {
-    const ushort definitionPointer = 0xd47f;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.Ripper;
     const ushort populationPointer = 0x9580;
     const ushort tilesetPointer = 0x9580;
     const ushort vulnerabilityPointer = 0xedea;
@@ -400,7 +400,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x5200);
-    int header = 0xa00000 | definitionPointer;
+    int header = 0xa00000 | (ushort)definitionPointer;
     WriteWord(bus, header + 4, 200);
     WriteWord(bus, header + 6, 5);
     WriteWord(bus, header + 8, 8);
@@ -428,12 +428,12 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // The compiled native Ripper record makes Power Beam and missiles ineffective,
     // freezes on Ice, and gives Super Missiles multiplier two.
 
-    WriteWord(bus, 0xb40000 | tilesetPointer, definitionPointer);
+    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
 
     int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population, (ushort)definitionPointer);
     WriteWord(bus, population + 2, 80);
     WriteWord(bus, population + 4, 64);
     WriteWord(bus, population + 6, 0);
@@ -466,7 +466,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
             new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
     };
     using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(paletteDocument));
-    var palettes = new Dictionary<ushort, EnemyPaletteSheet>
+    var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
     {
         [definitionPointer] = EnemyPaletteSheet.Load(paletteJson),
     };
@@ -474,7 +474,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     using var tilePng = new MemoryStream();
     IndexedPng.Write(tilePng, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16));
     tilePng.Position = 0;
-    var sheets = new Dictionary<ushort, RoomCharacterAtlas>
+    var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
     {
         [definitionPointer] = RoomCharacterAtlas.Load(tilePng, 32),
     };
@@ -680,7 +680,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
             "common shot queues header low-byte cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
-    AssertEqual((ushort)0, ripper.EnemyDefinitionPointer,
+    AssertEqual(EnemyDefinitionId.None, ripper.EnemyDefinitionPointer,
         "Ripper generic death clears its common enemy record immediately");
     RoomEnemyProjectileSlot ripperDeath = enemies.EnemyProjectiles[17];
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
@@ -703,8 +703,8 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
     return EnemyTileArtworkCatalog.FromArtworkForVerification(
-        new Dictionary<ushort, RoomCharacterAtlas>(),
-        new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visuals);
+        new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+        new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visuals);
 }
 
 /// <summary>
@@ -713,7 +713,7 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
 /// </summary>
 static void VerifyCeresElevatorPlatformAnimation()
 {
-    const ushort definitionPointer = 0xe23f;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
     const ushort populationPointer = 0x9480;
     const ushort tilesetPointer = 0x9480;
     var bus = new TestAddressSpace();
@@ -730,15 +730,15 @@ static void VerifyCeresElevatorPlatformAnimation()
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x4300);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | (definitionPointer + 57), 2);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | ((ushort)definitionPointer + 57), 2);
 
     // Parameter one equals two, selecting main function $F850. This focused population
     // omits ProcessInstructions because only the independently executing main AI owns the
     // persistent platform transfer.
     int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population, (ushort)definitionPointer);
     WriteWord(bus, population + 2, 0x0080);
     WriteWord(bus, population + 4, 0x0080);
     WriteWord(bus, population + 6, 0);
@@ -801,7 +801,7 @@ static void VerifyCeresElevatorPlatformAnimation()
 /// </summary>
 static void VerifyCeresDoorBossBranch()
 {
-    const ushort definitionPointer = 0xe23f;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
     const ushort populationPointer = 0x94c0;
     const ushort tilesetPointer = 0x94c0;
     var bus = new TestAddressSpace();
@@ -818,12 +818,12 @@ static void VerifyCeresDoorBossBranch()
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x4380);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | (definitionPointer + 57), 2);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | ((ushort)definitionPointer + 57), 2);
 
     int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population, (ushort)definitionPointer);
     WriteWord(bus, population + 2, 0x0008);
     WriteWord(bus, population + 4, 0x007f);
     WriteWord(bus, population + 6, 0);
@@ -894,7 +894,7 @@ static void VerifyCeresDoorBossBranch()
 /// </summary>
 static void VerifyCeresRidleyRoomEntry()
 {
-    const ushort definitionPointer = 0xe13f;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.RidleyCeres;
     const ushort populationPointer = 0x9500;
     const ushort tilesetPointer = 0x9500;
 
@@ -912,15 +912,15 @@ static void VerifyCeresRidleyRoomEntry()
         bossId: 1,
         namePointer: 0,
         fieldSeed: 0x4000);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 18), 0xa0f5);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 24), 0xa288);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 8), 8);
-    WriteWord(bus, 0xa00000 | (definitionPointer + 10), 8);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xa0f5);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xa288);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 8), 8);
+    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 10), 8);
 
     // The native post-battle path dynamically spawns Ceres-door variants five and six as
     // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
     // fixture so the escape audit cannot pass by changing only Ridley's logical status.
-    const ushort ceresDoorDefinitionPointer = 0xe23f;
+    const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
     WriteEnemyDefinition(
         bus,
         ceresDoorDefinitionPointer,
@@ -931,9 +931,9 @@ static void VerifyCeresRidleyRoomEntry()
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x4100);
-    WriteWord(bus, 0xa00000 | (ceresDoorDefinitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | (ceresDoorDefinitionPointer + 24), 0xf765);
-    bus.WriteByte(0xa00000 | (ceresDoorDefinitionPointer + 57), 2);
+    WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 18), 0xf6c5);
+    WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 24), 0xf765);
+    bus.WriteByte(0xa00000 | ((ushort)ceresDoorDefinitionPointer + 57), 2);
     WriteWord(bus, 0xa6f735, 0xf7a5);
     WriteWord(bus, 0xa6f737, 0xf7a5);
     WriteWord(bus, 0xa6f536, 0xf62a);
@@ -952,7 +952,7 @@ static void VerifyCeresRidleyRoomEntry()
     // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
     // need not depict retail art here; the regression concerns loader and AI addresses, and
     // the real-ROM audit covers the actual encoded graphics immediately afterward.
-    WriteWord(bus, 0xb40000 | tilesetPointer, definitionPointer);
+    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
     WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
     for (int color = 0; color < 16; color++)
@@ -961,7 +961,7 @@ static void VerifyCeresRidleyRoomEntry()
     // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
     // properties $2800, no extra bits, and two zero speed/parameter words.
     int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, definitionPointer);
+    WriteWord(bus, population, (ushort)definitionPointer);
     WriteWord(bus, population + 2, 0x00ba);
     WriteWord(bus, population + 4, 0x00ab);
     WriteWord(bus, population + 6, 0);
@@ -1149,12 +1149,12 @@ static void VerifyCeresRidleyRoomEntry()
     var enemies = new RoomEnemySystem
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlas.Load(
                     new MemoryStream(fixtureTilePng.ToArray()), 0x20),
             },
-            new Dictionary<ushort, EnemyPaletteSheet>
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
@@ -1706,7 +1706,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
 static void WriteEnemyDefinition(
     TestAddressSpace bus,
-    ushort definitionPointer,
+    EnemyDefinitionId definitionPointer,
     ushort tileDataSize,
     ushort palettePointer,
     byte bank,
@@ -1715,7 +1715,7 @@ static void WriteEnemyDefinition(
     ushort namePointer,
     ushort fieldSeed)
 {
-    int address = 0xa00000 | definitionPointer;
+    int address = 0xa00000 | (ushort)definitionPointer;
     for (int offset = 0; offset < 64; offset += 2)
         WriteWord(bus, address + offset, unchecked((ushort)(fieldSeed + offset)));
 

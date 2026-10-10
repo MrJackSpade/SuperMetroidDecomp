@@ -124,12 +124,6 @@ public sealed class NinjaSpacePirateEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort GreyNinjaSpacePirateDefinition = 0xf4d3;
-    internal const ushort GreenNinjaSpacePirateDefinition = 0xf513;
-    internal const ushort RedNinjaSpacePirateDefinition = 0xf553;
-    internal const ushort GoldNinjaSpacePirateDefinition = 0xf593;
-    internal const ushort MagentaNinjaSpacePirateDefinition = 0xf5d3;
-    internal const ushort SilverNinjaSpacePirateDefinition = 0xf613;
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
     private const int NinjaPirateActivationDistance = 128;
     private const int NinjaPirateFlinchDistance = 32;
@@ -142,13 +136,13 @@ public sealed partial class RoomEnemySystem
     private readonly NinjaSpacePirateEnemyState?[] _ninjaSpacePirateStates =
         new NinjaSpacePirateEnemyState?[MaximumEnemyCount];
 
-    internal static bool IsNinjaSpacePirateDefinition(ushort definition) => definition is
-        GreyNinjaSpacePirateDefinition or
-        GreenNinjaSpacePirateDefinition or
-        RedNinjaSpacePirateDefinition or
-        GoldNinjaSpacePirateDefinition or
-        MagentaNinjaSpacePirateDefinition or
-        SilverNinjaSpacePirateDefinition;
+    internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
+        EnemyDefinitionId.PirateGreyNinja or
+        EnemyDefinitionId.PirateGreenNinja or
+        EnemyDefinitionId.PirateRedNinja or
+        EnemyDefinitionId.PirateGoldNinja or
+        EnemyDefinitionId.PirateMagentaNinja or
+        EnemyDefinitionId.PirateSilverNinja;
 
     /// <summary>Ports <c>InitAI_PirateNinja</c> at <c>$B2:F5DE</c>.</summary>
     private void InitializeNinjaSpacePirate(RoomEnemySlot slot)
@@ -203,7 +197,7 @@ public sealed partial class RoomEnemySystem
         // affects both consumers without changing the ninja's animation or slot state.
         (TileArtwork ?? throw new InvalidOperationException(
             "Gold Space Pirate requires installed palette artwork."))
-            .LoadPaletteTo(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition,
+            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall,
                 _cgram!, NinjaSpacePiratePaletteDefinitions.TargetColor);
     }
 

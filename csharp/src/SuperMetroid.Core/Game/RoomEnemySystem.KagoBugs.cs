@@ -203,7 +203,7 @@ public sealed partial class RoomEnemySystem
         SpawnEnemyDropFromEnemyHeader(
             projectile.XPosition,
             projectile.YPosition,
-            KagoDefinition);
+            EnemyDefinitionId.Kago);
     }
 
     private ushort ReadKagoRandomNumber() =>

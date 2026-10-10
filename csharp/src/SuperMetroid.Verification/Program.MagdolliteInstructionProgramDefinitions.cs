@@ -172,7 +172,7 @@ internal static partial class Program
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemySlot member = enemies.Slots[index];
-                member.EnemyDefinitionPointer = RoomEnemySystem.MagdolliteDefinition;
+                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
                 member.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
                 member.Parameter1 = (ushort)index;
                 member.Parameter2 = 0;

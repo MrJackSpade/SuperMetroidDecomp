@@ -14,7 +14,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (body.EnemyDefinitionPointer != SporeSpawnDefinition)
+        if (body.EnemyDefinitionPointer != EnemyDefinitionId.SporeSpawn)
             return false;
 
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
@@ -185,7 +185,7 @@ public sealed partial class RoomEnemySystem
             ushort x = unchecked((ushort)((random & 0x007f) + 64));
             ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
-            SpawnEnemyDropFromEnemyHeader(x, y, SporeSpawnDefinition);
+            SpawnEnemyDropFromEnemyHeader(x, y, EnemyDefinitionId.SporeSpawn);
         }
         state.DeathDropRequested = true;
     }

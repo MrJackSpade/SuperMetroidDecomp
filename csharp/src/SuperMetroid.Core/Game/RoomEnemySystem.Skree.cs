@@ -67,7 +67,6 @@ public sealed class SkreeEnemyState
 /// <summary>Literal translation of enemy $DB7F at $A3:C6A4-$C7D4.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort SkreeDefinition = 0xdb7f;
 
     private readonly SkreeEnemyState?[] _skreeStates =
         new SkreeEnemyState?[MaximumEnemyCount];

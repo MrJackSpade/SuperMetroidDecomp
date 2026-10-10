@@ -39,7 +39,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.BeetomDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.XPosition = 0x0200;
         var samus = new SamusState { XPosition = 0x0100 };
@@ -189,7 +189,7 @@ internal static partial class Program
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.BeetomDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         initialize(slot, new SamusState(), 0);
         var choose = typeof(RoomEnemySystem).GetMethod("ChooseDistantBeetomAction", flags)!
             .CreateDelegate<Action<BeetomEnemyState>>(enemies);

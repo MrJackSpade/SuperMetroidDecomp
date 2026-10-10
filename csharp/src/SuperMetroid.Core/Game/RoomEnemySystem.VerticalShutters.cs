@@ -13,7 +13,7 @@ public sealed partial class RoomEnemySystem
         if (!IsVerticalShutterDefinition(slot.EnemyDefinitionPointer))
         {
             throw new InvalidDataException(
-                $"Definition ${slot.EnemyDefinitionPointer:X4} does not use vertical-shutter initialization.");
+                $"Definition ${(int)slot.EnemyDefinitionPointer:X4} does not use vertical-shutter initialization.");
         }
 
         var state = new VerticalShutterEnemyState(slot);
@@ -60,7 +60,7 @@ public sealed partial class RoomEnemySystem
         slot.ExtraProperties = 0;
         InstallVerticalShutterInstruction(
             slot,
-            slot.EnemyDefinitionPointer == KamerVerticalPlatformDefinition
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer
                 ? VerticalShutterInstructionProgramDefinitions.KamerPlatform
                 : VerticalShutterInstructionProgramDefinitions.Plain);
     }

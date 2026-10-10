@@ -220,7 +220,7 @@ internal static partial class Program
                 .GetField("_drawQueues", flags)!.GetValue(enemies)!;
             queues[0].Add(0);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
             slot.Definition = default(RoomEnemyDefinition) with
                 { Bank = CrocomireBodyVisualDefinitions.Bank };
             slot.ExtraProperties = slot.ExtraProperties.With(

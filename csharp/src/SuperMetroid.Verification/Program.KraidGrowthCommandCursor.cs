@@ -16,7 +16,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
                 kraidBackground: new KraidBackgroundArtwork(referenceArt.Upper, referenceArt.Lower,
                     new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles)),
         };
@@ -31,7 +31,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
         var body = enemies.Slots[0];
         var foot = enemies.Slots[5];
-        body.EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         state.InitialHealth = 1000;
         body.Health = 874;
         body.VariableB = 0x96e2;

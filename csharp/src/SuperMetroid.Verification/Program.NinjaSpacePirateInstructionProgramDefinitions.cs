@@ -42,13 +42,13 @@ internal static partial class Program
         IndexedPng.Write(tilePng, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
-                [NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
+                [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             },
-            new Dictionary<ushort, EnemyPaletteSheet>
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
             });
         var guard = new NinjaSpacePirateInstructionReadGuard(rom);
@@ -174,7 +174,7 @@ internal static partial class Program
                 enemies,
                 (Func<ushort>)(() => 1));
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.GreyNinjaSpacePirateDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.XPosition = 0x0100;
             slot.YPosition = 0x0100;

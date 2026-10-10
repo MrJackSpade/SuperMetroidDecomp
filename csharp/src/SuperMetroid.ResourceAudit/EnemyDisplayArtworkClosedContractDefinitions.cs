@@ -11,7 +11,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "028135D14E0E7595EF50C8FC7E949D62A07B4574A8E1006664FA31F0D59B4C47"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCompositionDefinitions.cs", "EDFE83514108F4FECBAD81BF5220DAAB0B71AB0855B65DFB1854575FAA1E221B"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "B19F626050C50306F9077492650658FD916C18BB108209FCB835623D44223C13"),
-             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "27F3EFF12DF6EDE5EF3283A753A1E2B86B9D14CF5EEE2BE8A5706078830C6F8B")]),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "2A2CDE91B597073077EB6C7DBE52F6A95857DB09F3A266232EACC677C925366A")]),
         new("SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog", "installed-extended-enemy-display-frames", ["TryGetDisplay"],
             [new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs", "207C15764374EBFED588708E9334392D74087F834542C102F703ACF548330006"),
              new("csharp/src/SuperMetroid.Core/Assets/GoldenTorizoStrideGeometryDefinitions.cs", "364A56D6B818A11ED7F3B3340097EC99A74873A7031266FB9894C527B4E3E641"),

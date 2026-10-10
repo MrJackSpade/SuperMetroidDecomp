@@ -86,7 +86,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var previous = enemies.Slots[0];
         var segment = enemies.Slots[1];
-        previous.EnemyDefinitionPointer = RoomEnemySystem.ShaktoolDefinition;
+        previous.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
         var segmentState = new ShaktoolSegmentState(segment);
         var place = typeof(RoomEnemySystem).GetMethod("PositionShaktoolAroundPreviousSegment",
             BindingFlags.Instance | BindingFlags.NonPublic)!

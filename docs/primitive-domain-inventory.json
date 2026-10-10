@@ -3,7 +3,8 @@
  "rules": {
   "SME6270": "closed domain switched as a primitive",
   "SME6271": "closed-domain switch ignores unexpected values",
-  "SME6272": "masked primitive used as a selector"
+  "SME6272": "masked primitive used as a selector",
+  "SME6273": "enum interpolated with a numeric format specifier"
  },
  "open": {
   "AnimatedTileInstructionCodes": [
@@ -201,7 +202,7 @@
   "BotwoonCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Botwoon.cs",
-    "line": 1001,
+    "line": 1000,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of BotwoonCodePointers; model the domain as a type",
@@ -251,7 +252,7 @@
   "CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
-    "line": 724,
+    "line": 723,
     "column": 9,
     "rule": "SME6270",
     "message": "'BabyFunction' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
@@ -309,7 +310,7 @@
   "ChozoStatueInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ChozoStatue.cs",
-    "line": 295,
+    "line": 294,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of ChozoStatueInstructionCodes; model the domain as a type",
@@ -643,7 +644,7 @@
   "DraygonCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
-    "line": 221,
+    "line": 217,
     "column": 9,
     "rule": "SME6270",
     "message": "'VariableA' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
@@ -651,7 +652,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
-    "line": 850,
+    "line": 846,
     "column": 9,
     "rule": "SME6270",
     "message": "'instruction' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
@@ -765,7 +766,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WalkingSpacePirate.cs",
-    "line": 445,
+    "line": 439,
     "column": 32,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers; model the domain as a type",
@@ -775,7 +776,7 @@
   "EnemyProjectileCodePointers, DownwardGateEnemyProjectileRomData, EyeDoorEnemyProjectileRomData, MotherBrainDeathRomData": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyFireballs.cs",
-    "line": 900,
+    "line": 901,
     "column": 9,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers, DownwardGateEnemyProjectileRomData, EyeDoorEnemyProjectileRomData, MotherBrainDeathRomData; model the domain as a type",
@@ -785,7 +786,7 @@
   "EnemyProjectileCodePointers, KagoBugProjectileInstructionProgramDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyFireballs.cs",
-    "line": 1616,
+    "line": 1617,
     "column": 13,
     "rule": "SME6270",
     "message": "'word' is a ushort switched over named constants of EnemyProjectileCodePointers, KagoBugProjectileInstructionProgramDefinitions; model the domain as a type",
@@ -833,7 +834,7 @@
   "EscapeAnimalInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
-    "line": 230,
+    "line": 228,
     "column": 13,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
@@ -841,7 +842,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
-    "line": 258,
+    "line": 256,
     "column": 13,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
@@ -1121,7 +1122,7 @@
   "LowerNorfairRioInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.LowerNorfairRio.cs",
-    "line": 245,
+    "line": 244,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of LowerNorfairRioInstructionCodes; model the domain as a type",
@@ -1149,30 +1150,10 @@
   "MagdolliteInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Magdollite.cs",
-    "line": 685,
+    "line": 684,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of MagdolliteInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MamaTurtleEnemyDefinitionCatalog": [
-   {
-    "file": "csharp/test-support/VerificationAccess/CoreGameAccess.cs",
-    "line": 919,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of MamaTurtleEnemyDefinitionCatalog; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MamaTurtleEnemyDefinitionCatalog, RoomEnemySystem, FuneNamiheDefinitions, PipeBugDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs",
-    "line": 1611,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'enemyDefinition' is a ushort switched over named constants of MamaTurtleEnemyDefinitionCatalog, RoomEnemySystem, FuneNamiheDefinitions, PipeBugDefinitions; model the domain as a type",
     "status": "open"
    }
   ],
@@ -1245,7 +1226,7 @@
   "MaridiaLargeSnailInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MaridiaLargeSnail.cs",
-    "line": 562,
+    "line": 561,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of MaridiaLargeSnailInstructionCodes; model the domain as a type",
@@ -1309,7 +1290,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrain.cs",
-    "line": 569,
+    "line": 565,
     "column": 9,
     "rule": "SME6270",
     "message": "'instruction' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
@@ -1435,7 +1416,7 @@
   "NorfairRioInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NorfairRio.cs",
-    "line": 243,
+    "line": 242,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of NorfairRioInstructionCodes; model the domain as a type",
@@ -1582,16 +1563,6 @@
     "status": "open"
    }
   ],
-  "PipeBugDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
-    "line": 21,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'enemyDefinition' is a ushort switched over named constants of PipeBugDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
@@ -1645,7 +1616,7 @@
   "RidleyExplosionParts": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
-    "line": 100,
+    "line": 98,
     "column": 36,
     "rule": "SME6270",
     "message": "'parameter' is a ushort switched over named constants of RidleyExplosionParts; model the domain as a type",
@@ -1673,7 +1644,7 @@
   "RinkaInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
-    "line": 379,
+    "line": 378,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of RinkaInstructionCodes; model the domain as a type",
@@ -1682,24 +1653,8 @@
   ],
   "RoomEnemySystem": [
    {
-    "file": "csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs",
-    "line": 15,
-    "column": 25,
-    "rule": "SME6270",
-    "message": "'enemyDefinition' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs",
-    "line": 47,
-    "column": 31,
-    "rule": "SME6270",
-    "message": "'enemyDefinition' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 360,
+    "line": 358,
     "column": 9,
     "rule": "SME6270",
     "message": "'Function' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -1707,7 +1662,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 469,
+    "line": 467,
     "column": 9,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -1723,26 +1678,10 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs",
-    "line": 96,
+    "line": 94,
     "column": 9,
     "rule": "SME6270",
     "message": "'VariableA' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",
-    "line": 93,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'definitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
-    "line": 70,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'EnemyDefinitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
     "status": "open"
    },
    {
@@ -1767,14 +1706,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'GrappleAiPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KiHunter.cs",
-    "line": 888,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'EnemyDefinitionPointer' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
     "status": "open"
    },
    {
@@ -2425,7 +2356,7 @@
   "ShaktoolInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Shaktool.cs",
-    "line": 498,
+    "line": 497,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of ShaktoolInstructionCodes; model the domain as a type",
@@ -2461,7 +2392,7 @@
   "SpacePirateInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NinjaSpacePirate.cs",
-    "line": 677,
+    "line": 671,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
@@ -2469,7 +2400,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WallSpacePirate.cs",
-    "line": 394,
+    "line": 388,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
@@ -2665,7 +2596,7 @@
   "WorkRobotInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobot.cs",
-    "line": 196,
+    "line": 194,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of WorkRobotInstructionCodes; model the domain as a type",
@@ -2847,13 +2778,35 @@
    "tests": "EnsureVerification analyzer tests (relational and decoder exemptions, statement selectors still reported); ProjectileDamage combo cost; managed audio suites; five movie replays",
    "status": "resolved; SME6272 is an error in .editorconfig",
    "analyzerScope": "a switch with relational patterns is a piecewise numeric function, and a switch expression whose catch-all throws is the boundary decoder; neither is a selector"
+  },
+  "EnemyDefinitionId": {
+   "previous": "ushort RoomEnemySlot.EnemyDefinitionPointer, RoomEnemyProjectileSlot.EnemyHeaderPointer, population/graphics-set DefinitionPointer fields, and about 166 per-file alias constants (RoomEnemySystem.*Definition, EnemyDefinitionPointers, DraygonEnemyDefinitionPointers, GunshipEnemyDefinitions, PipeBugDefinitions, MamaTurtleEnemyDefinitionCatalog, ChozoStatue/CeresDoor pointers, EnemyLifecycleDefinitions.RespawnPlaceholder)",
+   "type": "enum EnemyDefinitionId : ushort (None plus the 164 EnemyHeaders_* labels of bank $A0)",
+   "closedProof": "Every enemy header the cartridge can install is one of the EnemyHeaders_* records in bank $A0; room populations, graphics sets and runtime spawners reference only those addresses, and zero marks an empty slot",
+   "transitions": "none (identity; assigned from populations, catalogs and spawners)",
+   "boundary": "EnemyDefinitionIds.FromHeaderPointer at asset extraction (graphics sets, artwork manifest) and ROM-walking verification; DebuggerEnumValues decodes older ushort payloads; on-disk artwork names and manifests keep the four-digit header word",
+   "invalidValues": "FromHeaderPointer throws InvalidDataException for zero or undefined words; exhaustive switches throw on unnamed members",
+   "consumers": "RoomEnemySystem families, enemy drops, EnemyTileArtworkCatalog, EnemySpritemapDefinitions and the per-family visual selectors, RoomEnemyDefinitionCatalog/RoomEnemyAuxiliaryDefinitionCatalog, ResourceAudit, DebugRunner, verification fixtures",
+   "tests": "VerifyCompiledEnemyDefinitions and VerifyCompiledEnemyRoomLists (retail room walks decoded through FromHeaderPointer), enemy artwork suites, full movie replays",
+   "status": "resolved"
+  },
+  "EnumNumericFormat": {
+   "previous": "enum values formatted with numeric specifiers such as {kind:X2}, which throw FormatException at runtime",
+   "type": "analyzer rule SME6273 (error): enum interpolations accept only G, D, X or F; numeric formatting casts to the underlying type first",
+   "closedProof": "System.Enum.ToString accepts only the G/D/X/F format strings",
+   "transitions": "none",
+   "boundary": "compile time",
+   "invalidValues": "build error",
+   "consumers": "all first-party projects",
+   "tests": "EnsureVerification analyzer cases for SME6273",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 299,
-  "openDomains": 180,
+  "openFindings": 291,
+  "openDomains": 177,
   "byRule": {
-   "SME6270": 299
+   "SME6270": 291
   }
  }
 }

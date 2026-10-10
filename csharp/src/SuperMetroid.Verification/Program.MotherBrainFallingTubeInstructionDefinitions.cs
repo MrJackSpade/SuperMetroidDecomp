@@ -35,7 +35,7 @@ internal static partial class Program
             busField.SetValue(enemies, new MotherBrainFallingTubeReadGuard(rom));
             var tube = new RoomEnemySlot(0)
             {
-                EnemyDefinitionPointer = EnemyDefinitionPointers.MotherBrainFallingTube,
+                EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainTubes,
                 Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
                 CurrentInstruction = start,
                 InstructionTimer = 1,

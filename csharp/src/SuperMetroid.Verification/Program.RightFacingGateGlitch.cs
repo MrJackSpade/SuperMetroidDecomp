@@ -204,7 +204,7 @@ internal static partial class Program
         runtime.Camera!.SetPosition(128, 0);
 
         RoomEnemySlot frozen = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.BoyonDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);
         foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)
         {
             if (!ReferenceEquals(enemy, frozen))

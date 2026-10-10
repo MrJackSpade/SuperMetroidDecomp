@@ -973,10 +973,10 @@ internal static partial class Program
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort,RoomCharacterAtlas> { [RoomEnemySystem.DeadTorizoDefinition] = RoomCharacterAtlas.Load(png, planar.Length) },
-            new Dictionary<ushort,EnemyPaletteSheet>
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) },
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [RoomEnemySystem.DeadTorizoDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
                     {
                         Version = 1,
@@ -984,7 +984,7 @@ internal static partial class Program
                     }))),
             },
             spritemaps: display,
-            dmaSources: new Dictionary<ushort,int> { [RoomEnemySystem.DeadTorizoDefinition] = DeadTorizoArtworkDefinitions.SourceAddress });
+            dmaSources: new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
@@ -1288,15 +1288,15 @@ internal static partial class Program
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(rom));
         for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(index < 28 ? PipeBugDefinitions.BrinstarEnemyDefinition : PipeBugDefinitions.StrongBrinstarEnemyDefinition,
+            Check(index < 28 ? EnemyDefinitionId.Zeb : EnemyDefinitionId.Zebbo,
                 BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
         for (int index = 0; index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(PipeBugDefinitions.NorfairEnemyDefinition, NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
+            Check(EnemyDefinitionId.Gamet, NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
         for (int index = 0; index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(PipeBugDefinitions.YellowEnemyDefinition, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
+            Check(EnemyDefinitionId.Geega, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
         Console.WriteLine("Pipe Bug visual geometry:88 native selectors/single-part headers, adjacent mechanics rejection and existing actual variant program checks pass.");
 
-        void Check(ushort enemy, ushort address)
+        void Check(EnemyDefinitionId enemy, ushort address)
         {
             ushort expected = ReadVerificationWord(rom, 0xb30000 | address);
             AssertEqual(expected, PipeBugVisualDefinitions.FrameAt(enemy, address), "Native Pipe Bug visual selector");
@@ -1328,7 +1328,7 @@ internal static partial class Program
             for (int member = 0; member < 5; member++)
             {
                 var slot = enemies.Slots[member];
-                slot.EnemyDefinitionPointer = PipeBugDefinitions.NorfairEnemyDefinition;
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
                 slot.XPosition = 128; slot.YPosition = 128; slot.Parameter2 = 64;
                 initialize.Invoke(enemies, [slot]);
                 slot.InstructionTimer = (ushort)(member + 4);

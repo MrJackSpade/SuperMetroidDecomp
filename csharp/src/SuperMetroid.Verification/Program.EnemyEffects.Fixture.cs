@@ -20,8 +20,8 @@ internal static partial class Program
         {
             if (art is not null)
                 Enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(),
-                    new Dictionary<ushort, EnemyPaletteSheet>(), crocomireMelting: art);
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+                    new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), crocomireMelting: art);
             Actor = new CrocomireEnemyState(Enemies.Slots[0]) { Tongue = Enemies.Slots[1] };
             Actor.Body.XPosition = 400;
             Actor.Body.YPosition = 144;

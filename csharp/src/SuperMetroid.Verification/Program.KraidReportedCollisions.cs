@@ -71,7 +71,7 @@ internal static partial class Program
                 interactive.Clear(); interactive.Add(nail.NativeIndex);
                 AssertEqual(true, runtime.Enemies.ResolveOrdinarySamusContact(samus, 0), "Nail callback is dispatched");
                 AssertEqual((ushort)(999 - damage), samus.Health, "Nail applies native touch damage");
-                AssertEqual(EnemyLifecycleDefinitions.RespawnPlaceholder, nail.EnemyDefinitionPointer,
+                AssertEqual(EnemyDefinitionId.Respawn, nail.EnemyDefinitionPointer,
                     "Nail dies into the native respawn placeholder");
             });
         }

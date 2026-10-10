@@ -37,12 +37,12 @@ internal static partial class Program
 
         var guard = new HopperAnimationReadGuard(rom, forbidPresentation: true);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        ushort[] definitions =
+        EnemyDefinitionId[] definitions =
         [
-            RoomEnemySystem.SidehopperDefinition,
-            RoomEnemySystem.LargeSidehopperDefinition,
-            RoomEnemySystem.LargeDessgeegaDefinition,
-            RoomEnemySystem.DessgeegaDefinition,
+            EnemyDefinitionId.Sidehopper,
+            EnemyDefinitionId.SidehopperLarge,
+            EnemyDefinitionId.DessgeegaLarge,
+            EnemyDefinitionId.Dessgeega,
         ];
 
         for (ushort variant = 0; variant < 4; variant++)
@@ -166,7 +166,7 @@ internal static partial class Program
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHopper", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.TourianSidehopperDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.SidehopperTourian;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3, VariantIndex = 1 };
         initialize.Invoke(enemies, [slot]);
         ExecuteHopperInstructionProgram(enemies, process, slot, callCount: 1);

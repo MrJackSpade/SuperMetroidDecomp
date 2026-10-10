@@ -181,7 +181,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_hasEvent", flags)!
             .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
         RoomEnemySlot etecoon = enemies.Slots[0];
-        etecoon.EnemyDefinitionPointer = RoomEnemySystem.EscapeEtecoonDefinition;
+        etecoon.EnemyDefinitionPointer = EnemyDefinitionId.EtecoonEscape;
         etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
         etecoon.Parameter1 = 0;
         typeof(RoomEnemySystem).GetMethod("InitializeEscapeEtecoon", flags)!

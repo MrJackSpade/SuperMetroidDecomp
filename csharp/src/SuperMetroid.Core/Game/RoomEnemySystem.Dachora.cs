@@ -95,7 +95,6 @@ public sealed class DachoraEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort DachoraDefinition = 0xe5ff;
 
     private const ushort DachoraActivationSound = 0x001d;
     private const ushort DachoraSpeedBoosterSound = 0x0039;
@@ -571,10 +570,10 @@ public sealed partial class RoomEnemySystem
         for (int echoIndex = 0; echoIndex < echoes.Length; echoIndex++)
         {
             RoomEnemySlot echo = _slots[body.SlotIndex + echoIndex + 1];
-            if (echo.EnemyDefinitionPointer != DachoraDefinition)
+            if (echo.EnemyDefinitionPointer != EnemyDefinitionId.Dachora)
             {
                 throw new InvalidDataException(
-                    $"Dachora echo {echoIndex} is enemy ${echo.EnemyDefinitionPointer:X4}, expected $E5FF.");
+                    $"Dachora echo {echoIndex} is enemy ${(int)echo.EnemyDefinitionPointer:X4}, expected $E5FF.");
             }
             echoes[echoIndex] = echo;
         }

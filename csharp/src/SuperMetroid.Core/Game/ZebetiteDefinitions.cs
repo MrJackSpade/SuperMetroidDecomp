@@ -14,11 +14,11 @@ internal static class ZebetiteDefinitions
 
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     private static readonly RoomEnemyPopulationRecord PrimarySpawn =
-        new(0xe27f, 0, 0, 0, 0x2000, 0, 0, 0);
+        new(EnemyDefinitionId.Zebetite, 0, 0, 0, 0x2000, 0, 0, 0);
 
     /// <summary>Embedded linked-half spawn record at <c>$A6:FCF9-$A6:FD08</c>.</summary>
     private static readonly RoomEnemyPopulationRecord LinkedSpawn =
-        new(0xe27f, 0, 0, 0, 0x2000, 0, 2, 0);
+        new(EnemyDefinitionId.Zebetite, 0, 0, 0, 0x2000, 0, 2, 0);
 
     /// <summary>
     /// $A6:FC03-FC32: four alternating large/split barriers, spaced twelve tiles

@@ -100,7 +100,7 @@ internal static partial class Program
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.Slots[0];
-        target.EnemyDefinitionPointer = 0x9000;
+        target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,

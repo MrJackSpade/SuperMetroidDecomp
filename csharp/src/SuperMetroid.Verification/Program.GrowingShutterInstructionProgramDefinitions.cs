@@ -30,7 +30,7 @@ internal static partial class Program
         MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.GrowingShutterDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.ShutterGrowing;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = 0;
         slot.ExtraProperties = 0;

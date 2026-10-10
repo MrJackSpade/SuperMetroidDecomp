@@ -197,7 +197,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
                 .SetValue(enemy, (Func<bool>)(() => false));
             RoomEnemySlot slot = enemy.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
             typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!
                 .Invoke(enemy, [slot]);
             RidleyEnemyState state = enemy.Ridley ??

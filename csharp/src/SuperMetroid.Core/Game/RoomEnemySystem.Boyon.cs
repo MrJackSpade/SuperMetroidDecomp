@@ -95,7 +95,6 @@ public sealed class BoyonEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BoyonDefinition = 0xcebf;
 
     private const ushort BoyonBounceSound = 0x000e;
 

@@ -75,7 +75,6 @@ public readonly record struct FakeKraidDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort FakeKraidDefinition = 0xe0ff;
 
     private const ushort FakeKraidSpitSound = 0x0016;
     private const ushort FakeKraidSpikeSound = 0x003f;
@@ -368,7 +367,7 @@ public sealed partial class RoomEnemySystem
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();
         SpawnEnemyDropScatterAround(
-            FakeKraidDefinition,
+            EnemyDefinitionId.MiniKraid,
             count: 4,
             originX,
             originY);

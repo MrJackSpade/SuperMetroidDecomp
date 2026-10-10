@@ -78,7 +78,7 @@ internal static partial class Program
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot programGraphics = programSystem.Slots[0];
-        programGraphics.EnemyDefinitionPointer = HibashiDefinitions.EnemyDefinition;
+        programGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programGraphics.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programGraphics.Parameter2 = 0;
         programGraphics.XPosition = 0x0180;
@@ -86,7 +86,7 @@ internal static partial class Program
         initializeProgram(programGraphics);
 
         RoomEnemySlot programHitbox = programSystem.Slots[1];
-        programHitbox.EnemyDefinitionPointer = HibashiDefinitions.EnemyDefinition;
+        programHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programHitbox.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programHitbox.Parameter2 = 1;
         programHitbox.XPosition = programGraphics.XPosition;

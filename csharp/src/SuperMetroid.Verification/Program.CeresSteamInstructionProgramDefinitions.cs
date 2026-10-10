@@ -132,7 +132,7 @@ internal static partial class Program
                 "InitializeCeresSteam", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = CeresSteamDefinitions.EnemyDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.Parameter1 = (ushort)variant;
             initialize(slot);

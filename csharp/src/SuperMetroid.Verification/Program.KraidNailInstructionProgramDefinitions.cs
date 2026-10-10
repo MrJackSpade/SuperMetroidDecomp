@@ -21,15 +21,15 @@ internal static partial class Program
         AssertEqual(ReadKraidNailInstructionWord(rom, 0x8b0c),
             KraidVisualDefinitions.InitialNailFrame,
             "compiled Kraid fingernail initial frame matches its cartridge selector");
-        foreach ((int slotIndex, ushort expectedDefinition) in new[]
+        foreach ((int slotIndex, EnemyDefinitionId expectedDefinition) in new[]
                  {
-                     (6, RoomEnemySystem.KraidGoodNailDefinition),
-                     (7, RoomEnemySystem.KraidBadNailDefinition),
+                     (6, EnemyDefinitionId.KraidNail),
+                     (7, EnemyDefinitionId.KraidNailBad),
                  })
         {
             int record = EnemyRomTablePointers.Kraid.PopulationRecords + slotIndex * 16;
-            ushort definition = (ushort)(rom.ReadByte(record) |
-                rom.ReadByte(record + 1) << 8);
+            EnemyDefinitionId definition = EnemyDefinitionIds.FromHeaderPointer((ushort)(rom.ReadByte(record) |
+                rom.ReadByte(record + 1) << 8));
             ushort extraProperties = (ushort)(rom.ReadByte(record + 10) |
                 rom.ReadByte(record + 11) << 8);
             AssertEqual(expectedDefinition, definition,
@@ -42,10 +42,10 @@ internal static partial class Program
         Suite(nameof(VerifyKraidNailPresentationMapping), () => VerifyKraidNailPresentationMapping());
 
         var guard = new KraidNailInstructionReadGuard(rom);
-        foreach (ushort definitionPointer in new ushort[]
+        foreach (EnemyDefinitionId definitionPointer in new EnemyDefinitionId[]
                  {
-                     RoomEnemySystem.KraidGoodNailDefinition,
-                     RoomEnemySystem.KraidBadNailDefinition,
+                     EnemyDefinitionId.KraidNail,
+                     EnemyDefinitionId.KraidNailBad,
                  })
         {
             var enemies = new RoomEnemySystem();
@@ -70,7 +70,7 @@ internal static partial class Program
             }
             AssertEqual(unchecked((ushort)(KraidNailInstructionProgramDefinitions.Loop + 4)),
                 slot.CurrentInstruction,
-                $"Kraid fingernail ${definitionPointer:X4} loops to its first frame");
+                $"Kraid fingernail ${(int)definitionPointer:X4} loops to its first frame");
         }
 
         Suite(nameof(VerifyKraidNailVisualSelectors), () => VerifyKraidNailVisualSelectors(rom));
@@ -94,14 +94,14 @@ internal static partial class Program
             "adjacent Kraid arm presentation data is rejected as fingernail mechanics");
         AssertThrows<InvalidDataException>(
             () => KraidVisualDefinitions.FrameAt(
-                RoomEnemySystem.KraidGoodNailDefinition,
+                EnemyDefinitionId.KraidNail,
                 KraidNailInstructionProgramDefinitions.AdjacentPresentationData),
             "adjacent Kraid visual operand is not a fingernail frame");
 
-        foreach ((ushort definition, int slotIndex) in new[]
+        foreach ((EnemyDefinitionId definition, int slotIndex) in new[]
                  {
-                     (RoomEnemySystem.KraidGoodNailDefinition, 6),
-                     (RoomEnemySystem.KraidBadNailDefinition, 7),
+                     (EnemyDefinitionId.KraidNail, 6),
+                     (EnemyDefinitionId.KraidNailBad, 7),
                  })
         {
             var enemies = new RoomEnemySystem();
@@ -111,7 +111,7 @@ internal static partial class Program
                 .SetValue(enemies, new KraidEnemyState());
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
                 .SetValue(enemies, (Func<bool>)(() => false));
-            enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
+            enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
             RoomEnemySlot slot = enemies.Slots[slotIndex];
             slot.EnemyDefinitionPointer = definition;
             typeof(RoomEnemySystem).GetMethod("InitializeKraidNail", flags)!

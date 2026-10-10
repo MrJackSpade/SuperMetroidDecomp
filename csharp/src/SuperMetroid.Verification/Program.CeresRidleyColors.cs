@@ -147,7 +147,7 @@ internal static partial class Program
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
-        slot.EnemyDefinitionPointer = 0xe13f;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         RidleyEnemyState activeRidley = enemies.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;

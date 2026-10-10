@@ -93,7 +93,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private PhantoonEnemyState RequireCompletePhantoonStateForPart(RoomEnemySlot stateSlot) =>
-        RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == PhantoonBodyDefinition
+        RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody
             ? stateSlot
             : _slots[0]);
 }

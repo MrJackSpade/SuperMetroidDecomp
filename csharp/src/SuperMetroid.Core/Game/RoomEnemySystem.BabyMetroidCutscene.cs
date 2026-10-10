@@ -28,11 +28,11 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
-        if (population.DefinitionPointer != MotherBrainBabyMetroidDefinitions.EnemyDefinition)
+        if (population.DefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene)
         {
             throw new InvalidDataException(
                 "Mother Brain Baby spawn record " +
-                $"names enemy ${population.DefinitionPointer:X4}, not $ECBF.");
+                $"names enemy ${(int)population.DefinitionPointer:X4}, not $ECBF.");
         }
 
         RoomEnemySlot babySlot = _slots[slotIndex];

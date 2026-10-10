@@ -6,14 +6,14 @@ internal static partial class Program
 {
     private static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
-        (DeadTourianCorpseSpecies Species, ushort EnemyDefinition, int VariantCount,
+        (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
             int InstructionTable, int ConfigurationTable)[] families =
         [
-            (DeadTourianCorpseSpecies.Zoomer, RoomEnemySystem.DeadZoomerDefinition,
+            (DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer,
                 3, 0xa9d86a, 0xa9d870),
-            (DeadTourianCorpseSpecies.Ripper, RoomEnemySystem.DeadRipperDefinition,
+            (DeadTourianCorpseSpecies.Ripper, EnemyDefinitionId.CorpseRipper,
                 2, 0xa9d897, 0xa9d89b),
-            (DeadTourianCorpseSpecies.Skree, RoomEnemySystem.DeadSkreeDefinition,
+            (DeadTourianCorpseSpecies.Skree, EnemyDefinitionId.CorpseSkree,
                 3, 0xa9d8c0, 0xa9d8c6),
         ];
 
@@ -84,7 +84,7 @@ internal static partial class Program
     private static void VerifyDeadTourianCorpseProductionInitialization(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
-        ushort enemyDefinition,
+        EnemyDefinitionId enemyDefinition,
         int variantIndex,
         DeadTourianCorpseDefinition expected)
     {

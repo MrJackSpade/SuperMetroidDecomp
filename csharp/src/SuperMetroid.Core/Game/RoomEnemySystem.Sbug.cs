@@ -169,8 +169,6 @@ public sealed class SbugEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort SbugDefinition = 0xd87f;
-    internal const ushort Sbug2Definition = 0xd8bf;
 
     private const ushort SbugRandomSeed = 0x000b;
     private const ushort SbugMovementSegmentFrames = 0x0020;

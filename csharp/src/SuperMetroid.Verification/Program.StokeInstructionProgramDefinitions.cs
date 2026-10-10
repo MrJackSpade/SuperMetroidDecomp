@@ -33,11 +33,11 @@ internal static partial class Program
         {
             ushort address = StokeInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(ReadStokeInstructionWord(rom, 0xa20000 | address),
-                OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, address),
+                OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, address),
                 $"compiled Stoke frame selector $A2:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
-            () => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, 0x8934),
+            () => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, 0x8934),
             "Stoke timing word is not a visual selector");
 
         var guard = new StokeInstructionProgramReadGuard(rom);
@@ -149,7 +149,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeStoke", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.StokeDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Stoke;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = (ushort)direction;
             slot.XPosition = 0x0080;

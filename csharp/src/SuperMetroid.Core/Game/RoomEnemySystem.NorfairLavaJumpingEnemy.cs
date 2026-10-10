@@ -82,7 +82,6 @@ public sealed class NorfairLavaJumpingEnemyState
 /// <summary>Literal translation of enemy AI $A2:BE8E-$C02B.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort NorfairLavaJumpingEnemyDefinition = 0xd2bf;
 
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
@@ -214,7 +213,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != NorfairLavaJumpingEnemyDefinition ||
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Squeept ||
             opcode != NorfairLavaJumperInstructionProgramDefinitions.AnimationFinishedCallback)
         {
             return false;
@@ -271,13 +270,13 @@ public sealed partial class RoomEnemySystem
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
-        if (parent.EnemyDefinitionPointer != NorfairLavaJumpingEnemyDefinition ||
+        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Squeept ||
             (parent.Parameter1 & 0x8000) != 0)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
                 "a parent record of the same definition. " +
-                $"Preceding slot: definition=${parent.EnemyDefinitionPointer:X4}, " +
+                $"Preceding slot: definition=${(int)parent.EnemyDefinitionPointer:X4}, " +
                 $"health=${parent.Health:X4}, parameter=${parent.Parameter1:X4}, properties={parent.Properties}.");
         }
     }

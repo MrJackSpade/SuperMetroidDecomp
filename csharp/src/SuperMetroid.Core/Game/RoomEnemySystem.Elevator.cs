@@ -58,7 +58,6 @@ public sealed class ElevatorEnemyState
 /// <summary>Literal translation of the ordinary elevator actor at $A3:94E6-$A3:962E.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort ElevatorDefinition = 0xd73f;
 
     private const ushort ElevatorNothingSpritemap = 0x804d;
     private const int ElevatorSpeedFixed = 0x00018000;

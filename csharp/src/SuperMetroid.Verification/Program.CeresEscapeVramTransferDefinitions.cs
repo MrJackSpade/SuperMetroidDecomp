@@ -51,8 +51,8 @@ internal static partial class Program
         var system = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(),
-                new Dictionary<ushort, EnemyPaletteSheet>(),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
                 ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages),
                 ceresEscapeOverlayTilemaps: overlay),
             EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng),

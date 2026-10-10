@@ -92,7 +92,7 @@ public sealed partial class RoomEnemySystem
         // lower half of the arena. Do this before deleting the body so the native event is
         // represented by real pickup actors rather than only a debugger-visible flag.
         SpawnEnemyDropScatter(
-            DraygonBodyDefinition,
+            EnemyDefinitionId.DraygonBody,
             count: 16,
             xBase: 128,
             xMask: 0x00ff,

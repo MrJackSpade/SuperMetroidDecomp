@@ -11,8 +11,8 @@ internal static partial class Program
     /// </summary>
     static void VerifyPostCeresGunshipLanding(bool entrySoundOnly = false)
     {
-        const ushort topDefinition = GunshipEnemyDefinitions.Top;
-        const ushort bottomDefinition = GunshipEnemyDefinitions.BottomEntrance;
+        const EnemyDefinitionId topDefinition = EnemyDefinitionId.ShipTop;
+        const EnemyDefinitionId bottomDefinition = EnemyDefinitionId.ShipBottomEntrance;
         const ushort populationPointer = 0x9200;
         const ushort tilesetPointer = 0x9200;
 
@@ -31,10 +31,10 @@ internal static partial class Program
             bossId: 0,
             namePointer: 0,
             fieldSeed: 0x2100);
-        WriteWord(bus, 0xa00000 | (topDefinition + 8), 32);
-        WriteWord(bus, 0xa00000 | (topDefinition + 10), 16);
-        WriteWord(bus, 0xa00000 | (topDefinition + 18), 0xa644);
-        WriteWord(bus, 0xa00000 | (topDefinition + 24), 0xa759);
+        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 8), 32);
+        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 10), 16);
+        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 18), 0xa644);
+        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 24), 0xa759);
 
         WriteEnemyDefinition(
             bus,
@@ -46,10 +46,10 @@ internal static partial class Program
             bossId: 0,
             namePointer: 0,
             fieldSeed: 0x2200);
-        WriteWord(bus, 0xa00000 | (bottomDefinition + 8), 32);
-        WriteWord(bus, 0xa00000 | (bottomDefinition + 10), 16);
-        WriteWord(bus, 0xa00000 | (bottomDefinition + 18), 0xa6d2);
-        WriteWord(bus, 0xa00000 | (bottomDefinition + 24), 0x804c);
+        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 8), 32);
+        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 10), 16);
+        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 18), 0xa6d2);
+        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 24), 0x804c);
 
         // Gunship control words are compiled engine data. This synthetic address space
         // supplies only the interleaved spritemap operands that remain presentation-owned.
@@ -284,12 +284,12 @@ internal static partial class Program
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
         int address,
-        ushort definition,
+        EnemyDefinitionId definition,
         ushort x,
         ushort y,
         ushort parameter2)
     {
-        WriteWord(bus, address, definition);
+        WriteWord(bus, address, (ushort)definition);
         WriteWord(bus, address + 2, x);
         WriteWord(bus, address + 4, y);
         WriteWord(bus, address + 6, 0);

@@ -14,7 +14,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, installation.OpenRuntimeAddressSpace());
             typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
             var slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.DeadTorizoDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
             slot.XPosition = 120;
             slot.YPosition = 100;
             slot.XRadius = 16;

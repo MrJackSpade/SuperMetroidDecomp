@@ -24,7 +24,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
                 enemies, (Func<ushort>)(() => 0));
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = CeresSteamDefinitions.EnemyDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
             slot.Definition = default(RoomEnemyDefinition) with
             { Bank = CeresSteamCollisionDefinitions.Bank };
             slot.Parameter1 = (ushort)variant;
@@ -67,7 +67,7 @@ internal static partial class Program
         compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };
 
-        compiledSlot.EnemyDefinitionPointer = CeresSteamDefinitions.EnemyDefinition;
+        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
         AssertEqual(28, CeresSteamCollisionDefinitions.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

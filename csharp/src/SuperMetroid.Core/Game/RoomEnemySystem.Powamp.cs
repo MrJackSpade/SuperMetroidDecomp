@@ -84,7 +84,6 @@ public sealed class PowampEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort PowampDefinition = 0xe8bf;
 
     private const ushort PowampUngrappledTravelDistance = 0x0040;
     private const ushort PowampRestFrames = 0x003c;
@@ -527,7 +526,7 @@ public sealed partial class RoomEnemySystem
         if (body.SlotIndex == 0)
             throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
         RoomEnemySlot balloon = _slots[body.SlotIndex - 1];
-        if (balloon.EnemyDefinitionPointer != PowampDefinition || balloon.Parameter1 == 0)
+        if (balloon.EnemyDefinitionPointer != EnemyDefinitionId.Powamp || balloon.Parameter1 == 0)
         {
             throw new InvalidDataException(
                 $"Powamp body slot {body.SlotIndex} is not preceded by its balloon half.");

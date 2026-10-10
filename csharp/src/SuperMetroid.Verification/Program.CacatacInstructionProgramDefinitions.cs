@@ -141,7 +141,7 @@ internal static partial class Program
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeCacatac", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.CacatacDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Cacatac;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = upsideUp ? (ushort)0x0100 : (ushort)0;
             initialize(slot);

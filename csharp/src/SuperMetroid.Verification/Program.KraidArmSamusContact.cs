@@ -20,7 +20,7 @@ internal static partial class Program
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         RoomEnemySlot arm = runtime.Enemies.Slots[1];
-        AssertEqual((ushort)0xe2ff, arm.EnemyDefinitionPointer, "slot one is Kraid's arm");
+        AssertEqual(EnemyDefinitionId.KraidArm, arm.EnemyDefinitionPointer, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.XPosition = 0x00b0;

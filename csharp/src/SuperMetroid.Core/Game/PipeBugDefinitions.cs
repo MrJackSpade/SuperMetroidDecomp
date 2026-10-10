@@ -43,17 +43,6 @@ internal static class PipeBugDefinitions
         4 => PipeBugEnemyFunction.NorfairLowerFarStagger,
         _ => throw new IndexOutOfRangeException(),
     };
-    /// <summary>Normal Brinstar Pipe Bug enemy header at <c>$A0:F193</c>.</summary>
-    internal const ushort BrinstarEnemyDefinition = 0xf193;
-
-    /// <summary>Strong Brinstar Pipe Bug enemy header at <c>$A0:F1D3</c>.</summary>
-    internal const ushort StrongBrinstarEnemyDefinition = 0xf1d3;
-
-    /// <summary>Norfair Pipe Bug enemy header at <c>$A0:F213</c>.</summary>
-    internal const ushort NorfairEnemyDefinition = 0xf213;
-
-    /// <summary>Yellow Brinstar Pipe Bug enemy header at <c>$A0:F253</c>.</summary>
-    internal const ushort YellowEnemyDefinition = 0xf253;
 
     /// <summary>
     /// $B3:882B/$8833 dispatch normal/strong rising/shooting programs by the native

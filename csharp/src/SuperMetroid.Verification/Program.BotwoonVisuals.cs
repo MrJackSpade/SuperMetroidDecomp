@@ -20,7 +20,7 @@ internal static partial class Program
             ushort native = unchecked((ushort)(rom.ReadCartridgeByte(nativeAddress) |
                 rom.ReadCartridgeByte(nativeAddress + 1) << 8));
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.BotwoonDefinition, operand,
+                    EnemyDefinitionId.Botwoon, operand,
                     out ushort installedPointer),
                 $"Botwoon head operand $B3:{operand:X4} is compiled");
             AssertEqual(native, installedPointer,

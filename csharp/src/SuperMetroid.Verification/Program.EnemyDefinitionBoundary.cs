@@ -66,7 +66,7 @@ internal static partial class Program
             AssertTrue(word.Address > previous, "Torizo mechanics are ordered and unique");
             previous = word.Address;
             AssertEqual(NativeWord(source, 0xaa0000 | word.Address), word.Value, $"Torizo word {word.Address:X4}");
-            foreach (ushort pointer in new[] { RoomEnemySystem.BombTorizoDefinition, RoomEnemySystem.GoldenTorizoDefinition })
+            foreach (EnemyDefinitionId pointer in new[] { EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo })
             {
                 RoomEnemySlot slot = enemies.Slots[0];
                 slot.EnemyDefinitionPointer = pointer;

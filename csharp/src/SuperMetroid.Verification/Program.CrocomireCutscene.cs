@@ -13,7 +13,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CrocomireTongueNoReadBus());
         var slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa4 };
         slot.SpritemapPointer = 0xe6bc;
         var walker = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", flags)!;
@@ -79,7 +79,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
                 crocomireColors: CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom)))),
         };
         var body = enemies.Slots[0];

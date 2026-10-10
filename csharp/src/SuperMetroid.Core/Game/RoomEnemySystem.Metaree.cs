@@ -75,7 +75,6 @@ public sealed class MetareeEnemyState
 /// <summary>Literal translation of Metaree enemy <c>$D67F</c> at <c>$A3:88F0-$8B64</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MetareeDefinition = 0xd67f;
 
     private const ushort MetareeHorizontalActivationDistance = 0x48;
     private const ushort MetareeDiveDivisorNtsc = 24;

@@ -25,7 +25,7 @@ internal static partial class Program
             enemies,
             new PhantoonSoundReadGuard(rom));
         RoomEnemySlot body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.PhantoonBodyDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         var state = new PhantoonEnemyState(body)
         {
             Eye = enemies.Slots[1],

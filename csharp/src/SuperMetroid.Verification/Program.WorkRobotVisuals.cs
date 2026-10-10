@@ -23,9 +23,9 @@ internal static partial class Program
                 rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer, WorkRobotVisualDefinitions.FrameAt(operand),
                 $"Work Robot visual selector {index} matches pinned cartridge");
-            ushort definition = operand < WorkRobotInstructionProgramDefinitions.Initial
-                ? RoomEnemySystem.WorkRobotNoPowerDefinition
-                : RoomEnemySystem.WorkRobotDefinition;
+            EnemyDefinitionId definition = operand < WorkRobotInstructionProgramDefinitions.Initial
+                ? EnemyDefinitionId.RobotNoPower
+                : EnemyDefinitionId.Robot;
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     definition, operand, out ushort installedPointer),
                 $"Work Robot selector {index} is installed for its actor");

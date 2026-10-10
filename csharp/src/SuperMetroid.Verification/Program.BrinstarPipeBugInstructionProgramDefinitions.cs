@@ -55,24 +55,24 @@ internal static partial class Program
         {
             ushort address =
                 BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort definition = address < 0x8a00
-                ? PipeBugDefinitions.BrinstarEnemyDefinition
-                : PipeBugDefinitions.StrongBrinstarEnemyDefinition;
+            EnemyDefinitionId definition = address < 0x8a00
+                ? EnemyDefinitionId.Zeb
+                : EnemyDefinitionId.Zebbo;
             AssertEqual(ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | address),
                 PipeBugVisualDefinitions.FrameAt(definition, address),
                 $"compiled Brinstar Pipe Bug frame $B3:{address:X4}");
         }
         AssertThrows<InvalidDataException>(
             () => PipeBugVisualDefinitions.FrameAt(
-                PipeBugDefinitions.BrinstarEnemyDefinition, 0x882b),
+                EnemyDefinitionId.Zeb, 0x882b),
             "unlisted Brinstar Pipe Bug visual operand fails loudly");
         AssertThrows<InvalidDataException>(
             () => PipeBugVisualDefinitions.FrameAt(
-                PipeBugDefinitions.BrinstarEnemyDefinition, 0x8a1f),
+                EnemyDefinitionId.Zeb, 0x8a1f),
             "normal Brinstar Pipe Bug rejects a strong visual operand");
         AssertThrows<InvalidDataException>(
             () => PipeBugVisualDefinitions.FrameAt(
-                PipeBugDefinitions.StrongBrinstarEnemyDefinition, 0x87ad),
+                EnemyDefinitionId.Zebbo, 0x87ad),
             "strong Brinstar Pipe Bug rejects a normal visual operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Brinstar Pipe Bug mechanics byte");
@@ -125,8 +125,8 @@ internal static partial class Program
                 "SelectBrinstarPipeBugAnimation", flags)!;
             slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = strong
-                ? PipeBugDefinitions.StrongBrinstarEnemyDefinition
-                : PipeBugDefinitions.BrinstarEnemyDefinition;
+                ? EnemyDefinitionId.Zebbo
+                : EnemyDefinitionId.Zeb;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             slot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initialize(slot);

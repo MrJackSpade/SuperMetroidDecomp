@@ -62,8 +62,8 @@ internal static partial class Program
         var enemies = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(),
-                new Dictionary<ushort, EnemyPaletteSheet>(), crocomireColors: colors),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), crocomireColors: colors),
         };
         var cgram = new SnesCgram();
         var death = new CrocomireDeathState

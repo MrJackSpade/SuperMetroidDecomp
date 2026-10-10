@@ -152,7 +152,6 @@ public sealed class PuyoEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort PuyoDefinition = 0xcfbf;
 
     private const int QuadraticSpeedRecordSize = 8;
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;

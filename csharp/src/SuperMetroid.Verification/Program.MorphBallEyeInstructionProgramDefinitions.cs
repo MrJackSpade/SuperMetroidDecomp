@@ -173,7 +173,7 @@ internal static partial class Program
         {
             var enemies = NewMorphBallEyeInstructionSystem(bus, flags);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
             slot.Parameter1 = parameter1;
             slot.Parameter2 = 0;
             initialize.Invoke(enemies, [slot]);
@@ -192,7 +192,7 @@ internal static partial class Program
         {
             var enemies = NewMorphBallEyeInstructionSystem(bus, flags);
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
             slot.Parameter2 = unchecked((ushort)(0x8000 | direction));
             initialize.Invoke(enemies, [slot]);
             AssertEqual(mountPrograms[direction], slot.CurrentInstruction,
@@ -214,7 +214,7 @@ internal static partial class Program
         ushort entry)
     {
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;

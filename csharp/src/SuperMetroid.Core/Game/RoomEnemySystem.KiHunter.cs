@@ -171,12 +171,6 @@ public sealed class KiHunterEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort KiHunterDefinition = 0xeabf;
-    internal const ushort KiHunterWingsDefinition = 0xeaff;
-    internal const ushort RedKiHunterDefinition = 0xeb3f;
-    internal const ushort RedKiHunterWingsDefinition = 0xeb7f;
-    internal const ushort GoldKiHunterDefinition = 0xebbf;
-    internal const ushort GoldKiHunterWingsDefinition = 0xebff;
     internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
     private const ushort EmptyA8Spritemap = 0x804d;
@@ -190,13 +184,13 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
 
-    internal static bool IsKiHunterBodyDefinition(ushort definition) =>
-        definition is KiHunterDefinition or RedKiHunterDefinition or GoldKiHunterDefinition;
+    internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
+        definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterRed;
 
-    internal static bool IsKiHunterWingDefinition(ushort definition) =>
-        definition is KiHunterWingsDefinition or RedKiHunterWingsDefinition or GoldKiHunterWingsDefinition;
+    internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
+        definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
-    private static bool IsKiHunterDefinition(ushort definition) =>
+    private static bool IsKiHunterDefinition(EnemyDefinitionId definition) =>
         IsKiHunterBodyDefinition(definition) || IsKiHunterWingDefinition(definition);
 
     private void ResetKiHunterRoomState()
@@ -885,11 +879,11 @@ public sealed partial class RoomEnemySystem
         if (body.EnemyDefinitionPointer == 0 && initializedBody)
             return wings;
 
-        ushort expected = body.EnemyDefinitionPointer switch
+        EnemyDefinitionId expected = body.EnemyDefinitionPointer switch
         {
-            KiHunterDefinition => KiHunterWingsDefinition,
-            RedKiHunterDefinition => RedKiHunterWingsDefinition,
-            GoldKiHunterDefinition => GoldKiHunterWingsDefinition,
+            EnemyDefinitionId.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
+            EnemyDefinitionId.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
+            EnemyDefinitionId.KihunterRed => EnemyDefinitionId.KihunterRedWings,
             _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
         };
         // During wing initialization its typed state does not exist yet, so insist on the
@@ -901,8 +895,8 @@ public sealed partial class RoomEnemySystem
             _kiHunterStates[wings.SlotIndex] is null)
         {
             throw new InvalidDataException(
-                $"Ki-Hunter body slot {body.SlotIndex} is followed by ${wings.EnemyDefinitionPointer:X4}, " +
-                $"not expected wing ${expected:X4}.");
+                $"Ki-Hunter body slot {body.SlotIndex} is followed by ${(int)wings.EnemyDefinitionPointer:X4}, " +
+                $"not expected wing ${(int)expected:X4}.");
         }
         return wings;
     }

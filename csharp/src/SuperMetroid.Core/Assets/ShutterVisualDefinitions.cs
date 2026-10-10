@@ -42,22 +42,22 @@ internal static class ShutterVisualDefinitions
         throw new InvalidDataException($"Shutter visual operand $A2:{operandAddress:X4} is not compiled.");
     }
     /// <summary>Accepts only a native visual operand for the specified shutter family.</summary>
-    internal static ushort FrameAt(ushort enemyDefinition, ushort operandAddress)
+    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort operandAddress)
     {
         bool isPresentation = enemyDefinition switch
         {
-            RoomEnemySystem.GrowingShutterDefinition =>
+            EnemyDefinitionId.ShutterGrowing =>
                 GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress),
-            RoomEnemySystem.ShootableVerticalShutterDefinition or
-                RoomEnemySystem.DestroyableVerticalShutterDefinition =>
+            EnemyDefinitionId.ShutterShootable or
+                EnemyDefinitionId.ShutterDestroyable =>
                 VerticalShutterInstructionProgramDefinitions.IsPlainShutterPresentationWord(
                     operandAddress),
-            RoomEnemySystem.ShootableHorizontalShutterDefinition =>
+            EnemyDefinitionId.ShutterHorizShootable =>
                 HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress),
-            _ => false,
+            _ => throw new ArgumentOutOfRangeException(nameof(enemyDefinition), enemyDefinition, "Not a shutter family."),
         };
         if (isPresentation) return PointerAt(operandAddress);
         throw new InvalidDataException(
-            $"Shutter ${enemyDefinition:X4} visual operand $A2:{operandAddress:X4} is not compiled.");
+            $"Shutter ${(int)enemyDefinition:X4} visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 }

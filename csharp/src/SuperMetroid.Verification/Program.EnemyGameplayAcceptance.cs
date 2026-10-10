@@ -32,7 +32,7 @@ internal static partial class Program
     private static void VerifyEnemyDefinitionReferenceClosure()
     {
         Span<byte> drop = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
-        foreach (ushort pointer in RoomEnemyDefinitionCatalog.Pointers.Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers))
+        foreach (EnemyDefinitionId pointer in RoomEnemyDefinitionCatalog.Pointers.Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers))
         {
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
                 ? auxiliary : RoomEnemyDefinitionCatalog.Get(pointer);
@@ -86,10 +86,10 @@ internal static partial class Program
         // All three body variants intentionally share one native DMA source. Edit
         // that source's aliases consistently, as a real artist must; conflicting
         // alias files are a loud validation error, not independent gameplay tuning.
-        ushort editedPointer = RoomEnemySystem.KiHunterDefinition;
+        EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
         RoomEnemyDefinition editedDefinition = RoomEnemyDefinitionCatalog.Get(editedPointer);
         Directory.CreateDirectory(overridePath);
-        foreach (ushort alias in RoomEnemyGraphicsSetDefinitions.Pointers
+        foreach (EnemyDefinitionId alias in RoomEnemyGraphicsSetDefinitions.Pointers
                      .SelectMany(pointer => RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray())
                      .Select(record => record.DefinitionPointer).Distinct()
                      .Where(pointer => RoomEnemyDefinitionCatalog.Get(pointer).TileDataAddress == editedDefinition.TileDataAddress &&
@@ -145,7 +145,7 @@ internal static partial class Program
             if (records.IsEmpty || (records.Length & 1) != 0) return false;
             for (int index = 0; index < records.Length; index++)
                 if (records[index].DefinitionPointer != ((index & 1) == 0
-                    ? RoomEnemySystem.KiHunterDefinition : RoomEnemySystem.KiHunterWingsDefinition)) return false;
+                    ? EnemyDefinitionId.KihunterGreen : EnemyDefinitionId.KihunterGreenWings)) return false;
             return true;
         }
     }

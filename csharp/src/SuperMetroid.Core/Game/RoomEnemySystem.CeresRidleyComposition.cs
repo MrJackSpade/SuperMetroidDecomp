@@ -360,7 +360,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraY)
     {
         RidleyEnemyState state = RequireRidley(slot);
-        if ((slot.EnemyDefinitionPointer == CeresRidleyDefinition && CeresStatus != 0) ||
+        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && CeresStatus != 0) ||
             state.MovementAnimationEnabled == 0)
             return;
 
@@ -425,7 +425,7 @@ public sealed partial class RoomEnemySystem
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (Ridley is null ||
-            _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
+            _slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             Ridley.MovementAnimationEnabled != 0)
             return;
 
@@ -445,7 +445,7 @@ public sealed partial class RoomEnemySystem
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
         if (Ridley is null ||
-            _slots[0].EnemyDefinitionPointer != CeresRidleyDefinition ||
+            _slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             Ridley.MovementAnimationEnabled == 0)
             return;
 
@@ -485,7 +485,7 @@ public sealed partial class RoomEnemySystem
         // replacement for the door actor's own instruction interpreter.
         RoomEnemySlot door = _slots[1];
         if (door.EnemyDefinitionPointer ==
-                CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer &&
+                EnemyDefinitionId.CeresDoor &&
             door.VariableB != 0)
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
@@ -603,9 +603,9 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(_bus!,
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer);
+            EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
-            CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer,
+            EnemyDefinitionId.CeresDoor,
             xPosition,
             YPosition: 0x007f,
             InitializationParameter: 0,
@@ -655,7 +655,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot = _slots[0];
         if (Ridley is null ||
             !IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
-            slot.EnemyDefinitionPointer == CeresRidleyDefinition && CeresStatus != 0 ||
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && CeresStatus != 0 ||
             samus.InvincibilityTimer != 0)
         {
             return false;

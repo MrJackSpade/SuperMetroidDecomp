@@ -29,7 +29,7 @@ internal static partial class Program
         samus.MaxHealth = 1499;
         samus.Health = 1499;
         RoomEnemySlot boss = runtime.Enemies.Slots.Single(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.GoldenTorizoDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)
         {

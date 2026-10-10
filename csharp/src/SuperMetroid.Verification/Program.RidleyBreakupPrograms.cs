@@ -19,7 +19,7 @@ internal static partial class Program
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, ushort, ushort, ushort>>(enemies);
         var body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
         var state = new RidleyEnemyState
         {
             GrabState = 1, FunctionTimer = 0,
@@ -28,7 +28,7 @@ internal static partial class Program
         };
         death(body, state, new SamusState());
         AssertEqual((ushort)0, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition).ToArray();
+        var fragments = enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual((ushort)0xca9b, fragments[0].CurrentInstruction, "reported tail orientation selects CA9B");
         foreach (var fragment in fragments)
@@ -59,7 +59,7 @@ internal static partial class Program
         AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
         AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), spritemaps: merged);
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), spritemaps: merged);
         var draw = typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap", flags)!;
         for (int index = 0; index < RidleyExplosionInstructionProgramDefinitions.ProgramCount; index++)
         {
@@ -92,11 +92,11 @@ internal static partial class Program
         expiring.VariableF = 0; expiring.VariableB = 0; expiring.VariableC = 0;
         expiring.XSubposition = 0; expiring.YSubposition = 0;
         typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyExplosionMain", flags)!.Invoke(enemies, [expiring]);
-        AssertEqual((ushort)0, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
+        AssertEqual(EnemyDefinitionId.None, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
         var explosion = enemies.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.XPosition, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.YPosition, "fragment death effect retains final Y");
-        AssertEqual(RidleyExplosionDefinitions.EnemyDefinition, explosion.EnemyHeaderPointer, "fragment drop retains native header");
+        AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.EnemyHeaderPointer, "fragment drop retains native header");
         AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion),
             explosion.InstructionPointer, "fragment expiry selects native small death animation");
         AssertEqual((ushort)1, enemies.EnemiesKilled, "fragment death updates shared kill count");

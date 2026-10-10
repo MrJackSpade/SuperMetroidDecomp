@@ -12,8 +12,6 @@ internal readonly record struct NuclearWaffleSweepDefinition(
 /// <summary>Compiled cartridge definitions for Puromi/Nuclear Waffle.</summary>
 internal static class NuclearWaffleDefinitions
 {
-    /// <summary>Enemy definition $E0BF (Puromi) in bank $A6.</summary>
-    internal const ushort EnemyDefinition = 0xe0bf;
 
     /// <summary>$A6:9490, Puromi's initial animation instruction list.</summary>
     internal const ushort InitialInstructionList =

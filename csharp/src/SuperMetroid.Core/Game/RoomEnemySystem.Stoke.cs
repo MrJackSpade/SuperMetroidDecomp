@@ -92,7 +92,6 @@ public sealed class StokeEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort StokeDefinition = 0xceff;
 
     private const int StokeFloorProbeDisplacement = 2 << 16;
 

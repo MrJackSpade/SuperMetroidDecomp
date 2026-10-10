@@ -112,7 +112,6 @@ public sealed class YardEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort YardDefinition = 0xdbbf;
 
     private const ushort YardNothingSpritemap = 0x804d;
 

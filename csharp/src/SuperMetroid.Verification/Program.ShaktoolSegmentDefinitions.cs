@@ -33,7 +33,7 @@ internal static partial class Program
         {
             ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemySlot slot = enemies.Slots[index];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.ShaktoolDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.Properties = 0x0010;
             slot.XPosition = unchecked((ushort)(0x0100 + index * 16));

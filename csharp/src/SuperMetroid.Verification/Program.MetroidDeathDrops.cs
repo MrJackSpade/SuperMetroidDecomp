@@ -28,7 +28,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = true;
         RoomEnemySlot metroid = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.MetroidDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid);
         // The shot pass rejects the empty spritemap sentinel; install the frame the movie's
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;

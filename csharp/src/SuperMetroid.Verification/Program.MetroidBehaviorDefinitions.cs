@@ -97,7 +97,7 @@ internal static partial class Program
             ushort selectedRandom = random;
             randomField.SetValue(enemies, (Func<ushort>)(() => selectedRandom));
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.MetroidDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.InstructionTimer = 1;
             slot.CurrentInstruction =

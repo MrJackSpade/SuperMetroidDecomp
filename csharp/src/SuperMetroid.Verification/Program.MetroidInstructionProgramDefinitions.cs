@@ -115,7 +115,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.MetroidDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.XPosition = 128;
         slot.YPosition = 128;
@@ -144,7 +144,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
             .SetValue(enemies, nextRandom);
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.MetroidDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;

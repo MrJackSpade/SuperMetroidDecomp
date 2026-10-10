@@ -137,7 +137,7 @@ public sealed partial class RoomEnemySystem
         // rectangle. The body is deleted immediately afterward, so the drop actors must
         // retain header $E17F themselves.
         SpawnEnemyDropScatter(
-            NorfairRidleyDefinition,
+            EnemyDefinitionId.Ridley,
             count: 16,
             xBase: 64,
             xMask: 0x007f,

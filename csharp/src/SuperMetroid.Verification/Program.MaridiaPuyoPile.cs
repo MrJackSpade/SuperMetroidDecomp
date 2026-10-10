@@ -21,7 +21,7 @@ internal static partial class Program
         for (int i = 0; i < population.Length; i++)
         {
             var actor = enemies.Slots[i];
-            AssertEqual((ushort)0xcfbf, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
+            AssertEqual(EnemyDefinitionId.Puyo, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.XPosition, "native pile spawn X");
             AssertEqual(population[i].Y, actor.YPosition, "native pile spawn Y");
             AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer, "native full-word initial cooldown");

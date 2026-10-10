@@ -80,7 +80,7 @@ internal static partial class Program
         type.GetField("_isAreaMiniBossDefeated", flags)!.SetValue(
             enemies, (Func<bool>)(() => false));
         RoomEnemySlot body = enemies.Slots[0];
-        body.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
         body.XPosition = 128;
         body.YPosition = 624;

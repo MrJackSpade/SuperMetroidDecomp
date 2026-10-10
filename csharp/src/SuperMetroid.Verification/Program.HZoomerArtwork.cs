@@ -13,7 +13,7 @@ internal static partial class Program
         {
             ushort operand = HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    RoomEnemySystem.HZoomerDefinition, operand, out ushort frame),
+                    EnemyDefinitionId.HZoomer, operand, out ushort frame),
                 $"HZoomer visual operand $A3:{operand:X4} is compiled");
             AssertEqual(ReadHZoomerInstructionWord(rom, operand), frame,
                 $"HZoomer selector $A3:{operand:X4} matches the pinned cartridge");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -9,8 +10,8 @@ internal static class EnemyTileArtworkPresentationContractChecks
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = EnemyTileArtworkCatalog.FromInstalledArtwork(new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>()); }
+        try { _ = EnemyTileArtworkCatalog.FromInstalledArtwork(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>()); }
         catch (InvalidDataException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException(
             "Enemy artwork confirmation failed: production construction must reject an empty ordinary installation.");

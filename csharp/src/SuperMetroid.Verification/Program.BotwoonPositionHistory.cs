@@ -19,7 +19,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Botwoon);
 
         RoomEnemySlot head = runtime.Enemies.Slots.Single(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.BotwoonDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon);
         BotwoonEnemyState state = runtime.Enemies.Botwoon
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
         AssertTrue(state.HistoryX.All(x => x == 0) && state.HistoryY.All(y => y == 0),

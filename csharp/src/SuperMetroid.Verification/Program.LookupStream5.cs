@@ -294,7 +294,7 @@ internal static partial class Program
             var system = new RoomEnemySystem
             {
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual),
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual),
             };
             var vram = new SnesVram();
             int destination = CeresDoorVisualRomData.Mode7DestinationWord;
@@ -421,7 +421,7 @@ internal static partial class Program
             var system = new RoomEnemySystem
             {
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
                     ceresEscapeOverlayTilemaps: result),
             };
             var queue = new VramWriteQueue();
@@ -1182,7 +1182,7 @@ internal static partial class Program
             {
                 var enemies = new RoomEnemySystem();
                 var slot = enemies.Slots[0];
-                slot.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
                 slot.Parameter2 = (ushort)(0x8000 | direction);
                 slot.XPosition = origin; slot.YPosition = origin;
                 typeof(RoomEnemySystem).GetMethod("InitializeMorphBallEye", flags)!
@@ -1195,7 +1195,7 @@ internal static partial class Program
         }
         var owner = new RoomEnemySystem();
         var body = owner.Slots[1];
-        body.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
         typeof(RoomEnemySystem).GetMethod("InitializeMorphBallEye", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(owner)(body);
         owner.MorphBallEyeStates[1]!.ActivatedFlag = 1;
@@ -1369,17 +1369,17 @@ internal static partial class Program
         png.Position=0;
         RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
         return EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort,RoomCharacterAtlas> { [RoomEnemySystem.DeadSidehopperDefinition] = atlas },
-            new Dictionary<ushort,EnemyPaletteSheet>
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseSidehopper] = atlas },
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [RoomEnemySystem.DeadSidehopperDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                [EnemyDefinitionId.CorpseSidehopper] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
                     {
                         Version=1,
                         Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),
                     }))),
             },
-            dmaSources: new Dictionary<ushort,int> { [RoomEnemySystem.DeadSidehopperDefinition] = DeadTourianCorpseArtworkDefinitions.SourceAddress });
+            dmaSources: new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = DeadTourianCorpseArtworkDefinitions.SourceAddress });
     }
     private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
     {
@@ -1791,14 +1791,14 @@ internal static partial class Program
         {
             CeresStatus = 1,
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), spritemaps: installed),
+                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), spritemaps: installed),
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CeresDoorQuakeReadGuard(rom));
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         var door = enemies.Slots[1];
-        door.EnemyDefinitionPointer = CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer;
+        door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
         door.VariableB = 1; door.YPosition = 80;
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
@@ -1933,7 +1933,7 @@ internal static partial class Program
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
                 var slot = system.Slots[0]; slot.Parameter1 = variant;
@@ -1996,7 +1996,7 @@ internal static partial class Program
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem { CeresStatus = 2, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var system = new RoomEnemySystem { CeresStatus = 2, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
                 var slot = system.Slots[0]; slot.Parameter1 = variant;
@@ -2060,7 +2060,7 @@ internal static partial class Program
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+            var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
             var cgram = new SnesCgram();
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(system, new SnesVram());

@@ -37,7 +37,7 @@ internal static partial class Program
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];
-        slot.EnemyDefinitionPointer = RoomEnemySystem.PolypDefinition;
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.LavaRocks;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(slot);
         AssertEqual(PolypInstructionProgramDefinitions.Stationary,

@@ -123,7 +123,7 @@ public sealed partial class RoomEnemySystem
     {
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
-        enemy.EnemyDefinitionPointer = EnemyLifecycleDefinitions.RespawnPlaceholder;
+        enemy.EnemyDefinitionPointer = EnemyDefinitionId.Respawn;
         enemy.Definition = ResolveRoomEnemyDefinition(_bus!, enemy.EnemyDefinitionPointer);
         enemy.AiBank = enemy.Definition.Bank;
     }
@@ -153,7 +153,7 @@ public sealed partial class RoomEnemySystem
     /// and drop selection then advance it independently inside pickup $F337.
     /// </summary>
     private void SpawnEnemyDropScatter(
-        ushort enemyHeaderPointer,
+        EnemyDefinitionId enemyHeaderPointer,
         int count,
         ushort xBase,
         ushort xMask,
@@ -170,7 +170,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private void SpawnEnemyDropScatterAround(
-        ushort enemyHeaderPointer,
+        EnemyDefinitionId enemyHeaderPointer,
         int count,
         ushort originX,
         ushort originY)
@@ -192,7 +192,7 @@ public sealed partial class RoomEnemySystem
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromEnemyHeader(
         ushort x,
         ushort y,
-        ushort enemyHeaderPointer)
+        EnemyDefinitionId enemyHeaderPointer)
     {
         EnsureLoaded();
         RoomEnemyProjectileSlot? pickup = AllocateEnemyProjectile();

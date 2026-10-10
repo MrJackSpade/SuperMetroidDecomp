@@ -63,7 +63,7 @@ internal static partial class Program
         {
             ushort address =
                 RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, RoomEnemySystem.RinkaDefinition,
+            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Rinka,
                 0xa2, address, $"Rinka $A2:{address:X4}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -110,7 +110,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         RoomEnemySlot rinka = enemies.Slots[0];
-        rinka.EnemyDefinitionPointer = RoomEnemySystem.RinkaDefinition;
+        rinka.EnemyDefinitionPointer = EnemyDefinitionId.Rinka;
         rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
         rinka.CurrentInstruction = initialPointer;

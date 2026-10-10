@@ -33,8 +33,8 @@ internal static partial class Program
         using var paletteStream = new MemoryStream(
             SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom), writable: false);
         EnemyTileArtworkCatalog artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
+            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
+            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream));
         var guard = new TourianEntranceStatueInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
@@ -47,7 +47,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             RoomEnemySlot slot = enemies.Slots[0];
-            slot.EnemyDefinitionPointer = RoomEnemySystem.TourianEntranceStatueDefinition;
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.TourianStatue;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
             slot.Parameter1 = parameter;
             initialize.Invoke(enemies, [slot]);

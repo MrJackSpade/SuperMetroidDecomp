@@ -32,6 +32,8 @@ dotnet_diagnostic.SYSLIB1054.severity = error
 dotnet_diagnostic.SME6271.severity = error
 # #627: a masked or shifted selector is decoded to its domain type before dispatch.
 dotnet_diagnostic.SME6272.severity = error
+# #627: an enum formatted with a numeric specifier throws; format its underlying value.
+dotnet_diagnostic.SME6273.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

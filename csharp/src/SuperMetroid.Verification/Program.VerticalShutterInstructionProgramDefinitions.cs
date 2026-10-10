@@ -29,10 +29,10 @@ internal static partial class Program
         object?[] processArguments =
             [null, null, null, (ushort)0, (ushort)0, (ushort)0];
 
-        foreach (ushort definitionPointer in new ushort[]
+        foreach (EnemyDefinitionId definitionPointer in new EnemyDefinitionId[]
                  {
-                     RoomEnemySystem.ShootableVerticalShutterDefinition,
-                     RoomEnemySystem.DestroyableVerticalShutterDefinition,
+                     EnemyDefinitionId.ShutterShootable,
+                     EnemyDefinitionId.ShutterDestroyable,
                  })
         {
             RoomEnemySlot slot = enemies.Slots[0];
@@ -43,18 +43,18 @@ internal static partial class Program
             initialize(slot);
             AssertEqual(VerticalShutterInstructionProgramDefinitions.Plain,
                 slot.CurrentInstruction,
-                $"vertical shutter ${definitionPointer:X4} installs plain program");
+                $"vertical shutter ${(int)definitionPointer:X4} installs plain program");
             processArguments[0] = slot;
             process.Invoke(enemies, processArguments);
             process.Invoke(enemies, processArguments);
             AssertEqual(unchecked((ushort)(
                     VerticalShutterInstructionProgramDefinitions.Plain + 4)),
                 slot.CurrentInstruction,
-                $"vertical shutter ${definitionPointer:X4} reaches terminal sleep");
+                $"vertical shutter ${(int)definitionPointer:X4} reaches terminal sleep");
         }
 
         RoomEnemySlot kamer = enemies.Slots[0];
-        kamer.EnemyDefinitionPointer = RoomEnemySystem.KamerVerticalPlatformDefinition;
+        kamer.EnemyDefinitionPointer = EnemyDefinitionId.Kamer;
         kamer.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         kamer.CurrentInstruction = 0;
         kamer.Parameter1 = 0x0002;
@@ -255,12 +255,12 @@ internal static partial class Program
         for (int address = 0xe996; address <= 0xe9db; address++)
             if (!known.Contains((ushort)address))
                 AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.PointerAt((ushort)address), "shutter pointer rejects mechanics and unowned neighboring programs");
-        foreach (ushort owner in new ushort[] { RoomEnemySystem.GrowingShutterDefinition, RoomEnemySystem.ShootableVerticalShutterDefinition,
-            RoomEnemySystem.DestroyableVerticalShutterDefinition, RoomEnemySystem.ShootableHorizontalShutterDefinition })
+        foreach (EnemyDefinitionId owner in new EnemyDefinitionId[] { EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable,
+            EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterHorizShootable })
             foreach (ushort operand in operands)
             {
-                bool allowed = owner == RoomEnemySystem.GrowingShutterDefinition ? operand != 0xe9d6
-                    : owner == RoomEnemySystem.ShootableHorizontalShutterDefinition ? operand == 0xe9d6 : operand == 0xe9ac;
+                bool allowed = owner == EnemyDefinitionId.ShutterGrowing ? operand != 0xe9d6
+                    : owner == EnemyDefinitionId.ShutterHorizShootable ? operand == 0xe9d6 : operand == 0xe9ac;
                 if (allowed)
                     AssertEqual(ReadVerticalShutterInstructionWord(rom, 0xa20000 | operand), ShutterVisualDefinitions.FrameAt(owner, operand), "shutter owner-specific native pointer");
                 else

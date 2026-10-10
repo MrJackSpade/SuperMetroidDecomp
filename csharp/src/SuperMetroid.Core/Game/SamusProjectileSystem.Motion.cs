@@ -556,7 +556,7 @@ public sealed partial class SamusProjectileSystem
             // exhaustive after extension redispatch. Preserve an explicit corruption guard
             // in case that representation ever changes without silently inventing carry.
             _ => throw new InvalidDataException(
-                $"Invalid missile collision type ${block.CollisionType:X2} at block {block.Index}."),
+                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
         };
     }
 

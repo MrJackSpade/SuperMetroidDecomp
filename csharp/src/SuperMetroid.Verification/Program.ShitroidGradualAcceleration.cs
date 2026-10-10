@@ -17,7 +17,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.ShitroidDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         shitroid.VariableA = (ushort)ShitroidAiFunction.RiseAfterFeeding;
@@ -47,7 +47,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == RoomEnemySystem.ShitroidDefinition);
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Samus!;
         var runMain = typeof(RoomEnemySystem).GetMethod("RunShitroidMain", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new (ushort, ushort, ushort)[]

@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One bounded segment of the ordered retail enemy-population catalog.</summary>
 public static partial class RoomEnemyPopulationDefinitions
 {
+    /// <summary>Builds the first pointer-ordered segment of compiled bank-$A1 room enemy populations, from $8000 through $966F.</summary>
+    /// <returns>The definitions in this source range, retaining each population's native placement order and death-quota byte.</returns>
     private static RoomEnemyPopulationDefinition[] BuildSegment0() =>
     [
         new(0x8000,

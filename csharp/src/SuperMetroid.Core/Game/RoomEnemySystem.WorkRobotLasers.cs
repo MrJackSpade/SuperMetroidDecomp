@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Sound-effect ID queued from library 2 when a visible Work Robot laser fires.</summary>
     private const ushort WorkRobotLaserSound = 0x0067;
 
     /// <summary>

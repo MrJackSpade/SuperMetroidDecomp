@@ -24,6 +24,10 @@ public static class PhantoonWaveTable
         }
     }
 
+    /// <summary>Scales one signed sine-table sample using the cartridge's truncated unsigned-product behavior.</summary>
+    /// <param name="phase">Byte phase used to select the native sine sample.</param>
+    /// <param name="amplitude">Wave amplitude applied to the sample before the native product-byte truncation.</param>
+    /// <returns>Signed horizontal scroll displacement for the selected wave sample.</returns>
     private static int CalculateDisplacement(ushort phase, ushort amplitude)
     {
         short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);

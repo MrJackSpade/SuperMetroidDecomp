@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One bounded segment of the retail enemy graphics-set catalog.</summary>
 public static partial class RoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>Supplies the opening bank-$B4 graphics-set lists, retaining each list's native member order.</summary>
+    /// <returns>Compiled definitions for this catalog segment in increasing pointer order.</returns>
     private static RoomEnemyGraphicsSetDefinition[] BuildSegment0() =>
     [
         new(0x8000, [

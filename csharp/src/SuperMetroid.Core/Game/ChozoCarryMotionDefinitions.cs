@@ -19,6 +19,9 @@ public static class ChozoCarryMotionDefinitions
     /// </remarks>
     private const int FootTransferAdvance = 2, FinalPlantSlide = 1;
 
+    /// <summary>Calculates one pose's 8.8 horizontal movement magnitude from the statue's support-foot stride.</summary>
+    /// <param name="local">Pose index within one 16-record facing half of the native movement table.</param>
+    /// <returns>The positive movement magnitude during the stride, or zero for stationary poses.</returns>
     private static short Magnitude(int local)
     {
         if (local is < 4 or >= 12) return 0;

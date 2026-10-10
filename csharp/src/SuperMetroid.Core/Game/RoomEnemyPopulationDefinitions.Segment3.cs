@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One bounded segment of the ordered retail enemy-population catalog.</summary>
 public static partial class RoomEnemyPopulationDefinitions
 {
+    /// <summary>Builds the final ascending-pointer block of compiled bank-$A1 room populations.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment3() =>
     [
         new(0xd3aa,

@@ -136,6 +136,8 @@ public sealed partial class RoomEnemySystem
             projectiles);
     }
 
+    /// <summary>Consumes the first eligible beam, missile, or super shot overlapping a tail joint and spawns its native dust response at the joint.</summary>
+    /// <returns><see langword="true"/> when a projectile is snapped to the joint and consumed; otherwise <see langword="false"/>.</returns>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
         ushort radius,

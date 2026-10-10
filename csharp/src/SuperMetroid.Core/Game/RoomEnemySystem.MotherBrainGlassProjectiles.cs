@@ -124,6 +124,13 @@ public sealed partial class RoomEnemySystem
         sparkle.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
     }
 
+    /// <summary>
+    /// Reads a signed 8.8 sample from the negative-cosine/full-sine table and preserves its
+    /// two's-complement bits in the unsigned word used for projectile velocity.
+    /// </summary>
+    /// <param name="index">Index in the 320-word table, including any caller-selected quarter-turn offset.</param>
+    /// <returns>The signed sample reinterpreted as an unsigned velocity word.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the table's 0 through 319 word range.</exception>
     private static ushort ReadSignedSineSample(int index) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(index));
 }

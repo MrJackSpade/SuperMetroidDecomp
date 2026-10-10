@@ -14,6 +14,9 @@ public sealed partial class RoomEnemySystem
         return colors.Resolve(source, index);
     }
 
+    /// <summary>Copies one 16-color RGB5 band from Kraid's installed palette catalog into CGRAM.</summary>
+    /// <param name="source">The named Kraid palette containing the band to load.</param>
+    /// <param name="cgramDestination">The first CGRAM color slot that receives the band.</param>
     private void LoadKraidColorBand(KraidPaletteSource source, int cgramDestination)
     {
         for (int color = 0; color < KraidPaletteRomData.BandColors; color++)

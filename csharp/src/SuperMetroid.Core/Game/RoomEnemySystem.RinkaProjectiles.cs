@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Native dust-animation table index three selects the Rinka death cloud instruction list at $86:E138.</summary>
     private const ushort RinkaDustAnimationIndex = 3;
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     private void SpawnRinkaDustExplosion(ushort xPosition, ushort yPosition)

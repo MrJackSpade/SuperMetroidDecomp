@@ -44,6 +44,11 @@ internal abstract class PlatformInstructionProgramDefinitions
             (false, false, true) => TripperStillMovingLeft,
             (false, false, false) => TripperStillMovingRight,
         };
+    /// <summary>
+    /// Identifies one of the four spritemap-pointer operands in any compiled Tripper or Kamer program.
+    /// </summary>
+    /// <param name="address">The bank-local instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address is a presentation operand rather than a mechanics word.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - KamerMovingLeft;

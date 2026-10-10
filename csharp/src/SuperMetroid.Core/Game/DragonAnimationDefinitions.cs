@@ -56,6 +56,9 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector selector) =>
         (DragonAnimationSelector)(RequireLiveIndex(selector) & 1);
 
+    /// <summary>Validates a live animation phase before pair arithmetic is applied.</summary>
+    /// <param name="selector">Selector value that must identify one of the six installed Dragon programs.</param>
+    /// <returns>The selector's zero-based instruction-list table ordinal.</returns>
     private static int RequireLiveIndex(DragonAnimationSelector selector)
     {
         int index = (int)selector;

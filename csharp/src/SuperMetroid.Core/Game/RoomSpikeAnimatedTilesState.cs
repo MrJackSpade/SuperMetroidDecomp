@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Horizontal spikes selected by the room FX animation bitset, including Crocomire's left wall.</summary>
 public sealed class RoomSpikeAnimatedTilesState
 {
+    /// <summary>Retains the selected horizontal-spike object's bank-$87 instruction, timer, and pending frame-transfer state.</summary>
     private readonly RoomFxAnimatedTilesState animation = new();
 
     /// <summary>Replaces the previous room's animation using the selected door-specific FX record.</summary>

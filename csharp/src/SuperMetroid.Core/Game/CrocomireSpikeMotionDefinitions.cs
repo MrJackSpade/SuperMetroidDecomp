@@ -44,6 +44,11 @@ internal static class CrocomireSpikeMotionDefinitions
         return (byte)(slot < 10 ? pairedRamp : Math.Max(pairedRamp, 6 - groupSlot));
     }
 
+    /// <summary>
+    /// Enforces the eighteen-entry physical-slot range shared by Crocomire spike motion tables.
+    /// </summary>
+    /// <param name="slot">Zero-based physical spike slot.</param>
+    /// <exception cref="IndexOutOfRangeException">The slot is outside 0 through 17.</exception>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= 18)

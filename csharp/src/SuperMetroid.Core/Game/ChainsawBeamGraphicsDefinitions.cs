@@ -22,6 +22,9 @@ internal static class ChainsawBeamGraphicsDefinitions
         0x19, 0xc9, 0x4e, 0x00, 0xf0, 0x14, 0xad,
     ];
 
+    /// <summary>Loads the sixteen chainsaw-beam CGRAM colors by replaying the native indirect-read instruction prefix.</summary>
+    /// <param name="bus">Address space supplying bytes read by the emulated Samus animation instruction sequence.</param>
+    /// <param name="cgram">Palette memory receiving the colors at the native beam destination indices.</param>
     internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)

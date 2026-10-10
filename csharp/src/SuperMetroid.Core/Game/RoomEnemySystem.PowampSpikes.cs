@@ -73,6 +73,7 @@ public sealed partial class RoomEnemySystem
             BeginPowampSpikeDeletion(spike);
     }
 
+    /// <summary>Queues the spike's shared delete instruction for the interpreter to consume during this frame.</summary>
     private static void BeginPowampSpikeDeletion(RoomEnemyProjectileSlot spike)
     {
         // The list contains the common delete opcode as its first word. Installing timer

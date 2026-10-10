@@ -76,6 +76,8 @@ public enum DraygonAiFunction : ushort
 /// </summary>
 public sealed class DraygonEnemyState
 {
+    /// <summary>Creates encounter-wide state anchored to Draygon's native body slot.</summary>
+    /// <param name="body">Physical body record that owns movement, health, and the shared AI function.</param>
     internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Native enemy slot $0000, which owns encounter movement, health, and the body-function dispatcher.</summary>

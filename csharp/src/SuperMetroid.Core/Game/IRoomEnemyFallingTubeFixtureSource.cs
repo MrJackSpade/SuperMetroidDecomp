@@ -7,5 +7,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal interface IRoomEnemyFallingTubeFixtureSource
 {
+    /// <summary>Supplies a constructed falling-tube population record for an authored fixture bus.</summary>
+    /// <param name="pointer">Native population-record pointer selected by the Mother Brain cutscene.</param>
+    /// <returns>The eight-word population record associated with the pointer.</returns>
     RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer);
 }

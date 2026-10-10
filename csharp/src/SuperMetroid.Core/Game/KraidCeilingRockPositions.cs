@@ -29,6 +29,9 @@ public static class KraidCeilingRockPositions
     // Alternate the left (columns2..6) and right (10..13) ceiling gaps.
     // Within each gap, take rightmost then leftmost remaining blocks inward.
     // Native rocks originate at the selected block center, eight pixels in.
+    /// <summary>Resolves a packed table slot to its rock-center X coordinate or adjacent callback word.</summary>
+    /// <param name="index">Zero-based word slot in the compiled placement data; slot nine is the following callback.</param>
+    /// <returns>The selected rock's horizontal center in pixels, or the retained callback pointer for slot nine.</returns>
     private static ushort Word(int index)
     {
         if (index == 9) return FollowingCallback;

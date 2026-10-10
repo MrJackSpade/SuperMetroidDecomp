@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One bounded segment of the ordered retail enemy-population catalog.</summary>
 public static partial class RoomEnemyPopulationDefinitions
 {
+    /// <summary>Builds the second portion of the ordered retail room-enemy population catalog.</summary>
+    /// <returns>This segment's population definitions in their native catalog order.</returns>
     private static RoomEnemyPopulationDefinition[] BuildSegment2() =>
     [
         new(0xb259,

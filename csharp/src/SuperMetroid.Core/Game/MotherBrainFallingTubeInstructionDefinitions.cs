@@ -43,6 +43,10 @@ public static class MotherBrainFallingTubeInstructionDefinitions
         return MotherBrainVisualDefinitions.TubeFrame(index).Pointer;
     }
 
+    /// <summary>Locates an aligned word within the five fixed falling-tube instruction lists.</summary>
+    /// <param name="address">Bank-local instruction address to classify.</param>
+    /// <returns>The list ordinal and the word's byte offset within that list.</returns>
+    /// <exception cref="InvalidDataException">The address is outside the lists or is not word-aligned.</exception>
     private static (int Index, int Field) Locate(ushort address)
     {
         int offset = address - FirstList;

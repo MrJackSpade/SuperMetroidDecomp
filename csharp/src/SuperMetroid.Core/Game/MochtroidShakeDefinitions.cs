@@ -7,6 +7,11 @@ internal static class MochtroidShakeDefinitions
     /// Axis and sign derive from the timer; the amplitude is an authored scalar (see residualScalarInputsReview).</summary>
     private const int Amplitude = 2;
 
+    /// <summary>
+    /// Selects the two-pixel cardinal shake vector encoded by timer bits one and two.
+    /// </summary>
+    /// <param name="timer">The shake timer whose direction bits choose the horizontal or vertical sign.</param>
+    /// <returns>The frame's horizontal and vertical pixel displacement; exactly one axis is nonzero.</returns>
     internal static (int X, int Y) Offset(ushort timer)
     {
         int direction = (timer & 6) >> 1;

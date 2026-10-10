@@ -40,6 +40,11 @@ public static class EnemyQuadraticSpeedDefinitions
         return (whole << 16) | fraction;
     }
 
+    /// <summary>
+    /// Derives one table byte from its record's triangular velocity and native truncated fraction, including the signed half.
+    /// </summary>
+    /// <param name="offset">Zero-based byte position within the concatenated eight-byte speed records.</param>
+    /// <returns>The selected little-endian byte of the positive or negative 16.16 velocity.</returns>
     private static byte ReadByte(int offset)
     {
         int record = offset / RecordSize;

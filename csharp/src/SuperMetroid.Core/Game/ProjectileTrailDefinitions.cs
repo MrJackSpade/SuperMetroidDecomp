@@ -57,6 +57,10 @@ public static class ProjectileTrailDefinitions
         return Select(index % 39, right: index >= 39);
     }
 
+    /// <summary>Selects the native trail instruction list for one projectile-family slot and side.</summary>
+    /// <param name="selection">Projectile-family or SBA selection index within the 39-entry selector table.</param>
+    /// <param name="right">Whether to resolve the right-trail table's variant.</param>
+    /// <returns>The selected trail instruction-list pointer, or the empty-list pointer when no trail applies.</returns>
     private static ushort Select(int selection, bool right)
     {
         if (selection >= MissileSelection)

@@ -9,6 +9,11 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_Delete</c> at $86:84FC.</summary>
     internal const ushort Delete = 0x84fc;
+
+    /// <summary>Resolves the shared bank-$86 projectile-delete instruction to its compiled instruction pointer.</summary>
+    /// <param name="address">Bank-local instruction address to check.</param>
+    /// <param name="value">Receives the compiled delete instruction pointer when this definition owns the address.</param>
+    /// <returns><see langword="true"/> only for <see cref="Delete"/>; otherwise, <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Delete)

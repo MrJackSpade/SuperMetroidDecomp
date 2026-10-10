@@ -26,6 +26,7 @@ public static class PhantoonCasualFlameDefinitions
     /// <param name="pattern">Native selector 0..3. Direct construction assumes a valid selector; <see cref="Pattern"/> validates it.</param>
     public readonly struct Schedule(int pattern) : IReadOnlyList<ushort>
     {
+        /// <summary>Maps the native selector to the burst rank used to derive flame count and uniform interval duration.</summary>
         private int BurstRank => pattern == 0 ? 2 : pattern == 1 ? 1 : 3;
         /// <summary>Number of stored words, including the two header words; not the number of flames.</summary>
         public int Count => 2 * BurstRank + 3;

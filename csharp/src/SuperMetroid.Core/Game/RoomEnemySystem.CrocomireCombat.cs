@@ -116,6 +116,10 @@ public sealed partial class RoomEnemySystem
         body.AiHandlerBits |= 0x0002;
     }
 
+    /// <summary>Spawns Crocomire's hit-dust effect at the projectile impact, using the Super Missile-specific animation when applicable.</summary>
+    /// <param name="projectileType">Projectile family used to choose the dust animation.</param>
+    /// <param name="projectileX">Horizontal impact coordinate.</param>
+    /// <param name="projectileY">Vertical impact coordinate.</param>
     private void SpawnCrocomireShotDust(
         SamusProjectileTypeWord projectileType,
         ushort projectileX,

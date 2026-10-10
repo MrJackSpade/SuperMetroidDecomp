@@ -33,6 +33,10 @@ public sealed partial class RoomEnemySystem
             samus.WritePreviousXPosition(cappedX);
     }
 
+    /// <summary>Clamps a camera checkpoint to twelve pixels from the current coordinate when movement reaches the cap.</summary>
+    /// <param name="position">Current Samus coordinate on one scrolling axis.</param>
+    /// <param name="previous">Frame-start checkpoint coordinate for the same axis.</param>
+    /// <returns>The wrapped checkpoint twelve pixels beyond the current coordinate in the movement direction, or <see langword="null"/> below the cap.</returns>
     private static ushort? CappedPreviousPosition(ushort position, ushort previous)
     {
         ushort delta = unchecked((ushort)(position - previous));

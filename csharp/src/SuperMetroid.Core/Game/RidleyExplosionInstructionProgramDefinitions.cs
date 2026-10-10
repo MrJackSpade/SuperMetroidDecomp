@@ -8,6 +8,10 @@ internal abstract class RidleyExplosionInstructionProgramDefinitions
     /// <summary>The 29 native six-byte lists ending at $A6:CAEF.</summary>
     internal const int ProgramCount = 29;
 
+    /// <summary>Returns the compiled duration or sleep mechanics word within a Ridley breakup instruction list.</summary>
+    /// <param name="address">Bank-local instruction address in one of the 29 six-byte lists.</param>
+    /// <returns>One at each list's duration word or the shared sleep opcode at its sleep word.</returns>
+    /// <exception cref="InvalidDataException">The address is outside the compiled lists or does not identify a mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - First;

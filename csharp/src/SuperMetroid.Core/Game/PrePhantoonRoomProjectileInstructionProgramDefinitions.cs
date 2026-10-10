@@ -15,6 +15,10 @@ internal static class PrePhantoonRoomProjectileInstructionProgramDefinitions
     /// <summary><c>Instruction_EnemyProjectile_Delete</c> at $86:A3AE.</summary>
     private const ushort DeleteCommand = 0xa3ae;
 
+    /// <summary>Decodes the hold-duration or delete command from the pre-Phantoon projectile instruction list.</summary>
+    /// <param name="address">Bank-$86 address of a compiled mechanics word.</param>
+    /// <returns>The hold duration or resolved delete-instruction pointer at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not one of the list's compiled mechanics words.</exception>
     internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
         Initial => HoldFrames,

@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RoomTreadmillAnimatedTilesState
 {
+    /// <summary>Tracks the runtime state for each treadmill animation selected from the room's FX bitset.</summary>
     private readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>

@@ -20,6 +20,13 @@ internal abstract class MochtroidInstructionProgramDefinitions
     /// collision radii do not follow these poses. Only this visual tempo is retained.</summary>
     private const ushort AttachedPulseTicks = 5;
 
+    /// <summary>
+    /// Resolves a word in either compiled animation loop to its pulse delay, goto opcode,
+    /// or loop-back address.
+    /// </summary>
+    /// <param name="address">Bank-local address of a mechanics word in the free-flight or attached loop.</param>
+    /// <returns>The supported engine-control word stored at <paramref name="address"/>.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a supported mechanics word in either loop.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FreeFlight;

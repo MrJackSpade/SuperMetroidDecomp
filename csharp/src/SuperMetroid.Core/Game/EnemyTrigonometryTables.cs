@@ -99,6 +99,8 @@ public static class EnemyTrigonometryTables
     // 1e-19 covers that remainder, decimal rounding and the 28-place pi constant.
     // Full-domain ROM proofs establish both scales' exact integer results. This
     // allocation-free recurrence avoids libm and per-sample correction constants.
+    /// <summary>Evaluates sin(index*pi/128) for indices 0 through 127 using a reflected first-quadrant decimal series with exact endpoint values.</summary>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the half-wave table range.</exception>
     internal static decimal UnitHalfWave(int index)
     {
         if ((uint)index >= 128) throw new IndexOutOfRangeException();

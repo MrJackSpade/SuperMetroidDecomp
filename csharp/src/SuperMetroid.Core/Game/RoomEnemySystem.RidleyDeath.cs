@@ -11,6 +11,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
 
+    /// <summary>Begins Ridley's death state once health reaches zero, without reinitializing an active death sequence.</summary>
+    /// <param name="body">Ridley's live enemy slot, whose Samus collision is disabled when death begins.</param>
+    /// <param name="state">Ridley's fight state, updated to the Samus-release phase on the first transition.</param>
     private static void StartNorfairRidleyDeathSequence(
         RoomEnemySlot body,
         RidleyEnemyState state)

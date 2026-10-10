@@ -63,6 +63,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Converts a cartridge angle into X/Y velocity words using signed sine and negative-cosine samples scaled by Crocomire's native multiplier.</summary>
     private static (ushort X, ushort Y) CalculateCrocomireProjectileVelocity(byte angle)
     {
         // Preserve the two native word shifts, including negative two's-complement bits.

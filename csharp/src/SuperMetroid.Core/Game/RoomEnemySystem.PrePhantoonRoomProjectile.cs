@@ -6,6 +6,8 @@ public sealed partial class RoomEnemySystem
     [NonSerialized]
     private BackgroundScrollState? _enemyProjectileBackgroundScroll;
 
+    /// <summary>Gets the runtime background-scroll state used by enemy projectile updates.</summary>
+    /// <exception cref="InvalidOperationException">The projectile pass has no bound background-scroll state.</exception>
     private BackgroundScrollState RequireEnemyProjectileBackgroundScroll() =>
         _enemyProjectileBackgroundScroll ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile requires the runtime's background scroll words.");

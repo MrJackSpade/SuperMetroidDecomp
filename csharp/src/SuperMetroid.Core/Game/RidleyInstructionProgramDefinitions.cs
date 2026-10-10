@@ -77,6 +77,7 @@ internal abstract class RidleyInstructionProgramDefinitions
     /// <summary>Native program bank $A6.</summary>
     internal const byte Bank = 0xa6;
 
+    /// <summary>Address-ordered layout of Ridley's compiled instruction words, distinguishing mechanics from live visual operands.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe538),
         Entry(Initial),

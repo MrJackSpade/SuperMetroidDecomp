@@ -47,6 +47,7 @@ public sealed partial class RoomEnemySystem
             state.TailFunctionIndex = RidleyTailDefinitions.Stab;
     }
 
+    /// <summary>Chooses the pogo tail's whip or next stab action from segment activity, Ridley's motion, and Samus's position.</summary>
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&

@@ -9,6 +9,7 @@ public static class PhantoonPathDefinitions
     // Compact lossless direction notation: numeric keypad with screen Y increasing
     // downwards. 8=N, 6=E, 2=S, 4=W; 7/9/1/3 are NW/NE/SW/SE.
     // Rows are formatting only; the native cursor advances across row boundaries.
+    /// <summary>One keypad digit per native signed unit step through Phantoon's authored path.</summary>
     private const string Directions =
         "8686898686886868688686868686886868686868668686868668668668668666" +
         "6866666666663666626662662663636266262662626263333262626226226226" +

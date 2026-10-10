@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
+    /// <summary>Compiled auxiliary enemy headers keyed by native pointer for runtime-created actors missing from ordinary room populations.</summary>
     private static readonly Dictionary<ushort, RoomEnemyDefinition> Definitions =
         new Dictionary<ushort, RoomEnemyDefinition>
     {

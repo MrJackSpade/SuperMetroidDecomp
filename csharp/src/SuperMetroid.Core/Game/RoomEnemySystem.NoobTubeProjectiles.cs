@@ -21,12 +21,12 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyProjectileKind kind = request.DefinitionPointer switch
         {
-            NoobTubePlmRomData.CrackProjectile => RoomEnemyProjectileKind.NoobTubeCrack,
-            NoobTubePlmRomData.ShardProjectile => RoomEnemyProjectileKind.NoobTubeShard,
-            NoobTubePlmRomData.ReleasedAirBubbleProjectile =>
+            NoobTubeProjectileDefinition.Crack => RoomEnemyProjectileKind.NoobTubeCrack,
+            NoobTubeProjectileDefinition.Shard => RoomEnemyProjectileKind.NoobTubeShard,
+            NoobTubeProjectileDefinition.ReleasedAirBubble =>
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
-            _ => throw new InvalidDataException(
-                $"N00b tube requested unknown enemy projectile $86:{request.DefinitionPointer:X4}."),
+            _ => throw new InvalidOperationException(
+                $"Undefined n00b-tube projectile definition {request.DefinitionPointer}."),
         };
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -109,9 +109,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort cameraY)
     {
-        switch (projectile.PreInstruction)
+        NoobTubeProjectilePreInstruction preInstruction =
+            ClosedNativeWords.Decode<NoobTubeProjectilePreInstruction>(
+                projectile.PreInstruction, "n00b-tube projectile pre-instruction");
+        switch (preInstruction)
         {
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering:
+            case NoobTubeProjectilePreInstruction.CrackFlickering:
                 if (projectile.XPosition != NoobTubeProjectileRomData.HiddenXPosition)
                     projectile.Variable0 = projectile.XPosition;
                 projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
@@ -119,14 +122,14 @@ public sealed partial class RoomEnemySystem
                     : projectile.Variable0;
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling:
+            case NoobTubeProjectilePreInstruction.CrackFalling:
                 (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
                     projectile.YPosition,
                     projectile.YSubposition,
                     NoobTubeProjectileRomData.CrackFallVelocity);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFlying:
+            case NoobTubeProjectilePreInstruction.ShardFlying:
                 (projectile.Variable1, projectile.Variable0) = AddEightBitVelocity(
                     projectile.Variable1,
                     projectile.Variable0,
@@ -138,7 +141,7 @@ public sealed partial class RoomEnemySystem
                 DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling:
+            case NoobTubeProjectilePreInstruction.ShardFalling:
                 MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
                 (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
                     projectile.YPosition,
@@ -147,20 +150,20 @@ public sealed partial class RoomEnemySystem
                 DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling:
+            case NoobTubeProjectilePreInstruction.BubbleFalling:
                 // `$86:D89F` performs only the curved horizontal update before falling
                 // through to `$D8DF`, which applies the bubble's vertical velocity once.
                 MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 4);
                 MoveNoobTubeBubbleVertically(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying:
+            case NoobTubeProjectilePreInstruction.BubbleFlying:
                 MoveNoobTubeBubbleVertically(projectile);
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"N00b-tube projectile has invalid pre-instruction $86:{projectile.PreInstruction:X4}.");
+                throw new InvalidOperationException(
+                    $"Undefined n00b-tube projectile pre-instruction {preInstruction}.");
         }
     }
 

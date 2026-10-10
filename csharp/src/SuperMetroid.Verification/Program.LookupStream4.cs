@@ -30,11 +30,11 @@ internal static partial class Program
                 colors.Add(Word(0x8d0000 | cursor));
                 cursor += 2;
             }
-            AssertEqual(PaletteFxInstructionCodes.Wait, Word(0x8d0000 | cursor), "Native foreground wait");
+            AssertEqual((ushort)PaletteFxInstruction.Wait, Word(0x8d0000 | cursor), "Native foreground wait");
             cursor += 2;
             rows.Add((duration, colors.ToArray()));
         }
-        AssertEqual(PaletteFxInstructionCodes.Delete, Word(0x8d0000 | cursor), "Native foreground delete");
+        AssertEqual((ushort)PaletteFxInstruction.Delete, Word(0x8d0000 | cursor), "Native foreground delete");
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = new PaletteFxMechanicsForbiddenBus(rom);
         var fx = new RoomPaletteFxSystem();
@@ -134,11 +134,11 @@ internal static partial class Program
                     colors.Add(Word(0x8d0000 | cursor));
                     cursor += 2;
                 }
-                AssertEqual(PaletteFxInstructionCodes.Wait, Word(0x8d0000 | cursor), "Native ambient record wait");
+                AssertEqual((ushort)PaletteFxInstruction.Wait, Word(0x8d0000 | cursor), "Native ambient record wait");
                 cursor += 2;
                 nativeRows.Add((duration, colors.ToArray()));
             }
-            AssertEqual(PaletteFxInstructionCodes.Goto, Word(0x8d0000 | cursor), "Native ambient terminal loop");
+            AssertEqual((ushort)PaletteFxInstruction.Goto, Word(0x8d0000 | cursor), "Native ambient terminal loop");
             AssertEqual((ushort)(nativeProgram + 4), Word(0x8d0000 | cursor + 2), "Native ambient loop target");
             AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
@@ -645,7 +645,7 @@ internal static partial class Program
                 AssertEqual(Word(pointer), definition.Duration, "required native cadence");
                 pointer += 2;
                 int color = 0;
-                while (Word(pointer) != PaletteFxInstructionCodes.Wait)
+                while (Word(pointer) != (ushort)PaletteFxInstruction.Wait)
                 {
                     AssertEqual((ushort)pointer, definition.ColorPointer(frame, color), "native color identity");
                     color++; colors++; pointer += 2;
@@ -655,7 +655,7 @@ internal static partial class Program
             }
             AssertEqual(definition.FrameCount, frame, "native rotation cycle extent");
             AssertEqual((ushort)pointer, definition.LoopInstructionPointer, "native loop opcode location");
-            AssertEqual(PaletteFxInstructionCodes.Goto, Word(pointer), "native goto identity");
+            AssertEqual((ushort)PaletteFxInstruction.Goto, Word(pointer), "native goto identity");
             AssertEqual(definition.FirstFramePointer, Word(pointer + 2), "native loop target");
             AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(-1), "negative frame rejection");
             AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(frame), "exhausted frame rejection");
@@ -1214,7 +1214,7 @@ internal static partial class Program
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (int phase = 0; phase < 4; phase++)
-            AssertEqual(Word(0xa6acda + phase * 2), CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
+            AssertEqual(Word(0xa6acda + phase * 2), (ushort)CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
@@ -1970,11 +1970,11 @@ internal static partial class Program
             AssertEqual(Word(0xa6c6ce + parameter), actual.Lifetime, "stream4 native breakup lifetime");
         }
         for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(Word(0xa6c7ba + 2 * orientation), RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionParts.TailTip, orientation), "stream4 native tail-tip orientation program");
+            AssertEqual(Word(0xa6c7ba + 2 * orientation), RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionPart.TailTip, orientation), "stream4 native tail-tip orientation program");
         foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.GetPart(invalid), "stream4 invalid breakup parameter");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionParts.TailTip, invalid), "stream4 invalid tail-tip orientation");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
     }
     private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
     {

@@ -287,23 +287,26 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
+        // The shared interpreter hands every remaining negative word here; only the
+        // statue's opcodes belong to this handler.
+        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo ||
+            !Enum.IsDefined((ChozoStatueInstruction)opcode))
             return false;
 
         ChozoStatueState state = RequireChozoStatueState(statue);
-        switch (opcode)
+        switch ((ChozoStatueInstruction)opcode)
         {
-            case ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY:
+            case ChozoStatueInstruction.CommonAA_Enemy0FB2_InY:
                 state.PreInstruction = (ChozoStatuePreInstruction)ReadChozoInstructionOperand(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS:
+            case ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS:
                 state.PreInstruction = ChozoStatuePreInstruction.Cleared;
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_StartLoweringAcid:
+            case ChozoStatueInstruction.Chozo_StartLoweringAcid:
                 ChozoStatueFxTimer = ChozoStatueFxData.LoweringDelay;
                 ChozoStatueFxYVelocity = ChozoStatueFxData.LoweringVelocity;
                 // Native AI writes the same FX words consumed by the liquid handler.
@@ -314,32 +317,32 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_SetLoweredAcidPosition:
+            case ChozoStatueInstruction.Chozo_SetLoweredAcidPosition:
                 ChozoStatueFxBaseYPosition = ChozoStatuePlmRomData.LoweredAcidY;
                 _roomFx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueFxBaseYPosition);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_UnlockSamus:
+            case ChozoStatueInstruction.Chozo_UnlockSamus:
                 SetChozoStatueSamusControls(enabled: true);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoGrabsSamusSFX:
+            case ChozoStatueInstruction.Chozo_PlayChozoGrabsSamusSFX:
                 LastChozoStatueSoundEffect = 0x001c;
                 QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX:
+            case ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX:
                 LastChozoStatueSoundEffect = 0x004b;
                 QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_SpawnChozoSpikeClearingFootstepProjectile:
+            case ChozoStatueInstruction.Chozo_SpawnChozoSpikeClearingFootstepProjectile:
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
@@ -347,7 +350,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY:
+            case ChozoStatueInstruction.Chozo_Movement_IndexInY:
                 ProcessChozoStatueMovement(
                     statue,
                     state,
@@ -357,13 +360,13 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case ChozoStatueInstructionCodes.Instruction_Chozo_ReleaseSamus_BlockSlopeAccess:
+            case ChozoStatueInstruction.Chozo_ReleaseSamus_BlockSlopeAccess:
                 FinishWreckedShipChozoSequence();
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined Chozo statue instruction ${opcode:X4}.");
         }
     }
 

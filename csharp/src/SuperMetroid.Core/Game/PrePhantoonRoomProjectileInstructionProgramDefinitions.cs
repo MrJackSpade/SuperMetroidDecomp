@@ -15,10 +15,11 @@ internal static class PrePhantoonRoomProjectileInstructionProgramDefinitions
     /// <summary><c>Instruction_EnemyProjectile_Delete</c> at $86:A3AE.</summary>
     private const ushort DeleteCommand = 0xa3ae;
 
-    internal static ushort ReadMechanicsWord(ushort address) => address switch
+    /// <summary>Resolves one control word by its byte position from <see cref="Initial"/>.</summary>
+    internal static ushort ReadMechanicsWord(ushort address) => (address - Initial) switch
     {
-        Initial => HoldFrames,
-        DeleteCommand => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        0 => HoldFrames,
+        DeleteCommand - Initial => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
         _ => throw new InvalidDataException(
             $"Pre-Phantoon room projectile mechanics pointer $86:{address:X4} is not compiled."),
     };

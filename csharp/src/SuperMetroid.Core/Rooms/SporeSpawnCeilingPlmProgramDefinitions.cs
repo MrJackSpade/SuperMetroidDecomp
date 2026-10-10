@@ -33,15 +33,17 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
                 return true;
             }
         }
-        value = address switch
+        // Word positions are byte offsets from Crumble; the clear list starts at Clear.
+        ushort? word = (address - Crumble) switch
         {
-            Crumble => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-            Clear => FrameDuration,
-            Clear + 2 => SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
-            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
-            _ => 0,
+            0 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            Clear - Crumble => FrameDuration,
+            Clear + 2 - Crumble => SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
+            Clear + 4 - Crumble => (ushort)RoomPlmInstruction.Delete,
+            _ => null,
         };
-        return address is Crumble or Clear or Clear + 2 or Clear + 4;
+        value = word ?? 0;
+        return word.HasValue;
     }
 
     internal static bool TryReadMechanicsByte(ushort address, out byte value)

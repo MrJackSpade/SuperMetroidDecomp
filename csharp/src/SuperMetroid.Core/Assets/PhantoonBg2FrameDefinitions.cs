@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Eight mutually exclusive compass gaze directions selected at $A7:CCA7..CCD6.</summary>
@@ -19,16 +21,6 @@ internal static class PhantoonBg2FrameDefinitions
     internal const int MaximumComponents = 2;
     /// <summary>Phantoon's extended frames and BG2 streams reside in bank $A7.</summary>
     internal const byte Bank = 0xa7;
-    /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
-    internal const ushort BodyFullHitbox = 0xdee7;
-    /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>
-    internal const ushort BodyEyeHitboxOnly = 0xdef1;
-    /// <summary>First two-component tentacle frame, $A7:DFB3.</summary>
-    internal const ushort Tentacles0 = 0xdfb3;
-    /// <summary>Second two-component tentacle frame, $A7:DFC5.</summary>
-    internal const ushort Tentacles1 = 0xdfc5;
-    /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
-    internal const ushort Tentacles2 = 0xdfd7;
 
     /// <summary>$A7:DEDD, first one-component body/eye frame; sixteen selected roots.</summary>
     private const ushort BodyEyeStart = 0xdedd;
@@ -45,7 +37,7 @@ internal static class PhantoonBg2FrameDefinitions
     {
         if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
         ushort pointer = (ushort)(index < 16 ? BodyEyeStart + 10 * index
-            : index < 19 ? Tentacles0 + 18 * (index - 16)
+            : index < 19 ? (ushort)PhantoonCollisionFrame.Tentacles0 + 18 * (index - 16)
             : MouthStart + 10 * (index - 19));
         string name = index switch
         {
@@ -102,7 +94,7 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>$A7:DFE9/DFF3/DFFD, the three mouth poses from rest to flame release.</summary>
     internal static ushort MouthPose(int phase) => (uint)phase < 3 ? Frame(19 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
     internal static bool IsFrame(ushort pointer) => InRun(pointer, BodyEyeStart, 16, 10) ||
-        InRun(pointer, Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
+        InRun(pointer, (ushort)PhantoonCollisionFrame.Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
 
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {

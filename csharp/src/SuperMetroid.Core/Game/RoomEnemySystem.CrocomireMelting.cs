@@ -12,7 +12,7 @@ public sealed partial class RoomEnemySystem
     private void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
         ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingArtworkAddresses.FirstTilemap);
+            CrocomireMeltingTilemapAddress.FirstTilemap);
         StartCrocomireMeltingTilemap(state, CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
@@ -43,7 +43,7 @@ public sealed partial class RoomEnemySystem
     private void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
         ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingArtworkAddresses.SecondTilemap);
+            CrocomireMeltingTilemapAddress.SecondTilemap);
         FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
         StartCrocomireMeltingTilemap(state, CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
         // $A4:940E-941D clears the first $800 bytes.
@@ -52,7 +52,7 @@ public sealed partial class RoomEnemySystem
 
     // Resolve the complete resource before advancing the phase or touching actors,
     // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
-    private ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(int tilemapAddress) =>
+    private ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingTilemapAddress tilemapAddress) =>
         (TileArtwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
 

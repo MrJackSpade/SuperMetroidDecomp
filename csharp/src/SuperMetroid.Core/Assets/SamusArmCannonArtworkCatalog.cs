@@ -249,6 +249,125 @@ public sealed record SamusArmCannonArtworkDocument
 /// <summary>Bounded retail arm-cannon visual geometry, separate from open/close mechanics.</summary>
 public static class SamusArmCannonArtworkFormat
 {
+    /// <summary>Bank-$90 arm-cannon drawing descriptors selected by Samus pose.</summary>
+    private enum ArmCannonDrawing : ushort
+    {
+        /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingForward = 0xc9db,
+        /// <summary>$90:C9DD, ArmCannonDrawingData_FacingRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRight = 0xc9dd,
+        /// <summary>$90:C9F1, ArmCannonDrawingData_FacingLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeft = 0xc9f1,
+        /// <summary>$90:CA05, ArmCannonDrawingData_FacingRight_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightAimingUp = 0xca05,
+        /// <summary>$90:CA0D, ArmCannonDrawingData_FacingLeft_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftAimingUp = 0xca0d,
+        /// <summary>$90:CA15, ArmCannonDrawingData_FacingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightAimingUpRight = 0xca15,
+        /// <summary>$90:CA19, ArmCannonDrawingData_FacingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftAimingUpLeft = 0xca19,
+        /// <summary>$90:CA1D, ArmCannonDrawingData_FacingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightAimingDownRight = 0xca1d,
+        /// <summary>$90:CA21, ArmCannonDrawingData_FacingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftAimingDownLeft = 0xca21,
+        /// <summary>$90:C9D9, ArmCannonDrawingData_Default: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        Default = 0xc9d9,
+        /// <summary>$90:CA25, ArmCannonDrawingData_MovingRight_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingRightGunExtended = 0xca25,
+        /// <summary>$90:CA3B, ArmCannonDrawingData_MovingLeft_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingLeftGunExtended = 0xca3b,
+        /// <summary>$90:CA51, ArmCannonDrawingData_MovingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingRightAimingUpRight = 0xca51,
+        /// <summary>$90:CA67, ArmCannonDrawingData_MovingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingLeftAimingUpLeft = 0xca67,
+        /// <summary>$90:CA7D, ArmCannonDrawingData_MovingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingRightAimingDownRight = 0xca7d,
+        /// <summary>$90:CA93, ArmCannonDrawingData_MovingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        MovingLeftAimingDownLeft = 0xca93,
+        /// <summary>$90:CAA9, ArmCannonDrawingData_FacingRight_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpNotMovingGunExt = 0xcaa9,
+        /// <summary>$90:CAAF, ArmCannonDrawingData_FacingLeft_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpNotMovingGunExt = 0xcaaf,
+        /// <summary>$90:CAB5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpAimingUp = 0xcab5,
+        /// <summary>$90:CABD, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpAimingUp = 0xcabd,
+        /// <summary>$90:CAC5, ArmCannonDrawingData_FacingRight_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpAimingDown = 0xcac5,
+        /// <summary>$90:CACB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpAimingDown = 0xcacb,
+        /// <summary>$90:CB5D, ArmCannonDrawingData_FacingRight_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightCrouching = 0xcb5d,
+        /// <summary>$90:CB71, ArmCannonDrawingData_FacingLeft_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftCrouching = 0xcb71,
+        /// <summary>$90:CB1D, ArmCannonDrawingData_FacingRight_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightFallingAimingUp = 0xcb1d,
+        /// <summary>$90:CB27, ArmCannonDrawingData_FacingLeft_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftFallingAimingUp = 0xcb27,
+        /// <summary>$90:CB31, ArmCannonDrawingData_FacingRight_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightFallingAimingDown = 0xcb31,
+        /// <summary>$90:CB37, ArmCannonDrawingData_FacingLeft_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftFallingAimingDown = 0xcb37,
+        /// <summary>$90:CBA5, ArmCannonDrawingData_FacingLeft_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftMoonwalk = 0xcba5,
+        /// <summary>$90:CBB3, ArmCannonDrawingData_FacingRight_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightMoonwalk = 0xcbb3,
+        /// <summary>$90:CAD1, ArmCannonDrawingData_FacingRight_NormalJumpTransition: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpTransition = 0xcad1,
+        /// <summary>$90:CAD9, ArmCannonDrawingData_FacingRight_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpMovingForward = 0xcad9,
+        /// <summary>$90:CADF, ArmCannonDrawingData_FacingLeft_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpMovingForward = 0xcadf,
+        /// <summary>$90:CC15, ArmCannonDrawingData_FacingRight_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightTransitionAimingUp = 0xcc15,
+        /// <summary>$90:CC1B, ArmCannonDrawingData_FacingLeft_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftTransitionAimingUp = 0xcc1b,
+        /// <summary>$90:CAFD, ArmCannonDrawingData_FacingRight_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightFallingGunExtended = 0xcafd,
+        /// <summary>$90:CB0D, ArmCannonDrawingData_FacingLeft_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftFallingGunExtended = 0xcb0d,
+        /// <summary>$90:CAE5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpAimingUpRight = 0xcae5,
+        /// <summary>$90:CAEB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpAimingUpLeft = 0xcaeb,
+        /// <summary>$90:CAF1, ArmCannonDrawingData_FacingRight_NormalJump_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightNormalJumpAimingDownRight = 0xcaf1,
+        /// <summary>$90:CAF7, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftNormalJumpAimingDownLeft = 0xcaf7,
+        /// <summary>$90:CB3D, ArmCannonDrawingData_FacingRight_Falling_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightFallingAimingUpRight = 0xcb3d,
+        /// <summary>$90:CB45, ArmCannonDrawingData_FacingLeft_Falling_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftFallingAimingUpLeft = 0xcb45,
+        /// <summary>$90:CB4D, ArmCannonDrawingData_FacingRight_Falling_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightFallingAimingDownRight = 0xcb4d,
+        /// <summary>$90:CB55, ArmCannonDrawingData_FacingLeft_Falling_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftFallingAimingDownLeft = 0xcb55,
+        /// <summary>$90:CB85, ArmCannonDrawingData_FacingRight_Crouching_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightCrouchingAimingUpRight = 0xcb85,
+        /// <summary>$90:CB89, ArmCannonDrawingData_FacingLeft_Crouching_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftCrouchingAimingUpLeft = 0xcb89,
+        /// <summary>$90:CB8D, ArmCannonDrawingData_FacingRight_Crouching_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightCrouchingAimingDownRight = 0xcb8d,
+        /// <summary>$90:CB91, ArmCannonDrawingData_FacingLeft_Crouching_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftCrouchingAimingDownLeft = 0xcb91,
+        /// <summary>$90:CBC1, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftMoonwalkAimingUpLeft = 0xcbc1,
+        /// <summary>$90:CBCF, ArmCannonDrawingData_FacingRight_Moonwalk_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightMoonwalkAimingUpRight = 0xcbcf,
+        /// <summary>$90:CBDD, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftMoonwalkAimingDownLeft = 0xcbdd,
+        /// <summary>$90:CBEB, ArmCannonDrawingData_FacingRight_Moonwalk_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightMoonwalkAimingDownRight = 0xcbeb,
+        /// <summary>$90:CB95, ArmCannonDrawingData_FacingRight_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightCrouchingAimingUp = 0xcb95,
+        /// <summary>$90:CB9D, ArmCannonDrawingData_FacingLeft_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingLeftCrouchingAimingUp = 0xcb9d,
+        /// <summary>$90:CBF9, ArmCannonDrawingData_FacingRight_LandingFromNormalJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightLandingFromNormalJump = 0xcbf9,
+        /// <summary>$90:CC05, ArmCannonDrawingData_FacingRight_LandingFromSpinJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+        FacingRightLandingFromSpinJump = 0xcc05,
+    }
+
     /// <summary>Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table dimensions.</summary>
     public const int Version = 1;
     /// <summary>Installed editable placement, OBJ-attribute, and tile-selector JSON filename, separate from cover pixels and animation mechanics.</summary>
@@ -263,177 +382,6 @@ public static class SamusArmCannonArtworkFormat
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
     public const int FramesPerDirection = 4;
-    /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingForward = 0xC9DB;
-
-    /// <summary>$90:C9DD, ArmCannonDrawingData_FacingRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRight = 0xC9DD;
-
-    /// <summary>$90:C9F1, ArmCannonDrawingData_FacingLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeft = 0xC9F1;
-
-    /// <summary>$90:CA05, ArmCannonDrawingData_FacingRight_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightAimingUp = 0xCA05;
-
-    /// <summary>$90:CA0D, ArmCannonDrawingData_FacingLeft_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftAimingUp = 0xCA0D;
-
-    /// <summary>$90:CA15, ArmCannonDrawingData_FacingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightAimingUpRight = 0xCA15;
-
-    /// <summary>$90:CA19, ArmCannonDrawingData_FacingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftAimingUpLeft = 0xCA19;
-
-    /// <summary>$90:CA1D, ArmCannonDrawingData_FacingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightAimingDownRight = 0xCA1D;
-
-    /// <summary>$90:CA21, ArmCannonDrawingData_FacingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftAimingDownLeft = 0xCA21;
-
-    /// <summary>$90:C9D9, ArmCannonDrawingData_Default: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingDefault = 0xC9D9;
-
-    /// <summary>$90:CA25, ArmCannonDrawingData_MovingRight_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingRightGunExtended = 0xCA25;
-
-    /// <summary>$90:CA3B, ArmCannonDrawingData_MovingLeft_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingLeftGunExtended = 0xCA3B;
-
-    /// <summary>$90:CA51, ArmCannonDrawingData_MovingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingRightAimingUpRight = 0xCA51;
-
-    /// <summary>$90:CA67, ArmCannonDrawingData_MovingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingLeftAimingUpLeft = 0xCA67;
-
-    /// <summary>$90:CA7D, ArmCannonDrawingData_MovingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingRightAimingDownRight = 0xCA7D;
-
-    /// <summary>$90:CA93, ArmCannonDrawingData_MovingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingMovingLeftAimingDownLeft = 0xCA93;
-
-    /// <summary>$90:CAA9, ArmCannonDrawingData_FacingRight_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpNotMovingGunExt = 0xCAA9;
-
-    /// <summary>$90:CAAF, ArmCannonDrawingData_FacingLeft_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpNotMovingGunExt = 0xCAAF;
-
-    /// <summary>$90:CAB5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpAimingUp = 0xCAB5;
-
-    /// <summary>$90:CABD, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpAimingUp = 0xCABD;
-
-    /// <summary>$90:CAC5, ArmCannonDrawingData_FacingRight_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpAimingDown = 0xCAC5;
-
-    /// <summary>$90:CACB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpAimingDown = 0xCACB;
-
-    /// <summary>$90:CB5D, ArmCannonDrawingData_FacingRight_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightCrouching = 0xCB5D;
-
-    /// <summary>$90:CB71, ArmCannonDrawingData_FacingLeft_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftCrouching = 0xCB71;
-
-    /// <summary>$90:CB1D, ArmCannonDrawingData_FacingRight_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightFallingAimingUp = 0xCB1D;
-
-    /// <summary>$90:CB27, ArmCannonDrawingData_FacingLeft_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftFallingAimingUp = 0xCB27;
-
-    /// <summary>$90:CB31, ArmCannonDrawingData_FacingRight_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightFallingAimingDown = 0xCB31;
-
-    /// <summary>$90:CB37, ArmCannonDrawingData_FacingLeft_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftFallingAimingDown = 0xCB37;
-
-    /// <summary>$90:CBA5, ArmCannonDrawingData_FacingLeft_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftMoonwalk = 0xCBA5;
-
-    /// <summary>$90:CBB3, ArmCannonDrawingData_FacingRight_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightMoonwalk = 0xCBB3;
-
-    /// <summary>$90:CAD1, ArmCannonDrawingData_FacingRight_NormalJumpTransition: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpTransition = 0xCAD1;
-
-    /// <summary>$90:CAD9, ArmCannonDrawingData_FacingRight_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpMovingForward = 0xCAD9;
-
-    /// <summary>$90:CADF, ArmCannonDrawingData_FacingLeft_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpMovingForward = 0xCADF;
-
-    /// <summary>$90:CC15, ArmCannonDrawingData_FacingRight_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightTransitionAimingUp = 0xCC15;
-
-    /// <summary>$90:CC1B, ArmCannonDrawingData_FacingLeft_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftTransitionAimingUp = 0xCC1B;
-
-    /// <summary>$90:CAFD, ArmCannonDrawingData_FacingRight_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightFallingGunExtended = 0xCAFD;
-
-    /// <summary>$90:CB0D, ArmCannonDrawingData_FacingLeft_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftFallingGunExtended = 0xCB0D;
-
-    /// <summary>$90:CAE5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpAimingUpRight = 0xCAE5;
-
-    /// <summary>$90:CAEB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpAimingUpLeft = 0xCAEB;
-
-    /// <summary>$90:CAF1, ArmCannonDrawingData_FacingRight_NormalJump_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightNormalJumpAimingDownRight = 0xCAF1;
-
-    /// <summary>$90:CAF7, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftNormalJumpAimingDownLeft = 0xCAF7;
-
-    /// <summary>$90:CB3D, ArmCannonDrawingData_FacingRight_Falling_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightFallingAimingUpRight = 0xCB3D;
-
-    /// <summary>$90:CB45, ArmCannonDrawingData_FacingLeft_Falling_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftFallingAimingUpLeft = 0xCB45;
-
-    /// <summary>$90:CB4D, ArmCannonDrawingData_FacingRight_Falling_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightFallingAimingDownRight = 0xCB4D;
-
-    /// <summary>$90:CB55, ArmCannonDrawingData_FacingLeft_Falling_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftFallingAimingDownLeft = 0xCB55;
-
-    /// <summary>$90:CB85, ArmCannonDrawingData_FacingRight_Crouching_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightCrouchingAimingUpRight = 0xCB85;
-
-    /// <summary>$90:CB89, ArmCannonDrawingData_FacingLeft_Crouching_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftCrouchingAimingUpLeft = 0xCB89;
-
-    /// <summary>$90:CB8D, ArmCannonDrawingData_FacingRight_Crouching_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightCrouchingAimingDownRight = 0xCB8D;
-
-    /// <summary>$90:CB91, ArmCannonDrawingData_FacingLeft_Crouching_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftCrouchingAimingDownLeft = 0xCB91;
-
-    /// <summary>$90:CBC1, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftMoonwalkAimingUpLeft = 0xCBC1;
-
-    /// <summary>$90:CBCF, ArmCannonDrawingData_FacingRight_Moonwalk_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightMoonwalkAimingUpRight = 0xCBCF;
-
-    /// <summary>$90:CBDD, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftMoonwalkAimingDownLeft = 0xCBDD;
-
-    /// <summary>$90:CBEB, ArmCannonDrawingData_FacingRight_Moonwalk_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightMoonwalkAimingDownRight = 0xCBEB;
-
-    /// <summary>$90:CB95, ArmCannonDrawingData_FacingRight_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightCrouchingAimingUp = 0xCB95;
-
-    /// <summary>$90:CB9D, ArmCannonDrawingData_FacingLeft_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingLeftCrouchingAimingUp = 0xCB9D;
-
-    /// <summary>$90:CBF9, ArmCannonDrawingData_FacingRight_LandingFromNormalJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightLandingFromNormalJump = 0xCBF9;
-
-    /// <summary>$90:CC05, ArmCannonDrawingData_FacingRight_LandingFromSpinJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
-    private const ushort DrawingFacingRightLandingFromSpinJump = 0xCC05;
-
     /// <summary>$90:C7DF-$C9D8, ArmCannonDrawingData: named descriptor selection for the existing 253-pose installed domain.</summary>
     internal static ushort StockPoseDrawingData(int pose)
     {
@@ -441,35 +389,35 @@ public static class SamusArmCannonArtworkFormat
         return (SamusPoseId)pose switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
-            SamusPoseId.ForwardFacingSuitedPose => DrawingFacingForward,
+            SamusPoseId.ForwardFacingSuitedPose => (ushort)ArmCannonDrawing.FacingForward,
             SamusPoseId.FacingRightNormalPose or
             SamusPoseId.UnusedPose47 or
             SamusPoseId.RanIntoWallRightPose or
             SamusPoseId.GrappleStandingRightPose or
             SamusPoseId.FiringLandingRightPose or
-            SamusPoseId.DraygonGrabbedFiringRightPose => DrawingFacingRight,
+            SamusPoseId.DraygonGrabbedFiringRightPose => (ushort)ArmCannonDrawing.FacingRight,
             SamusPoseId.FacingLeftNormalPose or
             SamusPoseId.UnusedPose48 or
             SamusPoseId.RanIntoWallLeftPose or
             SamusPoseId.GrappleStandingLeftPose or
             SamusPoseId.DraygonGrabbedFiringLeftPose or
-            SamusPoseId.FiringLandingLeftPose => DrawingFacingLeft,
-            SamusPoseId.StandingAimUpRightPose => DrawingFacingRightAimingUp,
-            SamusPoseId.StandingAimUpLeftPose => DrawingFacingLeftAimingUp,
+            SamusPoseId.FiringLandingLeftPose => (ushort)ArmCannonDrawing.FacingLeft,
+            SamusPoseId.StandingAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightAimingUp,
+            SamusPoseId.StandingAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftAimingUp,
             SamusPoseId.StandingAimDiagonalUpRightPose or
             SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
             SamusPoseId.RanIntoWallAimUpRightPose or
             SamusPoseId.LandingAimDiagonalUpRightPose or
             SamusPoseId.DraygonGrabbedAimUpRightPose or
             SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
-            SamusPoseId.StandingTransitionAimDiagonalUpRightPose => DrawingFacingRightAimingUpRight,
+            SamusPoseId.StandingTransitionAimDiagonalUpRightPose => (ushort)ArmCannonDrawing.FacingRightAimingUpRight,
             SamusPoseId.StandingAimDiagonalUpLeftPose or
             SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
             SamusPoseId.DraygonGrabbedAimUpLeftPose or
             SamusPoseId.RanIntoWallAimUpLeftPose or
             SamusPoseId.LandingAimDiagonalUpLeftPose or
             SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
-            SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => DrawingFacingLeftAimingUpLeft,
+            SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftAimingUpLeft,
             SamusPoseId.StandingAimDiagonalDownRightPose or
             SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
             SamusPoseId.GrappleStandingDownRightPose or
@@ -477,7 +425,7 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.LandingAimDiagonalDownRightPose or
             SamusPoseId.DraygonGrabbedAimDownRightPose or
             SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
-            SamusPoseId.StandingTransitionAimDiagonalDownRightPose => DrawingFacingRightAimingDownRight,
+            SamusPoseId.StandingTransitionAimDiagonalDownRightPose => (ushort)ArmCannonDrawing.FacingRightAimingDownRight,
             SamusPoseId.StandingAimDiagonalDownLeftPose or
             SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
             SamusPoseId.GrappleStandingDownLeftPose or
@@ -485,7 +433,7 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.RanIntoWallAimDownLeftPose or
             SamusPoseId.LandingAimDiagonalDownLeftPose or
             SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or
-            SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => DrawingFacingLeftAimingDownLeft,
+            SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => (ushort)ArmCannonDrawing.FacingLeftAimingDownLeft,
             SamusPoseId.MovingRightNormalPose or
             SamusPoseId.MovingLeftNormalPose or
             SamusPoseId.RunningAimUpRightPose or
@@ -629,70 +577,70 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.DrainedStandingRightPose or
             SamusPoseId.DrainedStandingLeftPose or
             SamusPoseId.DraygonGrabbedNeutralRightPose or
-            SamusPoseId.DraygonGrabbedMovingRightPose => DrawingDefault,
-            SamusPoseId.MovingRightGunExtendedPose => DrawingMovingRightGunExtended,
-            SamusPoseId.MovingLeftGunExtendedPose => DrawingMovingLeftGunExtended,
-            SamusPoseId.RunningAimDiagonalUpRightPose => DrawingMovingRightAimingUpRight,
-            SamusPoseId.RunningAimDiagonalUpLeftPose => DrawingMovingLeftAimingUpLeft,
-            SamusPoseId.RunningAimDiagonalDownRightPose => DrawingMovingRightAimingDownRight,
-            SamusPoseId.RunningAimDiagonalDownLeftPose => DrawingMovingLeftAimingDownLeft,
+            SamusPoseId.DraygonGrabbedMovingRightPose => (ushort)ArmCannonDrawing.Default,
+            SamusPoseId.MovingRightGunExtendedPose => (ushort)ArmCannonDrawing.MovingRightGunExtended,
+            SamusPoseId.MovingLeftGunExtendedPose => (ushort)ArmCannonDrawing.MovingLeftGunExtended,
+            SamusPoseId.RunningAimDiagonalUpRightPose => (ushort)ArmCannonDrawing.MovingRightAimingUpRight,
+            SamusPoseId.RunningAimDiagonalUpLeftPose => (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft,
+            SamusPoseId.RunningAimDiagonalDownRightPose => (ushort)ArmCannonDrawing.MovingRightAimingDownRight,
+            SamusPoseId.RunningAimDiagonalDownLeftPose => (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft,
             SamusPoseId.NormalJumpGunExtendedRightPose or
-            SamusPoseId.UnusedPoseAC => DrawingFacingRightNormalJumpNotMovingGunExt,
+            SamusPoseId.UnusedPoseAC => (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt,
             SamusPoseId.NormalJumpGunExtendedLeftPose or
-            SamusPoseId.UnusedPoseAD => DrawingFacingLeftNormalJumpNotMovingGunExt,
-            SamusPoseId.NormalJumpAimUpRightPose => DrawingFacingRightNormalJumpAimingUp,
-            SamusPoseId.NormalJumpAimUpLeftPose => DrawingFacingLeftNormalJumpAimingUp,
+            SamusPoseId.UnusedPoseAD => (ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt,
+            SamusPoseId.NormalJumpAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUp,
+            SamusPoseId.NormalJumpAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUp,
             SamusPoseId.NormalJumpAimDownRightPose or
-            SamusPoseId.UnusedPoseAE => DrawingFacingRightNormalJumpAimingDown,
+            SamusPoseId.UnusedPoseAE => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDown,
             SamusPoseId.NormalJumpAimDownLeftPose or
-            SamusPoseId.UnusedPoseAF => DrawingFacingLeftNormalJumpAimingDown,
+            SamusPoseId.UnusedPoseAF => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDown,
             SamusPoseId.CrouchingRightPose or
-            SamusPoseId.GrappleCrouchingRightPose => DrawingFacingRightCrouching,
+            SamusPoseId.GrappleCrouchingRightPose => (ushort)ArmCannonDrawing.FacingRightCrouching,
             SamusPoseId.CrouchingLeftPose or
-            SamusPoseId.GrappleCrouchingLeftPose => DrawingFacingLeftCrouching,
-            SamusPoseId.FallingAimUpRightPose => DrawingFacingRightFallingAimingUp,
-            SamusPoseId.FallingAimUpLeftPose => DrawingFacingLeftFallingAimingUp,
-            SamusPoseId.FallingAimDownRightPose => DrawingFacingRightFallingAimingDown,
-            SamusPoseId.FallingAimDownLeftPose => DrawingFacingLeftFallingAimingDown,
-            SamusPoseId.MoonwalkFacingLeftPose => DrawingFacingLeftMoonwalk,
-            SamusPoseId.MoonwalkFacingRightPose => DrawingFacingRightMoonwalk,
-            SamusPoseId.NeutralJumpTransitionRightPose => DrawingFacingRightNormalJumpTransition,
-            SamusPoseId.NormalJumpForwardRightPose => DrawingFacingRightNormalJumpMovingForward,
-            SamusPoseId.NormalJumpForwardLeftPose => DrawingFacingLeftNormalJumpMovingForward,
+            SamusPoseId.GrappleCrouchingLeftPose => (ushort)ArmCannonDrawing.FacingLeftCrouching,
+            SamusPoseId.FallingAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightFallingAimingUp,
+            SamusPoseId.FallingAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftFallingAimingUp,
+            SamusPoseId.FallingAimDownRightPose => (ushort)ArmCannonDrawing.FacingRightFallingAimingDown,
+            SamusPoseId.FallingAimDownLeftPose => (ushort)ArmCannonDrawing.FacingLeftFallingAimingDown,
+            SamusPoseId.MoonwalkFacingLeftPose => (ushort)ArmCannonDrawing.FacingLeftMoonwalk,
+            SamusPoseId.MoonwalkFacingRightPose => (ushort)ArmCannonDrawing.FacingRightMoonwalk,
+            SamusPoseId.NeutralJumpTransitionRightPose => (ushort)ArmCannonDrawing.FacingRightNormalJumpTransition,
+            SamusPoseId.NormalJumpForwardRightPose => (ushort)ArmCannonDrawing.FacingRightNormalJumpMovingForward,
+            SamusPoseId.NormalJumpForwardLeftPose => (ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward,
             SamusPoseId.NormalJumpTransitionAimUpRightPose or
             SamusPoseId.LandingAimUpRightPose or
             SamusPoseId.CrouchingTransitionAimUpRightPose or
-            SamusPoseId.StandingTransitionAimUpRightPose => DrawingFacingRightTransitionAimingUp,
+            SamusPoseId.StandingTransitionAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightTransitionAimingUp,
             SamusPoseId.NormalJumpTransitionAimUpLeftPose or
             SamusPoseId.LandingAimUpLeftPose or
             SamusPoseId.CrouchingTransitionAimUpLeftPose or
-            SamusPoseId.StandingTransitionAimUpLeftPose => DrawingFacingLeftTransitionAimingUp,
-            SamusPoseId.FallingGunExtendedRightPose => DrawingFacingRightFallingGunExtended,
-            SamusPoseId.FallingGunExtendedLeftPose => DrawingFacingLeftFallingGunExtended,
-            SamusPoseId.NormalJumpAimDiagonalUpRightPose => DrawingFacingRightNormalJumpAimingUpRight,
-            SamusPoseId.NormalJumpAimDiagonalUpLeftPose => DrawingFacingLeftNormalJumpAimingUpLeft,
+            SamusPoseId.StandingTransitionAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp,
+            SamusPoseId.FallingGunExtendedRightPose => (ushort)ArmCannonDrawing.FacingRightFallingGunExtended,
+            SamusPoseId.FallingGunExtendedLeftPose => (ushort)ArmCannonDrawing.FacingLeftFallingGunExtended,
+            SamusPoseId.NormalJumpAimDiagonalUpRightPose => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight,
+            SamusPoseId.NormalJumpAimDiagonalUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft,
             SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-            SamusPoseId.UnusedPoseB0 => DrawingFacingRightNormalJumpAimingDownRight,
+            SamusPoseId.UnusedPoseB0 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight,
             SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
-            SamusPoseId.UnusedPoseB1 => DrawingFacingLeftNormalJumpAimingDownLeft,
-            SamusPoseId.FallingAimDiagonalUpRightPose => DrawingFacingRightFallingAimingUpRight,
-            SamusPoseId.FallingAimDiagonalUpLeftPose => DrawingFacingLeftFallingAimingUpLeft,
-            SamusPoseId.FallingAimDiagonalDownRightPose => DrawingFacingRightFallingAimingDownRight,
-            SamusPoseId.FallingAimDiagonalDownLeftPose => DrawingFacingLeftFallingAimingDownLeft,
-            SamusPoseId.CrouchingAimDiagonalUpRightPose => DrawingFacingRightCrouchingAimingUpRight,
-            SamusPoseId.CrouchingAimDiagonalUpLeftPose => DrawingFacingLeftCrouchingAimingUpLeft,
+            SamusPoseId.UnusedPoseB1 => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft,
+            SamusPoseId.FallingAimDiagonalUpRightPose => (ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight,
+            SamusPoseId.FallingAimDiagonalUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft,
+            SamusPoseId.FallingAimDiagonalDownRightPose => (ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight,
+            SamusPoseId.FallingAimDiagonalDownLeftPose => (ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft,
+            SamusPoseId.CrouchingAimDiagonalUpRightPose => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUpRight,
+            SamusPoseId.CrouchingAimDiagonalUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUpLeft,
             SamusPoseId.CrouchingAimDiagonalDownRightPose or
-            SamusPoseId.GrappleCrouchingDownRightPose => DrawingFacingRightCrouchingAimingDownRight,
+            SamusPoseId.GrappleCrouchingDownRightPose => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingDownRight,
             SamusPoseId.CrouchingAimDiagonalDownLeftPose or
-            SamusPoseId.GrappleCrouchingDownLeftPose => DrawingFacingLeftCrouchingAimingDownLeft,
-            SamusPoseId.MoonwalkAimUpLeftPose => DrawingFacingLeftMoonwalkAimingUpLeft,
-            SamusPoseId.MoonwalkAimUpRightPose => DrawingFacingRightMoonwalkAimingUpRight,
-            SamusPoseId.MoonwalkAimDownLeftPose => DrawingFacingLeftMoonwalkAimingDownLeft,
-            SamusPoseId.MoonwalkAimDownRightPose => DrawingFacingRightMoonwalkAimingDownRight,
-            SamusPoseId.CrouchingAimUpRightPose => DrawingFacingRightCrouchingAimingUp,
-            SamusPoseId.CrouchingAimUpLeftPose => DrawingFacingLeftCrouchingAimingUp,
-            SamusPoseId.NormalLandingRightPose => DrawingFacingRightLandingFromNormalJump,
-            SamusPoseId.SpinLandingRightPose => DrawingFacingRightLandingFromSpinJump,
+            SamusPoseId.GrappleCrouchingDownLeftPose => (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingDownLeft,
+            SamusPoseId.MoonwalkAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft,
+            SamusPoseId.MoonwalkAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight,
+            SamusPoseId.MoonwalkAimDownLeftPose => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft,
+            SamusPoseId.MoonwalkAimDownRightPose => (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight,
+            SamusPoseId.CrouchingAimUpRightPose => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUp,
+            SamusPoseId.CrouchingAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUp,
+            SamusPoseId.NormalLandingRightPose => (ushort)ArmCannonDrawing.FacingRightLandingFromNormalJump,
+            SamusPoseId.SpinLandingRightPose => (ushort)ArmCannonDrawing.FacingRightLandingFromSpinJump,
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
     }
@@ -708,187 +656,179 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: the final24 installed drawing-window bytes alias this independent mechanics owner.</summary>
     private const int AdjacentCostStart = SamusComboRomData.Costs & 0xffff;
 
+    /// <summary>The $90:C9D9-$CC20 pose descriptors, ordered by native address.</summary>
+    private static readonly ArmCannonDrawing[] DrawingsByAddress = Enum.GetValues<ArmCannonDrawing>();
+
+    /// <summary>Finds the descriptor whose bytes contain <paramref name="address"/>.</summary>
+    private static bool TryLocateDrawing(ushort address, out ArmCannonDrawing drawing, out int offset)
+    {
+        for (int index = DrawingsByAddress.Length - 1; index >= 0; index--)
+        {
+            if ((ushort)DrawingsByAddress[index] <= address)
+            {
+                drawing = DrawingsByAddress[index];
+                offset = address - (ushort)drawing;
+                return true;
+            }
+        }
+        drawing = default;
+        offset = 0;
+        return false;
+    }
+
     /// <summary>Calculates named descriptor controls and adjacent cost aliases; coordinate geometry is resolved separately from body artwork.</summary>
     internal static bool TryStockDrawingByte(ushort address, out byte value)
     {
         if (address is >= AdjacentCostStart and < DrawingDataEndExclusive)
         {
-            int offset = address - AdjacentCostStart;
+            int costOffset = address - AdjacentCostStart;
             ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(
-                SamusBeamCombinations.FromTableIndex(offset / sizeof(ushort)));
-            value = (byte)(cost >> ((offset & 1) * 8));
+                SamusBeamCombinations.FromTableIndex(costOffset / sizeof(ushort)));
+            value = (byte)(cost >> ((costOffset & 1) * 8));
             return true;
         }
-        switch (address)
+        if (!TryLocateDrawing(address, out ArmCannonDrawing drawing, out int byteOffset))
         {
-            case DrawingFacingForward:
-            case DrawingDefault:
-                value = 0;
-                return true;
-            case DrawingFacingForward + 1:
-                value = ForwardDrawingMode;
-                return true;
-            case DrawingFacingRight:
-            case DrawingMovingRightGunExtended:
-            case DrawingFacingRightNormalJumpNotMovingGunExt:
-            case DrawingFacingRightCrouching:
-            case DrawingFacingLeftMoonwalk:
-            case DrawingFacingRightNormalJumpMovingForward:
-            case DrawingFacingRightFallingGunExtended:
-                value = (byte)SamusProjectileDirection.Right;
-                return true;
-            case DrawingFacingRight + 1:
-            case DrawingFacingLeft + 1:
-            case DrawingFacingRightAimingUp + 1:
-            case DrawingFacingRightAimingUp + 3:
-            case DrawingFacingLeftAimingUp + 1:
-            case DrawingFacingLeftAimingUp + 3:
-            case DrawingFacingRightAimingUpRight + 1:
-            case DrawingFacingLeftAimingUpLeft + 1:
-            case DrawingFacingRightAimingDownRight + 1:
-            case DrawingFacingLeftAimingDownLeft + 1:
-            case DrawingMovingRightGunExtended + 1:
-            case DrawingMovingLeftGunExtended + 1:
-            case DrawingMovingRightAimingUpRight + 1:
-            case DrawingMovingLeftAimingUpLeft + 1:
-            case DrawingMovingRightAimingDownRight + 1:
-            case DrawingMovingLeftAimingDownLeft + 1:
-            case DrawingFacingRightNormalJumpNotMovingGunExt + 1:
-            case DrawingFacingLeftNormalJumpNotMovingGunExt + 1:
-            case DrawingFacingRightNormalJumpAimingUp + 1:
-            case DrawingFacingRightNormalJumpAimingUp + 3:
-            case DrawingFacingLeftNormalJumpAimingUp + 1:
-            case DrawingFacingLeftNormalJumpAimingUp + 3:
-            case DrawingFacingRightNormalJumpAimingDown + 1:
-            case DrawingFacingLeftNormalJumpAimingDown + 1:
-            case DrawingFacingRightCrouching + 1:
-            case DrawingFacingLeftCrouching + 1:
-            case DrawingFacingRightFallingAimingUp + 1:
-            case DrawingFacingRightFallingAimingUp + 3:
-            case DrawingFacingLeftFallingAimingUp + 1:
-            case DrawingFacingLeftFallingAimingUp + 3:
-            case DrawingFacingRightFallingAimingDown + 1:
-            case DrawingFacingLeftFallingAimingDown + 1:
-            case DrawingFacingLeftMoonwalk + 1:
-            case DrawingFacingRightMoonwalk + 1:
-            case DrawingFacingRightNormalJumpTransition + 1:
-            case DrawingFacingRightNormalJumpMovingForward + 1:
-            case DrawingFacingLeftNormalJumpMovingForward + 1:
-            case DrawingFacingRightTransitionAimingUp + 1:
-            case DrawingFacingLeftTransitionAimingUp + 1:
-            case DrawingFacingRightFallingGunExtended + 1:
-            case DrawingFacingLeftFallingGunExtended + 1:
-            case DrawingFacingRightNormalJumpAimingUpRight + 1:
-            case DrawingFacingLeftNormalJumpAimingUpLeft + 1:
-            case DrawingFacingRightNormalJumpAimingDownRight + 1:
-            case DrawingFacingLeftNormalJumpAimingDownLeft + 1:
-            case DrawingFacingRightFallingAimingUpRight + 1:
-            case DrawingFacingLeftFallingAimingUpLeft + 1:
-            case DrawingFacingRightFallingAimingDownRight + 1:
-            case DrawingFacingLeftFallingAimingDownLeft + 1:
-            case DrawingFacingRightCrouchingAimingUpRight + 1:
-            case DrawingFacingLeftCrouchingAimingUpLeft + 1:
-            case DrawingFacingRightCrouchingAimingDownRight + 1:
-            case DrawingFacingLeftCrouchingAimingDownLeft + 1:
-            case DrawingFacingLeftMoonwalkAimingUpLeft + 1:
-            case DrawingFacingRightMoonwalkAimingUpRight + 1:
-            case DrawingFacingLeftMoonwalkAimingDownLeft + 1:
-            case DrawingFacingRightMoonwalkAimingDownRight + 1:
-            case DrawingFacingRightCrouchingAimingUp + 1:
-            case DrawingFacingRightCrouchingAimingUp + 3:
-            case DrawingFacingLeftCrouchingAimingUp + 1:
-            case DrawingFacingLeftCrouchingAimingUp + 3:
-            case DrawingFacingRightLandingFromNormalJump + 1:
-            case DrawingFacingRightLandingFromSpinJump + 1:
-                value = NormalDrawingMode;
-                return true;
-            case DrawingFacingLeft:
-            case DrawingMovingLeftGunExtended:
-            case DrawingFacingLeftNormalJumpNotMovingGunExt:
-            case DrawingFacingLeftCrouching:
-            case DrawingFacingRightMoonwalk:
-            case DrawingFacingLeftNormalJumpMovingForward:
-            case DrawingFacingLeftFallingGunExtended:
-                value = (byte)SamusProjectileDirection.Left;
-                return true;
-            case DrawingFacingRightAimingUp:
-            case DrawingFacingRightNormalJumpAimingUp:
-            case DrawingFacingRightFallingAimingUp:
-            case DrawingFacingRightCrouchingAimingUp:
-                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight);
-                return true;
-            case DrawingFacingRightAimingUp + 2:
-            case DrawingFacingRightNormalJumpAimingUp + 2:
-            case DrawingFacingRightFallingAimingUp + 2:
-            case DrawingFacingRightCrouchingAimingUp + 2:
-                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight);
-                return true;
-            case DrawingFacingLeftAimingUp:
-            case DrawingFacingLeftNormalJumpAimingUp:
-            case DrawingFacingLeftFallingAimingUp:
-            case DrawingFacingLeftCrouchingAimingUp:
-                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft);
-                return true;
-            case DrawingFacingLeftAimingUp + 2:
-            case DrawingFacingLeftNormalJumpAimingUp + 2:
-            case DrawingFacingLeftFallingAimingUp + 2:
-            case DrawingFacingLeftCrouchingAimingUp + 2:
-                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft);
-                return true;
-            case DrawingFacingRightAimingUpRight:
-            case DrawingMovingRightAimingUpRight:
-            case DrawingFacingRightNormalJumpAimingUpRight:
-            case DrawingFacingRightFallingAimingUpRight:
-            case DrawingFacingRightCrouchingAimingUpRight:
-            case DrawingFacingRightMoonwalkAimingUpRight:
-                value = (byte)SamusProjectileDirection.UpRight;
-                return true;
-            case DrawingFacingLeftAimingUpLeft:
-            case DrawingMovingLeftAimingUpLeft:
-            case DrawingFacingLeftNormalJumpAimingUpLeft:
-            case DrawingFacingLeftFallingAimingUpLeft:
-            case DrawingFacingLeftCrouchingAimingUpLeft:
-            case DrawingFacingLeftMoonwalkAimingUpLeft:
-                value = (byte)SamusProjectileDirection.UpLeft;
-                return true;
-            case DrawingFacingRightAimingDownRight:
-            case DrawingMovingRightAimingDownRight:
-            case DrawingFacingRightNormalJumpTransition:
-            case DrawingFacingRightNormalJumpAimingDownRight:
-            case DrawingFacingRightFallingAimingDownRight:
-            case DrawingFacingRightCrouchingAimingDownRight:
-            case DrawingFacingRightMoonwalkAimingDownRight:
-            case DrawingFacingRightLandingFromNormalJump:
-            case DrawingFacingRightLandingFromSpinJump:
-                value = (byte)SamusProjectileDirection.DownRight;
-                return true;
-            case DrawingFacingLeftAimingDownLeft:
-            case DrawingMovingLeftAimingDownLeft:
-            case DrawingFacingLeftNormalJumpAimingDownLeft:
-            case DrawingFacingLeftFallingAimingDownLeft:
-            case DrawingFacingLeftCrouchingAimingDownLeft:
-            case DrawingFacingLeftMoonwalkAimingDownLeft:
-                value = (byte)SamusProjectileDirection.DownLeft;
-                return true;
-            case DrawingDefault + 1:
-                value = HiddenDrawingMode;
-                return true;
-            case DrawingFacingRightNormalJumpAimingDown:
-            case DrawingFacingRightFallingAimingDown:
-                value = (byte)SamusProjectileDirection.DownFacingRight;
-                return true;
-            case DrawingFacingLeftNormalJumpAimingDown:
-            case DrawingFacingLeftFallingAimingDown:
-                value = (byte)SamusProjectileDirection.DownFacingLeft;
-                return true;
-            case DrawingFacingRightTransitionAimingUp:
-                value = (byte)SamusProjectileDirection.UpFacingRight;
-                return true;
-            case DrawingFacingLeftTransitionAimingUp:
-                value = (byte)SamusProjectileDirection.UpFacingLeft;
-                return true;
-            default: value = 0; return false;
+            value = 0;
+            return false;
         }
+        // Control bytes by descriptor and byte position; coordinate bytes are resolved separately.
+        byte? control = (drawing, byteOffset) switch
+        {
+            (ArmCannonDrawing.FacingForward, 0) or
+            (ArmCannonDrawing.Default, 0) => 0,
+            (ArmCannonDrawing.FacingForward, 1) => ForwardDrawingMode,
+            (ArmCannonDrawing.FacingRight, 0) or
+            (ArmCannonDrawing.MovingRightGunExtended, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt, 0) or
+            (ArmCannonDrawing.FacingRightCrouching, 0) or
+            (ArmCannonDrawing.FacingLeftMoonwalk, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpMovingForward, 0) or
+            (ArmCannonDrawing.FacingRightFallingGunExtended, 0) => (byte)SamusProjectileDirection.Right,
+            (ArmCannonDrawing.FacingRight, 1) or
+            (ArmCannonDrawing.FacingLeft, 1) or
+            (ArmCannonDrawing.FacingRightAimingUp, 1) or
+            (ArmCannonDrawing.FacingRightAimingUp, 3) or
+            (ArmCannonDrawing.FacingLeftAimingUp, 1) or
+            (ArmCannonDrawing.FacingLeftAimingUp, 3) or
+            (ArmCannonDrawing.FacingRightAimingUpRight, 1) or
+            (ArmCannonDrawing.FacingLeftAimingUpLeft, 1) or
+            (ArmCannonDrawing.FacingRightAimingDownRight, 1) or
+            (ArmCannonDrawing.FacingLeftAimingDownLeft, 1) or
+            (ArmCannonDrawing.MovingRightGunExtended, 1) or
+            (ArmCannonDrawing.MovingLeftGunExtended, 1) or
+            (ArmCannonDrawing.MovingRightAimingUpRight, 1) or
+            (ArmCannonDrawing.MovingLeftAimingUpLeft, 1) or
+            (ArmCannonDrawing.MovingRightAimingDownRight, 1) or
+            (ArmCannonDrawing.MovingLeftAimingDownLeft, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 3) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 3) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingDown, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingDown, 1) or
+            (ArmCannonDrawing.FacingRightCrouching, 1) or
+            (ArmCannonDrawing.FacingLeftCrouching, 1) or
+            (ArmCannonDrawing.FacingRightFallingAimingUp, 1) or
+            (ArmCannonDrawing.FacingRightFallingAimingUp, 3) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUp, 1) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUp, 3) or
+            (ArmCannonDrawing.FacingRightFallingAimingDown, 1) or
+            (ArmCannonDrawing.FacingLeftFallingAimingDown, 1) or
+            (ArmCannonDrawing.FacingLeftMoonwalk, 1) or
+            (ArmCannonDrawing.FacingRightMoonwalk, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpTransition, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpMovingForward, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpMovingForward, 1) or
+            (ArmCannonDrawing.FacingRightTransitionAimingUp, 1) or
+            (ArmCannonDrawing.FacingLeftTransitionAimingUp, 1) or
+            (ArmCannonDrawing.FacingRightFallingGunExtended, 1) or
+            (ArmCannonDrawing.FacingLeftFallingGunExtended, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUpRight, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft, 1) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingDownRight, 1) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft, 1) or
+            (ArmCannonDrawing.FacingRightFallingAimingUpRight, 1) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUpLeft, 1) or
+            (ArmCannonDrawing.FacingRightFallingAimingDownRight, 1) or
+            (ArmCannonDrawing.FacingLeftFallingAimingDownLeft, 1) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUpRight, 1) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUpLeft, 1) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingDownRight, 1) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingDownLeft, 1) or
+            (ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft, 1) or
+            (ArmCannonDrawing.FacingRightMoonwalkAimingUpRight, 1) or
+            (ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft, 1) or
+            (ArmCannonDrawing.FacingRightMoonwalkAimingDownRight, 1) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 1) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 3) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 1) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 3) or
+            (ArmCannonDrawing.FacingRightLandingFromNormalJump, 1) or
+            (ArmCannonDrawing.FacingRightLandingFromSpinJump, 1) => NormalDrawingMode,
+            (ArmCannonDrawing.FacingLeft, 0) or
+            (ArmCannonDrawing.MovingLeftGunExtended, 0) or
+            (ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt, 0) or
+            (ArmCannonDrawing.FacingLeftCrouching, 0) or
+            (ArmCannonDrawing.FacingRightMoonwalk, 0) or
+            (ArmCannonDrawing.FacingLeftNormalJumpMovingForward, 0) or
+            (ArmCannonDrawing.FacingLeftFallingGunExtended, 0) => (byte)SamusProjectileDirection.Left,
+            (ArmCannonDrawing.FacingRightAimingUp, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 0) or
+            (ArmCannonDrawing.FacingRightFallingAimingUp, 0) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight),
+            (ArmCannonDrawing.FacingRightAimingUp, 2) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 2) or
+            (ArmCannonDrawing.FacingRightFallingAimingUp, 2) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight),
+            (ArmCannonDrawing.FacingLeftAimingUp, 0) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 0) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUp, 0) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft),
+            (ArmCannonDrawing.FacingLeftAimingUp, 2) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 2) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUp, 2) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft),
+            (ArmCannonDrawing.FacingRightAimingUpRight, 0) or
+            (ArmCannonDrawing.MovingRightAimingUpRight, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingUpRight, 0) or
+            (ArmCannonDrawing.FacingRightFallingAimingUpRight, 0) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingUpRight, 0) or
+            (ArmCannonDrawing.FacingRightMoonwalkAimingUpRight, 0) => (byte)SamusProjectileDirection.UpRight,
+            (ArmCannonDrawing.FacingLeftAimingUpLeft, 0) or
+            (ArmCannonDrawing.MovingLeftAimingUpLeft, 0) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft, 0) or
+            (ArmCannonDrawing.FacingLeftFallingAimingUpLeft, 0) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUpLeft, 0) or
+            (ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft, 0) => (byte)SamusProjectileDirection.UpLeft,
+            (ArmCannonDrawing.FacingRightAimingDownRight, 0) or
+            (ArmCannonDrawing.MovingRightAimingDownRight, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpTransition, 0) or
+            (ArmCannonDrawing.FacingRightNormalJumpAimingDownRight, 0) or
+            (ArmCannonDrawing.FacingRightFallingAimingDownRight, 0) or
+            (ArmCannonDrawing.FacingRightCrouchingAimingDownRight, 0) or
+            (ArmCannonDrawing.FacingRightMoonwalkAimingDownRight, 0) or
+            (ArmCannonDrawing.FacingRightLandingFromNormalJump, 0) or
+            (ArmCannonDrawing.FacingRightLandingFromSpinJump, 0) => (byte)SamusProjectileDirection.DownRight,
+            (ArmCannonDrawing.FacingLeftAimingDownLeft, 0) or
+            (ArmCannonDrawing.MovingLeftAimingDownLeft, 0) or
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft, 0) or
+            (ArmCannonDrawing.FacingLeftFallingAimingDownLeft, 0) or
+            (ArmCannonDrawing.FacingLeftCrouchingAimingDownLeft, 0) or
+            (ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft, 0) => (byte)SamusProjectileDirection.DownLeft,
+            (ArmCannonDrawing.Default, 1) => HiddenDrawingMode,
+            (ArmCannonDrawing.FacingRightNormalJumpAimingDown, 0) or
+            (ArmCannonDrawing.FacingRightFallingAimingDown, 0) => (byte)SamusProjectileDirection.DownFacingRight,
+            (ArmCannonDrawing.FacingLeftNormalJumpAimingDown, 0) or
+            (ArmCannonDrawing.FacingLeftFallingAimingDown, 0) => (byte)SamusProjectileDirection.DownFacingLeft,
+            (ArmCannonDrawing.FacingRightTransitionAimingUp, 0) => (byte)SamusProjectileDirection.UpFacingRight,
+            (ArmCannonDrawing.FacingLeftTransitionAimingUp, 0) => (byte)SamusProjectileDirection.UpFacingLeft,
+            _ => null,
+        };
+        value = control ?? 0;
+        return control.HasValue;
     }
 
     /// <summary>Repeated cover origins and fixed-X/repeated-Y running and moonwalking profiles.</summary>
@@ -897,30 +837,30 @@ public static class SamusArmCannonArtworkFormat
     {
         int firstPair = address switch
         {
-            >= (DrawingFacingRight + 4) and < DrawingFacingLeft => DrawingFacingRight + 2,
-            >= (DrawingFacingLeft + 4) and < DrawingFacingRightAimingUp => DrawingFacingLeft + 2,
-            >= (DrawingFacingRightNormalJumpNotMovingGunExt + 4) and < DrawingFacingLeftNormalJumpNotMovingGunExt => DrawingFacingRightNormalJumpNotMovingGunExt + 2,
-            >= (DrawingFacingLeftNormalJumpNotMovingGunExt + 4) and < DrawingFacingRightNormalJumpAimingUp => DrawingFacingLeftNormalJumpNotMovingGunExt + 2,
-            >= (DrawingFacingRightNormalJumpAimingDown + 4) and < DrawingFacingLeftNormalJumpAimingDown => DrawingFacingRightNormalJumpAimingDown + 2,
-            >= (DrawingFacingLeftNormalJumpAimingDown + 4) and < DrawingFacingRightNormalJumpTransition => DrawingFacingLeftNormalJumpAimingDown + 2,
-            >= (DrawingFacingRightNormalJumpMovingForward + 4) and < DrawingFacingLeftNormalJumpMovingForward => DrawingFacingRightNormalJumpMovingForward + 2,
-            >= (DrawingFacingLeftNormalJumpMovingForward + 4) and < DrawingFacingRightNormalJumpAimingUpRight => DrawingFacingLeftNormalJumpMovingForward + 2,
-            >= (DrawingFacingRightNormalJumpAimingUpRight + 4) and < DrawingFacingLeftNormalJumpAimingUpLeft => DrawingFacingRightNormalJumpAimingUpRight + 2,
-            >= (DrawingFacingLeftNormalJumpAimingUpLeft + 4) and < DrawingFacingRightNormalJumpAimingDownRight => DrawingFacingLeftNormalJumpAimingUpLeft + 2,
-            >= (DrawingFacingRightNormalJumpAimingDownRight + 4) and < DrawingFacingLeftNormalJumpAimingDownLeft => DrawingFacingRightNormalJumpAimingDownRight + 2,
-            >= (DrawingFacingLeftNormalJumpAimingDownLeft + 4) and < DrawingFacingRightFallingGunExtended => DrawingFacingLeftNormalJumpAimingDownLeft + 2,
-            >= (DrawingFacingRightFallingGunExtended + 4) and < DrawingFacingLeftFallingGunExtended => DrawingFacingRightFallingGunExtended + 2,
-            >= (DrawingFacingLeftFallingGunExtended + 4) and < DrawingFacingRightFallingAimingUp => DrawingFacingLeftFallingGunExtended + 2,
-            >= (DrawingFacingRightFallingAimingDown + 4) and < DrawingFacingLeftFallingAimingDown => DrawingFacingRightFallingAimingDown + 2,
-            >= (DrawingFacingLeftFallingAimingDown + 4) and < DrawingFacingRightFallingAimingUpRight => DrawingFacingLeftFallingAimingDown + 2,
-            >= (DrawingFacingRightFallingAimingUpRight + 4) and < DrawingFacingLeftFallingAimingUpLeft => DrawingFacingRightFallingAimingUpRight + 2,
-            >= (DrawingFacingLeftFallingAimingUpLeft + 4) and < DrawingFacingRightFallingAimingDownRight => DrawingFacingLeftFallingAimingUpLeft + 2,
-            >= (DrawingFacingRightFallingAimingDownRight + 4) and < DrawingFacingLeftFallingAimingDownLeft => DrawingFacingRightFallingAimingDownRight + 2,
-            >= (DrawingFacingLeftFallingAimingDownLeft + 4) and < DrawingFacingRightCrouching => DrawingFacingLeftFallingAimingDownLeft + 2,
-            >= (DrawingFacingRightCrouching + 4) and < DrawingFacingLeftCrouching => DrawingFacingRightCrouching + 2,
-            >= (DrawingFacingLeftCrouching + 4) and < DrawingFacingRightCrouchingAimingUpRight => DrawingFacingLeftCrouching + 2,
-            >= (DrawingFacingRightTransitionAimingUp + 4) and < DrawingFacingLeftTransitionAimingUp => DrawingFacingRightTransitionAimingUp + 2,
-            >= (DrawingFacingLeftTransitionAimingUp + 4) and < AdjacentCostStart => DrawingFacingLeftTransitionAimingUp + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRight + 4) and < (ushort)ArmCannonDrawing.FacingLeft => (ushort)ArmCannonDrawing.FacingRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightAimingUp => (ushort)ArmCannonDrawing.FacingLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt + 4) and < (ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt => (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt + 4) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUp => (ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDown + 4) and < (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDown => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDown + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDown + 4) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpTransition => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDown + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightNormalJumpMovingForward + 4) and < (ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward => (ushort)ArmCannonDrawing.FacingRightNormalJumpMovingForward + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward + 4) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight => (ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight + 4) and < (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight + 4) and < (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightFallingGunExtended => (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightFallingGunExtended + 4) and < (ushort)ArmCannonDrawing.FacingLeftFallingGunExtended => (ushort)ArmCannonDrawing.FacingRightFallingGunExtended + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftFallingGunExtended + 4) and < (ushort)ArmCannonDrawing.FacingRightFallingAimingUp => (ushort)ArmCannonDrawing.FacingLeftFallingGunExtended + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightFallingAimingDown + 4) and < (ushort)ArmCannonDrawing.FacingLeftFallingAimingDown => (ushort)ArmCannonDrawing.FacingRightFallingAimingDown + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftFallingAimingDown + 4) and < (ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight => (ushort)ArmCannonDrawing.FacingLeftFallingAimingDown + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight + 4) and < (ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft => (ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight => (ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight + 4) and < (ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft => (ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightCrouching => (ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightCrouching + 4) and < (ushort)ArmCannonDrawing.FacingLeftCrouching => (ushort)ArmCannonDrawing.FacingRightCrouching + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftCrouching + 4) and < (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUpRight => (ushort)ArmCannonDrawing.FacingLeftCrouching + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightTransitionAimingUp + 4) and < (ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp => (ushort)ArmCannonDrawing.FacingRightTransitionAimingUp + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp + 4) and < AdjacentCostStart => (ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp + 2,
             _ => -1,
         };
         if (firstPair >= 0)
@@ -932,18 +872,18 @@ public static class SamusArmCannonArtworkFormat
         // component follows separately supplied animation motion.
         int firstX = address switch
         {
-            >= (DrawingMovingRightGunExtended + 4) and < DrawingMovingLeftGunExtended => DrawingMovingRightGunExtended + 2,
-            >= (DrawingMovingLeftGunExtended + 4) and < DrawingMovingRightAimingUpRight => DrawingMovingLeftGunExtended + 2,
-            >= (DrawingMovingRightAimingUpRight + 4) and < DrawingMovingLeftAimingUpLeft => DrawingMovingRightAimingUpRight + 2,
-            >= (DrawingMovingLeftAimingUpLeft + 4) and < DrawingMovingRightAimingDownRight => DrawingMovingLeftAimingUpLeft + 2,
-            >= (DrawingMovingRightAimingDownRight + 4) and < DrawingMovingLeftAimingDownLeft => DrawingMovingRightAimingDownRight + 2,
-            >= (DrawingMovingLeftAimingDownLeft + 4) and < DrawingFacingRightNormalJumpNotMovingGunExt => DrawingMovingLeftAimingDownLeft + 2,
-            >= (DrawingFacingLeftMoonwalk + 4) and < DrawingFacingRightMoonwalk => DrawingFacingLeftMoonwalk + 2,
-            >= (DrawingFacingRightMoonwalk + 4) and < DrawingFacingLeftMoonwalkAimingUpLeft => DrawingFacingRightMoonwalk + 2,
-            >= (DrawingFacingLeftMoonwalkAimingUpLeft + 4) and < DrawingFacingRightMoonwalkAimingUpRight => DrawingFacingLeftMoonwalkAimingUpLeft + 2,
-            >= (DrawingFacingRightMoonwalkAimingUpRight + 4) and < DrawingFacingLeftMoonwalkAimingDownLeft => DrawingFacingRightMoonwalkAimingUpRight + 2,
-            >= (DrawingFacingLeftMoonwalkAimingDownLeft + 4) and < DrawingFacingRightMoonwalkAimingDownRight => DrawingFacingLeftMoonwalkAimingDownLeft + 2,
-            >= (DrawingFacingRightMoonwalkAimingDownRight + 4) and < DrawingFacingRightLandingFromNormalJump => DrawingFacingRightMoonwalkAimingDownRight + 2,
+            >= ((ushort)ArmCannonDrawing.MovingRightGunExtended + 4) and < (ushort)ArmCannonDrawing.MovingLeftGunExtended => (ushort)ArmCannonDrawing.MovingRightGunExtended + 2,
+            >= ((ushort)ArmCannonDrawing.MovingLeftGunExtended + 4) and < (ushort)ArmCannonDrawing.MovingRightAimingUpRight => (ushort)ArmCannonDrawing.MovingLeftGunExtended + 2,
+            >= ((ushort)ArmCannonDrawing.MovingRightAimingUpRight + 4) and < (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 2,
+            >= ((ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 4) and < (ushort)ArmCannonDrawing.MovingRightAimingDownRight => (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 2,
+            >= ((ushort)ArmCannonDrawing.MovingRightAimingDownRight + 4) and < (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 2,
+            >= ((ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt => (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalk + 4) and < (ushort)ArmCannonDrawing.FacingRightMoonwalk => (ushort)ArmCannonDrawing.FacingLeftMoonwalk + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalk + 4) and < (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft => (ushort)ArmCannonDrawing.FacingRightMoonwalk + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 4) and < (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft => (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 2,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 4) and < (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 2,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 4) and < (ushort)ArmCannonDrawing.FacingRightLandingFromNormalJump => (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 2,
             _ => -1,
         };
         bool fixedX = firstX >= 0 && ((address - firstX) & 1) == 0;
@@ -956,16 +896,16 @@ public static class SamusArmCannonArtworkFormat
         // First-cycle positions resolve separately, preserving independent supplied edits.
         int cycleBytes = address switch
         {
-            >= (DrawingMovingRightAimingUpRight + 13) and < DrawingMovingLeftAimingUpLeft => 10,
-            >= (DrawingMovingLeftAimingUpLeft + 13) and < DrawingMovingRightAimingDownRight => 10,
-            >= (DrawingMovingRightAimingDownRight + 13) and < DrawingMovingLeftAimingDownLeft => 10,
-            >= (DrawingMovingLeftAimingDownLeft + 13) and < DrawingFacingRightNormalJumpNotMovingGunExt => 10,
-            >= (DrawingFacingLeftMoonwalk + 9) and < DrawingFacingRightMoonwalk => 6,
-            >= (DrawingFacingRightMoonwalk + 9) and < DrawingFacingLeftMoonwalkAimingUpLeft => 6,
-            >= (DrawingFacingLeftMoonwalkAimingUpLeft + 9) and < DrawingFacingRightMoonwalkAimingUpRight => 6,
-            >= (DrawingFacingRightMoonwalkAimingUpRight + 9) and < DrawingFacingLeftMoonwalkAimingDownLeft => 6,
-            >= (DrawingFacingLeftMoonwalkAimingDownLeft + 9) and < DrawingFacingRightMoonwalkAimingDownRight => 6,
-            >= (DrawingFacingRightMoonwalkAimingDownRight + 9) and < DrawingFacingRightLandingFromNormalJump => 6,
+            >= ((ushort)ArmCannonDrawing.MovingRightAimingUpRight + 13) and < (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft => 10,
+            >= ((ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 13) and < (ushort)ArmCannonDrawing.MovingRightAimingDownRight => 10,
+            >= ((ushort)ArmCannonDrawing.MovingRightAimingDownRight + 13) and < (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft => 10,
+            >= ((ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 13) and < (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt => 10,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalk + 9) and < (ushort)ArmCannonDrawing.FacingRightMoonwalk => 6,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalk + 9) and < (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft => 6,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 9) and < (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight => 6,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 9) and < (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft => 6,
+            >= ((ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 9) and < (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight => 6,
+            >= ((ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 9) and < (ushort)ArmCannonDrawing.FacingRightLandingFromNormalJump => 6,
             _ => 0,
         };
         bool repeatedY = cycleBytes != 0 && firstX >= 0 && ((address - firstX) & 1) != 0;
@@ -978,42 +918,42 @@ public static class SamusArmCannonArtworkFormat
         // pairs. Other vertical profiles keep their independently chosen offsets.
         int pairedYSource = address switch
         {
-            DrawingFacingLeft + 3 => DrawingFacingRight + 3,
-            DrawingFacingLeftAimingDownLeft + 3 => DrawingFacingRightAimingDownRight + 3,
-            DrawingMovingLeftAimingUpLeft + 3 => DrawingMovingRightAimingUpRight + 3,
-            DrawingMovingLeftAimingUpLeft + 5 => DrawingMovingRightAimingUpRight + 5,
-            DrawingMovingLeftAimingUpLeft + 7 => DrawingMovingRightAimingUpRight + 7,
-            DrawingMovingLeftAimingUpLeft + 9 => DrawingMovingRightAimingUpRight + 9,
-            DrawingMovingLeftAimingUpLeft + 11 => DrawingMovingRightAimingUpRight + 11,
-            DrawingMovingLeftAimingDownLeft + 3 => DrawingMovingRightAimingDownRight + 3,
-            DrawingMovingLeftAimingDownLeft + 5 => DrawingMovingRightAimingDownRight + 5,
-            DrawingMovingLeftAimingDownLeft + 7 => DrawingMovingRightAimingDownRight + 7,
-            DrawingMovingLeftAimingDownLeft + 9 => DrawingMovingRightAimingDownRight + 9,
-            DrawingMovingLeftAimingDownLeft + 11 => DrawingMovingRightAimingDownRight + 11,
-            DrawingFacingLeftNormalJumpNotMovingGunExt + 3 => DrawingFacingRightNormalJumpNotMovingGunExt + 3,
-            DrawingFacingLeftNormalJumpAimingDown + 3 => DrawingFacingRightNormalJumpAimingDown + 3,
-            DrawingFacingLeftNormalJumpMovingForward + 3 => DrawingFacingRightNormalJumpMovingForward + 3,
-            DrawingFacingLeftNormalJumpAimingUpLeft + 3 => DrawingFacingRightNormalJumpAimingUpRight + 3,
-            DrawingFacingLeftNormalJumpAimingDownLeft + 3 => DrawingFacingRightNormalJumpAimingDownRight + 3,
-            DrawingFacingLeftFallingGunExtended + 3 => DrawingFacingRightFallingGunExtended + 3,
-            DrawingFacingLeftFallingAimingDown + 3 => DrawingFacingRightFallingAimingDown + 3,
-            DrawingFacingLeftFallingAimingUpLeft + 3 => DrawingFacingRightFallingAimingUpRight + 3,
-            DrawingFacingLeftFallingAimingDownLeft + 3 => DrawingFacingRightFallingAimingDownRight + 3,
-            DrawingFacingLeftCrouching + 3 => DrawingFacingRightCrouching + 3,
-            DrawingFacingLeftCrouchingAimingDownLeft + 3 => DrawingFacingRightCrouchingAimingDownRight + 3,
-            DrawingFacingRightMoonwalk + 3 => DrawingFacingLeftMoonwalk + 3,
-            DrawingFacingRightMoonwalk + 5 => DrawingFacingLeftMoonwalk + 5,
-            DrawingFacingRightMoonwalk + 7 => DrawingFacingLeftMoonwalk + 7,
-            DrawingFacingRightMoonwalkAimingUpRight + 3 => DrawingFacingLeftMoonwalkAimingUpLeft + 3,
-            DrawingFacingRightMoonwalkAimingUpRight + 5 => DrawingFacingLeftMoonwalkAimingUpLeft + 5,
-            DrawingFacingRightMoonwalkAimingUpRight + 7 => DrawingFacingLeftMoonwalkAimingUpLeft + 7,
-            DrawingFacingRightMoonwalkAimingDownRight + 3 => DrawingFacingLeftMoonwalkAimingDownLeft + 3,
-            DrawingFacingRightMoonwalkAimingDownRight + 5 => DrawingFacingLeftMoonwalkAimingDownLeft + 5,
-            DrawingFacingRightMoonwalkAimingDownRight + 7 => DrawingFacingLeftMoonwalkAimingDownLeft + 7,
-            DrawingFacingLeftTransitionAimingUp + 3 => DrawingFacingRightTransitionAimingUp + 3,
-            DrawingFacingLeftAimingUp + 7 => DrawingFacingRightAimingUp + 7,
-            DrawingFacingLeftNormalJumpAimingUp + 7 => DrawingFacingRightNormalJumpAimingUp + 7,
-            DrawingFacingLeftCrouchingAimingUp + 7 => DrawingFacingRightCrouchingAimingUp + 7,
+            (ushort)ArmCannonDrawing.FacingLeft + 3 => (ushort)ArmCannonDrawing.FacingRight + 3,
+            (ushort)ArmCannonDrawing.FacingLeftAimingDownLeft + 3 => (ushort)ArmCannonDrawing.FacingRightAimingDownRight + 3,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 3 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 3,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 5 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 5,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 7 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 7,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 9 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 9,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 11 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 11,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 3 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 3,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 5 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 5,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 7 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 7,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 9 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 9,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 11 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 11,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt + 3 => (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt + 3,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDown + 3 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDown + 3,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward + 3 => (ushort)ArmCannonDrawing.FacingRightNormalJumpMovingForward + 3,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft + 3 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight + 3,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft + 3 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight + 3,
+            (ushort)ArmCannonDrawing.FacingLeftFallingGunExtended + 3 => (ushort)ArmCannonDrawing.FacingRightFallingGunExtended + 3,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingDown + 3 => (ushort)ArmCannonDrawing.FacingRightFallingAimingDown + 3,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft + 3 => (ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight + 3,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft + 3 => (ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight + 3,
+            (ushort)ArmCannonDrawing.FacingLeftCrouching + 3 => (ushort)ArmCannonDrawing.FacingRightCrouching + 3,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingDownLeft + 3 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingDownRight + 3,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalk + 3 => (ushort)ArmCannonDrawing.FacingLeftMoonwalk + 3,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalk + 5 => (ushort)ArmCannonDrawing.FacingLeftMoonwalk + 5,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalk + 7 => (ushort)ArmCannonDrawing.FacingLeftMoonwalk + 7,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 3 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 3,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 5 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 5,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 7 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 7,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 3 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 3,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 5 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 5,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 7 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 7,
+            (ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp + 3 => (ushort)ArmCannonDrawing.FacingRightTransitionAimingUp + 3,
+            (ushort)ArmCannonDrawing.FacingLeftAimingUp + 7 => (ushort)ArmCannonDrawing.FacingRightAimingUp + 7,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUp + 7 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUp + 7,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUp + 7 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUp + 7,
             _ => -1,
         };
         source = pairedYSource >= 0 ? (ushort)pairedYSource : (ushort)0;
@@ -1033,35 +973,35 @@ public static class SamusArmCannonArtworkFormat
     {
         int selected = address switch
         {
-            DrawingFacingLeft + 2 => DrawingFacingRight + 2,
-            DrawingFacingLeftAimingUp + 4 => DrawingFacingRightAimingUp + 4,
-            DrawingFacingLeftAimingUp + 6 => DrawingFacingRightAimingUp + 6,
-            DrawingFacingLeftAimingUpLeft + 2 => DrawingFacingRightAimingUpRight + 2,
-            DrawingFacingLeftAimingDownLeft + 2 => DrawingFacingRightAimingDownRight + 2,
-            DrawingMovingLeftGunExtended + 2 => DrawingMovingRightGunExtended + 2,
-            DrawingMovingLeftAimingUpLeft + 2 => DrawingMovingRightAimingUpRight + 2,
-            DrawingMovingLeftAimingDownLeft + 2 => DrawingMovingRightAimingDownRight + 2,
-            DrawingFacingLeftNormalJumpNotMovingGunExt + 2 => DrawingFacingRightNormalJumpNotMovingGunExt + 2,
-            DrawingFacingLeftNormalJumpAimingUp + 4 => DrawingFacingRightNormalJumpAimingUp + 4,
-            DrawingFacingLeftNormalJumpAimingUp + 6 => DrawingFacingRightNormalJumpAimingUp + 6,
-            DrawingFacingLeftNormalJumpMovingForward + 2 => DrawingFacingRightNormalJumpMovingForward + 2,
-            DrawingFacingLeftNormalJumpAimingUpLeft + 2 => DrawingFacingRightNormalJumpAimingUpRight + 2,
-            DrawingFacingLeftNormalJumpAimingDownLeft + 2 => DrawingFacingRightNormalJumpAimingDownRight + 2,
-            DrawingFacingLeftFallingGunExtended + 2 => DrawingFacingRightFallingGunExtended + 2,
-            DrawingFacingLeftFallingAimingUp + 4 => DrawingFacingRightFallingAimingUp + 4,
-            DrawingFacingLeftFallingAimingUp + 6 => DrawingFacingRightFallingAimingUp + 6,
-            DrawingFacingLeftFallingAimingUp + 8 => DrawingFacingRightFallingAimingUp + 8,
-            DrawingFacingLeftFallingAimingUpLeft + 2 => DrawingFacingRightFallingAimingUpRight + 2,
-            DrawingFacingLeftFallingAimingDownLeft + 2 => DrawingFacingRightFallingAimingDownRight + 2,
-            DrawingFacingLeftCrouching + 2 => DrawingFacingRightCrouching + 2,
-            DrawingFacingLeftCrouchingAimingUpLeft + 2 => DrawingFacingRightCrouchingAimingUpRight + 2,
-            DrawingFacingLeftCrouchingAimingDownLeft + 2 => DrawingFacingRightCrouchingAimingDownRight + 2,
-            DrawingFacingLeftCrouchingAimingUp + 4 => DrawingFacingRightCrouchingAimingUp + 4,
-            DrawingFacingLeftCrouchingAimingUp + 6 => DrawingFacingRightCrouchingAimingUp + 6,
-            DrawingFacingRightMoonwalk + 2 => DrawingFacingLeftMoonwalk + 2,
-            DrawingFacingRightMoonwalkAimingUpRight + 2 => DrawingFacingLeftMoonwalkAimingUpLeft + 2,
-            DrawingFacingRightMoonwalkAimingDownRight + 2 => DrawingFacingLeftMoonwalkAimingDownLeft + 2,
-            DrawingFacingLeftTransitionAimingUp + 2 => DrawingFacingRightTransitionAimingUp + 2,
+            (ushort)ArmCannonDrawing.FacingLeft + 2 => (ushort)ArmCannonDrawing.FacingRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftAimingUp + 4 => (ushort)ArmCannonDrawing.FacingRightAimingUp + 4,
+            (ushort)ArmCannonDrawing.FacingLeftAimingUp + 6 => (ushort)ArmCannonDrawing.FacingRightAimingUp + 6,
+            (ushort)ArmCannonDrawing.FacingLeftAimingUpLeft + 2 => (ushort)ArmCannonDrawing.FacingRightAimingUpRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftAimingDownLeft + 2 => (ushort)ArmCannonDrawing.FacingRightAimingDownRight + 2,
+            (ushort)ArmCannonDrawing.MovingLeftGunExtended + 2 => (ushort)ArmCannonDrawing.MovingRightGunExtended + 2,
+            (ushort)ArmCannonDrawing.MovingLeftAimingUpLeft + 2 => (ushort)ArmCannonDrawing.MovingRightAimingUpRight + 2,
+            (ushort)ArmCannonDrawing.MovingLeftAimingDownLeft + 2 => (ushort)ArmCannonDrawing.MovingRightAimingDownRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpNotMovingGunExt + 2 => (ushort)ArmCannonDrawing.FacingRightNormalJumpNotMovingGunExt + 2,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUp + 4 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUp + 4,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUp + 6 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUp + 6,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpMovingForward + 2 => (ushort)ArmCannonDrawing.FacingRightNormalJumpMovingForward + 2,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingUpLeft + 2 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingUpRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftNormalJumpAimingDownLeft + 2 => (ushort)ArmCannonDrawing.FacingRightNormalJumpAimingDownRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftFallingGunExtended + 2 => (ushort)ArmCannonDrawing.FacingRightFallingGunExtended + 2,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingUp + 4 => (ushort)ArmCannonDrawing.FacingRightFallingAimingUp + 4,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingUp + 6 => (ushort)ArmCannonDrawing.FacingRightFallingAimingUp + 6,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingUp + 8 => (ushort)ArmCannonDrawing.FacingRightFallingAimingUp + 8,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingUpLeft + 2 => (ushort)ArmCannonDrawing.FacingRightFallingAimingUpRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftFallingAimingDownLeft + 2 => (ushort)ArmCannonDrawing.FacingRightFallingAimingDownRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftCrouching + 2 => (ushort)ArmCannonDrawing.FacingRightCrouching + 2,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUpLeft + 2 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUpRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingDownLeft + 2 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingDownRight + 2,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUp + 4 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUp + 4,
+            (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUp + 6 => (ushort)ArmCannonDrawing.FacingRightCrouchingAimingUp + 6,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalk + 2 => (ushort)ArmCannonDrawing.FacingLeftMoonwalk + 2,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingUpRight + 2 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingUpLeft + 2,
+            (ushort)ArmCannonDrawing.FacingRightMoonwalkAimingDownRight + 2 => (ushort)ArmCannonDrawing.FacingLeftMoonwalkAimingDownLeft + 2,
+            (ushort)ArmCannonDrawing.FacingLeftTransitionAimingUp + 2 => (ushort)ArmCannonDrawing.FacingRightTransitionAimingUp + 2,
             _ => -1,
         };
         source = selected >= 0 ? (ushort)selected : (ushort)0;

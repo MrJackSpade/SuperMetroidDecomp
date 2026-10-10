@@ -27,7 +27,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog", "plm-escape-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEscapeGateVisualCatalog.cs", "2C41BDBFC81485E25055B22DE45B2E41CCB41A3D53D691C28942397E2C399C3D"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs", "920AED73164E4795E8E0BC977507D8DA4B0751CBD5012BACB3703AC5724334C9")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs", "C81C3183BB1200BED668179AFB9AD278FE8CC0908D5B0293415EFE81A10A5F2D")]),
         new("SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog", "plm-collectible-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleVisualCatalog.cs", "2E34BE68E5702BF5C13C5E4999E4979AD53995BECA0903C386EF677C8F53208D"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "A7459A94768B409116B7902B01252B84FED22E996FED7081A847FF4E5A150996")]),

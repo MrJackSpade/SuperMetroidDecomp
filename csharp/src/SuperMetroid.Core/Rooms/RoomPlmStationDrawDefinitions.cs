@@ -1,4 +1,51 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The twenty bank-$84 draw lists selected by station animation programs.</summary>
+internal enum StationDraw : ushort
+{
+    /// <summary>First map-station frame draw list at $84:9F25.</summary>
+    MapFrame0 = 0x9f25,
+    /// <summary>Second map-station frame draw list at $84:9F31.</summary>
+    MapFrame1 = 0x9f31,
+    /// <summary>Third map-station frame draw list at $84:9F3D.</summary>
+    MapFrame2 = 0x9f3d,
+    /// <summary>Retracted right-side map access draw at $84:9F49.</summary>
+    MapRightRetracted = 0x9f49,
+    /// <summary>Extended right-side map access draw at $84:9F55.</summary>
+    MapRightExtended = 0x9f55,
+    /// <summary>Retracted left-side map access draw at $84:9F5B.</summary>
+    MapLeftRetracted = 0x9f5b,
+    /// <summary>Extended left-side map access draw at $84:9F67.</summary>
+    MapLeftExtended = 0x9f67,
+    /// <summary>First energy-station frame draw list at $84:9F6D.</summary>
+    EnergyFrame0 = 0x9f6d,
+    /// <summary>Second energy-station frame draw list at $84:9F79.</summary>
+    EnergyFrame1 = 0x9f79,
+    /// <summary>Third energy-station frame draw list at $84:9F85.</summary>
+    EnergyFrame2 = 0x9f85,
+    /// <summary>First missile-station frame draw list at $84:9F91.</summary>
+    MissileFrame0 = 0x9f91,
+    /// <summary>Second missile-station frame draw list at $84:9F9D.</summary>
+    MissileFrame1 = 0x9f9d,
+    /// <summary>Third missile-station frame draw list at $84:9FA9.</summary>
+    MissileFrame2 = 0x9fa9,
+    /// <summary>Retracted right-side resource access draw at $84:9FB5.</summary>
+    ResourceRightRetracted = 0x9fb5,
+    /// <summary>Extended right-side resource access draw at $84:9FBB.</summary>
+    ResourceRightExtended = 0x9fbb,
+    /// <summary>Retracted left-side resource access draw at $84:9FC1.</summary>
+    ResourceLeftRetracted = 0x9fc1,
+    /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
+    ResourceLeftExtended = 0x9fc7,
+    /// <summary>Save-pod idle draw list at $84:9A3F.</summary>
+    SaveIdle = 0x9a3f,
+    /// <summary>First active save-pod draw list at $84:9A9F.</summary>
+    SaveActive = 0x9a9f,
+    /// <summary>Second active save-pod draw list at $84:9A6F.</summary>
+    SaveAlternate = 0x9a6f,
+}
 
 /// <summary>
 /// Complete bank-$84 draw lists selected by station animation programs. The native
@@ -6,34 +53,21 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmStationDrawDefinitions
 {
-    /// <summary>First map-station frame draw list at $84:9F25.</summary>
-    internal const ushort MapFirst = 0x9f25;
-    /// <summary>First energy-station frame draw list at $84:9F6D.</summary>
-    internal const ushort EnergyFirst = 0x9f6d;
-    /// <summary>First missile-station frame draw list at $84:9F91.</summary>
-    internal const ushort MissileFirst = 0x9f91;
-    /// <summary>Save-pod idle draw list at $84:9A3F.</summary>
-    internal const ushort SaveIdle = 0x9a3f;
-    /// <summary>First active save-pod draw list at $84:9A9F.</summary>
-    internal const ushort SaveActive = 0x9a9f;
-    /// <summary>Second active save-pod draw list at $84:9A6F.</summary>
-    internal const ushort SaveAlternate = 0x9a6f;
-    /// <summary>Retracted right-side map access draw at $84:9F49.</summary>
-    private const ushort MapRightRetracted = 0x9f49;
-    /// <summary>Extended right-side map access draw at $84:9F55.</summary>
-    private const ushort MapRightExtended = 0x9f55;
-    /// <summary>Retracted left-side map access draw at $84:9F5B.</summary>
-    private const ushort MapLeftRetracted = 0x9f5b;
-    /// <summary>Extended left-side map access draw at $84:9F67.</summary>
-    private const ushort MapLeftExtended = 0x9f67;
-    /// <summary>Retracted right-side resource access draw at $84:9FB5.</summary>
-    private const ushort ResourceRightRetracted = 0x9fb5;
-    /// <summary>Extended right-side resource access draw at $84:9FBB.</summary>
-    private const ushort ResourceRightExtended = 0x9fbb;
-    /// <summary>Retracted left-side resource access draw at $84:9FC1.</summary>
-    private const ushort ResourceLeftRetracted = 0x9fc1;
-    /// <summary>Extended left-side resource access draw at $84:9FC7.</summary>
-    private const ushort ResourceLeftExtended = 0x9fc7;
+    /// <summary>Byte stride between a station's consecutive frame draw lists.</summary>
+    internal const int FrameStride = 12;
+
+    /// <summary>Published native enumeration order: frames by station, then save and access states.</summary>
+    private static readonly StationDraw[] NativeOrder =
+    [
+        StationDraw.MapFrame0, StationDraw.EnergyFrame0, StationDraw.MissileFrame0,
+        StationDraw.MapFrame1, StationDraw.EnergyFrame1, StationDraw.MissileFrame1,
+        StationDraw.MapFrame2, StationDraw.EnergyFrame2, StationDraw.MissileFrame2,
+        StationDraw.SaveIdle, StationDraw.SaveActive, StationDraw.SaveAlternate,
+        StationDraw.MapRightRetracted, StationDraw.MapRightExtended,
+        StationDraw.MapLeftRetracted, StationDraw.MapLeftExtended,
+        StationDraw.ResourceRightRetracted, StationDraw.ResourceRightExtended,
+        StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended,
+    ];
 
     internal enum LayoutKind { Map, Energy, Missile, Save, MapAccess, ResourceAccess }
 
@@ -49,7 +83,7 @@ internal static class RoomPlmStationDrawDefinitions
     /// tile. Map access mirrors by side; resource access changes trigger to solid
     /// on extension. These rules cover only the twenty native owned draw pointers.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
+    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
     {
         internal int RunCount => Kind switch
         {
@@ -91,9 +125,9 @@ internal static class RoomPlmStationDrawDefinitions
                     collision = run == 0 ? 8 : 1; break;
                 case LayoutKind.Save:
                     bool shaft = run is > 0 and < 5;
-                    tile = (shaft ? 0x5b : 0x59) + (Pointer == SaveActive ? 1 : 0);
+                    tile = (shaft ? 0x5b : 0x59) + (Pointer == StationDraw.SaveActive ? 1 : 0);
                     flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
-                    collision = shaft ? 0 : Pointer == SaveIdle && run == 0 && cell == 0 ? 11 : 8;
+                    collision = shaft ? 0 : Pointer == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
                     break;
                 case LayoutKind.MapAccess:
                     tile = Extended ? 0x129 : 0x128; collision = 8;
@@ -107,56 +141,49 @@ internal static class RoomPlmStationDrawDefinitions
             return (ushort)(collision << 12 | flip | tile);
         }
     }
+    /// <summary>
+    /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
+    /// outside the twenty station lists belong to other families.
+    /// </summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        for (int frame = 0; frame < 3; frame++)
+        if (!Enum.IsDefined((StationDraw)pointer))
         {
-            if (pointer == MapFirst + frame * 12) { draw = new(pointer, LayoutKind.Map, frame); return true; }
-            if (pointer == EnergyFirst + frame * 12) { draw = new(pointer, LayoutKind.Energy, frame); return true; }
-            if (pointer == MissileFirst + frame * 12) { draw = new(pointer, LayoutKind.Missile, frame); return true; }
+            draw = default;
+            return false;
         }
-        draw = pointer switch
+        var station = (StationDraw)pointer;
+        draw = station switch
         {
-            SaveIdle or SaveActive or SaveAlternate => new(pointer, LayoutKind.Save, 0),
-            MapRightRetracted => new(pointer, LayoutKind.MapAccess, 0),
-            MapRightExtended => new(pointer, LayoutKind.MapAccess, 0, Extended: true),
-            MapLeftRetracted => new(pointer, LayoutKind.MapAccess, 0, Left: true),
-            MapLeftExtended => new(pointer, LayoutKind.MapAccess, 0, Left: true, Extended: true),
-            ResourceRightRetracted => new(pointer, LayoutKind.ResourceAccess, 0),
-            ResourceRightExtended => new(pointer, LayoutKind.ResourceAccess, 0, Extended: true),
-            ResourceLeftRetracted => new(pointer, LayoutKind.ResourceAccess, 0, Left: true),
-            ResourceLeftExtended => new(pointer, LayoutKind.ResourceAccess, 0, Left: true, Extended: true),
-            _ => default,
+            StationDraw.MapFrame0 => new(station, LayoutKind.Map, 0),
+            StationDraw.MapFrame1 => new(station, LayoutKind.Map, 1),
+            StationDraw.MapFrame2 => new(station, LayoutKind.Map, 2),
+            StationDraw.EnergyFrame0 => new(station, LayoutKind.Energy, 0),
+            StationDraw.EnergyFrame1 => new(station, LayoutKind.Energy, 1),
+            StationDraw.EnergyFrame2 => new(station, LayoutKind.Energy, 2),
+            StationDraw.MissileFrame0 => new(station, LayoutKind.Missile, 0),
+            StationDraw.MissileFrame1 => new(station, LayoutKind.Missile, 1),
+            StationDraw.MissileFrame2 => new(station, LayoutKind.Missile, 2),
+            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => new(station, LayoutKind.Save, 0),
+            StationDraw.MapRightRetracted => new(station, LayoutKind.MapAccess, 0),
+            StationDraw.MapRightExtended => new(station, LayoutKind.MapAccess, 0, Extended: true),
+            StationDraw.MapLeftRetracted => new(station, LayoutKind.MapAccess, 0, Left: true),
+            StationDraw.MapLeftExtended => new(station, LayoutKind.MapAccess, 0, Left: true, Extended: true),
+            StationDraw.ResourceRightRetracted => new(station, LayoutKind.ResourceAccess, 0),
+            StationDraw.ResourceRightExtended => new(station, LayoutKind.ResourceAccess, 0, Extended: true),
+            StationDraw.ResourceLeftRetracted => new(station, LayoutKind.ResourceAccess, 0, Left: true),
+            StationDraw.ResourceLeftExtended => new(station, LayoutKind.ResourceAccess, 0, Left: true, Extended: true),
+            _ => throw new InvalidOperationException($"Undefined station draw ${pointer:X4}."),
         };
-        return draw.Pointer != 0;
-    }
-    private static IEnumerable<ushort> Pointers()
-    {
-        for (int frame = 0; frame < 3; frame++)
-        {
-            yield return (ushort)(MapFirst + frame * 12);
-            yield return (ushort)(EnergyFirst + frame * 12);
-            yield return (ushort)(MissileFirst + frame * 12);
-        }
-        yield return SaveIdle;
-        yield return SaveActive;
-        yield return SaveAlternate;
-        yield return MapRightRetracted;
-        yield return MapRightExtended;
-        yield return MapLeftRetracted;
-        yield return MapLeftExtended;
-        yield return ResourceRightRetracted;
-        yield return ResourceRightExtended;
-        yield return ResourceLeftRetracted;
-        yield return ResourceLeftExtended;
+        return true;
     }
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
-            foreach (ushort pointer in Pointers())
+            foreach (StationDraw pointer in NativeOrder)
             {
-                TryGet(pointer, out var list);
+                TryGet((ushort)pointer, out var list);
                 yield return list;
             }
         }
@@ -182,30 +209,31 @@ internal static class RoomPlmStationDrawDefinitions
     /// station, and named save/access states. These are identity selections,
     /// independent of the physical words. Only complete native lists have IDs.
     /// </summary>
-    internal static string VisualId(ushort pointer)
-    {
-        for (int frame = 0; frame < 3; frame++)
+    internal static string VisualId(ushort pointer) =>
+        ClosedNativeWords.Decode<StationDraw>(pointer, "station draw list") switch
         {
-            if (pointer == MapFirst + frame * 12) return $"map-frame-{frame}";
-            if (pointer == EnergyFirst + frame * 12) return $"energy-frame-{frame}";
-            if (pointer == MissileFirst + frame * 12) return $"missile-frame-{frame}";
-        }
-        return pointer switch
-        {
-            SaveIdle => "save-idle",
-            SaveActive => "save-active-a",
-            SaveAlternate => "save-active-b",
-            MapRightRetracted => "map-right-retracted",
-            MapRightExtended => "map-right-extended",
-            MapLeftRetracted => "map-left-retracted",
-            MapLeftExtended => "map-left-extended",
-            ResourceRightRetracted => "resource-right-retracted",
-            ResourceRightExtended => "resource-right-extended",
-            ResourceLeftRetracted => "resource-left-retracted",
-            ResourceLeftExtended => "resource-left-extended",
-            _ => throw new InvalidDataException($"Station draw list ${pointer:X4} has no visual ID."),
+            StationDraw.MapFrame0 => "map-frame-0",
+            StationDraw.MapFrame1 => "map-frame-1",
+            StationDraw.MapFrame2 => "map-frame-2",
+            StationDraw.EnergyFrame0 => "energy-frame-0",
+            StationDraw.EnergyFrame1 => "energy-frame-1",
+            StationDraw.EnergyFrame2 => "energy-frame-2",
+            StationDraw.MissileFrame0 => "missile-frame-0",
+            StationDraw.MissileFrame1 => "missile-frame-1",
+            StationDraw.MissileFrame2 => "missile-frame-2",
+            StationDraw.SaveIdle => "save-idle",
+            StationDraw.SaveActive => "save-active-a",
+            StationDraw.SaveAlternate => "save-active-b",
+            StationDraw.MapRightRetracted => "map-right-retracted",
+            StationDraw.MapRightExtended => "map-right-extended",
+            StationDraw.MapLeftRetracted => "map-left-retracted",
+            StationDraw.MapLeftExtended => "map-left-extended",
+            StationDraw.ResourceRightRetracted => "resource-right-retracted",
+            StationDraw.ResourceRightExtended => "resource-right-extended",
+            StationDraw.ResourceLeftRetracted => "resource-left-retracted",
+            StationDraw.ResourceLeftExtended => "resource-left-extended",
+            _ => throw new InvalidOperationException($"Undefined station draw list ${pointer:X4}."),
         };
-    }
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

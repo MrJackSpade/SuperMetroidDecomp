@@ -63,11 +63,12 @@ public static class ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        // Word positions are byte offsets from ProgramStart.
+        value = (pointer - ProgramStart) switch
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
+            2 => ColorByteIndex,
+            DeleteInstructionPointer - ProgramStart => (ushort)PaletteFxInstruction.Delete,
             _ => 0,
         };
         if (value != 0)
@@ -79,7 +80,7 @@ public static class ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => FrameDuration,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

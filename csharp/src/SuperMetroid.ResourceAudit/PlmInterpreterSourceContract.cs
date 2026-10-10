@@ -40,7 +40,8 @@ internal static class PlmInterpreterSourceContract
         ["TryExecuteDraygonCannonInstruction/4"] = "260A37C2A8B309CE9DDDCF395BCE3A49B81DC158CBB6B1641ED9B06B757976D0",
         ["TryExecuteEyeDoorInstruction/4"] = "E4C0169DC63624F56434E356DE9A9DC96303343C5AD3B16F4012537CD0B038B0",
         ["TryExecuteMotherBrainGlassInstruction/3"] = "8B7C27BE9344830E619C0AB4336C5D248C539753B0C9356DB15AEB2518FCA29A",
-        ["TryExecuteNoobTubeInstruction/3"] = "5F1BFD668AF959AF88DA99DEFA7698F85D03CD00E80CCF716F9129F8A930A10D",
+        // #627 re-pin: spawned projectile definitions became NoobTubeProjectileDefinition members of equal value; no program reads change.
+        ["TryExecuteNoobTubeInstruction/3"] = "8D68636858EAF7CBD39F30AF108E157B9D3C6903EEF8B3DE012DECCC6F833986",
         // #142 drops the unused Samus accessor; no program reads or operand widths change.
         // #627 re-pin: PLM header aliases became PlmHeaderId members of equal value; routing unchanged.
         ["TryRunRoomPopulationSetup/10"] = "16FFB7D9F7852FAB1370230C9C3D9C97A1B11B816F23DAA07C669B603596914C",

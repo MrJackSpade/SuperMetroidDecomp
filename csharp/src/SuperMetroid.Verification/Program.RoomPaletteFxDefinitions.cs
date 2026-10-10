@@ -132,13 +132,13 @@ internal static partial class Program
             AssertEqual((ushort)1, PaletteFxSlotWord(slot, "InstructionTimer"),
                 $"${pointer:X4} production timer");
             AssertEqual(
-                definition.SetupCallback == PaletteFxSetupCodes.Intro
-                    ? PaletteFxPreInstructionCodes.Intro
-                    : PaletteFxPreInstructionCodes.Null,
+                definition.SetupCallback == PaletteFxSetup.Intro
+                    ? (ushort)PaletteFxPreInstruction.Intro
+                    : (ushort)PaletteFxPreInstruction.Null,
                 PaletteFxSlotWord(slot, "PreInstruction"),
                 $"${pointer:X4} production pre-instruction");
             AssertEqual(
-                definition.SetupCallback == PaletteFxSetupCodes.Norfair
+                definition.SetupCallback == PaletteFxSetup.Norfair
                     ? PaletteFxInstructionListPointers.NorfairPowerSuit
                     : definition.InitialInstructionList,
                 PaletteFxSlotWord(slot, "InstructionPointer"),

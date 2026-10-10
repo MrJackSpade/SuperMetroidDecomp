@@ -22,7 +22,7 @@ internal static partial class Program
             "sequence setup requires corpse art");
         AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing sequence corpse art leaves WRAM unchanged");
 
-        CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap(CrocomireMeltingArtworkAddresses.FirstTilemap),
+        CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
         CheckCrocomireResourceFailure(null, fixture => fixture.Call("InitializeCrocomireMeltingGraphics"),
             "missing melt graphics");

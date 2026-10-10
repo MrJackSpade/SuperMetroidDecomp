@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// One bank-$86 timed program whose frame durations and control flow affect simulation.
+/// One bank-$86 timed program whose frame durations and control flow affect simulation;
+/// <paramref name="Duration"/> gives each frame's hold.
 /// Spritemap operands remain outside this definition and select installed presentation content.
 /// </summary>
 internal readonly record struct EnemyProjectileTimedProgramDefinition(
@@ -9,7 +10,8 @@ internal readonly record struct EnemyProjectileTimedProgramDefinition(
     int FrameCount,
     ushort? PrefixInstruction,
     ushort TerminalInstruction,
-    ushort? TerminalOperand);
+    ushort? TerminalOperand,
+    Func<int, ushort> Duration);
 
 /// <summary>One presentation-only spritemap operand in a compiled bank-$86 program.</summary>
 internal readonly record struct EnemyProjectilePresentationFrameDefinition(
@@ -273,94 +275,52 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     internal const int TimedProgramCount = 37;
     internal static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
-        0 => new(MotherBrainBombInitial, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainBombInitial),
-        1 => new(MotherBrainRainbowBeamChargingInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        2 => new(MotherBrainDroolFalling, 4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        3 => new(MotherBrainEscapeDoorFragmentInitial, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainEscapeDoorFragmentInitial),
-        4 => new(MotherBrainPurpleBreathInitial, 8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        5 => new(MotherBrainSubtitleInitial, 1, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep, null),
-        6 => new(MiscDustBeamCharge, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        7 => new(MiscDustElbowChargeParticle, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        8 => new(MiscDustElbowChargeEnergy, 7, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        9 => new(MotherBrainSmallDeathExplosionInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        10 => new(MotherBrainRainbowExplosionInitial, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        11 => new(MiscDustBeamTrail, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        12 => new(MiscDustDudShot, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        13 => new(MiscDustPowerBomb, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        14 => new(MiscDustElevatorPad, 2, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        15 => new(MiscDustSmallDustCloud, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        16 => new(MiscDustCorpseDustCloud, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        17 => new(MiscDustEyeDoorSweat, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        18 => new(MotherBrainDeathSmokeInitial, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        19 => new(MiscDustLoopingElevatorPad, 2, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MiscDustLoopingElevatorPad),
-        20 => new(MotherBrainBigDeathExplosionInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        21 => new(MiscDustSmallHealthDrop, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        22 => new(MiscDustBigHealthDrop, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        23 => new(MiscDustBomb, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        24 => new(MiscDustWeirdHealthDrop, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        25 => new(MiscDustRockParticles, 16, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        26 => new(MiscDustShortBigDustCloud, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        27 => new(MiscDustShortBeamCloud, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        28 => new(MiscDustMediumBeamCloud, 7, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        29 => new(MiscDustBigDustCloud, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        30 => new(MiscDustLongBeam, 31, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        31 => new(MiscDustFlickeringBeam, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        32 => new(MiscDustDraygonBubbles, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        33 => new(MiscDustSaveStationLaser, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        34 => new(MiscDustExpandingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
-        35 => new(MiscDustContractingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null),
+        0 => new(MotherBrainBombInitial, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainBombInitial, frame => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames)),
+        1 => new(MotherBrainRainbowBeamChargingInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => RainbowChargeFrames),
+        2 => new(MotherBrainDroolFalling, 4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => DroolSplashFrames),
+        3 => new(MotherBrainEscapeDoorFragmentInitial, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MotherBrainEscapeDoorFragmentInitial, frame => (ushort)(frame < 4 ? DoorEarlyFrames : DoorLaterStartFrames + (frame - 4) / 2 * DoorLaterStepFrames)),
+        4 => new(MotherBrainPurpleBreathInitial, 8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => (ushort)(PurpleBreathStartFrames + frame / 2 * PurpleBreathStepFrames)),
+        5 => new(MotherBrainSubtitleInitial, 1, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep, null, frame => SubtitleFrames),
+        6 => new(MiscDustBeamCharge, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => BeamChargeFrames),
+        7 => new(MiscDustElbowChargeParticle, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => (ushort)Math.Max(ElbowParticleMinimumFrames, ElbowParticleStartFrames - frame * ElbowParticleStepFrames)),
+        // The final pose changes to small-explosion ignition; its selected hold remains required.
+        8 => new(MiscDustElbowChargeEnergy, 7, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => (ushort)(frame == 6 ? ElbowEnergyTerminalFrames : Math.Max(ElbowEnergyMinimumFrames, ElbowEnergyStartFrames - frame * ElbowEnergyStepFrames))),
+        9 => new(MotherBrainSmallDeathExplosionInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => SmallExplosionAnimationDefinitions.Duration(frame)),
+        10 => new(MotherBrainRainbowExplosionInitial, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => RainbowExplosionDuration(frame)),
+        // The final distinct charge-particle pose and trail dwell magnitudes remain independent.
+        11 => new(MiscDustBeamTrail, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => frame == 4 ? TrailTerminalFrames : TrailFrames),
+        12 => new(MiscDustDudShot, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => DudShotFrames),
+        13 => new(MiscDustPowerBomb, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => PowerBombFrames),
+        14 => new(MiscDustElevatorPad, 2, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => ElevatorPadFrames),
+        15 => new(MiscDustSmallDustCloud, 5, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => SmallDustFrames),
+        16 => new(MiscDustCorpseDustCloud, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => CorpseDustFrames),
+        17 => new(MiscDustEyeDoorSweat, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => EyeSweatFrames),
+        18 => new(MotherBrainDeathSmokeInitial, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => DeathSmokeFrames),
+        19 => new(MiscDustLoopingElevatorPad, 2, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, MiscDustLoopingElevatorPad, frame => LoopingElevatorPadFrames),
+        20 => new(MotherBrainBigDeathExplosionInitial, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => BigDeathExplosionFrames),
+        21 => new(MiscDustSmallHealthDrop, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => SmallHealthFrames),
+        22 => new(MiscDustBigHealthDrop, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => BigHealthFrames),
+        23 => new(MiscDustBomb, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => DustBombFrames),
+        24 => new(MiscDustWeirdHealthDrop, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => WeirdHealthFrames),
+        25 => new(MiscDustRockParticles, 16, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => RockParticlesFrames),
+        26 => new(MiscDustShortBigDustCloud, 4, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => ShortBigDustFrames),
+        27 => new(MiscDustShortBeamCloud, 6, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => frame == 5 ? ShortBeamTerminalFrames : ShortBeamOrdinaryFrames),
+        28 => new(MiscDustMediumBeamCloud, 7, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => MediumBeamCloudFrames),
+        29 => new(MiscDustBigDustCloud, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => BigDustFrames),
+        30 => new(MiscDustLongBeam, 31, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => LongBeamFrames),
+        31 => new(MiscDustFlickeringBeam, 3, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => FlickeringBeamFrames),
+        32 => new(MiscDustDraygonBubbles, 9, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => DraygonBubblesFrames),
+        33 => new(MiscDustSaveStationLaser, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => SaveStationLaserFrames),
+        34 => new(MiscDustExpandingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => ExpandingGateFrames),
+        35 => new(MiscDustContractingGate, 8, null, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete, null, frame => ContractingGateFrames),
         // The breath-inactive opcode takes no operand; the word after it is the Delete opcode.
         36 => new(MotherBrainPurpleBreathSmallInitial, 8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            frame => frame < 2 ? SmallPurpleBreathOpeningFrames : (ushort)(SmallPurpleBreathLaterStartFrames + (frame - 2) / 2)),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
-    private static ushort TimedDuration(ushort program, int frame) => program switch
-    {
-        MotherBrainBombInitial => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames),
-        MotherBrainPurpleBreathInitial => (ushort)(PurpleBreathStartFrames + frame / 2 * PurpleBreathStepFrames),
-        MotherBrainPurpleBreathSmallInitial => frame < 2
-            ? SmallPurpleBreathOpeningFrames
-            : (ushort)(SmallPurpleBreathLaterStartFrames + (frame - 2) / 2),
-        MotherBrainEscapeDoorFragmentInitial => (ushort)(frame < 4 ? DoorEarlyFrames : DoorLaterStartFrames + (frame - 4) / 2 * DoorLaterStepFrames),
-        MiscDustElbowChargeParticle => (ushort)Math.Max(ElbowParticleMinimumFrames, ElbowParticleStartFrames - frame * ElbowParticleStepFrames),
-        // The final pose changes to small-explosion ignition; its selected hold remains required.
-        MiscDustElbowChargeEnergy => (ushort)(frame == 6 ? ElbowEnergyTerminalFrames : Math.Max(ElbowEnergyMinimumFrames, ElbowEnergyStartFrames - frame * ElbowEnergyStepFrames)),
-        MotherBrainSmallDeathExplosionInitial => SmallExplosionAnimationDefinitions.Duration(frame),
-        MotherBrainRainbowExplosionInitial => RainbowExplosionDuration(frame),
-        // The final distinct charge-particle pose and trail dwell magnitudes remain independent.
-        MiscDustBeamTrail => frame == 4 ? TrailTerminalFrames : TrailFrames,
-        MiscDustShortBeamCloud => frame == 5 ? ShortBeamTerminalFrames : ShortBeamOrdinaryFrames,
-        MotherBrainRainbowBeamChargingInitial => RainbowChargeFrames,
-        MotherBrainDroolFalling => DroolSplashFrames,
-        MotherBrainSubtitleInitial => SubtitleFrames,
-        MiscDustBeamCharge => BeamChargeFrames,
-        MiscDustCorpseDustCloud => CorpseDustFrames,
-        MiscDustMediumBeamCloud => MediumBeamCloudFrames,
-        MiscDustDudShot => DudShotFrames,
-        MiscDustContractingGate => ContractingGateFrames,
-        MiscDustPowerBomb => PowerBombFrames,
-        MiscDustSmallDustCloud => SmallDustFrames,
-        MiscDustEyeDoorSweat => EyeSweatFrames,
-        MiscDustBomb => DustBombFrames,
-        MiscDustBigDustCloud => BigDustFrames,
-        MotherBrainBigDeathExplosionInitial => BigDeathExplosionFrames,
-        MiscDustElevatorPad => ElevatorPadFrames,
-        MiscDustLongBeam => LongBeamFrames,
-        MiscDustFlickeringBeam => FlickeringBeamFrames,
-        MiscDustSaveStationLaser => SaveStationLaserFrames,
-        MiscDustLoopingElevatorPad => LoopingElevatorPadFrames,
-        MotherBrainDeathSmokeInitial => DeathSmokeFrames,
-        MiscDustSmallHealthDrop => SmallHealthFrames,
-        MiscDustBigHealthDrop => BigHealthFrames,
-        MiscDustDraygonBubbles => DraygonBubblesFrames,
-        MiscDustWeirdHealthDrop => WeirdHealthFrames,
-        MiscDustExpandingGate => ExpandingGateFrames,
-        MiscDustRockParticles => RockParticlesFrames,
-        MiscDustShortBigDustCloud => ShortBigDustFrames,
-        _ => throw new InvalidDataException($"Unknown timed projectile program ${program:X4}."),
-    };
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
@@ -463,7 +423,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 offset -= 2;
             }
             if (offset >= 0 && offset < program.FrameCount * 4 && offset % 4 == 0)
-            { value = TimedDuration(program.InitialPointer, offset / 4); return true; }
+            { value = program.Duration(offset / 4); return true; }
             if (offset == program.FrameCount * 4) { value = program.TerminalInstruction; return true; }
             if (offset == program.FrameCount * 4 + 2 && program.TerminalOperand is { } operand)
             { value = operand; return true; }

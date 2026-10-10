@@ -120,8 +120,8 @@ public sealed partial class RoomEnemySystem
         {
             state.Mode7WingFrame = unchecked((ushort)((state.Mode7WingFrame + 1) & 1));
             ApplyMode7TransferList(state.Mode7WingFrame == 0
-                ? CeresMode7TransferDefinitions.WingFrame0
-                : CeresMode7TransferDefinitions.WingFrame1);
+                ? CeresMode7TransferList.WingFrame0
+                : CeresMode7TransferList.WingFrame1);
         }
     }
 
@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
     /// Replays one compiled $80:8B4F Mode-7 transfer list synchronously. Its source
     /// bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
     /// </summary>
-    private void ApplyMode7TransferList(ushort pointer)
+    private void ApplyMode7TransferList(CeresMode7TransferList pointer)
     {
         CeresMode7TransferDefinitions.ApplyTo(_vram!, pointer);
     }

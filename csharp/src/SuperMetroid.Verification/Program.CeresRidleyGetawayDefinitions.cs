@@ -26,22 +26,12 @@ internal static partial class Program
 
     private static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers =
-        [
-            CeresMode7TransferDefinitions.ElevatorLight,
-            CeresMode7TransferDefinitions.ElevatorDark,
-            CeresMode7TransferDefinitions.BabyFrame0,
-            CeresMode7TransferDefinitions.BabyFrame1,
-            CeresMode7TransferDefinitions.BabyFrame2,
-            CeresMode7TransferDefinitions.WingFrame0,
-            CeresMode7TransferDefinitions.WingFrame1,
-        ];
         int checkedTransfers = 0;
-        foreach (ushort pointer in pointers)
+        foreach (CeresMode7TransferList pointer in Enum.GetValues<CeresMode7TransferList>())
         {
             CeresMode7TransferDefinitions.TransferSequence compiled =
                 CeresMode7TransferDefinitions.Get(pointer);
-            int cursor = 0xa60000 | pointer;
+            int cursor = 0xa60000 | (ushort)pointer;
             var expectedVram = new byte[SnesVram.ByteCount];
             Array.Fill(expectedVram, (byte)0x5a);
             var actualVram = new SnesVram();
@@ -78,7 +68,7 @@ internal static partial class Program
                 "Ceres Mode 7 compiled list preserves low-byte-only VRAM effects and ordering");
         }
         AssertThrows<InvalidDataException>(() =>
-            CeresMode7TransferDefinitions.Get(0xffff),
+            CeresMode7TransferDefinitions.Get((CeresMode7TransferList)0xffff),
             "Ceres Mode 7 unknown transfer list fails loudly");
         Console.WriteLine($"Ceres compiled Mode 7: {checkedTransfers} native transfers across all seven lists match source bytes, destinations, and VRAM effects.");
     }

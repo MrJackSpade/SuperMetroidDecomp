@@ -25,9 +25,9 @@ internal static class SpeedBoosterEscapePlmProgramDefinitions
                 4 => (ushort)RoomPlmInstruction.Sleep,
                 _ => (offset / 6) switch
                 {
-                    0 => SpeedBoosterEscapePlmRomData.WaitForSpeedBoosterPreInstruction,
-                    1 => SpeedBoosterEscapePlmRomData.WaitForSamusLeftPreInstruction,
-                    2 => SpeedBoosterEscapePlmRomData.AdvanceLavaPreInstruction,
+                    0 => (ushort)SpeedBoosterEscapePreInstruction.WaitForSpeedBooster,
+                    1 => (ushort)SpeedBoosterEscapePreInstruction.WaitForSamusLeft,
+                    2 => (ushort)SpeedBoosterEscapePreInstruction.AdvanceLava,
                     _ => throw new InvalidOperationException("Invalid bounded escape phase."),
                 },
             };

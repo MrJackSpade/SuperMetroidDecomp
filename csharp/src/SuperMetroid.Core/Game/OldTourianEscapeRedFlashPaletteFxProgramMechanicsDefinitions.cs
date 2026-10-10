@@ -54,9 +54,9 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             ProgramStart + 2 => ColorByteIndex,
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            LoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,
         };
@@ -69,9 +69,9 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => 3,
-                8 => PaletteFxInstructionCodes.ColorPlus4,
-                18 => PaletteFxInstructionCodes.ColorPlus2,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                8 => (ushort)PaletteFxInstruction.ColorPlus4,
+                18 => (ushort)PaletteFxInstruction.ColorPlus2,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

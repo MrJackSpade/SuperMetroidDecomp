@@ -237,23 +237,26 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Holtz)
+        // The shared interpreter hands every remaining negative word here; only
+        // Holtz's private opcodes belong to this handler.
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
+            !Enum.IsDefined((LowerNorfairRioInstruction)opcode))
             return false;
 
         LowerNorfairRioEnemyState state = RequireLowerNorfairRioState(slot);
-        switch (opcode)
+        switch ((LowerNorfairRioInstruction)opcode)
         {
-            case LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag:
+            case LowerNorfairRioInstruction.SetAnimationFinishedFlag:
                 state.AnimationSignal = true;
                 break;
-            case LowerNorfairRioInstructionCodes.HideFlames:
+            case LowerNorfairRioInstruction.HideFlames:
                 state.FollowerVisible = false;
                 break;
-            case LowerNorfairRioInstructionCodes.ShowFlames:
+            case LowerNorfairRioInstruction.ShowFlames:
                 state.FollowerVisible = true;
                 break;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined Holtz instruction ${opcode:X4}.");
         }
         cursor = unchecked((ushort)(cursor + 2));
         return true;

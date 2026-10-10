@@ -8,6 +8,25 @@ namespace SuperMetroid.Core.Game;
 public readonly record struct CeresMode7Transfer(
 ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
 
+/// <summary>The seven fixed bank-<c>$A6</c> Ceres Mode 7 transfer lists.</summary>
+public enum CeresMode7TransferList : ushort
+{
+    /// <summary>$A6:F904, Ceres elevator landing-platform light frame.</summary>
+    ElevatorLight = 0xf904,
+    /// <summary>$A6:F90E, Ceres elevator landing-platform dark frame.</summary>
+    ElevatorDark = 0xf90e,
+    /// <summary>$A6:ACE2, baby-capsule tilemap frame zero.</summary>
+    BabyFrame0 = 0xace2,
+    /// <summary>$A6:ACF5, baby-capsule tilemap frame one (also frame three).</summary>
+    BabyFrame1 = 0xacf5,
+    /// <summary>$A6:AD08, baby-capsule tilemap frame two.</summary>
+    BabyFrame2 = 0xad08,
+    /// <summary>$A6:AD49, Ridley wing tilemap frame zero.</summary>
+    WingFrame0 = 0xad49,
+    /// <summary>$A6:AD80, Ridley wing tilemap frame one.</summary>
+    WingFrame1 = 0xad80,
+}
+
 /// <summary>
 /// The seven fixed transfer lists selected by the Ceres door/elevator and Ridley
 /// animation routines. These are tilemap instructions, not character pixels: $2118
@@ -15,31 +34,21 @@ ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
 /// </summary>
 public static class CeresMode7TransferDefinitions
 {
-    /// <summary>$A6:F904, Ceres elevator landing-platform light frame.</summary>
-    public const ushort ElevatorLight = 0xf904;
-    /// <summary>$A6:F90E, Ceres elevator landing-platform dark frame.</summary>
-    public const ushort ElevatorDark = 0xf90e;
-    /// <summary>$A6:ACE2, baby-capsule tilemap frame zero.</summary>
-    public const ushort BabyFrame0 = 0xace2;
-    /// <summary>$A6:ACF5, baby-capsule tilemap frame one (also frame three).</summary>
-    public const ushort BabyFrame1 = 0xacf5;
-    /// <summary>$A6:AD08, baby-capsule tilemap frame two.</summary>
-    public const ushort BabyFrame2 = 0xad08;
-    /// <summary>$A6:AD49, Ridley wing tilemap frame zero.</summary>
-    public const ushort WingFrame0 = 0xad49;
-    /// <summary>$A6:AD80, Ridley wing tilemap frame one.</summary>
-    public const ushort WingFrame1 = 0xad80;
-
     /// <summary>
     /// $A6:ACDA-$ACE1 selects the three consecutive capsule transfer records
     /// in reflected phase order0,1,2,1. Each record has two nine-byte transfers
     /// and a one-byte terminator; phase must already be bounded to0..3.
     /// </summary>
-    internal static ushort BabyFrameForPhase(int phase)
+    internal static CeresMode7TransferList BabyFrameForPhase(int phase)
     {
         if ((uint)phase >= 4) throw new IndexOutOfRangeException();
         int reflectedPhase = Math.Min(phase, 4 - phase);
-        return checked((ushort)(BabyFrame0 + reflectedPhase * (BabyFrame1 - BabyFrame0)));
+        return reflectedPhase switch
+        {
+            0 => CeresMode7TransferList.BabyFrame0,
+            1 => CeresMode7TransferList.BabyFrame1,
+            _ => CeresMode7TransferList.BabyFrame2,
+        };
     }
 
     /// <summary>Mode7 maps have128 tiles per row. Transfer destinations name low bytes of VRAM words.</summary>
@@ -54,17 +63,17 @@ public static class CeresMode7TransferDefinitions
     [ new(11,4), new(0,14), new(0,14), new(1,12), new(1,15), new(0,16) ];
 
     /// <summary>Resolves a native list pointer without reading cartridge memory or constructing a transfer table.</summary>
-    public static TransferSequence Get(ushort pointer) => pointer switch
+    public static TransferSequence Get(CeresMode7TransferList pointer) => pointer switch
     {
-        ElevatorLight or ElevatorDark => new(pointer, 1),
-        BabyFrame0 or BabyFrame1 or BabyFrame2 => new(pointer, 2),
-        WingFrame0 or WingFrame1 => new(pointer, WingRegions.Length),
-        _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{pointer:X4}."),
+        CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark => new(pointer, 1),
+        CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2 => new(pointer, 2),
+        CeresMode7TransferList.WingFrame0 or CeresMode7TransferList.WingFrame1 => new(pointer, WingRegions.Length),
+        _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{(int)pointer:X4}."),
     };
     /// <summary>Allocation-free calculated view of one native Ceres transfer list, preserving descriptor order and the 128-cell map-row stride.</summary>
     /// <param name="pointer">Supported bank-$A6 list identity, normally selected through <see cref="Get"/>.</param>
     /// <param name="count">Descriptor count matching that identity: one for the elevator, two for the capsule, or six for Ridley's wing.</param>
-    public readonly struct TransferSequence(ushort pointer, int count) : IReadOnlyList<CeresMode7Transfer>
+    public readonly struct TransferSequence(CeresMode7TransferList pointer, int count) : IReadOnlyList<CeresMode7Transfer>
     {
         /// <summary>Number of transfer descriptors in this view, not total tile bytes or elapsed animation updates.</summary>
         public int Count => count;
@@ -77,17 +86,17 @@ public static class CeresMode7TransferDefinitions
             get
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
-                if (pointer is ElevatorLight or ElevatorDark)
+                if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
                     return new(                        (ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4));
-                if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
+                if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
                 {
-                    int frame = (pointer - BabyFrame0) / (2 * 9 + 1);
+                    int frame = (pointer - CeresMode7TransferList.BabyFrame0) / (2 * 9 + 1);
                     return new(                        (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
                 }
                 WingRegion region = WingRegions[index];
                 int offset = 0;
                 for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
-                if (pointer == WingFrame1) offset += region.Width;
+                if (pointer == CeresMode7TransferList.WingFrame1) offset += region.Width;
                 return new((ushort)(index * MapColumns + region.Column),
                     new(pointer, index, region.Width));
             }
@@ -104,7 +113,7 @@ public static class CeresMode7TransferDefinitions
     /// <param name="pointer">Supported bank-$A6 elevator, capsule, or wing list identity defining the displayed frame.</param>
     /// <param name="row">Descriptor-row ordinal: zero for the elevator, 0..1 for the capsule, or 0..5 for the wing; not the absolute map Y coordinate.</param>
     /// <param name="count">Authored row width: four elevator cells, two capsule cells, or the selected wing region's width.</param>
-    public readonly struct TileSequence(ushort pointer, int row, int count) : IReadOnlyList<byte>
+    public readonly struct TileSequence(CeresMode7TransferList pointer, int row, int count) : IReadOnlyList<byte>
     {
         /// <summary>Number of eight-bit tile selectors written to consecutive low-byte map cells by this row transfer.</summary>
         public int Count => count;
@@ -139,22 +148,22 @@ public static class CeresMode7TransferDefinitions
     }
 
     /// <summary>$A6:AD1B-AD26: six baby row origins remain REQUIRED; adjacent right tiles calculate. Platform glyphs use their shared canonical owner.</summary>
-    private static byte TileAt(ushort pointer, int row, int column)
+    private static byte TileAt(CeresMode7TransferList pointer, int row, int column)
     {
-        if (pointer is ElevatorLight or ElevatorDark)
-            return PlatformTile(pointer == ElevatorDark ? 1 : 0, column);
-        if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
+        if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
+            return PlatformTile(pointer == CeresMode7TransferList.ElevatorDark ? 1 : 0, column);
+        if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
         {
             int origin = (pointer, row) switch
             {
-                (BabyFrame0, 0) => 0x59, (BabyFrame0, 1) => 0x69,
-                (BabyFrame1, 0) => 0x8a, (BabyFrame1, 1) => 0x8c,
-                (BabyFrame2, 0) => 0x8e, (BabyFrame2, 1) => 0x9d,
+                (CeresMode7TransferList.BabyFrame0, 0) => 0x59, (CeresMode7TransferList.BabyFrame0, 1) => 0x69,
+                (CeresMode7TransferList.BabyFrame1, 0) => 0x8a, (CeresMode7TransferList.BabyFrame1, 1) => 0x8c,
+                (CeresMode7TransferList.BabyFrame2, 0) => 0x8e, (CeresMode7TransferList.BabyFrame2, 1) => 0x9d,
                 _ => throw new InvalidOperationException("Unknown baby tilemap row."),
             };
             return (byte)(origin + column);
         }
-        return WingTile(pointer == WingFrame1, row, column);
+        return WingTile(pointer == CeresMode7TransferList.WingFrame1, row, column);
     }
     /// <summary>$A6:ADB7-AE4C: contiguous atlas runs and shared cells derive. Every selected run origin/extent and isolated glyph below remains REQUIRED artwork placement; no artwork exemption is claimed.</summary>
     private static byte WingTile(bool secondFrame, int row, int column)
@@ -192,7 +201,7 @@ public static class CeresMode7TransferDefinitions
         throw new InvalidOperationException("Unknown wing row.");
     }
     /// <summary>Replays direct calculated tiles as native $2118 low-byte writes, preserving high bytes and list order.</summary>
-    public static void ApplyTo(SnesVram vram, ushort pointer)
+    public static void ApplyTo(SnesVram vram, CeresMode7TransferList pointer)
     {
         ArgumentNullException.ThrowIfNull(vram);
         foreach (CeresMode7Transfer transfer in Get(pointer))

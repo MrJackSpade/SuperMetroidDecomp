@@ -69,13 +69,15 @@ public sealed class EnemyProjectileSpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
         }
-        bool legacyOverride = document.Version is >= 1 and < EnemyProjectileSpritemapDefinitions.Version &&
-            stock is not null;
-        int expectedFrames = document.Version == EnemyProjectileSpritemapDefinitions.CeresOnlyVersion &&
-            legacyOverride
+        var version = (EnemyProjectileSpritemapVersion)document.Version;
+        if (!Enum.IsDefined(version))
+            throw new InvalidDataException(
+                $"Enemy-projectile compositions have unknown schema version {document.Version}.");
+        bool legacyOverride = version < EnemyProjectileSpritemapVersion.Current && stock is not null;
+        int expectedFrames = version == EnemyProjectileSpritemapVersion.CeresOnly && legacyOverride
             ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount
             : EnemyProjectileSpritemapDefinitions.Frames.Length;
-        if ((!legacyOverride && document.Version != EnemyProjectileSpritemapDefinitions.Version) ||
+        if ((!legacyOverride && version != EnemyProjectileSpritemapVersion.Current) ||
             document.Frames is null || document.Frames.Count != expectedFrames)
             throw new InvalidDataException(
                 "Enemy-projectile compositions have the wrong version or frame count.");
@@ -96,36 +98,36 @@ public sealed class EnemyProjectileSpritemapCatalog
                     $"Enemy-projectile composition {name} is missing.");
             compiled[pointer] = CompileParts(name, visual);
         }
-        if (document.Version >= EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion)
+        if (version >= EnemyProjectileSpritemapVersion.FirstProgramFrame)
         {
-            EnemyProjectilePresentationFrameDefinition[] definitions = document.Version switch
+            EnemyProjectilePresentationFrameDefinition[] definitions = version switch
             {
-                EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion =>
+                EnemyProjectileSpritemapVersion.FirstProgramFrame =>
                     EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreAlcoonVersion =>
+                EnemyProjectileSpritemapVersion.PreAlcoon =>
                     EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
                         .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
                         .ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion =>
+                EnemyProjectileSpritemapVersion.PreGoldenTorizo =>
                     EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion =>
+                EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg =>
                     EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion =>
+                EnemyProjectileSpritemapVersion.PreTorizoEffects =>
                     EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion =>
+                EnemyProjectileSpritemapVersion.PreGenericEnemyDeath =>
                     EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreEnvironmentAndAttackVersion =>
+                EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack =>
                     EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion =>
+                EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue =>
                     EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PreWorkRobotVersion =>
+                EnemyProjectileSpritemapVersion.PreWorkRobot =>
                     EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
-                EnemyProjectileSpritemapDefinitions.PrePolypRockVersion =>
+                EnemyProjectileSpritemapVersion.PrePolypRock =>
                     EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
-                EnemyProjectileSpritemapDefinitions.Version =>
+                EnemyProjectileSpritemapVersion.Current =>
                     EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
-                _ => throw new InvalidDataException(
-                    $"Enemy-projectile program-frame version {document.Version} is unsupported."),
+                _ => throw new InvalidOperationException(
+                    $"Enemy-projectile schema {version} has no program frames."),
             };
             if (document.ProgramFrames is null ||
                 document.ProgramFrames.Count != definitions.Length)
@@ -212,6 +214,37 @@ public sealed record EnemyProjectileSpritemapDocument
     public Dictionary<string, SpriteVisualPart[]>? ProgramFrames { get; init; }
 }
 
+/// <summary>Schema generations of the editable enemy-projectile composition document.</summary>
+public enum EnemyProjectileSpritemapVersion
+{
+    /// <summary>Initial schema generation containing only the two Ceres elevator-pad compositions and elevator platform, without debris or timed-program bindings.</summary>
+    CeresOnly = 1,
+    /// <summary>Schema 2: the Ceres and Skree/Metaree debris compositions, before any timed-program bindings.</summary>
+    PreProgramFrames = 2,
+    /// <summary>First schema generation requiring named visual frames for the translated shared projectile instruction mechanics.</summary>
+    FirstProgramFrame = 3,
+    /// <summary>Legacy schema 4's translated family set before Alcoon fireball bindings; loading omits those operands from the later pre-Golden-Torizo set.</summary>
+    PreAlcoon = 4,
+    /// <summary>Legacy schema 5 including Alcoon fireballs but preceding Golden Torizo super-missile and eye-beam program frames.</summary>
+    PreGoldenTorizo = 5,
+    /// <summary>Legacy schema 6 including Golden Torizo super missiles and eye beams but preceding its egg program frames.</summary>
+    PreGoldenTorizoEgg = 6,
+    /// <summary>Legacy schema 7 including Golden Torizo eggs but preceding the additional Torizo drool, swipe, sonic-boom, dust, explosion, and orb effects.</summary>
+    PreTorizoEffects = 7,
+    /// <summary>Legacy schema 8 including Torizo effects but preceding generic enemy death and pickup program frames.</summary>
+    PreGenericEnemyDeath = 8,
+    /// <summary>Legacy schema 9 containing generic enemy death/pickup frames but preceding the environment and additional attack-effect bindings.</summary>
+    PreEnvironmentAndAttack = 9,
+    /// <summary>Legacy schema 10 containing environment/attack effects but preceding Mother Brain and Bomb Torizo statue program-frame bindings.</summary>
+    PreMotherBrainAndStatue = 10,
+    /// <summary>Schema 11: all earlier projectile families, before Work Robot laser bindings.</summary>
+    PreWorkRobot = 11,
+    /// <summary>Schema before the single-frame Polyp lava-rock composition was installed.</summary>
+    PrePolypRock = 12,
+    /// <summary>Current schema generation 13, including the single-frame Polyp lava rock and all earlier projectile presentation bindings.</summary>
+    Current = 13,
+}
+
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
@@ -246,9 +279,9 @@ public static class EnemyProjectileSpritemapDefinitions
     {
         if (!BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(operandAddress))
             throw new InvalidDataException($"Bomb Torizo drool visual operand $86:{operandAddress:X4} is not compiled.");
-        if (operandAddress < BombTorizoDroolInstructionProgramDefinitions.NoDelay) return BlankSpritemap;
-        int frame = operandAddress < BombTorizoDroolInstructionProgramDefinitions.FloorImpact ? 0 :
-            1 + (operandAddress - (BombTorizoDroolInstructionProgramDefinitions.FloorImpact + 4)) / 4;
+        if (operandAddress < (ushort)BombTorizoDroolProgram.NoDelay) return BlankSpritemap;
+        int frame = operandAddress < (ushort)BombTorizoDroolProgram.FloorImpact ? 0 :
+            1 + (operandAddress - ((ushort)BombTorizoDroolProgram.FloorImpact + 4)) / 4;
         return (ushort)(0x8c54 + 7 * frame);
     }
     /// <summary>Four consecutive fireball maps at $8D:8404, each with a
@@ -277,30 +310,6 @@ public static class EnemyProjectileSpritemapDefinitions
     /// </summary>
     public const ushort BlankSpritemap = 0x8000;
 
-    /// <summary>Current schema generation 13, including the single-frame Polyp lava rock and all earlier projectile presentation bindings.</summary>
-    public const int Version = 13;
-    /// <summary>Schema before the single-frame Polyp lava-rock composition was installed.</summary>
-    public const int PrePolypRockVersion = 12;
-    /// <summary>Schema 11: all earlier projectile families, before Work Robot laser bindings.</summary>
-    public const int PreWorkRobotVersion = 11;
-    /// <summary>Legacy schema 10 containing environment/attack effects but preceding Mother Brain and Bomb Torizo statue program-frame bindings.</summary>
-    public const int PreMotherBrainAndStatueVersion = 10;
-    /// <summary>Legacy schema 9 containing generic enemy death/pickup frames but preceding the environment and additional attack-effect bindings.</summary>
-    public const int PreEnvironmentAndAttackVersion = 9;
-    /// <summary>Initial schema generation containing only the two Ceres elevator-pad compositions and elevator platform, without debris or timed-program bindings.</summary>
-    public const int CeresOnlyVersion = 1;
-    /// <summary>First schema generation requiring named visual frames for the translated shared projectile instruction mechanics.</summary>
-    public const int FirstProgramFrameVersion = 3;
-    /// <summary>Legacy schema 8 including Torizo effects but preceding generic enemy death and pickup program frames.</summary>
-    public const int PreGenericEnemyDeathVersion = 8;
-    /// <summary>Legacy schema 7 including Golden Torizo eggs but preceding the additional Torizo drool, swipe, sonic-boom, dust, explosion, and orb effects.</summary>
-    public const int PreTorizoEffectsVersion = 7;
-    /// <summary>Legacy schema 6 including Golden Torizo super missiles and eye beams but preceding its egg program frames.</summary>
-    public const int PreGoldenTorizoEggVersion = 6;
-    /// <summary>Legacy schema 5 including Alcoon fireballs but preceding Golden Torizo super-missile and eye-beam program frames.</summary>
-    public const int PreGoldenTorizoVersion = 5;
-    /// <summary>Legacy schema 4's translated family set before Alcoon fireball bindings; loading omits those operands from the later pre-Golden-Torizo set.</summary>
-    public const int PreAlcoonVersion = 4;
     /// <summary>Installed editable JSON filename for projectile OAM compositions and presentation-only timed-program frames.</summary>
     public const string FileName = "enemy-projectile-compositions.json";
     /// <summary>Three bank-$8D compositions in the version-1 Ceres-only catalog, retained when merging that legacy override with current stock.</summary>

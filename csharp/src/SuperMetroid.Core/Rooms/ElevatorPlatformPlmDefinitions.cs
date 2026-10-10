@@ -1,4 +1,17 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The three bank-$84 elevator-platform draw lists, 24 bytes apart.</summary>
+internal enum ElevatorPlatformDraw : ushort
+{
+    /// <summary>First elevator-platform draw list, $84:AA97.</summary>
+    First = 0xaa97,
+    /// <summary>Second elevator-platform draw list, $84:AAAF.</summary>
+    Second = 0xaaaf,
+    /// <summary>Third elevator-platform draw list, $84:AAC7.</summary>
+    Third = 0xaac7,
+}
 
 /// <summary>
 /// The $B70B elevator-platform PLM's complete $84:AFB6 instruction loop and its
@@ -9,12 +22,8 @@ internal static class ElevatorPlatformPlmDefinitions
 {
     /// <summary>First $B70B instruction word, $84:AFB6.</summary>
     internal const ushort InstructionLoop = 0xafb6;
-    /// <summary>First elevator-platform draw list, $84:AA97.</summary>
-    internal const ushort FirstDraw = 0xaa97;
-    /// <summary>Second elevator-platform draw list, $84:AAAF.</summary>
-    internal const ushort SecondDraw = 0xaaaf;
-    /// <summary>Third elevator-platform draw list, $84:AAC7.</summary>
-    internal const ushort ThirdDraw = 0xaac7;
+    /// <summary>Byte stride between consecutive draw lists.</summary>
+    private const int DrawStride = 24;
 
     /// <summary>
     /// Three frames at $84:AA97..AADE, each with two upper edge cells and a
@@ -54,9 +63,9 @@ internal static class ElevatorPlatformPlmDefinitions
     }
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        int offset = pointer - FirstDraw;
-        bool owned = offset >= 0 && offset <= ThirdDraw - FirstDraw && offset % 24 == 0;
-        draw = owned ? new(pointer, offset / 24) : default;
+        // Pointers outside the three lists belong to other draw families.
+        bool owned = Enum.IsDefined((ElevatorPlatformDraw)pointer);
+        draw = owned ? new(pointer, (pointer - (ushort)ElevatorPlatformDraw.First) / DrawStride) : default;
         return owned;
     }
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
@@ -65,31 +74,37 @@ internal static class ElevatorPlatformPlmDefinitions
         {
             for (int frame = 0; frame < 3; frame++)
             {
-                TryGetDraw((ushort)(FirstDraw + frame * 24), out var list);
+                TryGetDraw((ushort)((ushort)ElevatorPlatformDraw.First + frame * DrawStride), out var list);
                 yield return list;
             }
         }
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
-    {
-        FirstDraw => "first-frame",
-        SecondDraw => "second-frame",
-        ThirdDraw => "third-frame",
-        _ => throw new InvalidDataException($"Unknown elevator-platform draw list ${pointer:X4}."),
-    };
+    internal static string VisualId(ushort pointer) =>
+        ClosedNativeWords.Decode<ElevatorPlatformDraw>(pointer, "elevator-platform draw list") switch
+        {
+            ElevatorPlatformDraw.First => "first-frame",
+            ElevatorPlatformDraw.Second => "second-frame",
+            ElevatorPlatformDraw.Third => "third-frame",
+            _ => throw new InvalidOperationException($"Undefined elevator-platform draw list ${pointer:X4}."),
+        };
 
     internal static bool TryGetByVisualId(string? id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        ushort pointer = id switch
+        ElevatorPlatformDraw? pointer = id switch
         {
-            "first-frame" => FirstDraw,
-            "second-frame" => SecondDraw,
-            "third-frame" => ThirdDraw,
-            _ => 0,
+            "first-frame" => ElevatorPlatformDraw.First,
+            "second-frame" => ElevatorPlatformDraw.Second,
+            "third-frame" => ElevatorPlatformDraw.Third,
+            _ => null,
         };
-        return TryGetDraw(pointer, out list);
+        if (pointer is not { } draw)
+        {
+            list = default;
+            return false;
+        }
+        return TryGetDraw((ushort)draw, out list);
     }
 
     /// <summary>
@@ -112,7 +127,7 @@ internal static class ElevatorPlatformPlmDefinitions
         {
             int phase = offset / 4;
             int frame = 2 - Math.Abs(phase - 2);
-            value = (ushort)(FirstDraw + frame * 24);
+            value = (ushort)((ushort)ElevatorPlatformDraw.First + frame * DrawStride);
         }
         return true;
     }

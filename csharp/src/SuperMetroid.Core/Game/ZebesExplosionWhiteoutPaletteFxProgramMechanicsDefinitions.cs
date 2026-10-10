@@ -73,14 +73,14 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            WideExplosionBackgroundProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            WideExplosionBackgroundProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             WideExplosionBackgroundProgramStart + 2 =>
                 WideExplosionBackgroundColorByteIndex,
-            WideExplosionBackgroundProgramStart + 4 => PaletteFxInstructionCodes.Goto,
+            WideExplosionBackgroundProgramStart + 4 => (ushort)PaletteFxInstruction.Goto,
             WideExplosionBackgroundProgramStart + 6 => FirstFramePointer,
-            SpaceWhiteoutProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            SpaceWhiteoutProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             SpaceWhiteoutProgramStart + 2 => SpaceWhiteoutColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
+            DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
             _ => 0,
         };
         if (value != 0 || pointer == SpaceWhiteoutProgramStart + 2)
@@ -92,7 +92,7 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => FrameDuration,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

@@ -29,14 +29,14 @@ internal static partial class Program
         closed.Blocks[0] = 0x0055;
         halfClosed.Blocks[0] = 0x0056;
         AssertEqual((ushort)0x0053,
-            edited.GetWord(MotherBrainEscapeGatePlmDrawDefinitions.Closed, 0),
+            edited.GetWord((ushort)MotherBrainEscapeGateDraw.Closed, 0),
             "escape-gate catalog copies closed-frame author data");
         AssertEqual((ushort)0x0054,
-            edited.GetWord(MotherBrainEscapeGatePlmDrawDefinitions.HalfClosed, 0),
+            edited.GetWord((ushort)MotherBrainEscapeGateDraw.HalfClosed, 0),
             "escape-gate catalog copies transition-frame author data");
         AssertEqual(stockClosed,
             RoomPlmEscapeGateVisualCatalog.Stock().GetWord(
-                MotherBrainEscapeGatePlmDrawDefinitions.Closed, 0),
+                (ushort)MotherBrainEscapeGateDraw.Closed, 0),
             "stock escape-gate catalog retains cartridge appearance");
         closed.Blocks[0] = stockClosed;
         halfClosed.Blocks[0] = stockHalfClosed;
@@ -167,7 +167,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmEscapeGateVisuals().GetWord(
-                    MotherBrainEscapeGatePlmDrawDefinitions.Closed, 0),
+                    (ushort)MotherBrainEscapeGateDraw.Closed, 0),
                 "installed escape-gate override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -176,7 +176,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmEscapeGateVisualFiles.Load(refreshed,
                     installation.RoomPlmEscapeGateVisualOverrideDirectory).GetWord(
-                    MotherBrainEscapeGatePlmDrawDefinitions.Closed, 0),
+                    (ushort)MotherBrainEscapeGateDraw.Closed, 0),
                 "escape-gate override survives stock replacement");
             closed["blocks"]![0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());

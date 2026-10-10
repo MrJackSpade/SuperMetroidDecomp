@@ -41,10 +41,11 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.FakeKraidSpikeLeft or
         RoomEnemyProjectileKind.FakeKraidSpikeRight;
 
-    internal static ushort ReadMechanicsWord(ushort address) => address switch
+    /// <summary>Resolves one control word by its byte position from <see cref="Spit"/>.</summary>
+    internal static ushort ReadMechanicsWord(ushort address) => (address - Spit) switch
     {
-        Spit or SpikeLeft or SpikeRight => 0x7fff,
-        SpitSleep or SpikeLeftSleep or SpikeRightSleep =>
+        0 or SpikeLeft - Spit or SpikeRight - Spit => 0x7fff,
+        SpitSleep - Spit or SpikeLeftSleep - Spit or SpikeRightSleep - Spit =>
             EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
         _ => throw new InvalidDataException(
             $"Fake Kraid projectile instruction mechanics pointer $86:{address:X4} " +

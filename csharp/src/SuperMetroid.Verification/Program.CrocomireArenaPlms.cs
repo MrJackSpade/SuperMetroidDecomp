@@ -84,7 +84,7 @@ internal static partial class Program
             if ((address >> 16) == 0x84 &&
                 ((pointer >= CrocomireArenaPlmProgramDefinitions.ClearBridge &&
                   pointer < CrocomireArenaPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= CrocomireArenaPlmDrawDefinitions.ClearBridge &&
+                 (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
                   pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive)))
             {
                 ForbiddenReadAttempts++;

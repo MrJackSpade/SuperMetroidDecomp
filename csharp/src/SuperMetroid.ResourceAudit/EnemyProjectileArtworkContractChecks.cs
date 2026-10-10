@@ -15,7 +15,7 @@ internal static class EnemyProjectileArtworkContractChecks
         var direct = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
-            Version = EnemyProjectileSpritemapDefinitions.Version, Frames = direct, ProgramFrames = programs };
+            Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? stock = null) =>
             EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
@@ -32,7 +32,7 @@ internal static class EnemyProjectileArtworkContractChecks
         direct.Remove("unowned-direct"); direct.Add(directName, []);
         programs.Remove(program.Name); programs.Add("unowned-program", []);
         Reject(() => Load(document), "same-count substituted program composition");
-        var legacy = document with { Version = EnemyProjectileSpritemapDefinitions.CeresOnlyVersion,
+        var legacy = document with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount)
                 .ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()), ProgramFrames = null };
         Reject(() => Load(legacy), "legacy stock without complete inheritance");

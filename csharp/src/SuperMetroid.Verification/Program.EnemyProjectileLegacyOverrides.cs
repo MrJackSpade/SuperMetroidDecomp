@@ -12,17 +12,17 @@ internal static partial class Program
         EnemyProjectileSpritemapCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
         int programSchemas = 0;
-        for (int version = EnemyProjectileSpritemapDefinitions.CeresOnlyVersion; version <= EnemyProjectileSpritemapDefinitions.Version; version++)
+        foreach (EnemyProjectileSpritemapVersion version in Enum.GetValues<EnemyProjectileSpritemapVersion>())
         {
-            int count = version == EnemyProjectileSpritemapDefinitions.CeresOnlyVersion
+            int count = version == EnemyProjectileSpritemapVersion.CeresOnly
                 ? EnemyProjectileSpritemapDefinitions.LegacyFrameCount : EnemyProjectileSpritemapDefinitions.Frames.Length;
             EnemyProjectilePresentationFrameDefinition[] programs = HistoricalPrograms(version);
             EnemyProjectileSpritemapDocument document = stockDocument with
             {
-                Version = version,
+                Version = (int)version,
                 Frames = EnemyProjectileSpritemapDefinitions.Frames.Take(count).ToDictionary(frame => frame.Name,
                     frame => stockDocument.Frames[frame.Name].ToArray(), StringComparer.Ordinal),
-                ProgramFrames = version >= EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion
+                ProgramFrames = version >= EnemyProjectileSpritemapVersion.FirstProgramFrame
                     ? programs.ToDictionary(frame => frame.Name, frame => stockDocument.ProgramFrames![frame.Name].ToArray(), StringComparer.Ordinal) : null,
             };
             string firstName = EnemyProjectileSpritemapDefinitions.Frames[0].Name;
@@ -30,7 +30,7 @@ internal static partial class Program
             if (programs.Length != 0)
                 document.ProgramFrames![programs[0].Name] = [document.ProgramFrames[programs[0].Name][0] with { OffsetX = 23, OffsetY = -9, TileRow = 31, FlipY = true }];
             EnemyProjectileSpritemapCatalog merged = Load(document, stock);
-            string prefix = $"enemy projectile schema {version}: ";
+            string prefix = $"enemy projectile schema {(int)version}: ";
             foreach (var frame in EnemyProjectileSpritemapDefinitions.Frames)
             {
                 SpriteVisualPart[] expected = document.Frames.GetValueOrDefault(frame.Name) ?? stockDocument.Frames[frame.Name];
@@ -44,7 +44,7 @@ internal static partial class Program
             AssertTrue(stockIdentity != merged.ContentIdentity, prefix + "edits change identity");
             AssertEqual(merged.ContentIdentity, Load(document, stock).ContentIdentity, prefix + "reload preserves identity");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "override does not mutate stock");
-            if (version != EnemyProjectileSpritemapDefinitions.Version)
+            if (version != EnemyProjectileSpritemapVersion.Current)
                 AssertThrows<InvalidDataException>(() => Load(document), prefix + "legacy overrides require current stock");
             var wrongFrame = new Dictionary<string, SpriteVisualPart[]>(document.Frames, StringComparer.Ordinal);
             wrongFrame.Remove(firstName);
@@ -59,9 +59,9 @@ internal static partial class Program
             var wrongKey = new Dictionary<string, SpriteVisualPart[]>(missing, StringComparer.Ordinal) { ["unknown-program"] = document.ProgramFrames![programs[0].Name] };
             AssertThrows<InvalidDataException>(() => Load(document with { ProgramFrames = wrongKey }, stock), prefix + "same-count wrong program keys reject");
         }
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemyProjectileSpritemapDefinitions.CeresOnlyVersion - 1 }, stock), "projectile unknown old version rejects");
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemyProjectileSpritemapDefinitions.Version + 1 }, stock), "projectile unknown future version rejects");
-        Console.WriteLine($"PASS enemy projectile overrides: all {EnemyProjectileSpritemapDefinitions.Version} schemas, {programSchemas} program-frame schemas; " +
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly - 1 }, stock), "projectile unknown old version rejects");
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemyProjectileSpritemapVersion.Current + 1 }, stock), "projectile unknown future version rejects");
+        Console.WriteLine($"PASS enemy projectile overrides: all {(int)EnemyProjectileSpritemapVersion.Current} schemas, {programSchemas} program-frame schemas; " +
             "exact edited parts, historical named sets, new stock inheritance, identity and missing-reference rejection. No ROM or gameplay probes.");
         return;
 
@@ -90,22 +90,22 @@ internal static partial class Program
         }
     }
 
-    private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(int version) => version switch
+    private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(EnemyProjectileSpritemapVersion version) => version switch
     {
-        < EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion => [],
-        EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion => EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreAlcoonVersion => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
+        EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],
+        EnemyProjectileSpritemapVersion.FirstProgramFrame => EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
+        EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
             .Where(frame => !Enumerable.Range(0, AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
                 .Any(index => frame.OperandAddress == AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress(index))).ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreGoldenTorizoVersion => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreGoldenTorizoEggVersion => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreTorizoEffectsVersion => EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion => EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreEnvironmentAndAttackVersion => EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion => EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PreWorkRobotVersion => EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
-        EnemyProjectileSpritemapDefinitions.PrePolypRockVersion => EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
-        EnemyProjectileSpritemapDefinitions.Version => EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
+        EnemyProjectileSpritemapVersion.PreTorizoEffects => EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
+        EnemyProjectileSpritemapVersion.PreGenericEnemyDeath => EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
+        EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack => EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
+        EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue => EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
+        EnemyProjectileSpritemapVersion.PreWorkRobot => EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
+        EnemyProjectileSpritemapVersion.PrePolypRock => EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
+        EnemyProjectileSpritemapVersion.Current => EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
         _ => throw new InvalidOperationException($"Projectile fixture has no historical schema {version}."),
     };
 }

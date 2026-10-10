@@ -25,7 +25,7 @@ internal static partial class Program
         var edited = new RoomPlmElevatorPlatformVisualCatalog(entries);
         first.Runs[0][0] = 0x0054;
         AssertEqual((ushort)0x0053,
-            edited.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
+            edited.GetWord((ushort)ElevatorPlatformDraw.First, 0, 0),
             "elevator visual catalog copies author data");
         (ushort physical, ushort rendered) Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
@@ -106,7 +106,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmElevatorPlatformVisuals().GetWord(
-                    ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
+                    (ushort)ElevatorPlatformDraw.First, 0, 0),
                 "elevator override selects edited frame art");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -115,7 +115,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmElevatorPlatformVisualFiles.Load(refreshed,
                     installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetWord(
-                        ElevatorPlatformPlmDefinitions.FirstDraw, 0, 0),
+                        (ushort)ElevatorPlatformDraw.First, 0, 0),
                 "elevator override survives stock replacement");
 
             first["runs"]![0]![0] = 0xf053;

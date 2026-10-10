@@ -77,18 +77,19 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>Resolves one compiled mechanics word across both entries and shared code.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        // Word positions are byte offsets from CloneProgramStart.
+        value = (pointer - CloneProgramStart) switch
         {
-            CloneProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            CloneProgramStart + 2 => ColorByteIndex,
-            CloneProgramStart + 4 => PaletteFxInstructionCodes.Goto,
-            CloneProgramStart + 6 => SharedProgramStart,
-            LiveProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            LiveProgramStart + 2 => ColorByteIndex,
-            SharedProgramStart => PaletteFxInstructionCodes.SetPreInstruction,
-            SharedProgramStart + 2 => PaletteFxPreInstructionCodes.InspectAdjacentSlot,
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
-            LoopInstructionPointer + 2 => FirstFramePointer,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
+            2 => ColorByteIndex,
+            4 => (ushort)PaletteFxInstruction.Goto,
+            6 => SharedProgramStart,
+            LiveProgramStart - CloneProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
+            LiveProgramStart + 2 - CloneProgramStart => ColorByteIndex,
+            SharedProgramStart - CloneProgramStart => (ushort)PaletteFxInstruction.SetPreInstruction,
+            SharedProgramStart + 2 - CloneProgramStart => (ushort)PaletteFxPreInstruction.InspectAdjacentSlot,
+            LoopInstructionPointer - CloneProgramStart => (ushort)PaletteFxInstruction.Goto,
+            LoopInstructionPointer + 2 - CloneProgramStart => FirstFramePointer,
             _ => 0,
         };
         if (value != 0)
@@ -101,8 +102,8 @@ public static class TourianGlowPaletteFxProgramMechanicsDefinitions
             value = inFrame switch
             {
                 0 => 10,
-                4 => PaletteFxInstructionCodes.ColorPlus3,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                4 => (ushort)PaletteFxInstruction.ColorPlus3,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

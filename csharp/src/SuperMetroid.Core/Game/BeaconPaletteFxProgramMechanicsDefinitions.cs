@@ -97,10 +97,10 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             ProgramStart + 2 => ColorByteIndex,
-            SoundInstructionPointer => PaletteFxInstructionCodes.QueueSfx2,
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            SoundInstructionPointer => (ushort)PaletteFxInstruction.QueueSfx2,
+            LoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,
         };
@@ -113,8 +113,8 @@ public static class BeaconPaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => 10,
-                8 => PaletteFxInstructionCodes.ColorPlus9,
-                12 => PaletteFxInstructionCodes.Wait,
+                8 => (ushort)PaletteFxInstruction.ColorPlus9,
+                12 => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

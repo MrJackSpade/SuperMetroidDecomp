@@ -88,14 +88,14 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
             }
             if (inFrame == FrameByteCount - sizeof(ushort))
             {
-                value = PaletteFxInstructionCodes.Wait;
+                value = (ushort)PaletteFxInstruction.Wait;
                 return true;
             }
         }
 
         if (pointer == DeleteInstructionPointer)
         {
-            value = PaletteFxInstructionCodes.Delete;
+            value = (ushort)PaletteFxInstruction.Delete;
             return true;
         }
 
@@ -171,9 +171,9 @@ public sealed class TourianStatueGreyPaletteFxProgramDefinition
         int offset = pointer - ProgramStart;
         ushort? setupWord = offset switch
         {
-            0 => PaletteFxInstructionCodes.SetColorIndex,
+            0 => (ushort)PaletteFxInstruction.SetColorIndex,
             2 => ColorByteIndex,
-            4 when UsesGoto => PaletteFxInstructionCodes.Goto,
+            4 when UsesGoto => (ushort)PaletteFxInstruction.Goto,
             6 when UsesGoto =>
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
             _ => null,

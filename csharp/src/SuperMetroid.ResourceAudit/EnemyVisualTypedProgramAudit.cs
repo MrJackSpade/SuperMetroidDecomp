@@ -37,7 +37,7 @@ internal static class EnemyVisualTypedProgramAudit
         // from these typed frame records. Guard the reviewed producer/loader source;
         // this is a closed provider proof, not an independently duplicated pointer list.
         EnemyVisualProgramSpecializations.GuardSource(root,
-            "csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs", "546088CADBD169197A07D944BB3FDA4849A7C1D38555B3DAD17A4FE666C29085");
+            "csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs", "BB5147E13E3CF77F422710E023E5BD307BE7AD9AED2E7BFE0C7A2A41C0560C9A");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

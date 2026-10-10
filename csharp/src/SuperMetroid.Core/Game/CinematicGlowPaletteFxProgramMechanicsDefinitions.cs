@@ -157,9 +157,9 @@ public sealed class CinematicGlowPaletteFxProgramDefinition
     {
         value = pointer switch
         {
-            var item when item == ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            var item when item == ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             var item when item == ProgramStart + 2 => ColorByteIndex,
-            var item when item == LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            var item when item == LoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             var item when item == LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,
         };
@@ -175,7 +175,7 @@ public sealed class CinematicGlowPaletteFxProgramDefinition
             {
                 0 => FrameDuration,
                 var item when item == FrameByteCount - sizeof(ushort) =>
-                    PaletteFxInstructionCodes.Wait,
+                    (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

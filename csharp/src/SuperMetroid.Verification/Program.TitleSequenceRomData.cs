@@ -121,7 +121,7 @@ internal static partial class Program
                      TitleSequenceRomData.ConsolePaletteFx.FastLights })
         {
             ushort list = RoomPaletteFxDefinitions.Get(definition).InitialInstructionList;
-            WriteRomWord(rom, 0x8d0000 | list, PaletteFxInstructionCodes.Delete);
+            WriteRomWord(rom, 0x8d0000 | list, (ushort)PaletteFxInstruction.Delete);
         }
         WriteRepeatedCompressedStream(
             rom,

@@ -63,23 +63,23 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
     private static void BuildScene(ref Layout layout, bool wreckedShip)
     {
         layout.Address = wreckedShip ? WreckedShipInitial : LowerNorfairInitial;
-        layout.Command(ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY,
+        layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY,
             wreckedShip ? WreckedShipActivation : LowerNorfairActivation);
         layout.Pose(1);
         layout.Word(CommonEnemyInstructionCodes.Sleep);
-        layout.Word(ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS);
+        layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
         int movementBase = wreckedShip ? 0 : 32;
         for (int pose = 0; pose < 3; pose++)
         {
-            layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + pose * 2));
+            layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + pose * 2));
             layout.Pose(!wreckedShip && pose == 2 ? (ushort)48 : AcquisitionHolds[pose]);
         }
-        layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoGrabsSamusSFX);
-        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + 6));
+        layout.Word((ushort)ChozoStatueInstruction.Chozo_PlayChozoGrabsSamusSFX);
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + 6));
         layout.Pose(wreckedShip ? (ushort)128 : (ushort)64);
         for (int pose = 0; pose < 4; pose++) layout.Pose((ushort)(6 + pose * 2));
         layout.Pose(wreckedShip ? (ushort)128 : (ushort)96);
-        if (!wreckedShip) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_StartLoweringAcid);
+        if (!wreckedShip) layout.Word((ushort)ChozoStatueInstruction.Chozo_StartLoweringAcid);
         layout.Command(CommonEnemyInstructionCodes.SetTimer, wreckedShip ? (ushort)4 : (ushort)5);
         ushort breathing = layout.Address;
         for (int pose = 0; pose < 6; pose++)
@@ -87,35 +87,35 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, breathing);
         if (wreckedShip)
         {
-            layout.Command(ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WreckedShipWalking);
+            layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY, WreckedShipWalking);
             layout.Command(CommonEnemyInstructionCodes.SetTimer, 16);
             ushort walking = layout.Address;
             for (int pose = 0; pose < 8; pose++) BuildStridePose(ref layout, pose, true);
             layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, walking);
             for (int pose = 0; pose < 4; pose++) BuildStridePose(ref layout, pose, false);
         }
-        layout.Word(ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS);
+        layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
         for (int pose = 0; pose < 4; pose++)
         {
-            layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + (3 - pose) * 2));
+            layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + (3 - pose) * 2));
             layout.Pose(pose == 0 ? (ushort)128 : AcquisitionHolds[3 - pose]);
         }
-        if (wreckedShip) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_ReleaseSamus_BlockSlopeAccess);
+        if (wreckedShip) layout.Word((ushort)ChozoStatueInstruction.Chozo_ReleaseSamus_BlockSlopeAccess);
         else
         {
-            layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_UnlockSamus);
-            layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_SetLoweredAcidPosition);
+            layout.Word((ushort)ChozoStatueInstruction.Chozo_UnlockSamus);
+            layout.Word((ushort)ChozoStatueInstruction.Chozo_SetLoweredAcidPosition);
         }
         layout.Word(CommonEnemyInstructionCodes.Sleep);
     }
 
     private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)
     {
-        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
-        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_SpawnChozoSpikeClearingFootstepProjectile,
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_SpawnChozoSpikeClearingFootstepProjectile,
             unchecked((ushort)FootstepOffsets[pose % 4]));
         layout.Pose(StrideHolds[pose % 4]);
-        if (footsteps && pose % 4 == 0) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX);
+        if (footsteps && pose % 4 == 0) layout.Word((ushort)ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX);
     }
 
     private struct Layout(int target, bool presentation)

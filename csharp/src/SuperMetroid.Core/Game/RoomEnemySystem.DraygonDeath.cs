@@ -57,7 +57,7 @@ public sealed partial class RoomEnemySystem
             state.FacingRight
                 ? DraygonInstructionProgramDefinitions.EyeFacingRightDead
                 : DraygonInstructionProgramDefinitions.EyeFacingLeftDead);
-        eye.VariableA = 0x804b;
+        eye.VariableA = (ushort)DraygonEyeFunction.Inert;
     }
 
     private void WaitForDraygonBurialEvirs(

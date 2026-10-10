@@ -178,7 +178,7 @@ internal static partial class Program
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual(DownwardGatePreInstructionCodes.WakeIfTriggered,
+        AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggered,
             openedGate.PreInstruction, "open gate sleeps under shot-only callback");
 
         AssertTrue(plms.TrySpawnDownwardGateTrigger(

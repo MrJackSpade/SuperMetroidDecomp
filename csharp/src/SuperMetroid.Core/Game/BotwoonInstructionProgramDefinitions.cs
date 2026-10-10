@@ -63,8 +63,8 @@ internal abstract class BotwoonInstructionProgramDefinitions
                 {
                     case 0: return 32;
                     case 4: return RadiusInstruction(movement);
-                    case 6: return BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX;
-                    case 8: return BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag;
+                    case 6: return (ushort)BotwoonInstruction.QueueSpitSFX;
+                    case 8: return (ushort)BotwoonInstruction.SetSpittingFlag;
                     case 10: return (ushort)(movement == MovingLeft ? 25 : 16);
                     case 14: return CommonEnemyInstructionCodes.Sleep;
                 }
@@ -74,14 +74,14 @@ internal abstract class BotwoonInstructionProgramDefinitions
     }
     private static ushort RadiusInstruction(ushort movement) => movement switch
     {
-        MovingUpLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC,
-        MovingLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8,
-        MovingDownLeft => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate,
-        MovingDown => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again,
-        MovingDownRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again,
-        MovingRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate,
-        MovingUpRight => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2,
-        MovingUp => BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2,
+        MovingUpLeft => (ushort)BotwoonInstruction.EnemyRadius_CxC,
+        MovingLeft => (ushort)BotwoonInstruction.EnemyRadius_10x8,
+        MovingDownLeft => (ushort)BotwoonInstruction.EnemyRadius_CxC_duplicate,
+        MovingDown => (ushort)BotwoonInstruction.EnemyRadius_8x10_duplicate_again,
+        MovingDownRight => (ushort)BotwoonInstruction.EnemyRadius_CxC_duplicate_again,
+        MovingRight => (ushort)BotwoonInstruction.EnemyRadius_10x8_duplicate,
+        MovingUpRight => (ushort)BotwoonInstruction.EnemyRadius_CxC_duplicate_again2,
+        MovingUp => (ushort)BotwoonInstruction.EnemyRadius_8x10_duplicate_again2,
         _ => throw new InvalidDataException("Unknown Botwoon movement program."),
     };
     internal static bool TryDecodeDirectional(ushort address, out bool spitting, out ushort movement, out int offset)

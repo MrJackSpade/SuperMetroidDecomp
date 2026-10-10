@@ -99,7 +99,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
 
         value = pointer switch
         {
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            LoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,
         };
@@ -112,8 +112,8 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
             value = offset switch
             {
                 0 => 2,
-                14 => PaletteFxInstructionCodes.ColorPlus4,
-                FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                14 => (ushort)PaletteFxInstruction.ColorPlus4,
+                FrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)
@@ -161,10 +161,10 @@ public sealed class TourianEscapeSharedRedFlashPaletteFxProgramDefinition
     {
         value = pointer switch
         {
-            var item when item == ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            var item when item == ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             var item when item == ProgramStart + 2 => ColorByteIndex,
             var item when UsesGoto && item == ProgramStart + 4 =>
-                PaletteFxInstructionCodes.Goto,
+                (ushort)PaletteFxInstruction.Goto,
             var item when UsesGoto && item == ProgramStart + 6 =>
                 TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
             _ => 0,

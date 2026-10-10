@@ -994,38 +994,41 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Botwoon)
+        // The shared interpreter hands every remaining negative word here; only
+        // Botwoon's private opcodes belong to this handler.
+        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Botwoon ||
+            !Enum.IsDefined((BotwoonInstruction)opcode))
             return false;
         BotwoonEnemyState state = RequireBotwoonState(head);
-        switch (opcode)
+        switch ((BotwoonInstruction)opcode)
         {
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_8x10_duplicate_again2:
+            case BotwoonInstruction.EnemyRadius_8x10:
+            case BotwoonInstruction.EnemyRadius_8x10_duplicate:
+            case BotwoonInstruction.EnemyRadius_8x10_duplicate_again:
+            case BotwoonInstruction.EnemyRadius_8x10_duplicate_again2:
                 head.XRadius = 8;
                 head.YRadius = 16;
                 break;
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_CxC_duplicate_again2:
+            case BotwoonInstruction.EnemyRadius_CxC:
+            case BotwoonInstruction.EnemyRadius_CxC_duplicate:
+            case BotwoonInstruction.EnemyRadius_CxC_duplicate_again:
+            case BotwoonInstruction.EnemyRadius_CxC_duplicate_again2:
                 head.XRadius = 12;
                 head.YRadius = 12;
                 break;
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8:
-            case BotwoonCodePointers.Instruction_Botwoon_EnemyRadius_10x8_duplicate:
+            case BotwoonInstruction.EnemyRadius_10x8:
+            case BotwoonInstruction.EnemyRadius_10x8_duplicate:
                 head.XRadius = 16;
                 head.YRadius = 8;
                 break;
-            case BotwoonCodePointers.Instruction_Botwoon_SetSpittingFlag:
+            case BotwoonInstruction.SetSpittingFlag:
                 state.SpitFrameReached = true;
                 break;
-            case BotwoonCodePointers.Instruction_Botwoon_QueueSpitSFX:
+            case BotwoonInstruction.QueueSpitSFX:
                 LastBotwoonSoundEffect = 0x007c;
                 break;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined Botwoon instruction ${opcode:X4}.");
         }
         cursor = unchecked((ushort)(cursor + 2));
         return true;

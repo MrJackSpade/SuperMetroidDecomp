@@ -64,8 +64,8 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         if (HorizontalHdmaConfigured) AdvanceHorizontalScrolls();
         VerticalScroll = layer1YPosition;
         QueueTilemapRows(layer1YPosition, writes, roomMainCallback == RoomMainCallback.ScrollingSkyOcean
-            ? RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress
-            : RoomFxRomData.ScrollingSky.LandChunkPointerTableAddress);
+            ? ScrollingSkyChunkTable.Ocean
+            : ScrollingSkyChunkTable.Land);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
     }
 
-    private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, int pointerTable)
+    private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, ScrollingSkyChunkTable pointerTable)
     {
         // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
         // down to an 8-pixel boundary. All arithmetic is modular 16-bit as on the 65C816.

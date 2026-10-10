@@ -137,9 +137,9 @@ public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
     {
         value = pointer switch
         {
-            var item when item == ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            var item when item == ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             var item when item == ProgramStart + 2 => ColorByteIndex,
-            var item when item == DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
+            var item when item == DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
             _ => 0,
         };
         if (value != 0)
@@ -154,7 +154,7 @@ public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
             {
                 0 => FrameDuration,
                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameByteCount -
-                    sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                    sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

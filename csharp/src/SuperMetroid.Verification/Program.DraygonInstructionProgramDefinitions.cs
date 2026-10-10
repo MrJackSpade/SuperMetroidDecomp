@@ -83,7 +83,7 @@ internal static partial class Program
         [
             body,
             null,
-            DraygonCodePointers.Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms,
+            (ushort)DraygonInstruction.Draygon_SetInstList_Body_Eye_Tail_Arms,
             DraygonInstructionProgramDefinitions.BodyFacingLeftReset,
         ];
         AssertTrue((bool)process.Invoke(enemies, resetArguments)!,
@@ -103,7 +103,7 @@ internal static partial class Program
         [
             body,
             null,
-            DraygonCodePointers.Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate,
+            (ushort)DraygonInstruction.Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate,
             (ushort)0x9c8a,
         ];
         AssertTrue((bool)process.Invoke(enemies, duplicateIrqArguments)!,

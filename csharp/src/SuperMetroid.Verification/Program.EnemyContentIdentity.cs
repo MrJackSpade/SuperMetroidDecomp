@@ -84,7 +84,7 @@ internal static partial class Program
         EnemyProjectileSpritemapCatalog stockProjectiles = baseline.Projectiles();
         var legacyProjectiles = baseline.ProjectileDocument() with
         {
-            Version = EnemyProjectileSpritemapDefinitions.CeresOnlyVersion,
+            Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
             Frames = baseline.ProjectileDocument().Frames.Take(EnemyProjectileSpritemapDefinitions.LegacyFrameCount).ToDictionary(),
             ProgramFrames = null,
         };

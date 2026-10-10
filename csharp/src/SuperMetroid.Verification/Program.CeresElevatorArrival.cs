@@ -24,7 +24,7 @@ internal static partial class Program
         };
         var document = new EnemyProjectileSpritemapDocument
         {
-            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
                 frame => frame.Name,
                 frame => frame.Pointer is 0xb1ba or 0xb1d0 or 0x846d

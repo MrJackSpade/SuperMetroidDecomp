@@ -154,8 +154,8 @@ internal abstract class PhantoonInstructionProgramDefinitions
         if (index < 3) return index switch
         {
             0 => PhantoonBg2FrameDefinitions.InvulnerableBody,
-            1 => PhantoonBg2FrameDefinitions.BodyFullHitbox,
-            _ => PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly,
+            1 => (ushort)PhantoonCollisionFrame.BodyFullHitbox,
+            _ => (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
         };
         if (index < 6) return PhantoonBg2FrameDefinitions.OpeningEye(index - 3);
         if (index == 6) return PhantoonBg2FrameDefinitions.ClosedEye;

@@ -36,14 +36,16 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
     {
         // Establish foot state and animation lock, show the dormant frame, then install
         // the hand-crumble wake function and sleep. The interleaved frame is not control.
-        value = address switch
+        // Word positions are byte offsets from Initial: the frame operand sits at +6
+        // (DormantFrameOperand) and the sleep at +12 (Sleep).
+        value = (address - Initial) switch
         {
-            Initial => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
-            Initial + 2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
-            Initial + 4 => 1,
-            DormantFrameOperand + 2 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
-            DormantFrameOperand + 4 => WakeWhenHandCrumbles,
-            Sleep => CommonEnemyInstructionCodes.Sleep,
+            0 => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
+            4 => 1,
+            8 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            10 => WakeWhenHandCrumbles,
+            12 => CommonEnemyInstructionCodes.Sleep,
             _ => 0,
         };
         return value != 0;

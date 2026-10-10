@@ -78,7 +78,7 @@ internal static partial class Program
         // under the power-bomb detector with its link pointing at the input-wait stage.
         StepNoobTube(plms, guarded, level, streamer);
         RoomPlmSlotSnapshot intact = plms.PopulationSlots.Single();
-        AssertEqual(NoobTubePlmRomData.WakeOnPowerBombPreInstruction,
+        AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb,
             intact.PreInstruction, "intact tube waits for a power bomb");
         AssertEqual(0xd4e8, intact.LinkInstruction,
             "power-bomb callback retains the cartridge link target");
@@ -147,7 +147,7 @@ internal static partial class Program
             "generic trigger publishes the native marked Power Bomb word");
         StepNoobTube(plms, guarded, level, streamer);
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
-        AssertEqual(NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
+        AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
             armed.PreInstruction, "power bomb arms the input wake callback");
         AssertEqual(0xd4f2, armed.LinkInstruction,
             "input callback retains the cartridge break target");
@@ -176,7 +176,7 @@ internal static partial class Program
             AssertTrue(!restored.StationaryScriptControlLocked, "generic unlock clears stale stationary ownership");
         }
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
-        AssertEqual(NoobTubePlmRomData.CrackProjectile, projectiles[0].DefinitionPointer,
+        AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].DefinitionPointer,
             "first spawned actor is the n00b-tube crack");
 
         // The first broken image lasts $30 frames. Two one-frame images follow, after which
@@ -185,11 +185,11 @@ internal static partial class Program
             StepNoobTube(plms, guarded, level, streamer);
         AssertEqual(17, projectiles.Count,
             "break burst contains one crack, ten shards, and six bubbles");
-        AssertEqual(NoobTubePlmRomData.ShardProjectile,
+        AssertEqual(NoobTubeProjectileDefinition.Shard,
             projectiles[1].DefinitionPointer, "burst begins with shard parameter zero");
         AssertEqual((ushort)0x12, projectiles[10].Parameter,
             "tenth shard retains the final even ROM parameter");
-        AssertEqual(NoobTubePlmRomData.ReleasedAirBubbleProjectile,
+        AssertEqual(NoobTubeProjectileDefinition.ReleasedAirBubble,
             projectiles[11].DefinitionPointer, "six bubbles follow all shards");
         AssertEqual((ushort)0x0a, projectiles[^1].Parameter,
             "sixth bubble retains the final even ROM parameter");
@@ -441,14 +441,14 @@ internal static partial class Program
         WriteWord(bus, 0x84d4da, (ushort)RoomPlmInstruction.LinkInstruction);
         WriteWord(bus, 0x84d4dc, 0xd4e8);
         WriteWord(bus, 0x84d4de, (ushort)RoomPlmInstruction.InstallPreInstruction);
-        WriteWord(bus, 0x84d4e0, NoobTubePlmRomData.WakeOnPowerBombPreInstruction);
+        WriteWord(bus, 0x84d4e0, (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb);
         WriteWord(bus, 0x84d4e2, 1);
         WriteWord(bus, 0x84d4e4, 0x98d1);
         WriteWord(bus, 0x84d4e6, (ushort)RoomPlmInstruction.Sleep);
         WriteWord(bus, 0x84d4e8, (ushort)RoomPlmInstruction.LinkInstruction);
         WriteWord(bus, 0x84d4ea, 0xd4f2);
         WriteWord(bus, 0x84d4ec, (ushort)RoomPlmInstruction.InstallPreInstruction);
-        WriteWord(bus, 0x84d4ee, NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction);
+        WriteWord(bus, 0x84d4ee, (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput);
         WriteWord(bus, 0x84d4f0, (ushort)RoomPlmInstruction.Sleep);
         WriteWord(bus, 0x84d4f2, (ushort)RoomPlmInstruction.ClearPreInstruction);
         WriteWord(bus, 0x84d4f4, (ushort)RoomPlmInstruction.LockSamus);

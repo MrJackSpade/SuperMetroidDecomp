@@ -176,7 +176,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     {
         if (pointer == ProgramStart)
         {
-            value = PaletteFxInstructionCodes.SetColorIndex;
+            value = (ushort)PaletteFxInstruction.SetColorIndex;
             return true;
         }
         if (pointer == unchecked((ushort)(ProgramStart + sizeof(ushort))))
@@ -186,7 +186,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
         }
         if (pointer == LoopInstructionPointer)
         {
-            value = PaletteFxInstructionCodes.Goto;
+            value = (ushort)PaletteFxInstruction.Goto;
             return true;
         }
         if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
@@ -206,7 +206,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
             }
             if (inFrame == FrameByteCount - sizeof(ushort))
             {
-                value = PaletteFxInstructionCodes.Wait;
+                value = (ushort)PaletteFxInstruction.Wait;
                 return true;
             }
         }

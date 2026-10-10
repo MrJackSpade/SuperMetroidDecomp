@@ -14,8 +14,8 @@ internal static partial class Program
     static void VerifyPaletteFxInstructionCodeCatalogs()
     {
         AssertPaletteFxCatalog(PaletteFxInstructionCodesType(), expectedCount: 19);
-        AssertPaletteFxCatalog(typeof(PaletteFxSetupCodes), expectedCount: 4);
-        AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
+        AssertPaletteFxCatalog(typeof(PaletteFxSetup), expectedCount: 4);
+        AssertPaletteFxCatalog(typeof(PaletteFxPreInstruction), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
         AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
 
@@ -32,8 +32,8 @@ internal static partial class Program
         Type[] catalogs =
         [
             PaletteFxInstructionCodesType(),
-            typeof(PaletteFxSetupCodes),
-            typeof(PaletteFxPreInstructionCodes),
+            typeof(PaletteFxSetup),
+            typeof(PaletteFxPreInstruction),
             typeof(PaletteFxInstructionListPointers),
         ];
         foreach (Type catalog in catalogs)
@@ -113,7 +113,7 @@ internal static partial class Program
                     pointer,
                     out ushort compiled),
                 $"standalone palette-FX delete is registered at $8D:{pointer:X4}");
-            AssertEqual(PaletteFxInstructionCodes.Delete, value,
+            AssertEqual((ushort)PaletteFxInstruction.Delete, value,
                 $"standalone palette-FX delete value at $8D:{pointer:X4}");
             AssertEqual(value, compiled,
                 $"standalone palette-FX compiled word at $8D:{pointer:X4}");
@@ -373,7 +373,7 @@ internal static partial class Program
         AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
         AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
         AssertEqual(PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ProgramStart, Word(0xe202), "native glare definition entry");
-        AssertEqual(PaletteFxSetupCodes.Null, Word(0xe200), "native glare setup callback");
+        AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe200), "native glare setup callback");
         var original = new Dictionary<ushort, ushort> { [0xdf94] = Word(0xdf94), [0xdf96] = Word(0xdf96) };
         int cursor = 0xdf98, frame = 0;
         while (true)
@@ -702,7 +702,7 @@ internal static partial class Program
         AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
         AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
         AssertEqual(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
-        AssertEqual(PaletteFxSetupCodes.Null, Word(0xe1e4), "native gunship reveal setup callback");
+        AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe1e4), "native gunship reveal setup callback");
         var original = new Dictionary<ushort, ushort> { [0xd6ba] = Word(0xd6ba), [0xd6bc] = Word(0xd6bc) };
         int cursor = 0xd6be, frame = 0;
         while (true)
@@ -2312,12 +2312,12 @@ internal static partial class Program
         var expected = new Dictionary<ushort, ushort>
         {
             [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ProgramStart] =
-                PaletteFxInstructionCodes.SetColorIndex,
+                (ushort)PaletteFxInstruction.SetColorIndex,
             [unchecked((ushort)(
                 RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ProgramStart + 2))] =
                 RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
             [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer] =
-                PaletteFxInstructionCodes.Goto,
+                (ushort)PaletteFxInstruction.Goto,
             [unchecked((ushort)(
                 RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2))] =
                 RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
@@ -2331,7 +2331,7 @@ internal static partial class Program
             expected.Add(
                 unchecked((ushort)(pointer +
                     RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
-                PaletteFxInstructionCodes.Wait);
+                (ushort)PaletteFxInstruction.Wait);
             for (int color = 0;
                  color < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
@@ -2403,22 +2403,22 @@ internal static partial class Program
             if (definition.DeletesWithAreaMiniBoss)
             {
                 expected.Add(definition.ProgramStart,
-                    PaletteFxInstructionCodes.SetPreInstruction);
+                    (ushort)PaletteFxInstruction.SetPreInstruction);
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
-                    PaletteFxPreInstructionCodes.DeleteWhenAreaMiniBossDies);
+                    (ushort)PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies);
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 4)),
-                    PaletteFxInstructionCodes.SetColorIndex);
+                    (ushort)PaletteFxInstruction.SetColorIndex);
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 6)),
                     BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex);
             }
             else
             {
-                expected.Add(definition.ProgramStart, PaletteFxInstructionCodes.SetColorIndex);
+                expected.Add(definition.ProgramStart, (ushort)PaletteFxInstruction.SetColorIndex);
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
                     BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorByteIndex);
             }
 
-            expected.Add(definition.LoopInstructionPointer, PaletteFxInstructionCodes.Goto);
+            expected.Add(definition.LoopInstructionPointer, (ushort)PaletteFxInstruction.Goto);
             expected.Add(unchecked((ushort)(definition.LoopInstructionPointer + 2)),
                 definition.FirstFramePointer);
             for (int frame = 0;
@@ -2430,7 +2430,7 @@ internal static partial class Program
                 expected.Add(
                     unchecked((ushort)(pointer +
                         BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
-                    PaletteFxInstructionCodes.Wait);
+                    (ushort)PaletteFxInstruction.Wait);
                 for (int color = 0;
                      color < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
@@ -2517,14 +2517,14 @@ internal static partial class Program
         {
             var expected = new Dictionary<ushort, ushort>
             {
-                [definition.ProgramStart] = PaletteFxInstructionCodes.SetColorIndex,
+                [definition.ProgramStart] = (ushort)PaletteFxInstruction.SetColorIndex,
                 [unchecked((ushort)(definition.ProgramStart + 2))] =
                     TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorByteIndex,
                 [unchecked((ushort)(definition.ProgramStart + 4))] =
-                    PaletteFxInstructionCodes.SetPreInstruction,
+                    (ushort)PaletteFxInstruction.SetPreInstruction,
                 [unchecked((ushort)(definition.ProgramStart + 6))] =
-                    PaletteFxPreInstructionCodes.DeleteWhenEnemyZeroDies,
-                [definition.LoopInstructionPointer] = PaletteFxInstructionCodes.Goto,
+                    (ushort)PaletteFxPreInstruction.DeleteWhenEnemyZeroDies,
+                [definition.LoopInstructionPointer] = (ushort)PaletteFxInstruction.Goto,
                 [unchecked((ushort)(definition.LoopInstructionPointer + 2))] =
                     definition.FirstFramePointer,
             };
@@ -2538,7 +2538,7 @@ internal static partial class Program
                 expected.Add(
                     unchecked((ushort)(pointer +
                         TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
-                    PaletteFxInstructionCodes.Wait);
+                    (ushort)PaletteFxInstruction.Wait);
                 for (int color = 0;
                      color < TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                      color++)
@@ -2623,13 +2623,13 @@ internal static partial class Program
         foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
                  TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
-            expected.Add(definition.ProgramStart, PaletteFxInstructionCodes.SetColorIndex);
+            expected.Add(definition.ProgramStart, (ushort)PaletteFxInstruction.SetColorIndex);
             expected.Add(unchecked((ushort)(definition.ProgramStart + 2)),
                 definition.ColorByteIndex);
             if (definition.UsesGoto)
             {
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 4)),
-                    PaletteFxInstructionCodes.Goto);
+                    (ushort)PaletteFxInstruction.Goto);
                 expected.Add(unchecked((ushort)(definition.ProgramStart + 6)),
                     TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FirstFramePointer);
             }
@@ -2645,7 +2645,7 @@ internal static partial class Program
             expected.Add(
                 unchecked((ushort)(pointer +
                     TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
-                PaletteFxInstructionCodes.Wait);
+                (ushort)PaletteFxInstruction.Wait);
 
             for (int color = 0;
                  color < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
@@ -2662,7 +2662,7 @@ internal static partial class Program
         }
         expected.Add(
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer,
-            PaletteFxInstructionCodes.Delete);
+            (ushort)PaletteFxInstruction.Delete);
 
         AssertEqual(31, expected.Count, "Tourian statue grey mechanics word count");
         foreach ((ushort pointer, ushort value) in expected)
@@ -2725,12 +2725,12 @@ internal static partial class Program
         var expected = new Dictionary<ushort, ushort>
         {
             [WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ProgramStart] =
-                PaletteFxInstructionCodes.SetColorIndex,
+                (ushort)PaletteFxInstruction.SetColorIndex,
             [unchecked((ushort)(
                 WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ProgramStart + 2))] =
                 0x0098,
             [WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer] =
-                PaletteFxInstructionCodes.Goto,
+                (ushort)PaletteFxInstruction.Goto,
             [unchecked((ushort)(
                 WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.LoopInstructionPointer + 2))] =
                 WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FirstFramePointer,
@@ -2745,7 +2745,7 @@ internal static partial class Program
             expected.Add(
                 unchecked((ushort)(pointer +
                     WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameByteCount - 2)),
-                PaletteFxInstructionCodes.Wait);
+                (ushort)PaletteFxInstruction.Wait);
             for (int color = 0;
                  color < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                  color++)
@@ -2937,7 +2937,7 @@ internal static partial class Program
                 AssertEqual((ushort)(table + 2 * phase),
                     PaletteFxHeatInstructionListDefinitions.NativeSourceAddress(suit, phase),
                     "Verification source alias preserves original pointer location");
-                AssertEqual(PaletteFxInstructionCodes.Wait, ReadVerificationWord(bus, 0x8d0000 | (expected + 32)),
+                AssertEqual((ushort)PaletteFxInstruction.Wait, ReadVerificationWord(bus, 0x8d0000 | (expected + 32)),
                     "Native frame contains duration, fifteen color words, then Done");
             }
             foreach (ushort phase in new ushort[] { 16, 17, ushort.MaxValue })
@@ -3715,7 +3715,7 @@ internal static partial class Program
 
     // Keeping this tiny helper avoids a name collision between the method and the catalog
     // in diagnostic stack traces while retaining the catalog's precise domain name.
-    private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstructionCodes);
+    private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstruction);
 
     private static void AssertPaletteFxCatalog(
         Type catalog,

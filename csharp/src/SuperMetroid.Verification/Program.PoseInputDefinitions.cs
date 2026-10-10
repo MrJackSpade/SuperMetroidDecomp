@@ -21,9 +21,9 @@ internal static partial class Program
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add((Word(address), Word(address + 2), Word(address + 4)));
             }
-            AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out ushort actualPointer), "Authored graph exists");
-            AssertEqual(pointer, actualPointer, "Native transition-list diagnostic identity");
-            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(pointer, ushort.MaxValue, ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
+            AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
+            AssertEqual(pointer, (ushort)actualPointer, "Native transition-list diagnostic identity");
+            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, ushort.MaxValue, ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;

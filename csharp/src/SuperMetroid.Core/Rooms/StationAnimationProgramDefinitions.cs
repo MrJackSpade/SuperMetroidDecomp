@@ -55,14 +55,14 @@ internal static class StationAnimationProgramDefinitions
         };
         ushort firstDraw = list switch
         {
-            StationAnimationList.MapIdle or StationAnimationList.MapAcquired => RoomPlmStationDrawDefinitions.MapFirst,
-            StationAnimationList.Energy => RoomPlmStationDrawDefinitions.EnergyFirst,
-            StationAnimationList.Missile => RoomPlmStationDrawDefinitions.MissileFirst,
-            StationAnimationList.SaveIdle => RoomPlmStationDrawDefinitions.SaveIdle,
-            StationAnimationList.SaveFirstFrame => RoomPlmStationDrawDefinitions.SaveActive,
-            StationAnimationList.SaveSecondFrame => RoomPlmStationDrawDefinitions.SaveAlternate,
+            StationAnimationList.MapIdle or StationAnimationList.MapAcquired => (ushort)StationDraw.MapFrame0,
+            StationAnimationList.Energy => (ushort)StationDraw.EnergyFrame0,
+            StationAnimationList.Missile => (ushort)StationDraw.MissileFrame0,
+            StationAnimationList.SaveIdle => (ushort)StationDraw.SaveIdle,
+            StationAnimationList.SaveFirstFrame => (ushort)StationDraw.SaveActive,
+            StationAnimationList.SaveSecondFrame => (ushort)StationDraw.SaveAlternate,
             _ => throw new InvalidOperationException($"Undefined StationAnimationList {list}."),
         };
-        return new(duration, (ushort)(firstDraw + frameIndex * 12));
+        return new(duration, (ushort)(firstDraw + frameIndex * RoomPlmStationDrawDefinitions.FrameStride));
     }
 }

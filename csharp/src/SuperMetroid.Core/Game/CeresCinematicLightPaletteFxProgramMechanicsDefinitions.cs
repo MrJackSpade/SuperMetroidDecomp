@@ -126,19 +126,19 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     {
         value = pointer switch
         {
-            GunshipEngineProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            GunshipEngineProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             GunshipEngineProgramStart + 2 => GunshipEngineColorIndex,
-            GunshipEngineLoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            GunshipEngineLoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             GunshipEngineLoopInstructionPointer + 2 => GunshipEngineFirstFramePointer,
 
-            SpriteNavigationLightsProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            SpriteNavigationLightsProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             SpriteNavigationLightsProgramStart + 2 => SpriteNavigationLightsColorIndex,
-            NavigationLightsLoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            NavigationLightsLoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             NavigationLightsLoopInstructionPointer + 2 => NavigationLightsFirstFramePointer,
 
-            BackgroundNavigationLightsProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            BackgroundNavigationLightsProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             BackgroundNavigationLightsProgramStart + 2 => BackgroundNavigationLightsColorIndex,
-            BackgroundNavigationLightsProgramStart + 4 => PaletteFxInstructionCodes.Goto,
+            BackgroundNavigationLightsProgramStart + 4 => (ushort)PaletteFxInstruction.Goto,
             BackgroundNavigationLightsProgramStart + 6 => NavigationLightsFirstFramePointer,
             _ => 0,
         };
@@ -151,7 +151,7 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => GunshipEngineFrameDuration,
-                GunshipEngineFrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                GunshipEngineFrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)
@@ -164,7 +164,7 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
             value = offset switch
             {
                 0 => NavigationLightsFrameDuration,
-                NavigationLightsFrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
+                NavigationLightsFrameByteCount - sizeof(ushort) => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

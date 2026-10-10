@@ -50,8 +50,8 @@ internal static class PlmPresentationContractChecks
                     shot.GetWord(dynamicPointer, 0, dynamicWord);
                     gate.GetWord(dynamicPointer, 0, 0);
                     gate.GetWord(dynamicPointer, 0, int.MaxValue);
-                    elevator.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 2, 3);
-                    elevator.GetWord(ElevatorPlatformPlmDefinitions.FirstDraw, 0, 1);
+                    elevator.GetWord((ushort)ElevatorPlatformDraw.First, 2, 3);
+                    elevator.GetWord((ushort)ElevatorPlatformDraw.First, 0, 1);
                     cannon.GetWord(DraygonCannonPlmDrawDefinitions.LeftShieldA, 2, 1);
                     cannon.GetWord(DraygonCannonPlmDrawDefinitions.LeftShieldA, 0, 1);
                     chozo.GetWord(ChozoStatuePlmDrawDefinitions.ClearSlopeAccess, 0, 13);
@@ -72,8 +72,8 @@ internal static class PlmPresentationContractChecks
                     botwoon.GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 9);
                     kraid.GetWord(KraidRoomPlmDrawDefinitions.ClearSpikes, 0, 21);
                     kraid.GetWord(KraidRoomPlmDrawDefinitions.CrumbleFirst, 0, 1);
-                    crocomire.GetWord(CrocomireArenaPlmDrawDefinitions.ClearBridge, 0, 9);
-                    crocomire.GetWord(CrocomireArenaPlmDrawDefinitions.CrumbleBridgeBlock, 0, 1);
+                    crocomire.GetWord((ushort)CrocomireArenaDraw.ClearBridge, 0, 9);
+                    crocomire.GetWord((ushort)CrocomireArenaDraw.CrumbleBridgeBlock, 0, 1);
                     motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 0, 4);
                     motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 1, 1);
                 }

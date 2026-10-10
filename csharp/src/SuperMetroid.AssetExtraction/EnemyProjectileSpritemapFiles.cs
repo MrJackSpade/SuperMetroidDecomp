@@ -30,7 +30,7 @@ public static class EnemyProjectileSpritemapFiles
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument
         {
-            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = frames,
             ProgramFrames = programFrames,
         });

@@ -108,9 +108,9 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingTransferDefinitions.Passes[1],
             CrocomireMeltingArtworkFormat.SecondByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            CrocomireMeltingArtworkAddresses.FirstTilemap);
+            (int)CrocomireMeltingTilemapAddress.FirstTilemap);
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            CrocomireMeltingArtworkAddresses.SecondTilemap);
+            (int)CrocomireMeltingTilemapAddress.SecondTilemap);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         File.WriteAllBytes(Path.Combine(directory,

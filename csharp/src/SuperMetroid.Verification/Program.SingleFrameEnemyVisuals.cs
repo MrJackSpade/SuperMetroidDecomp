@@ -66,7 +66,7 @@ internal static partial class Program
         var projectileDocument = JsonSerializer.Deserialize<EnemyProjectileSpritemapDocument>(projectileBytes, options)!;
         var projectileLegacy = projectileDocument with
         {
-            Version = EnemyProjectileSpritemapDefinitions.PrePolypRockVersion,
+            Version = (int)EnemyProjectileSpritemapVersion.PrePolypRock,
             ProgramFrames = EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray()
                 .ToDictionary(frame => frame.Name, frame => projectileDocument.ProgramFrames![frame.Name]),
         };

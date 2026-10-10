@@ -39,12 +39,14 @@ public sealed partial class RoomPlmSystem
         if (slot.HeaderPointer != PlmHeaderId.NoobTube || slot.PreInstruction == 0)
             return;
 
-        switch (slot.PreInstruction)
+        NoobTubePlmPreInstruction preInstruction = ClosedNativeWords.Decode<NoobTubePlmPreInstruction>(
+            slot.PreInstruction, "n00b-tube pre-instruction");
+        switch (preInstruction)
         {
-            case NoobTubePlmRomData.InactivePreInstruction:
+            case NoobTubePlmPreInstruction.Inactive:
                 return;
 
-            case NoobTubePlmRomData.WakeOnPowerBombPreInstruction:
+            case NoobTubePlmPreInstruction.WakeOnPowerBomb:
                 SamusProjectileFamily projectileFamily =
                     new SamusProjectileTypeWord(slot.LoopTimer).Family;
                 if (projectileFamily == SamusProjectileFamily.PowerBomb)
@@ -63,7 +65,7 @@ public sealed partial class RoomPlmSystem
                 slot.LoopTimer = 0;
                 return;
 
-            case NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction:
+            case NoobTubePlmPreInstruction.WakeOnAcceptedInput:
                 if ((controllerNewInput & NoobTubePlmRomData.AcceptedWakeInputMask) != 0)
                 {
                     slot.InstructionPointer = slot.LinkInstruction;
@@ -72,8 +74,7 @@ public sealed partial class RoomPlmSystem
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"N00b tube has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
+                throw new InvalidOperationException($"Undefined n00b-tube pre-instruction {preInstruction}.");
         }
     }
 
@@ -120,7 +121,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstruction.ClearPreInstruction:
-                slot.PreInstruction = NoobTubePlmRomData.InactivePreInstruction;
+                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.Inactive;
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -135,15 +136,15 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstruction.SpawnNoobTubeCrack:
-                SpawnNoobTubeProjectile(slot, NoobTubePlmRomData.CrackProjectile, 0);
+                SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, 0);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
             case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
                 for (ushort parameter = 0; parameter <= 0x12; parameter += 2)
-                    SpawnNoobTubeProjectile(slot, NoobTubePlmRomData.ShardProjectile, parameter);
+                    SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, parameter);
                 for (ushort parameter = 0; parameter <= 0x0a; parameter += 2)
-                    SpawnNoobTubeProjectile(slot, NoobTubePlmRomData.ReleasedAirBubbleProjectile, parameter);
+                    SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, parameter);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -189,7 +190,7 @@ public sealed partial class RoomPlmSystem
         _collectibleSamus?.Invoke() ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
-    private void SpawnNoobTubeProjectile(PlmSlot slot, ushort definition, ushort parameter) =>
+    private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, ushort parameter) =>
         (_spawnNoobTubeProjectile ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner."))(
             new NoobTubeProjectileRequest(definition, parameter, slot.BlockIndex));

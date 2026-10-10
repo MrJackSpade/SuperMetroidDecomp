@@ -1512,7 +1512,7 @@ internal static partial class Program
             .Select(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
-            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
             ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),

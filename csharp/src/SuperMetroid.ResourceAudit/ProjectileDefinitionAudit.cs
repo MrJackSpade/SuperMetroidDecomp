@@ -15,12 +15,9 @@ internal static class ProjectileDefinitionAudit
         ResourceIndex exports, AuditReport report)
     {
         byte bank = ResourceBanks.EnemyProjectilePrograms;
-        ushort? direct = operand switch
-        {
-            SkreeMetareeParticleVisualDefinitions.SkreeOperand => SkreeMetareeParticleVisualDefinitions.SkreeComposition,
-            SkreeMetareeParticleVisualDefinitions.MetareeOperand => SkreeMetareeParticleVisualDefinitions.MetareeComposition,
-            _ => CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort pointer) ? pointer : null,
-        };
+        ushort? direct = SkreeMetareeParticleVisualDefinitions.TryResolve(operand, out ushort particle)
+            ? particle
+            : CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort pointer) ? pointer : null;
         RequireFrame(operand, direct, owner, source, exports, report);
     }
 

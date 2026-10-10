@@ -5,14 +5,14 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ad9c, RoomMainCallback.ScrollingSkyLand));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land, RoomMainCallback.ScrollingSkyLand));
 
     private static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ada6, RoomMainCallback.ScrollingSkyOcean));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean, RoomMainCallback.ScrollingSkyOcean));
 
-    private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, int table, RoomMainCallback callback)
+    private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table, RoomMainCallback callback)
     {
-        ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | ((table + 2 * index) & 0xffff));
+        ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | (((int)table + 2 * index) & 0xffff));
         for (int index = 0; index <= 256; index++)
         {
             if (index is < 9 or 255)
@@ -25,11 +25,11 @@ internal static partial class Program
         foreach (int index in new[] { int.MinValue, -1, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkPointerDefinitions.Get(table, index),
                 "Sky int index endpoints reject");
-        foreach (int invalidTable in new[] { int.MinValue, 0, table - 1, table + 1, int.MaxValue })
+        foreach (int invalidTable in new[] { int.MinValue, 0, (int)table - 1, (int)table + 1, int.MaxValue })
         foreach (int index in new[] { -1, 0, 8, 255 })
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
-                () => ScrollingSkyChunkPointerDefinitions.Get(invalidTable, index), "Unknown sky table rejects first");
+                () => ScrollingSkyChunkPointerDefinitions.Get((ScrollingSkyChunkTable)invalidTable, index), "Unknown sky table rejects first");
             AssertEqual("pointerTable", exception.ParamName!, "Table rejection precedes index handling");
         }
 

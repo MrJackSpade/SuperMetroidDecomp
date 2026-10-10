@@ -50,7 +50,7 @@ internal static partial class Program
         return EnemyProjectileSpritemapCatalog.Load(new MemoryStream(EnemyProjectileSpritemapCatalog.Write(
             new EnemyProjectileSpritemapDocument
             {
-                Version = EnemyProjectileSpritemapDefinitions.Version,
+                Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = frames,
                 ProgramFrames = programs,
             })));

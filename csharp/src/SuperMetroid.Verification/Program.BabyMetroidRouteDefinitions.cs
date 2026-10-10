@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Baby route {index} target Y");
             AssertEqual(ReadRomWord(rom, address + 4), record.AccelerationDivisorIndex,
                 $"Baby route {index} acceleration-divisor index");
-            AssertEqual(ReadRomWord(rom, address + 6), record.MovementFunction,
+            AssertEqual(ReadRomWord(rom, address + 6), (ushort)record.MovementFunction,
                 $"Baby route {index} movement callback");
             AssertEqual(ReadRomWord(rom, address + 8), record.FollowingWord,
                 $"Baby route {index} overlapping following word");
@@ -41,7 +41,7 @@ internal static partial class Program
             () => BabyMetroidRouteDefinitions.GetRecord(0xca64),
             "Baby route rejects its terminal callback word as a record");
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(0),
+            () => BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed((BabyMetroidRouteMovementFunction)0),
             "Baby route rejects an unknown movement callback");
 
         Console.WriteLine(

@@ -13,7 +13,7 @@ public sealed partial class RoomEnemySystem
     private void SpawnWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
-        ushort definition,
+        WorkRobotLaser definition,
         ushort cameraX,
         ushort cameraY)
     {
@@ -32,12 +32,12 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = state.LaserXVelocity;
         projectile.YVelocity = definition switch
         {
-            WorkRobotLaserDefinitions.UpLeft or WorkRobotLaserDefinitions.UpRight =>
+            WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
                 unchecked((ushort)-0x0080),
-            WorkRobotLaserDefinitions.DownLeft or WorkRobotLaserDefinitions.DownRight => 0x0080,
-            WorkRobotLaserDefinitions.Horizontal => 0,
-            _ => throw new InvalidDataException(
-                $"Work Robot laser definition $86:{definition:X4} is not translated."),
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 0x0080,
+            WorkRobotLaser.Horizontal => 0,
+            _ => throw new InvalidOperationException(
+                $"Undefined Work Robot laser definition {definition}."),
         };
 
         // All five initializers place the muzzle four pixels in the signed facing direction
@@ -53,7 +53,7 @@ public sealed partial class RoomEnemySystem
         // Upward and horizontal variants retain the owner's word until common
         // pre-instruction $D3BF clears it on their first projectile pass.
         if (definition is
-            WorkRobotLaserDefinitions.DownLeft or WorkRobotLaserDefinitions.DownRight)
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight)
             projectile.GraphicsIndex = 0;
 
         // Preserve the original $86:D35B viewport bug. Its final Y comparison omits

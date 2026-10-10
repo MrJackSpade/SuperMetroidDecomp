@@ -7,7 +7,7 @@ internal static class CinematicClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.TitlePalettePresentation", "title-complete-initial-palette", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "5BCCCF1C4974D5AC3AB502873D271F64E8D9332D3C498028B09F1D513B6F8425"),
-             new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "FDC5E313AE43D07AD2CFB718C7F448C6319006564E53C9F7C0DABBF045896DB0"),
+             new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "9E1455689BE088FD4D3067D27193386B1887CCF616E2E904EEC4D9699DB569C1"),
              new("csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs", "18ABA1C7FAE41B6E0C6FAE86041804B4E6A5FB20828639FDD54DC6A7BC192F90"),
              new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "751B9789B5580BDFBB7C06880D8DFBD3B1D53B0EC296A19AA7B8E80C9BA60703")]),
         new("SuperMetroid.Core.Assets.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
@@ -38,7 +38,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/CeresDoorWarmTargetPaintDefinitions.cs", "164E927F049A94C01BED7C0AFDDB327A3595BD5771139183B748E951DCB51AAA"),
              new("csharp/src/SuperMetroid.Core/Game/CeresDoorVisualRomData.cs", "382EB35827ED3CED358760B8F40A6E22E8FC841C64DB67D3AA13489917F135F6"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "2C71C8210FE457FA1D1FF6FFF05EE71BC9BBB661E562CA156F44A6FDEF7B985C"),
-             new("csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs", "56E18FDE1BA18C411522FC50C69F6A334AB255989E128ECAF29FBBC7DD7347A6")]),
+             new("csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs", "86374D22FC05F0B46AC6C3EE37EB3B3A113F9119BCE53783A568DABE1A1250F6")]),
         new("SuperMetroid.Core.Assets.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs", "DF047C887E48BB384C3942387CF3DD4E9318422127C29015CFC2E422E53BF170"),
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs", "30F7334020242A55B8ADBDF202A292BF7D5DADBE54D28C47B76EA22DBFFAEEC1"),

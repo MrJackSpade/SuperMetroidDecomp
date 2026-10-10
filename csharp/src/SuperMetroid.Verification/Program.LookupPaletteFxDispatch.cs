@@ -30,7 +30,7 @@ internal static partial class Program
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer),
-                RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
+                (ushort)RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
     }
 
     private static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)

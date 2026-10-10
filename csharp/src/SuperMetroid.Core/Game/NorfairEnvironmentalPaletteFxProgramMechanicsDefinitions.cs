@@ -240,9 +240,9 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
     {
         value = pointer switch
         {
-            var item when item == ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
+            var item when item == ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
             var item when item == ProgramStart + 2 => ColorByteIndex,
-            var item when item == LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
+            var item when item == LoopInstructionPointer => (ushort)PaletteFxInstruction.Goto,
             var item when item == LoopInstructionPointer + 2 => FirstFramePointer,
             _ => 0,
         };
@@ -257,13 +257,13 @@ public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
             int durationOffset = PublishesHeatPhase ? 3 : 0;
             value = offset switch
             {
-                0 when PublishesHeatPhase => PaletteFxInstructionCodes.SetPaletteFxIndex,
+                0 when PublishesHeatPhase => (ushort)PaletteFxInstruction.SetPaletteFxIndex,
                 var item when item == durationOffset =>
                     NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(frame),
                 var item when item == durationOffset + 8 => PublishesHeatPhase
-                    ? PaletteFxInstructionCodes.ColorPlus4
-                    : PaletteFxInstructionCodes.ColorPlus8,
-                var item when item == durationOffset + 14 => PaletteFxInstructionCodes.Wait,
+                    ? (ushort)PaletteFxInstruction.ColorPlus4
+                    : (ushort)PaletteFxInstruction.ColorPlus8,
+                var item when item == durationOffset + 14 => (ushort)PaletteFxInstruction.Wait,
                 _ => 0,
             };
             if (value != 0)

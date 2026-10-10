@@ -1,32 +1,32 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Parameters that select one authored component of Ridley's death breakup.</summary>
-internal static class RidleyExplosionParts
+internal enum RidleyExplosionPart : ushort
 {
     /// <summary>First tail segment.</summary>
-    public const ushort Tail0 = 0x0000;
+    Tail0 = 0x0000,
     /// <summary>Second tail segment.</summary>
-    public const ushort Tail1 = 0x0002;
+    Tail1 = 0x0002,
     /// <summary>Third tail segment.</summary>
-    public const ushort Tail2 = 0x0004;
+    Tail2 = 0x0004,
     /// <summary>Fourth tail segment.</summary>
-    public const ushort Tail3 = 0x0006;
+    Tail3 = 0x0006,
     /// <summary>Fifth tail segment.</summary>
-    public const ushort Tail4 = 0x0008;
+    Tail4 = 0x0008,
     /// <summary>Sixth tail segment.</summary>
-    public const ushort Tail5 = 0x000a;
+    Tail5 = 0x000a,
     /// <summary>Seventh segment, whose image is selected from the combined tip angle.</summary>
-    public const ushort TailTip = 0x000c;
+    TailTip = 0x000c,
     /// <summary>Wing fragment.</summary>
-    public const ushort Wings = 0x000e;
+    Wings = 0x000e,
     /// <summary>Leg fragment.</summary>
-    public const ushort Legs = 0x0010;
+    Legs = 0x0010,
     /// <summary>Open-head and neck fragment.</summary>
-    public const ushort OpenHeadAndNeck = 0x0012;
+    OpenHeadAndNeck = 0x0012,
     /// <summary>Torso fragment.</summary>
-    public const ushort Torso = 0x0014;
+    Torso = 0x0014,
     /// <summary>Claw fragment.</summary>
-    public const ushort Claw = 0x0016;
+    Claw = 0x0016,
 }
 
 /// <summary>
@@ -44,14 +44,14 @@ internal static class RidleyExplosionDefinitions
     internal static void SpawnInNativeOrder(Action<ushort> spawn)
     {
         Ensure.NotNull(spawn);
-        for (int parameter = RidleyExplosionParts.TailTip; parameter >= RidleyExplosionParts.Tail0;
-             parameter -= RidleyExplosionParts.Tail1 - RidleyExplosionParts.Tail0)
+        for (int parameter = (int)RidleyExplosionPart.TailTip; parameter >= (int)RidleyExplosionPart.Tail0;
+             parameter -= RidleyExplosionPart.Tail1 - RidleyExplosionPart.Tail0)
             spawn((ushort)parameter);
-        spawn(RidleyExplosionParts.Wings);
-        spawn(RidleyExplosionParts.Legs);
-        spawn(RidleyExplosionParts.Torso);
-        spawn(RidleyExplosionParts.OpenHeadAndNeck);
-        spawn(RidleyExplosionParts.Claw);
+        spawn((ushort)RidleyExplosionPart.Wings);
+        spawn((ushort)RidleyExplosionPart.Legs);
+        spawn((ushort)RidleyExplosionPart.Torso);
+        spawn((ushort)RidleyExplosionPart.OpenHeadAndNeck);
+        spawn((ushort)RidleyExplosionPart.Claw);
     }
 
     /// <summary>
@@ -62,19 +62,19 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     public static RidleyExplosionPartDefinition GetPart(ushort parameter)
     {
-        if ((parameter & 1) != 0 || parameter > RidleyExplosionParts.Claw)
+        if ((parameter & 1) != 0 || parameter > (ushort)RidleyExplosionPart.Claw)
             throw new ArgumentOutOfRangeException(nameof(parameter));
 
         int part = parameter >> 1;
-        if (parameter <= RidleyExplosionParts.TailTip)
+        if (parameter <= (ushort)RidleyExplosionPart.TailTip)
             return new((ushort)(0x48 + 8 * part));
 
         // Body initializers have the same two-facing layout, so their native
         // addresses advance by 50 bytes. Torso is the last fragment to expire;
         // the other body parts follow the eight-frame lifetime progression.
-        int body = (parameter - RidleyExplosionParts.Wings) / 2;
-        ushort lifetime = parameter == RidleyExplosionParts.Torso ? (ushort)0x80
-            : (ushort)(0x28 + 8 * (body - (parameter == RidleyExplosionParts.Claw ? 1 : 0)));
+        int body = (parameter - (ushort)RidleyExplosionPart.Wings) / 2;
+        ushort lifetime = parameter == (ushort)RidleyExplosionPart.Torso ? (ushort)0x80
+            : (ushort)(0x28 + 8 * (body - (parameter == (ushort)RidleyExplosionPart.Claw ? 1 : 0)));
         return new(lifetime);
     }
 
@@ -94,17 +94,20 @@ internal static class RidleyExplosionDefinitions
     /// <paramref name="tailTipOrientation"/> is ignored for the first six segments.
     /// </summary>
     public static ushort SelectTailInstructionList(
-        ushort parameter,
+        RidleyExplosionPart parameter,
         int tailTipOrientation) => parameter switch
     {
-        RidleyExplosionParts.Tail0 or RidleyExplosionParts.Tail1 => 0xca47,
-        RidleyExplosionParts.Tail2 or RidleyExplosionParts.Tail3 => 0xca4d,
-        RidleyExplosionParts.Tail4 or RidleyExplosionParts.Tail5 => 0xca53,
-        RidleyExplosionParts.TailTip when (uint)tailTipOrientation < 16 =>
+        RidleyExplosionPart.Tail0 or RidleyExplosionPart.Tail1 => 0xca47,
+        RidleyExplosionPart.Tail2 or RidleyExplosionPart.Tail3 => 0xca4d,
+        RidleyExplosionPart.Tail4 or RidleyExplosionPart.Tail5 => 0xca53,
+        RidleyExplosionPart.TailTip when (uint)tailTipOrientation < 16 =>
             (ushort)(TailTipProgramStart + 6 * tailTipOrientation),
-        RidleyExplosionParts.TailTip =>
+        RidleyExplosionPart.TailTip =>
             throw new ArgumentOutOfRangeException(nameof(tailTipOrientation)),
-        _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
+        RidleyExplosionPart.Wings or RidleyExplosionPart.Legs or RidleyExplosionPart.OpenHeadAndNeck or
+            RidleyExplosionPart.Torso or RidleyExplosionPart.Claw =>
+            throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments have no tail program."),
+        _ => throw new InvalidOperationException($"Undefined Ridley explosion part {parameter}."),
     };
 
     /// <summary>
@@ -112,19 +115,19 @@ internal static class RidleyExplosionDefinitions
     /// <c>$A6:C7DA-$A6:C8D3</c>. Facing zero selects the native left-facing record.
     /// </summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(
-        ushort parameter,
+        RidleyExplosionPart parameter,
         bool facingRight) => (parameter, facingRight) switch
     {
-        (RidleyExplosionParts.Wings, false) => new(0, 0, 0xca59),
-        (RidleyExplosionParts.Wings, true) => new(0, 0, 0xca5f),
-        (RidleyExplosionParts.Legs, false) => new(15, 22, 0xca65),
-        (RidleyExplosionParts.Legs, true) => new(-15, 22, 0xca6b),
-        (RidleyExplosionParts.OpenHeadAndNeck, false) => new(-3, -24, 0xca71),
-        (RidleyExplosionParts.OpenHeadAndNeck, true) => new(3, -24, 0xca77),
-        (RidleyExplosionParts.Torso, false) => new(16, 0, 0xca7d),
-        (RidleyExplosionParts.Torso, true) => new(-16, 0, 0xca83),
-        (RidleyExplosionParts.Claw, false) => new(8, 7, 0xca89),
-        (RidleyExplosionParts.Claw, true) => new(-8, 7, 0xca8f),
+        (RidleyExplosionPart.Wings, false) => new(0, 0, 0xca59),
+        (RidleyExplosionPart.Wings, true) => new(0, 0, 0xca5f),
+        (RidleyExplosionPart.Legs, false) => new(15, 22, 0xca65),
+        (RidleyExplosionPart.Legs, true) => new(-15, 22, 0xca6b),
+        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(-3, -24, 0xca71),
+        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(3, -24, 0xca77),
+        (RidleyExplosionPart.Torso, false) => new(16, 0, 0xca7d),
+        (RidleyExplosionPart.Torso, true) => new(-16, 0, 0xca83),
+        (RidleyExplosionPart.Claw, false) => new(8, 7, 0xca89),
+        (RidleyExplosionPart.Claw, true) => new(-8, 7, 0xca8f),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 }

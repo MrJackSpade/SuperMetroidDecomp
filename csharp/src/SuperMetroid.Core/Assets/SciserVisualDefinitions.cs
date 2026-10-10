@@ -14,6 +14,7 @@ internal static class SciserVisualDefinitions
 
     /// <summary>$A3:9703 / Spritemap_Sciser_UpsideUp_0 begins twelve four-object records, each 22 bytes.</summary>
     private const ushort FirstFrame = 0x9703;
+    /// <summary>Builds the twelve native Sciser spritemap definitions in surface and animation-frame order.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var result = new EnemySpritemapDefinition[12];

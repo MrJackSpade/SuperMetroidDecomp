@@ -6,6 +6,7 @@ public sealed partial class SuperMetroidGame
 {
     // Host-owned immutable content is rebound after graph restoration, not embedded
     // in debugger states where it would hide newer user overrides on disk.
+    /// <summary>Current host-owned map and presentation catalog; restore it from the installation after loading a debugger state.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Attaches the host's current catalog after construction or debugger-state load.</summary>

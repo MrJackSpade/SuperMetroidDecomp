@@ -23,6 +23,10 @@ internal static class WorkRobotVisualDefinitions
     /// <summary>$A8:D7C1: unpowered-left record immediately follows both complete powered-facing groups.</summary>
     private const ushort UnpoweredLeft = FirstPoweredFrame + 2 * PoweredPosesPerFacing * PoweredRecordBytes;
 
+    /// <summary>
+    /// Enumerates the 24 powered facing/pose maps followed by the three unpowered compatibility identities.
+    /// </summary>
+    /// <returns>Definitions pairing each published Work Robot frame key with its bank-$A8 spritemap pointer.</returns>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int facing = 0; facing < 2; facing++)

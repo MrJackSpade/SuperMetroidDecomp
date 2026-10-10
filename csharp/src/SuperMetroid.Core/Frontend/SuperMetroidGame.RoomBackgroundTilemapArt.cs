@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Optional installed room-background art catalog rebound to the runtime when it is available.</summary>
     [NonSerialized] private RoomBackgroundTilemapCatalog? roomBackgroundTilemapArt;
 
     /// <summary>Attaches installed library-background visuals after construction or state restore.</summary>

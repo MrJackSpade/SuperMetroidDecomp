@@ -97,6 +97,10 @@ internal sealed partial class EndingCreditsState
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(), objectSelection, brightness);
     }
 
+    /// <summary>
+    /// Builds the Mode 7 transform for the post-shot display from its current angle and scale,
+    /// using the fixed center and offsets defined for that scene.
+    /// </summary>
     private Mode7RenderRegisters PostShotRegisters
     {
         get

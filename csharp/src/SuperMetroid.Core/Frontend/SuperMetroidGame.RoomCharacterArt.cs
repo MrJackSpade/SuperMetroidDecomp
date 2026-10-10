@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Installed room-character artwork retained for runtime creation and debugger-state restoration.</summary>
     [NonSerialized] private RoomCharacterAtlasCatalog? roomCharacterArt;
 
     /// <summary>Attaches installed room artwork after construction or debugger-state restoration.</summary>

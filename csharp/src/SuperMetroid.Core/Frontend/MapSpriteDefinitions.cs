@@ -102,6 +102,9 @@ public static class MapSpriteDefinitions
     public static string Name(ushort id) => NameOrNull(id)
         ?? throw new ArgumentOutOfRangeException(nameof(id), $"Menu sprite {id:X4} is not a map frame.");
 
+    /// <summary>Looks up the stable presentation key for a supported map-sprite identity without throwing for unknown IDs.</summary>
+    /// <param name="id">Unscaled native $82:C569 menu-spritemap ordinal.</param>
+    /// <returns>The semantic map role key, or <see langword="null"/> when the identity is outside this map subset.</returns>
     private static string? NameOrNull(ushort id) => id switch
     {
         ArrowRight => "Arrow.Right",

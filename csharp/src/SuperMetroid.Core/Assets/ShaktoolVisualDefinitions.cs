@@ -23,6 +23,8 @@ internal static class ShaktoolVisualDefinitions
     /// <summary>$AA:E028: first primary-saw record immediately follows the eight head directions.</summary>
     private const ushort FirstPrimarySaw = FirstHead + 8 * HeadRecordBytes;
 
+    /// <summary>Enumerates the fifteen editable spritemap frames in native record order: final saw, arm, head directions, then primary saw.</summary>
+    /// <returns>Named frame definitions for Shaktool's three saw poses, arm, eight head orientations, and three primary-saw poses.</returns>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int pose = 0; pose < 3; pose++)

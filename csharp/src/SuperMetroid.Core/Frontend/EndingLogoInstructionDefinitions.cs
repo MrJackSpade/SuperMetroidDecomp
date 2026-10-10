@@ -55,6 +55,9 @@ internal static class EndingLogoInstructionDefinitions
         };
     }
 
+    /// <summary>Selects the native logo spritemap for one wrap/reveal stage on the requested side.</summary>
+    /// <param name="right">Whether to select the upper-right actor's frame sequence.</param>
+    /// <param name="stage">Zero-based reveal stage within the side's three-frame sequence.</param>
     private static ushort WrapFrame(bool right, int stage) =>
         EndingLogoSpriteDefinitions.FramePointer((right ? 2 : 5) + stage);
 }

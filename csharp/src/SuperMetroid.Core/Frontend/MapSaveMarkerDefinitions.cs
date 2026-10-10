@@ -45,6 +45,9 @@ public static class MapSaveMarkerDefinitions
         return LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0;
     }
 
+    /// <summary>Ensures the area has a native save-map marker list.</summary>
+    /// <param name="area">Area identity to validate against the six Zebes marker lists.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area has no supported save-map marker list.</exception>
     private static void ValidateArea(AreaId area)
     {
         if ((uint)area >= FileSelectMapRomData.AreaCount)

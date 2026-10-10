@@ -27,6 +27,7 @@ public sealed class LagFreeDoorMusicUploadNmis : IDoorMusicUploadNmiSource
     /// <summary>Shared stateless policy for normal lag-free play; no upload incurs an emulated NMI stall.</summary>
     public static LagFreeDoorMusicUploadNmis Instance { get; } = new();
 
+    /// <summary>Creates the shared stateless lag-free upload policy.</summary>
     private LagFreeDoorMusicUploadNmis() { }
 
     /// <summary>Reports zero accepted NMIs for every instantaneous music-data upload.</summary>

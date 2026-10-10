@@ -89,6 +89,10 @@ internal abstract class CeresSteamInstructionProgramDefinitions
             _ => new((ushort)(start + 50), (ushort)(start + 12)),
         };
     }
+    /// <summary>Resolves a compiled mechanics-word address from the four directional Ceres steam programs.</summary>
+    /// <param name="address">Bank-$A6 byte address of an instruction mechanics word.</param>
+    /// <returns>The compiled command, timer, or branch operand at that address.</returns>
+    /// <exception cref="InvalidDataException">The address is not a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

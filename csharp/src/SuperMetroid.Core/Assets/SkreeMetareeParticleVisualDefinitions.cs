@@ -18,6 +18,13 @@ internal static class SkreeMetareeParticleVisualDefinitions
     /// <summary>Bank-$8D Metaree-debris composition selected by $86:8AC7.</summary>
     internal const ushort MetareeComposition = 0x8435;
 
+    /// <summary>
+    /// Maps a Skree or Metaree bank-$86 projectile spritemap operand to its bank-$8D debris
+    /// composition pointer.
+    /// </summary>
+    /// <param name="operandAddress">Bank-local instruction operand for the Skree or Metaree particle.</param>
+    /// <returns>The selected debris composition pointer.</returns>
+    /// <exception cref="InvalidDataException">The operand is not one of the two catalogued particle selectors.</exception>
     internal static ushort Resolve(ushort operandAddress) => operandAddress switch
     {
         SkreeOperand => SkreeComposition,

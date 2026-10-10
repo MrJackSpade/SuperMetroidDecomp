@@ -20,6 +20,9 @@ internal abstract class AtomicInstructionProgramDefinitions
     /// <summary><c>$A8:E364</c>, spinning down-right.</summary>
     internal const ushort DownRight = 0xe364;
 
+    /// <summary>Identifies an interleaved presentation selector in one of Atomic's four animation loops.</summary>
+    /// <param name="address">Bank-$A8 address to classify.</param>
+    /// <returns><see langword="true"/> for a visual operand, excluding each loop's timing and control words.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (UpRight + 2);

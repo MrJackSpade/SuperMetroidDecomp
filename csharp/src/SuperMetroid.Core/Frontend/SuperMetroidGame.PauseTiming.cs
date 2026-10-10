@@ -11,6 +11,8 @@ public sealed partial class SuperMetroidGame
     /// </summary>
     private int pauseFadeDelay;
 
+    /// <summary>Starts a pause-related screen fade from the requested brightness, reloading both fade counters.</summary>
+    /// <param name="initialBrightness">Brightness to apply at the start of the transition, typically black or fully lit.</param>
     private void BeginPauseFade(byte initialBrightness)
     {
         pauseBrightness = initialBrightness;

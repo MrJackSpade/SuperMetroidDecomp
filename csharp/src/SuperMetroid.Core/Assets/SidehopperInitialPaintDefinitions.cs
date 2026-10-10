@@ -25,6 +25,10 @@ internal static class SidehopperInitialPaintDefinitions
     /// <summary>$A9:F8E0, ink13: saturated-yellow paired head features.</summary>
     private const ushort HeadYellow = 31 | (31 << 5);
 
+    /// <summary>Returns the standalone target's painted BGR555 value for one four-bit Sidehopper palette index.</summary>
+    /// <param name="color">Palette ink index from 0 through 15.</param>
+    /// <returns>The native 15-bit color word associated with the selected painted ink.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The ink index is outside the palette's 0–15 range.</exception>
     internal static ushort Color(int color) => color switch
     {
         0 => TransparentSlot,

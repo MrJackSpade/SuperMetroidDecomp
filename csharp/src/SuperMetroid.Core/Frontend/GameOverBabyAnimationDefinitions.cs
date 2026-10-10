@@ -143,6 +143,9 @@ public static class GameOverBabyAnimationDefinitions
         return new(pointer, duration, (GameOverBabyFrame)frame, palette, sound, next, restart);
     }
 
+    /// <summary>Creates the diagnostic for a pointer that does not identify a supported compiled frame record.</summary>
+    /// <param name="pointer">Unsupported bank-$82 instruction pointer to include in the error message.</param>
+    /// <returns>An exception identifying the rejected instruction pointer.</returns>
     private static InvalidDataException Unknown(ushort pointer) =>
         new($"Unknown compiled game-over Baby instruction $82:{pointer:X4}.");
 

@@ -7,6 +7,7 @@ internal sealed partial class PauseMenuState
 {
     // Native $0757 persists while the selector moves away. It is not a host
     // task or timer: only the selected reserve-transfer subdispatcher ticks it.
+    /// <summary>Retains the reserve-transfer sound cadence counter between selected-dispatcher frames.</summary>
     private ushort reserveTransferSoundDelay;
 
     /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>

@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 
 public sealed partial class SuperMetroidGame
 {
+    /// <summary>Optional installed cinematic artwork used to construct and rebind renderers; kept outside serialized game state.</summary>
     [NonSerialized] private IntroCinematicArtworkCatalog? introCinematicArt;
 
     /// <summary>

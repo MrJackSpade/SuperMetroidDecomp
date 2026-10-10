@@ -69,6 +69,9 @@ public static class GameContentComponentFormat
         return components;
     }
 
+    /// <summary>Requires a nonempty, bounded component name containing only ASCII letters, digits, hyphens, and underscores.</summary>
+    /// <param name="name">The stable, path-independent component identifier to validate.</param>
+    /// <exception cref="InvalidDataException">The name is empty, exceeds <see cref="MaximumNameByteCount"/>, or contains another character.</exception>
     private static void ValidateName(string name)
     {
         if (string.IsNullOrEmpty(name) || name.Length > MaximumNameByteCount ||

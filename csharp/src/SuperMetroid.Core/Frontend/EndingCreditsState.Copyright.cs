@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Replaces the reward panel with the installed copyright tilemap and starts its timed post-credits phase.</summary>
     private void ShowRewardCopyright()
     {
         // Func135 removes the producer panel and replaces rows twelve/thirteen with

@@ -6,6 +6,14 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Captures the shared menu compositor without retaining menu state.</summary>
 internal static class MenuRenderSnapshotCapture
 {
+    /// <summary>
+    /// Captures menu PPU memory and composes the established BG2, scrolled BG1, and OBJ render layers.
+    /// </summary>
+    /// <param name="ppu">The menu PPU state whose VRAM and CGRAM are included in the snapshot.</param>
+    /// <param name="oam">The object attribute memory used to render menu sprites.</param>
+    /// <param name="bg1VerticalScroll">The vertical offset applied to the BG1 map layer.</param>
+    /// <param name="brightness">The display brightness stored with the composed menu snapshot.</param>
+    /// <returns>A layered snapshot containing the copied PPU memory and menu render layers.</returns>
     internal static LayeredRenderSnapshot Capture(MenuPpuState ppu, OamBuffer oam,
         ushort bg1VerticalScroll, byte brightness)
     {

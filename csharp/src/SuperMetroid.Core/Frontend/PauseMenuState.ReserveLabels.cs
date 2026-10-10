@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class PauseMenuState
 {
+    /// <summary>Rebuilds reserve-tank labels from installed UI artwork and the current reserve mode.</summary>
     private void WriteReserveLabels()
     {
         // Absence of capacity leaves the original blank template intact. Restoring

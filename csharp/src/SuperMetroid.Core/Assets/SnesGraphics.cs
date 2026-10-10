@@ -97,5 +97,6 @@ public static class SnesGraphics
 
     // Replicate the high three bits into the low end rather than merely shifting. This maps
     // SNES 0..31 exactly onto the full 0..255 display range, including both endpoints.
+    /// <summary>Expands the low five bits of a channel to eight bits by repeating its high three bits.</summary>
     private static byte Expand5(int value) => (byte)(((value & 31) << 3) | ((value & 31) >> 2));
 }

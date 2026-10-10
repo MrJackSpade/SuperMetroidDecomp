@@ -28,6 +28,10 @@ public static class TitleSpriteDefinitions
         }
     }
 
+    /// <summary>Reads the bank-$8C spritemap pointer stored in one timed text-list entry.</summary>
+    /// <param name="sequence">Text-list definition whose instruction address begins the timed entries.</param>
+    /// <param name="frame">Zero-based timed-entry index in that list.</param>
+    /// <returns>The spritemap pointer from the entry, following its duration word.</returns>
     private static ushort Frame(TitleTextSequenceDefinition sequence, int frame) =>
         TitleSequenceInstructionDefinitions.ReadWord(sequence.InstructionAddress +
             frame * TitleSequenceRomData.TextSequences.TimedEntryByteCount + sizeof(ushort));

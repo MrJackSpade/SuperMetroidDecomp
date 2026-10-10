@@ -10,6 +10,13 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {
+    /// <summary>
+    /// Selects the cursor's managed page for a game-options phase; phases without a cursor page
+    /// use the installed hidden anchor.
+    /// </summary>
+    /// <param name="phase">Current options phase whose cursor selection is being resolved.</param>
+    /// <returns>The primary, controller, or special page, or <see langword="null"/> for the hidden anchor.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The phase is not one of the supported managed phases.</exception>
     internal static GameOptionsPage? Select(GameOptionsPhase phase) => phase switch
     {
         GameOptionsPhase.FadeIn or GameOptionsPhase.Main or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,

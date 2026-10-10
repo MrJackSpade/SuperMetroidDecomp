@@ -26,6 +26,10 @@ public sealed class AttractDemoInput
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
         Script.StepStockAttract((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType));
 
+    /// <summary>Applies one compiled attract-demo pre-instruction, redirecting the script when its gameplay conditions match.</summary>
+    /// <param name="pointer">Bank-$91 pre-instruction identity selected by the running demo script.</param>
+    /// <param name="gameState">Current game state used by conditional demo transitions.</param>
+    /// <param name="movementType">Current Samus movement mode used by the shinespark branch.</param>
     private void ApplyPreInstruction(ushort pointer, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
         switch (pointer)

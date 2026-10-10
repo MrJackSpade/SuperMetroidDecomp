@@ -14,6 +14,11 @@ internal abstract class BoyonInstructionProgramDefinitions
     /// <summary><c>$A2:86BF</c>, the six-frame bouncing loop.</summary>
     internal const ushort Bouncing = 0x86bf;
 
+    /// <summary>
+    /// Identifies a frame-pointer operand in Boyon's idle or bouncing instruction list, excluding its mechanics words.
+    /// </summary>
+    /// <param name="address">The bank-local instruction address to classify.</param>
+    /// <returns><see langword="true"/> when the address is one of the compiled presentation words.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         bool bouncing = address >= Bouncing;

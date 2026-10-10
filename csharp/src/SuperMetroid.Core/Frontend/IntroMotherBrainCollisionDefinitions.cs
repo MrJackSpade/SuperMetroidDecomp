@@ -24,6 +24,10 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// restate or alter the chosen level mask. See introMotherBrainCollisionContourDisposition.</summary>
     private static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 
+    /// <summary>Returns the authored physical collision word for one cell of the flashback's 16-by-14 foreground mask.</summary>
+    /// <param name="row">Zero-based source row in the foreground block map.</param>
+    /// <param name="column">Zero-based source column in the foreground block map.</param>
+    /// <returns>The encoded solid, platform-top, or open block word selected by the native collision layout.</returns>
     private static ushort Block(int row, int column)
     {
         if (row == CeilingRow || row == FloorRow) return Solid;

@@ -23,6 +23,11 @@ internal static class EndingWavySamusDefinitions
     /// <summary>$8B:E193 / CinematicFunction_PostCredits_WavySamus advances BG3Y by two per call.</summary>
     private const int VerticalStep = 2;
 
+    /// <summary>
+    /// Builds the 224 BG3 line-scroll records for a post-credits waiting-backdrop age using its native wave phase and vertical step.
+    /// </summary>
+    /// <param name="age">Elapsed waiting-backdrop calls; age one is setup-only and the sine displacement begins at age two.</param>
+    /// <returns>Per-scanline horizontal wave displacement and age-derived vertical scroll.</returns>
     internal static BackgroundLineScroll[] ScrollsAtAge(int age)
     {
         var result = new BackgroundLineScroll[224];

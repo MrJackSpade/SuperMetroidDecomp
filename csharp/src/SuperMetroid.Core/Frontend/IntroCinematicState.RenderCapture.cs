@@ -65,6 +65,11 @@ public sealed partial class IntroCinematicState
         }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
 
+    /// <summary>Creates a 32-by-32 4-bpp background plane using the supplied map and scroll registers.</summary>
+    /// <param name="tilemap">VRAM word address of the tilemap.</param>
+    /// <param name="x">Horizontal scroll register value.</param>
+    /// <param name="y">Vertical scroll register value.</param>
+    /// <returns>A layer using character base zero and forced low tile priority.</returns>
     private static Bg4BppRenderLayer Plane(ushort tilemap, ushort x, ushort y) =>
         new(tilemap, 0, x, y, 32, 32, false);
 }

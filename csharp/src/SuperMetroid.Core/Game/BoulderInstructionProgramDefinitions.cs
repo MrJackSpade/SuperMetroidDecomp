@@ -14,6 +14,9 @@ internal abstract class BoulderInstructionProgramDefinitions
     /// <summary><c>$A6:86CB</c>, the eight-frame right-moving rolling loop.</summary>
     internal const ushort Right = 0x86cb;
 
+    /// <summary>Checks whether an address is one of the visual-selector words in Boulder's two mirrored rolling loops.</summary>
+    /// <param name="address">Bank-local instruction address to classify.</param>
+    /// <returns><see langword="true"/> for an aligned visual operand, otherwise <see langword="false"/>.</returns>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Left + 2);

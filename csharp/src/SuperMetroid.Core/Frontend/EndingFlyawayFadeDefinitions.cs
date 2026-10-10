@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Frontend;
 
+/// <summary>Native white-level and countdown values for the ending flyaway fade sequence.</summary>
 internal static class EndingFlyawayFadeDefinitions
 {
     /// <summary>Func120 sets COLDATA to maximum white on each five-bit component.</summary>

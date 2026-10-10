@@ -23,6 +23,10 @@ internal static class SamusVisorColorDefinitions
     /// <summary>$9B:A3C0-$A3C5: widening start, midpoint and full-white endpoint.</summary>
     internal const int WideningPhaseCount = 3;
 
+    /// <summary>Calculates one packed RGB5 visor phase, widening the base ink before applying the full-beam darkening steps.</summary>
+    /// <param name="index">Zero-based phase within the compiled visor color sequence.</param>
+    /// <returns>The packed 15-bit RGB5 color for the requested phase.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The phase index is outside the compiled color sequence.</exception>
     internal static ushort Color(int index)
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)

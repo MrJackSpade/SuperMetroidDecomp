@@ -2,6 +2,8 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    /// <summary>Applies role-specific ending-sprite movement and deletion rules during the credits simulation.</summary>
+    /// <param name="wrapper">Ending sprite and role whose pre-instruction behavior is advanced.</param>
     private void StepEndingSpritePreInstruction(EndingSprite wrapper)
     {
         IntroDiscoverySprite sprite = wrapper.Sprite;

@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class BotwoonMovementSampleData
 {
+    /// <summary>Decoded packed sample corpus from $B3:A058-$B3:E14F, with each byte storing X and Y component codes in its high and low nibbles.</summary>
     private static readonly byte[] PackedSamples = Convert.FromBase64String(
         """
         A0NDMkNDQ0NDMkNDQ0NDMkNDQ0NDMkNDQ0NCQ0NDQ0MyQ0NDQ0NDQ0NDQ0NDQzRDQ0NDQzRDQ0M0Q0M0Q0M0Q0M0Q0RDNENEQzRD

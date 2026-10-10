@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed partial class PauseMenuState
 {
     // Retained at the simulation boundary so redraws cannot advance fill flicker.
+    /// <summary>Emulated NMI frame snapshot used to keep reserve-tank flicker synchronized across redraws.</summary>
     private byte pauseNmiFrameCounter8;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>

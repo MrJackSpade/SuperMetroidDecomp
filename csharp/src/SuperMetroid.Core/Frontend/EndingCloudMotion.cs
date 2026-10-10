@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>F455–F4E0 cloud pre-instructions, including the one-call activation handoff.</summary>
 internal static class EndingCloudMotion
 {
+    /// <summary>Activates an escape cloud at its scale threshold, then advances its role-specific position once per call.</summary>
+    /// <param name="wrapper">Cloud actor wrapper whose role selects the side, top, or bottom trajectory.</param>
+    /// <param name="scale">Current Mode 7 scale used only to decide whether an unmoving cloud activates.</param>
+    /// <exception cref="ArgumentException"><paramref name="wrapper"/> does not represent an escape cloud.</exception>
     public static void Step(EndingSprite wrapper, ushort scale)
     {
         bool side = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB

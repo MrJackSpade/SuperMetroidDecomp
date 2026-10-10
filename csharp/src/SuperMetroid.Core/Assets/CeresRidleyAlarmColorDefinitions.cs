@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -17,9 +18,9 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     private const int MiddleGreen = 14;
     private const int DarkRed = 12;
     private const int DarkGreen = 5;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal CeresRidleyAlarmColorDefinitions(ushort[][] rows)
+    internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
         for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
@@ -35,16 +36,16 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return Math.Min(row, CeresRidleyPaletteRomData.AlarmRowCount - row);
     }
 
-    internal ushort Resolve(int row, int color)
+    internal Bgr555 Resolve(int row, int color)
     {
         _ = SourceRow(row);
         if ((uint)color >= CeresRidleyPaletteRomData.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = row * CeresRidleyPaletteRomData.AlarmColorCount + color;
-        return edits.TryGetValue(key, out ushort value) ? value : Calculate(row, color);
+        return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);
     }
 
-    private static ushort Calculate(int row, int color)
+    private static Bgr555 Calculate(int row, int color)
     {
         int phase = SourceRow(row), halfStep = (phase + 1) / 2;
         int blue = phase * 6 / 5;
@@ -55,6 +56,6 @@ internal sealed class CeresRidleyAlarmColorDefinitions
             2 => (DarkRed + phase * 4 / 5, DarkGreen + phase / 8),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
-        return (ushort)(red | green << 5 | blue << 10);
+        return new(red, green, blue);
     }
 }

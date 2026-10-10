@@ -282,8 +282,8 @@ internal static partial class Program
                     ushort expected = RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(bus),
                         RoomFxRomData.Banks.PaletteFx | pointer);
-                    if (!presentation.TryReadColor(pointer, out ushort actual) ||
-                        actual != expected)
+                    if (!presentation.TryReadColor(pointer, out Bgr555 actual) ||
+                        actual.ToWord() != expected)
                     {
                         throw new InvalidDataException(
                             $"Extracted title ambient color $8D:{pointer:X4} differs from cartridge data.");

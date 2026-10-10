@@ -17,8 +17,8 @@ internal static partial class Program
             var expected = new SnesCgram(); var actual = new SnesCgram();
             for (int i = 0; i < SnesCgram.ColorCount; i++)
             {
-                expected.SetColor(i, (ushort)(i * 31));
-                actual.SetColor(i, (ushort)(i * 31));
+                expected.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
+                actual.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
             }
             var nativeQueue = new VramWriteQueue(); var queue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
@@ -31,7 +31,7 @@ internal static partial class Program
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), new VramWriteQueue(), actual, selection, tiles, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
-                AssertEqual((ushort)(expected.Colors[i] ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
+                AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
             catalog.LoadTo(actual, selection);
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Previously loaded palette remains immutable after editing input");
@@ -66,7 +66,7 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         var expected = new SnesCgram();
         palettes.LoadTo(expected, 0);
-        runtime.Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex, 123);
+        runtime.Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex, new Bgr555(27, 3, 0));
         runtime.BeamArtwork = artwork;
         runtime.RunNmi(0, false);
         AssertEqual(123, runtime.Cgram.Colors[SamusProjectileRomData.Palettes.BeamDestinationIndex], "Lag NMI retains palette before rebind publication");
@@ -75,7 +75,7 @@ internal static partial class Program
 
         var flash = runtime.Samus!.CrystalFlash;
         typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteType))!.SetValue(flash, (ushort)SamusSpecialPaletteType.CrystalFlash);
-        runtime.Cgram.SetColor(224, 123);
+        runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.BeamArtwork = artwork;
         runtime.RunNmi(0, true);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
@@ -84,7 +84,7 @@ internal static partial class Program
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Samus.Drained.HyperBeamPaletteFx.Spawn();
-        runtime.Cgram.SetColor(224, 456);
+        runtime.Cgram.SetColor(224, new Bgr555(8, 14, 0));
         runtime.BeamArtwork = artwork;
         runtime.RunNmi(0, true);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");

@@ -69,7 +69,7 @@ internal static partial class Program
         // body. Render through the same scanline sampler used by live gameplay.
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        cgram.SetColor(1, 31);
+        cgram.SetColor(1, new Bgr555(31, 0, 0));
         var tile = new byte[32];
         for (int row = 0; row < 8; row++) tile[row * 2] = 255;
         vram.LoadBytes(32, tile);

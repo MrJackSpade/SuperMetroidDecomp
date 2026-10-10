@@ -9,10 +9,10 @@ public sealed class CeresFlightPalette
 {
     // Independent painted colors remain unresolved inputs. Only repeated sections
     // and the endpoint-defined ramp are calculated; edited slots stay independent.
-    private readonly Dictionary<int, ushort> colors = [];
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> colors = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    private CeresFlightPalette(ushort[] supplied)
+    private CeresFlightPalette(Bgr555[] supplied)
     {
         for (int index = 0; index < supplied.Length; index++)
         {
@@ -24,10 +24,10 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>Selected BGR555 color, including independent resource edits.</summary>
-    public ushort ColorAt(int index)
+    public Bgr555 ColorAt(int index)
     {
         if ((uint)index >= SnesCgram.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out ushort edited) ? edited : Calculate(index);
+        return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
     /// <summary>Writes serialization/hash bytes without retaining a runtime palette image.</summary>
@@ -35,7 +35,7 @@ public sealed class CeresFlightPalette
     {
         if (destination.Length < SnesCgram.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * sizeof(ushort)), ColorAt(index));
+            BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * Bgr555.ByteCount), ColorAt(index).ToWord());
     }
 
     /// <summary>
@@ -56,19 +56,13 @@ public sealed class CeresFlightPalette
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
     private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68; // magic-number-audit: allow(SramOffset) - CGRAM interpolation slots, not SRAM offsets.
 
-    private ushort Calculate(int index)
+    private Bgr555 Calculate(int index)
     {
         int source = SharedIndex(index);
         if (!IsRampInterior(source)) return colors[source];
         int step = source - 0x61;
-        ushort first = colors[0x61], last = colors[0x68];
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-        {
-            int start = first >> shift & 31, end = last >> shift & 31;
-            result |= ((start * (7 - step) + end * step + 3) / 7) << shift;
-        }
-        return (ushort)result;
+        Bgr555 first = colors[0x61], last = colors[0x68];
+        return first.Zip(last, (_, start, end) => (start * (7 - step) + end * step + 3) / 7);
     }
 
     /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; supplied edits remain independent of calculated stock repeats and ramps.</summary>
@@ -82,7 +76,7 @@ public sealed class CeresFlightPalette
             document.Colors is not { Length: SnesCgram.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var native = new ushort[SnesCgram.ColorCount];
+        var native = new Bgr555[SnesCgram.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -90,7 +84,7 @@ public sealed class CeresFlightPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} requires red, green and blue in 0..31.");
-            native[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            native[index] = color.ToBgr555();
         }
         return new CeresFlightPalette(native);
     }

@@ -25,7 +25,7 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "ED286145DF732B7DA580A2C2156B96B047BB4E6BC81A540B7219A66FB464B6A1") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "B7ADCA7F1A5112D63886A428740087E5EA30FE546C7984622E13FAB2D41A1DE5") => "beam",
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "B26BA7F6ACF3E0A9E88D49A30A4EC87A879555D305F29051C4CE093CDDD857CF") => "sky",
-            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "DFB228D8FD2DE6101E8D6A161B08D7D06DCBC3114AB961A5D2471E2B1ED43DDB") => "statues",
+            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "A496EC2EA70B7EB01C086114C5CD53E2477AF385D98058682A337E19D96E31EE") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "D8D40445DA38388CC8684F8E72ED8DB2891798317DBBE3D12439AAE23D157E13") => "treadmill",
             ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "440774579B4AA06B249473C51A59FECC7580D0C35E5316933E1E361582FC27ED") => "plm",
             _ => null,

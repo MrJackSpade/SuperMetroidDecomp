@@ -49,7 +49,7 @@ internal static partial class Program
                 byte id = (byte)value;
                 int selectionIndex = Array.IndexOf(ids, id);
                 var cgram = new SnesCgram();
-                cgram.SetColor(25, 0x1234); cgram.SetColor(26, 0x2345); cgram.SetColor(27, 0x3456);
+                cgram.SetColor(25, Bgr555.FromWord(0x1234)); cgram.SetColor(26, Bgr555.FromWord(0x2345)); cgram.SetColor(27, Bgr555.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
                     var colors = catalog.Resolve(id);
@@ -62,8 +62,8 @@ internal static partial class Program
                         ushort expected = useEdited ? (ushort)(selectionIndex | color << 5 | (31 - selectionIndex) << 10)
                             : ReadVerificationWord(rom, 0x89aa02 + id + 2 * color);
                         int mask = useEdited ? 0x7fff : color < 2 ? 0x7fff & ~OriginalFxPairCalculatedMask(id, color) : 0x001f;
-                        AssertEqual(expected & mask, colors[color] & mask, "Native or independently edited selector content" );
-                        AssertEqual(expected & mask, cgram.Colors[25 + color] & mask, "Apply uses selected colors");
+                        AssertEqual(expected & mask, colors[color].ToWord() & mask, "Native or independently edited selector content" );
+                        AssertEqual(expected & mask, cgram.Colors[25 + color].ToWord() & mask, "Apply uses selected colors");
                     }
                 }
                 else

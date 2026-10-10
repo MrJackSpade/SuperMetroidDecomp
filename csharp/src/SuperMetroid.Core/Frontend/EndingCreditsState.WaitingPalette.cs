@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -28,11 +29,8 @@ internal sealed partial class EndingCreditsState
         // in 8.8 precision; composing takes only its high byte, preserving truncation.
         for (int index = start; index < start + count; index++)
         {
-            ushort target = StaticPaletteColor(EndingPaletteId.PostCredits, index);
-            int red = ((target & 31) << 3) * step;
-            int green = ((target >> 5 & 31) << 3) * step;
-            int blue = ((target >> 10 & 31) << 3) * step;
-            cgram.SetColor(index, (ushort)((red >> 8) | ((green >> 8) << 5) | ((blue >> 8) << 10)));
+            Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, index);
+            cgram.SetColor(index, target.Map((_, channel) => (channel << 3) * step >> 8));
         }
     }
 }

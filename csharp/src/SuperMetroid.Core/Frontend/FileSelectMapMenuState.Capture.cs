@@ -15,7 +15,7 @@ public sealed partial class FileSelectMapMenuState
         if (!entry.IsComplete)
         {
             LayeredRenderSnapshot areaScene = Area();
-            ushort[] palette = areaScene.Memory.Cgram.ToArray(); palette[0] = 0;
+            Bgr555[] palette = areaScene.Memory.Cgram.ToArray(); palette[0] = Bgr555.Black;
             var black = new LayeredRenderSnapshot(new PpuMemorySnapshot(areaScene.Memory.Vram, palette,
                 areaScene.Memory.Oam, 0), [], areaScene.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
             return entry.Phase == FileSelectMapEntryPhase.Revealing

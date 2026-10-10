@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
-    private readonly ushort[][]? body;
-    private readonly Dictionary<int, ushort> bubble = [];
+    private readonly Bgr555[][]? body;
+    private readonly Dictionary<int, Bgr555> bubble = [];
 
-    private CrystalFlashColorCatalog(ushort[][] body, ushort[][] bubble)
+    private CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
         // resources keep their complete, independent palette content.
@@ -44,7 +44,7 @@ public sealed class CrystalFlashColorCatalog
     /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
     /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
-    public ushort ResolveBody(int frame, int color)
+    public Bgr555 ResolveBody(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
@@ -59,25 +59,25 @@ public sealed class CrystalFlashColorCatalog
     /// return to19. All nine visible body colors share that intensity. The
     /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
     /// </summary>
-    private static ushort CalculateBody(int frame, int color)
+    private static Bgr555 CalculateBody(int frame, int color)
     {
         if (color == 0)
-            return 14 << 10;
+            return new Bgr555(0, 0, 14);
         int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
-        return (ushort)(grey | grey << 5 | grey << 10);
+        return new Bgr555(grey, grey, grey);
     }
     /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the native painted white sample.</summary>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
     /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
-    public ushort ResolveBubble(int frame, int color)
+    public Bgr555 ResolveBubble(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BubbleFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return bubble.TryGetValue(frame * CrystalFlashColorFormat.BubbleColorCount + color, out ushort supplied)
+        return bubble.TryGetValue(frame * CrystalFlashColorFormat.BubbleColorCount + color, out Bgr555 supplied)
             ? supplied : CalculateBubble(frame, color);
     }
 
@@ -90,12 +90,12 @@ public sealed class CrystalFlashColorCatalog
     /// operation generating that choice. Only that sample remains supplied stock data;
     /// a formula exception would merely reencode its frame/color identity and value.
     /// </summary>
-    private static ushort CalculateBubble(int frame, int color)
+    private static Bgr555 CalculateBubble(int frame, int color)
     {
         int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
             % CrystalFlashColorFormat.BubbleColorCount;
         int channel = 31 - (6 * phase + 2) / 5;
-        return (ushort)(31 | channel << 5 | channel << 10);
+        return new Bgr555(31, channel, channel);
     }
 
     /// <summary>Copies one body frame to CGRAM colors $E0-$E9 without changing the bubble colors or advancing any gameplay timer.</summary>
@@ -162,19 +162,19 @@ public sealed class CrystalFlashColorCatalog
         return bytes;
     }
 
-    private static ushort[][] Compile(PaletteRgb5[][]? source, int frameCount,
+    private static Bgr555[][] Compile(PaletteRgb5[][]? source, int frameCount,
         int colorCount, string name)
     {
         if (source is null || source.Length != frameCount)
             throw new InvalidDataException($"Crystal Flash {name} requires {frameCount} frames.");
-        var result = new ushort[frameCount][];
+        var result = new Bgr555[frameCount][];
         for (int frame = 0; frame < frameCount; frame++)
         {
             PaletteRgb5[]? colors = source[frame];
             if (colors is null || colors.Length != colorCount)
                 throw new InvalidDataException(
                     $"Crystal Flash {name} frame {frame} requires {colorCount} colors.");
-            result[frame] = new ushort[colorCount];
+            result[frame] = new Bgr555[colorCount];
             for (int index = 0; index < colorCount; index++)
             {
                 PaletteRgb5? rgb = colors[index];
@@ -182,7 +182,7 @@ public sealed class CrystalFlashColorCatalog
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Crystal Flash {name} frame {frame}, color {index} requires RGB5 channels 0..31.");
-                result[frame][index] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                result[frame][index] = rgb.ToBgr555();
             }
         }
         return result;

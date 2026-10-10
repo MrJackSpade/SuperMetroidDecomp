@@ -60,8 +60,8 @@ internal static partial class Program
                 ushort expected = (ushort)((before & 0xe3ff) | (enabled ? 0x1800 : 0x1c00));
                 BinaryPrimitives.WriteUInt16LittleEndian(tiles.AsSpan(address), expected);
             }
-            colors[102] = color6;
-            colors[107] = colorB;
+            colors[102] = Bgr555.FromWord(color6);
+            colors[107] = Bgr555.FromWord(colorB);
             var memory = new PpuMemorySnapshot(tiles, colors, capture.Memory.Oam, capture.Memory.ModeledSpriteCount);
             var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.ObjectSelection, capture.Brightness));
             AssertTrue(pause.Render().AsSpan().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -7,12 +9,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {
-    private readonly ushort[] independentOrSupplied;
+    private readonly Bgr555[] independentOrSupplied;
     private readonly bool calculated;
     private readonly bool stockTarget;
     internal int Count { get; }
 
-    internal SidehopperCorpsePalette(ushort[] colors)
+    internal SidehopperCorpsePalette(Bgr555[] colors)
     {
         Count = colors.Length;
         if (Count is not (15 or 16)) throw new ArgumentException("Corpse palette requires15 or16 colors.", nameof(colors));
@@ -23,51 +25,50 @@ internal sealed class SidehopperCorpsePalette
             return;
         }
         independentOrSupplied = colors;
-        if (colors[5] != 0x7fff) return;
-        ushort endpoint = Count == 16 ? colors[15] : (ushort)0;
+        if (colors[5] != Bgr555.White) return;
+        Bgr555 endpoint = Count == 16 ? colors[15] : Bgr555.Black;
         if (Count == 15)
         {
             // Intersect the exact integer intervals admitted by each rounded
             // sample. Ambiguous or incompatible independent content stays raw.
-            for (int shift = 0; shift < 15; shift += 5)
+            Span<int> endpointChannels = stackalloc int[3];
+            foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
             {
-                int start = colors[8] >> shift & 31;
+                int start = colors[8][channel];
                 int lower = 0, upper = 31;
                 for (int phase = 1; phase < Count - 8; phase++)
                 {
-                    int sample = colors[8 + phase] >> shift & 31;
+                    int sample = colors[8 + phase][channel];
                     int numerator = sample * 7 - start * (7 - phase) - 3;
                     lower = Math.Max(lower, (int)Math.Ceiling((double)numerator / phase));
                     upper = Math.Min(upper, (int)Math.Floor((double)(numerator + 6) / phase));
                 }
                 if (lower != upper) return;
-                endpoint |= (ushort)(lower << shift);
+                endpointChannels[(int)channel] = lower;
             }
+            endpoint = new(endpointChannels[0], endpointChannels[1], endpointChannels[2]);
         }
         for (int color = 8; color < Count; color++)
             if (Interpolate(colors[8], endpoint, color - 8) != colors[color]) return;
-        independentOrSupplied = new ushort[9];
+        independentOrSupplied = new Bgr555[9];
         colors.AsSpan(0, 5).CopyTo(independentOrSupplied);
         colors.AsSpan(6, 3).CopyTo(independentOrSupplied.AsSpan(5));
         independentOrSupplied[8] = endpoint;
         calculated = true;
     }
 
-    internal ushort Resolve(int color)
+    internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
         if (stockTarget) return SidehopperCorpsePaintDefinitions.Color(color);
         if (!calculated) return independentOrSupplied[color];
-        if (color == 5) return (31 << 10) | (31 << 5) | 31;
+        if (color == 5) return new Bgr555(31, 31, 31);
         if (color < 8) return independentOrSupplied[color < 5 ? color : color - 1];
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
-    internal static ushort Interpolate(ushort start, ushort end, int phase)
+    internal static Bgr555 Interpolate(Bgr555 start, Bgr555 end, int phase)
     {
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= (((start >> shift & 31) * (7 - phase) + (end >> shift & 31) * phase + 3) / 7) << shift;
-        return (ushort)result;
+        return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));
     }
 }

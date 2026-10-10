@@ -81,7 +81,7 @@ internal static partial class Program
             .SetValue(projectiles, (ushort)0x8014);
         for (int call = 0; call < 20; call++)
         {
-            ushort[] before = cgram.Colors.ToArray();
+            Bgr555[] before = cgram.Colors.ToArray();
             ushort glowTimerBefore = projectiles.ChargedShotGlowTimer;
             var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
             if ((call & 1) != 0)
@@ -149,7 +149,7 @@ internal static partial class Program
         {
             object input = typeof(SamusChargeColorCatalog).GetField(family == 0 ? "chargedBeam" : "pseudoScrew",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-            var stored = (Dictionary<int, ushort>)input.GetType().GetField("colors",
+            var stored = (Dictionary<int, Bgr555>)input.GetType().GetField("colors",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
             AssertEqual(family == 0 ? 25 : 24, stored.Count, "Charge catalog stores each native phase input once");
             var tintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)input.GetType().GetField("fadeInputs",
@@ -179,7 +179,7 @@ internal static partial class Program
                         : SamusChargePalettePointerDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
-                    for (int index = 0; index < 256; index++) cgram.SetColor(index, 0x1234);
+                    for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord(0x1234));
                     catalog.ApplyCharge(cgram, family != 0, suit, phase);
                     for (int color = 0; color < 16; color++)
                     {
@@ -214,7 +214,7 @@ internal static partial class Program
             .Select(index => Word(SamusPaletteRomData.Death.WhiteoutShades + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
             .Select(index => (ushort)rom.ReadByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
-        var death = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, whiteout, selectors);
+        var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
         {
             var inputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
@@ -223,7 +223,7 @@ internal static partial class Program
         }
         foreach (var (fieldName, count) in new[] { ("suited", 25), ("suitless", 3), ("explosionPaletteIndices", 0) })
         {
-            var inputs = (Dictionary<int, ushort>)typeof(SamusDeathPaletteArtworkCatalog)
+            var inputs = (System.Collections.IDictionary)typeof(SamusDeathPaletteArtworkCatalog)
                 .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
             AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
         }
@@ -243,20 +243,20 @@ internal static partial class Program
         {
             ushort bright = (ushort)(brightGreen << 5 | brightBlue << 10);
             ushort dark = (ushort)(31 - darkBlue | darkBlue << 10);
-            bool valid = SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(bright, dark, out ushort result);
+            bool valid = SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(Bgr555.FromWord(checked((ushort)(bright))), Bgr555.FromWord(checked((ushort)(dark))), out Bgr555 result);
             int expectedGreen = brightGreen - (brightBlue - darkBlue);
             AssertEqual(expectedGreen is >= 0 and <= 31, valid, "Complete endpoint balance bounds");
             if (valid)
             {
-                AssertEqual(dark & 0x7c1f, result & 0x7c1f, "Endpoint keeps independent red/blue");
-                AssertEqual(brightGreen - brightBlue, (result >> 5 & 31) - (result >> 10), "Endpoint preserves green-blue balance");
+                AssertEqual(dark & 0x7c1f, result.ToWord() & 0x7c1f, "Endpoint keeps independent red/blue");
+                AssertEqual(brightGreen - brightBlue, (result.ToWord() >> 5 & 31) - (result.ToWord() >> 10), "Endpoint preserves green-blue balance");
             }
             else AssertEqual((ushort)0, result, "Unrepresentable endpoint is not clamped or wrapped");
         }
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(invalid, 0, out _), "Invalid bright tint endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(0, invalid, out _), "Invalid dark tint endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), out _), "Invalid bright tint endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), out _), "Invalid dark tint endpoint");
         }
         var deathWarmInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("warmShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -266,25 +266,25 @@ internal static partial class Program
         for (int blue = 0; blue < 32; blue++)
         for (int redGreen = 0; redGreen < 1024; redGreen++)
         {
-            ushort actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint((ushort)(blue << 10), (ushort)(redGreen | (31 - blue) << 10));
-            AssertEqual(blue, actual >> 10, "Warm endpoint takes bright blue");
-            AssertEqual(redGreen, actual & 1023, "Warm endpoint preserves dark red/green");
+            Bgr555 actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(Bgr555.FromWord(checked((ushort)((ushort)(blue << 10)))), Bgr555.FromWord(checked((ushort)((ushort)(redGreen | (31 - blue) << 10)))));
+            AssertEqual(blue, actual.ToWord() >> 10, "Warm endpoint takes bright blue");
+            AssertEqual(redGreen, actual.ToWord() & 1023, "Warm endpoint preserves dark red/green");
         }
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(invalid, 0), "Invalid bright warm endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(0, invalid), "Invalid dark warm endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0)), "Invalid bright warm endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid dark warm endpoint");
         }
         for (int first = 0; first < 32; first++)
         for (int last = 0; last < 32; last++)
         for (int channel = 0; channel < 3; channel++)
             AssertEqual((ushort)((int)decimal.Floor((first + last) / 2m) << (channel * 5)),
-                SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint((ushort)(first << (channel * 5)), (ushort)(last << (channel * 5))),
+                SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(Bgr555.FromWord(checked((ushort)((ushort)(first << (channel * 5))))), Bgr555.FromWord(checked((ushort)((ushort)(last << (channel * 5)))))),
                 "Suitless tint midpoint floors each independent RGB5 channel");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(invalid, 0), "Invalid midpoint first endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(0, invalid), "Invalid midpoint last endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0)), "Invalid midpoint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid midpoint last endpoint");
         }
         foreach (int ink in new[] { 6, 7, 8, 9, 10 })
         for (int channel = 0; channel < 3; channel++)
@@ -292,24 +292,24 @@ internal static partial class Program
         {
             var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
             rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
-            var editedTint = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            var editedTint = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
                 AssertEqual(rows[palette][color], editedTint.SuitlessColor(palette, color), "Each endpoint/intensity/channel edit preserves independently supplied tint and fade rows");
         }
         foreach (int ink in new[] { 7, 8, 9 })
         {
-            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0x001f, 0x001f, 31, ink, out _), "Tint red overflow remains explicit input");
-            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0x7c00, 0x7c00, 0, ink, out _), "Tint red/green underflow remains explicit input");
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(0x001f), Bgr555.FromWord(0x001f), 31, ink, out _), "Tint red overflow remains explicit input");
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(0x7c00), Bgr555.FromWord(0x7c00), 0, ink, out _), "Tint red/green underflow remains explicit input");
         }
         foreach (int invalid in new[] { -1, 6, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, 0, 0, invalid, out _), "Invalid tint ink");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), 0, invalid, out _), "Invalid tint ink");
         foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, 0, invalid, 7, out _), "Invalid tint blue");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalid, 7, out _), "Invalid tint blue");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(invalid, 0, 0, 7, out _), "Invalid tint first endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(0, invalid, 0, 7, out _), "Invalid tint last endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), 0, 7, out _), "Invalid tint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), 0, 7, out _), "Invalid tint last endpoint");
         }
         var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
             .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
@@ -328,7 +328,7 @@ internal static partial class Program
         {
             var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
             rows[0][11] = (ushort)((rows[0][11] & ~31) | peak);
-            var editedPeak = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            var editedPeak = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
                 AssertEqual(rows[palette][color], editedPeak.SuitlessColor(palette, color), "Editing only gray peak keeps every supplied dependent ink independent");
@@ -344,20 +344,20 @@ internal static partial class Program
             // Complemented/swapped channel pairs exercise independent RGB packing.
             ushort a = (ushort)(first | (31 - first) << 5 | last << 10);
             ushort b = (ushort)(last | (31 - last) << 5 | first << 10);
-            ushort actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(a, b, color);
+            Bgr555 actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(Bgr555.FromWord(checked((ushort)(a))), Bgr555.FromWord(checked((ushort)(b))), color);
             for (int channel = 0; channel < 3; channel++)
             {
                 int start = a >> (5 * channel) & 31, end = b >> (5 * channel) & 31;
                 int expectedChannel = (int)decimal.Floor(((decimal)start * (4 - color) + (decimal)end * (color - 1)) / 3);
-                AssertEqual(expectedChannel, actual >> (5 * channel) & 31, "All suitless warm-ramp channel endpoints");
+                AssertEqual(expectedChannel, actual.ToWord() >> (5 * channel) & 31, "All suitless warm-ramp channel endpoints");
             }
         }
         foreach (int invalid in new[] { -1, 0, 1, 4, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(0, 0, invalid), "Invalid warm shade ink");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalid), "Invalid warm shade ink");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(invalid, 0, 2), "Invalid warm start");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(0, invalid, 2), "Invalid warm end");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), 2), "Invalid warm start");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), 2), "Invalid warm end");
         }
         foreach (int endpoint in new[] { 1, 4 })
         for (int channel = 0; channel < 3; channel++)
@@ -365,7 +365,7 @@ internal static partial class Program
         {
             var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
             rows[0][endpoint] = (ushort)((rows[0][endpoint] & ~(31 << (5 * channel))) | intensity << (5 * channel));
-            var editedWarm = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            var editedWarm = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
                 AssertEqual(rows[palette][color], editedWarm.SuitlessColor(palette, color), "Warm endpoint-only edits preserve supplied middle inks and fades");
@@ -384,7 +384,7 @@ internal static partial class Program
             {
                 var shades = (ushort[])whiteout.Clone();
                 shades[index] = (ushort)((shades[index] & ~(31 << (channel * 5))) | intensity << (channel * 5));
-                var editedWhiteout = new SamusDeathPaletteArtworkCatalog(deathSuited, deathSuitless, shades, selectors);
+                var editedWhiteout = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(shades), selectors);
                 for (int other = 0; other < shades.Length; other++)
                     AssertEqual(shades[other], editedWhiteout.WhiteoutColor(other), "Every whiteout shade/channel edit remains independent");
             }
@@ -399,7 +399,7 @@ internal static partial class Program
         {
             var rows = deathSuited.Select(suit => suit.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
             rows[0][1][0] = (ushort)((rows[0][1][0] & ~(31 << (channel * 5))) | intensity << (channel * 5));
-            var editedFlash = new SamusDeathPaletteArtworkCatalog(rows, deathSuitless, whiteout, selectors);
+            var editedFlash = new SamusDeathPaletteArtworkCatalog(ToColors(rows), ToColors(deathSuitless), ToColors(whiteout), selectors);
             for (int suit = 0; suit < 3; suit++)
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
@@ -442,7 +442,7 @@ internal static partial class Program
                 if (scope == 0 || scope == 2 && !anchor || scope == 3 && anchor) continue;
                 editedWhiteout[index] = (ushort)((editedWhiteout[index] + 137 * (index + 1)) & 0x7fff);
             }
-            var editedDeath = new SamusDeathPaletteArtworkCatalog(suited, suitless, editedWhiteout, editedSelectors);
+            var editedDeath = new SamusDeathPaletteArtworkCatalog(ToColors(suited), ToColors(suitless), ToColors(editedWhiteout), editedSelectors);
             for (int index = 0; index < editedWhiteout.Length; index++)
                 AssertEqual(editedWhiteout[index], editedDeath.WhiteoutColor(index), "Independent whiteout and endpoint-only edits");
             for (int frame = 0; frame < editedSelectors.Length; frame++)
@@ -462,7 +462,7 @@ internal static partial class Program
                 content.AppendWords("explosion palette indices", editedSelectors);
             });
             AssertEqual(originalIdentity, editedDeath.ContentIdentity, "Death color identity preserves original row serialization");
-            ushort before = editedDeath.SuitedColor(0, 0, 0);
+            Bgr555 before = editedDeath.SuitedColor(0, 0, 0);
             suited[0][0][0] ^= 1;
             AssertEqual(before, editedDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
         }
@@ -473,7 +473,7 @@ internal static partial class Program
             foreach (int ink in new[] { 5, 11, 12, 13, 14, 15 })
                 rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
             rows[9][0] = (ushort)((rows[9][0] & ~(31 << (5 * channel))) | intensity << (5 * channel));
-            var neutralEdited = new SamusDeathPaletteArtworkCatalog(deathSuited, rows, whiteout, selectors);
+            var neutralEdited = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
                 AssertEqual(rows[palette][color], neutralEdited.SuitlessColor(palette, color), "Each neutral channel edit stays independent of fades and final aliases");
@@ -484,18 +484,18 @@ internal static partial class Program
         for (int rgb = 0; rgb <= 0x7fff; rgb++)
         for (int shade = 0; shade < 8; shade++)
         {
-            ushort actual = SamusPaletteFade.EighthTowardWhite((ushort)rgb, shade);
+            Bgr555 actual = SamusPaletteFade.EighthTowardWhite(Bgr555.FromWord(checked((ushort)((ushort)rgb))), shade);
             for (int channel = 0; channel < 3; channel++)
             {
                 int basis = rgb >> (channel * 5) & 31;
                 int interpolated = (int)decimal.Floor(basis + (31 - basis) * (shade / 8m));
-                AssertEqual(interpolated, actual >> (channel * 5) & 31, "Complete RGB5 eighth whitening arithmetic");
+                AssertEqual(interpolated, actual.ToWord() >> (channel * 5) & 31, "Complete RGB5 eighth whitening arithmetic");
             }
         }
         foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(0, invalid), "Invalid fade shade");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(new Bgr555(0, 0, 0), invalid), "Invalid fade shade");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(invalid, 0), "Invalid fade RGB5");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(Bgr555.FromWord(checked((ushort)(invalid))), 0), "Invalid fade RGB5");
         foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
@@ -538,11 +538,11 @@ internal static partial class Program
             }
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(invalid, 1, 0), "Invalid pseudo tint suit");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(invalid, 1, new Bgr555(0, 0, 0)), "Invalid pseudo tint suit");
         foreach (int invalid in new[] { -1, 0, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, invalid, 0), "Invalid pseudo tint ink");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, invalid, new Bgr555(0, 0, 0)), "Invalid pseudo tint ink");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, 1, invalid), "Invalid pseudo tint RGB5");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, 1, Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid pseudo tint RGB5");
         foreach (bool pseudo in new[] { false, true })
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
         {

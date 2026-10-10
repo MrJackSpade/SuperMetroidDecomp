@@ -22,7 +22,7 @@ internal static partial class Program
         samus.XPosition = 0x200; samus.YPosition = 0x300;
         var expectedColors = new SnesCgram();
         for (int i = 0; i < 256; i++)
-            expectedColors.SetColor(i, RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + i * 2));
+            expectedColors.SetColor(i, Bgr555.FromWord(checked((ushort)(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + i * 2)))));
         Directory.CreateDirectory("csharp/test-temp/issue-1253-hud");
         foreach (byte phase in new byte[] { 0, 8 })
         {

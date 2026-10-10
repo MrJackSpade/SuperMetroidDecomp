@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -214,8 +215,8 @@ public sealed partial class RoomEnemySystem
 
         for (int color = 0; color < 112; color++)
         {
-            ushort current = _cgram!.Colors[color];
-            ushort target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
+            Bgr555 current = _cgram!.Colors[color];
+            Bgr555 target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
             _cgram.SetColor(
                 color,

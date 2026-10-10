@@ -54,10 +54,10 @@ public static class SnesMode7Renderer
         // spans once removes two bounds-checking method calls and one BGR555 conversion
         // from every visible Mode 7 pixel, which is especially expensive under Debug JIT.
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
-        ReadOnlySpan<ushort> cgramWords = cgram.Colors;
+        ReadOnlySpan<Bgr555> cgramColors = cgram.Colors;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         for (int color = 0; color < palette.Length; color++)
-            palette[color] = SnesGraphics.DecodeBgr555Color(cgramWords[color]);
+            palette[color] = cgramColors[color].ToRgba32();
 
         int signedCenterX = (centerX << 19) >> 19;
         int signedCenterY = (centerY << 19) >> 19;

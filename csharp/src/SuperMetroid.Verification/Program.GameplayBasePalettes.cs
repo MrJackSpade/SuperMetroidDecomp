@@ -30,8 +30,8 @@ internal static partial class Program
             var runtime = new SuperMetroidRuntime(guarded, initialPaletteArt: baseline);
             AssertTrue(runtime.Cgram.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");
-            runtime.Cgram.SetColor(128, 0);
-            runtime.Cgram.SetColor(208, 0);
+            runtime.Cgram.SetColor(128, new Bgr555(0, 0, 0));
+            runtime.Cgram.SetColor(208, new Bgr555(0, 0, 0));
             // Exercise the production room-load restore, not just the catalog helpers.
             MethodInfo restore = typeof(SuperMetroidRuntime).GetMethod("LoadGameplaySpritePalettes",
                 BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException(

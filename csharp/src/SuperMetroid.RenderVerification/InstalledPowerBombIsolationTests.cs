@@ -68,7 +68,7 @@ internal static partial class InstalledPowerBombIsolationTests
                         if (second is not null)
                         {
                             var memoryImage = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount],
-                                new ushort[SnesPpuLayout.CgramColorCount], new byte[SnesPpuLayout.OamUploadByteCount], 0);
+                                new Bgr555[SnesPpuLayout.CgramColorCount], new byte[SnesPpuLayout.OamUploadByteCount], 0);
                             var packet = new RenderFrameSnapshot(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 0, 15));
                             framesToRender.Add((packet, context));

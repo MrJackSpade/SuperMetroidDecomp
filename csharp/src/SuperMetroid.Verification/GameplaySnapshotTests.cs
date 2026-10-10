@@ -15,7 +15,7 @@ internal static partial class Program
             .Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
         random.NextBytes(oam);
-        var memory = new PpuMemorySnapshot(bytes, palette, oam, 128);
+        var memory = new PpuMemorySnapshot(bytes, ToColors(palette), oam, 128);
         var live = new SoftwarePpuSnapshotMemory(memory);
         int samples = 0;
         foreach ((int width, int height) in new[] { (64, 32), (32, 64), (64, 64) })
@@ -72,7 +72,7 @@ internal static partial class Program
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(captured)),
             "ordinary retail room capture matches full renderer with inactive effects");
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, 0);
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine($"  Gameplay snapshots: {samples} priority/mask/HDMA/geometry cases and retained retail base match.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rendering;
@@ -27,7 +28,7 @@ public static class XrayRoomDisplayRules
     /// </summary>
     private static bool PreservesBossBackground(ushort bossId) => bossId is 3 or 6 or 7 or 8 or 10;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
-    public const ushort ActiveBackdrop = 0x0C63;
+    public static Bgr555 ActiveBackdrop => Bgr555.FromWord(0x0c63);
 
     /// <summary>CGADSUB assignments from $88:817B, $88:81A4 and $88:81DB, preserving the room's subtraction bit.</summary>
     public static SnesColorMathControl ColorMath(XrayRoomBlendMode mode, bool subtract)

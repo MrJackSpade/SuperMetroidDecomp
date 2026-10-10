@@ -12,7 +12,7 @@ internal static partial class Program
         var vram = new SnesVram();
         vram.LoadBytes(0, bytes);
         var cgram = new SnesCgram();
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, (ushort)random.Next(32768));
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)((ushort)random.Next(32768)))));
         Rgba32[] colors = Enumerable.Range(0, 256).Select(cgram.GetRgba).ToArray();
         int checks = 0;
         foreach (bool fourBit in new[] { false, true })

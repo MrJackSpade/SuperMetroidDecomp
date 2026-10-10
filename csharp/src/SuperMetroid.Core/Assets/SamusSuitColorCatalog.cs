@@ -20,9 +20,9 @@ namespace SuperMetroid.Core.Assets;
 /// their own owners. This exception covers these base inks, not all palettes.</remarks>
 public sealed class SamusSuitColorCatalog
 {
-    private readonly ushort[] power;
-    private readonly Dictionary<int, ushort> varia;
-    private readonly Dictionary<int, ushort> gravity;
+    private readonly Bgr555[] power;
+    private readonly Dictionary<int, Bgr555> varia;
+    private readonly Dictionary<int, Bgr555> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
     /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots
@@ -30,16 +30,16 @@ public sealed class SamusSuitColorCatalog
     /// replace the palette roster. Comparing supplied values preserves arbitrary
     /// independent player edits. This removes duplicated words; the remaining
     /// base-ink disposition is documented on the catalog.</remarks>
-    private SamusSuitColorCatalog(ushort[] power, ushort[] varia, ushort[] gravity)
+    private SamusSuitColorCatalog(Bgr555[] power, Bgr555[] varia, Bgr555[] gravity)
     {
         this.power = power;
         this.varia = Differences(varia, power);
         this.gravity = Differences(gravity, power);
     }
 
-    private static Dictionary<int, ushort> Differences(ushort[] supplied, ushort[] power)
+    private static Dictionary<int, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
     {
-        var differences = new Dictionary<int, ushort>();
+        var differences = new Dictionary<int, Bgr555>();
         for (int index = 0; index < supplied.Length; index++)
             if (supplied[index] != power[index]) differences.Add(index, supplied[index]);
         return differences;
@@ -56,9 +56,9 @@ public sealed class SamusSuitColorCatalog
     /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
     /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
     /// <returns>The selected packed SNES RGB555 word.</returns>
-    public ushort Resolve(ushort suitTableOffset, int colorIndex)
+    public Bgr555 Resolve(ushort suitTableOffset, int colorIndex)
     {
-        Dictionary<int, ushort>? differences = suitTableOffset switch
+        Dictionary<int, Bgr555>? differences = suitTableOffset switch
         {
             0 => null,
             2 => varia,
@@ -67,7 +67,7 @@ public sealed class SamusSuitColorCatalog
         };
         if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return differences is not null && differences.TryGetValue(colorIndex, out ushort color)
+        return differences is not null && differences.TryGetValue(colorIndex, out Bgr555 color)
             ? color : power[colorIndex];
     }
 
@@ -114,18 +114,18 @@ public sealed class SamusSuitColorCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
             throw new InvalidDataException($"Samus {name} suit requires sixteen RGB5 colors.");
-        var result = new ushort[source.Length];
+        var result = new Bgr555[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus {name} color {index} requires RGB components 0..31.");
-            result[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            result[index] = color.ToBgr555();
         }
         return result;
     }

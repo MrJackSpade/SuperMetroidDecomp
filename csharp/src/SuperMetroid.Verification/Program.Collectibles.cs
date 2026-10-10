@@ -587,7 +587,7 @@ internal static partial class Program
             character[row * 2] = 0xff;
         vram.LoadBytes((0x4000 + 8) * 2, character);
         var cgram = new SnesCgram();
-        cgram.SetColor(25, 0x7fff);
+        cgram.SetColor(25, Bgr555.FromWord(0x7fff));
         var frame = new SuperMetroid.Core.Assets.Rgba32[256 * 224];
         message.Step(0); // radius 0
         message.Step(0); // radius 2: visible scanlines 122-125
@@ -595,7 +595,7 @@ internal static partial class Program
         AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), frame[121 * 256],
             "message HDMA clip leaves scanline above radius untouched");
         AssertEqual(
-            SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(0x0bb1),
+            Bgr555.FromWord(0x0bb1).ToRgba32(),
             frame[122 * 256],
             "message renderer applies temporary CGRAM color 25 inside clip");
 

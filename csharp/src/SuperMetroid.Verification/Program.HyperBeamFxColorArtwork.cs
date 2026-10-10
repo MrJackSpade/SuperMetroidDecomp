@@ -17,7 +17,7 @@ internal static partial class Program
         AssertEqual(HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame,
             HyperBeamFxColorFormat.ColorsPerFrame, "Extracted Hyper Beam color count matches compiled control");
 
-        var stored = (Dictionary<int, ushort>)typeof(HyperBeamFxColorCatalog).GetField("colors",
+        var stored = (Dictionary<int, Bgr555>)typeof(HyperBeamFxColorCatalog).GetField("colors",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
         AssertEqual(2, stored.Count, "Shared endpoint extrema remove eight whole inputs");
         var endpointInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
@@ -27,8 +27,8 @@ internal static partial class Program
         foreach (var entry in endpointInputs)
         {
             int frame = entry.Key / 8, color = entry.Key % 8;
-            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, ReadVerificationWord(bus, 0x8dd906),
-                ReadVerificationWord(bus, 0x8dd90c), out ushort basis, out int independentMask);
+            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906)))),
+                Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd90c)))), out Bgr555 basis, out int independentMask);
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color), entry.Value.Apply(basis), "Original endpoint shared extrema");
             string[] names = ["red", "green", "blue"];
             for (int channel = 0; channel < 3; channel++)
@@ -42,7 +42,7 @@ internal static partial class Program
         AssertEqual(14, endpointComponentCount, "Fourteen endpoint components replace twenty-four");
         for (int mask = 0; mask < 8; mask++)
         {
-            var zero = new LoadingPaletteInputView.Channels(0, 0, mask);
+            var zero = new LoadingPaletteInputView.Channels(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), mask);
             string[] names = ["red", "green", "blue"];
             for (int channel = 0; channel < 3; channel++)
                 AssertEqual((mask & 1 << channel) != 0, typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
@@ -51,7 +51,7 @@ internal static partial class Program
             for (int rgb = 0; rgb < 32768; rgb++)
             {
                 ushort basis = (ushort)(32767 - rgb);
-                AssertEqual((ushort)rgb, new LoadingPaletteInputView.Channels((ushort)rgb, basis, mask).Apply(basis), "Complete RGB5 capture for every independent channel mask");
+                AssertEqual((ushort)rgb, new LoadingPaletteInputView.Channels(Bgr555.FromWord(checked((ushort)((ushort)rgb))), Bgr555.FromWord(checked((ushort)(basis))), mask).Apply(Bgr555.FromWord(checked((ushort)(basis)))), "Complete RGB5 capture for every independent channel mask");
             }
         }
         int neutralIntensity = (int)typeof(HyperBeamFxColorCatalog).GetField("neutralIntensity",
@@ -110,22 +110,22 @@ internal static partial class Program
         for (int rgb = 0; rgb < 32768; rgb++)
         foreach (bool redHue in new[] { false, true })
         {
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels((ushort)rgb, redHue).Resolve(redHue),
+            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(Bgr555.FromWord(checked((ushort)((ushort)rgb))), redHue).Resolve(redHue),
                 "Complete RGB5 endpoint inputs preserve equal and independently edited blue channels");
             int redComponent = rgb & 31, greenComponent = rgb >> 5 & 31;
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels((ushort)rgb, redHue, redComponent, greenComponent)
+            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(Bgr555.FromWord(checked((ushort)((ushort)rgb))), redHue, redComponent, greenComponent)
                 .Resolve(redHue, redComponent, greenComponent), "All RGB5 shared extrema preserve supplied colors");
             int otherRed = (redComponent + 1) % 32, otherGreen = (greenComponent + 1) % 32;
-            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels((ushort)rgb, redHue, otherRed, otherGreen)
+            AssertEqual((ushort)rgb, new HyperBeamFxColorCatalog.PairedChannels(Bgr555.FromWord(checked((ushort)((ushort)rgb))), redHue, otherRed, otherGreen)
                 .Resolve(redHue, otherRed, otherGreen), "All RGB5 differing extrema preserve independent inputs");
         }
         for (int color = 4; color < 8; color++)
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 40 + color * 2),
-                SamusHyperBeamColorFormat.YellowFromGreen(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2)),
+                SamusHyperBeamColorFormat.YellowFromGreen(Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906 + 80 + color * 2))))),
                 "Every original yellow highlight derives from its green hue");
         for (int ink = 4; ink <= 7; ink++)
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 2 * ink),
-                HyperBeamFxColorFormat.RedHighlight(ReadVerificationWord(bus, 0x8dd90c), ReadVerificationWord(bus, 0x8dd906), ink),
+                HyperBeamFxColorFormat.RedHighlight(Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd90c)))), Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906)))), ink),
                 "Every original red highlight is a fifth-step white blend");
         for (int first = 0; first < 32768; first++)
         for (int second = 0; second < 32; second++)
@@ -135,33 +135,33 @@ internal static partial class Program
             int expected = 0;
             for (int shift = 0; shift < 15; shift += 5)
                 expected |= (int)Math.Round((first >> shift & 31) * (1 - whiteWeight) + second * whiteWeight) << shift;
-            AssertEqual((ushort)expected, HyperBeamFxColorFormat.RedHighlight((ushort)first, (ushort)(second * 1057), ink),
+            AssertEqual((ushort)expected, HyperBeamFxColorFormat.RedHighlight(Bgr555.FromWord(checked((ushort)((ushort)first))), Bgr555.FromWord((ushort)(second * 1057)), ink),
                 "All RGB5 first endpoints and independent channel pairs for every highlight weight");
         }
         foreach (int invalidInk in new[] { int.MinValue, -1, 0, 1, 2, 3, 8, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(0, 0, invalidInk), "Highlight ink bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalidInk), "Highlight ink bounds");
         foreach (var shade in new[] { (Frame: 0, Ink: 2), (Frame: 4, Ink: 5), (Frame: 8, Ink: 2), (Frame: 8, Ink: 5) })
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * shade.Ink),
                 SamusHyperBeamColorFormat.HueMidpoint(
-                    ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1)),
-                    ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink + 1))),
+                    Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink - 1))))),
+                    Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906 + 20 * shade.Frame + 2 * (shade.Ink + 1)))))),
                 "Every original within-hue shade midpoint");
         ushort nativeRedEndpoint = ReadVerificationWord(bus, 0x8dd90c);
-        AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(nativeRedEndpoint), "Original saturated green endpoint");
-        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), SamusHyperBeamColorFormat.MagentaFromRed(nativeRedEndpoint), "Original saturated magenta endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd964), HyperBeamFxColorFormat.GreenFromRed(Bgr555.FromWord(checked((ushort)(nativeRedEndpoint)))), "Original saturated green endpoint");
+        AssertEqual(ReadVerificationWord(bus, 0x8dd9a8), SamusHyperBeamColorFormat.MagentaFromRed(Bgr555.FromWord(checked((ushort)(nativeRedEndpoint)))), "Original saturated magenta endpoint");
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int redComponent = rgb % 32, greenComponent = rgb / 32 % 32, blueComponent = rgb / 1024;
-            AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed((ushort)rgb), "Complete RGB5 red-to-green domain");
-            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), SamusHyperBeamColorFormat.MagentaFromRed((ushort)rgb), "Complete RGB5 red-to-magenta domain");
+            AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed(Bgr555.FromWord(checked((ushort)((ushort)rgb)))), "Complete RGB5 red-to-green domain");
+            AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), SamusHyperBeamColorFormat.MagentaFromRed(Bgr555.FromWord(checked((ushort)((ushort)rgb)))), "Complete RGB5 red-to-magenta domain");
         }
         var extracted = new HyperBeamPaletteFxState();
         var nativeCgram = new SnesCgram();
         var extractedCgram = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
         {
-            nativeCgram.SetColor(color, (ushort)(color * 31));
-            extractedCgram.SetColor(color, (ushort)(color * 31));
+            nativeCgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
+            extractedCgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
         }
 
         extracted.Spawn();
@@ -172,7 +172,7 @@ internal static partial class Program
             ushort originalDuration = ReadVerificationWord(bus, 0x8dd904 + 20 * expectedFrame);
             AssertEqual((ushort)2, originalDuration, "Native Hyper Beam FX duration");
             for (int color = 0; color < 8; color++)
-                nativeCgram.SetColor(225 + color, ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color));
+                nativeCgram.SetColor(225 + color, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color)))));
             int frameBefore = extracted.CurrentFrameIndex;
             extracted.Step(
                 new ProjectileCompositionForbiddenBus(), extractedCgram, catalog);
@@ -194,7 +194,7 @@ internal static partial class Program
         catalog.Apply(nativeCgram, 3, destination: 225);
         edited.Apply(extractedCgram, 3, destination: 225);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(nativeCgram.Colors[color] ^ (color == 227 ? 1 : 0)),
+            AssertEqual((ushort)(nativeCgram.Colors[color].ToWord() ^ (color == 227 ? 1 : 0)),
                 extractedCgram.Colors[color],
                 "Hyper Beam FX edit changes only the selected visual color channel");
 

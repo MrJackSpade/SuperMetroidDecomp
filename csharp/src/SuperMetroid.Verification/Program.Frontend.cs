@@ -35,7 +35,7 @@ static void VerifyMode7Rendering()
 {
     var vram = new SnesVram();
     var cgram = new SnesCgram();
-    cgram.SetColor(5, 0x001f); // Fully red BGR555 diagnostic color.
+    cgram.SetColor(5, Bgr555.FromWord(0x001f)); // Fully red BGR555 diagnostic color.
 
     // Mode 7's tilemap lives in low VRAM bytes. Select character one for map cell zero,
     // then put palette index five in every high byte of that character's 64 words.
@@ -75,7 +75,7 @@ static void VerifyMode7Rendering()
     // 90-degree matrix around (16,16), horizontal scroll +8 maps screen (16,16) to texel
     // (16,8), not (24,16). Give those two cells different characters to make the ordering
     // directly observable instead of asserting the transform against another formula.
-    cgram.SetColor(6, 0x03e0); // Fully green diagnostic color.
+    cgram.SetColor(6, Bgr555.FromWord(0x03e0)); // Fully green diagnostic color.
     for (int pixel = 0; pixel < 64; pixel++)
     {
         ushort word = (ushort)(2 * 64 + pixel);
@@ -106,8 +106,8 @@ static void VerifyMode7Rendering()
     var emptyOam = new OamBuffer();
     emptyOam.BeginFrame();
     emptyOam.FinalizeFrame();
-    splitCgram.SetColor(1, 0x001f); // Red Mode-1 BG2 floor.
-    splitCgram.SetColor(2, 0x03e0); // Green Mode-7 arena.
+    splitCgram.SetColor(1, Bgr555.FromWord(0x001f)); // Red Mode-1 BG2 floor.
+    splitCgram.SetColor(2, Bgr555.FromWord(0x03e0)); // Green Mode-7 arena.
 
     // Display row 207 uses physical Mode-7 scanline 208, hence map row 26. Character two is a
     // solid green tile. The following physical line is deliberately covered by the Mode-1
@@ -144,8 +144,8 @@ static void VerifyMode7Rendering()
 static void VerifyLayerCompositorBackdrop()
 {
     var cgram = new SnesCgram();
-    cgram.SetColor(0, 0x0421);
-    cgram.SetColor(1, 0x001f);
+    cgram.SetColor(0, Bgr555.FromWord(0x0421));
+    cgram.SetColor(1, Bgr555.FromWord(0x001f));
 
     // A decoded layer deliberately uses alpha zero as its palette-index-zero key. Final
     // SNES scanout never has transparency, so an untouched pixel must retain opaque CGRAM
@@ -167,7 +167,7 @@ static void VerifyBgPriorityPlaneRendering()
 {
     var vram = new SnesVram();
     var cgram = new SnesCgram();
-    cgram.SetColor(5, 0x001f);
+    cgram.SetColor(5, Bgr555.FromWord(0x001f));
 
     // Two adjacent map cells use the same visible 2-bpp character and palette. Only bit
     // $2000 differs, so priority-plane filtering must place one red pixel in each result.
@@ -538,10 +538,10 @@ static void VerifyIntroGameplayFlashbackVerticalScroll()
         motherBrain.RegisterMissileHit();
     var cgram = new SnesCgram();
     var introPalette = new ushort[SnesCgram.ColorCount];
-    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.BackgroundVerticalScroll,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunPreInstruction(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
     AssertEqual(8, motherBrain.BackgroundVerticalScroll,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
 
@@ -555,7 +555,7 @@ static void VerifyCinematicPaletteFader()
     // to see: seven calls compose to zero and the eighth composes to component one.
     target[20] = 0x1084;
     var cgram = new SnesCgram();
-    var fader = new CinematicPaletteFader(target);
+    var fader = new CinematicPaletteFader(ToColors(target));
 
     // $8B:B018 clears incoming range $28/$03. Because X is a byte offset, the first
     // affected entry is color $14 rather than color $28.

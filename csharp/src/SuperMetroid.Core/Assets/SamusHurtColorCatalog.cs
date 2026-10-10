@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -17,19 +18,19 @@ public enum SamusHurtColorVariant
 public sealed class SamusHurtColorCatalog
 {
     // Only independent installed edits are stored; native shade samples all calculate.
-    private readonly ushort? hurtZero;
-    private readonly ushort? introZero;
+    private readonly Bgr555? hurtZero;
+    private readonly Bgr555? introZero;
     private readonly Dictionary<int, byte> introLevels;
-    private readonly Dictionary<int, ushort> introOverrides;
-    private readonly Dictionary<int, ushort> hurtOverrides;
+    private readonly Dictionary<int, Bgr555> introOverrides;
+    private readonly Dictionary<int, Bgr555> hurtOverrides;
 
-    private SamusHurtColorCatalog(ushort[] hurt, ushort[] intro)
+    private SamusHurtColorCatalog(Bgr555[] hurt, Bgr555[] intro)
     {
         hurtZero = hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0];
         introZero = intro[0] == SamusHurtColorDefinitions.IntroTransparentWord ? null : intro[0];
         introLevels = Enumerable.Range(1, 15)
-            .Where(index => (intro[index] & 31) != SamusHurtColorDefinitions.DefaultIntroLevel(index))
-            .ToDictionary(index => index, index => (byte)(intro[index] & 31));
+            .Where(index => (intro[index].Red) != SamusHurtColorDefinitions.DefaultIntroLevel(index))
+            .ToDictionary(index => index, index => (byte)(intro[index].Red));
         introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index)))
             .ToDictionary(index => index, index => intro[index]);
@@ -86,32 +87,32 @@ public sealed class SamusHurtColorCatalog
     /// <param name="index">Zero-based OBJ palette color index, from zero through 15; zero retains the independently editable transparent-slot payload.</param>
     /// <returns>A packed SNES color word with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="variant"/> is undefined or <paramref name="index"/> is outside the sixteen-color palette.</exception>
-    public ushort Resolve(SamusHurtColorVariant variant, int index)
+    public Bgr555 Resolve(SamusHurtColorVariant variant, int index)
     {
         if (variant is not (SamusHurtColorVariant.Hurt or SamusHurtColorVariant.Intro))
             throw new ArgumentOutOfRangeException(nameof(variant));
         if ((uint)index >= SamusHurtColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(index));
         if (variant == SamusHurtColorVariant.Intro) return Intro(index);
-        return index == 0 ? hurtZero ?? SamusHurtColorDefinitions.HurtTransparentWord : hurtOverrides.TryGetValue(index, out ushort value)
+        return index == 0 ? hurtZero ?? SamusHurtColorDefinitions.HurtTransparentWord : hurtOverrides.TryGetValue(index, out Bgr555 value)
             ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
     private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
-    private ushort Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out ushort value)
+    private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out Bgr555 value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));
-    private static ushort[] Compile(PaletteRgb5[]? source, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)
             throw new InvalidDataException($"Samus {name} palette requires sixteen RGB5 colors.");
-        var colors = new ushort[source.Length];
+        var colors = new Bgr555[source.Length];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus {name} color {index} requires RGB components from zero through 31.");
-            colors[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            colors[index] = color.ToBgr555();
         }
         return colors;
     }

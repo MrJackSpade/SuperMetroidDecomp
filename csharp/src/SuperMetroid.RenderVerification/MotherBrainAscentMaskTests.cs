@@ -8,8 +8,8 @@ internal static class MotherBrainAscentMaskTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        cgram.SetColor(1, 31); cgram.SetColor(2, 31 << 5);
-        cgram.SetColor(3, 31 | 31 << 5); cgram.SetColor(129, 31 << 10);
+        cgram.SetColor(1, new Bgr555(31, 0, 0)); cgram.SetColor(2, new Bgr555(0, 31, 0));
+        cgram.SetColor(3, new Bgr555(31, 31, 0)); cgram.SetColor(129, new Bgr555(0, 0, 31));
         for (int row = 0; row < 8; row++)
         {
             vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });

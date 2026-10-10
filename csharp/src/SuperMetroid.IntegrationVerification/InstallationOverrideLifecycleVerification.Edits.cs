@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -73,7 +74,7 @@ internal static partial class InstallationOverrideLifecycleVerification
         AssertSnapshot(files, FileSnapshot(Path.Combine(installation.Root, "overrides")), phase + ": override bytes preserved");
         Assert(installation.LoadStandardObjects().Transfer.Span.SequenceEqual(expected.StandardObjects), phase + ": actual PNG transfer");
         Assert(installation.LoadMaps().IntroFont.Transfer.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
-        Assert(installation.LoadGameplayBasePalettes().Initial[0] == expected.Color, phase + ": actual palette word");
+        Assert(installation.LoadGameplayBasePalettes().Initial[0] == Bgr555.FromWord(expected.Color), phase + ": actual palette word");
         ExtractedAudioAssetCatalog audio = installation.LoadAudio();
         Assert(audio.GetSampleBank(expected.Bank).Resolve(expected.Source).Samples.Span[0] == expected.PcmFirstSample,
             phase + ": actual replaced WAV sample");

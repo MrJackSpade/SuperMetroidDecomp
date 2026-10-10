@@ -89,7 +89,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             vram.Bytes.Slice(1, first.ByteCount).IndexOfAnyExcept((byte)0) < 0, "exact tile upload and unchanged neighbors");
         var cgram = new SnesCgram();
         catalog.LoadPaletteTo(first.DefinitionPointer, cgram, 1);
-        Require(cgram.Colors[0] == 0 && cgram.Colors[1] == 1 && cgram.Colors[16] == 1 && cgram.Colors[17] == 0,
+        Require(cgram.Colors[0] == Bgr555.Black && cgram.Colors[1] == new Bgr555(1, 0, 0) && cgram.Colors[16] == new Bgr555(1, 0, 0) && cgram.Colors[17] == Bgr555.Black,
             "exact palette upload and unchanged neighbors");
     }
 

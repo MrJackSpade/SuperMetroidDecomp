@@ -252,7 +252,7 @@ internal static partial class Program
             for (int row = 0; row < 8; row++)
                 character[row * 2] = 0xff;
             vram.LoadBytes((0x4000 + 8) * 2, character);
-            cgram.SetColor(1, 0x7c00);
+            cgram.SetColor(1, Bgr555.FromWord(0x7c00));
         }
         else
         {
@@ -277,8 +277,8 @@ internal static partial class Program
             }
             vram.LoadBytes((0x4000 + 1 * 8) * 2, redDecoyCharacter);
             vram.LoadBytes((0x4000 + 2 * 8) * 2, blueEffectCharacter);
-            cgram.SetColor(1, 0x001f);
-            cgram.SetColor(2, 0x7c00);
+            cgram.SetColor(1, Bgr555.FromWord(0x001f));
+            cgram.SetColor(2, Bgr555.FromWord(0x7c00));
             snapshot = snapshot with { HorizontalScroll = 0, VerticalScroll = 0 };
         }
 

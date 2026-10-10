@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 
 namespace SuperMetroid.Core.Assets;
@@ -16,9 +17,9 @@ namespace SuperMetroid.Core.Assets;
 /// painting, the #1165 nonsense exception. This narrow disposition does not
 /// exempt other normal/speed-boost palettes or their unreviewed relationships.
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
-internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, ushort>
+internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
-    private readonly Dictionary<ushort, ushort> colors;
+    private readonly Dictionary<ushort, Bgr555> colors;
     /// <summary>Power dim slot1, $8D:DC7E.</summary>
     private readonly Channels powerDim1;
     /// <summary>Power dim slot2, $8D:DC80.</summary>
@@ -36,7 +37,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
     /// <summary>Gravity dim slot2, $8D:DF4C.</summary>
     private readonly Channels gravityDim2;
 
-    internal LoadingPaletteInputView(Dictionary<ushort, ushort> colors)
+    internal LoadingPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
         powerDim1 = new(colors[LoadingSuitColorPointers.PowerDim1], Expected(LoadingSuitColorPointers.PowerDim1));
@@ -57,19 +58,19 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
         colors.Remove(LoadingSuitColorPointers.GravityDim2);
     }
 
-    private ushort Normal(ushort pointer) =>
-        LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out ushort value)
+    private Bgr555 Normal(ushort pointer) =>
+        LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out Bgr555 value)
             ? value : throw new InvalidDataException($"Missing loading base ${pointer:X4}.");
 
-    private ushort Expected(ushort pointer) => pointer switch
+    private Bgr555 Expected(ushort pointer) => pointer switch
     {
         LoadingSuitColorPointers.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
         LoadingSuitColorPointers.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6f), 2),
         LoadingSuitColorPointers.PowerBright9 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb7d), 0),
         LoadingSuitColorPointers.PowerDim12 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb83), 2),
         LoadingSuitColorPointers.VariaBright10 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce5), 0),
-        LoadingSuitColorPointers.VariaBright11 => (ushort)((LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce7), 0) & 0x03ff) |
-            (variaBright10.Apply(Expected(LoadingSuitColorPointers.VariaBright10)) & 0x7c00)),
+        LoadingSuitColorPointers.VariaBright11 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce7), 0)
+            .WithBlue(variaBright10.Apply(Expected(LoadingSuitColorPointers.VariaBright10)).Blue),
         LoadingSuitColorPointers.VariaDim12 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce9), 2),
         LoadingSuitColorPointers.GravityDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xde3b), 2),
         _ => throw new ArgumentOutOfRangeException(nameof(pointer)),
@@ -81,17 +82,16 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
         private readonly int? green;
         private readonly int? blue;
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
-        internal Channels(ushort supplied, ushort expected, int independentMask = 0)
+        internal Channels(Bgr555 supplied, Bgr555 expected, int independentMask = 0)
         {
-            red = (independentMask & 1) == 0 && (supplied & 31) == (expected & 31) ? null : supplied & 31;
-            green = (independentMask & 2) == 0 && (supplied >> 5 & 31) == (expected >> 5 & 31) ? null : supplied >> 5 & 31;
-            blue = (independentMask & 4) == 0 && (supplied >> 10 & 31) == (expected >> 10 & 31) ? null : supplied >> 10 & 31;
+            red = (independentMask & 1) == 0 && supplied.Red == expected.Red ? null : supplied.Red;
+            green = (independentMask & 2) == 0 && supplied.Green == expected.Green ? null : supplied.Green;
+            blue = (independentMask & 4) == 0 && supplied.Blue == expected.Blue ? null : supplied.Blue;
         }
-        internal ushort Apply(ushort expected) => (ushort)((red ?? (expected & 31)) |
-            (green ?? (expected >> 5 & 31)) << 5 | (blue ?? (expected >> 10 & 31)) << 10);
+        internal Bgr555 Apply(Bgr555 expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
     }
 
-    public bool TryGetValue(ushort pointer, out ushort value)
+    public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         switch (pointer)
         {
@@ -106,7 +106,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
             default: return colors.TryGetValue(pointer, out value);
         }
     }
-    public ushort this[ushort key] => TryGetValue(key, out ushort value) ? value : throw new KeyNotFoundException();
+    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     public int Count => colors.Count + 8;
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
     public IEnumerable<ushort> Keys
@@ -118,8 +118,8 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
             yield return LoadingSuitColorPointers.VariaBright10; yield return LoadingSuitColorPointers.VariaBright11; yield return LoadingSuitColorPointers.VariaDim12; yield return LoadingSuitColorPointers.GravityDim2;
         }
     }
-    public IEnumerable<ushort> Values => Keys.Select(key => this[key]);
-    public IEnumerator<KeyValuePair<ushort, ushort>> GetEnumerator()
+    public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }

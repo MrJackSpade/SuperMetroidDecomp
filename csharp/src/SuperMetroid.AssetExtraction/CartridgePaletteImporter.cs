@@ -41,7 +41,8 @@ public static class CartridgePaletteImporter
         {
             byte low = ReadImportSource(source.AddWithinBank(color * 2));
             byte high = ReadImportSource(source.AddWithinBank(color * 2 + 1));
-            destination.SetColor(destinationIndex + color, (ushort)(low | (high << 8)));
+            // A DMA to CGRAM stores the fifteen color bits of each transferred word.
+            destination.SetColor(destinationIndex + color, Bgr555.FromCgramPortWord((ushort)(low | (high << 8))));
         }
     }
 }

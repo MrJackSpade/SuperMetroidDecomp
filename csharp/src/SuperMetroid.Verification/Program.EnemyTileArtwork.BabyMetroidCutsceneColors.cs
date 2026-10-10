@@ -74,7 +74,7 @@ internal static partial class Program
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
-        cgram.SetColor(destination - 1, 0x1234);
+        cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
         MethodInfo initial = type.GetMethod("LoadBabyMetroidCutsceneInitialPalette", flags)!;
         initial.Invoke(enemies, null);
         AssertEqual((ushort)0x1234, cgram.Colors[destination - 1],
@@ -82,7 +82,7 @@ internal static partial class Program
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
             AssertEqual(colors.InitialColor(color), cgram.Colors[destination + color],
                 $"live cutscene Baby initial color {color}");
-        ushort initialLastColor = cgram.Colors[destination + 14];
+        Bgr555 initialLastColor = cgram.Colors[destination + 14];
 
         MethodInfo fade = type.GetMethod("LoadBabyMetroidCutsceneFadePalette", flags)!;
         for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)

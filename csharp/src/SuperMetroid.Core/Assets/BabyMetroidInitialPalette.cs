@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using static SuperMetroid.Core.Assets.BabyMetroidInitialPaintDefinitions;
 
@@ -8,23 +9,22 @@ namespace SuperMetroid.Core.Assets;
 /// separate background, pulse, health and fade colors are excluded.</summary>
 internal sealed class BabyMetroidInitialPalette
 {
-    private readonly ushort[]? supplied;
-    private const ushort White = (31 << 10) | (31 << 5) | 31;
+    private readonly Bgr555[]? supplied;
 
-    internal BabyMetroidInitialPalette(ushort[] colors)
+    internal BabyMetroidInitialPalette(Bgr555[] colors)
     {
         for (int color = 0; color < colors.Length; color++)
             if (Calculate(color) != colors[color]) { supplied = colors.ToArray(); return; }
     }
 
-    internal ushort Resolve(int color)
+    internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= BabyMetroidCutsceneColorRomData.InitialColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return supplied is null ? Calculate(color) : supplied[color];
     }
 
-    private static ushort Calculate(int color) => color switch
+    private static Bgr555 Calculate(int color) => color switch
     {
         DomeHighlightColor => DomeHighlight,
         DomeSurfaceColor => DomeSurface,
@@ -38,46 +38,34 @@ internal sealed class BabyMetroidInitialPalette
         BabyMetroidCutsceneColorRomData.InitialFangMiddleColor => Midpoint(FangLight, FangDark),
         BabyMetroidCutsceneColorRomData.InitialFangDarkColor => FangDark,
         FangOutlineColor => FangOutline,
-        BabyMetroidCutsceneColorRomData.InitialWhiteColor => White,
-        BabyMetroidCutsceneColorRomData.InitialBlackColor => 0,
+        BabyMetroidCutsceneColorRomData.InitialWhiteColor => Bgr555.White,
+        BabyMetroidCutsceneColorRomData.InitialBlackColor => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
-    private static ushort Glint(ushort light)
-    {
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= Math.Min(31, (light >> shift & 31) + InnardGlintAddition) << shift;
-        return (ushort)result;
-    }
+    private static Bgr555 Glint(Bgr555 light) =>
+        light.Map((_, channel) => Math.Min(Bgr555.MaxChannel, channel + InnardGlintAddition));
 
-    private static ushort InnardShade(ushort light, ushort dark, int shade)
+    private static Bgr555 InnardShade(Bgr555 light, Bgr555 dark, int shade)
     {
-        int lightRed = light & 31, darkRed = dark & 31;
+        int lightRed = light.Red, darkRed = dark.Red;
         int intervals = lightRed - darkRed;
         int shadeIntervals = InnardDark - InnardLight;
         int denominator = shadeIntervals * shadeIntervals * shadeIntervals;
         int weight = shade * shade * (3 * shadeIntervals - 2 * shade);
         // Standard smoothstep, rounded to the nearest RGB5 red level; no historical-tool claim.
         int red = (lightRed * (denominator - weight) + darkRed * weight + denominator / 2) / denominator;
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= (((light >> shift & 31) * (red - darkRed) + (dark >> shift & 31) * (lightRed - red)) / intervals) << shift;
-        return (ushort)result;
+        return light.Zip(dark, (_, lightChannel, darkChannel) =>
+            (lightChannel * (red - darkRed) + darkChannel * (lightRed - red)) / intervals);
     }
 
-    internal static ushort Midpoint(ushort light, ushort dark)
-    {
-        int result = 0;
-        for (int channel = 0; channel < 3; channel++)
-            result |= (((light >> (5 * channel) & 31) + (dark >> (5 * channel) & 31)) / 2) << (5 * channel);
-        return (ushort)result;
-    }
+    internal static Bgr555 Midpoint(Bgr555 light, Bgr555 dark) =>
+        light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
 
     internal void AppendIdentity(SelectedPresentationHash content)
     {
-        Span<ushort> colors = stackalloc ushort[BabyMetroidCutsceneColorRomData.InitialColorCount];
+        Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorRomData.InitialColorCount];
         for (int color = 0; color < colors.Length; color++) colors[color] = Resolve(color);
-        content.AppendWords("initial", colors);
+        content.AppendColors("initial", colors);
     }
 }

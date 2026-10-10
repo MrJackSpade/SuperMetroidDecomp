@@ -12,7 +12,7 @@ internal static partial class Program
         var words = new ushort[32768];
         for (int i = 0; i < words.Length; i++) words[i] = (ushort)random.Next(65536);
         vram.ExecuteWordTransfer(words, 0, 1);
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, (ushort)random.Next(32768));
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)((ushort)random.Next(32768)))));
         for (int test = 0; test < 120; test++)
         {
             int width = test % 2 == 0 ? 256 : 253, height = 31;

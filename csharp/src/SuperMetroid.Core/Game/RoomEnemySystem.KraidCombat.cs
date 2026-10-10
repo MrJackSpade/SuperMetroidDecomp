@@ -243,9 +243,9 @@ public sealed partial class RoomEnemySystem
         int completedChannels = 0;
         for (int colorIndex = 113; colorIndex < 116; colorIndex++)
         {
-            ushort color = _cgram!.Colors[colorIndex];
-            int red = color & 0x001f;
-            int green = color & 0x03e0;
+            Bgr555 color = _cgram!.Colors[colorIndex];
+            int red = color.Red;
+            int green = color.Green;
             if (red >= 30)
             {
                 red = 31;
@@ -255,17 +255,16 @@ public sealed partial class RoomEnemySystem
             {
                 red++;
             }
-            if (green >= 0x03c0)
+            if (green >= 30)
             {
-                green = 0x03e0;
+                green = 31;
                 completedChannels++;
             }
             else
             {
-                green += 0x0020;
+                green++;
             }
-            _cgram.SetColor(colorIndex, unchecked((ushort)(
-                (color & 0x7c00) | green | red)));
+            _cgram.SetColor(colorIndex, new Bgr555(red, green, color.Blue));
         }
         if (completedChannels >= 6)
             body.VariableA = (ushort)KraidAiFunction.UnglowEye;
@@ -285,22 +284,23 @@ public sealed partial class RoomEnemySystem
         for (int eye = 0; eye < 3; eye++)
         {
             int colorIndex = 113 + eye;
-            ushort current = _cgram!.Colors[colorIndex];
-            ushort target = ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
-            int red = current & 0x001f;
-            int green = current & 0x03e0;
-            if (red != (target & 0x001f))
+            Bgr555 current = _cgram!.Colors[colorIndex];
+            Bgr555 target = ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
+            int red = current.Red;
+            int green = current.Green;
+            // Native decrements toward any differing target and masks each field, so a
+            // channel below its target wraps within its five bits without borrowing.
+            if (red != target.Red)
             {
-                red--;
+                red = (red - 1) & Bgr555.MaxChannel;
                 changedChannels++;
             }
-            if (green != (target & 0x03e0))
+            if (green != target.Green)
             {
-                green -= 0x0020;
+                green = (green - 1) & Bgr555.MaxChannel;
                 changedChannels++;
             }
-            _cgram.SetColor(colorIndex, unchecked((ushort)(
-                (current & 0x7c00) | (green & 0x03e0) | (red & 0x001f))));
+            _cgram.SetColor(colorIndex, new Bgr555(red, green, current.Blue));
         }
         if (changedChannels == 0)
         {

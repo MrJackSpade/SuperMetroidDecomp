@@ -1427,7 +1427,7 @@ public sealed partial class SuperMetroidGame
     {
         if (runtime is null)
             throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        var white = new ushort[SnesCgram.ColorCount];
+        var white = new Bgr555[SnesCgram.ColorCount];
         Array.Fill(white, TimeUpRomData.WhiteColor);
         timeUpPaletteFade = new CartridgePaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
             runtime.Enemies.GradualColorChange);
@@ -1480,8 +1480,8 @@ public sealed partial class SuperMetroidGame
         if (runtime is null)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
-        var target = new ushort[SnesCgram.ColorCount];
-        ReadOnlySpan<ushort> current = runtime.Cgram.Colors;
+        var target = new Bgr555[SnesCgram.ColorCount];
+        ReadOnlySpan<Bgr555> current = runtime.Cgram.Colors;
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
         current.Slice(0xc0, 0x10).CopyTo(target.AsSpan(0xc0, 0x10));

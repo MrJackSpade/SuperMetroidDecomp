@@ -11,14 +11,6 @@ public readonly record struct Rgba32(byte R, byte G, byte B, byte A = 255);
 public static class SnesGraphics
 {
 
-    /// <summary>Converts one native 15-bit CGRAM word into host RGBA.</summary>
-    public static Rgba32 DecodeBgr555Color(ushort value)
-    {
-        // Despite the conventional name "BGR555", the little-endian numeric word places
-        // red in bits 0-4, green in 5-9, and blue in 10-14. Bit 15 is not a color bit.
-        return new Rgba32(Expand5(value), Expand5(value >> 5), Expand5(value >> 10));
-    }
-
     /// <summary>
     /// Decodes consecutive 8x8 SNES planar tiles into one byte-per-pixel palette indexes.
     /// Two-bit tiles occupy 16 bytes; four-bit tiles occupy 32 bytes.
@@ -94,8 +86,4 @@ public static class SnesGraphics
         }
         return colors;
     }
-
-    // Replicate the high three bits into the low end rather than merely shifting. This maps
-    // SNES 0..31 exactly onto the full 0..255 display range, including both endpoints.
-    private static byte Expand5(int value) => (byte)(((value & 31) << 3) | ((value & 31) >> 2));
 }

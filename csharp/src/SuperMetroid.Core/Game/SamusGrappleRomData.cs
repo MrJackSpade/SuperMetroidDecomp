@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable cartridge definitions used by Samus's Grapple Beam subsystem.</summary>
@@ -14,7 +16,7 @@ public static class SamusGrappleRomData
         /// <summary>$9B:C67F selects beam palette two before entering the firing function.</summary>
         public const int FiringSelection = 2;
         /// <summary>$9B:C686 writes $7F91 to sprite palette five, color fifteen.</summary>
-        public const ushort FlareColor = 0x7f91;
+        public static Bgr555 FlareColor => Bgr555.FromWord(0x7f91);
         /// <summary>$9B:C689 destination, immediately before the beam's sprite palette six.</summary>
         public const int FlareColorIndex = SamusProjectileRomData.Palettes.BeamDestinationIndex - 1;
         /// <summary>$90:ACFC Load_Beam_Palette masks EquippedBeams to its low twelve bits.</summary>

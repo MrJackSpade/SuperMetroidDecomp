@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>Development-tool members of <see cref="SnesGraphics"/>; never linked by player hosts.</summary>
 internal static class SnesGraphicsTooling
@@ -12,8 +13,8 @@ internal static class SnesGraphicsTooling
         var colors = new Rgba32[bytes.Length / 2];
         for (int i = 0; i < colors.Length; i++)
         {
-            int value = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
-            colors[i] = SnesGraphics.DecodeBgr555Color((ushort)value);
+            // Palette bytes as uploaded to CGRAM: bit 15 is not stored.
+            colors[i] = Bgr555.FromCgramPortWord((ushort)(bytes[i * 2] | (bytes[i * 2 + 1] << 8))).ToRgba32();
         }
         return colors;
     }

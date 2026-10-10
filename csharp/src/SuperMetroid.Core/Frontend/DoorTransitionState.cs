@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class DoorTransitionState
 {
     private CartridgePaletteTransition? paletteTransition;
-    private ushort[]? fadedSourcePalette;
+    private Bgr555[]? fadedSourcePalette;
     private CartridgeDoorHeader? door;
     private uint sourceSamusXFixed;
     private uint sourceSamusYFixed;
@@ -171,7 +171,7 @@ public sealed class DoorTransitionState
                 // elevator AI must remain frozen through the final palette fade.
                 runtime.Enemies.ElevatorDoorTransitionActive = true;
                 runtime.Enemies.EnemyDoorTransitionActive = true;
-                ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
+                Bgr555[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 // UpdateBeamTilesAndPalette writes live colors during loading, unlike
                 // the destination room/enemy/suit target palettes used by the fade.
@@ -298,10 +298,10 @@ public sealed class DoorTransitionState
         }
     }
 
-    private static ushort[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
+    private static Bgr555[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
-        var target = new ushort[SnesCgram.ColorCount];
-        ReadOnlySpan<ushort> current = runtime.Cgram.Colors;
+        var target = new Bgr555[SnesCgram.ColorCount];
+        ReadOnlySpan<Bgr555> current = runtime.Cgram.Colors;
 
         // Keep HUD colors legible while the source room palette disappears.
         DoorTransitionPaletteDefinitions.PreserveHud(current, target);
@@ -320,7 +320,7 @@ public sealed class DoorTransitionState
         return target;
     }
 
-    private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<ushort> colors)
+    private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<Bgr555> colors)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             cgram.SetColor(color, colors[color]);

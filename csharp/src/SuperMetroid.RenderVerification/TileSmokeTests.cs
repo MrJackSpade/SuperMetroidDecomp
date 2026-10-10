@@ -9,7 +9,7 @@ internal static class TileSmokeTests
         VerifyFourthPlaneByteSelection(device, renderer);
         var random = new Random(32111);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
-        ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
+        Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(bytes, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
         int count = 0;
         foreach (int width in new[] { 32, 64 })
@@ -53,8 +53,8 @@ internal static class TileSmokeTests
         vram[(0x6000 + 4 * 16) * 2 + 29] = 233;
         for (int i = 0; i < 1024; i++)
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
-        var palette = new ushort[SnesPpuLayout.CgramColorCount];
-        palette[3 * 16 + 2] = 31; palette[3 * 16 + 10] = 31 << 10;
+        var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
+        palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
         var memory = new PpuMemorySnapshot(vram, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
         var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 0, 0, 32, 32, null) }, 3, 15));

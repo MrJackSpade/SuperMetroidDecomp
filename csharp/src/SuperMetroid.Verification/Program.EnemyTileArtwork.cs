@@ -223,7 +223,7 @@ internal static partial class Program
             var changedColors = new SnesCgram();
             stock.LoadPaletteTo(editedPointer, originalColors, 8 * 16);
             editedPalette.LoadPaletteTo(editedPointer, changedColors, 8 * 16);
-            AssertEqual((ushort)(originalColors.Colors[128] ^ 1), changedColors.Colors[128],
+            AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
                 "RGB5 override changes its selected enemy palette channel");
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color != 128)

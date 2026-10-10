@@ -70,12 +70,21 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Ordered animation rows retain their boundaries, including empty rows.</summary>
-    public void AppendWordFrames(string label, IReadOnlyList<ushort[]> frames)
+    /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords"/> of the encoded words.</summary>
+    public void AppendColors(string label, ReadOnlySpan<SuperMetroid.Core.Hardware.Bgr555> colors)
+    {
+        var bytes = new byte[checked(colors.Length * sizeof(ushort))];
+        for (int index = 0; index < colors.Length; index++)
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)), colors[index].ToWord());
+        Append(label, bytes);
+    }
+
+    /// <summary>Ordered color rows retain their boundaries, including empty rows; each row hashes its encoded words.</summary>
+    public void AppendColorFrames(string label, IReadOnlyList<SuperMetroid.Core.Hardware.Bgr555[]> frames)
     {
         Append(label, frames.Count);
-        foreach (ushort[] frame in frames)
-            AppendWords("row", frame);
+        foreach (SuperMetroid.Core.Hardware.Bgr555[] frame in frames)
+            AppendColors("row", frame);
     }
 
     /// <summary>Null fixture domains differ from installed content without storing a derived hash.</summary>

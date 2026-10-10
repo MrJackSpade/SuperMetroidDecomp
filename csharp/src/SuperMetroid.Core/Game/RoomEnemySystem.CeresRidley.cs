@@ -171,7 +171,7 @@ public sealed partial class RoomEnemySystem
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
         // and is intentionally left untouched.
         for (int color = 0x1e2 / 2; color <= 0x1fe / 2; color++)
-            _cgram!.SetColor(color, 0);
+            _cgram!.SetColor(color, Bgr555.Black);
     }
 
     /// <summary>

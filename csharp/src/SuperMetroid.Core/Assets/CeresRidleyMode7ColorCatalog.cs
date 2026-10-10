@@ -10,7 +10,7 @@ public sealed class CeresRidleyMode7ColorCatalog
 {
     private readonly CeresRidleyMode7PaintDefinitions rows;
 
-    private CeresRidleyMode7ColorCatalog(ushort[][] rows) => this.rows = new(rows);
+    private CeresRidleyMode7ColorCatalog(Bgr555[][] rows) => this.rows = new(rows);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -20,7 +20,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     };
 
     /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
-    public ushort Resolve(int zoomHighByte, int color)
+    public Bgr555 Resolve(int zoomHighByte, int color)
     {
         if ((uint)zoomHighByte >= CeresRidleyPaletteRomData.Mode7ZoomRowCount)
             throw new ArgumentOutOfRangeException(nameof(zoomHighByte));
@@ -61,20 +61,20 @@ public sealed class CeresRidleyMode7ColorCatalog
             document.ZoomRows is null ||
             document.ZoomRows.Length != CeresRidleyPaletteRomData.Mode7ZoomRowCount)
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
-        var rows = new ushort[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
+        var rows = new Bgr555[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             PaletteRgb5[]? colors = document.ZoomRows[row];
             if (colors is null || colors.Length != CeresRidleyPaletteRomData.Mode7ZoomColorCount)
                 throw new InvalidDataException($"Ceres Ridley zoom row {row} requires fifteen colors.");
-            rows[row] = new ushort[colors.Length];
+            rows[row] = new Bgr555[colors.Length];
             for (int color = 0; color < colors.Length; color++)
             {
                 PaletteRgb5? rgb = colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Ceres Ridley zoom row {row} color {color} requires RGB5 channels 0..31.");
-                rows[row][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                rows[row][color] = rgb.ToBgr555();
             }
         }
         return new(rows);

@@ -140,7 +140,7 @@ internal static partial class Program
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");
 
-        void VerifyFrame(int source, Func<int, ushort> resolve, string name)
+        void VerifyFrame(int source, Func<int, Bgr555> resolve, string name)
         {
             for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -148,7 +148,7 @@ internal static partial class Program
                     $"installed {name} color {color} matches cartridge");
         }
 
-        void VerifyFrames(int source, int count, Func<int, int, ushort> resolve, string name)
+        void VerifyFrames(int source, int count, Func<int, int, Bgr555> resolve, string name)
         {
             for (int frame = 0; frame < count; frame++)
                 VerifyFrame(source + frame * SporeSpawnColorRomData.FrameByteCount,
@@ -166,7 +166,7 @@ internal static partial class Program
                 int destination = SporeSpawnColorRomData.DeathDestination(layer);
                 for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 {
-                    ushort actual = targetOnly
+                    Bgr555 actual = targetOnly
                         ? state.TargetPalette.Span[destination + color]
                         : cgram.Colors[destination + color];
                     AssertEqual(colors.ResolveDeath(layer, frame, color), actual,
@@ -181,8 +181,8 @@ internal static partial class Program
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedFrame(Func<int, int, ushort> original,
-            Func<int, int, ushort> changed, int frame, string name)
+        static void CheckEditedFrame(Func<int, int, Bgr555> original,
+            Func<int, int, Bgr555> changed, int frame, string name)
         {
             AssertTrue(original(frame, 5) != changed(frame, 5),
                 $"{name} frame {frame} edit changes selected RGB5 word");

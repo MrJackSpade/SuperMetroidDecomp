@@ -12,14 +12,14 @@ public sealed class PauseReserveUiPresentation
     private readonly byte[][]? digits;
     private readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
-    private readonly ushort solidColor6, solidColor11;
-    private readonly (ushort? Color6, ushort? Color11) arrowStartEdits;
+    private readonly Bgr555 solidColor6, solidColor11;
+    private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
     private readonly (int Color6, int Color11) arrowGreyLevels;
-    private readonly Dictionary<int, ushort> arrowColorEdits = [];
+    private readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
     private PauseReserveUiPresentation(Dictionary<string, ReserveLabel> labels, int digitOffset,
         byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
-        ushort solidColor6, ushort solidColor11, (ushort, ushort)[] arrowFrames)
+        Bgr555 solidColor6, Bgr555 solidColor11, (Bgr555, Bgr555)[] arrowFrames)
     {
         this.labels = labels; this.digitOffset = digitOffset;
         bool stockDigits = true;
@@ -36,7 +36,7 @@ public sealed class PauseReserveUiPresentation
         arrowStartEdits = (arrowFrames[0].Item1 == solidColor11 ? null : arrowFrames[0].Item1,
             arrowFrames[0].Item2 == solidColor6 ? null : arrowFrames[0].Item2);
         var middle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
-        arrowGreyLevels = (middle.Item1 & 31, middle.Item2 & 31);
+        arrowGreyLevels = (middle.Item1.Red, middle.Item2.Red);
         for (int frame = 0; frame < arrowFrames.Length; frame++)
         {
             if (arrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
@@ -128,37 +128,34 @@ public sealed class PauseReserveUiPresentation
     /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
     /// independently supplied differences stay sparse.
     /// </summary>
-    private ushort CalculateArrowColor(int frame, bool second)
+    private Bgr555 CalculateArrowColor(int frame, bool second)
     {
         int last = PauseReserveUiDefinitions.ArrowFrames - 1;
         int phase = Math.Min(frame, last - frame);
         int steps = last / 2;
-        ushort start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
+        Bgr555 start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
         int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
-        if (phase == steps) return (ushort)(grey | grey << 5 | grey << 10);
-        int value = 0;
-        for (int shift = 0; shift < 15; shift += 5)
+        if (phase == steps) return new(grey, grey, grey);
+        ColorChannel held = second ? ColorChannel.Blue : ColorChannel.Red;
+        return start.Map((channel, channelStart) =>
         {
-            int channelPhase = phase == steps - 1 && shift == (second ? 10 : 0) ? phase - 1 : phase;
+            int channelPhase = phase == steps - 1 && channel == held ? phase - 1 : phase;
             float remaining = 1;
             float step = (float)(1d / steps);
             for (int tick = 0; tick < channelPhase; tick++)
                 remaining = (float)((double)remaining - step);
             float amount = (float)(1d - remaining);
-            int channelStart = start >> shift & 31;
             // Explicit binary32 roundings separate multiplication and addition: an FMA
             // cannot remove the intermediate rounding or alter the integral crossings.
             float delta = (float)((double)(grey - channelStart) * amount);
-            int channel = (int)(float)(channelStart + (double)delta);
-            value |= channel << shift;
-        }
-        return (ushort)value;
+            return (int)(float)(channelStart + (double)delta);
+        });
     }
 
-    private ushort ArrowColor(int frame, bool second)
+    private Bgr555 ArrowColor(int frame, bool second)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out ushort supplied)
+        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out Bgr555 supplied)
             ? supplied : CalculateArrowColor(frame, second);
     }
     /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>
@@ -204,11 +201,11 @@ public sealed class PauseReserveUiPresentation
                 throw new InvalidDataException($"Pause reserve UI {name} anchor is outside the 32x32 tilemap.");
             return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
         }
-        static ushort Color(PaletteRgb5? color, string name)
+        static Bgr555 Color(PaletteRgb5? color, string name)
         {
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Pause reserve UI {name} requires RGB components from zero through 31.");
-            return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            return color.ToBgr555();
         }
     }
 

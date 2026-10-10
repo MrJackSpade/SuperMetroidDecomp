@@ -30,7 +30,7 @@ internal static partial class Program
             var images = new HashSet<string>();
             var renderedFrames = new HashSet<string>();
             var palette = new SnesCgram();
-            for (int color = 0; color < 16; color++) palette.SetColor(color, (ushort)(color * 2));
+            for (int color = 0; color < 16; color++) palette.SetColor(color, Bgr555.FromWord((ushort)(color * 2)));
             int[] sources = (bits & 4) != 0
                 ? [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.Frame1Source,
                     WreckedShipTreadmillRomData.Frame2Source, WreckedShipTreadmillRomData.Frame3Source]

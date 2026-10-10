@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Calculated native visor color phases with narrowly retained painted-light composition choices.</summary>
@@ -9,10 +11,10 @@ internal static class SamusVisorColorDefinitions
     /// not a measured quantity determining its RGB value. The same3BE0 begins this visor
     /// transition. Catalogs remain independently editable; this is shared source identity,
     /// not mutable cross-catalog coupling. FullBeamStart and DarkeningStep have a separate narrow visor-light disposition.</remarks>
-    internal const ushort WideningStart = 0x3BE0;
+    internal static readonly Bgr555 WideningStart = Bgr555.FromWord(0x3be0);
 
     /// <summary>$9B:A3C6, SamusPalettes_Visor: selected yellow-white full-beam/room-cycle ink (31,31,16); retained painted visor-light choice.</summary>
-    internal const ushort FullBeamStart = 0x43FF;
+    internal static readonly Bgr555 FullBeamStart = Bgr555.FromWord(0x43ff);
 
     /// <summary>$9B:A3C6-$A3CB, SamusPalettes_Visor: selected five-level decrement per RGB5 channel; retained visor-light brightness contrast.</summary>
     /// <remarks>Only the six original visor RGB outputs are covered. Native $91:D86F/DCD3/DD09
@@ -23,24 +25,16 @@ internal static class SamusVisorColorDefinitions
     /// <summary>$9B:A3C0-$A3C5: widening start, midpoint and full-white endpoint.</summary>
     internal const int WideningPhaseCount = 3;
 
-    internal static ushort Color(int index)
+    internal static Bgr555 Color(int index)
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
+        return WideningStart.Zip(FullBeamStart, (_, start, fullBeam) =>
         {
-            int channel;
-            if (index < WideningPhaseCount)
-            {
-                int start = (WideningStart >> shift) & 31;
-                int intervals = WideningPhaseCount - 1;
-                channel = (start * (intervals - index) + 31 * index + intervals / 2) / intervals;
-            }
-            else
-                channel = ((FullBeamStart >> shift) & 31) - (index - WideningPhaseCount) * DarkeningStep;
-            result |= channel << shift;
-        }
-        return (ushort)result;
+            if (index >= WideningPhaseCount)
+                return fullBeam - (index - WideningPhaseCount) * DarkeningStep;
+            int intervals = WideningPhaseCount - 1;
+            return (start * (intervals - index) + 31 * index + intervals / 2) / intervals;
+        });
     }
 }

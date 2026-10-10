@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -11,17 +12,17 @@ public sealed class BotwoonColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
         {
             content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
-            Span<ushort> row = stackalloc ushort[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
+            Span<Bgr555> row = stackalloc Bgr555[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
             for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = HealthColor(band, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
     private readonly BotwoonHealthPaintDefinitions health;
 
-    private BotwoonColorCatalog(ushort[][] rows) => health = new(rows);
+    private BotwoonColorCatalog(Bgr555[][] rows) => health = new(rows);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -35,7 +36,7 @@ public sealed class BotwoonColorCatalog
     /// <param name="color">Color index from zero through fifteen within the complete palette.</param>
     /// <returns>The selected packed SNES color word.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either index is outside its authored range.</exception>
-    public ushort HealthColor(int band, int color)
+    public Bgr555 HealthColor(int band, int color)
     {
         if ((uint)band >= BotwoonHealthPaletteDefinitions.PaletteCount ||
             (uint)color >= BotwoonHealthPaletteDefinitions.ColorsPerPalette)
@@ -82,13 +83,13 @@ public sealed class BotwoonColorCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int band)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int band)
     {
         if (source is null ||
             source.Length != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
             throw new InvalidDataException(
                 $"Botwoon health band {band} requires sixteen RGB5 colors.");
-        var compiled = new ushort[source.Length];
+        var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -96,7 +97,7 @@ public sealed class BotwoonColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Botwoon health band {band} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

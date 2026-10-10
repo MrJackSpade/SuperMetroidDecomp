@@ -45,7 +45,7 @@ internal static class RetailRidleyCaptureTests
         }
         ridley.Mode7Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, 0);
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
         // Replay in reverse order so every check also overwrites GPU resources from
         // another packet. No borrowed room memory or previous output may satisfy it.
         foreach (var sample in retained.AsEnumerable().Reverse())

@@ -9,7 +9,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var cgram = new SnesCgram();
-        cgram.SetColor(0, 0x396b);
+        cgram.SetColor(0, Bgr555.FromWord(0x396b));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = PpuMemorySnapshot.Capture(new SnesVram(), cgram, oam);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);

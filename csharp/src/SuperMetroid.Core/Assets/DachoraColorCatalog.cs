@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -13,17 +14,17 @@ public sealed class DachoraColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
         {
-            content.AppendWords("normal", normal);
-            content.AppendWordFrames("speed", Frames(DachoraPalettePhase.Speed));
-            content.AppendWordFrames("shine", Frames(DachoraPalettePhase.Shine));
+            content.AppendColors("normal", normal);
+            content.AppendColorFrames("speed", Frames(DachoraPalettePhase.Speed));
+            content.AppendColorFrames("shine", Frames(DachoraPalettePhase.Shine));
         });
 
-    private readonly ushort[] normal;
+    private readonly Bgr555[] normal;
     // Speed and shine frames calculate from the normal colors; only supplied deviations are stored.
-    private readonly Dictionary<int, ushort> speedEdits = new();
-    private readonly Dictionary<int, ushort> shineEdits = new();
+    private readonly Dictionary<int, Bgr555> speedEdits = new();
+    private readonly Dictionary<int, Bgr555> shineEdits = new();
 
-    private DachoraColorCatalog(ushort[] normal, ushort[][] speed, ushort[][] shine)
+    private DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
     {
         this.normal = normal;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
@@ -36,42 +37,36 @@ public sealed class DachoraColorCatalog
     }
 
     /// <summary>$A7:F245 speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
-    private const ushort SpeedFlashBackdrop = 12 << 5 | 5 << 10;
+    private static readonly Bgr555 SpeedFlashBackdrop = new(0, 12, 5);
 
     /// <summary>
     /// $A7:F245..F2C4: frame k raises each color's blue channel toward min(blue + 16, 31),
     /// rounding to nearest over three steps; red and green keep the normal color. The first
     /// frame's transparent slot is the authored flash backdrop, later frames keep the normal one.
     /// </summary>
-    private ushort SpeedColor(int frame, int color)
+    private Bgr555 SpeedColor(int frame, int color)
     {
-        ushort basis = normal[color];
+        Bgr555 basis = normal[color];
         if (color == 0) return frame == 0 ? SpeedFlashBackdrop : basis;
-        int blue = basis >> 10 & 31;
+        int blue = basis.Blue;
         int target = Math.Min(blue + 16, 31);
         int steps = DachoraColorRomData.AnimatedFrameCount - 1;
         int shifted = blue + ((target - blue) * frame + steps / 2) / steps;
-        return (ushort)(basis & 0x3ff | shifted << 10);
+        return basis.WithBlue(shifted);
     }
 
     /// <summary>
     /// $A7:F2C5..F344: frame k fades every channel toward white by k/5, as
     /// channel + floor(k * (31 - channel) / 5); the transparent slot keeps the normal color.
     /// </summary>
-    private ushort ShineColor(int frame, int color)
+    private Bgr555 ShineColor(int frame, int color)
     {
-        ushort basis = normal[color];
+        Bgr555 basis = normal[color];
         if (color == 0) return basis;
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
-        {
-            int channel = basis >> shift & 31;
-            result |= channel + frame * (31 - channel) / 5 << shift;
-        }
-        return (ushort)result;
+        return basis.Map((_, channel) => channel + frame * (31 - channel) / 5);
     }
 
-    private ushort[][] Frames(DachoraPalettePhase phase) =>
+    private Bgr555[][] Frames(DachoraPalettePhase phase) =>
         Enumerable.Range(0, DachoraColorRomData.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
@@ -89,7 +84,7 @@ public sealed class DachoraColorCatalog
     /// <param name="color">Palette color index 0 through 15, including the transparent slot at zero.</param>
     /// <returns>SNES RGB555 word with red in bits 0..4, green in bits 5..9, and blue in bits 10..14; the caller chooses the actor's OBJ palette destination.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>
-    public ushort Resolve(DachoraPalettePhase phase, int frame, int color)
+    public Bgr555 Resolve(DachoraPalettePhase phase, int frame, int color)
     {
         bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
         if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
@@ -100,8 +95,8 @@ public sealed class DachoraColorCatalog
         int key = frame * DachoraColorRomData.ColorsPerFrame + color;
         return phase switch
         {
-            DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out ushort speed) ? speed : SpeedColor(frame, color),
-            DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out ushort shine) ? shine : ShineColor(frame, color),
+            DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out Bgr555 speed) ? speed : SpeedColor(frame, color),
+            DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out Bgr555 shine) ? shine : ShineColor(frame, color),
             _ => normal[color],
         };
     }
@@ -144,7 +139,7 @@ public sealed class DachoraColorCatalog
         return bytes;
     }
 
-    private static ushort[][] CompileFrames(PaletteRgb5[][]? source, string name)
+    private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.AnimatedFrameCount)
             throw new InvalidDataException(
@@ -153,12 +148,12 @@ public sealed class DachoraColorCatalog
             .ToArray();
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.ColorsPerFrame)
             throw new InvalidDataException(
                 $"Dachora {name} requires {DachoraColorRomData.ColorsPerFrame} RGB5 colors.");
-        var compiled = new ushort[source.Length];
+        var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -166,7 +161,7 @@ public sealed class DachoraColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Dachora {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

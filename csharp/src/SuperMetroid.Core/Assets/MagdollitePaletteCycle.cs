@@ -15,24 +15,24 @@ public sealed class MagdollitePaletteCycle
     public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
         {
             content.Append("frames", MagdollitePaletteRomData.FrameCount);
-            Span<ushort> row = stackalloc ushort[MagdollitePaletteRomData.AnimatedColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[MagdollitePaletteRomData.AnimatedColorCount];
             for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
     // The four independent glow colors remain required artwork under issue1165.
-    private readonly ushort[] colors;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Bgr555[] colors;
+    private readonly Dictionary<int, Bgr555> edits = [];
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per
     /// phase in the four native OBJ rows. Preserve arbitrary edited later rows
     /// as deviations from that rotation, without rebuilding the native table.
     /// </summary>
-    private MagdollitePaletteCycle(ushort[][] frames)
+    private MagdollitePaletteCycle(Bgr555[][] frames)
     {
         colors = frames[0];
         for (int frame = 1; frame < frames.Length; frame++)
@@ -53,13 +53,13 @@ public sealed class MagdollitePaletteCycle
     /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
     /// <returns>Packed SNES BGR555 color from the selected row.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
-    public ushort Resolve(int frame, int color)
+    public Bgr555 Resolve(int frame, int color)
     {
         if ((uint)frame >= MagdollitePaletteRomData.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(frame * colors.Length + color, out ushort edited)
+        return edits.TryGetValue(frame * colors.Length + color, out Bgr555 edited)
             ? edited : colors[(color + frame) % colors.Length];
     }
 
@@ -105,13 +105,13 @@ public sealed class MagdollitePaletteCycle
             document.Frames.Length != MagdollitePaletteRomData.FrameCount)
             throw new InvalidDataException("Magdollite palette cycle requires four version-one frames.");
 
-        var compiled = new ushort[MagdollitePaletteRomData.FrameCount][];
+        var compiled = new Bgr555[MagdollitePaletteRomData.FrameCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
             if (source is null || source.Length != MagdollitePaletteRomData.AnimatedColorCount)
                 throw new InvalidDataException($"Magdollite palette frame {frame} requires four RGB5 colors.");
-            compiled[frame] = new ushort[source.Length];
+            compiled[frame] = new Bgr555[source.Length];
             for (int color = 0; color < source.Length; color++)
             {
                 PaletteRgb5? rgb = source[color];
@@ -119,7 +119,7 @@ public sealed class MagdollitePaletteCycle
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Magdollite palette frame {frame} color {color} requires RGB5 channels 0..31.");
-                compiled[frame][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                compiled[frame][color] = rgb.ToBgr555();
             }
         }
         return new MagdollitePaletteCycle(compiled);

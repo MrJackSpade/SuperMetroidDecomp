@@ -17,7 +17,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
     /// <summary>Whether the last simulation update enabled the rainbow-beam color-add layer; disabling leaves the previous color and windows stored but prevents rendering them.</summary>
     public bool Active { get; private set; }
     /// <summary>Current packed SNES RGB5 fixed-backdrop color for windowed addition, not a CGRAM entry; initialized on activation and advanced only by subsequent active updates.</summary>
-    public ushort Color { get; private set; }
+    public Bgr555 Color { get; private set; }
     /// <summary>Next native $88:E833 color-table byte offset, advancing by four rather than by one color ordinal; a signed terminator resets to zero and repeats entry zero without advancing that update.</summary>
     public int ColorCursor { get; private set; }
     /// <summary>Live read-only view of 224 visible scanline window words: low byte is inclusive WH0 left, high byte is inclusive WH1 right, and $00FF denotes empty; the first 32 HUD lines stay empty.</summary>
@@ -50,12 +50,12 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
         else
         {
-            ushort color = ReadColorWord(ColorCursor);
-            if (unchecked((short)color) < 0)
+            if (!TryReadColor(ColorCursor, out Bgr555 color))
             {
-                // The native reset frame repeats entry zero without incrementing.
+                // The native signed terminator: the reset frame repeats entry zero without incrementing.
                 ColorCursor = 0;
-                color = ReadColorWord(0);
+                if (!TryReadColor(0, out color))
+                    throw new InvalidDataException("Mother Brain beam color cycle has no first entry.");
             }
             else ColorCursor += MotherBrainBeamRomData.ColorStride;
             Color = color;
@@ -142,8 +142,8 @@ public sealed class MotherBrainRainbowBeamHdmaState
 
     private static int Tangent(int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
-    private ushort ReadColorWord(int cursor) =>
+    private bool TryReadColor(int cursor, out Bgr555 color) =>
         (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))
-            .BeamColorWord(cursor);
+            .TryReadBeamColor(cursor, out color);
 }

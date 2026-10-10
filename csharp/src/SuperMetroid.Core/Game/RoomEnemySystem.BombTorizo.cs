@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
 
@@ -283,7 +284,7 @@ public sealed partial class RoomEnemySystem
 
     private void LoadTorizoSharedPaletteRows()
     {
-        ReadOnlySpan<ushort> rows = TorizoPaletteDefinitions.SharedRows;
+        ReadOnlySpan<Bgr555> rows = TorizoPaletteDefinitions.SharedRows;
         for (int color = 0; color < 16; color++)
         {
             _cgram!.SetColor(176 + color, rows[color]);
@@ -307,7 +308,7 @@ public sealed partial class RoomEnemySystem
         state.PaletteTransition ??= new CartridgePaletteTransition(
             _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator, GradualColorChange);
 
-    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<ushort> colors)
+    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
     {
         var transition = GetTorizoPaletteTransition(state);
         for (int color = 0; color < colors.Length; color++)
@@ -338,8 +339,8 @@ public sealed partial class RoomEnemySystem
     }
 
     private void LoadTorizoBodyPalette(
-        ReadOnlySpan<ushort> rowNine,
-        ReadOnlySpan<ushort> rowTen)
+        ReadOnlySpan<Bgr555> rowNine,
+        ReadOnlySpan<Bgr555> rowTen)
     {
         for (int color = 0; color < 16; color++)
         {
@@ -648,8 +649,8 @@ public sealed partial class RoomEnemySystem
         {
             for (int color = 0; color < 16; color++)
             {
-                _cgram!.SetColor(144 + color, 0x7fff);
-                _cgram.SetColor(160 + color, 0x7fff);
+                _cgram!.SetColor(144 + color, Bgr555.White);
+                _cgram.SetColor(160 + color, Bgr555.White);
             }
         }
     }

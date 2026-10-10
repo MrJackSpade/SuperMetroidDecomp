@@ -87,7 +87,7 @@ internal static partial class Program
             copyHealth.Invoke(enemies, [body]);
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
             for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-                cgram.SetColor(PhantoonColorRomData.BodyDestination + color, 0);
+                cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
             eye.VariableE = 1;
             eye.VariableF = 0;
             fadeIn.Invoke(enemies, [body, state, (ushort)0]);
@@ -146,7 +146,7 @@ internal static partial class Program
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, persistent override, ROM guard, and strict failures pass.");
 
-        void VerifyBand(int source, int count, Func<int, ushort> resolve, string name)
+        void VerifyBand(int source, int count, Func<int, Bgr555> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -167,8 +167,8 @@ internal static partial class Program
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckUnchangedBand(int count, Func<int, ushort> original,
-            Func<int, ushort> changed, string name)
+        static void CheckUnchangedBand(int count, Func<int, Bgr555> original,
+            Func<int, Bgr555> changed, string name)
         {
             for (int color = 0; color < count; color++)
                 if (color != 1)

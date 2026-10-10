@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
@@ -66,7 +67,7 @@ public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCo
 /// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
 public sealed class ShitroidEnemyState
 {
-    private readonly ushort[] _targetPalette = new ushort[256];
+    private readonly Bgr555[] _targetPalette = new Bgr555[256];
 
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 
@@ -133,7 +134,7 @@ public sealed class ShitroidEnemyState
     /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
     public ushort VictimActivationFlag { get; internal set; }
-    internal Span<ushort> MutableTargetPalette => _targetPalette;
+    internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 }
 
 /// <summary>Retail Shitroid actor at $A9:EED1-$F99A.</summary>
@@ -243,7 +244,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
         {
-            ushort value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
+            Bgr555 value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
             state.MutableTargetPalette[destinationColor + color] = value;
 
@@ -903,7 +904,7 @@ public sealed partial class RoomEnemySystem
 
         for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
         {
-            ushort value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
+            Bgr555 value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
             _cgram!.SetColor(165 + color, value);
         }

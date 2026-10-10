@@ -89,9 +89,9 @@ internal static partial class Program
         runtime.Vram.LoadBytes(0x3fe * 32, tile);
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x3fe, 2048).ToArray(),
             SnesPpuLayout.GameplayBg1TilemapWord, 1);
-        runtime.Cgram.SetColor(1, 24 | 20 << 5 | 16 << 10);
+        runtime.Cgram.SetColor(1, new Bgr555(24, 20, 16));
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
-        runtime.Cgram.SetColor(6 * 4 + 3, 0);
+        runtime.Cgram.SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
         var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
         var expected = new Rgba32(99, 82, 66, 255); // RGB5(12,10,8)

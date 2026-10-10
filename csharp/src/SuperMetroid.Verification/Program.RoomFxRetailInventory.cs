@@ -400,9 +400,9 @@ internal static partial class Program
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
-        cgram.SetColor(25, 0x001f);
-        cgram.SetColor(26, 0x03e0);
-        cgram.SetColor(27, 0x7c00);
+        cgram.SetColor(25, Bgr555.FromWord(0x001f));
+        cgram.SetColor(26, Bgr555.FromWord(0x03e0));
+        cgram.SetColor(27, Bgr555.FromWord(0x7c00));
         ushort cameraY = unchecked((ushort)(
             fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(cameraX: 0, cameraY);
@@ -885,7 +885,7 @@ internal static partial class Program
         // its optional three-color blend. Seeding every two-bit BG3 palette makes the audit
         // independent of a particular graphics set without masking record-owned overrides.
         for (int color = 1; color < 32; color++)
-            cgram.SetColor(color, 0x7fff);
+            cgram.SetColor(color, Bgr555.FromWord(0x7fff));
     }
 
     private static RetailFxRoomState? ParseRetailFxRoomState(string line)

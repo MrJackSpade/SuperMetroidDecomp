@@ -14,35 +14,35 @@ public sealed class DraygonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
-            Span<ushort> introWords = stackalloc ushort[DraygonColorRomData.IntroCount];
+            Span<Bgr555> introWords = stackalloc Bgr555[DraygonColorRomData.IntroCount];
             for (int color = 0; color < introWords.Length; color++) introWords[color] = intro.Color(color);
-            content.AppendWords("intro", introWords);
-            Span<ushort> backgroundWords = stackalloc ushort[DraygonColorRomData.BackgroundCount];
+            content.AppendColors("intro", introWords);
+            Span<Bgr555> backgroundWords = stackalloc Bgr555[DraygonColorRomData.BackgroundCount];
             for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = background.Color(color);
-            content.AppendWords("background", backgroundWords);
-            Span<ushort> spriteWords = stackalloc ushort[DraygonColorRomData.SpriteCount];
+            content.AppendColors("background", backgroundWords);
+            Span<Bgr555> spriteWords = stackalloc Bgr555[DraygonColorRomData.SpriteCount];
             for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = sprite.Color(color);
-            content.AppendWords("sprite", spriteWords);
-            Span<ushort> flash = stackalloc ushort[DraygonColorRomData.WhiteFlashCount];
+            content.AppendColors("sprite", spriteWords);
+            Span<Bgr555> flash = stackalloc Bgr555[DraygonColorRomData.WhiteFlashCount];
             for (int color = 0; color < flash.Length; color++) flash[color] = ResolveWhiteFlash(color);
-            content.AppendWords("whiteFlash", flash);
+            content.AppendColors("whiteFlash", flash);
             content.Append("healthBands", DraygonColorRomData.HealthBandCount);
-            Span<ushort> row = stackalloc ushort[DraygonColorRomData.HealthBandColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[DraygonColorRomData.HealthBandColorCount];
             for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = ResolveHealthBand(band, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
     private readonly DraygonIntroPaintDefinitions intro;
     private readonly DraygonMaterialPaintDefinitions background;
     private readonly DraygonMaterialPaintDefinitions sprite;
-    private readonly Dictionary<int, ushort> whiteFlash = new();
+    private readonly Dictionary<int, Bgr555> whiteFlash = new();
     private readonly DraygonHealthPaintDefinitions healthBands;
 
-    private DraygonColorCatalog(ushort[] intro, ushort[] background, ushort[] sprite,
-        ushort[] whiteFlash, ushort[][] healthBands)
+    private DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
+        Bgr555[] whiteFlash, Bgr555[][] healthBands)
     {
         this.intro = new(intro);
         this.background = new(background);
@@ -60,21 +60,21 @@ public sealed class DraygonColorCatalog
     };
 
     /// <summary>Gets one of the 25 selected RGB5 colors used by Draygon's opening palette.</summary>
-    public ushort ResolveIntro(int color) => intro.Color(color);
+    public Bgr555 ResolveIntro(int color) => intro.Color(color);
     /// <summary>Gets one of the 16 selected normal background colors.</summary>
-    public ushort ResolveBackground(int color) => background.Color(color);
+    public Bgr555 ResolveBackground(int color) => background.Color(color);
     /// <summary>Gets one of the 16 selected normal sprite colors.</summary>
-    public ushort ResolveSprite(int color) => sprite.Color(color);
+    public Bgr555 ResolveSprite(int color) => sprite.Color(color);
     /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
-    public ushort ResolveWhiteFlash(int color)
+    public Bgr555 ResolveWhiteFlash(int color)
     {
         if ((uint)color >= DraygonColorRomData.WhiteFlashCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return whiteFlash.TryGetValue(color, out ushort selected) ? selected : StockWhiteFlash(color);
+        return whiteFlash.TryGetValue(color, out Bgr555 selected) ? selected : StockWhiteFlash(color);
     }
 
     /// <summary>Gets one of the four selected colors in an eight-row health palette table.</summary>
-    public ushort ResolveHealthBand(int band, int color)
+    public Bgr555 ResolveHealthBand(int band, int color)
     {
         _ = CheckBand(band);
         if ((uint)color >= DraygonColorRomData.HealthBandColorCount)
@@ -83,7 +83,7 @@ public sealed class DraygonColorCatalog
     }
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297 preserves the backdrop; all visible inks are white.</summary>
-    private static ushort StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : (ushort)0x7fff;
+    private static Bgr555 StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : Bgr555.FromWord(0x7fff);
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
     public void ApplyIntro(SnesCgram cgram) =>
@@ -108,13 +108,13 @@ public sealed class DraygonColorCatalog
     public void ApplyHealthBand(SnesCgram cgram, ushort tableByteIndex)
     {
         if ((tableByteIndex & 1) != 0 ||
-            tableByteIndex / sizeof(ushort) >= DraygonColorRomData.HealthBandCount)
+            tableByteIndex / Bgr555.ByteCount >= DraygonColorRomData.HealthBandCount)
             throw new InvalidDataException(
                 $"Draygon health palette byte index ${tableByteIndex:X4} is not authored.");
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
             cgram.SetColor(DraygonColorRomData.HealthDestination + color,
-                ResolveHealthBand(tableByteIndex / sizeof(ushort), color));
+                ResolveHealthBand(tableByteIndex / Bgr555.ByteCount, color));
     }
 
     /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>
@@ -161,16 +161,16 @@ public sealed class DraygonColorCatalog
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
-    private static void ApplyCalculated(SnesCgram cgram, int count, int destination, Func<int, ushort> resolve)
+    private static void ApplyCalculated(SnesCgram cgram, int count, int destination, Func<int, Bgr555> resolve)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < count; color++) cgram.SetColor(destination + color, resolve(color));
     }
-    private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Draygon {name} requires {count} RGB5 colors.");
-        var compiled = new ushort[count];
+        var compiled = new Bgr555[count];
         for (int color = 0; color < count; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -178,7 +178,7 @@ public sealed class DraygonColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Draygon {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

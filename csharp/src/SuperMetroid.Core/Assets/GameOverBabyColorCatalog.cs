@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Core.Assets;
@@ -36,21 +37,21 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class GameOverBabyColorCatalog
 {
-    private readonly Dictionary<int, ushort> inputs = new();
+    private readonly Dictionary<int, Bgr555> inputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> differences = new();
     private readonly int greenCryRed;
     private readonly int glassCryRed;
 
     /// <summary>Captures values from the four named palettes already validated by the presentation loader.</summary>
-    internal GameOverBabyColorCatalog(IReadOnlyDictionary<string, ushort[]> palettes)
+    internal GameOverBabyColorCatalog(IReadOnlyDictionary<string, Bgr555[]> palettes)
     {
-        ushort[] closed = palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.ClosedCry)];
-        greenCryRed = closed[4] & 31;
-        glassCryRed = closed[13] & 31;
+        Bgr555[] closed = palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.ClosedCry)];
+        greenCryRed = closed[4].Red;
+        glassCryRed = closed[13].Red;
         for (int phase = 0; phase < 4; phase++)
         for (int color = 0; color < 16; color++)
         {
-            ushort supplied = palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][color];
+            Bgr555 supplied = palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][color];
             int key = phase * 16 + color;
             bool greenShade = phase < 2 && color is 2 or 3;
             bool warmCry = phase == 1 && color is >= 5 and <= 12;
@@ -65,7 +66,7 @@ internal sealed class GameOverBabyColorCatalog
                 inputs.Add(key, supplied);
                 continue;
             }
-            ushort expected = glassCry
+            Bgr555 expected = glassCry
                 ? GlassCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
                 : glassHighlight
                 ? Brighten(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color], 5)
@@ -81,20 +82,20 @@ internal sealed class GameOverBabyColorCatalog
                 : color == 0
                 ? palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][0]
                 : CryShade(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)(phase - 1))][color],
-                    phase, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][14] : (ushort)0);
+                    phase, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][14] : Bgr555.Black);
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
         }
     }
 
-    internal ushort Read(GameOverBabyPalette palette, int color)
+    internal Bgr555 Read(GameOverBabyPalette palette, int color)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         if ((uint)color >= 16) throw new IndexOutOfRangeException();
         int phase = (int)palette;
         int key = phase * 16 + color;
-        if (inputs.TryGetValue(key, out ushort value)) return value;
-        ushort expected = phase == 1 && color == 13
+        if (inputs.TryGetValue(key, out Bgr555 value)) return value;
+        Bgr555 expected = phase == 1 && color == 13
             ? GlassCry(Read(GameOverBabyPalette.Idle, color))
             : phase == 1 && color == 14
             ? Brighten(Read(GameOverBabyPalette.Idle, color), 5)
@@ -107,47 +108,39 @@ internal sealed class GameOverBabyColorCatalog
             ? GreenShade(Read(palette, 4), color)
             : phase == 1 && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
             : color == 0 ? inputs[0] : CryShade(Read((GameOverBabyPalette)(phase - 1), color),
-                phase, color, color == 13 ? Read(palette, 14) : (ushort)0);
+                phase, color, color == 13 ? Read(palette, 14) : Bgr555.Black);
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
 
-    private static ushort GreenShade(ushort darkest, int color) =>
-        (ushort)((darkest & 0x7c1f) | Math.Min(31, (darkest >> 5 & 31) + (4 - color) * 5) << 5);
+    private static Bgr555 GreenShade(Bgr555 darkest, int color) =>
+        darkest.WithGreen(Math.Min(31, darkest.Green + (4 - color) * 5));
 
-    private static ushort WarmCry(ushort idle) =>
-        (ushort)(Math.Min(31, (idle & 31) + 5) | (idle & 0x03e0) |
-            Math.Max(0, (idle >> 10 & 31) - 5) << 10);
+    private static Bgr555 WarmCry(Bgr555 idle) =>
+        new(Math.Min(31, idle.Red + 5), idle.Green, Math.Max(0, idle.Blue - 5));
 
-    private static ushort CoolCry(ushort idle, int ink) =>
-        (ushort)((WarmCry(idle) & 0x7c00) | (ink == 15 ? idle & 31 : Math.Min(31, (idle & 31) + 5)) |
-            Math.Min(31, (idle >> 5 & 31) + 5) << 5);
+    private static Bgr555 CoolCry(Bgr555 idle, int ink) =>
+        new(ink == 15 ? idle.Red : Math.Min(31, idle.Red + 5), Math.Min(31, idle.Green + 5), WarmCry(idle).Blue);
 
-    private ushort GreenCry(ushort idle) =>
-        (ushort)(greenCryRed | Math.Min(31, (idle >> 5 & 31) + 5) << 5 | greenCryRed << 10);
+    private Bgr555 GreenCry(Bgr555 idle) =>
+        new(greenCryRed, Math.Min(31, idle.Green + 5), greenCryRed);
 
-    private ushort GlassCry(ushort idle) =>
-        (ushort)(glassCryRed | (idle & 0x03e0) | (idle >> 5 & 31) << 10);
+    private Bgr555 GlassCry(Bgr555 idle) =>
+        new(glassCryRed, idle.Green, idle.Green);
 
-    private static ushort MiddleShade(ushort bright, ushort dark) =>
-        (ushort)(((bright & 31) + (dark & 31)) / 2 |
-            ((bright >> 5 & 31) + (dark >> 5 & 31)) / 2 << 5 |
-            ((bright >> 10 & 31) + (dark >> 10 & 31)) / 2 << 10);
+    private static Bgr555 MiddleShade(Bgr555 bright, Bgr555 dark) =>
+        bright.Zip(dark, (_, light, shadow) => (light + shadow) / 2);
 
-    private static ushort CryShade(ushort previous, int phase, int ink, ushort highlight)
+    private static Bgr555 CryShade(Bgr555 previous, int phase, int ink, Bgr555 highlight)
     {
-        ushort bright = Brighten(previous, 3);
+        Bgr555 bright = Brighten(previous, 3);
         if (phase == 2 && ink is >= 10 and <= 12)
-            return (ushort)((bright & 0x7fe0) | (previous & 31));
+            return bright.WithRed(previous.Red);
         if (ink == 13)
-            return (ushort)(Math.Min(bright & 31, Math.Max(0, (highlight & 31) - 1)) |
-                Math.Min(bright >> 5 & 31, Math.Max(0, (highlight >> 5 & 31) - 1)) << 5 |
-                Math.Min(bright >> 10 & 31, Math.Max(0, (highlight >> 10 & 31) - 1)) << 10);
+            return bright.Zip(highlight, (_, brightened, glint) => Math.Min(brightened, Math.Max(0, glint - 1)));
         return bright;
     }
 
     /// <summary>RGB5 additive brightness, saturating each component at 31 before packing.</summary>
-    private static ushort Brighten(ushort color, int amount) =>
-        (ushort)(Math.Min(31, (color & 31) + amount) |
-            Math.Min(31, (color >> 5 & 31) + amount) << 5 |
-            Math.Min(31, (color >> 10 & 31) + amount) << 10);
+    private static Bgr555 Brighten(Bgr555 color, int amount) =>
+        color.Map((_, channel) => Math.Min(31, channel + amount));
 }

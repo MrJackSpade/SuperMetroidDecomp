@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -13,9 +15,9 @@ internal sealed class CeresRidleyMode7PaintDefinitions
 {
     private readonly CeresRidleyBodyPaintDefinitions body;
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal CeresRidleyMode7PaintDefinitions(ushort[][] rows)
+    internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
         eyes = CeresRidleyFadeColorDefinitions.EyePaint.From(rows[0].AsSpan(11, 3));
@@ -24,20 +26,20 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     }
 
     /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
-    private static ushort Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
+    private static Bgr555 Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
-    internal static ushort RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
+    internal static Bgr555 RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
 
-    internal ushort Resolve(int row, int color)
+    internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 15 + color, out ushort edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    private ushort Calculate(int row, int color)
+    private Bgr555 Calculate(int row, int color)
     {
-        ushort endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;
+        Bgr555 endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;
         // Each zoom bucket reduces exposure once through bucket6, then twice per bucket.
         int exposure = 15 - Math.Min(row, 6) - 2 * Math.Max(0, row - 6);
         return CeresRidleyFadeColorDefinitions.Scale(endpoint, exposure);

@@ -55,7 +55,7 @@ internal static partial class Program
         Cycle(selected);
         ReferenceCycle(controlCgram, ref controlCounter);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(controlCgram.Colors[color] ^
+            AssertEqual((ushort)(controlCgram.Colors[color].ToWord() ^
                 (color == ZebetiteDefinitions.PaletteDestinationColor + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
@@ -120,7 +120,7 @@ internal static partial class Program
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(0xac + color,
-                    (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+                    Bgr555.FromWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8)));
             }
         }
 
@@ -128,7 +128,7 @@ internal static partial class Program
         {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, (ushort)(color * 31));
+                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             return cgram;
         }
 

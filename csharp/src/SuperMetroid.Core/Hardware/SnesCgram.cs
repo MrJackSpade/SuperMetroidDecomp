@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// The SNES PPU's 256-entry Color Generator RAM (CGRAM), retained as native BGR555 words.
+/// The SNES PPU's 256-entry Color Generator RAM (CGRAM), retained as native <see cref="Bgr555"/> colors.
 /// </summary>
 /// <remarks>
 /// Keeping the hardware words instead of prematurely converting them is useful while
@@ -17,10 +17,10 @@ public sealed class SnesCgram
     /// <summary>The size in bytes of CGRAM's complete two-byte color image.</summary>
     public const int ByteCount = SnesPpuLayout.CgramByteCount;
 
-    private readonly ushort[] _colors = new ushort[ColorCount];
+    private readonly Bgr555[] _colors = new Bgr555[ColorCount];
 
-    /// <summary>Read-only native palette words for watches and verification.</summary>
-    public ReadOnlySpan<ushort> Colors => _colors;
+    /// <summary>Read-only palette colors for watches and verification.</summary>
+    public ReadOnlySpan<Bgr555> Colors => _colors;
 
     /// <summary>Loads consecutive little-endian palette bytes already decoded in host memory.</summary>
     public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
@@ -33,20 +33,18 @@ public sealed class SnesCgram
 
         for (int color = 0; color < colorCount; color++)
         {
-            ushort value = (ushort)(bytes[color * 2] | (bytes[color * 2 + 1] << 8));
-            _colors[destinationIndex + color] = (ushort)(value & 0x7fff);
+            ushort word = (ushort)(bytes[color * 2] | (bytes[color * 2 + 1] << 8));
+            _colors[destinationIndex + color] = Bgr555.FromCgramPortWord(word);
         }
     }
 
-    /// <summary>Writes one native word; primarily useful for isolated PPU tests.</summary>
-    public void SetColor(int index, ushort bgr555)
+    /// <summary>Writes one color.</summary>
+    public void SetColor(int index, Bgr555 color)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        // The PPU ignores bit 15. Masking it makes the stored model match CGRAM rather
-        // than preserving a value that real hardware could never display.
-        _colors[index] = (ushort)(bgr555 & 0x7fff);
+        _colors[index] = color;
     }
 
     /// <summary>Returns one palette word converted to ordinary 8-bit RGBA.</summary>
@@ -55,6 +53,6 @@ public sealed class SnesCgram
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        return SnesGraphics.DecodeBgr555Color(_colors[index]);
+        return _colors[index].ToRgba32();
     }
 }

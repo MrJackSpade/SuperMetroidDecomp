@@ -23,12 +23,12 @@ public sealed class CrocomireColorCatalog
 
     private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
     // Only independently supplied differences are stored; every stock ink calculates.
-    private readonly Dictionary<(Band Band, int Color), ushort> edits = [];
+    private readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
 
-    private CrocomireColorCatalog(ushort[] fightBody, ushort[] initialWall,
-        ushort[] initialProjectile, ushort[] skeletonArm, ushort[] wallSpikes)
+    private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
+        Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
     {
-        ushort[][] supplied = [fightBody, initialWall, initialProjectile, skeletonArm, wallSpikes];
+        Bgr555[][] supplied = [fightBody, initialWall, initialProjectile, skeletonArm, wallSpikes];
         for (int band = 0; band < supplied.Length; band++)
             for (int color = 0; color < supplied[band].Length; color++)
                 if (supplied[band][color] != Stock((Band)band, color))
@@ -36,7 +36,7 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>Each named material calculates its native paint and transfer overlaps; supplied edits never alias across fields.</summary>
-    private static ushort Stock(Band band, int color) => band switch
+    private static Bgr555 Stock(Band band, int color) => band switch
     {
         Band.FightBody => CrocomirePaintDefinitions.FightBody(color),
         Band.InitialWall => CrocomirePaintDefinitions.InitialWall(color),
@@ -56,9 +56,9 @@ public sealed class CrocomireColorCatalog
 
     private void Append(SelectedPresentationHash content, Band band, string label)
     {
-        Span<ushort> transfer = stackalloc ushort[Count(band)];
+        Span<Bgr555> transfer = stackalloc Bgr555[Count(band)];
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
-        content.AppendWords(label, transfer);
+        content.AppendColors(label, transfer);
     }
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -127,10 +127,10 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
-    private ushort Get(Band band, int index)
+    private Bgr555 Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue((band, index), out ushort edited) ? edited : Stock(band, index);
+        return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);
     }
 
     private void Apply(SnesCgram cgram, Band band, int destination)
@@ -139,11 +139,11 @@ public sealed class CrocomireColorCatalog
         for (int color = 0; color < Count(band); color++)
             cgram.SetColor(destination + color, Get(band, color));
     }
-    private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Crocomire {name} requires {count} RGB5 colors.");
-        var compiled = new ushort[count];
+        var compiled = new Bgr555[count];
         for (int color = 0; color < count; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -151,7 +151,7 @@ public sealed class CrocomireColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Crocomire {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

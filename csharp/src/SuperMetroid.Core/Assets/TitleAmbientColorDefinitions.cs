@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -15,30 +16,29 @@ internal static class TitleAmbientColorDefinitions
     /// <summary>$8D:C872: dim green display paint reuses title palette slot19 ($8C:E20F).</summary>
     private const int DimGreenPaint = 19;
 
-    internal static bool TryCalculate(ushort pointer, ReadOnlySpan<ushort> initial,
-        IReadOnlyDictionary<ushort, ushort> supplied, out ushort color)
+    internal static bool TryCalculate(ushort pointer, ReadOnlySpan<Bgr555> initial,
+        IReadOnlyDictionary<ushort, Bgr555> supplied, out Bgr555 color)
     {
         var tube = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight;
         if (TryCoordinates(tube, pointer, out int frame, out int index))
         {
-            ushort first = initial[tube.ColorByteIndex / sizeof(ushort) + index];
+            Bgr555 first = initial[tube.ColorByteIndex / Bgr555.ByteCount + index];
             if (frame == 0) { color = first; return true; }
-            ushort firstPointer = (ushort)(tube.FirstFramePointer + sizeof(ushort) * (index + 1));
-            if (supplied.TryGetValue(firstPointer, out ushort edited)) first = edited;
+            ushort firstPointer = (ushort)(tube.FirstFramePointer + Bgr555.ByteCount * (index + 1));
+            if (supplied.TryGetValue(firstPointer, out Bgr555 edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
-            color = (ushort)(Channel(first & 31, phase) | Channel(first >> 5 & 31, phase) << 5 |
-                Channel(first >> 10 & 31, phase) << 10);
+            color = first.Map((_, channel) => Channel(channel, phase));
             return true;
         }
         var displays = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.Displays;
         if (TryCoordinates(displays, pointer, out frame, out index))
         {
-            int paletteIndex = frame == 0 ? displays.ColorByteIndex / sizeof(ushort) + index
+            int paletteIndex = frame == 0 ? displays.ColorByteIndex / Bgr555.ByteCount + index
                 : index == 0 ? DimWarmPaint : DimGreenPaint;
             color = initial[paletteIndex];
             return true;
         }
-        color = 0;
+        color = Bgr555.Black;
         return false;
     }
 
@@ -58,10 +58,10 @@ internal static class TitleAmbientColorDefinitions
     private static bool TryCoordinates(TitleScreenAmbientPaletteFxProgramDefinition program,
         ushort pointer, out int frame, out int index)
     {
-        int offset = pointer - program.FirstFramePointer - sizeof(ushort);
+        int offset = pointer - program.FirstFramePointer - Bgr555.ByteCount;
         frame = offset / program.FrameByteCount;
-        index = offset % program.FrameByteCount / sizeof(ushort);
+        index = offset % program.FrameByteCount / Bgr555.ByteCount;
         return (uint)offset < program.FrameCount * program.FrameByteCount &&
-            (offset & 1) == 0 && offset % program.FrameByteCount < program.ColorsPerFrame * sizeof(ushort);
+            (offset & 1) == 0 && offset % program.FrameByteCount < program.ColorsPerFrame * Bgr555.ByteCount;
     }
 }

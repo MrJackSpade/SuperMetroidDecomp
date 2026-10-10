@@ -379,9 +379,9 @@ public static partial class SnesGameplayFrameRenderer
         if (destination.Length != SnesCgram.ColorCount)
             throw new ArgumentException("Expanded CGRAM requires exactly 256 colors.", nameof(destination));
 
-        ReadOnlySpan<ushort> source = cgram.Colors;
+        ReadOnlySpan<Bgr555> source = cgram.Colors;
         for (int color = 0; color < destination.Length; color++)
-            destination[color] = SnesGraphics.DecodeBgr555Color(source[color]);
+            destination[color] = source[color].ToRgba32();
     }
 
     private static void DrawHud(

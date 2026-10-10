@@ -117,7 +117,7 @@ public sealed partial class RoomEnemySystem
         {
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
-                ushort shared = colors.BodyColor(frame, color);
+                Bgr555 shared = colors.BodyColor(frame, color);
                 _cgram!.SetColor(MotherBrainDeathRomData.BodyColors + color, shared);
                 _cgram.SetColor(MotherBrainDeathRomData.BrainColors + color, shared);
                 _cgram.SetColor(MotherBrainDeathRomData.LegColors + color,

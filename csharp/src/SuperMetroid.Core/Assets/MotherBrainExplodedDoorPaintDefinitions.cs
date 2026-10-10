@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>$A9:9534-954F exploded-door opaque inks1..14, copied by B275-B27E.
@@ -15,14 +17,14 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     /// <summary>$A9:B27B: fourteen copied opaque colors, excluding transparent3800 and final black.</summary>
     internal const int ColorCount = 14;
 
-    internal static bool Matches(ReadOnlySpan<ushort> colors)
+    internal static bool Matches(ReadOnlySpan<Bgr555> colors)
     {
         for (int color = 0; color < ColorCount; color++)
             if (colors[color] != Color(color)) return false;
         return true;
     }
 
-    internal static ushort Color(int color)
+    internal static Bgr555 Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 4)
@@ -37,12 +39,12 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
             return Pack(Interpolate(31, YellowDarkRed, shade), Interpolate(31, YellowDarkGreen, shade), Interpolate(YellowLightBlue, 0, shade));
         }
         if (color == ColorCount - 1) return Pack(31, 31, 31);
-        int light = MotherBrainFinalRoomPaintDefinitions.MetalLight & 31;
-        int dark = (MotherBrainFinalRoomPaintDefinitions.MetalLow & 31) / MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor;
+        int light = MotherBrainFinalRoomPaintDefinitions.MetalLight.Red;
+        int dark = (MotherBrainFinalRoomPaintDefinitions.MetalLow.Red) / MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor;
         int neutral = (light * (12 - color) + dark * (color - 8)) / 4;
         return Pack(neutral, neutral, neutral);
     }
 
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
-    private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

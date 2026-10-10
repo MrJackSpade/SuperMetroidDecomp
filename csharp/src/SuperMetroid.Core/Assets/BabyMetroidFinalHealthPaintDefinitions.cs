@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using InitialSlots = SuperMetroid.Core.Assets.BabyMetroidInitialPaintDefinitions;
 
@@ -8,23 +9,23 @@ namespace SuperMetroid.Core.Assets;
 internal static class BabyMetroidFinalHealthPaintDefinitions
 {
     /// <summary>$AD:E870, final-health visible ink1: yellow-green dome highlight.</summary>
-    private const ushort DomeHighlight = 0x1b9a;
+    private static readonly Bgr555 DomeHighlight = Bgr555.FromWord(0x1b9a);
     /// <summary>$AD:E872, visible ink2: yellow-green dome surface.</summary>
-    private const ushort DomeSurface = 0x06d5;
+    private static readonly Bgr555 DomeSurface = Bgr555.FromWord(0x06d5);
     /// <summary>$AD:E874, visible ink3: dome shadow.</summary>
-    private const ushort DomeShadow = 0x05cc;
+    private static readonly Bgr555 DomeShadow = Bgr555.FromWord(0x05cc);
     /// <summary>$AD:E876, visible ink4: dark yellow dome rim, equal red/green.</summary>
-    private const ushort DomeRim = 7 | (7 << 5);
+    private static readonly Bgr555 DomeRim = new(7, 7, 0);
     /// <summary>$AD:E8DA, visible ink6: purple organ surface light.</summary>
-    private const ushort InnardLight = 0x3870;
+    private static readonly Bgr555 InnardLight = Bgr555.FromWord(0x3870);
     /// <summary>$AD:E8E0, visible ink9: dark organ contours, also reused by outer fang contours.</summary>
-    private const ushort DarkContour = 0x0c44;
+    private static readonly Bgr555 DarkContour = Bgr555.FromWord(0x0c44);
     /// <summary>$AD:E878, visible ink10: weakened fang light.</summary>
-    private const ushort FangLight = 0x3676;
+    private static readonly Bgr555 FangLight = Bgr555.FromWord(0x3676);
     /// <summary>$AD:E87C, visible ink12: weakened fang dark.</summary>
-    private const ushort FangDark = 0x1d6d;
+    private static readonly Bgr555 FangDark = Bgr555.FromWord(0x1d6d);
     /// <summary>$AD:E880, visible ink14: pale yellow fang glint with equal red/green.</summary>
-    private const ushort FangHighlight = 30 | (30 << 5) | (21 << 10);
+    private static readonly Bgr555 FangHighlight = new(30, 30, 21);
     /// <summary>$AD:E8DA-E8DE, blue14/13/12 surface progression; darkest contour uses its independent endpoint.</summary>
     private const int InnardBlueSurfaceStep = 1;
     /// <summary>$AD:E8D8, glint retains organ-light red and adds half the reviewed initial glint17,
@@ -33,7 +34,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>$AD:E87E, fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
     private const int ContourNumerator = 3, ContourDenominator = 4;
 
-    internal static ushort Color(int color) => color switch
+    internal static Bgr555 Color(int color) => color switch
     {
         InitialSlots.DomeHighlightColor => DomeHighlight,
         InitialSlots.DomeSurfaceColor => DomeSurface,
@@ -51,31 +52,25 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
-    private static ushort Glint()
+    private static Bgr555 Glint()
     {
-        int red = InnardLight & 31;
-        int green = Math.Min(31, (InnardLight >> 5 & 31) + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
-        int blue = Math.Min(31, (InnardLight >> 10 & 31) + InitialSlots.InnardGlintAddition / GlintDivisor);
-        return (ushort)(red | green << 5 | blue << 10);
+        int green = Math.Min(31, InnardLight.Green + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
+        int blue = Math.Min(31, InnardLight.Blue + InitialSlots.InnardGlintAddition / GlintDivisor);
+        return new(InnardLight.Red, green, blue);
     }
 
-    private static ushort InnardShade(int shade)
+    private static Bgr555 InnardShade(int shade)
     {
         int intervals = InitialSlots.InnardDark - InitialSlots.InnardLight;
         int denominator = intervals * intervals * intervals;
         int weight = shade * shade * (3 * intervals - 2 * shade);
         // Standard smoothstep red and linear green both round up for this selected composition.
-        int red = ((InnardLight & 31) * (denominator - weight) + (DarkContour & 31) * weight + denominator - 1) / denominator;
-        int green = ((InnardLight >> 5 & 31) * (intervals - shade) + (DarkContour >> 5 & 31) * shade + intervals - 1) / intervals;
-        int blue = (InnardLight >> 10 & 31) - shade * InnardBlueSurfaceStep;
-        return (ushort)(red | green << 5 | blue << 10);
+        int red = (InnardLight.Red * (denominator - weight) + DarkContour.Red * weight + denominator - 1) / denominator;
+        int green = (InnardLight.Green * (intervals - shade) + DarkContour.Green * shade + intervals - 1) / intervals;
+        int blue = InnardLight.Blue - shade * InnardBlueSurfaceStep;
+        return new(red, green, blue);
     }
 
-    private static ushort FangContour()
-    {
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= (((InitialSlots.FangOutline >> shift & 31) * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator) << shift;
-        return (ushort)result;
-    }
+    private static Bgr555 FangContour() => InitialSlots.FangOutline.Map((_, channel) =>
+        (channel * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator);
 }

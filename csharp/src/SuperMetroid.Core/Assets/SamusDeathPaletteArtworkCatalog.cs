@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -45,13 +46,13 @@ public sealed class SamusDeathPaletteArtworkCatalog
     public const int ColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
 
     /// <summary>Native9B9420 yellow flash: full red and green,zero blue in RGB5.</summary>
-    private const ushort YellowFlashColor = 31 | 31 << 5;
+    private static readonly Bgr555 YellowFlashColor = new(31, 31, 0);
     /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
-    private const ushort WhiteInkColor = 31 | 31 << 5 | 31 << 10;
+    private static readonly Bgr555 WhiteInkColor = new(31, 31, 31);
 
-    private readonly Dictionary<int, ushort> suited = new();
+    private readonly Dictionary<int, Bgr555> suited = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
-    private readonly Dictionary<int, ushort> suitless = new();
+    private readonly Dictionary<int, Bgr555> suitless = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
@@ -66,8 +67,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <param name="explosionPaletteIndices">Nine row selectors 0..9 corresponding to the odd bytes at $9B:B824..B834; animation durations are not part of this input.</param>
     /// <exception cref="ArgumentNullException">A top-level input array is null.</exception>
     /// <exception cref="InvalidDataException">An input has the wrong dimensions, a nested family or row is null, a color exceeds $7FFF, or an explosion selector exceeds 9.</exception>
-    public SamusDeathPaletteArtworkCatalog(ushort[][][] suited, ushort[][] suitless,
-        ushort[] whiteout, ushort[] explosionPaletteIndices)
+    public SamusDeathPaletteArtworkCatalog(Bgr555[][][] suited, Bgr555[][] suitless,
+        Bgr555[] whiteout, ushort[] explosionPaletteIndices)
     {
         ArgumentNullException.ThrowIfNull(suited);
         ArgumentNullException.ThrowIfNull(suitless);
@@ -76,13 +77,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
         if (suited.Length != SuitCount ||
             suited.Any(family => family is null ||
                 family.Length != SamusPaletteRomData.Death.PaletteCount ||
-                family.Any(row => row is null || row.Length != ColorCount ||
-                    row.Any(color => color > 0x7fff))) ||
+                family.Any(row => row is null || row.Length != ColorCount)) ||
             suitless.Length != SamusPaletteRomData.Death.PaletteCount ||
-            suitless.Any(row => row is null || row.Length != ColorCount ||
-                row.Any(color => color > 0x7fff)) ||
+            suitless.Any(row => row is null || row.Length != ColorCount) ||
             whiteout.Length != SamusPaletteRomData.Death.WhiteoutShadeCount ||
-            whiteout.Any(color => color > 0x7fff) ||
             explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
             explosionPaletteIndices.Any(index => index >= SamusPaletteRomData.Death.PaletteCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
@@ -91,14 +89,14 @@ public sealed class SamusDeathPaletteArtworkCatalog
         for (int color = 0; color < ColorCount; color++)
         {
             int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
-            ushort value = suited[suit][palette][color];
+            Bgr555 value = suited[suit][palette][color];
             if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
             if (suit == 0 && palette == 1 && color == 0 && value == YellowFlashColor) continue;
             if (palette == 9 && value == suitless[9][0]) continue;
             if (palette is >= 2 and <= 8)
             {
-                ushort expected = SamusPaletteFade.EighthTowardWhite(suited[suit][0][color], palette - 1);
+                Bgr555 expected = SamusPaletteFade.EighthTowardWhite(suited[suit][0][color], palette - 1);
                 if (value != expected) suitedFadeInputs.Add(key, new(value, expected));
             }
             else this.suited.Add(key, value);
@@ -107,44 +105,44 @@ public sealed class SamusDeathPaletteArtworkCatalog
         for (int color = 0; color < ColorCount; color++)
         {
             int key = palette * ColorCount + color;
-            ushort value = suitless[palette][color];
+            Bgr555 value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
             if (palette == 0 && color == 4)
             {
-                ushort expected = SuitlessWarmEndpoint(suitless[0][1], value);
+                Bgr555 expected = SuitlessWarmEndpoint(suitless[0][1], value);
                 warmShadeInputs.Add(key, new(value, expected, independentMask: 3));
                 continue;
             }
             if (palette == 0 && color == 10)
             {
-                if (TrySuitlessTintEndpoint(suitless[0][6], value, out ushort expected))
+                if (TrySuitlessTintEndpoint(suitless[0][6], value, out Bgr555 expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 5));
                 else this.suitless.Add(key, value);
                 continue;
             }
             if (palette == 0 && color == 8)
             {
-                ushort expected = SuitlessTintMidpoint(suitless[0][7], suitless[0][9]);
+                Bgr555 expected = SuitlessTintMidpoint(suitless[0][7], suitless[0][9]);
                 if (value != expected) tintShadeInputs.Add(key, new(value, expected));
                 continue;
             }
             if (palette == 0 && color is 7 or 9)
             {
-                if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value >> 10, color, out ushort expected))
+                if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value.Blue, color, out Bgr555 expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 4));
                 else this.suitless.Add(key, value);
                 continue;
             }
             if (palette == 0 && color is 2 or 3)
             {
-                ushort expected = SuitlessWarmShade(suitless[0][1], suitless[0][4], color);
+                Bgr555 expected = SuitlessWarmShade(suitless[0][1], suitless[0][4], color);
                 if (value != expected) warmShadeInputs.Add(key, new(value, expected));
                 continue;
             }
             if (palette == 0 && color is >= 12 and <= 15)
             {
-                ushort expected = NeutralFromRed((ushort)SuitlessGrayIntensity(suitless[0][11] & 31, color));
+                Bgr555 expected = Neutral(SuitlessGrayIntensity(suitless[0][11].Red, color));
                 if (value != expected) neutralInputs.Add(key, new(value, expected));
                 continue;
             }
@@ -155,12 +153,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
             if (palette == 0 && color == 11 || palette == 9 && color == 0)
             {
-                neutralInputs.Add(key, new(value, NeutralFromRed(value), independentMask: 1));
+                neutralInputs.Add(key, new(value, Neutral(value.Red), independentMask: 1));
                 continue;
             }
             if (palette is >= 2 and <= 8)
             {
-                ushort expected = SamusPaletteFade.EighthTowardWhite(suitless[0][color], palette - 1);
+                Bgr555 expected = SamusPaletteFade.EighthTowardWhite(suitless[0][color], palette - 1);
                 if (value != expected) suitlessFadeInputs.Add(key, new(value, expected));
             }
             else this.suitless.Add(key, value);
@@ -174,21 +172,21 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>SHA-256 of selected suited/suitless colors, whiteout shades and explosion selectors.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathPaletteArtworkCatalog), content =>
     {
-        Span<ushort> suitedRow = stackalloc ushort[ColorCount];
+        Span<Bgr555> suitedRow = stackalloc Bgr555[ColorCount];
         for (int suit = 0; suit < SuitCount; suit++)
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         {
             for (int color = 0; color < ColorCount; color++) suitedRow[color] = SuitedColor(suit, palette, color);
-            content.AppendWords("suited row", suitedRow);
+            content.AppendColors("suited row", suitedRow);
         }
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         {
             for (int color = 0; color < ColorCount; color++) suitedRow[color] = SuitlessColor(palette, color);
-            content.AppendWords("suitless row", suitedRow);
+            content.AppendColors("suitless row", suitedRow);
         }
-        Span<ushort> whiteoutColors = stackalloc ushort[SamusPaletteRomData.Death.WhiteoutShadeCount];
+        Span<Bgr555> whiteoutColors = stackalloc Bgr555[SamusPaletteRomData.Death.WhiteoutShadeCount];
         for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = WhiteoutColor(index);
-        content.AppendWords("whiteout", whiteoutColors);
+        content.AppendColors("whiteout", whiteoutColors);
         Span<ushort> selectors = stackalloc ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = ExplosionPaletteIndex(frame);
         content.AppendWords("explosion palette indices", selectors);
@@ -211,16 +209,16 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 192..207; index-zero pixels remain transparent.</param>
     /// <returns>The selected RGB5 word with red in bits 0..4, green in 5..9, and blue in 10..14; no palette is written.</returns>
     /// <exception cref="IndexOutOfRangeException">Any index is outside its documented range.</exception>
-    public ushort SuitedColor(int suit, int palette, int color)
+    public Bgr555 SuitedColor(int suit, int palette, int color)
     {
         if ((uint)suit >= SuitCount || (uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
             throw new IndexOutOfRangeException();
         int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
-        if (suited.TryGetValue(key, out ushort value)) return value;
+        if (suited.TryGetValue(key, out Bgr555 value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
         if (palette == 1) return suit == 0 && color == 0 ? YellowFlashColor : SuitedColor(0, 1, 0);
         if (palette == 9) return SuitlessColor(9, 0);
-        ushort expected = SamusPaletteFade.EighthTowardWhite(SuitedColor(suit, 0, color), palette - 1);
+        Bgr555 expected = SamusPaletteFade.EighthTowardWhite(SuitedColor(suit, 0, color), palette - 1);
         return suitedFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
     /// <summary>Resolves the same eighth-step whitening for suitless Samus.</summary>
@@ -234,52 +232,52 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <param name="color">Ink index 0..15, copied by the consumer to CGRAM 240..255; index-zero pixels remain transparent.</param>
     /// <returns>The selected RGB5 word without changing CGRAM or advancing the death sequence.</returns>
     /// <exception cref="IndexOutOfRangeException">Either index is outside its documented range.</exception>
-    public ushort SuitlessColor(int palette, int color)
+    public Bgr555 SuitlessColor(int palette, int color)
     {
         if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount || (uint)color >= ColorCount)
             throw new IndexOutOfRangeException();
         int key = palette * ColorCount + color;
-        if (suitless.TryGetValue(key, out ushort value)) return value;
+        if (suitless.TryGetValue(key, out Bgr555 value)) return value;
         if (palette == 0 && color == 5)
             return neutralInputs.TryGetValue(key, out var whiteInput) ? whiteInput.Apply(WhiteInkColor) : WhiteInkColor;
         if (palette == 0 && color == 4)
         {
             var endpoint = warmShadeInputs[key];
-            return endpoint.Apply(SuitlessWarmEndpoint(SuitlessColor(0, 1), endpoint.Apply(0)));
+            return endpoint.Apply(SuitlessWarmEndpoint(SuitlessColor(0, 1), endpoint.Apply(Bgr555.Black)));
         }
         if (palette == 0 && color == 10)
         {
             var endpoint = tintShadeInputs[key];
-            if (!TrySuitlessTintEndpoint(SuitlessColor(0, 6), endpoint.Apply(0), out ushort expectedEndpoint))
+            if (!TrySuitlessTintEndpoint(SuitlessColor(0, 6), endpoint.Apply(Bgr555.Black), out Bgr555 expectedEndpoint))
                 throw new InvalidOperationException("Validated suitless tint endpoint exceeds RGB5.");
             return endpoint.Apply(expectedEndpoint);
         }
         if (palette == 0 && color == 8)
         {
-            ushort middle = SuitlessTintMidpoint(SuitlessColor(0, 7), SuitlessColor(0, 9));
+            Bgr555 middle = SuitlessTintMidpoint(SuitlessColor(0, 7), SuitlessColor(0, 9));
             return tintShadeInputs.TryGetValue(key, out var middleInput) ? middleInput.Apply(middle) : middle;
         }
         if (tintShadeInputs.TryGetValue(key, out var tint))
         {
-            if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(0) >> 10, color, out ushort expectedTint))
+            if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(Bgr555.Black).Blue, color, out Bgr555 expectedTint))
                 throw new InvalidOperationException("Validated suitless tint exceeds RGB5.");
             return tint.Apply(expectedTint);
         }
         if (palette == 0 && color is 2 or 3)
         {
-            ushort warm = SuitlessWarmShade(SuitlessColor(0, 1), SuitlessColor(0, 4), color);
+            Bgr555 warm = SuitlessWarmShade(SuitlessColor(0, 1), SuitlessColor(0, 4), color);
             return warmShadeInputs.TryGetValue(key, out var warmInput) ? warmInput.Apply(warm) : warm;
         }
         if (palette == 0 && color is >= 12 and <= 15)
         {
-            ushort gray = NeutralFromRed((ushort)SuitlessGrayIntensity(SuitlessColor(0, 11) & 31, color));
+            Bgr555 gray = Neutral(SuitlessGrayIntensity(SuitlessColor(0, 11).Red, color));
             return neutralInputs.TryGetValue(key, out var grayInput) ? grayInput.Apply(gray) : gray;
         }
         if (neutralInputs.TryGetValue(key, out var neutral))
-            return neutral.Apply(NeutralFromRed(neutral.Apply(0)));
+            return neutral.Apply(Neutral(neutral.Apply(Bgr555.Black).Red));
         if (palette == 9) return SuitlessColor(9, 0);
         if (palette == 1) return SuitlessColor(0, color);
-        ushort expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
+        Bgr555 expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
         return suitlessFadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
     /// <summary>Preserves the tint ramp's green-minus-blue balance at its dark endpoint.</summary>
@@ -289,12 +287,11 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// No fixed correction is embedded. Edited inputs may yield green outside
     /// RGB5; return false so import preserves the supplied color without clamping.
     /// Inputs are RGB5 words; signed intermediate green spans-31..62.</remarks>
-    internal static bool TrySuitlessTintEndpoint(ushort bright, ushort dark, out ushort value)
+    internal static bool TrySuitlessTintEndpoint(Bgr555 bright, Bgr555 dark, out Bgr555 value)
     {
-        if (bright > 0x7fff || dark > 0x7fff) throw new ArgumentOutOfRangeException(nameof(bright));
-        int green = (dark >> 10) + (bright >> 5 & 31) - (bright >> 10);
-        if ((uint)green > 31) { value = 0; return false; }
-        value = (ushort)((dark & 0x7c1f) | green << 5);
+        int green = (dark.Blue) + (bright.Green) - (bright.Blue);
+        if ((uint)green > 31) { value = Bgr555.Black; return false; }
+        value = dark.WithGreen(green);
         return true;
     }
     /// <summary>Calculates the central suitless tint between its neighboring shades.</summary>
@@ -304,13 +301,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// down; sums are at most62 with no saturation,wrap or cross-channel carry.
     /// Independently supplied middle channels override the result. This removes
     /// the middle intensity input,not the remaining endpoint choices.</remarks>
-    internal static ushort SuitlessTintMidpoint(ushort first, ushort last)
+    internal static Bgr555 SuitlessTintMidpoint(Bgr555 first, Bgr555 last)
     {
-        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
-        int red = ((first & 31) + (last & 31)) / 2;
-        int green = ((first >> 5 & 31) + (last >> 5 & 31)) / 2;
-        int blue = ((first >> 10) + (last >> 10)) / 2;
-        return (ushort)(red | green << 5 | blue << 10);
+        int red = ((first.Red) + (last.Red)) / 2;
+        int green = ((first.Green) + (last.Green)) / 2;
+        int blue = ((first.Blue) + (last.Blue)) / 2;
+        return new Bgr555(red, green, blue);
     }
     /// <summary>Interpolates tint balance while preserving a supplied middle-shade intensity.</summary>
     /// <remarks>Original suitless inks6..10 at9BA12C..A135 have middle
@@ -324,18 +320,17 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// Edited endpoints/intensities may place calculated red/green outside RGB5.
     /// Return false so import preserves that supplied whole color,without
     /// clamping or wrapping. Inputs outside RGB5 or inks7..9 are rejected.</remarks>
-    internal static bool TrySuitlessTintShade(ushort first, ushort last, int blue, int color, out ushort value)
+    internal static bool TrySuitlessTintShade(Bgr555 first, Bgr555 last, int blue, int color, out Bgr555 value)
     {
-        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
         if ((uint)blue > 31) throw new ArgumentOutOfRangeException(nameof(blue));
         if (color is < 7 or > 9) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 6;
-        int interpolatedBlue = ((first >> 10) * (4 - weight) + (last >> 10) * weight) / 4;
+        int interpolatedBlue = ((first.Blue) * (4 - weight) + (last.Blue) * weight) / 4;
         int shift = blue - interpolatedBlue;
-        int red = ((first & 31) * (4 - weight) + (last & 31) * weight) / 4 + shift;
-        int green = ((first >> 5 & 31) * (4 - weight) + (last >> 5 & 31) * weight) / 4 + shift;
-        if ((uint)red > 31 || (uint)green > 31) { value = 0; return false; }
-        value = (ushort)(red | green << 5 | blue << 10);
+        int red = ((first.Red) * (4 - weight) + (last.Red) * weight) / 4 + shift;
+        int green = ((first.Green) * (4 - weight) + (last.Green) * weight) / 4 + shift;
+        if ((uint)red > 31 || (uint)green > 31) { value = Bgr555.Black; return false; }
+        value = new Bgr555(red, green, blue);
         return true;
     }
     /// <summary>Shares the warm ramp's blue level between its endpoints.</summary>
@@ -343,10 +338,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// with blue zero throughout. The bright endpoint supplies that common
     /// blue; the dark endpoint keeps its independent red/green. Edited blue
     /// differences override sharing. RGB5 words only,no rounding or saturation.</remarks>
-    internal static ushort SuitlessWarmEndpoint(ushort bright, ushort dark)
+    internal static Bgr555 SuitlessWarmEndpoint(Bgr555 bright, Bgr555 dark)
     {
-        if (bright > 0x7fff || dark > 0x7fff) throw new ArgumentOutOfRangeException(nameof(bright));
-        return (ushort)((dark & 0x03ff) | (bright & 0x7c00));
+        return dark.WithBlue(bright.Blue);
     }
     /// <summary>Interpolates the two middle warm inks between their supplied endpoints.</summary>
     /// <remarks>Original9BA122..A129 contains four ordered warm shades.
@@ -355,15 +349,14 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// green23..4 gives16/10,and blue stays zero. Independent edits may set
     /// any RGB5 endpoints; convex interpolation stays bounded without clamping.
     /// Numerator is at most93. Invalid colors and high-bit words are rejected.</remarks>
-    internal static ushort SuitlessWarmShade(ushort first, ushort last, int color)
+    internal static Bgr555 SuitlessWarmShade(Bgr555 first, Bgr555 last, int color)
     {
-        if (first > 0x7fff || last > 0x7fff) throw new ArgumentOutOfRangeException(nameof(first));
         if (color is not (2 or 3)) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 1;
-        int red = ((first & 31) * (3 - weight) + (last & 31) * weight) / 3;
-        int green = ((first >> 5 & 31) * (3 - weight) + (last >> 5 & 31) * weight) / 3;
-        int blue = ((first >> 10) * (3 - weight) + (last >> 10) * weight) / 3;
-        return (ushort)(red | green << 5 | blue << 10);
+        int red = ((first.Red) * (3 - weight) + (last.Red) * weight) / 3;
+        int green = ((first.Green) * (3 - weight) + (last.Green) * weight) / 3;
+        int blue = ((first.Blue) * (3 - weight) + (last.Blue) * weight) / 3;
+        return new Bgr555(red, green, blue);
     }
     /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>
     /// <remarks>Original9BA136..A13F contains five descending neutral shades.
@@ -385,12 +378,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// green/blue edits override the shared value. The supplied red channel
     /// is bounded0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication,not the separate intensity choices.</remarks>
-    private static ushort NeutralFromRed(ushort color) => (ushort)((color & 31) * 0x421);
+    private static Bgr555 Neutral(int intensity) => new(intensity, intensity, intensity);
     /// <summary>Resolves a $9B:B835 ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
     /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
     /// <returns>The RGB5 word used by the consumer to fill CGRAM 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>
     /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside 0..21.</exception>
-    public ushort WhiteoutColor(int index) => whiteout.Resolve(index);
+    public Bgr555 WhiteoutColor(int index) => whiteout.Resolve(index);
 
     /// <summary>Independent edits to the calculated two-rate whiteout.</summary>
     /// <remarks>Original9BB835..B860 needs no stored shade or anchor inputs.
@@ -400,18 +393,18 @@ public sealed class SamusDeathPaletteArtworkCatalog
     {
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
-        internal WhiteoutInputs(ushort[] source)
+        internal WhiteoutInputs(Bgr555[] source)
         {
             for (int index = 0; index < source.Length; index++)
             {
-                ushort expected = DefaultWhiteoutColor(index);
+                Bgr555 expected = DefaultWhiteoutColor(index);
                 if (source[index] != expected) inputs.Add(index, new(source[index], expected));
             }
         }
 
-        internal ushort Resolve(int index)
+        internal Bgr555 Resolve(int index)
         {
-            ushort expected = DefaultWhiteoutColor(index);
+            Bgr555 expected = DefaultWhiteoutColor(index);
             return inputs.TryGetValue(index, out var channels) ? channels.Apply(expected) : expected;
         }
     }
@@ -429,7 +422,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// incrementing and holds20. Terminal9BB772 selects21 explicitly. Preserve
     /// all22 supported selectors and reject others with the former bounds exception.
     /// This establishes an exact two-rate ramp,not the identity of its historical tool.</remarks>
-    internal static ushort DefaultWhiteoutColor(int index)
+    internal static Bgr555 DefaultWhiteoutColor(int index)
     {
         if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new IndexOutOfRangeException();
         const int firstLitIntensity = 1, fullWhiteIntensity = 31;
@@ -438,7 +431,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         int intensity = index <= halfBrightnessIndex
             ? firstLitIntensity + halfRise * index / halfBrightnessIndex
             : fullWhiteIntensity - halfRise * (completionIndex - index) / (completionIndex - halfBrightnessIndex);
-        return NeutralFromRed((ushort)intensity);
+        return Neutral(intensity);
     }
     /// <summary>Advances through death palettes while skipping the flash-only row.</summary>
     /// <remarks>Original odd bytes9BB824..B834 select0,2..9 for frame0..8.

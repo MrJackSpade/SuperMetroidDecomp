@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -13,33 +14,33 @@ public sealed class PhantoonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
         {
-            Span<ushort> target = stackalloc ushort[PhantoonColorRomData.FadeOutCount];
+            Span<Bgr555> target = stackalloc Bgr555[PhantoonColorRomData.FadeOutCount];
             for (int color = 0; color < target.Length; color++) target[color] = ResolveFadeOut(color);
-            content.AppendWords("fadeOut", target);
-            var power = new ushort[PhantoonColorRomData.PowerOnCount];
+            content.AppendColors("fadeOut", target);
+            var power = new Bgr555[PhantoonColorRomData.PowerOnCount];
             for (int color = 0; color < power.Length; color++) power[color] = ResolvePowerOn(color);
-            content.AppendWords("powerOn", power);
-            var frames = new ushort[PhantoonColorRomData.HealthBandCount][];
+            content.AppendColors("powerOn", power);
+            var frames = new Bgr555[PhantoonColorRomData.HealthBandCount][];
             for (int band = 0; band < frames.Length; band++)
             {
-                frames[band] = new ushort[PhantoonColorRomData.HealthBandColorCount];
+                frames[band] = new Bgr555[PhantoonColorRomData.HealthBandColorCount];
                 for (int color = 0; color < frames[band].Length; color++) frames[band][color] = ResolveHealth(band, color);
             }
-            content.AppendWordFrames("healthBands", frames);
+            content.AppendColorFrames("healthBands", frames);
         });
 
-    private readonly Dictionary<int, ushort> healthEdits = [];
-    private readonly Dictionary<int, ushort> fadeOutEdits = [];
-    private readonly Dictionary<int, ushort> powerEdits = [];
+    private readonly Dictionary<int, Bgr555> healthEdits = [];
+    private readonly Dictionary<int, Bgr555> fadeOutEdits = [];
+    private readonly Dictionary<int, Bgr555> powerEdits = [];
 
-    private PhantoonColorCatalog(ushort[][] healthBands, ushort[] fadeOut, ushort[] powerOn)
+    private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
     {
         for (int band = 0; band < healthBands.Length; band++)
         for (int color = 0; color < healthBands[band].Length; color++)
             if (healthBands[band][color] != PhantoonHealthPaintDefinitions.Color(band, color))
                 healthEdits.Add(band * PhantoonColorRomData.HealthBandColorCount + color, healthBands[band][color]);
         for (int color = 0; color < fadeOut.Length; color++)
-            if (fadeOut[color] != 0) fadeOutEdits.Add(color, fadeOut[color]);
+            if (fadeOut[color] != Bgr555.Black) fadeOutEdits.Add(color, fadeOut[color]);
         for (int color = 0; color < powerOn.Length; color++)
             if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
@@ -56,29 +57,29 @@ public sealed class PhantoonColorCatalog
     /// shades and red-tinted bands calculate; supplied edits remain independent
     /// across every ink and band, including the healthy endpoints.
     /// </summary>
-    public ushort ResolveHealth(int band, int color)
+    public Bgr555 ResolveHealth(int band, int color)
     {
         _ = CheckBand(band);
         if ((uint)color >= PhantoonColorRomData.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = band * PhantoonColorRomData.HealthBandColorCount + color;
-        return healthEdits.TryGetValue(key, out ushort edit) ? edit : PhantoonHealthPaintDefinitions.Color(band, color);
+        return healthEdits.TryGetValue(key, out Bgr555 edit) ? edit : PhantoonHealthPaintDefinitions.Color(band, color);
     }
     /// <summary>
     /// $A7:CA41..CA60, Palette_Phantoon_FadeOutTarget: $A7:DBB1 fades every
     /// body palette component to black. Independent supplied target edits override it.
     /// </summary>
-    public ushort ResolveFadeOut(int color)
+    public Bgr555 ResolveFadeOut(int color)
     {
         if ((uint)color >= PhantoonColorRomData.FadeOutCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return fadeOutEdits.GetValueOrDefault(color);
     }
     /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
-    public ushort ResolvePowerOn(int color)
+    public Bgr555 ResolvePowerOn(int color)
     {
         if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return powerEdits.TryGetValue(color, out ushort edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
+        return powerEdits.TryGetValue(color, out Bgr555 edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
     /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
     /// <param name="json">Caller-owned stream containing the color document.</param>
@@ -127,11 +128,11 @@ public sealed class PhantoonColorCatalog
             : throw new ArgumentOutOfRangeException(nameof(band));
 
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Phantoon {name} requires {count} RGB5 colors.");
-        var compiled = new ushort[count];
+        var compiled = new Bgr555[count];
         for (int color = 0; color < count; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -139,7 +140,7 @@ public sealed class PhantoonColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Phantoon {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

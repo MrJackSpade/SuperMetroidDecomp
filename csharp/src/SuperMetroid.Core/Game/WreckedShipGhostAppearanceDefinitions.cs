@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Calculated appearance geometry, palette channels and visibility timing for Wrecked Ship ghost appearances.</summary>
@@ -26,20 +28,20 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// separately retained as copied/faded target data with no visual generating rule.
     /// Unused sprite slots are still copied and faded as native target data.
     /// </summary>
-    public static ushort PaletteColor(int index)
+    public static Bgr555 PaletteColor(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return (ushort)(BackdropBlue << 10);
+        if (index == 0) return new(0, 0, BackdropBlue);
         if (index <= OliveLevels.Length)
         {
             int level = OliveLevels[index - 1];
             int blue = index == 1 ? BrightOliveBlue : index == 6 ? MiddleOliveBlue : Math.Max(0, level - OliveBlueReduction);
-            return (ushort)(level | level << 5 | blue << 10);
+            return new(level, level, blue);
         }
         int warm = index - 9;
         int green = index == 9 ? WarmGreen[0] : index == 13 ? WarmGreen[1]
             : index >= 14 ? WarmRed[warm] - BrownGreenReduction : 0;
-        return (ushort)(WarmRed[warm] | green << 5 | (index == 13 ? OchreBlue << 10 : 0));
+        return new(WarmRed[warm], green, index == 13 ? OchreBlue : 0);
     }
     /// <summary>$A8:9AA8 contains the nine row-major positions of a three-by-three spawn grid.</summary>
     public const int SpawnCount = 9;

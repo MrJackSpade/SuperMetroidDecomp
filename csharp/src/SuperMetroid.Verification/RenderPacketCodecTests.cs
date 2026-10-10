@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using Hardware = SuperMetroid.Core.Hardware;
@@ -41,7 +42,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badCount), "reject count before operation allocation");
 
         var memory = new PpuMemorySnapshot(new byte[Hardware.SnesPpuLayout.VramByteCount],
-            new ushort[Hardware.SnesPpuLayout.CgramColorCount], new byte[Hardware.SnesPpuLayout.OamUploadByteCount], 0);
+            ToColors(new ushort[Hardware.SnesPpuLayout.CgramColorCount]), new byte[Hardware.SnesPpuLayout.OamUploadByteCount], 0);
         var registers = new Mode7RenderRegisters(short.MinValue, short.MaxValue, -1, 0,
             -123, 456, -789, 1023, true);
         var mode7 = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, registers, 3, 15));
@@ -105,7 +106,7 @@ internal static partial class Program
         random.NextBytes(vramBytes);
         ushort[] colors = Enumerable.Range(0, Hardware.SnesPpuLayout.CgramColorCount)
             .Select(_ => (ushort)random.Next(32768)).ToArray();
-        var memory = new PpuMemorySnapshot(vramBytes, colors,
+        var memory = new PpuMemorySnapshot(vramBytes, ToColors(colors),
             new byte[Hardware.SnesPpuLayout.OamUploadByteCount], 0);
         var scratch = new SoftwarePpuSnapshotMemory(memory);
         foreach (ushort scroll in new ushort[] { 0, 8, 255, ushort.MaxValue })

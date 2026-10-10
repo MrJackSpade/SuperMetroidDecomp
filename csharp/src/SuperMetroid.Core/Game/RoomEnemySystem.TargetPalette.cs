@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
@@ -7,7 +9,7 @@ public sealed partial class RoomEnemySystem
     /// entries are transferred: untouched HUD, suit, and room rows retain their own targets.
     /// Current CGRAM must not be changed by instructions which target the fade buffer.
     /// </summary>
-    internal void ConsumeTargetPaletteWrites(Action<int, ushort> write)
+    internal void ConsumeTargetPaletteWrites(Action<int, Bgr555> write)
     {
         ArgumentNullException.ThrowIfNull(write);
         _sporeSpawn?.ConsumeTargetColors(write);

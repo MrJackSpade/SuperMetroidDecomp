@@ -262,7 +262,7 @@ internal static partial class Program
                 {
                     AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
-                    ushort expected = editedState.CeresEscapePaletteFrame == 7 &&
+                    Bgr555 expected = editedState.CeresEscapePaletteFrame == 7 &&
                         color >= CeresRidleyPaletteRomData.AlarmCgramIndex &&
                         color < CeresRidleyPaletteRomData.AlarmCgramIndex +
                             CeresRidleyPaletteRomData.AlarmColorCount
@@ -315,7 +315,7 @@ internal static partial class Program
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
             {
                 nativeSlot.Health = stockSlot.Health = editedSlot.Health = health;
-                ushort[] before = editedCgram.Colors.ToArray();
+                Bgr555[] before = editedCgram.Colors.ToArray();
                 nativeTick(nativeSlot, nativeState);
                 stockTick(stockSlot, stockState);
                 editedTick(editedSlot, editedState);
@@ -336,7 +336,7 @@ internal static partial class Program
                 {
                     AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
                         $"stock Norfair Ridley health {health} CGRAM {color}");
-                    ushort expected = stage != 0 &&
+                    Bgr555 expected = stage != 0 &&
                         color >= CeresRidleyPaletteRomData.HealthCgramIndex &&
                         color < CeresRidleyPaletteRomData.HealthCgramIndex +
                             CeresRidleyPaletteRomData.HealthColorCount
@@ -351,7 +351,7 @@ internal static partial class Program
                 "Norfair Ridley installed health colors avoid their original ROM rows");
         }
 
-        void Check(int source, int count, Func<int, ushort> resolve)
+        void Check(int source, int count, Func<int, Bgr555> resolve)
         {
             for (int color = 0; color < count; color++)
             {
@@ -362,7 +362,7 @@ internal static partial class Program
                     $"Ceres Ridley source ${source:X6} color {color}");
             }
         }
-        void CheckCgram(int count, int destination, Func<int, ushort> resolve, string context)
+        void CheckCgram(int count, int destination, Func<int, Bgr555> resolve, string context)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram.Colors[destination + color],

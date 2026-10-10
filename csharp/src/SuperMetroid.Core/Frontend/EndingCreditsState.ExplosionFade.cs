@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
-    private ushort[] explosionFadeSource = [];
+    private Bgr555[] explosionFadeSource = [];
     private int explosionFadeStep;
     private bool ExplosionCrossfadeActive => Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
@@ -42,11 +44,8 @@ internal sealed partial class EndingCreditsState
     {
         for (int i = start; i < start + EndingExplosionFadeDefinitions.Colors; i++)
         {
-            ushort source = explosionFadeSource[i];
-            int red = (source & 31) * factor / EndingExplosionFadeDefinitions.Steps;
-            int green = (source >> 5 & 31) * factor / EndingExplosionFadeDefinitions.Steps;
-            int blue = (source >> 10 & 31) * factor / EndingExplosionFadeDefinitions.Steps;
-            cgram.SetColor(i, (ushort)(red | green << 5 | blue << 10));
+            cgram.SetColor(i, explosionFadeSource[i].Map((_, channel) =>
+                channel * factor / EndingExplosionFadeDefinitions.Steps));
         }
     }
 }

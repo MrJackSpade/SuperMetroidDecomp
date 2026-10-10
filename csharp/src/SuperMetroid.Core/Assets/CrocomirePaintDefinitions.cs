@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -42,13 +44,13 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B8C1-B8C9: repeated neutral masonry paint.</summary>
     private const int WallNeutral = 24;
     /// <summary>$A4:B8CB-B8D3: independently chosen masonry face, recess and edge paints.</summary>
-    private const ushort WallFace = 0x4a7b, WallRecess = 0x1c90, WallEdge = 0x1469, WallDeepEdge = 0x1424;
+    private static readonly Bgr555 WallFace = Bgr555.FromWord(0x4a7b), WallRecess = Bgr555.FromWord(0x1c90), WallEdge = Bgr555.FromWord(0x1469), WallDeepEdge = Bgr555.FromWord(0x1424);
     /// <summary>$A4:B8D3: selected red-only deepest masonry mark.</summary>
     private const int WallRedMark = 8;
     /// <summary>$A4:B8D5-B8D9: masonry shares hide red/green contour shading but selects violet-blue tint levels.</summary>
     private const int WallTintLight = 9, WallTintDeep = 7;
     /// <summary>$A4:B8DB: independent darkest wall paint, including its selected red-channel endpoint.</summary>
-    private const ushort WallDark = 0x1045;
+    private static readonly Bgr555 WallDark = Bgr555.FromWord(0x1045);
     /// <summary>$A4:B8DF: full-blue projectile glint with equal selected red and green.</summary>
     private const int ProjectileGlint = 26;
     /// <summary>$A4:B8E1-B8E5: yellow/orange projectile core endpoints; red uses floor gamma-two interpolation and green floor linear interpolation. Blue is absent.</summary>
@@ -67,11 +69,11 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B925-B92B: four cool steel shades interpolate downward with floor rounding and a shared blue excess.</summary>
     private const int SteelLight = 19, SteelDark = 3, SteelBlueTint = 3;
     /// <summary>$A4:B92D/B92F/B937: three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
-    private const ushort SpikeAccent = 0x0bb1, SpikeWarmAccent = 0x48fb, SpikeCoolAccent = 0x44e5;
+    private static readonly Bgr555 SpikeAccent = Bgr555.FromWord(0x0bb1), SpikeWarmAccent = Bgr555.FromWord(0x48fb), SpikeCoolAccent = Bgr555.FromWord(0x44e5);
 
-    internal static ushort FightBody(int ink) => ink switch
+    internal static Bgr555 FightBody(int ink) => ink switch
     {
-        0 => 0,
+        0 => Bgr555.Black,
         1 => White,
         2 => Rgb(31, HideHighlightGreen, HideHighlightBlue),
         >= 3 and <= 6 => HideShade(ink - 3),
@@ -79,20 +81,19 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    internal static ushort InitialWall(int ink) => ink switch
+    internal static Bgr555 InitialWall(int ink) => ink switch
     {
         0 or 16 => Transparent,
         1 => BoneShade(0),
         >= 2 and <= 6 => Rgb(WallNeutral, WallNeutral, WallNeutral),
         7 => WallFace, 8 => WallRecess, 9 => WallEdge, 10 => WallDeepEdge,
         11 => Rgb(WallRedMark, 0, 0),
-        >= 12 and <= 14 => (ushort)((HideShade(ink - 12) & 0x3ff) |
-            (ink == 14 ? WallTintDeep : WallTintLight) << 10),
+        >= 12 and <= 14 => HideShade(ink - 12).WithBlue(ink == 14 ? WallTintDeep : WallTintLight),
         15 => WallDark,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    internal static ushort InitialProjectile(int ink) => ink switch
+    internal static Bgr555 InitialProjectile(int ink) => ink switch
     {
         0 or 16 => Transparent,
         1 => Rgb(ProjectileGlint, ProjectileGlint, 31),
@@ -109,7 +110,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    internal static ushort SkeletonArm(int ink) => ink switch
+    internal static Bgr555 SkeletonArm(int ink) => ink switch
     {
         0 => Transparent, 1 => White, 2 or 7 => BoneHighlight,
         >= 3 and <= 6 => BoneShade(ink - 3),
@@ -119,56 +120,56 @@ internal static class CrocomirePaintDefinitions
         12 => Rgb(31, BoneGoldLightGreen, 0),
         13 => Rgb((31 + BoneGoldDarkRed) / 2, BoneGoldMiddleGreen, 0),
         14 => Rgb(BoneGoldDarkRed, BoneGoldDarkGreen, 0),
-        15 => 0,
+        15 => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    internal static ushort WallSpikes(int ink) => ink switch
+    internal static Bgr555 WallSpikes(int ink) => ink switch
     {
         0 => Transparent,
         >= 1 and <= 3 => GoldShade(ink - 1),
         >= 4 and <= 7 => SteelShade(ink - 4),
         8 => SpikeAccent, 9 => SpikeWarmAccent, 13 => SpikeCoolAccent,
         10 or 12 or 14 => White,
-        11 or 15 => 0,
+        11 or 15 => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    private static ushort HideShade(int shade)
+    private static Bgr555 HideShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => HideMiddleRed, 2 => HideDeepRed, _ => HideOutlineRed };
         int green = HideGreenPeak - shade;
         return Rgb(red, green, Math.Min(HideBlueCap, (green + 1) / 2));
     }
-    private static ushort BoneShade(int shade)
+    private static Bgr555 BoneShade(int shade)
     {
         int red = Nearest(BoneLightRed, BoneDarkRed, shade, 3);
         int blue = shade switch { 0 => BoneBlueLight, 1 => BoneBlueMiddle, 2 => BoneBlueDeep, _ => BoneBlueDark };
         return Rgb(red, Math.Max(BoneGreenFloor, red - BoneGreenTint), blue);
     }
-    private static ushort VioletShade(int shade)
+    private static Bgr555 VioletShade(int shade)
     {
         int red = Nearest(31 - VioletBlueTint, VioletDarkRed, shade, 2);
         return Rgb(red, 0, red + VioletBlueTint);
     }
-    private static ushort GreenShade(int shade)
+    private static Bgr555 GreenShade(int shade)
     {
         int green = shade switch { 0 => 31, 1 => FloorGammaMidpoint(31, GreenDark), _ => GreenDark };
         return Rgb(0, green, green * GreenBluePeak / 31);
     }
-    private static ushort NeutralShade(int shade)
+    private static Bgr555 NeutralShade(int shade)
     {
         int value = Nearest(ProjectileNeutralLight, ProjectileNeutralDark, shade, 2);
         return Rgb(value, value, value);
     }
-    private static ushort GoldShade(int shade)
+    private static Bgr555 GoldShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => SpikeGoldMiddleRed, _ => SpikeGoldDarkRed };
         int green = SpikeGoldDarkGreen + (red - SpikeGoldDarkRed) *
             (SpikeGoldLightGreen - SpikeGoldDarkGreen) / (31 - SpikeGoldDarkRed);
         return Rgb(red, green, 0);
     }
-    private static ushort SteelShade(int shade)
+    private static Bgr555 SteelShade(int shade)
     {
         int level = (SteelLight * (3 - shade) + SteelDark * shade) / 3;
         return Rgb(level, level, level + SteelBlueTint);
@@ -179,8 +180,8 @@ internal static class CrocomirePaintDefinitions
     // This is the selected material's exact gamma-two shade rule, not a historical-tool claim.
     private static int FloorGammaMidpoint(int from, int to) =>
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
-    private static ushort Rgb(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
-    private static ushort Transparent => Rgb(0, 0, TransparentBlue);
-    private static ushort White => Rgb(31, 31, 31);
-    private static ushort BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
+    private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static Bgr555 Transparent => Rgb(0, 0, TransparentBlue);
+    private static Bgr555 White => Rgb(31, 31, 31);
+    private static Bgr555 BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
 }

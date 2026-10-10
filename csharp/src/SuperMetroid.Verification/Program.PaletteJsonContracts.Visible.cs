@@ -40,7 +40,7 @@ internal static partial class Program
             foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
             {
                 int destination = definition.ColorByteIndex / sizeof(ushort) + 1;
-                AssertEqual((ushort)(stockCgram.Colors[destination] ^ 0x7fff), editedCgram.Colors[destination],
+                AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                     "exact authored color inversion reaches the compiled native destination");
                 AssertPaletteContractPixels(stockCgram, editedCgram, destination);
             }
@@ -62,7 +62,7 @@ internal static partial class Program
                 AssertEqual((byte)field.GetValue(stockMap)!, (byte)field.GetValue(editedMap)!, "map cycle frame/timer unchanged");
             }
             int destination = MapAnimationRomData.PaletteDestination + 1;
-            AssertEqual((ushort)(stockCgram.Colors[destination] ^ 0x7fff), editedCgram.Colors[destination],
+            AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                 "map replacement changes exactly the selected color");
             AssertPaletteContractPixels(stockCgram, editedCgram, destination);
         }

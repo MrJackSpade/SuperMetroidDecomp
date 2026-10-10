@@ -100,16 +100,16 @@ internal static partial class Program
         MethodInfo body = type.GetMethod("LoadMotherBrainDeathBodyFade", flags)!;
         MethodInfo corpse = type.GetMethod("LoadMotherBrainDeathCorpseFade", flags)!;
         MethodInfo door = type.GetMethod("LoadMotherBrainDeathDoorPalette", flags)!;
-        cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, 0x1234);
-        cgram.SetColor(MotherBrainDeathRomData.BrainColors - 1, 0x1234);
-        cgram.SetColor(MotherBrainDeathRomData.LegColors - 1, 0x1234);
-        cgram.SetColor(MotherBrainDeathRomData.CorpseColors - 1, 0x1234);
+        cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomData.BrainColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomData.LegColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathRomData.CorpseColors - 1, Bgr555.FromWord(0x1234));
         for (int frame = 0; frame < MotherBrainDeathRomData.BodyFadeFrameCount; frame++)
         {
             body.Invoke(enemies, [frame]);
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
-                ushort shared = colors.BodyColor(frame, color);
+                Bgr555 shared = colors.BodyColor(frame, color);
                 AssertEqual(shared, cgram.Colors[MotherBrainDeathRomData.BodyColors + color],
                     $"live Mother Brain body death frame {frame} color {color}");
                 AssertEqual(shared, cgram.Colors[MotherBrainDeathRomData.BrainColors + color],

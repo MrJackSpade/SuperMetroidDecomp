@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -30,13 +31,16 @@ internal static class CrateriaLightningColorDefinitions
     /// Record phases ascend zero through four, descend to zero, then descend four to one.
     /// Each nonwhite row darkens by one RGB5 unit per color position.
     /// </summary>
-    internal static bool TryCalculatedColor(ushort pointer, out ushort color)
+    internal static bool TryCalculatedColor(ushort pointer, out Bgr555 color)
     {
-        color = 0;
+        color = Bgr555.Black;
         if (!TryCoordinates(pointer, out int frame, out int index))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : 13 - frame;
-        color = phase == 4 ? (ushort)0x7fff : (ushort)(0x2d6c + 0x18c6 * phase - 0x0421 * index);
+        // Native words $2D6C + $18C6 * phase - $0421 * index: channels (12, 11, 11) rise
+        // six per phase and fall one per position, never borrowing between channels.
+        int level = 6 * phase - index;
+        color = phase == 4 ? Bgr555.White : new Bgr555(12 + level, 11 + level, 11 + level);
         return true;
     }
     /// <summary>$8D:EC76..ED6A, unused dark-lightning definition $F769: fourteen seven-color records.</summary>
@@ -64,17 +68,17 @@ internal static class CrateriaLightningColorDefinitions
     /// clamping at zero. Seven first-row colors remain supplied inputs; other independent
     /// samples are retained whenever they differ from the supplied-base calculation.
     /// </summary>
-    internal static bool TryCalculatedDarkColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> inputs, out ushort color)
+    internal static bool TryCalculatedDarkColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> inputs, out Bgr555 color)
     {
-        color = 0;
+        color = Bgr555.Black;
         if (!TryDarkCoordinates(pointer, out int frame, out int index) || frame == 0 ||
-            !inputs.TryGetValue(DarkProgram.ColorPointer(0, index), out ushort first))
+            !inputs.TryGetValue(DarkProgram.ColorPointer(0, index), out Bgr555 first))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : frame == 9 ? 0 : 14 - frame;
-        int red = Math.Max(0, (first & 31) - 5 * phase);
-        int green = Math.Max(0, ((first >> 5) & 31) - 5 * phase);
-        int blue = Math.Max(0, ((first >> 10) & 31) - 5 * phase);
-        color = (ushort)(red | green << 5 | blue << 10);
+        int red = Math.Max(0, (first.Red) - 5 * phase);
+        int green = Math.Max(0, (first.Green) - 5 * phase);
+        int blue = Math.Max(0, (first.Blue) - 5 * phase);
+        color = new Bgr555(red, green, blue);
         return true;
     }
 }

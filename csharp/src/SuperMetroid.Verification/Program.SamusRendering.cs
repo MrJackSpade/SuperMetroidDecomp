@@ -645,7 +645,7 @@ static void VerifySamusVisorPalette()
 
     var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
-    cgram.SetColor(196, 0x7777);
+    cgram.SetColor(196, Bgr555.FromWord(0x7777));
     state.Update(
         bus, cgram, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
@@ -657,7 +657,7 @@ static void VerifySamusVisorPalette()
     // The first `$28` call decrements timer one to zero and immediately copies offset six.
     state.Update(
         bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertTrue(cgram.Colors[196] != 0x7777,
+    AssertTrue(cgram.Colors[196].ToWord() != 0x7777,
         "backdrop room writes first visor color immediately");
     AssertEqual(colors[6 / 2], cgram.Colors[196], "first visor source is table offset six");
     AssertEqual(0x2000, cgram.Colors[196], "first backdrop visor color");
@@ -667,7 +667,7 @@ static void VerifySamusVisorPalette()
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
-        ushort colorBeforeCountdown = cgram.Colors[196];
+        Bgr555 colorBeforeCountdown = cgram.Colors[196];
         byte offsetBeforeCountdown = state.PaletteByteOffset;
         state.Update(
             bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
@@ -693,10 +693,10 @@ static void VerifySamusVisorPalette()
         "third write wraps only to room-cycle offset six");
 
     ushort packedBeforeXray = state.PackedTimerIndex;
-    cgram.SetColor(196, 0x3456);
+    cgram.SetColor(196, Bgr555.FromWord(0x3456));
     state.Update(
         bus, cgram, 8, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertTrue(state.PackedTimerIndex == packedBeforeXray && cgram.Colors[196] == 0x3456,
+    AssertTrue(state.PackedTimerIndex == packedBeforeXray && cgram.Colors[196].ToWord() == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(packedBeforeXray, state.PackedTimerIndex,
         "X-ray suppression freezes both packed bytes");
@@ -758,7 +758,7 @@ static void VerifySamusHurtFlashPalette()
     for (int call = 1; call <= 59; call++)
     {
         ushort counterBefore = samus.HurtFlashCounter;
-        ushort[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
+        Bgr555[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
         SamusHurtFlashPalette.Update(
             bus, cgram, samus, controllerInput: 0, presentationColors: hurtColors);

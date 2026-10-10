@@ -12,18 +12,18 @@ public sealed class CeresDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
         {
             content.Append("tiles", tiles.Transfer.Span);
-            Span<ushort> normalColors = stackalloc ushort[CeresDoorVisualRomData.SetupColorCount];
+            Span<Bgr555> normalColors = stackalloc Bgr555[CeresDoorVisualRomData.SetupColorCount];
             for (int color = 0; color < normalColors.Length; color++) normalColors[color] = normal.ColorAt(color);
-            content.AppendWords("normal", normalColors);
-            Span<ushort> escapeColors = stackalloc ushort[CeresDoorVisualRomData.SetupColorCount];
+            content.AppendColors("normal", normalColors);
+            Span<Bgr555> escapeColors = stackalloc Bgr555[CeresDoorVisualRomData.SetupColorCount];
             for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = EscapeColor(color);
-            content.AppendWords("escape", escapeColors);
+            content.AppendColors("escape", escapeColors);
             content.Append("animation", CeresDoorVisualRomData.AnimationRowCount);
-            Span<ushort> rowColors = stackalloc ushort[CeresDoorVisualRomData.AnimationColorCount];
+            Span<Bgr555> rowColors = stackalloc Bgr555[CeresDoorVisualRomData.AnimationColorCount];
             for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
             {
                 for (int color = 0; color < rowColors.Length; color++) rowColors[color] = AnimationColor(row, color);
-                content.AppendWords("row", rowColors);
+                content.AppendColors("row", rowColors);
             }
             content.Append("mode7-frames", CeresDoorVisualRomData.Mode7FrameCount);
             Span<byte> platform = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
@@ -40,8 +40,8 @@ public sealed class CeresDoorVisualCatalog
     private readonly CeresDoorAnimationPaintDefinitions animation;
     private readonly Dictionary<int, byte> platformEdits = [];
 
-    private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, ushort[] normal,
-        ushort[] escape, ushort[][] animation, byte[][] mode7DoorFrames)
+    private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, Bgr555[] normal,
+        Bgr555[] escape, Bgr555[][] animation, byte[][] mode7DoorFrames)
     {
         this.tiles = tiles;
         this.normal = new(normal);
@@ -76,11 +76,11 @@ public sealed class CeresDoorVisualCatalog
         if (document.Version != 1 || document.Animation is null ||
             document.Animation.Length != CeresDoorVisualRomData.AnimationRowCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
-        ushort[] normal = Compile(document.Normal, CeresDoorVisualRomData.SetupColorCount,
+        Bgr555[] normal = Compile(document.Normal, CeresDoorVisualRomData.SetupColorCount,
             "normal");
-        ushort[] escape = Compile(document.Escape, CeresDoorVisualRomData.SetupColorCount,
+        Bgr555[] escape = Compile(document.Escape, CeresDoorVisualRomData.SetupColorCount,
             "escape");
-        ushort[][] animation = document.Animation.Select((row, index) =>
+        Bgr555[][] animation = document.Animation.Select((row, index) =>
             Compile(row, CeresDoorVisualRomData.AnimationColorCount,
                 $"animation row {index}")).ToArray();
         byte[][] mode7DoorFrames = CompileMode7Frames(document.Mode7DoorFrames);
@@ -133,7 +133,7 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(destination + color, EscapeColor(color));
     }
 
-    private ushort EscapeColor(int color) => escape.ColorAt(color);
+    private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
     public void LoadAnimationColors(SnesCgram cgram, int row)
@@ -144,7 +144,7 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(CeresDoorVisualRomData.AnimationTargetColor + color, AnimationColor(row, color));
     }
 
-    private ushort AnimationColor(int row, int color) => animation.ColorAt(row, color);
+    private Bgr555 AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
     private byte PlatformTile(int frame, int index)
@@ -184,18 +184,18 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
     {
         if (source is null || source.Length != expectedCount)
             throw new InvalidDataException($"Ceres-door {name} needs {expectedCount} RGB5 colors.");
-        var result = new ushort[source.Length];
+        var result = new Bgr555[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Ceres-door {name} color {index} must be RGB5.");
-            result[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            result[index] = color.ToBgr555();
         }
         return result;
     }

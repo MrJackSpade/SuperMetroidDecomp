@@ -41,7 +41,7 @@ static void VerifyObjRendering()
     // One small tile-zero OBJ at (10,20), with caller-selected palette 2. Palette index
     // 128 + 2*16 + 1 is loaded with maximum red in native BGR555.
     bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-    cgram.SetColor(128 + 2 * 16 + 1, 0x001f);
+    cgram.SetColor(128 + 2 * 16 + 1, Bgr555.FromWord(0x001f));
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x818000, originX: 10, originY: 20, paletteBits: 0x0400);
     oam.FinalizeFrame();
@@ -56,7 +56,7 @@ static void VerifyObjRendering()
     // OBJ3 plane, otherwise the compositor paints the hidden boss over Samus at the end of
     // its BG/OBJ ladder. Distinct palettes make the winner observable without private ROM
     // art; both entries deliberately use the same one-pixel tile and screen coordinate.
-    cgram.SetColor(128 + 3 * 16 + 1, 0x03e0);
+    cgram.SetColor(128 + 3 * 16 + 1, Bgr555.FromWord(0x03e0));
     oam.BeginFrame();
     oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x2400); // OAM 0: OBJ2, palette 2.
     oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x3600); // OAM 1: OBJ3, palette 3.
@@ -358,7 +358,7 @@ static void VerifyHudStateAndBg3Rendering()
     bus.WriteByte(0x828000, 0x80);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, 16, encodedDestination: 0x0010);
     var cgram = new SnesCgram();
-    cgram.SetColor(5, 0x03e0);
+    cgram.SetColor(5, Bgr555.FromWord(0x03e0));
     var pixels = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, tilemapBaseWord: 0x0100, characterBaseWord: 0, rowCount: 1);
     AssertEqual(new SuperMetroid.Core.Assets.Rgba32(0, 255, 0), pixels[0], "BG3 tile/palette pixel");
 
@@ -1104,7 +1104,7 @@ static void VerifyFourBitBackgroundRendering()
     var character = new byte[32];
     character[0] = 0x80;
     vram.LoadBytes(0, character);
-    cgram.SetColor(2 * 16 + 1, 0x001f); // Full SNES red in BG palette two.
+    cgram.SetColor(2 * 16 + 1, Bgr555.FromWord(0x001f)); // Full SNES red in BG palette two.
 
     ushort[] mapEntry = [0x0800]; // Character zero, palette two, no flips.
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
@@ -1143,8 +1143,8 @@ static void VerifyFourBitBackgroundRendering()
     // Leave character zero transparent because empty BG1 map words select it above BG2.
     gameplayVram.LoadBytes(0x0020, redCharacter);
     gameplayVram.LoadBytes(0x0040, blueCharacter);
-    gameplayCgram.SetColor(2 * 16 + 1, 0x001f);
-    gameplayCgram.SetColor(3 * 16 + 1, 0x7c00);
+    gameplayCgram.SetColor(2 * 16 + 1, Bgr555.FromWord(0x001f));
+    gameplayCgram.SetColor(3 * 16 + 1, Bgr555.FromWord(0x7c00));
     gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
     var horizontalByLine = new ushort[SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight];

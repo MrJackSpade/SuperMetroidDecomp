@@ -11,22 +11,22 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
         {
-            Span<ushort> initialWords = stackalloc ushort[NorfairRidleyPaletteRomData.InitialColorCount];
+            Span<Bgr555> initialWords = stackalloc Bgr555[NorfairRidleyPaletteRomData.InitialColorCount];
             for (int color = 0; color < initialWords.Length; color++) initialWords[color] = initial.ColorAt(color);
-            content.AppendWords("initial", initialWords);
-            ushort[][] revealWords = new ushort[NorfairRidleyPaletteRomData.RevealRowCount][];
+            content.AppendColors("initial", initialWords);
+            Bgr555[][] revealWords = new Bgr555[NorfairRidleyPaletteRomData.RevealRowCount][];
             for (int row = 0; row < revealWords.Length; row++)
             {
-                revealWords[row] = new ushort[NorfairRidleyPaletteRomData.RevealColorCount];
+                revealWords[row] = new Bgr555[NorfairRidleyPaletteRomData.RevealColorCount];
                 for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = reveal.ColorAt(row, color);
             }
-            content.AppendWordFrames("reveal", revealWords);
+            content.AppendColorFrames("reveal", revealWords);
         });
 
     private readonly NorfairRidleyInitialPaintDefinitions initial;
     private readonly NorfairRidleyRevealPaintDefinitions reveal;
 
-    private NorfairRidleyColorCatalog(ushort[] initial, ushort[][] reveal)
+    private NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
     {
         this.initial = new(initial);
         this.reveal = new(reveal);
@@ -84,8 +84,8 @@ public sealed class NorfairRidleyColorCatalog
             document.Reveal.Length != NorfairRidleyPaletteRomData.RevealRowCount)
             throw new InvalidDataException("Norfair Ridley colors require the initial palette and all reveal rows.");
 
-        ushort[] initial = Compile(document.Initial, "initial");
-        var reveal = new ushort[document.Reveal.Length][];
+        Bgr555[] initial = Compile(document.Initial, "initial");
+        var reveal = new Bgr555[document.Reveal.Length][];
         for (int row = 0; row < reveal.Length; row++)
         {
             if (document.Reveal[row] is null ||
@@ -106,16 +106,16 @@ public sealed class NorfairRidleyColorCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[] colors, string label)
+    private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
     {
-        var words = new ushort[colors.Length];
+        var words = new Bgr555[colors.Length];
         for (int color = 0; color < words.Length; color++)
         {
             PaletteRgb5? rgb = colors[color];
             if (rgb is null || (uint)rgb.Red > 31 ||
                 (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"Norfair Ridley {label} color {color} requires RGB5 channels.");
-            words[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            words[color] = rgb.ToBgr555();
         }
         return words;
     }

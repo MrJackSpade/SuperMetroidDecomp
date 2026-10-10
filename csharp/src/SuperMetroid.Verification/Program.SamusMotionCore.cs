@@ -286,7 +286,7 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
     var submergedBoostCgram = new SnesCgram();
-    submergedBoostCgram.SetColor(192, 0x7777);
+    submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(
         bus,
         submergedBoostCgram,
@@ -328,7 +328,7 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SnesCgram();
-    submergedScrewCgram.SetColor(192, 0x2222);
+    submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(
         bus,
         submergedScrewCgram,

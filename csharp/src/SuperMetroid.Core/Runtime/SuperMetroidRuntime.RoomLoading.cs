@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
@@ -1506,7 +1507,7 @@ public sealed partial class SuperMetroidRuntime
         // blue value from `Initial_Palette_spritePalette5` in that one entry makes the
         // elevator landing recess appear pre-filled; the cartridge's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
-        Cgram.SetColor(223, 0);
+        Cgram.SetColor(223, Bgr555.Black);
 
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);

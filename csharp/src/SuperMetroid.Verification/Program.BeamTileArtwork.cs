@@ -93,7 +93,7 @@ internal static partial class Program
         int colors = SamusProjectileRomData.Banks.Movement |
             Word(SamusProjectileRomData.Beams.PalettePointers + selection * 2);
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Word(colors + i * 2));
+            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(Word(colors + i * 2)))));
     }
     private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory

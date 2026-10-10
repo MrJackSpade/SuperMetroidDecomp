@@ -17,7 +17,7 @@ internal static partial class Program
         var forbidden = new HashSet<int>();
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
             CheckSource(NorfairRidleyPaletteRomData.InitialColors + color * sizeof(ushort),
-                stock.NorfairRidleyColors.ResolveInitial(color));
+                stock.NorfairRidleyColors.ResolveInitial(color).ToWord());
         for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
         {
             int pointerAddress = NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort);
@@ -27,7 +27,7 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
             for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
                 CheckSource(0xa60000 + pointer + color * sizeof(ushort),
-                    stock.NorfairRidleyColors.ResolveReveal(row, color));
+                    (stock.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }
         int terminatorAddress = NorfairRidleyPaletteRomData.RevealSourcePointers +
             NorfairRidleyPaletteRomData.RevealRowCount * sizeof(ushort);
@@ -137,11 +137,11 @@ internal static partial class Program
         {
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
-                ushort expected = controlCgram.Colors[color];
+                Bgr555 expected = controlCgram.Colors[color];
                 if (color == NorfairRidleyPaletteRomData.InitialCgramIndex + 1)
-                    expected ^= 1;
+                    expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1)));
                 if (revealRowVisible && color == NorfairRidleyPaletteRomData.RevealCgramIndex + 3)
-                    expected ^= 1 << 10;
+                    expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
                 AssertEqual(expected, editedCgram.Colors[color], $"{context} CGRAM {color}");
             }
         }
@@ -152,13 +152,13 @@ internal static partial class Program
         {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, (ushort)(color * 31));
+                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             for (int color = 0; color < 32; color++)
-                cgram.SetColor(160 + color, ReadReferenceWord(0xa6e1cf + color * 2));
+                cgram.SetColor(160 + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(0xa6e1cf + color * 2)))));
             for (int color = 0; color < 15; color++)
             {
-                cgram.SetColor(113 + color, 0);
-                cgram.SetColor(241 + color, 0);
+                cgram.SetColor(113 + color, new Bgr555(0, 0, 0));
+                cgram.SetColor(241 + color, new Bgr555(0, 0, 0));
             }
             return (cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
         }
@@ -174,7 +174,7 @@ internal static partial class Program
             if (pointer != 0)
             {
                 for (int color = 0; color < 14; color++)
-                    cgram.SetColor(113 + color, ReadReferenceWord(0xa60000 + pointer + color * 2));
+                    cgram.SetColor(113 + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(0xa60000 + pointer + color * 2)))));
                 return;
             }
             state.FadePaletteOffset = 0;
@@ -191,7 +191,7 @@ internal static partial class Program
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, (ushort)(color * 31));
+                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemy, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemy, cgram);
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!

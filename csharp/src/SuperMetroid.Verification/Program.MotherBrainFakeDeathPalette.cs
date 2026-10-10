@@ -70,7 +70,7 @@ internal static partial class Program
         return enemies;
     }
 
-    private static (ushort[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
+    private static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {
         var cgram = new SnesCgram();

@@ -32,7 +32,7 @@ internal static partial class Program
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
         var palette = memory.Cgram.ToArray();
-        palette[0] = 0;
+        palette[0] = Bgr555.Black;
         memory = new(memory.Vram, palette, memory.Oam, memory.ModeledSpriteCount);
         var objects = new OrdinaryGameplayRenderLayer(baseLayer.Registers with { MainScreenLayers = SnesMainScreenLayers.Obj });
         Rgba32[]? bright = null;

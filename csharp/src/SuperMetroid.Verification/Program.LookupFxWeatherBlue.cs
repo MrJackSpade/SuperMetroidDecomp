@@ -11,10 +11,10 @@ internal static partial class Program
             ushort native = ReadVerificationWord(rom, 0x89aa06 + id);
             int expected = (native >> 5) & 31;
             AssertEqual(expected, RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(id)!.Value, "Native weather third green");
-            AssertEqual(expected, (stock.Resolve(id)[2] >> 5) & 31, "Installed weather third green");
+            AssertEqual(expected, (stock.Resolve(id)[2].ToWord() >> 5) & 31, "Installed weather third green");
             var cgram = new SnesCgram(); stock.Apply(cgram, id);
-            AssertEqual(expected, (cgram.Colors[27] >> 5) & 31, "Applied weather third green");
-            var owner = new RoomFxThirdColor(id, native);
+            AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
+            var owner = new RoomFxThirdColor(id, Bgr555.FromWord(checked((ushort)(native))));
             var field = typeof(RoomFxThirdColor).GetField("greenOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
             AssertTrue(field.GetValue(owner) is null, "Stock weather third green is not stored");
             _ = owner.CreateColor();
@@ -36,11 +36,11 @@ internal static partial class Program
             ushort native = ReadVerificationWord(rom, 0x89aa06 + id);
             int expected = (native >> 10) & 31;
             AssertEqual(expected, RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(id, native & 31)!.Value, "Native weather third blue");
-            AssertEqual(expected, (stock.Resolve(id)[2] >> 10) & 31, "Installed weather third blue");
+            AssertEqual(expected, (stock.Resolve(id)[2].ToWord() >> 10) & 31, "Installed weather third blue");
             var cgram = new SnesCgram();
             stock.Apply(cgram, id);
-            AssertEqual(expected, (cgram.Colors[27] >> 10) & 31, "Applied weather third blue");
-            var owner = new RoomFxThirdColor(id, native);
+            AssertEqual(expected, (cgram.Colors[27].ToWord() >> 10) & 31, "Applied weather third blue");
+            var owner = new RoomFxThirdColor(id, Bgr555.FromWord(checked((ushort)(native))));
             var field = typeof(RoomFxThirdColor).GetField("blueOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
             AssertTrue(field.GetValue(owner) is null, "Stock weather third blue is not stored");
             _ = owner.CreateColor();
@@ -49,7 +49,7 @@ internal static partial class Program
         foreach (byte id in OriginalFxBlendIds())
         {
             for (int color = 0; color < 0x8000; color++)
-                AssertEqual((ushort)color, new RoomFxThirdColor(id, (ushort)color).CreateColor(), "Every RGB5 third-color edit round-trips");
+                AssertEqual((ushort)color, new RoomFxThirdColor(id, Bgr555.FromWord(checked((ushort)((ushort)color)))).CreateColor(), "Every RGB5 third-color edit round-trips");
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(id, invalid), "Third blue RGB5 input bounds");
         }

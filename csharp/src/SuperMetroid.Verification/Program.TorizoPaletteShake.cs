@@ -10,7 +10,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, 0x7fff);
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         var actor = enemies.Slots[0];
@@ -51,7 +51,7 @@ internal static partial class Program
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
         AssertEqual((ushort)0, enemies.EarthquakeTimer, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, 0x7fff);
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         Execute(TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);
         AssertEqual((ushort)0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
         Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
@@ -80,7 +80,7 @@ internal static partial class Program
             address = 0xaa8787 + i * 2;
             native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
-            foreach ((int source, string name, ushort catalog) in new[]
+            foreach ((int source, string name, Bgr555 catalog) in new[]
             {
                 (0xaa8687, "shared rows eleven/fifteen", TorizoPaletteDefinitions.SharedRows[i]),
                 (0xaa86c7, "Bomb Torizo initial body", TorizoPaletteDefinitions.BombInitial[i]),

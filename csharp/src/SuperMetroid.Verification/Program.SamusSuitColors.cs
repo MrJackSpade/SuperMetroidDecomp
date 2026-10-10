@@ -165,11 +165,11 @@ internal static partial class Program
 
         samus.HurtFlashCounter = 2;
         // Overwrite the restored color first so only a real normal-suit reload passes.
-        ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1) ^ 0x7fff));
-        cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + 1, hurtRestoreSentinel);
+        ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1).ToWord() ^ 0x7fff));
+        cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + 1, Bgr555.FromWord(checked((ushort)(hurtRestoreSentinel))));
         SamusHurtFlashPalette.Update(
             guard, cgram, samus, controllerInput: 0);
-        AssertTrue(cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1] != hurtRestoreSentinel,
+        AssertTrue(cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1].ToWord() != hurtRestoreSentinel,
             "even hurt-flash frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],

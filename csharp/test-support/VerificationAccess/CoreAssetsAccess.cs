@@ -61,17 +61,17 @@ internal static class CeresRidleyColorCatalogAccess
 {
     extension(CeresRidleyColorCatalog self)
     {
-        internal ushort ResolveStart(int color) => PrivateState.Field<CeresRidleyStartColorDefinitions>(self, "start").Resolve(color);
+        internal Bgr555 ResolveStart(int color) => PrivateState.Field<CeresRidleyStartColorDefinitions>(self, "start").Resolve(color);
 
-        internal ushort ResolveEyeFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "eyeFade").Resolve(row, color);
+        internal Bgr555 ResolveEyeFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "eyeFade").Resolve(row, color);
 
-        internal ushort ResolveBodyFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "bodyFade").Resolve(row, color);
+        internal Bgr555 ResolveBodyFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "bodyFade").Resolve(row, color);
 
-        internal ushort ResolveHealth(int row, int color) => PrivateState.Field<CeresRidleyHealthPaintDefinitions>(self, "health").Resolve(row, color);
+        internal Bgr555 ResolveHealth(int row, int color) => PrivateState.Field<CeresRidleyHealthPaintDefinitions>(self, "health").Resolve(row, color);
 
-        internal ushort ResolveAlarm(int row, int color) => PrivateState.Field<CeresRidleyAlarmColorDefinitions>(self, "alarm").Resolve(row, color);
+        internal Bgr555 ResolveAlarm(int row, int color) => PrivateState.Field<CeresRidleyAlarmColorDefinitions>(self, "alarm").Resolve(row, color);
 
-        internal ushort ResolveBaby(int row, int color) => PrivateState.Field<CeresBabyPaintDefinitions>(self, "baby").Resolve(row, color);
+        internal Bgr555 ResolveBaby(int row, int color) => PrivateState.Field<CeresBabyPaintDefinitions>(self, "baby").Resolve(row, color);
     }
 }
 
@@ -80,9 +80,9 @@ internal static class ChozoAndTubeColorCatalogAccess
 {
     extension(ChozoAndTubeColorCatalog self)
     {
-        internal ushort ResolveWreckedShip(int color) => ((ushort)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
+        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
 
-        internal ushort ResolveLowerNorfair(int color) => ((ushort)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
+        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
     }
 }
 
@@ -124,15 +124,15 @@ internal static class CrocomireColorCatalogAccess
 {
     extension(CrocomireColorCatalog self)
     {
-        internal ushort ResolveFightBody(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "FightBody"), (int)(color)))!);
+        internal Bgr555 ResolveFightBody(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "FightBody"), (int)(color)))!);
 
-        internal ushort ResolveInitialWall(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialWall"), (int)(color)))!);
+        internal Bgr555 ResolveInitialWall(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialWall"), (int)(color)))!);
 
-        internal ushort ResolveInitialProjectile(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialProjectile"), (int)(color)))!);
+        internal Bgr555 ResolveInitialProjectile(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialProjectile"), (int)(color)))!);
 
-        internal ushort ResolveSkeletonArm(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "SkeletonArm"), (int)(color)))!);
+        internal Bgr555 ResolveSkeletonArm(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "SkeletonArm"), (int)(color)))!);
 
-        internal ushort ResolveWallSpikes(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "WallSpikes"), (int)(color)))!);
+        internal Bgr555 ResolveWallSpikes(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "WallSpikes"), (int)(color)))!);
     }
 }
 
@@ -482,9 +482,9 @@ internal static class NorfairRidleyColorCatalogAccess
 {
     extension(NorfairRidleyColorCatalog self)
     {
-        internal ushort ResolveInitial(int color) => PrivateState.Field<NorfairRidleyInitialPaintDefinitions>(self, "initial").ColorAt(color);
+        internal Bgr555 ResolveInitial(int color) => PrivateState.Field<NorfairRidleyInitialPaintDefinitions>(self, "initial").ColorAt(color);
 
-        internal ushort ResolveReveal(int row, int color) => PrivateState.Field<NorfairRidleyRevealPaintDefinitions>(self, "reveal").ColorAt(row, color);
+        internal Bgr555 ResolveReveal(int row, int color) => PrivateState.Field<NorfairRidleyRevealPaintDefinitions>(self, "reveal").ColorAt(row, color);
     }
 }
 
@@ -530,7 +530,7 @@ internal static class RoomFxBlendColorsAccess
     extension(RoomFxBlendColors self)
     {
         // The generated array is the requested output, never a retained stock-color cache.
-        internal ushort[] CreateColors() => [PrivateState.Field<RoomFxPairColor>(self, "primary").CreateColor(), PrivateState.Field<RoomFxPairColor>(self, "secondary").CreateColor(), PrivateState.Field<RoomFxThirdColor?>(self, "thirdOverride")?.CreateColor() ?? 0];
+        internal Bgr555[] CreateColors() => [PrivateState.Field<RoomFxPairColor>(self, "primary").CreateColor(), PrivateState.Field<RoomFxPairColor>(self, "secondary").CreateColor(), PrivateState.Field<RoomFxThirdColor?>(self, "thirdOverride")?.CreateColor() ?? Bgr555.Black];
     }
 }
 
@@ -539,7 +539,7 @@ internal static class RoomFxPaletteBlendCatalogAccess
 {
     extension(RoomFxPaletteBlendCatalog self)
     {
-        internal ReadOnlySpan<ushort> Resolve(byte selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", (byte)(selection)))!).CreateColors();
+        internal ReadOnlySpan<Bgr555> Resolve(byte selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", (byte)(selection)))!).CreateColors();
     }
 }
 
@@ -583,8 +583,8 @@ internal static class SamusChargeColorCatalogAccess
 {
     extension(SamusChargeColorCatalog self)
     {
-        internal ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-            ((ushort)(PrivateState.Invoke((pseudo ? PrivateState.Field<object>(self, "pseudoScrew") : PrivateState.Field<object>(self, "chargedBeam")), "Resolve", (int)(suit), (int)(phase), (int)(color)))!);
+        internal Bgr555 ResolveCharge(bool pseudo, int suit, int phase, int color) =>
+            ((Bgr555)(PrivateState.Invoke((pseudo ? PrivateState.Field<object>(self, "pseudoScrew") : PrivateState.Field<object>(self, "chargedBeam")), "Resolve", (int)(suit), (int)(phase), (int)(color)))!);
     }
 }
 
@@ -600,6 +600,17 @@ internal static class SamusSpritemapArtworkCatalogAccess
 /// <summary>Verification access to <see cref="SelectedPresentationHash"/> members production does not use.</summary>
 internal static class SelectedPresentationHashAccess
 {
+    extension(SelectedPresentationHash hash)
+    {
+        /// <summary>Ordered raw word rows retain their boundaries, including empty rows: the independent oracle of <see cref="SelectedPresentationHash.AppendColorFrames"/>.</summary>
+        internal void AppendWordFrames(string label, IReadOnlyList<ushort[]> frames)
+        {
+            hash.Append(label, frames.Count);
+            foreach (ushort[] frame in frames)
+                hash.AppendWords("row", frame);
+        }
+    }
+
     extension(SelectedPresentationHash)
     {
         internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[]> frames) =>
@@ -628,7 +639,7 @@ internal static class TitlePalettePresentationAccess
 {
     extension(TitlePalettePresentation self)
     {
-        internal ReadOnlySpan<ushort> Colors => PrivateState.Field<ushort[]>(self, "colors");
+        internal ReadOnlySpan<Bgr555> Colors => PrivateState.Field<Bgr555[]>(self, "colors");
     }
 }
 
@@ -637,6 +648,6 @@ internal static class TourianStatueColorCatalogAccess
 {
     extension(TourianStatueColorCatalog self)
     {
-        internal ushort ResolveStatue(int color) => ((ushort)(PrivateState.Invoke(PrivateState.Field<object>(self, "statueColors"), "Read", (int)(color)))!);
+        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(PrivateState.Invoke(PrivateState.Field<object>(self, "statueColors"), "Read", (int)(color)))!);
     }
 }

@@ -10,13 +10,13 @@ public sealed class MotherBrainRoomColorPresentation
     internal readonly RoomFlash flash;
     private readonly FinalRoomPalette finalRoom;
     private readonly AttackPalette phaseTwoAttack;
-    private readonly ushort[]? phaseTwoRearLeg;
+    private readonly Bgr555[]? phaseTwoRearLeg;
     private readonly GlassPalette initialGlassShard;
     private readonly TubePalette initialTubeProjectile;
     private readonly RecoveryLightFade recoveryLights;
 
-    private MotherBrainRoomColorPresentation(ushort[][] flash, FinalRoomPalette finalRoom,
-        ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
+    private MotherBrainRoomColorPresentation(Bgr555[][] flash, FinalRoomPalette finalRoom,
+        Bgr555[] phaseTwoAttack, Bgr555[] phaseTwoRearLeg,
         GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
         RecoveryLightFade recoveryLights)
     {
@@ -46,7 +46,7 @@ public sealed class MotherBrainRoomColorPresentation
         for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
         {
             cgram.SetColor(MotherBrainRoomColorRomData.FirstColor + color, flash.Color(frame, color));
-            ushort second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
+            Bgr555 second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
             cgram.SetColor(MotherBrainRoomColorRomData.SecondColor + color, second);
             cgram.SetColor(MotherBrainRoomColorRomData.MirroredSecondColor + color, second);
         }
@@ -96,8 +96,8 @@ public sealed class MotherBrainRoomColorPresentation
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index, 0);
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index, 0);
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index, Bgr555.Black);
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index, Bgr555.Black);
         }
     }
 
@@ -128,7 +128,7 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
         {
             cgram.SetColor(MotherBrainRoomColorRomData.FirstColor + index, colors[index]);
-            ushort second = colors[MotherBrainRoomColorRomData.SliceColors + index];
+            Bgr555 second = colors[MotherBrainRoomColorRomData.SliceColors + index];
             cgram.SetColor(MotherBrainRoomColorRomData.SecondColor + index, second);
             cgram.SetColor(MotherBrainRoomColorRomData.MirroredSecondColor + index, second);
         }
@@ -152,7 +152,7 @@ public sealed class MotherBrainRoomColorPresentation
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
-        var flash = new ushort[document.Flash.Length][];
+        var flash = new Bgr555[document.Flash.Length][];
         for (int index = 0; index < flash.Length; index++)
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorRomData.SliceColors * 2,
                 $"flash row {index}");
@@ -177,17 +177,17 @@ public sealed class MotherBrainRoomColorPresentation
 
     internal sealed class FinalRoomPalette
     {
-        private readonly ushort[]? supplied;
+        private readonly Bgr555[]? supplied;
         public int Length { get; }
-        public FinalRoomPalette(ushort[] colors)
+        public FinalRoomPalette(Bgr555[] colors)
         {
             Length = colors.Length;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
-        public ushort this[int color] => (uint)color < Length
+        public Bgr555 this[int color] => (uint)color < Length
             ? supplied is null ? Calculate(color) : supplied[color] : throw new IndexOutOfRangeException();
-        private static ushort Calculate(int color)
+        private static Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.RoomShadowFirst)
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight, MotherBrainFinalRoomPaintDefinitions.WallDark, color - MotherBrainRoomColorRomData.RoomWallFirst,
@@ -196,12 +196,12 @@ public sealed class MotherBrainRoomColorPresentation
             // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
             // relationship, not a claim about a historical palette tool.
             if (color < MotherBrainRoomColorRomData.RoomShadowFirst + MotherBrainRoomColorRomData.RoomShadowCount)
-                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, 0,
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, Bgr555.Black,
                     MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1,
                     MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorRomData.RoomShadowFirst,
                     MotherBrainRoomColorRomData.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
             if (color < MotherBrainRoomColorRomData.RoomOutlineColor)
-                return color == MotherBrainRoomColorRomData.RoomAmberColor ? MotherBrainFinalRoomPaintDefinitions.Amber : (ushort)0;
+                return color == MotherBrainRoomColorRomData.RoomAmberColor ? MotherBrainFinalRoomPaintDefinitions.Amber : Bgr555.Black;
             if (color == MotherBrainRoomColorRomData.RoomOutlineColor) return MotherBrainFinalRoomPaintDefinitions.PanelField;
             if (color < MotherBrainRoomColorRomData.RoomDarkGrayColor)
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorRomData.RoomGrayFirst,
@@ -210,35 +210,32 @@ public sealed class MotherBrainRoomColorPresentation
             {
                 // Metal contour shadow is half the low gray surface intensity.
                 MotherBrainRoomColorRomData.RoomDarkGrayColor or MotherBrainRoomColorRomData.RoomRepeatedDarkGrayColor =>
-                    InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, 0, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor),
+                    InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, Bgr555.Black, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor),
                 MotherBrainRoomColorRomData.RoomRedFirst => MotherBrainFinalRoomPaintDefinitions.RedLens,
-                MotherBrainRoomColorRomData.RoomRedFirst + 1 => (ushort)Math.Max(0, (MotherBrainFinalRoomPaintDefinitions.RedLens & 31) - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop),
+                MotherBrainRoomColorRomData.RoomRedFirst + 1 => new Bgr555(Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0),
                 MotherBrainRoomColorRomData.RoomBlueFirst => MotherBrainFinalRoomPaintDefinitions.BlueLens,
-                MotherBrainRoomColorRomData.RoomBlueFirst + 1 => (ushort)(Math.Max(0, (MotherBrainFinalRoomPaintDefinitions.BlueLens >> 10 & 31) - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop) << 10),
+                MotherBrainRoomColorRomData.RoomBlueFirst + 1 => new Bgr555(0, 0, Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop)),
                 MotherBrainRoomColorRomData.RoomGlowColor => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
                 _ => MotherBrainHealthPalettePresentation.StockBaseColor(false, MotherBrainRoomColorRomData.WhiteColor),
             };
         }
     }
-    private static ushort InterpolateRgb5(ushort start, ushort end, int step, int intervals, bool ceilingRed = false)
+    private static Bgr555 InterpolateRgb5(Bgr555 start, Bgr555 end, int step, int intervals, bool ceilingRed = false)
     {
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= (((start >> shift & 31) * (intervals - step) + (end >> shift & 31) * step + (ceilingRed && shift == 0 ? intervals - 1 : intervals / 2)) / intervals) << shift;
-        return (ushort)result;
+        return start.Zip(end, (channel, a, b) => ((a * (intervals - step) + b * step + (ceilingRed && channel == ColorChannel.Red ? intervals - 1 : intervals / 2)) / intervals));
     }
     // Shared shades use their definitions only after the installed output matches.
     // The shared recovery highlight is reviewed paint; supplied edits remain independent.
     private sealed class AttackPalette
     {
-        private readonly ushort[]? supplied;
-        public AttackPalette(ushort[] colors)
+        private readonly Bgr555[]? supplied;
+        public AttackPalette(Bgr555[] colors)
         {
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
-        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
-        private static ushort Calculate(int color)
+        public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private static Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.AttackFlameFirst)
                 return InterpolateShade(MotherBrainAttackPaintDefinitions.RingHighlight, MotherBrainAttackPaintDefinitions.RingEdge,
@@ -258,27 +255,24 @@ public sealed class MotherBrainRoomColorPresentation
                 - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
                 MotherBrainRoomColorRomData.AttackGrayLast - MotherBrainRoomColorRomData.AttackGrayFirst - 1);
         }
-        private static ushort InterpolateShade(ushort first, ushort last, int shade, int intervals)
+        private static Bgr555 InterpolateShade(Bgr555 first, Bgr555 last, int shade, int intervals)
         {
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                result |= (((first >> shift & 31) * (intervals - shade)
-                    + (last >> shift & 31) * shade + intervals / 2) / intervals) << shift;
-            return (ushort)result;
+            return first.Zip(last, (_, a, b) => ((a * (intervals - shade)
+                    + b * shade + intervals / 2) / intervals));
         }
     }
     private sealed class GlassPalette
     {
         private readonly FinalRoomPalette room;
-        private readonly ushort[]? supplied;
-        public GlassPalette(ushort[] colors, FinalRoomPalette room)
+        private readonly Bgr555[]? supplied;
+        public GlassPalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
-        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
-        private ushort Calculate(int color)
+        public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.GlassRampFirst)
                 return room[MotherBrainRoomColorRomData.RoomGrayFirst + color];
@@ -296,15 +290,15 @@ public sealed class MotherBrainRoomColorPresentation
     private sealed class TubePalette
     {
         private readonly FinalRoomPalette room;
-        private readonly ushort[]? supplied;
-        public TubePalette(ushort[] colors, FinalRoomPalette room)
+        private readonly Bgr555[]? supplied;
+        public TubePalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
-        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
-        private ushort Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
+        public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private Bgr555 Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
             ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
                 ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color)
                 : room[MotherBrainRoomColorRomData.RoomOutlineColor + color - MotherBrainRoomColorRomData.TubeNeutralCount];
@@ -313,11 +307,11 @@ public sealed class MotherBrainRoomColorPresentation
     internal sealed class RoomFlash
     {
         private readonly FinalRoomPalette basis;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[][]? supplied;
 
         public int FrameCount { get; }
 
-        public RoomFlash(ushort[][] rows, FinalRoomPalette finalRoom)
+        public RoomFlash(Bgr555[][] rows, FinalRoomPalette finalRoom)
         {
             FrameCount = rows.Length;
             basis = finalRoom;
@@ -327,35 +321,29 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
-        public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        public Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-        private ushort Calculate(int frame, int color)
+        private Bgr555 Calculate(int frame, int color)
         {
             int strength = MotherBrainRoomPaletteProgramDefinitions.FlashStrength(frame);
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-            {
-                int channel = (basis[color] >> shift) & 31;
-                // The first level color joins the background highlight; the remaining
-                // level colors dim by one quarter per strength step, rounding nearest.
-                int value = color < MotherBrainRoomFlashPaintDefinitions.HighlightedColorCount
+            // The first level color joins the background highlight; the remaining
+            // level colors dim by one quarter per strength step, rounding nearest.
+            return basis[color].Zip(MotherBrainRoomFlashPaintDefinitions.WarmFlood, (_, channel, warm) =>
+                color < MotherBrainRoomFlashPaintDefinitions.HighlightedColorCount
                     ? (channel * (MotherBrainRoomFlashPaintDefinitions.BrightenIntervals - strength)
-                        + ((MotherBrainRoomFlashPaintDefinitions.WarmFlood >> shift) & 31) * strength
+                        + warm * strength
                         + MotherBrainRoomFlashPaintDefinitions.BrightenIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.BrightenIntervals
                     : (channel * (MotherBrainRoomFlashPaintDefinitions.DimIntervals - strength)
-                        + MotherBrainRoomFlashPaintDefinitions.DimIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.DimIntervals;
-                result |= value << shift;
-            }
-            return (ushort)result;
+                        + MotherBrainRoomFlashPaintDefinitions.DimIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.DimIntervals);
         }
     }
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
     private sealed class RecoveryLightFade
     {
         private readonly FinalRoomPalette finalRoom;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[][]? supplied;
 
-        public RecoveryLightFade(ushort[][] rows, FinalRoomPalette finalRoom)
+        public RecoveryLightFade(Bgr555[][] rows, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
             for (int frame = 0; frame < rows.Length; frame++)
@@ -364,11 +352,11 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
-        public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        public Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-        private ushort Calculate(int frame, int color)
+        private Bgr555 Calculate(int frame, int color)
         {
-            ushort endpoint = color switch
+            Bgr555 endpoint = color switch
             {
                 0 => MotherBrainRecoveryPaintDefinitions.DoorwayRimLight,
                 1 => MotherBrainRecoveryPaintDefinitions.DoorwayRimMiddle,
@@ -377,18 +365,15 @@ public sealed class MotherBrainRoomColorPresentation
                 14 or 15 => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
                 _ => finalRoom[color - 4],
             };
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                result |= (((endpoint >> shift) & 31) * (frame + 1) /
-                    MotherBrainRoomColorRomData.RecoveryLightsFrames) << shift;
-            return (ushort)result;
+            return endpoint.Map((_, a) => (a * (frame + 1) /
+                    MotherBrainRoomColorRomData.RecoveryLightsFrames));
         }
     }
-    private static ushort[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
+    private static Bgr555[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
         if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)
             throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
-        var compiled = new ushort[frames.Length][];
+        var compiled = new Bgr555[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
             compiled[frame] = Compile(frames[frame],
                 MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2,
@@ -396,18 +381,18 @@ public sealed class MotherBrainRoomColorPresentation
         return compiled;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
     {
         if (colors is null || colors.Length != expectedCount)
             throw new InvalidDataException($"Mother Brain {name} requires {expectedCount} colors.");
-        var compiled = new ushort[colors.Length];
+        var compiled = new Bgr555[colors.Length];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = colors[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Mother Brain {name} color {index} requires RGB5 components.");
-            compiled[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            compiled[index] = color.ToBgr555();
         }
         return compiled;
     }

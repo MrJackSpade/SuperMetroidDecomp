@@ -54,8 +54,8 @@ public sealed partial class FileSelectAreaMapGraphics
             loadInitialBackground: false);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
-        ppu.Cgram.SetColor(14, 0);
-        ppu.Cgram.SetColor(30, 0);
+        ppu.Cgram.SetColor(14, Bgr555.Black);
+        ppu.Cgram.SetColor(30, Bgr555.Black);
         SelectArea(selectedArea);
     }
 

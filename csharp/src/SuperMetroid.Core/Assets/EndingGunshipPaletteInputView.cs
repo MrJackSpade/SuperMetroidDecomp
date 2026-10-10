@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Game;
 
@@ -16,20 +17,20 @@ namespace SuperMetroid.Core.Assets;
 /// recite this drawing. Shared channel/shade rules and temporal fades are calculated.
 /// The exact18 retained components and source-art evidence are recorded in the review
 /// inventory's endingGunshipIndependentInkReview.</remarks>
-internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort, ushort>
+internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
-    private readonly Dictionary<ushort, ushort> colors;
+    private readonly Dictionary<ushort, Bgr555> colors;
     private readonly Channels highlight, hullLight, hullShadeLight, hullShadeMiddle, hullShadeDark;
     private readonly Channels deepShadow, blackDetail;
     private readonly Channels cockpitLight, cockpitMiddle, cockpitDark;
     private readonly Channels undersideLight, undersideMiddle, undersideDark;
     private readonly int undersideBlueOffset;
 
-    internal EndingGunshipPaletteInputView(Dictionary<ushort, ushort> colors)
+    internal EndingGunshipPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
-        ushort Word(EndingGunshipPaletteInk ink) => colors[Pointer(ink)];
-        int Red(EndingGunshipPaletteInk ink) => Word(ink) & 31;
+        Bgr555 Word(EndingGunshipPaletteInk ink) => colors[Pointer(ink)];
+        int Red(EndingGunshipPaletteInk ink) => Word(ink).Red;
         Channels Gold(EndingGunshipPaletteInk ink) => new(Word(ink), null, Math.Max(0, Red(ink) - 1), null);
         Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(Word(ink), red, Math.Max(0, Red(ink) - 3), 0);
         highlight = Gold(EndingGunshipPaletteInk.Highlight);
@@ -41,16 +42,16 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         hullShadeMiddle = Hull(EndingGunshipPaletteInk.HullShadeMiddle,
             (Red(EndingGunshipPaletteInk.HullShadeLight) + Red(EndingGunshipPaletteInk.HullShadeDark) + 1) / 2);
 
-        ushort cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
-        int green = cockpit >> 5 & 31, blue = cockpit >> 10 & 31;
+        Bgr555 cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
+        int green = cockpit.Green, blue = cockpit.Blue;
         Channels Cockpit(EndingGunshipPaletteInk ink) => new(Word(ink), 0, null,
-            green == 0 ? null : Math.Min(31, (Word(ink) >> 5 & 31) * blue / green));
+            green == 0 ? null : Math.Min(31, (Word(ink).Green) * blue / green));
         cockpitLight = new(cockpit, 0, null, null);
         cockpitMiddle = Cockpit(EndingGunshipPaletteInk.CockpitMiddle);
         cockpitDark = Cockpit(EndingGunshipPaletteInk.CockpitDark);
 
-        ushort underside = Word(EndingGunshipPaletteInk.UndersideLight);
-        undersideBlueOffset = (underside >> 10 & 31) - (underside & 31);
+        Bgr555 underside = Word(EndingGunshipPaletteInk.UndersideLight);
+        undersideBlueOffset = (underside.Blue) - (underside.Red);
         Channels Underside(EndingGunshipPaletteInk ink) => new(Word(ink), null, Red(ink), Math.Clamp(Red(ink) + undersideBlueOffset, 0, 31));
         undersideLight = Underside(EndingGunshipPaletteInk.UndersideLight);
         undersideMiddle = Underside(EndingGunshipPaletteInk.UndersideMiddle);
@@ -61,36 +62,36 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
     private readonly struct Channels
     {
         private readonly int? red, green, blue;
-        internal Channels(ushort supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
+        internal Channels(Bgr555 supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
-            red = (supplied & 31) == expectedRed ? null : supplied & 31;
-            green = (supplied >> 5 & 31) == expectedGreen ? null : supplied >> 5 & 31;
-            blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
+            red = (supplied.Red) == expectedRed ? null : supplied.Red;
+            green = (supplied.Green) == expectedGreen ? null : supplied.Green;
+            blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
         internal int Red(int calculated) => red ?? calculated;
         internal int Green => green ?? 0;
         internal int Blue => blue ?? 0;
-        internal ushort Apply(int r, int g, int b) => (ushort)((red ?? r) | (green ?? g) << 5 | (blue ?? b) << 10);
+        internal Bgr555 Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
     }
 
-    private static ushort Gold(Channels channels, int red, int greenOffset) =>
+    private static Bgr555 Gold(Channels channels, int red, int greenOffset) =>
         channels.Apply(red, Math.Max(0, red - greenOffset), 0);
-    private ushort Cockpit(Channels channels)
+    private Bgr555 Cockpit(Channels channels)
     {
         int blue = cockpitLight.Green == 0 ? 0 : Math.Min(31, channels.Green * cockpitLight.Blue / cockpitLight.Green);
         return channels.Apply(0, channels.Green, blue);
     }
-    private ushort Underside(Channels channels)
+    private Bgr555 Underside(Channels channels)
     {
         int red = channels.Red(0);
         return channels.Apply(red, red, Math.Clamp(red + undersideBlueOffset, 0, 31));
     }
 
-    public bool TryGetValue(ushort pointer, out ushort value)
+    public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         if (EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color) && frame == 15)
         {
-            ushort? calculated = (EndingGunshipPaletteInk)color switch
+            Bgr555? calculated = (EndingGunshipPaletteInk)color switch
             {
                 EndingGunshipPaletteInk.Highlight => Gold(highlight, highlight.Red(0), 1),
                 EndingGunshipPaletteInk.DeepShadow => Gold(deepShadow, deepShadow.Red(0), 3),
@@ -114,7 +115,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
     }
 
     private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, (int)ink);
-    public ushort this[ushort key] => TryGetValue(key, out ushort value) ? value : throw new KeyNotFoundException();
+    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     public int Count => colors.Count + 13;
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
     public IEnumerable<ushort> Keys
@@ -125,8 +126,8 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
             foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) yield return Pointer(ink);
         }
     }
-    public IEnumerable<ushort> Values => Keys.Select(key => this[key]);
-    public IEnumerator<KeyValuePair<ushort, ushort>> GetEnumerator()
+    public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }

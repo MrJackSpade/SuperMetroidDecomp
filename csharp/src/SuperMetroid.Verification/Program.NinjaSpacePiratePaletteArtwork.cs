@@ -20,12 +20,12 @@ internal static partial class Program
         // Keep the oracle independent of the installed catalog and runtime callback.
         var nativeColors = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            nativeColors.SetColor(color, (ushort)(color * 17));
+            nativeColors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
         for (int color = 0; color < 16; color++)
         {
             int address = 0xb28727 + color * 2;
             nativeColors.SetColor(240 + color,
-                (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+                Bgr555.FromWord((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8)));
         }
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
@@ -53,7 +53,7 @@ internal static partial class Program
         (RoomEnemySlot editedSlot, SnesCgram editedColors) = Initialize(
             new NinjaPaletteReadGuard(bus), selected);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(nativeColors.Colors[color] ^
+            AssertEqual((ushort)(nativeColors.Colors[color].ToWord() ^
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
                 editedColors.Colors[color],
                 "Gold-Pirate color edit changes only its shared ninja target color");
@@ -80,7 +80,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                colors.SetColor(color, (ushort)(color * 17));
+                colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, colors);
             RoomEnemySlot slot = enemies.Slots[0];

@@ -81,10 +81,8 @@ internal static partial class Program
             var stockPalette3 = new HashSet<SuperMetroid.Core.Assets.Rgba32>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(
-                    editedMemory.Cgram[MapAnimationRomData.PaletteDestination + color]));
-                stockPalette3.Add(SuperMetroid.Core.Assets.SnesGraphics.DecodeBgr555Color(
-                    stockMemory.Cgram[MapAnimationRomData.PaletteDestination + color]));
+                editedPalette3.Add(editedMemory.Cgram[MapAnimationRomData.PaletteDestination + color].ToRgba32());
+                stockPalette3.Add(stockMemory.Cgram[MapAnimationRomData.PaletteDestination + color].ToRgba32());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

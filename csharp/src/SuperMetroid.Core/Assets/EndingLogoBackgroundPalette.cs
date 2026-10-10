@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The logo's background endpoint at $8C:F1E9 has eight evenly spaced grey
@@ -19,10 +21,10 @@ internal sealed class EndingLogoBackgroundPalette
 
     /// <summary>Recognize every supplied color, preserving non-grey or non-linear edits
     /// as caller-owned data rather than substituting a gradient for them.</summary>
-    internal static EndingLogoBackgroundPalette? TryCreate(ReadOnlySpan<ushort> colors)
+    internal static EndingLogoBackgroundPalette? TryCreate(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 16) return null;
-        var gradient = new EndingLogoBackgroundPalette(colors[1] & 31, colors[8] & 31);
+        var gradient = new EndingLogoBackgroundPalette(colors[1].Red, colors[8].Red);
         for (int color = 0; color < 16; color++)
             if (gradient.Color(color) != colors[color]) return null;
         return gradient;
@@ -30,11 +32,11 @@ internal sealed class EndingLogoBackgroundPalette
 
     /// <summary>Slots1..8 interpolate two grey endpoints with nearest rounding:
     /// (light*(8-color)+dark*(color-1)+3)/7. No half-way tie is possible with divisor7.</summary>
-    internal ushort Color(int color)
+    internal Bgr555 Color(int color)
     {
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
-        if (color is < 1 or > 8) return 0;
+        if (color is < 1 or > 8) return Bgr555.Black;
         int level = (light * (8 - color) + dark * (color - 1) + 3) / 7;
-        return (ushort)(level | level << 5 | level << 10);
+        return new Bgr555(level, level, level);
     }
 }

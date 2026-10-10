@@ -450,8 +450,8 @@ public sealed class RoomPaletteFxSystem
         ushort colorByteIndex = slot.ColorByteIndex;
         for (int guard = 0; guard < 256; guard++)
         {
-            ushort word = ReadPaletteRecordWord(cursor, colors);
-            if ((word & 0x8000) == 0)
+            PaletteRecordEntry entry = ReadPaletteRecordEntry(cursor, colors);
+            if (entry.Color is Bgr555 color)
             {
                 if ((colorByteIndex & 1) != 0 || colorByteIndex >= SnesCgram.ByteCount)
                 {
@@ -459,13 +459,14 @@ public sealed class RoomPaletteFxSystem
                         $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte " +
                         $"index ${colorByteIndex:X4} at $8D:{cursor:X4}.");
                 }
-                cgram.SetColor(colorByteIndex / 2, word);
+                cgram.SetColor(colorByteIndex / 2, color);
                 colorByteIndex = unchecked((ushort)(colorByteIndex + 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 continue;
             }
 
-            switch (word)
+            ushort command = entry.Command;
+            switch (command)
             {
                 case PaletteFxInstructionCodes.Wait:
                     // Native receives the cursor two bytes before this opcode and saves
@@ -498,7 +499,7 @@ public sealed class RoomPaletteFxSystem
                     break;
                 default:
                     throw new InvalidDataException(
-                        $"Unsupported inline palette-FX command $8D:{word:X4} at " +
+                        $"Unsupported inline palette-FX command $8D:{command:X4} at " +
                         $"$8D:{cursor:X4} for object $8D:{slot.Id:X4}.");
             }
         }
@@ -520,13 +521,17 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX mechanics word $8D:{pointer:X4} has no compiled definition.");
     }
 
+    /// <summary>One word of a mixed color/command record: a color, or an inline command at $8000 and above.</summary>
+    private readonly record struct PaletteRecordEntry(Bgr555? Color, ushort Command);
+
     /// <summary>Reads a mixed color/wait record through its explicitly supplied presentation.</summary>
-    private static ushort ReadPaletteRecordWord(ushort pointer, IPaletteFxColorSource colors)
+    private static PaletteRecordEntry ReadPaletteRecordEntry(ushort pointer, IPaletteFxColorSource colors)
     {
+        // $8D:C4E1 treats a record word below $8000 as a color and any other word as a command.
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled))
-            return compiled;
-        if (colors.TryReadColor(pointer, out ushort color))
-            return color;
+            return (compiled & 0x8000) == 0 ? new(Bgr555.FromWord(compiled), 0) : new(null, compiled);
+        if (colors.TryReadColor(pointer, out Bgr555 color))
+            return new(color, 0);
 
         throw new InvalidDataException(
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");

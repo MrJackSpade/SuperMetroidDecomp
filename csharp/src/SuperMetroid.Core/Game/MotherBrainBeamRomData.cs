@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Bank-$88/$AD identities for Mother Brain's rainbow window, not her sprite palettes.</summary>
@@ -39,7 +40,7 @@ public static class MotherBrainBeamRomData
     /// <summary>$88:E7FD increments the byte cursor four times, skipping every other color word.</summary>
     public const int ColorStride = 4;
     /// <summary>$88:E76C-$E776 initial fixed color: red 0, green 7, blue 15.</summary>
-    public const ushort InitialColor = 0x3ce0;
+    public static Bgr555 InitialColor => Bgr555.FromWord(0x3ce0);
     /// <summary>$AD:DE24 adds fourteen pixels to the low byte of the head X coordinate.</summary>
     public const int MouthXOffset = 14;
     /// <summary>$AD:DE35 adds five pixels to the head Y coordinate.</summary>

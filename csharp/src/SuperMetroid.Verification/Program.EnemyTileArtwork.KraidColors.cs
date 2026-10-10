@@ -22,7 +22,7 @@ internal static partial class Program
             .SetValue(colorReaderOwner, guardForAllColors);
         var productionReader = typeof(RoomEnemySystem)
             .GetMethod("ReadKraidColor", flags)!
-            .CreateDelegate<Func<KraidPaletteSource, int, ushort>>(colorReaderOwner);
+            .CreateDelegate<Func<KraidPaletteSource, int, Bgr555>>(colorReaderOwner);
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
             int count = KraidPaletteRomData.ColorCount(source);
@@ -47,10 +47,10 @@ internal static partial class Program
         {
             ushort[] expected = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = new KraidPaletteSourceGuard(rom);
-            ushort[] actual = CaptureKraidPaletteConsumer(guard, stock, consumer);
+            Bgr555[] actual = CaptureKraidPaletteConsumer(guard, stock, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"installed Kraid {consumer} avoids all palette ROM sources");
-            AssertTrue(actual.SequenceEqual(expected),
+            AssertTrue(actual.SequenceEqual(ToColors(expected)),
                 $"installed Kraid {consumer} preserves full native CGRAM state");
         }
 
@@ -89,7 +89,7 @@ internal static partial class Program
         {
             ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = new KraidPaletteSourceGuard(rom);
-            ushort[] changed = CaptureKraidPaletteConsumer(guard, edited, consumer);
+            Bgr555[] changed = CaptureKraidPaletteConsumer(guard, edited, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"edited Kraid {consumer} avoids palette ROM reads");
             AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
@@ -168,7 +168,7 @@ internal static partial class Program
         }
     }
 
-    private static ushort[] CaptureKraidPaletteConsumer(
+    private static Bgr555[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
     {
@@ -205,7 +205,7 @@ internal static partial class Program
                 break;
             case KraidPaletteConsumer.EyeUnglow:
                 for (int eye = 0; eye < 3; eye++)
-                    cgram.SetColor(113 + eye, 0x03ff);
+                    cgram.SetColor(113 + eye, Bgr555.FromWord(0x03ff));
                 typeof(RoomEnemySystem).GetMethod("UnglowKraidEye", flags)!
                     .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
                 break;

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -153,7 +153,7 @@ public static partial class RenderFrameSnapshotCodec
     private static void WriteMemory(BinaryWriter writer, PpuMemorySnapshot memory)
     {
         writer.Write(memory.Vram);
-        foreach (ushort color in memory.Cgram) writer.Write(color);
+        foreach (Bgr555 color in memory.Cgram) writer.Write(color.ToWord());
         writer.Write(memory.Oam);
         writer.Write(memory.ModeledSpriteCount);
     }
@@ -161,8 +161,8 @@ public static partial class RenderFrameSnapshotCodec
     private static PpuMemorySnapshot ReadMemory(BinaryReader reader)
     {
         byte[] vram = ReadExact(reader, SnesPpuLayout.VramByteCount);
-        var cgram = new ushort[SnesPpuLayout.CgramColorCount];
-        for (int i = 0; i < cgram.Length; i++) cgram[i] = reader.ReadUInt16();
+        var cgram = new Bgr555[SnesPpuLayout.CgramColorCount];
+        for (int i = 0; i < cgram.Length; i++) cgram[i] = Bgr555.FromWord(reader.ReadUInt16());
         byte[] oam = ReadExact(reader, SnesPpuLayout.OamUploadByteCount);
         return new(vram, cgram, oam, reader.ReadInt32());
     }

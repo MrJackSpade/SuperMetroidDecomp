@@ -48,7 +48,7 @@ public sealed class SamusChargeColorCatalog
     };
 
     /// <summary>Gets packed RGB5 ink 0–15 from Hyper-shot playback frame 0–9 in the native $91:D82B reverse-cycle pointer order; this asset's edits are independent of the full-body Hyper cycle.</summary>
-    public ushort ResolveHyper(int frame, int color)
+    public Bgr555 ResolveHyper(int frame, int color)
     {
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
@@ -119,10 +119,10 @@ public sealed class SamusChargeColorCatalog
     private sealed class ChargeInputs
     {
         private readonly bool pseudo;
-        private readonly Dictionary<int, ushort> colors = new();
+        private readonly Dictionary<int, Bgr555> colors = new();
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
-        internal ChargeInputs(ushort[][][] source, bool pseudo)
+        internal ChargeInputs(Bgr555[][][] source, bool pseudo)
         {
             this.pseudo = pseudo;
             for (int suit = 0; suit < source.Length; suit++)
@@ -130,11 +130,11 @@ public sealed class SamusChargeColorCatalog
             for (int color = 0; color < source[suit][phase].Length; color++)
             {
                 int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
-                ushort value = source[suit][phase][color];
+                Bgr555 value = source[suit][phase][color];
                 if (phase != canonical && value == source[suit][canonical][color]) continue;
                 if (pseudo && phase == 0)
                 {
-                    ushort expected = color == 0 ? source[0][3][0] :
+                    Bgr555 expected = color == 0 ? source[0][3][0] :
                         SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, source[suit][3][color]);
                     if (value != expected) fadeInputs.Add((suit * 6 + phase) * 16 + color, new(value, expected));
                     continue;
@@ -143,29 +143,29 @@ public sealed class SamusChargeColorCatalog
                 int key = (suit * 6 + phase) * 16 + color;
                 if (!pseudo && phase == canonical && phase != 0)
                 {
-                    ushort expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
+                    Bgr555 expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
                     if (value != expected) fadeInputs.Add(key, new(value, expected));
                 }
                 else colors.Add(key, value);
             }
         }
 
-        internal ushort Resolve(int suit, int phase, int color)
+        internal Bgr555 Resolve(int suit, int phase, int color)
         {
             if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
             int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
             if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
             int key = (suit * 6 + phase) * 16 + color;
-            if (colors.TryGetValue(key, out ushort value)) return value;
+            if (colors.TryGetValue(key, out Bgr555 value)) return value;
             if (phase != canonical) return Resolve(suit, canonical, color);
             if (pseudo && phase == 0)
             {
-                ushort bright = color == 0 ? Resolve(0, 3, 0) :
+                Bgr555 bright = color == 0 ? Resolve(0, 3, 0) :
                     SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, Resolve(suit, 3, color));
                 return fadeInputs.TryGetValue(key, out var brightInput) ? brightInput.Apply(bright) : bright;
             }
             if (suit != 0 && (pseudo || phase == 0)) return Resolve(0, phase, color);
-            ushort expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
+            Bgr555 expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
             return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
         }
     }
@@ -181,13 +181,13 @@ public sealed class SamusChargeColorCatalog
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
             throw new InvalidDataException($"{name} requires three suits.");
-        var result = new ushort[source.Length][][];
+        var result = new Bgr555[source.Length][][];
         for (int suit = 0; suit < source.Length; suit++)
         {
             PaletteRgb5[][]? phases = source[suit];
             if (phases is null || phases.Length != SamusChargeColorFormat.PhasesPerSuit)
                 throw new InvalidDataException($"{name} suit {suit} requires six phases.");
-            result[suit] = new ushort[phases.Length][];
+            result[suit] = new Bgr555[phases.Length][];
             for (int phase = 0; phase < phases.Length; phase++)
                 result[suit][phase] = CompileColors(phases[phase],
                     $"{name} suit {suit}, phase {phase}");
@@ -209,18 +209,18 @@ public sealed class SamusChargeColorCatalog
             cycleOrder[source.Length - 1 - frame] = source[frame];
         return SamusHyperBeamColorCatalog.FromFrames(cycleOrder);
     }
-    private static ushort[] CompileColors(PaletteRgb5[]? source, string name)
+    private static Bgr555[] CompileColors(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.ColorsPerPalette)
             throw new InvalidDataException($"{name} requires sixteen colors.");
-        var result = new ushort[source.Length];
+        var result = new Bgr555[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? rgb = source[index];
             if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"{name} color {index} requires RGB5 channels 0..31.");
-            result[index] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            result[index] = rgb.ToBgr555();
         }
         return result;
     }
@@ -264,12 +264,11 @@ public static class SamusChargeColorFormat
     /// different base1/12 RG inputs both saturate here,so its normal-row RGB
     /// produces the identical final color. Power/Varia ink2 blue differs and
     /// remains independently supplied; all matching channels are calculated.</remarks>
-    internal static ushort PseudoScrewBrightColor(int suit, int color, ushort basis)
+    internal static Bgr555 PseudoScrewBrightColor(int suit, int color, Bgr555 basis)
     {
         if ((uint)suit >= SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
         if (color is < 1 or >= ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
-        if (basis > 0x7fff) throw new ArgumentOutOfRangeException(nameof(basis));
-        return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out ushort gold)
+        return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out Bgr555 gold)
             ? gold : SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 3);
     }
     /// <summary>Installed editable JSON filename for charged-beam, pseudo-Screw, and Hyper-shot palette rows.</summary>

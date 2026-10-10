@@ -208,7 +208,7 @@ internal static partial class Program
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = (BeamPaletteCatalog)typeof(BeamPaletteCatalog)
             .GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Single().Invoke([colors]);
+            .Single().Invoke([ToColors(colors)]);
         resumeRuntime.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
         resumeRuntime.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
         resumeRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);

@@ -14,7 +14,7 @@ internal static partial class Program
         var installation = RepositoryInstallation.Installation;
         enemies.MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();
-        for (int index = 0; index < 256; index++) cgram.SetColor(index, (ushort)(index + 1));
+        for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord((ushort)(index + 1)));
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         var state = new MotherBrainEnemyState(enemies.Slots[0]);
         var baby = new BabyMetroidCutsceneState();

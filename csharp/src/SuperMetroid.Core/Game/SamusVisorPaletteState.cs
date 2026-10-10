@@ -79,7 +79,7 @@ public sealed class SamusVisorPaletteState
         // An externally edited packed word can address bytes outside the six authored
         // colors. Preserve the native address-space read in that exceptional case.
         if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(sourceOffset, out ushort color))
+            !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
             throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
         cgram.SetColor(
             SamusPaletteRomData.Common.SamusObjPaletteStart +

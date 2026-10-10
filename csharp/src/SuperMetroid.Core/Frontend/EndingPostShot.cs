@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class EndingPostShot
 {
     private readonly ISnesAddressSpace bus;
-    private readonly ushort[] sourcePalette;
+    private readonly Bgr555[] sourcePalette;
     private byte[] tiles = [];
     private byte[] map = [];
     private readonly byte[] font;
@@ -104,13 +104,10 @@ internal sealed class EndingPostShot
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
         for (int index = start; index < start + EndingPostShotDefinitions.PaletteColors; index++)
         {
-            ushort source = sourcePalette[index];
             // The native 8.8 accumulator subtracts component<<3 on every call;
             // taking the high byte is exactly floor(component * remaining / 32).
-            int red = (source & 31) * remaining / EndingPostShotDefinitions.FadeFrames;
-            int green = (source >> 5 & 31) * remaining / EndingPostShotDefinitions.FadeFrames;
-            int blue = (source >> 10 & 31) * remaining / EndingPostShotDefinitions.FadeFrames;
-            cgram.SetColor(index, (ushort)(red | green << 5 | blue << 10));
+            cgram.SetColor(index, sourcePalette[index].Map((_, channel) =>
+                channel * remaining / EndingPostShotDefinitions.FadeFrames));
         }
     }
 

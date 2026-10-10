@@ -29,7 +29,7 @@ internal static partial class Program
         }
         var background = new ushort[16];
         for (int color = 0; color < 16; color++) background[color] = Word(0x8cf1e9 + color * 2);
-        EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(background)
+        EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(ToColors(background))
             ?? throw new InvalidOperationException("Original logo background must use a computed grey gradient.");
         for (int color = 0; color < 16; color++)
             AssertEqual(background[color], gradient.Color(color), "all original logo endpoint shades computed exactly");
@@ -39,7 +39,7 @@ internal static partial class Program
         // the endpoint's spatial gradient. Recognition must keep these supplied columns.
         byte[] reordered = (byte[])original.Clone();
         (background[1], background[2]) = (background[2], background[1]);
-        AssertTrue(EndingLogoBackgroundPalette.TryCreate(background) is null, "independent shade order is not replaced");
+        AssertTrue(EndingLogoBackgroundPalette.TryCreate(ToColors(background)) is null, "independent shade order is not replaced");
         for (int step = 0; step < 16; step++)
         for (int lane = 0; lane < 2; lane++)
         {
@@ -425,7 +425,7 @@ internal static partial class Program
         {
             if (frame == 20)
             {
-                ushort[] before = editedScene.CaptureRenderSnapshot().Memory.Cgram.ToArray();
+                Bgr555[] before = editedScene.CaptureRenderSnapshot().Memory.Cgram.ToArray();
                 editedScene.BindPaletteFxColors(editedColors);
                 AssertTrue(before.AsSpan().SequenceEqual(
                         editedScene.CaptureRenderSnapshot().Memory.Cgram),
@@ -477,7 +477,7 @@ internal static partial class Program
                     {
                         int offset = (((nativeLogo.PaletteStep - 1) * 2 + palette) * 16 + color) * 2;
                         nativeCgram.SetColor((palette == 0 ? 16 : 240) + color,
-                            (ushort)(nativeColors[offset] | nativeColors[offset + 1] << 8));
+                            Bgr555.FromWord((ushort)(nativeColors[offset] | nativeColors[offset + 1] << 8)));
                     }
             }
             installedLogo.Step(installedCgram, EndingLogoInstructionDefinitions.ReadWord);

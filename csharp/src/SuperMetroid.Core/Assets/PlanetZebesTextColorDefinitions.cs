@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -27,17 +28,17 @@ internal static class PlanetZebesTextColorDefinitions
         .ColorPointer(PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount - 1, color);
 
     /// <summary>Round each RGB5 endpoint channel to nearest over seven native intervals; fade-out reverses the phase.</summary>
-    internal static bool TryCalculate(ushort pointer, IReadOnlyDictionary<ushort, ushort> inputs, out ushort color)
+    internal static bool TryCalculate(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> inputs, out Bgr555 color)
     {
-        color = 0;
+        color = Bgr555.Black;
         if (!TryCoordinates(pointer, out var owner, out int frame, out int index)
-            || !inputs.TryGetValue(EndpointPointer(index), out ushort endpoint)) return false;
+            || !inputs.TryGetValue(EndpointPointer(index), out Bgr555 endpoint)) return false;
         int intervals = PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount - 1;
         int phase = owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? frame : intervals - frame;
-        int red = ((endpoint & 31) * phase + intervals / 2) / intervals;
-        int green = (((endpoint >> 5) & 31) * phase + intervals / 2) / intervals;
-        int blue = (((endpoint >> 10) & 31) * phase + intervals / 2) / intervals;
-        color = (ushort)(red | green << 5 | blue << 10);
+        int red = ((endpoint.Red) * phase + intervals / 2) / intervals;
+        int green = ((endpoint.Green) * phase + intervals / 2) / intervals;
+        int blue = ((endpoint.Blue) * phase + intervals / 2) / intervals;
+        color = new Bgr555(red, green, blue);
         return true;
     }
 }

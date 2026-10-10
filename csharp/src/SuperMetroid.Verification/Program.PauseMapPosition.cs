@@ -15,7 +15,7 @@ internal static partial class Program
         var rawVram = new SnesVram();
         rawVram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(cart, 0xb6c000, 0x2000));
         var colors = new SnesCgram();
-        for (int i = 0; i < 256; i++) colors.SetColor(i, Read(0xb6f000 + i * 2));
+        for (int i = 0; i < 256; i++) colors.SetColor(i, Bgr555.FromWord(checked((ushort)(Read(0xb6f000 + i * 2)))));
         foreach (var (area, roomX, roomY, samusX, samusY) in new[]
         {
             (AreaId.Crateria, 28, 1, 0x200, 0x300),

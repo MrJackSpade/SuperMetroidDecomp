@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -341,8 +342,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
-            _cgram!.SetColor(CrocomirePaletteRomData.FightBodyDestination + color,
-                (ushort)0x7fff);
+            _cgram!.SetColor(CrocomirePaletteRomData.FightBodyDestination + color, Bgr555.White);
     }
 
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)

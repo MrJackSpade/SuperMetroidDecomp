@@ -20,7 +20,7 @@ internal static partial class Program
         for (int i = 0; i < tiles.Length; i++) tiles[i] = bus.ReadCartridgeByte(0xb6c000 + i);
         rawVram.LoadBytes(0x4000, tiles);
         var nativeColors = new SnesCgram();
-        for (int color = 0; color < 256; color++) nativeColors.SetColor(color, Read(0xb6f000 + color * 2));
+        for (int color = 0; color < 256; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked((ushort)(Read(0xb6f000 + color * 2)))));
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia })
         {
             var system = new Bank80SystemState();

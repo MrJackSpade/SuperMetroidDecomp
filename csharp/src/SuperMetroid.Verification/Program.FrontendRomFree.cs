@@ -737,8 +737,8 @@ internal static partial class Program
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<ushort> nativeColors = native.RuntimeForVerification!.Cgram.Colors;
-                ReadOnlySpan<ushort> installedColors = installed.RuntimeForVerification!.Cgram.Colors;
+                ReadOnlySpan<Bgr555> nativeColors = native.RuntimeForVerification!.Cgram.Colors;
+                ReadOnlySpan<Bgr555> installedColors = installed.RuntimeForVerification!.Cgram.Colors;
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;

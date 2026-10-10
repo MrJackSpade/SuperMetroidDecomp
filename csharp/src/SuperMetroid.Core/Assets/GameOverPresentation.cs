@@ -199,7 +199,7 @@ public sealed class GameOverPresentation
             sprites.Add(name, MenuCursorParts.CalculateIfMatching(name, compiled));
         }
 
-        var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
+        var palettes = new Dictionary<string, Bgr555[]>(StringComparer.Ordinal);
         foreach (string name in GameOverPresentationDefinitions.BabyPaletteNames)
         {
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
@@ -207,7 +207,7 @@ public sealed class GameOverPresentation
                 colors.Any(color => color > 0x7fff))
                 throw new InvalidDataException(
                     $"Game-over Baby palette {name} requires sixteen SNES BGR555 colors.");
-            palettes.Add(name, colors);
+            palettes.Add(name, Array.ConvertAll(colors, Bgr555.FromWord));
         }
 
         return new(tilemap, sprites, new GameOverBabyColorCatalog(palettes), document,

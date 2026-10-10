@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -16,11 +17,11 @@ internal static class BeamPaintDefinitions
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
-    internal static ushort Color(int selection, int color)
+    internal static Bgr555 Color(int selection, int color)
     {
-        if (color == 0) return ClearTargetBlue << 10;
-        if (color == 1) return (ushort)(Rgb5Maximum | Rgb5Maximum << 5 | Rgb5Maximum << 10);
-        if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) return 0;
+        if (color == 0) return new Bgr555(0, 0, ClearTargetBlue);
+        if (color == 1) return new Bgr555(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
+        if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) return Bgr555.Black;
         int source = BeamPaletteDefinitions.ColorSourceSelection(selection, color);
         (int red, int green, int blue) = source switch
         {
@@ -30,7 +31,7 @@ internal static class BeamPaintDefinitions
             (int)SamusBeamFlags.Spazer => Spazer(color),
             _ => Power(color),
         };
-        return (ushort)(red | green << 5 | blue << 10);
+        return new Bgr555(red, green, blue);
     }
 
     private static (int Red, int Green, int Blue) Power(int color)

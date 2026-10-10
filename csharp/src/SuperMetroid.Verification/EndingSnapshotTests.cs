@@ -26,7 +26,7 @@ internal static partial class Program
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
-            ushort[]? explosionBackgroundSource = null;
+            Bgr555[]? explosionBackgroundSource = null;
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
@@ -48,11 +48,8 @@ internal static partial class Program
                         explosionBackgroundSource = explosion.Memory.Cgram.Slice(112, 16).ToArray();
                     for (int i = 0; i < 16; i++)
                     {
-                        ushort source = explosionBackgroundSource![i];
                         int remaining = 32 - elapsed / 2;
-                        ushort expectedColor = (ushort)(((source & 31) * remaining / 32)
-                            | (((source >> 5 & 31) * remaining / 32) << 5)
-                            | (((source >> 10 & 31) * remaining / 32) << 10));
+                        Bgr555 expectedColor = explosionBackgroundSource![i].Map((_, channel) => channel * remaining / 32);
                         AssertEqual(expectedColor, explosion.Memory.Cgram[112 + i], "native explosion BG palette fades out on the same cadence");
                     }
                     if (hours == 2 && elapsed == 40)

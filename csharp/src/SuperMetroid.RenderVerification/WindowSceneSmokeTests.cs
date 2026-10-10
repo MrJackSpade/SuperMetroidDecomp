@@ -11,7 +11,7 @@ internal static class WindowSceneSmokeTests
         {
             var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
             var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
-            ushort[] palette = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
+            Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             return new(vram, palette, oam, 128);
         }
         var parentMemory = Memory(); var childMemory = Memory();

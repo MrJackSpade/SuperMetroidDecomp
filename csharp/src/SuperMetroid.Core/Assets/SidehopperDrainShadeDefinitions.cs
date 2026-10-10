@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Exact RGB5 shade relationships in the final Sidehopper drain image at $A9:EC6C.</summary>
@@ -8,10 +10,10 @@ internal static class SidehopperDrainShadeDefinitions
     /// <summary>$A9:EC72/EC7A: both lower intermediate reds are four above their own dark endpoint (5→9 and12→16). Reviewed shared material-shade offset for the shifted Sidehopper drain only.</summary>
     private const int SelectedDarkRedLift = 4;
 
-    private static int LightShadeRed(ushort light) => (light & 31) - SelectedLightRedDrop;
-    private static int DarkShadeRed(ushort dark) => (dark & 31) + SelectedDarkRedLift;
+    private static int LightShadeRed(Bgr555 light) => light.Red - SelectedLightRedDrop;
+    private static int DarkShadeRed(Bgr555 dark) => dark.Red + SelectedDarkRedLift;
 
-    internal static ushort Resolve(int color, ushort bodyLight, ushort detailLight, ushort detailDark, ushort bodyDark) => color switch
+    internal static Bgr555 Resolve(int color, Bgr555 bodyLight, Bgr555 detailLight, Bgr555 detailDark, Bgr555 bodyDark) => color switch
     {
         1 => bodyLight,
         2 => Shade(bodyLight, bodyDark, LightShadeRed(bodyLight)),
@@ -24,12 +26,9 @@ internal static class SidehopperDrainShadeDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
-    private static ushort Shade(ushort light, ushort dark, int red)
+    private static Bgr555 Shade(Bgr555 light, Bgr555 dark, int red)
     {
-        int lightRed = light & 31, darkRed = dark & 31;
-        int result = 0;
-        for (int shift = 0; shift < 15; shift += 5)
-            result |= (((light >> shift & 31) * (red - darkRed) + (dark >> shift & 31) * (lightRed - red)) / (lightRed - darkRed)) << shift;
-        return (ushort)result;
+        int lightRed = light.Red, darkRed = dark.Red;
+        return light.Zip(dark, (_, a, b) => ((a * (red - darkRed) + b * (lightRed - red)) / (lightRed - darkRed)));
     }
 }

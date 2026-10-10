@@ -87,7 +87,7 @@ internal static partial class Program
         var palette = new ushort[SnesCgram.ColorCount];
         for (ushort frame = 1; frame <= 128; frame++)
         {
-            motherBrain.RunPreInstruction(cgram, palette, frame, introCrossfadeTimer: 1);
+            motherBrain.RunPreInstruction(cgram, ToColors(palette), frame, introCrossfadeTimer: 1);
             motherBrain.Step(guarded);
             if (frame < 128)
                 AssertTrue(!motherBrain.PageTwoRequested,
@@ -97,7 +97,7 @@ internal static partial class Program
             "intro Mother Brain page-two callback runs at explosion frame 128");
         for (int frame = 0; frame < 64; frame++)
         {
-            motherBrain.RunPreInstruction(cgram, palette, (ushort)(129 + frame),
+            motherBrain.RunPreInstruction(cgram, ToColors(palette), (ushort)(129 + frame),
                 introCrossfadeTimer: 1);
             motherBrain.Step(guarded);
             int record = IntroMotherBrainInstructionDefinitions.PageTwoLoopPointer +
@@ -107,7 +107,7 @@ internal static partial class Program
             AssertEqual(expected, motherBrain.SpriteMapPointer,
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
-        motherBrain.RunPreInstruction(cgram, palette, cinematicFrameCounter: 193,
+        motherBrain.RunPreInstruction(cgram, ToColors(palette), cinematicFrameCounter: 193,
             introCrossfadeTimer: 0);
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");

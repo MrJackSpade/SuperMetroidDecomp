@@ -124,11 +124,9 @@ public static class GameplayMessageBoxRenderer
                             // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A,
                             // then RestorePpuForMessageBox restores the gameplay palette.
                             GameplayMessageRomData.Palette.TemporaryLightIndex =>
-                                SnesGraphics.DecodeBgr555Color(
-                                    GameplayMessageRomData.Palette.TemporaryLightColor),
+                                GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32(),
                             GameplayMessageRomData.Palette.TemporaryDarkIndex =>
-                                SnesGraphics.DecodeBgr555Color(
-                                    GameplayMessageRomData.Palette.TemporaryDarkColor),
+                                GameplayMessageRomData.Palette.TemporaryDarkColor.ToRgba32(),
                             _ => cgram.GetRgba(paletteIndex),
                         };
                         int screenX =

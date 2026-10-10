@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -10,9 +11,9 @@ public sealed class MotherBrainDeathColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
         {
-            Span<ushort> door = stackalloc ushort[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
+            Span<Bgr555> door = stackalloc Bgr555[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
             for (int color = 0; color < door.Length; color++) door[color] = ExplodedDoorColor(color);
-            content.AppendWords("explodedDoor", door);
+            content.AppendColors("explodedDoor", door);
             bodyFade.AppendIdentity(content, "bodyFade");
             legFade.AppendIdentity(content, "legFade");
             corpseFade.AppendIdentity(content, "corpseFade");
@@ -21,10 +22,10 @@ public sealed class MotherBrainDeathColorCatalog
     private readonly ColorFade bodyFade;
     private readonly ColorFade legFade;
     private readonly ColorFade corpseFade;
-    private readonly ushort[]? explodedDoor;
+    private readonly Bgr555[]? explodedDoor;
 
-    private MotherBrainDeathColorCatalog(ushort[][] bodyFade, ushort[][] legFade,
-        ushort[][] corpseFade, ushort[] explodedDoor)
+    private MotherBrainDeathColorCatalog(Bgr555[][] bodyFade, Bgr555[][] legFade,
+        Bgr555[][] corpseFade, Bgr555[] explodedDoor)
     {
         this.bodyFade = new(bodyFade, toBlack: true);
         this.legFade = new(legFade, toBlack: true, backLeg: true);
@@ -44,7 +45,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// <param name="color">Zero-based color within the fourteen-color body segment, 0..13.</param>
     /// <returns>Packed SNES BGR555 color, preserving any independently edited stage.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
-    public ushort BodyColor(int frame, int color) =>
+    public Bgr555 BodyColor(int frame, int color) =>
         Resolve(bodyFade, frame, color, nameof(BodyColor));
 
     /// <summary>Returns one back-leg fade color from the second fourteen-color segment of each native $AD:EA0A image, applied to CGRAM 177..190.</summary>
@@ -52,7 +53,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// <param name="color">Zero-based color within the back-leg segment, 0..13.</param>
     /// <returns>Packed SNES BGR555 color from the selected back-leg image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
-    public ushort LegColor(int frame, int color) =>
+    public Bgr555 LegColor(int frame, int color) =>
         Resolve(legFade, frame, color, nameof(LegColor));
 
     /// <summary>Returns one detached-head corpse color from the native $AD:F119 fade-to-gray images, applied to CGRAM 241..255 before corpse rotting.</summary>
@@ -60,14 +61,14 @@ public sealed class MotherBrainDeathColorCatalog
     /// <param name="color">Zero-based opaque color in sprite palette seven, 0..14; transparent color zero is omitted.</param>
     /// <returns>Packed SNES BGR555 color from the selected corpse image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
-    public ushort CorpseColor(int frame, int color) =>
+    public Bgr555 CorpseColor(int frame, int color) =>
         Resolve(corpseFade, frame, color, nameof(CorpseColor));
 
     /// <summary>Returns a color from the $A9:9534 exploded escape-door palette, installed at CGRAM 145..158 when the escape sequence opens the door.</summary>
     /// <param name="color">Zero-based palette color 0..13, corresponding to native sprite-palette-one colors 1..14.</param>
     /// <returns>Packed SNES BGR555 color from the selected fourteen-color image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The color index is outside 0..13.</exception>
-    public ushort ExplodedDoorColor(int color) =>
+    public Bgr555 ExplodedDoorColor(int color) =>
         (uint)color < MotherBrainExplodedDoorPaintDefinitions.ColorCount
             ? explodedDoor is null ? MotherBrainExplodedDoorPaintDefinitions.Color(color) : explodedDoor[color] :
             throw new ArgumentOutOfRangeException(nameof(color));
@@ -119,7 +120,7 @@ public sealed class MotherBrainDeathColorCatalog
         return bytes;
     }
 
-    private static ushort Resolve(ColorFade frames, int frame, int color, string name) =>
+    private static Bgr555 Resolve(ColorFade frames, int frame, int color, string name) =>
         (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
             ? frames.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
@@ -135,14 +136,14 @@ public sealed class MotherBrainDeathColorCatalog
     /// </summary>
     private sealed class ColorFade
     {
-        private readonly ushort[]? first;
+        private readonly Bgr555[]? first;
         private readonly bool backLeg;
         private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[][]? supplied;
         internal int FrameCount { get; }
         internal int ColorCount { get; }
 
-        internal ColorFade(ushort[][] frames, bool toBlack, bool backLeg = false)
+        internal ColorFade(Bgr555[][] frames, bool toBlack, bool backLeg = false)
         {
             this.backLeg = backLeg;
             ColorCount = frames[0].Length;
@@ -162,38 +163,33 @@ public sealed class MotherBrainDeathColorCatalog
             }
         }
 
-        internal ushort Resolve(int frame, int color) =>
+        internal Bgr555 Resolve(int frame, int color) =>
             supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-        private ushort Calculate(int frame, int color)
+        private Bgr555 Calculate(int frame, int color)
         {
             int steps = FrameCount - 1;
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-            {
-                int start = ((first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color) : first[color]) >> shift) & 31;
-                int end = last is null ? 0 : (last[color] >> shift) & 31;
-                int bias = last is null ? 1 : steps / 2;
-                int channel = (start * (steps - frame) + end * frame + bias) / steps;
-                result |= channel << shift;
-            }
-            return (ushort)result;
+            Bgr555 start = first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color) : first[color];
+            // Without a supplied endpoint the fade ends at black with a one-unit bias.
+            Bgr555 end = last is null ? Bgr555.Black : last[color];
+            int bias = last is null ? 1 : steps / 2;
+            return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
         }
 
         internal void AppendIdentity(SelectedPresentationHash content, string label)
         {
             content.Append(label, FrameCount);
-            Span<ushort> row = stackalloc ushort[ColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[ColorCount];
             for (int frame = 0; frame < FrameCount; frame++)
             {
                 for (int color = 0; color < ColorCount; color++)
                     row[color] = Resolve(frame, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         }
     }
 
-    private static ushort[][] CompileFrames(PaletteRgb5[][]? source,
+    private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)
     {
         if (source is null || source.Length != frameCount)
@@ -203,12 +199,12 @@ public sealed class MotherBrainDeathColorCatalog
             Compile(frame, colorCount, $"{name} frame {index}")).ToArray();
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException(
                 $"Mother Brain death {name} requires {count} RGB5 colors.");
-        var compiled = new ushort[count];
+        var compiled = new Bgr555[count];
         for (int color = 0; color < count; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -216,7 +212,7 @@ public sealed class MotherBrainDeathColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Mother Brain death {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

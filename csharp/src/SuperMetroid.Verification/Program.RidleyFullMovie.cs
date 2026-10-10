@@ -662,8 +662,8 @@ internal static partial class Program
         samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = 1; samus.SuperMissiles = 5;
         samus.LoadSuitPalette(bus, runtime.Cgram);
-        ushort[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
-        for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, 0x1234);
+        Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
+        for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame((ushort)SnesButton.Select);
         AssertEqual((ushort)2, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
@@ -676,7 +676,7 @@ internal static partial class Program
         game.Step(0);
         var menu = typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
         var menuPalette = (SnesCgram)typeof(PauseMenuState).GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
-        ushort[] initial = menuPalette.Colors.ToArray();
+        Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
         {
@@ -686,7 +686,7 @@ internal static partial class Program
         AssertEqual(SuperMetroidGameState.PausedB, game.GameState, "pause fade-in completes");
         game.Step(0);
         AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
-        ushort[] animated = menuPalette.Colors.ToArray();
+        Bgr555[] animated = menuPalette.Colors.ToArray();
         stateProperty.SetValue(game, SuperMetroidGameState.UnpausingA);
         typeof(SuperMetroidGame).GetMethod("BeginPauseFade", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(game, [(byte)15]);
@@ -905,7 +905,7 @@ internal static partial class Program
             // loading owners reach their shared completion boundary. Check it there.
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color != DoorTransitionPaletteDefinitions.VisorColorIndex)
-                    words.Add(runtime.Cgram.Colors[color]);
+                    words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.Slots)
                 words.AddRange([actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
                     actor.YPosition, actor.YSubposition, actor.Health, actor.SpritemapPointer,
@@ -1218,13 +1218,13 @@ internal static partial class Program
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 ushort nativeColor = (ushort)(W(NativeSnapshotMemory.PaletteBuffer + color * 2) & 0x7fff);
-                if (comparedPalette.Colors[color] != nativeColor)
+                if (comparedPalette.Colors[color].ToWord() != nativeColor)
                     mismatches.Add($"Palette {color}: native={nativeColor:X4} port={comparedPalette.Colors[color]:X4}");
             }
             if (deferLoadingOwners)
             {
                 if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
-                    Check("Completed-scroll visor", runtime.Cgram.Colors[DoorTransitionPaletteDefinitions.VisorColorIndex],
+                    Check("Completed-scroll visor", runtime.Cgram.Colors[DoorTransitionPaletteDefinitions.VisorColorIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + DoorTransitionPaletteDefinitions.VisorColorIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
                 if (pendingLoadedOwners is not null && !owners.AsSpan().SequenceEqual(pendingLoadedOwners))

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -12,32 +14,30 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
-    private const ushort EarlyBandTransparentTarget = 0x2003;
-    private readonly Dictionary<int, ushort> edits = [];
+    private static readonly Bgr555 EarlyBandTransparentTarget = Bgr555.FromWord(0x2003);
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal BotwoonHealthPaintDefinitions(ushort[][] rows)
+    internal BotwoonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             if (rows[band][color] != Calculate(band, color)) edits.Add(band * 16 + color, rows[band][color]);
     }
 
-    internal ushort Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out ushort value)
+    internal Bgr555 Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out Bgr555 value)
         ? value : Calculate(band, color);
 
-    private static ushort Calculate(int band, int color)
+    private static Bgr555 Calculate(int band, int color)
     {
-        if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : (ushort)0;
-        ushort first = Endpoint(false, color), last = Endpoint(true, color);
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
+        if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : Bgr555.Black;
+        Bgr555 first = Endpoint(false, color), last = Endpoint(true, color);
+        return first.Zip(last, (_, start, end) =>
         {
-            int start = first >> shift & 31, difference = (last >> shift & 31) - start;
-            result |= (start + Math.Sign(difference) * ((Math.Abs(difference) * band + 3) / 7)) << shift;
-        }
-        return (ushort)result;
+            int difference = end - start;
+            return start + Math.Sign(difference) * ((Math.Abs(difference) * band + 3) / 7);
+        });
     }
 
-    private static ushort Endpoint(bool damaged, int color)
+    private static Bgr555 Endpoint(bool damaged, int color)
     {
         (int red, int green, int blue) = color switch
         {
@@ -48,7 +48,7 @@ internal sealed class BotwoonHealthPaintDefinitions
             15 => damaged ? (11, 0, 0) : (5, 0, 3),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
-        return (ushort)(red | green << 5 | blue << 10);
+        return new Bgr555(red, green, blue);
     }
 
     private static (int Red, int Green, int Blue) Eye(bool damaged, int shade)

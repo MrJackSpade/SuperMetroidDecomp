@@ -366,7 +366,7 @@ internal static class TitleSequenceStateAccess
         internal byte Brightness => (byte)PrivateState.Field<int>(self, "brightness");
 
         /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
-        internal ReadOnlySpan<ushort> PaletteColors => PrivateState.Field<SnesCgram>(self, "cgram").Colors;
+        internal ReadOnlySpan<Bgr555> PaletteColors => PrivateState.Field<SnesCgram>(self, "cgram").Colors;
 
         /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
         internal ushort Mode7MatrixScale => unchecked((ushort)PrivateState.Field<int>(self, "zoom"));

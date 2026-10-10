@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -26,7 +27,7 @@ public enum SporeSpawnFunction : ushort
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    private readonly ushort[] _targetPalette = new ushort[256];
+    private readonly Bgr555[] _targetPalette = new Bgr555[256];
     private readonly bool[] _targetPaletteWritten = new bool[256];
 
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
@@ -70,13 +71,13 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 
-    internal void WriteTargetColor(int index, ushort value)
+    internal void WriteTargetColor(int index, Bgr555 value)
     {
         _targetPalette[index] = value;
         _targetPaletteWritten[index] = true;
     }
 
-    internal void ConsumeTargetColors(Action<int, ushort> write)
+    internal void ConsumeTargetColors(Action<int, Bgr555> write)
     {
         for (int index = 0; index < _targetPalette.Length; index++)
         {
@@ -182,7 +183,7 @@ public sealed partial class RoomEnemySystem
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            Bgr555 value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
             _cgram!.SetColor(SporeSpawnColorRomData.SporeDestination + color, value);

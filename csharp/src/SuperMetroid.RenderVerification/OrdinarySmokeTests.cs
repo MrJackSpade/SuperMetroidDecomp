@@ -10,7 +10,7 @@ internal static class OrdinarySmokeTests
         var random = new Random(32115);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
-        ushort[] colors = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
+        Bgr555[] colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(vram, colors, oam, 128);
         ushort[] x = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(65535 - i * 17))).ToArray();
         ushort[] y = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(511 + i * 3))).ToArray();

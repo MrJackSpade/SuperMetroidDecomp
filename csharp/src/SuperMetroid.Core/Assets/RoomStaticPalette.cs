@@ -41,8 +41,8 @@ public sealed class RoomStaticPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Room palette color {index} requires red, green and blue in 0..31.");
-            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)),
-                (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * Bgr555.ByteCount),
+                color.ToBgr555().ToWord());
         }
         return new RoomStaticPalette(native);
     }
@@ -92,7 +92,7 @@ public static class RoomStaticPaletteFormat
     public const int Version = 1;
 
     /// <summary>The number of RGB5 colors in one room graphics-set palette source.</summary>
-    public const int ColorCount = RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount / sizeof(ushort);
+    public const int ColorCount = RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount / Bgr555.ByteCount;
 
     /// <summary>Builds the editable file name for a palette's 24-bit native source address.</summary>
     /// <param name="sourceAddress">The palette's 24-bit native source address.</param>

@@ -33,7 +33,7 @@ internal sealed class EndingLogo
                 definition.InstructionList);
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
-        for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, 0);
+        for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, Bgr555.Black);
         (paletteArtwork ?? throw new InvalidOperationException(
             "Ending logo requires installed palette artwork."))
             [EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);

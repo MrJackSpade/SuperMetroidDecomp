@@ -77,7 +77,7 @@ public static partial class GameplayDisplayCapture
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
         var colors = basis.Memory.Cgram.ToArray();
         bool restoring = finishedThisFrame || samus.Xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
-        if (!settingUp) colors[0] = restoring ? (ushort)0 : XrayRoomDisplayRules.ActiveBackdrop;
+        if (!settingUp) colors[0] = restoring ? Bgr555.Black : XrayRoomDisplayRules.ActiveBackdrop;
         var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.Oam, basis.Memory.ModeledSpriteCount);
         // Releasing Run merely advances the native dispatcher to phase three. That
         // phase closes the HDMA window on the NEXT call and clears the backdrop;

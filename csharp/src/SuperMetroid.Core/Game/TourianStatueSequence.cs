@@ -149,7 +149,7 @@ public sealed class TourianStatueSequence
                     case AnimatedTileInstructionCodes.ClearThreePaletteColors:
                         ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
                         for (int color = 0; color < 3; color++)
-                            runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, 0);
+                            runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, Bgr555.Black);
                         break;
                     case AnimatedTileInstructionCodes.WriteEightTargetPaletteColors:
                         int greyDestination = MechanicsWord(tile, operand) / 2;

@@ -11,23 +11,23 @@ public sealed class ZebetiteColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
         {
             content.Append("frames", ZebetiteColorFormat.FrameCount);
-            Span<ushort> row = stackalloc ushort[ZebetiteColorFormat.ColorsPerFrame];
+            Span<Bgr555> row = stackalloc Bgr555[ZebetiteColorFormat.ColorsPerFrame];
             for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
-    private readonly Dictionary<int, ushort> edits;
+    private readonly Dictionary<int, Bgr555> edits;
 
-    private ZebetiteColorCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
+    private ZebetiteColorCatalog(Dictionary<int, Bgr555> edits) => this.edits = edits;
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
-    private static ushort NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
+    private static Bgr555 NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
-    private ushort Resolve(int frame, int color) =>
-        edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out ushort edited)
+    private Bgr555 Resolve(int frame, int color) =>
+        edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out Bgr555 edited)
             ? edited : NativeColor(frame, color);
 
     private static readonly JsonSerializerOptions Options = new()
@@ -58,7 +58,7 @@ public sealed class ZebetiteColorCatalog
             document.Frames.Length != ZebetiteColorFormat.FrameCount)
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
-        var edits = new Dictionary<int, ushort>();
+        var edits = new Dictionary<int, Bgr555>();
         for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
@@ -69,7 +69,7 @@ public sealed class ZebetiteColorCatalog
                 PaletteRgb5? rgb = colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Zebetite frame {frame}, color {color} requires RGB5 channels.");
-                ushort selected = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                Bgr555 selected = rgb.ToBgr555();
                 if (selected != NativeColor(frame, color))
                     edits.Add(frame * ZebetiteColorFormat.ColorsPerFrame + color, selected);
             }

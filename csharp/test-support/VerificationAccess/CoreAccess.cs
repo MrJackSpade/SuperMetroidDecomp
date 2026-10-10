@@ -99,7 +99,7 @@ internal static partial class CoreAccess
 
     extension(GameplayBasePaletteCatalog palettes)
     {
-        internal ReadOnlySpan<ushort> Initial => PrivateState.Field<ushort[]>(palettes, "initial");
+        internal ReadOnlySpan<Bgr555> Initial => PrivateState.Field<Bgr555[]>(palettes, "initial");
     }
 
     extension(HudState hud)

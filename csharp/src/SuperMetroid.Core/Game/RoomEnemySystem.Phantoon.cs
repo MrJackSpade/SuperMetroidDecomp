@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -48,7 +49,7 @@ public sealed partial class RoomEnemySystem
         // renderer-visible incarnation of native current/target palette storage; clearing
         // these exact sixteen words makes the later health-palette interpolation observable.
         for (int color = 112; color < 128; color++)
-            _cgram!.SetColor(color, 0);
+            _cgram!.SetColor(color, Bgr555.Black);
 
         body.VariableE = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         body.VariableA = 0;
@@ -542,8 +543,8 @@ public sealed partial class RoomEnemySystem
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < 16; color++)
         {
-            ushort current = _cgram!.Colors[112 + color];
-            ushort target = ReadPhantoonHealthColor(healthBand, color);
+            Bgr555 current = _cgram!.Colors[112 + color];
+            Bgr555 target = ReadPhantoonHealthColor(healthBand, color);
             _cgram.SetColor(
                 112 + color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
@@ -551,19 +552,14 @@ public sealed partial class RoomEnemySystem
         eye.VariableE = unchecked((ushort)(numerator + 1));
     }
 
-    private static ushort CalculatePhantoonTransitionColor(
+    private static Bgr555 CalculatePhantoonTransitionColor(
         ushort numerator,
         ushort denominator,
-        ushort current,
-        ushort target)
+        Bgr555 current,
+        Bgr555 target)
     {
-        int red = CalculatePhantoonTransitionComponent(
-            numerator, denominator, current & 0x1f, target & 0x1f);
-        int green = CalculatePhantoonTransitionComponent(
-            numerator, denominator, (current >> 5) & 0x1f, (target >> 5) & 0x1f);
-        int blue = CalculatePhantoonTransitionComponent(
-            numerator, denominator, (current >> 10) & 0x1f, (target >> 10) & 0x1f);
-        return unchecked((ushort)(red | (green << 5) | (blue << 10)));
+        return current.Zip(target, (_, from, to) =>
+            CalculatePhantoonTransitionComponent(numerator, denominator, from, to));
     }
 
     private static int CalculatePhantoonTransitionComponent(

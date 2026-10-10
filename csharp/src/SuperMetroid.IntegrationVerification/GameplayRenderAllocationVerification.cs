@@ -8,7 +8,7 @@ internal static class GameplayRenderAllocationVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         var oam = new OamBuffer();
-        cgram.SetColor(0, 0x1234);
+        cgram.SetColor(0, Bgr555.FromWord(0x1234));
         var registers = new OrdinaryGameplayRegisters(0, 0, 0, 0, 64, 32, 0, 0, 0, 0,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, oam),

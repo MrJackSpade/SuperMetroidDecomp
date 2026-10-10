@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,7 +10,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
         {
-            Span<ushort> row = stackalloc ushort[16];
+            Span<Bgr555> row = stackalloc Bgr555[16];
             foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
             {
                 PaletteRows rows = RowsFor(definition.Id);
@@ -18,7 +19,7 @@ public sealed class EnemyAuxiliaryColorCatalog
                 for (int frame = 0; frame < rows.FrameCount; frame++)
                 {
                     for (int color = 0; color < rows.ColorCount; color++) row[color] = rows.Color(frame, color);
-                    content.AppendWords("row", row[..rows.ColorCount]);
+                    content.AppendColors("row", row[..rows.ColorCount]);
                 }
             }
         });
@@ -27,7 +28,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     private readonly PaletteRows deadSidehopper;
     private readonly PaletteRows torizoBody;
     private readonly PaletteRows torizoBelly;
-    private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames)
+    private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
         deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], healthGradient: false, sidehopperDrain: true);
@@ -49,7 +50,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <param name="frame">Zero-based row: 0..7 for face-block or Torizo palettes, or 0..6 for sidehopper stages; rows are not necessarily elapsed animation frames.</param>
     /// <param name="color">Zero-based supplied color: 0..3 for face-block, 0..14 for sidehopper, or 0..15 for Torizo; sidehopper entries omit the native row's color zero.</param>
     /// <returns>The packed RGB5 word preserving independently supplied edits.</returns>
-    public ushort Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
+    public Bgr555 Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
     {
         PaletteRows rows = RowsFor(palette);
         if ((uint)frame >= rows.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -67,17 +68,17 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// </summary>
     private sealed class PaletteRows
     {
-        private readonly ushort[] first;
-        private readonly ushort[] last;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[] first;
+        private readonly Bgr555[] last;
+        private readonly Bgr555[][]? supplied;
         private readonly bool faceGlow;
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
-        private readonly ushort glowAccentStart;
-        private readonly ushort[]? corpse;
+        private readonly Bgr555 glowAccentStart;
+        private readonly Bgr555[]? corpse;
 
         internal int FrameCount { get; }
         internal int ColorCount { get; }
-        internal PaletteRows(ushort[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
+        internal PaletteRows(Bgr555[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
         {
             FrameCount = rows.Length;
             ColorCount = rows[0].Length;
@@ -97,15 +98,15 @@ public sealed class EnemyAuxiliaryColorCatalog
             last = rows[faceGlow ? 3 : sidehopperDrain ? rows.Length - 2 : rows.Length - 1];
             corpse = sidehopperDrain ? rows[^1] : null;
             this.faceGlow = faceGlow;
-            glowAccentStart = faceGlow ? rows[1][3] : (ushort)0;
+            glowAccentStart = faceGlow ? rows[1][3] : Bgr555.Black;
             if (!healthGradient && !faceGlow && !sidehopperDrain) { supplied = rows; return; }
             for (int frame = 0; frame < FrameCount; frame++)
                 for (int color = 0; color < ColorCount; color++)
                     if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
 
         }
-        internal ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
-        private ushort Calculate(int frame, int color)
+        internal Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        private Bgr555 Calculate(int frame, int color)
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
             if (stockFaceGlow) return FaceBlockGlowPaintDefinitions.Color(frame, color);
@@ -114,18 +115,15 @@ public sealed class EnemyAuxiliaryColorCatalog
             int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
             if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);
             else if (corpse is null && color == 0) return frame == steps ? last[color] : first[color];
-            ushort start = first[color];
+            Bgr555 start = first[color];
             if (faceGlow && color == 3)
             {
                 if (frame == 0) return start;
                 start = glowAccentStart;
                 frame--; steps--;
             }
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                result |= (((start >> shift & 31) * (steps - frame)
-                    + (last[color] >> shift & 31) * frame + steps / 2) / steps) << shift;
-            return (ushort)result;
+            return start.Zip(last[color], (_, a, b) => ((a * (steps - frame)
+                    + b * frame + steps / 2) / steps));
         }
     }
     /// <summary>Loads all four named palette families at the supported version, validating each definition's row/color counts and RGB5 channels 0..31 while rejecting duplicate or unknown properties; compiles owned rows independently of cartridge storage.</summary>
@@ -146,25 +144,25 @@ public sealed class EnemyAuxiliaryColorCatalog
         if (document.Version != EnemyAuxiliaryColorFormat.Version || document.Palettes is null ||
             document.Palettes.Count != EnemyAuxiliaryColorDefinitions.All.Length)
             throw new InvalidDataException("Enemy auxiliary colors require version one and all four named palettes.");
-        var result = new Dictionary<EnemyAuxiliaryPalette, ushort[][]>();
+        var result = new Dictionary<EnemyAuxiliaryPalette, Bgr555[][]>();
         foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
         {
             if (!document.Palettes.TryGetValue(definition.Id, out PaletteRgb5[][]? rows) ||
                 rows is null || rows.Length != definition.FrameCount)
                 throw new InvalidDataException($"Palette {definition.Id} requires {definition.FrameCount} frames.");
-            var compiled = new ushort[rows.Length][];
+            var compiled = new Bgr555[rows.Length][];
             for (int frame = 0; frame < rows.Length; frame++)
             {
                 PaletteRgb5[]? row = rows[frame];
                 if (row is null || row.Length != definition.ColorCount)
                     throw new InvalidDataException($"Palette {definition.Id} frame {frame} requires {definition.ColorCount} colors.");
-                compiled[frame] = new ushort[row.Length];
+                compiled[frame] = new Bgr555[row.Length];
                 for (int color = 0; color < row.Length; color++)
                 {
                     PaletteRgb5? rgb = row[color];
                     if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                         throw new InvalidDataException($"Palette {definition.Id} frame {frame} color {color} requires RGB5 channels 0..31.");
-                    compiled[frame][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                    compiled[frame][color] = rgb.ToBgr555();
                 }
             }
             result.Add(definition.Id, compiled);

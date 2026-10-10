@@ -85,7 +85,7 @@ internal static partial class Program
                     AssertEqual(arrowPixels[pixel], menuPixels[pixel], "native arrow artwork is visible in the final menu pixels");
                 }
             AssertTrue(visiblePixels > 0, "Copy arrow has nontransparent installed artwork");
-            ushort[] initial = ppu.Cgram.Colors.ToArray();
+            Bgr555[] initial = ppu.Cgram.Colors.ToArray();
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
@@ -97,7 +97,7 @@ internal static partial class Program
                 }
             }
             // Rendering must not advance animation.
-            ushort[] beforeRender = ppu.Cgram.Colors.ToArray();
+            Bgr555[] beforeRender = ppu.Cgram.Colors.ToArray();
             menu.Render(); menu.CaptureRenderSnapshot();
             AssertTrue(beforeRender.AsSpan().SequenceEqual(ppu.Cgram.Colors), "render leaves palette timing alone");
             Press(SnesButton.A);

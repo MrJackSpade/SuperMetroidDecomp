@@ -28,15 +28,15 @@ internal static partial class Program
         var migratedEffects = ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json, effectsStock));
         ushort editedPointer = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(
             item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4).ColorPointer(0, 0);
-        AssertTrue(migratedEffects.TryReadColor(editedPointer, out ushort edited), "legacy Norfair colors remain installed");
+        AssertTrue(migratedEffects.TryReadColor(editedPointer, out Bgr555 edited), "legacy Norfair colors remain installed");
         AssertEqual(PackPaletteContractColor(editedColor), edited, "v17 keeps existing environmental override");
         foreach (var heat in PaletteFxHeatProgramMechanicsDefinitions.All)
         foreach (var frame in heat.Frames)
         for (int color = 0; color < PaletteFxHeatProgramDefinition.ColorsPerFrame; color++)
         {
             ushort pointer = unchecked((ushort)(frame.FirstColorPointer + color * sizeof(ushort)));
-            AssertTrue(effectsStock.TryReadColor(pointer, out ushort expected), "current heat color exists");
-            AssertTrue(migratedEffects.TryReadColor(pointer, out ushort actual), "legacy inherits only new heat color");
+            AssertTrue(effectsStock.TryReadColor(pointer, out Bgr555 expected), "current heat color exists");
+            AssertTrue(migratedEffects.TryReadColor(pointer, out Bgr555 actual), "legacy inherits only new heat color");
             AssertEqual(expected, actual, "exact inherited heat colors");
         }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -33,20 +35,20 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// levels or grouping would invent different categorical artwork content.
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal NorfairRidleyRevealPaintDefinitions(ushort[][] rows)
+    internal NorfairRidleyRevealPaintDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < Rows; row++)
             for (int color = 0; color < Colors; color++)
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * Colors + color, rows[row][color]);
     }
 
-    internal ushort ColorAt(int row, int color)
+    internal Bgr555 ColorAt(int row, int color)
     {
         ValidateRow(row);
         if ((uint)color >= Colors) throw new IndexOutOfRangeException();
-        return edits.TryGetValue(row * Colors + color, out ushort edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(row * Colors + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
     internal static void ValidateRow(int row)
@@ -54,7 +56,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         if ((uint)row >= Rows) throw new IndexOutOfRangeException();
     }
 
-    private static ushort Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
+    private static Bgr555 Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
 
     /// <summary>
     /// Immutable stock material operation for $A6:A693-A6AE and theme9 slots113..126.
@@ -62,7 +64,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// slot14 is a copied white target (RGB5 maximum), not a visibility exemption.
     /// RoomStaticPalette's separate occurrence remains independently accounted.
     /// </summary>
-    internal static ushort Endpoint(int color)
+    internal static Bgr555 Endpoint(int color)
     {
         if ((uint)color >= Colors) throw new IndexOutOfRangeException();
         if (color < 3)
@@ -77,10 +79,10 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         return Pack(Maximum, Maximum, Maximum);
     }
 
-    private static ushort Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
+    private static Bgr555 Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
         TrimBlue + (2 - shade) * MasonryBlueStep);
-    private static ushort Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
+    private static Bgr555 Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
         CavernHighlightBlue - shade);
-    private static ushort Pack(int red, int green, int blue) => (ushort)(Math.Clamp(red, 0, Maximum)
-        | green << 5 | Math.Clamp(blue, 0, Maximum) << 10);
+    private static Bgr555 Pack(int red, int green, int blue) =>
+        new(Math.Clamp(red, 0, Maximum), green, Math.Clamp(blue, 0, Maximum));
 }

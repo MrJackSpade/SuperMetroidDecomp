@@ -502,9 +502,9 @@ internal sealed partial class EndingCreditsState
     private void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        cgram.SetColor(0, 0);
-        cgram.SetColor(16, 0);
-        cgram.SetColor(128, 0);
+        cgram.SetColor(0, Bgr555.Black);
+        cgram.SetColor(16, Bgr555.Black);
+        cgram.SetColor(128, Bgr555.Black);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GunshipEmergence, 0);
         mode7X = unchecked((ushort)-72);
@@ -804,7 +804,7 @@ internal sealed partial class EndingCreditsState
         {
             case CinematicCodePointers.Ending_Instruction_FadeExplosionPalette:
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
-                cgram.SetColor(254, 1);
+                cgram.SetColor(254, new Bgr555(1, 0, 0));
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette:

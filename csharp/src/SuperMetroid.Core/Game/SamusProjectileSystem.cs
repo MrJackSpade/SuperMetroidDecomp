@@ -278,9 +278,9 @@ public sealed partial class SamusProjectileSystem
 
             // Native starts at `Palettes_SpriteP4C1 + $1C` and walks backward by words.
             // That is exactly colors 15..1: transparent color zero is intentionally left
-            // untouched while every visible Samus color becomes BGR555 `$03FF`.
+            // untouched while every visible Samus color becomes yellow `$03FF`.
             for (int color = 1; color < 16; color++)
-                cgram.SetColor(SamusProjectileRomData.Palettes.SamusCgramIndex + color, 0x03ff);
+                cgram.SetColor(SamusProjectileRomData.Palettes.SamusCgramIndex + color, new Bgr555(31, 31, 0));
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite);

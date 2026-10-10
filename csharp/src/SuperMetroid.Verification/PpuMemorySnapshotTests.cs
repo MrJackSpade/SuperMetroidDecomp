@@ -12,11 +12,11 @@ internal static partial class Program
         new Random(321).NextBytes(characters);
         vram.LoadBytes(0, characters);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, (ushort)(index * 97));
+            cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 97)));
         oam.BeginFrame();
         oam.FinalizeFrame();
         byte[] expectedOam = oam.CreateUploadPayload();
-        ushort[] expectedPalette = cgram.Colors.ToArray();
+        Bgr555[] expectedPalette = cgram.Colors.ToArray();
 
         PpuMemorySnapshot first = PpuMemorySnapshot.Capture(vram, cgram, oam);
         PpuMemorySnapshot repeated = PpuMemorySnapshot.Capture(vram, cgram, oam);
@@ -29,20 +29,21 @@ internal static partial class Program
             && oam.CreateUploadPayload().AsSpan().SequenceEqual(expectedOam), "capture mutated its source");
 
         vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
-        cgram.SetColor(1, 0);
+        cgram.SetColor(1, new Bgr555(0, 0, 0));
         oam.BeginFrame();
         AssertTrue(first.Vram.SequenceEqual(characters) && first.Cgram.SequenceEqual(expectedPalette)
             && first.Oam.SequenceEqual(expectedOam), "later simulation writes changed a published image");
 
         var fromFixture = new PpuMemorySnapshot(characters, expectedPalette, expectedOam);
         characters[0] ^= byte.MaxValue;
-        expectedPalette[0] ^= ushort.MaxValue;
+        // Flip every color bit (the PPU stores fifteen).
+        expectedPalette[0] = Bgr555.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
         expectedOam[0] ^= byte.MaxValue;
         AssertTrue(fromFixture.Vram.SequenceEqual(first.Vram) && fromFixture.Cgram.SequenceEqual(first.Cgram)
             && fromFixture.Oam.SequenceEqual(first.Oam), "fixture arrays escaped into snapshot ownership");
 
         AssertThrows<ArgumentException>(() => new PpuMemorySnapshot(new byte[1], expectedPalette, expectedOam), "short VRAM");
-        AssertThrows<ArgumentException>(() => new PpuMemorySnapshot(characters, new ushort[1], expectedOam), "short CGRAM");
+        AssertThrows<ArgumentException>(() => new PpuMemorySnapshot(characters, ToColors(new ushort[1]), expectedOam), "short CGRAM");
         AssertThrows<ArgumentException>(() => new PpuMemorySnapshot(characters, expectedPalette, new byte[1]), "short OAM");
         Console.WriteLine("PPU memory snapshot: byte parity, ownership, observation and size checks passed.");
 

@@ -13,7 +13,7 @@ internal static partial class Program
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
         byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
         ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
-        var memory = new PpuMemorySnapshot(bytes, palette, oam, 128);
+        var memory = new PpuMemorySnapshot(bytes, ToColors(palette), oam, 128);
         var live = new SoftwarePpuSnapshotMemory(memory);
         int samples = 0;
         foreach (short matrix in new short[] { 0, 128, 256, -256, 511, short.MinValue })
@@ -63,7 +63,7 @@ internal static partial class Program
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.Mode7Active = false; getaway.Mode7MatrixA = 0;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.SetColor(i, 0);
+        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.SetColor(i, new Bgr555(0, 0, 0));
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, 0, 0, 32,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -25,9 +26,9 @@ internal static class KraidPaintDefinitions
     private const int RampLast = 11;
 
     /// <summary>The transparent slot after the first normal band: Kraid's room backdrop blue.</summary>
-    private static ushort BackdropBlue => Pack(0, 0, 14);
+    private static Bgr555 BackdropBlue => Pack(0, 0, 14);
 
-    internal static ushort Color(KraidPaletteSource source, int index)
+    internal static Bgr555 Color(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPaletteRomData.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -46,7 +47,7 @@ internal static class KraidPaintDefinitions
     /// color-six steps. Other interior bands are interpolated by the catalog and return
     /// <see langword="null"/> here.
     /// </summary>
-    internal static ushort? HealthAuthored(int index)
+    internal static Bgr555? HealthAuthored(int index)
     {
         int band = index / BandColors;
         int color = index % BandColors;
@@ -61,16 +62,16 @@ internal static class KraidPaintDefinitions
         };
     }
 
-    private static ushort Health(int index)
+    private static Bgr555 Health(int index)
     {
-        if (HealthAuthored(index) is ushort authored) return authored;
+        if (HealthAuthored(index) is Bgr555 authored) return authored;
         int band = index / BandColors;
         int color = index % BandColors;
         return color == 0 ? BackdropBlue
             : KraidColorCatalog.InterpolateHealth(FirstBand(color), FinalBand(color), band);
     }
 
-    private static ushort FirstBand(int color)
+    private static Bgr555 FirstBand(int color)
     {
         if (color is >= RampFirst and <= RampLast)
         {
@@ -82,7 +83,7 @@ internal static class KraidPaintDefinitions
         }
         return color switch
         {
-            0 or 15 => 0,
+            0 or 15 => Bgr555.Black,
             12 => Pack(3, 2, 1),
             13 => Pack(18, 18, 15),
             14 => Pack(21, 22, 18),
@@ -90,7 +91,7 @@ internal static class KraidPaintDefinitions
         };
     }
 
-    private static ushort FinalBand(int color) => color switch
+    private static Bgr555 FinalBand(int color) => color switch
     {
         0 => BackdropBlue,
         4 => Pack(31, 28, 18),
@@ -104,12 +105,12 @@ internal static class KraidPaintDefinitions
         12 => Pack(3, 0, 0),
         13 => Pack(24, 24, 24),
         14 => Pack(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum),
-        15 => 0,
+        15 => Bgr555.Black,
         _ => Hull(color),
     };
 
     /// <summary>Hull colors one to three, unchanged across every normal health band.</summary>
-    private static ushort Hull(int color) => color switch
+    private static Bgr555 Hull(int color) => color switch
     {
         1 => Pack(29, 12, 21),
         2 => Pack(22, 0, 6),
@@ -118,16 +119,16 @@ internal static class KraidPaintDefinitions
     };
 
     /// <summary>The first health band with its hull darkened and the backdrop-blue slot.</summary>
-    private static ushort DeathArm(int color) => color switch
+    private static Bgr555 DeathArm(int color) => color switch
     {
         0 => BackdropBlue,
         1 => Pack(7, 0, 2),
         2 => Pack(4, 0, 1),
-        3 => 0,
+        3 => Bgr555.Black,
         _ => FirstBand(color),
     };
 
-    private static ushort RoomBackdrop(int color) => color switch
+    private static Bgr555 RoomBackdrop(int color) => color switch
     {
         0 or 7 => Pack(0, 0, 1),
         1 or 2 or 3 or 13 => Pack(11, 11, 11),
@@ -140,17 +141,17 @@ internal static class KraidPaintDefinitions
         11 => Pack(0, 1, 1),
         12 => Pack(18, 18, 0),
         14 => Pack(18, 18, 18),
-        _ => 0,
+        _ => Bgr555.Black,
     };
 
     /// <summary>Only colors five to eight of the initial target band are painted.</summary>
-    private static ushort InitialTarget(int color) => color switch
+    private static Bgr555 InitialTarget(int color) => color switch
     {
         5 => Pack(22, 15, 3),
         6 => Pack(18, 12, 3),
         7 => Pack(12, 7, 3),
         8 => Pack(9, 5, 3),
-        _ => 0,
+        _ => Bgr555.Black,
     };
 
     private static int Nearest(int start, int end, int step, int steps)
@@ -159,5 +160,5 @@ internal static class KraidPaintDefinitions
         return start + Math.Sign(delta) * ((Math.Abs(delta) * step + steps / 2) / steps);
     }
 
-    private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

@@ -9,7 +9,7 @@ internal static class HardwareWindowTests
         var random = new Random(396);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
-        var colors = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
+        var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(vram, colors, oam, 128);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         int sequence = 0;

@@ -46,7 +46,7 @@ internal static partial class Program
                 {
                     AssertTrue(((GameplayColorMathRenderLayer)startup.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : (ushort)0, startup.Memory.Cgram[0],
+                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : Bgr555.Black, startup.Memory.Cgram[0],
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }

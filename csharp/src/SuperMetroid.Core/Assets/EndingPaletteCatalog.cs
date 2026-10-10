@@ -40,25 +40,25 @@ public sealed class EndingPalette
         get
         {
             if (nativeBytes is not null) return nativeBytes;
-            var bytes = new byte[ColorCount * sizeof(ushort)];
+            var bytes = new byte[ColorCount * Bgr555.ByteCount];
             WriteColors(bytes, 0, ColorCount);
             return bytes;
         }
     }
     /// <summary>Number of color words in the complete resource, including all 512 ordered colors when this is the sixteen-step logo crossfade.</summary>
-    public int ColorCount => nativeBytes is not null ? nativeBytes.Length / sizeof(ushort) : EndingLogoPaletteFade.ColorCount;
+    public int ColorCount => nativeBytes is not null ? nativeBytes.Length / Bgr555.ByteCount : EndingLogoPaletteFade.ColorCount;
 
     /// <summary>Reads one selected color, evaluating a recognized logo fade directly rather than materializing its transfer image.</summary>
     /// <param name="index">Zero-based color position within <see cref="ColorCount"/>; crossfade positions use (step * 2 + palette) * 16 + color, with BG palette 0 and OBJ palette 1.</param>
     /// <returns>A native BGR555 word: red in bits 0..4, green in 5..9 and blue in 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside this resource.</exception>
-    public ushort Color(int index)
+    public Bgr555 Color(int index)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         if (logoFade is not null) return logoFade.Color(index);
-        return BinaryPrimitives.ReadUInt16LittleEndian(
-            nativeBytes!.AsSpan(index * sizeof(ushort)));
+        return Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(
+            nativeBytes!.AsSpan(index * Bgr555.ByteCount)));
     }
 
     /// <summary>Preserves the cartridge's partial source/destination CGRAM transfers.</summary>
@@ -74,11 +74,11 @@ public sealed class EndingPalette
         if (sourceColor < 0 || count < 0 || sourceColor > ColorCount - count)
             throw new ArgumentOutOfRangeException(nameof(sourceColor));
         if (nativeBytes is not null)
-            cgram.LoadBytes(nativeBytes.AsSpan(sourceColor * sizeof(ushort),
-                count * sizeof(ushort)), destinationColor);
+            cgram.LoadBytes(nativeBytes.AsSpan(sourceColor * Bgr555.ByteCount,
+                count * Bgr555.ByteCount), destinationColor);
         else
         {
-            Span<byte> transfer = stackalloc byte[count * sizeof(ushort)];
+            Span<byte> transfer = stackalloc byte[count * Bgr555.ByteCount];
             WriteColors(transfer, sourceColor, count);
             cgram.LoadBytes(transfer, destinationColor);
         }
@@ -87,7 +87,7 @@ public sealed class EndingPalette
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)
     {
         for (int i = 0; i < count; i++)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * sizeof(ushort)), Color(sourceColor + i));
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * Bgr555.ByteCount), Color(sourceColor + i).ToWord());
     }
 
     /// <summary>Validates RGB5 JSON against the chosen resource's exact color count and compiles an independent native color representation.</summary>
@@ -105,7 +105,7 @@ public sealed class EndingPalette
         if (document.Version != EndingPaletteDefinitions.Version ||
             document.Colors is null || document.Colors.Length != count)
             throw new InvalidDataException($"Ending {id} palette requires {count} RGB5 colors.");
-        var native = new byte[count * sizeof(ushort)];
+        var native = new byte[count * Bgr555.ByteCount];
         for (int index = 0; index < count; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -113,8 +113,8 @@ public sealed class EndingPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Ending {id} palette color {index} requires red, green and blue in 0..31.");
-            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)),
-                (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * Bgr555.ByteCount),
+                color.ToBgr555().ToWord());
         }
         if (id == EndingPaletteId.LogoCrossfade && EndingLogoPaletteFade.TryCreate(native) is { } fade)
             return new EndingPalette(fade);

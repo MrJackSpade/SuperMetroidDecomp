@@ -15,7 +15,7 @@ internal static partial class Program
                 colors[ink] = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
             palettes.Add(GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase), colors);
         }
-        var catalog = new GameOverBabyColorCatalog(palettes);
+        var catalog = new GameOverBabyColorCatalog(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
         byte[] json = GameOverPresentationExtractor.Extract(rom);
         using var stream = new MemoryStream(json);
         GameOverPresentation presentation = GameOverPresentation.Load(stream);
@@ -43,7 +43,7 @@ internal static partial class Program
             {
                 int shift = channel * 5;
                 edited[ink] = (ushort)((original & ~(31 << shift)) | intensity << shift);
-                var changed = new GameOverBabyColorCatalog(palettes);
+                var changed = new GameOverBabyColorCatalog(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
                 for (int phase = 0; phase < 4; phase++)
                 for (int target = 0; target < 16; target++)
                     AssertEqual(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][target],

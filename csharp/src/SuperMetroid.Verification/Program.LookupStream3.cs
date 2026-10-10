@@ -47,7 +47,7 @@ internal static partial class Program
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
             var cgram = new SnesCgram();
             selected.LoadTo(cgram);
-            AssertTrue(expected.AsSpan().SequenceEqual(cgram.Colors), "intro palette CGRAM load");
+            AssertTrue(ToColors(expected).AsSpan().SequenceEqual(cgram.Colors), "intro palette CGRAM load");
         }
         static IntroCinematicPalette Load(ushort[] words)
         {
@@ -1055,9 +1055,9 @@ internal static partial class Program
             }
             switch (group)
             {
-                case 0: DoorTransitionPaletteDefinitions.PreserveHud(sourceColors, actual); break;
-                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(sourceColors, actual); break;
-                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(sourceColors, actual); break;
+                case 0: DoorTransitionPaletteDefinitions.PreserveHud(ToColors(sourceColors), ToColors(actual)); break;
+                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(ToColors(sourceColors), ToColors(actual)); break;
+                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(ToColors(sourceColors), ToColors(actual)); break;
             }
             AssertTrue(expected.SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }
@@ -1556,7 +1556,7 @@ internal static partial class Program
         AssertTrue(pulse.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(pulse) is null, "stream 3 Shitroid original pulse rows discarded");
         AssertTrue(!pulse.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort)),
+            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 4; color++)
@@ -1694,9 +1694,9 @@ internal static partial class Program
         void CheckBeam(MotherBrainRainbowPalettePresentation palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertEqual(Word(document.BeamCycle[index]), palette.BeamColorWord(index * 4),
+                AssertTrue(palette.TryReadBeamColor(index * 4, out Bgr555 beam) && beam == Bgr555.FromWord(Word(document.BeamCycle[index])),
                     "stream 3 beam wheel matches every native sampled color");
-            AssertEqual(ushort.MaxValue, palette.BeamColorWord(152), "stream 3 beam signed loop terminator");
+            AssertTrue(!palette.TryReadBeamColor(152, out _), "stream 3 beam signed loop terminator");
             AssertEqual((ushort)0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         CheckBeam(stock);
@@ -1713,7 +1713,7 @@ internal static partial class Program
             document.BeamCycle[index] = original;
         }
         foreach (int invalid in new[] { -1, 1, 2, 3, 153, 156, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.BeamColorWord(invalid), "stream 3 beam cursor bounds and alignment");
+            AssertThrows<InvalidDataException>(() => stock.TryReadBeamColor(invalid, out _), "stream 3 beam cursor bounds and alignment");
         Check(stock);
         void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
         {
@@ -1737,8 +1737,8 @@ internal static partial class Program
             var cgram = new SnesCgram();
             for (int frame = 0; frame < 8; frame++)
             {
-                cgram.SetColor(0x4e, 123);
-                cgram.SetColor(0x9e, 123);
+                cgram.SetColor(0x4e, new Bgr555(27, 3, 0));
+                cgram.SetColor(0x9e, new Bgr555(27, 3, 0));
                 palette.ApplyFromGrey(bus, cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {
@@ -1959,7 +1959,7 @@ internal static partial class Program
         object selectedFade = typeof(BabyMetroidCutsceneColorCatalog).GetField("fade", fields)!.GetValue(stock)!;
         AssertTrue(selectedFade.GetType().GetField("supplied", fields)!.GetValue(selectedFade) is null,
             "stream 3 original Baby fade discards its stored frame table");
-        AssertEqual(0, selectedFade.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[])), "stream 3 Baby fade keeps no stock endpoint payload");
+        AssertEqual(0, selectedFade.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(Bgr555) || field.FieldType == typeof(Bgr555[])), "stream 3 Baby fade keeps no stock endpoint payload");
         static ushort ScaleHealth(ushort value, int remaining)
         {
             int result = 0;
@@ -1970,12 +1970,12 @@ internal static partial class Program
         var endpointMethod = selectedFade.GetType().GetMethod("Endpoint", fields | System.Reflection.BindingFlags.Static)!;
         for (int color = 0; color < 14; color++)
         {
-            AssertEqual(Read(0xade8f0 + 2 * color), ScaleHealth((ushort)endpointMethod.Invoke(null, [color])!, 6),
+            AssertEqual(Read(0xade8f0 + 2 * color), ScaleHealth(((Bgr555)endpointMethod.Invoke(null, [color])!).ToWord(), 6),
                 "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
             int healthAddress = color < 4 ? 0xade870 + 2 * color :
                 color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
             ushort nativeHealth = Read(healthAddress);
-            AssertEqual(nativeHealth, (ushort)endpointMethod.Invoke(null, [color])!, "stream 3 exact native final-health endpoint");
+            AssertEqual(nativeHealth, (Bgr555)endpointMethod.Invoke(null, [color])!, "stream 3 exact native final-health endpoint");
             for (int frame = 0; frame < fade.Length; frame++)
                 AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
                     "stream 3 native final health colors produce the exact seven-part fade");
@@ -2455,10 +2455,10 @@ internal static partial class Program
             object basis = palette.GetType().GetField("basis", flags)!.GetValue(palette)!;
             AssertTrue(basis.GetType().GetField("supplied", flags)!.GetValue(basis) is null,
                 "stream 3 native health shade ramps calculated from paint endpoints");
-            ushort[] anchors = basis.GetType().GetFields(flags).Where(field => field.FieldType == typeof(ushort))
-                .Select(field => (ushort)field.GetValue(basis)!).ToArray();
+            Bgr555[] anchors = basis.GetType().GetFields(flags).Where(field => field.FieldType == typeof(Bgr555))
+                .Select(field => (Bgr555)field.GetValue(basis)!).ToArray();
             AssertEqual(6, anchors.Length, "stream 3 health base exposes only six possible paint anchors");
-            AssertTrue(name == "body" ? anchors.All(value => value != 0) : anchors.All(value => value == 0),
+            AssertTrue(name == "body" ? anchors.All(value => value != Bgr555.Black) : anchors.All(value => value == Bgr555.Black),
                 "stream 3 stock rear palette stores no independent paint colors");
         }
         for (int state = 0; state < 4; state++)
@@ -2526,7 +2526,7 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(fade.GetType().GetField("finalRoom", flags)!.GetValue(fade),
             typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
             "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(0, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+        AssertEqual(0, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
@@ -2618,7 +2618,7 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(flash.GetType().GetField("basis", flags)!.GetValue(flash),
             typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
             "stream 3 stock flash reuses final room paint basis");
-        AssertEqual(0, flash.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+        AssertEqual(0, flash.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
@@ -2840,7 +2840,7 @@ internal static partial class Program
             AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
             foreach (string endpoint in new[] { "first", "last" })
-                AssertEqual(0, ((ushort[])palette.GetType().GetField(endpoint, fields)!.GetValue(palette)!).Length,
+                AssertEqual(0, ((Bgr555[])palette.GetType().GetField(endpoint, fields)!.GetValue(palette)!).Length,
                     "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
             AssertTrue(palette.GetType().GetField("corpse", fields)!.GetValue(palette) is null,
                 "stream 3 complete auxiliary palette keeps no stock corpse array");

@@ -88,14 +88,14 @@ public sealed class RoomFxPaletteBlendCatalog
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxRomData.Layer3.PaletteBlendColorCount)
                 throw new InvalidDataException($"Room-FX blend {id:X2} requires three colors.");
-            var words = new ushort[colors.Length];
+            var words = new Bgr555[colors.Length];
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5? color = colors[index];
                 if (color is null || (uint)color.Red > 31 ||
                     (uint)color.Green > 31 || (uint)color.Blue > 31)
                     throw new InvalidDataException($"Room-FX blend {id:X2} color {index} requires RGB components from zero through 31.");
-                words[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+                words[index] = color.ToBgr555();
             }
             return new(id, words[0], words[1], words[2]);
         }
@@ -117,7 +117,7 @@ public sealed class RoomFxPaletteBlendCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if (selection == 0)
         {
-            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
+            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, Bgr555.Black);
             return;
         }
         SelectColors(selection).Apply(cgram);
@@ -162,7 +162,7 @@ internal sealed class RoomFxBlendColors
     private readonly RoomFxPairColor secondary;
     private readonly RoomFxThirdColor? thirdOverride;
 
-    public RoomFxBlendColors(byte selection, ushort primary, ushort secondary, ushort third)
+    public RoomFxBlendColors(byte selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
     {
         this.primary = new(selection, primary, true);
         this.secondary = new(selection, secondary, false);
@@ -173,7 +173,7 @@ internal sealed class RoomFxBlendColors
     {
         cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex, primary.CreateColor());
         cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 1, secondary.CreateColor());
-        cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 2, thirdOverride?.CreateColor() ?? 0);
+        cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 2, thirdOverride?.CreateColor() ?? Bgr555.Black);
     }
 }
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
@@ -185,22 +185,22 @@ internal sealed class RoomFxPairColor
     private readonly int? greenOverride;
     private readonly int? blueOverride;
 
-    public RoomFxPairColor(byte selection, ushort color, bool isPrimary)
+    public RoomFxPairColor(byte selection, Bgr555 color, bool isPrimary)
     {
         this.selection = selection;
         this.isPrimary = isPrimary;
-        int red = color & 31, green = (color >> 5) & 31, blue = (color >> 10) & 31;
+        int red = color.Red, green = color.Green, blue = color.Blue;
         redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) == red ? null : red;
         greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary) == green ? null : green;
         blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) == blue ? null : blue;
     }
 
-    public ushort CreateColor()
+    public Bgr555 CreateColor()
     {
         int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary)!.Value;
         int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary)!.Value;
         int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary)!.Value;
-        return (ushort)(red | green << 5 | blue << 10);
+        return new Bgr555(red, green, blue);
     }
 }
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
@@ -211,19 +211,19 @@ internal sealed class RoomFxThirdColor
     private readonly int? greenOverride;
     private readonly int? blueOverride;
 
-    public RoomFxThirdColor(byte selection, ushort color)
+    public RoomFxThirdColor(byte selection, Bgr555 color)
     {
         this.selection = selection;
-        red = color & 31;
-        int green = (color >> 5) & 31;
+        red = color.Red;
+        int green = color.Green;
         greenOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection) == green ? null : green;
-        int blue = (color >> 10) & 31;
-        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, color & 31) == blue ? null : blue;
+        int blue = color.Blue;
+        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, color.Red) == blue ? null : blue;
     }
 
-    public ushort CreateColor() => (ushort)(red |
-        (greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection)!.Value) << 5 |
-        (blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red)!.Value) << 10);
+    public Bgr555 CreateColor() => new(red,
+        greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection)!.Value,
+        blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red)!.Value);
 }
 /// <summary>Editable RGB5 inks for the eight native room-FX blend selections, with separate optional fixed-color tints for Ceres haze.</summary>
 public sealed record RoomFxPaletteBlendDocument
@@ -318,9 +318,9 @@ public static class RoomFxPaletteBlendDefinitions
     /// The six liquid blends use black as their third color. Weather's independent
     /// third colors have no calculated value here. Unknown selectors still reject.
     /// </summary>
-    public static ushort? CalculatedThirdColor(byte id) => id switch
+    public static Bgr555? CalculatedThirdColor(byte id) => id switch
     {
-        Lava or MaridiaWaterA or WaterAndAcid or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD => 0,
+        Lava or MaridiaWaterA or WaterAndAcid or MaridiaWaterB or MaridiaWaterC or MaridiaWaterD => Bgr555.Black,
         LandingSiteRain or Fog => null,
         _ => throw new InvalidDataException($"Room-FX palette blend ${id:X2} is not catalogued."),
     };

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -39,7 +40,7 @@ internal static class HeatPaletteColorDefinitions
         return true;
 
     }
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         TryBaseColor(pointer, colors, out value) || TryHighlightEndpoint(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
         TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
 
@@ -63,14 +64,14 @@ internal static class HeatPaletteColorDefinitions
         return true;
     }
 
-    private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         return TryBasePalettePointer(pointer, out ushort source) &&
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
     }
 
-    private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+    private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value) ||
         TryHighlightEndpoint(pointer, colors, out value);
 
@@ -80,7 +81,7 @@ internal static class HeatPaletteColorDefinitions
     /// Sources: $8D:E558/E566/E794 and their corresponding row-zero colors. This
     /// shared highlight rule uses no stored endpoint or fitted per-slot coefficients.
     /// Player endpoints differing from the result remain explicit installed overrides.</remarks>
-    internal static bool TryHighlightEndpoint(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryHighlightEndpoint(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
         ushort source = pointer switch
         {
@@ -89,9 +90,9 @@ internal static class HeatPaletteColorDefinitions
             0xe794 => 0xe6a6,
             _ => 0,
         };
-        value = 0;
-        if (source == 0 || !(colors.TryGetValue(source, out ushort start) || TryBaseColor(source, colors, out start))) return false;
-        value = (ushort)((start & 0x7fe0) | (((start & 31) + 32) / 2));
+        value = Bgr555.Black;
+        if (source == 0 || !(colors.TryGetValue(source, out Bgr555 start) || TryBaseColor(source, colors, out start))) return false;
+        value = start.WithRed((start.Red + 32) / 2);
         return true;
     }
 
@@ -103,7 +104,7 @@ internal static class HeatPaletteColorDefinitions
     /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
     /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
-    internal static bool TryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
         => TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 3, 0, out value);
 
     /// <summary>Calculates the remaining single-channel red gradients from their endpoints.</summary>
@@ -114,23 +115,23 @@ internal static class HeatPaletteColorDefinitions
     /// independently establish all five samples. These exact conventional interpolation
     /// rules make no claim about the historical authoring software. Endpoints remain
     /// editable inputs; differing intermediate colors remain explicit overrides.</remarks>
-    internal static bool TrySecondaryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+    internal static bool TrySecondaryRedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 1, 2, out value) ||
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
 
-    private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors,
-        PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out ushort value)
+    private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors,
+        PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2 + 2 * colorIndex;
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
-        if (!TryInputColor((ushort)first, colors, out ushort start) ||
-            !TryInputColor((ushort)(first + 7 * 34), colors, out ushort end)) return false;
+        if (!TryInputColor((ushort)first, colors, out Bgr555 start) ||
+            !TryInputColor((ushort)(first + 7 * 34), colors, out Bgr555 end)) return false;
         int row = (offset / 34 + 1) / 2;
-        int red = ((start & 31) * (4 - row) + (end & 31) * row + roundingBias) / 4;
-        value = (ushort)((start & 0x7fe0) | red);
+        int red = (start.Red * (4 - row) + end.Red * row + roundingBias) / 4;
+        value = start.WithRed(red);
         return true;
     }
 
@@ -142,24 +143,24 @@ internal static class HeatPaletteColorDefinitions
     /// complete original channel independently. This exact bounded representation
     /// does not assert historical tooling. Edited blue results outside RGB5 decline
     /// calculation so their explicit supplied values survive; no clamping is added.</remarks>
-    internal static bool TryMixedRamp(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryMixedRamp(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 10;
         int offset = pointer - first;
         if (offset is not (34 or 102 or 170)) return false;
-        if (!TryInputColor((ushort)first, colors, out ushort start) ||
-            !TryInputColor((ushort)(first + 7 * 34), colors, out ushort end)) return false;
+        if (!TryInputColor((ushort)first, colors, out Bgr555 start) ||
+            !TryInputColor((ushort)(first + 7 * 34), colors, out Bgr555 end)) return false;
         int row = (offset / 34 + 1) / 2;
-        int red = ((start & 31) * (4 - row) + (end & 31) * row + 3) / 4;
-        int initialGreen = start >> 5 & 31;
-        int greenSum = initialGreen * (4 - row) + (end >> 5 & 31) * row;
+        int red = (start.Red * (4 - row) + end.Red * row + 3) / 4;
+        int initialGreen = start.Green;
+        int greenSum = initialGreen * (4 - row) + end.Green * row;
         int green = greenSum / 4;
         int remainder = greenSum % 4;
         if (remainder > 2 || (remainder == 2 && (green & 1) != 0)) green++;
-        int blue = (start >> 10 & 31) + green - initialGreen;
+        int blue = start.Blue + green - initialGreen;
         if ((uint)blue > 31) return false;
-        value = (ushort)(red | green << 5 | blue << 10);
+        value = new(red, green, blue);
         return true;
     }
 
@@ -170,9 +171,9 @@ internal static class HeatPaletteColorDefinitions
     /// slot3 samples are calculated by TryRedRamp when no edited override exists. Only canonical
     /// noninitial rows qualify. Nonrepresentable edited deltas return false so the
     /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
-    internal static bool TrySharedRed(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TrySharedRed(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         if (!TryCanonicalPointer(pointer, out ushort canonical) || pointer != canonical) return false;
         int powerFirst = PaletteFxHeatInstructionListDefinitions.Resolve(PaletteFxHeatSuit.Power, 0) + 2;
         int first;
@@ -193,12 +194,12 @@ internal static class HeatPaletteColorDefinitions
         }
         int phase = (pointer - first) / 34;
         if (phase == 0) return false;
-        if (!TryInputColor((ushort)(first + index * 2), colors, out ushort original) ||
-            !TryInputColor((ushort)(powerFirst + 6), colors, out ushort baseline) ||
-            !(colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out ushort heated) ||
+        if (!TryInputColor((ushort)(first + index * 2), colors, out Bgr555 original) ||
+            !TryInputColor((ushort)(powerFirst + 6), colors, out Bgr555 baseline) ||
+            !(colors.TryGetValue((ushort)(powerFirst + phase * 34 + 6), out Bgr555 heated) ||
               TryRedRamp((ushort)(powerFirst + phase * 34 + 6), colors, out heated))) return false;
-        int red = (original & 31) + (heated & 31) - (baseline & 31);
+        int red = original.Red + heated.Red - baseline.Red;
         if ((uint)red > 31) return false;
-        value = (ushort)((original & 0x7fe0) | red);
+        value = original.WithRed(red);
         return true;
     }}

@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MapPaletteCycle
 {
     private readonly Dictionary<int, byte> durationEdits = [];
-    private readonly ushort[][] colors;
-    private readonly Dictionary<int, ushort> reverseColorEdits = [];
+    private readonly Bgr555[][] colors;
+    private readonly Dictionary<int, Bgr555> reverseColorEdits = [];
 
     /// <summary>
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
@@ -16,7 +16,7 @@ public sealed class MapPaletteCycle
     /// </summary>
     private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
-    private MapPaletteCycle(byte[] durations, ushort[][] suppliedColors)
+    private MapPaletteCycle(byte[] durations, Bgr555[][] suppliedColors)
     {
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)
@@ -63,7 +63,7 @@ public sealed class MapPaletteCycle
         CheckFrame(frame);
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             destination.SetColor(firstColor + color,
-                reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out ushort edited)
+                reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out Bgr555 edited)
                     ? edited : colors[Phase(frame)][color]);
     }
 
@@ -81,7 +81,7 @@ public sealed class MapPaletteCycle
             document.Frames.Length is < 1 or > MapPaletteCycleFormat.MaximumFrames)
             throw new InvalidDataException("Map highlight cycle requires version 1 and 1-255 frames.");
         var durations = new byte[document.Frames.Length];
-        var colors = new ushort[document.Frames.Length][];
+        var colors = new Bgr555[document.Frames.Length][];
         for (int frame = 0; frame < durations.Length; frame++)
         {
             var entry = document.Frames[frame];
@@ -89,13 +89,13 @@ public sealed class MapPaletteCycle
                 entry.Colors is null || entry.Colors.Length != MapPaletteCycleFormat.ColorCount)
                 throw new InvalidDataException($"Map highlight frame {frame} requires 1-254 ticks and sixteen colors.");
             durations[frame] = (byte)entry.DurationTicks;
-            colors[frame] = new ushort[entry.Colors.Length];
+            colors[frame] = new Bgr555[entry.Colors.Length];
             for (int color = 0; color < entry.Colors.Length; color++)
             {
                 var rgb = entry.Colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Map highlight frame {frame}, color {color} requires RGB components from 0 to 31.");
-                colors[frame][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                colors[frame][color] = rgb.ToBgr555();
             }
         }
         return new(durations, colors);
@@ -138,6 +138,12 @@ public sealed record PaletteRgb5
     public required int Green { get; init; }
     /// <summary>Blue intensity, zero through 31, encoded in BGR555 bits ten through fourteen by consuming presentation loaders; no alpha channel is represented.</summary>
     public required int Blue { get; init; }
+
+    /// <summary>Packs the channels; each must be 0-31.</summary>
+    public Bgr555 ToBgr555() => new(Red, Green, Blue);
+
+    /// <summary>The JSON channels of <paramref name="color"/>.</summary>
+    public static PaletteRgb5 From(Bgr555 color) => new() { Red = color.Red, Green = color.Green, Blue = color.Blue };
 }
 /// <summary>Host filename and byte-sized schema limits for editable map highlight palettes.</summary>
 public static class MapPaletteCycleFormat

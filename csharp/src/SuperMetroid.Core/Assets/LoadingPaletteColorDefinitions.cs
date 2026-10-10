@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Calculated repeated-row identities in the three suit-loading palettes.</summary>
@@ -30,7 +32,7 @@ public static class LoadingPaletteColorDefinitions
         TryProgram(pointer, 0xde37, out canonical);
 
     /// <summary>Resolves an explicit edit before following a calculated loading alias.</summary>
-    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value) =>
+    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         colors.TryGetValue(pointer, out value) ||
         (TryCanonicalPointer(pointer, out ushort canonical) &&
          (colors.TryGetValue(canonical, out value) || TryCalculatedColor(canonical, colors, out value)));
@@ -49,9 +51,9 @@ public static class LoadingPaletteColorDefinitions
     /// Independent endpoint components are documented by LoadingPaletteInputView.
     /// Remaining base inks and tint components have the specific dispositions
     /// on this catalog and LoadingPaletteInputView; unrelated palettes are not exempt.</remarks>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         int first = pointer >= 0xde37 ? 0xde37 : pointer >= 0xdcd1 ? 0xdcd1 : 0xdb6b;
         int offset = pointer - first;
         if ((uint)offset >= 4 * 79) return false;
@@ -64,19 +66,19 @@ public static class LoadingPaletteColorDefinitions
             return TryReadColor((ushort)(first + 2 * 79 + 36), colors, out value);
         if (first == 0xdb6b && group == 3 && slot is 10 or 11)
         {
-            if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort normal) ||
-                !TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * 2), colors, out ushort blueSource)) return false;
-            value = (ushort)((normal & 0x03ff) | (blueSource & 0x7c00));
+            if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 normal) ||
+                !TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * 2), colors, out Bgr555 blueSource)) return false;
+            value = normal.WithBlue(blueSource.Blue);
             return true;
         }
         if (first == 0xdb6b && slot == 9 && group != 0)
         {
-            if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort normal)) return false;
-            ushort tint = TintColor(normal, shade);
+            if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 normal)) return false;
+            Bgr555 tint = TintColor(normal, shade);
             if (group == 2)
             {
-                if (!TryReadColor((ushort)(first + 36 + 2 * slot), colors, out ushort bright)) return false;
-                tint = (ushort)((tint & 0x03ff) | (bright & 0x7c00));
+                if (!TryReadColor((ushort)(first + 36 + 2 * slot), colors, out Bgr555 bright)) return false;
+                tint = tint.WithBlue(bright.Blue);
             }
             value = tint;
             return true;
@@ -86,7 +88,7 @@ public static class LoadingPaletteColorDefinitions
         if (group != 3 && (first == 0xdb6b ? slot is 1 or 2 or 10 or 11 or 12 :
             first == 0xdcd1 ? slot == 12 : slot == 2))
         {
-            if (!TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * slot), colors, out ushort dim)) return false;
+            if (!TryReadColor((ushort)(first + 3 * 79 + 36 + 2 * slot), colors, out Bgr555 dim)) return false;
             bool plateau = first == 0xde37 || (first == 0xdb6b && slot is 1 or 12);
             int greenPeak = plateau ? 15 : first == 0xdb6b && slot is 10 or 11 ? 5 : 0;
             value = BrightenDimColor(dim, shade, greenPeak, plateau);
@@ -95,7 +97,7 @@ public static class LoadingPaletteColorDefinitions
         bool varia = first == 0xdcd1;
         if (!(first == 0xdb6b ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
             varia ? slot is 1 or 2 || (group != 0 && slot is 10 or 11) : slot is 10 or 11)) return false;
-        if (!TryReadColor((ushort)(first + 2 * slot), colors, out ushort original)) return false;
+        if (!TryReadColor((ushort)(first + 2 * slot), colors, out Bgr555 original)) return false;
         value = varia ? VariaTintColor(original, shade) : TintColor(original, shade);
         return true;
     }
@@ -107,13 +109,13 @@ public static class LoadingPaletteColorDefinitions
     /// sums saturate at31. These14 words derive from seven editable dim
     /// endpoints whose independent channels are documented by LoadingPaletteInputView.
     /// Shade0/1 is bright/middle; greenPeak is an RGB5 additive amount.</remarks>
-    internal static ushort BrightenDimColor(ushort dim, int shade, int greenPeak, bool bluePlateau)
+    internal static Bgr555 BrightenDimColor(Bgr555 dim, int shade, int greenPeak, bool bluePlateau)
     {
         if ((uint)shade >= 2) throw new ArgumentOutOfRangeException(nameof(shade));
         if ((uint)greenPeak > 31) throw new ArgumentOutOfRangeException(nameof(greenPeak));
-        int green = Math.Min(31, (dim >> 5 & 31) + Math.Max(0, greenPeak - 10 * shade));
-        int blue = Math.Min(31, (dim >> 10 & 31) + (bluePlateau ? 10 : 10 - 5 * shade));
-        return (ushort)((dim & 31) | green << 5 | blue << 10);
+        int green = Math.Min(31, dim.Green + Math.Max(0, greenPeak - 10 * shade));
+        int blue = Math.Min(31, dim.Blue + (bluePlateau ? 10 : 10 - 5 * shade));
+        return new(dim.Red, green, blue);
     }
 
     /// <summary>Applies Varia's blue-dominant loading tint to one RGB5 input.</summary>
@@ -122,23 +124,23 @@ public static class LoadingPaletteColorDefinitions
     /// three levels; slots10/11 follow levels1/2. The brightest slots10/11
     /// are excluded because their blue is29 rather than30. All ten included
     /// words match the original program; no correction table is used.</remarks>
-    internal static ushort VariaTintColor(ushort original, int shade)
+    internal static Bgr555 VariaTintColor(Bgr555 original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, (original >> 5 & 31) + Math.Max(0, 5 - 5 * shade));
-        int blue = Math.Min(31, (original >> 10 & 31) + 30 - 10 * shade);
-        return (ushort)((original & 31) | green << 5 | blue << 10);
+        int green = Math.Min(31, original.Green + Math.Max(0, 5 - 5 * shade));
+        int blue = Math.Min(31, original.Blue + 30 - 10 * shade);
+        return new(original.Red, green, blue);
     }
 
     /// <summary>Applies the three saturating loading tint levels to one RGB5 input.</summary>
     /// <remarks>Shade0..2 runs bright to dim. Green=max(0,15-10*shade),
     /// blue=min(20,30-10*shade); channel sums saturate at31, red is unchanged.</remarks>
-    internal static ushort TintColor(ushort original, int shade)
+    internal static Bgr555 TintColor(Bgr555 original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, (original >> 5 & 31) + Math.Max(0, 15 - 10 * shade));
-        int blue = Math.Min(31, (original >> 10 & 31) + Math.Min(20, 30 - 10 * shade));
-        return (ushort)((original & 31) | green << 5 | blue << 10);
+        int green = Math.Min(31, original.Green + Math.Max(0, 15 - 10 * shade));
+        int blue = Math.Min(31, original.Blue + Math.Min(20, 30 - 10 * shade));
+        return new(original.Red, green, blue);
     }
 
     /// <summary>Shares identical suit slots with the Power palette for the same shade.</summary>

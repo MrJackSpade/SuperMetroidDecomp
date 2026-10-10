@@ -326,7 +326,7 @@ internal static partial class Program
         var hyperSelected = new SnesCgram();
         stock.BeamTiles.HyperBeamFxColors!.Apply(hyperNative, 3, 225);
         hyperEdited.BeamTiles.HyperBeamFxColors!.Apply(hyperSelected, 3, 225);
-        AssertEqual((ushort)(hyperNative.Colors[227] ^ 1), hyperSelected.Colors[227],
+        AssertEqual((ushort)(hyperNative.Colors[227].ToWord() ^ 1), hyperSelected.Colors[227],
             "Installed Hyper Beam FX override changes its selected color");
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
         AssertEqual(hyperEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256,

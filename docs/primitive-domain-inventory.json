@@ -115,7 +115,7 @@
   "BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidFinalHealthPaintDefinitions.cs",
-    "line": 36,
+    "line": 37,
     "column": 48,
     "rule": "SME6270",
     "message": "'color' is a int switched over named constants of BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData; model the domain as a type",
@@ -635,7 +635,7 @@
   "DachoraPalettePhase": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
-    "line": 105,
+    "line": 100,
     "column": 13,
     "rule": "SME6271",
     "message": "Switch over DachoraPalettePhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
@@ -789,7 +789,7 @@
   "EndingGunshipPaletteInk": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/EndingGunshipPaletteInputView.cs",
-    "line": 109,
+    "line": 110,
     "column": 17,
     "rule": "SME6271",
     "message": "Switch over EndingGunshipPaletteInk has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
@@ -1329,7 +1329,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs",
-    "line": 42,
+    "line": 44,
     "column": 9,
     "rule": "SME6271",
     "message": "Switch over KraidAiFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
@@ -1441,7 +1441,7 @@
   "LoadingSuitColorPointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
-    "line": 64,
+    "line": 65,
     "column": 48,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of LoadingSuitColorPointers; model the domain as a type",
@@ -1739,7 +1739,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-    "line": 288,
+    "line": 282,
     "column": 20,
     "rule": "SME6270",
     "message": "'color' is a int switched over named constants of MotherBrainRoomColorRomData; model the domain as a type",
@@ -1861,7 +1861,7 @@
   "PaletteFxInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 358,
+    "line": 355,
     "column": 13,
     "rule": "SME6270",
     "message": "'word' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
@@ -1869,17 +1869,17 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 471,
+    "line": 469,
     "column": 13,
     "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
+    "message": "'command' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
     "status": "open"
    }
   ],
   "PaletteFxPreInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 244,
+    "line": 241,
     "column": 9,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of PaletteFxPreInstructionCodes; model the domain as a type",
@@ -1889,7 +1889,7 @@
   "PaletteFxSetupCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 204,
+    "line": 201,
     "column": 9,
     "rule": "SME6270",
     "message": "'setup' is a ushort switched over named constants of PaletteFxSetupCodes; model the domain as a type",
@@ -2167,7 +2167,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 359,
+    "line": 360,
     "column": 9,
     "rule": "SME6270",
     "message": "'Function' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -2175,7 +2175,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 468,
+    "line": 469,
     "column": 9,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -3331,7 +3331,7 @@
   "SporeSpawnInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.SporeSpawnInstructions.cs",
-    "line": 20,
+    "line": 22,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of SporeSpawnInstructionCodes; model the domain as a type",
@@ -3413,7 +3413,7 @@
   "TorizoInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizoInstructions.cs",
-    "line": 49,
+    "line": 50,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of TorizoInstructionCodes; model the domain as a type",
@@ -3752,6 +3752,17 @@
    "invalidValues": "Bytes above $0B throw InvalidDataException at decode; undefined members throw in the constructor and in every exhaustive switch",
    "consumers": "DoorOpeningScrollState, SuperMetroidRuntime room loading/placement, DoorCameraAlignmentState, BackgroundScrollState door primers, RoomPlmSystem door closing, RoomLevelData/SamusBlockCollision via DoorListEntry",
    "tests": "VerifyDoorOrientationDomain, VerifyRetailDoorHeaders, VerifyTourianElevatorDoors, door-closing fallback suites",
+   "status": "resolved"
+  },
+  "Bgr555Color": {
+   "previous": "ushort color words across SnesCgram (SetColor(int, ushort), Colors), every palette/paint catalog (Resolve/ColorAt/Color returning ushort, Dictionary<int, ushort> edits, ushort[] rows), palette fades and enemy palette effects, PpuMemorySnapshot.Cgram, and hand-written channel masks/shifts (x & 31, x >> 5 & 31, x >> 10, (ushort)(r | g << 5 | b << 10)) in ~180 files",
+   "type": "readonly record struct Bgr555 (15-bit packed red/green/blue) with ColorChannel; channel access, strict and saturating construction, Map/Zip/With channel operations, ToRgba32 bit-replicating expansion, formatted ToString; no implicit numeric conversions",
+   "closedProof": "CGRAM stores fifteen bits; channels are five bits in word order red 0-4, green 5-9, blue 10-14 (the SNES PPU color format)",
+   "transitions": "none (value type); fades and paint derivations use Map/Zip over channels; native word arithmetic that carries across channels (Wrecked Ship ghost +$0421) is explicit at the word boundary",
+   "boundary": "Bgr555.FromWord (strict, rejects bit 15) for stored words; Bgr555.FromCgramPortWord for the CGRAM data port, DMA uploads and glitched bus reads (bit 15 dropped); ToWord for ROM/WRAM/hash/fixture/GPU encodings; PaletteRgb5.ToBgr555/From for JSON; debugger states restore older word-shaped fields through DebuggerColorWordShapes",
+   "invalidValues": "FromWord and the channel constructor throw ArgumentOutOfRangeException; asset loaders keep InvalidDataException for malformed content",
+   "consumers": "SnesCgram, all Assets color/paint catalogs, palette-FX system and color sources, frontend fades (CartridgePaletteTransition, CinematicPaletteFader, ending/intro/title), enemy palette effects, renderers (software, Mode 7, D3D11 upload), asset extraction",
+   "tests": "VerifyBgr555Domain (all 32768 words, port masking, bounds, expansion, operations, CGRAM, typed fade, debugger shapes) plus the existing palette suites and all five movie replays",
    "status": "resolved"
   }
  },

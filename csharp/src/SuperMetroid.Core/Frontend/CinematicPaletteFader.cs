@@ -23,7 +23,7 @@ public sealed class CinematicPaletteFader
     private readonly ushort[] blueStep = new ushort[SnesCgram.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
-    public CinematicPaletteFader(ReadOnlySpan<ushort> targetPalette)
+    public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
     {
         if (targetPalette.Length != SnesCgram.ColorCount)
         {
@@ -34,10 +34,9 @@ public sealed class CinematicPaletteFader
 
         for (int color = 0; color < targetPalette.Length; color++)
         {
-            ushort bgr555 = targetPalette[color];
-            ushort red = (ushort)(bgr555 & 0x001f);
-            ushort green = (ushort)((bgr555 >> 5) & 0x001f);
-            ushort blue = (ushort)((bgr555 >> 10) & 0x001f);
+            ushort red = (ushort)targetPalette[color].Red;
+            ushort green = (ushort)targetPalette[color].Green;
+            ushort blue = (ushort)targetPalette[color].Blue;
 
             // The first triplet is the live 8.8 value. The second is 1/32 of the target,
             // also in 8.8 form. These shifts are literals from $8B:8C19-$8C59.
@@ -103,11 +102,10 @@ public sealed class CinematicPaletteFader
         {
             // High bytes supply the visible five-bit components. Writing through
             // SnesCgram matches the following native NMI upload into physical CGRAM.
-            ushort bgr555 = (ushort)(
-                ((currentRed[color] >> 8) & 0x001f) |
-                ((currentGreen[color] >> 3) & 0x03e0) |
-                ((currentBlue[color] << 2) & 0x7c00));
-            cgram.SetColor(color, bgr555);
+            cgram.SetColor(color, new Bgr555(
+                (currentRed[color] >> 8) & Bgr555.MaxChannel,
+                (currentGreen[color] >> 8) & Bgr555.MaxChannel,
+                (currentBlue[color] >> 8) & Bgr555.MaxChannel));
         }
     }
 

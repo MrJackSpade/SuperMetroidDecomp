@@ -14,21 +14,21 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
         {
-            Span<ushort> tube = stackalloc ushort[ChozoAndTubeColorRomData.ColorCount];
+            Span<Bgr555> tube = stackalloc Bgr555[ChozoAndTubeColorRomData.ColorCount];
             for (int color = 0; color < tube.Length; color++) tube[color] = ResolveTubeCracks(color);
-            content.AppendWords("tubeCracks", tube);
-            content.AppendWords("wreckedShip", Statue(ChozoStatuePalette.WreckedShip));
-            content.AppendWords("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
+            content.AppendColors("tubeCracks", tube);
+            content.AppendColors("wreckedShip", Statue(ChozoStatuePalette.WreckedShip));
+            content.AppendColors("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
-    private readonly ushort[] tubeColorSeeds;
-    private readonly Dictionary<int, ushort> tubeColorEdits = [];
+    private readonly Bgr555[] tubeColorSeeds;
+    private readonly Dictionary<int, Bgr555> tubeColorEdits = [];
     // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
-    private readonly Dictionary<int, ushort> wreckedShipEdits = [];
-    private readonly Dictionary<int, ushort> lowerNorfairEdits = [];
+    private readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
+    private readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
 
-    private ChozoAndTubeColorCatalog(ushort[] tubeCracks, ushort[] wreckedShip,
-        ushort[] lowerNorfair)
+    private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
+        Bgr555[] lowerNorfair)
     {
         // The eight crack seed colors are authored paint; the remaining stock values
         // are a linear ramp and an exact repeated palette half.
@@ -53,15 +53,15 @@ public sealed class ChozoAndTubeColorCatalog
     };
 
     /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
-    public ushort ResolveTubeCracks(int color)
+    public Bgr555 ResolveTubeCracks(int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return tubeColorEdits.TryGetValue(color, out ushort edited) ? edited : CalculateTubeColor(color);
+        return tubeColorEdits.TryGetValue(color, out Bgr555 edited) ? edited : CalculateTubeColor(color);
     }
 
     /// <summary>$AA:E2DD: two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
-    private ushort CalculateTubeColor(int color)
+    private Bgr555 CalculateTubeColor(int color)
     {
         int local = color % 16;
         if (local < 8) return tubeColorSeeds[local];
@@ -69,18 +69,18 @@ public sealed class ChozoAndTubeColorCatalog
         int red = 31 - (31 * step + 3) / 7;
         int green = 27 - (27 * step + 3) / 7;
         int blue = 29 - 4 * step;
-        return (ushort)(red | green << 5 | blue << 10);
+        return new Bgr555(red, green, blue);
     }
 
-    private ushort ResolveStatue(ChozoStatuePalette palette, int color)
+    private Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        Dictionary<int, ushort> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
-        return edits.TryGetValue(color, out ushort edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
+        Dictionary<int, Bgr555> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
+        return edits.TryGetValue(color, out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
     }
 
-    private ushort[] Statue(ChozoStatuePalette palette) =>
+    private Bgr555[] Statue(ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
@@ -136,12 +136,12 @@ public sealed class ChozoAndTubeColorCatalog
             cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveStatue(palette, color));
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
             throw new InvalidDataException(
                 $"Chozo/tube {name} requires {ChozoAndTubeColorRomData.ColorCount} RGB5 colors.");
-        var compiled = new ushort[source.Length];
+        var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -149,7 +149,7 @@ public sealed class ChozoAndTubeColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Chozo/tube {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

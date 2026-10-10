@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rendering;
@@ -14,9 +15,9 @@ public static partial class SnesGameplayFrameRenderer
         if (!beam.Active) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        byte red = ExpandFiveBit((byte)(beam.Color & 31));
-        byte green = ExpandFiveBit((byte)((beam.Color >> 5) & 31));
-        byte blue = ExpandFiveBit((byte)((beam.Color >> 10) & 31));
+        byte red = ExpandFiveBit((byte)beam.Color.Red);
+        byte green = ExpandFiveBit((byte)beam.Color.Green);
+        byte blue = ExpandFiveBit((byte)beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
             ushort word = beam.Windows[y];

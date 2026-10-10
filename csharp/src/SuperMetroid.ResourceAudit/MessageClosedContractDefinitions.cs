@@ -7,7 +7,7 @@ internal static class MessageClosedContractDefinitions
     [
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "E6BF6B8328812976B42527B947FE5B454774B6B67E6806B05B4FF1D605BB9DA8"),
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "1A30B19CFB20D2C97C92B53726C280B4EC4F224D2E4A0012EFBC349776854361"),
-        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "A5A3270D705668179C51079EC266C3D02964298241FA6425C544115057E33CAA"),
+        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "601E6AFACAA2860A0B5C7EA53AB6DFFDA87231EBF516522E3C1D568A31B5E6FE"),
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "76347AB16D00426201E22A6C8B2918D272F5407B559A06D6702CDBFE6A2E0895"),
     ];
 

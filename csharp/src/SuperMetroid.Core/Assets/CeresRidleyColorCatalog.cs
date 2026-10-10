@@ -13,14 +13,14 @@ public sealed class CeresRidleyColorCatalog
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
     private readonly CeresRidleyHealthPaintDefinitions health;
     private readonly CeresRidleyAlarmColorDefinitions alarm;
-    private readonly Dictionary<int, ushort> retreatBg = [];
+    private readonly Dictionary<int, Bgr555> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
-    private readonly Dictionary<int, ushort> retreatShared = [];
+    private readonly Dictionary<int, Bgr555> retreatShared = [];
     private readonly CeresBabyPaintDefinitions baby;
 
-    private CeresRidleyColorCatalog(ushort[] start, CeresRidleyFadeColorDefinitions eyeFade,
-        CeresRidleyFadeColorDefinitions bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
-        ushort[] retreatBg, ushort[] retreatShared,
+    private CeresRidleyColorCatalog(Bgr555[] start, CeresRidleyFadeColorDefinitions eyeFade,
+        CeresRidleyFadeColorDefinitions bodyFade, Bgr555[][] health, CeresRidleyAlarmColorDefinitions alarm,
+        Bgr555[] retreatBg, Bgr555[] retreatShared,
         CeresBabyPaintDefinitions baby)
     {
         this.start = new(start, baby);
@@ -45,20 +45,20 @@ public sealed class CeresRidleyColorCatalog
         WriteIndented = true,
     };
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
-    public ushort ResolveRetreatBg(int color)
+    public Bgr555 ResolveRetreatBg(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatBg.TryGetValue(color, out ushort edited) ? edited : CalculateRetreatBg(color);
+        return retreatBg.TryGetValue(color, out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
-    private ushort CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
+    private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
-    public ushort ResolveRetreatShared(int color)
+    public Bgr555 ResolveRetreatShared(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatShared.TryGetValue(color, out ushort edited) ? edited : start.Resolve(color + 1);
+        return retreatShared.TryGetValue(color, out Bgr555 edited) ? edited : start.Resolve(color + 1);
     }
 
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
@@ -114,7 +114,7 @@ public sealed class CeresRidleyColorCatalog
             cgram.SetColor(CeresRidleyPaletteRomData.RetreatBgCgramIndex + color, ResolveRetreatBg(color));
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
         {
-            ushort selected = ResolveRetreatShared(color);
+            Bgr555 selected = ResolveRetreatShared(color);
             cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex + color, selected);
             cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex + color, selected);
         }
@@ -183,29 +183,29 @@ public sealed class CeresRidleyColorCatalog
         return bytes;
     }
 
-    private static ushort[][] CompileRows(PaletteRgb5[][]? rows, int count,
+    private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
         int colorsPerRow, string name)
     {
         if (rows is null || rows.Length != count)
             throw new InvalidDataException($"Ceres Ridley {name} requires {count} rows.");
-        var compiled = new ushort[count][];
+        var compiled = new Bgr555[count][];
         for (int row = 0; row < count; row++)
             compiled[row] = Compile(rows[row], colorsPerRow, $"{name} row {row}");
         return compiled;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? colors, int count, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name)
     {
         if (colors is null || colors.Length != count)
             throw new InvalidDataException($"Ceres Ridley {name} requires {count} colors.");
-        var compiled = new ushort[count];
+        var compiled = new Bgr555[count];
         for (int color = 0; color < count; color++)
         {
             PaletteRgb5? rgb = colors[color];
             if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"Ceres Ridley {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

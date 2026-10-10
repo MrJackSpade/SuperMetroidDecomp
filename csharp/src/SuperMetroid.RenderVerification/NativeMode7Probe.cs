@@ -28,7 +28,7 @@ internal static class NativeMode7Probe
                     int tile = bytes[((sy >> 3) * 128 + (sx >> 3)) * 2];
                     color = bytes[(tile * 64 + (sy & 7) * 8 + (sx & 7)) * 2 + 1];
                 }
-                pixels[y * 256 + x] = SnesGraphics.DecodeBgr555Color(colors[color]);
+                pixels[y * 256 + x] = colors[color].ToRgba32();
             }
         }
         var vram = new SnesVram(); vram.LoadBytes(0, bytes);

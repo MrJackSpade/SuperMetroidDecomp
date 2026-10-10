@@ -11,7 +11,7 @@ internal static partial class Program
         var vram = new SnesVram();
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes); vram.LoadBytes(0, bytes);
         var cgram = new SnesCgram();
-        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, (ushort)random.Next(32768));
+        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)((ushort)random.Next(32768)))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);

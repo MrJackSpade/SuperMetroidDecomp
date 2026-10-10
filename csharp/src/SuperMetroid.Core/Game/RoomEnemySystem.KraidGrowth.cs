@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -118,9 +120,9 @@ public sealed partial class RoomEnemySystem
         {
             for (int color = 0; color < 16; color++)
             {
-                ushort current = _cgram!.Colors[96 + color];
-                ushort target = fadeToBlack
-                    ? (ushort)0
+                Bgr555 current = _cgram!.Colors[96 + color];
+                Bgr555 target = fadeToBlack
+                    ? Bgr555.Black
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _cgram.SetColor(96 + color, TransitionKraidColor(step, current, target));
             }
@@ -131,13 +133,8 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
-    private static ushort TransitionKraidColor(ushort step, ushort current, ushort target)
-    {
-        int red = TransitionKraidComponent(step, current & 31, target & 31);
-        int green = TransitionKraidComponent(step, (current >> 5) & 31, (target >> 5) & 31);
-        int blue = TransitionKraidComponent(step, (current >> 10) & 31, (target >> 10) & 31);
-        return unchecked((ushort)(red | (green << 5) | (blue << 10)));
-    }
+    private static Bgr555 TransitionKraidColor(ushort step, Bgr555 current, Bgr555 target) =>
+        current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
 
     private static int TransitionKraidComponent(ushort step, int current, int target)
     {

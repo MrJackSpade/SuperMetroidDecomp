@@ -11,8 +11,8 @@ internal static class ObjectSmokeTests
         var oam = new byte[SnesPpuLayout.OamUploadByteCount];
         random.NextBytes(vram);
         random.NextBytes(oam);
-        ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
-            .Select(_ => (ushort)random.Next(32768)).ToArray();
+        Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+            .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         int cases = 0;
         for (int size = 0; size < 8; size++)
         foreach (int count in new[] { 0, 1, 37, 128 })
@@ -31,8 +31,8 @@ internal static class ObjectSmokeTests
         // Earlier OAM wins even when the later entry has greater display priority.
         // A transparent hole in the winner must still expose that later entry.
         Array.Clear(vram); Array.Clear(oam); Array.Clear(palette);
-        palette[129] = 31;
-        palette[145] = 31 << 10;
+        palette[129] = new Bgr555(31, 0, 0);
+        palette[145] = new Bgr555(0, 0, 31);
         for (int row = 0; row < 8; row++) vram[row * 2] = 0x7f;
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;

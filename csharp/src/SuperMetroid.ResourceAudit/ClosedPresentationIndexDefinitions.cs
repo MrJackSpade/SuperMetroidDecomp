@@ -55,7 +55,7 @@ internal static class ClosedPresentationIndexDefinitions
         // The union is eight rows; the selected non-sprite layer still enforces
         // its narrower seven-row domain inside the reviewed provider.
         ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorRomData.DeathSpriteFrameCount),
-        ("MotherBrainRainbowPalettePresentation", "BeamColorWord", "byteCursor") => new(0,
+        ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "byteCursor") => new(0,
             MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 1, MotherBrainBeamRomData.ColorStride),
         ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
         ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteFormat.GreyFrameCount),

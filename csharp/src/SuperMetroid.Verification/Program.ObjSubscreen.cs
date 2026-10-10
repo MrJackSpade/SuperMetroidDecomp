@@ -17,7 +17,7 @@ internal static partial class Program
         colors[129] = 7 | (31 << 10);
         byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
-        var memory = new PpuMemorySnapshot(vram, colors, oam, 1);
+        var memory = new PpuMemorySnapshot(vram, ToColors(colors), oam, 1);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new ObjRenderLayer(true) }, 0, 15));
         var restored = RoundTripRenderPacket(packet);
@@ -53,7 +53,7 @@ internal static partial class Program
             byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
             var registers = new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0);
-            var memory = new PpuMemorySnapshot(vram, colors, oam, 1);
+            var memory = new PpuMemorySnapshot(vram, ToColors(colors), oam, 1);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 3, 15));
             var pixels = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
@@ -80,7 +80,7 @@ internal static partial class Program
         colors[129] = 7 | (31 << 10);
         byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
-        var memory = new PpuMemorySnapshot(vram, colors, oam, 1);
+        var memory = new PpuMemorySnapshot(vram, ToColors(colors), oam, 1);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(new(256, 0, 0, 256, 0, 0, 0, 0), true) }, 3, 15));
         var restored = RoundTripRenderPacket(packet);
@@ -106,7 +106,7 @@ internal static partial class Program
             byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
-                new PpuMemorySnapshot(vram, palette, oam, 1),
+                new PpuMemorySnapshot(vram, ToColors(palette), oam, 1),
                 new RenderLayer[] { new ObjRenderLayer(FixedColor: new(8, 4, 2)) }, 0, 15));
             var restored = RoundTripRenderPacket(packet);
             var pixels = SoftwareFrameSnapshotRenderer.Render(restored);
@@ -118,7 +118,7 @@ internal static partial class Program
             foreach (byte selectedPriority in new byte[] { 0, 1 })
             {
                 var filtered = RoundTripRenderPacket(new(new(1, 1, 0), new LayeredRenderSnapshot(
-                    new PpuMemorySnapshot(vram, palette, oam, 1),
+                    new PpuMemorySnapshot(vram, ToColors(palette), oam, 1),
                     new RenderLayer[] { new ObjPriorityRenderLayer(selectedPriority, new(8, 4, 2)) }, 0, 15)));
                 var filteredPixels = SoftwareFrameSnapshotRenderer.Render(filtered);
                 AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new Rgba32(0, 0, 255),
@@ -128,7 +128,7 @@ internal static partial class Program
             }
         }
         var legacyPriority = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
-            new PpuMemorySnapshot(vram, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0),
+            new PpuMemorySnapshot(vram, ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0),
             new RenderLayer[] { new ObjPriorityRenderLayer(2) }, 0, 15));
         // Version 19 ends this layer after its priority byte; version 20 adds color presence.
         byte[] oldPriority = RenderFrameSnapshotCodec.Serialize(legacyPriority)[..^1];
@@ -146,7 +146,7 @@ internal static partial class Program
         ushort[] colors = new ushort[256];
         colors[0] = 31;
         colors[20] = 31 << 10;
-        var memory = new PpuMemorySnapshot(vram, colors, new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var memory = new PpuMemorySnapshot(vram, ToColors(colors), new byte[SnesPpuLayout.OamUploadByteCount], 0);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true) }, 0, 15));
         var restored = RoundTripRenderPacket(packet);
@@ -166,7 +166,7 @@ internal static partial class Program
             byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
             var masked = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(
-                new PpuMemorySnapshot(vram, colors, oam, 1),
+                new PpuMemorySnapshot(vram, ToColors(colors), oam, 1),
                 new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(0x7000, 0,
                     new Bg4BppRenderLayer(0x6800, 0, 0, 0, 32, 32, null), FourBpp: true, MainObjects: true) }, 3, 15));
             var decoded = RoundTripRenderPacket(masked);
@@ -183,7 +183,7 @@ internal static partial class Program
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority << 4);
             vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
             var composite = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(
-                new PpuMemorySnapshot(vram, colors, oam, 1),
+                new PpuMemorySnapshot(vram, ToColors(colors), oam, 1),
                 new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true, IncludeObjects: true) }, 3, 15));
             var decoded = RoundTripRenderPacket(composite);
             bool objectWins = priority >= (highBackground ? 3 : 2);

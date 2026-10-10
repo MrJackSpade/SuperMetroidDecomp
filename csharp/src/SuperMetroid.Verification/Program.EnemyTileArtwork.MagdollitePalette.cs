@@ -79,7 +79,7 @@ internal static partial class Program
         ushort xBefore = untouched.XPosition;
         for (int tick = 0; tick < 32; tick++)
         {
-            ushort[] before = cgram.Colors.Slice(destination,
+            Bgr555[] before = cgram.Colors.Slice(destination,
                 MagdollitePaletteRomData.AnimatedColorCount).ToArray();
             step();
             int frame = (tick + 1) / 8 & (MagdollitePaletteRomData.FrameCount - 1);

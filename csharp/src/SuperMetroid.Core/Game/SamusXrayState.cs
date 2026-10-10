@@ -562,7 +562,7 @@ public sealed class SamusXrayState
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
         if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out ushort visorColor))
+            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out Bgr555 visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         cgram.SetColor(SamusXrayRomData.Palette.VisorCgramIndex, visorColor);

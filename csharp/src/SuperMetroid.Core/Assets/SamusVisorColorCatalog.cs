@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -7,9 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable RGB5 visor colors shared by X-ray and room palette cycling.</summary>
 public sealed class SamusVisorColorCatalog
 {
-    private readonly Dictionary<int, ushort> colors;
+    private readonly Dictionary<int, Bgr555> colors;
 
-    private SamusVisorColorCatalog(Dictionary<int, ushort> colors) => this.colors = colors;
+    private SamusVisorColorCatalog(Dictionary<int, Bgr555> colors) => this.colors = colors;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -42,14 +43,14 @@ public sealed class SamusVisorColorCatalog
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
-        var compiled = new Dictionary<int, ushort>();
+        var compiled = new Dictionary<int, Bgr555>();
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
-            ushort packed = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            Bgr555 packed = color.ToBgr555();
             if (packed != SamusVisorColorDefinitions.Color(index)) compiled.Add(index, packed);
         }
         return new(compiled);
@@ -70,14 +71,14 @@ public sealed class SamusVisorColorCatalog
     /// Resolves only the six installed even offsets. Corrupted or adjacent offsets
     /// return false so the caller can enforce its bounded palette contract.
     /// </summary>
-    public bool TryResolveByteOffset(int byteOffset, out ushort color)
+    public bool TryResolveByteOffset(int byteOffset, out Bgr555 color)
     {
         if ((byteOffset & 1) == 0 && (uint)(byteOffset >> 1) < SamusVisorColorFormat.ColorCount)
         {
             color = Resolve(byteOffset >> 1);
             return true;
         }
-        color = 0;
+        color = Bgr555.Black;
         return false;
     }
 
@@ -85,11 +86,11 @@ public sealed class SamusVisorColorCatalog
     /// <param name="index">Color ordinal 0..5, not a byte offset: 0..2 are X-ray widening colors and 3..5 are the steady X-ray/room-backdrop cycle.</param>
     /// <returns>Packed SNES BGR555 word from the independent edit or calculated stock definition.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The color ordinal is outside 0..5.</exception>
-    public ushort Resolve(int index)
+    public Bgr555 Resolve(int index)
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return colors.TryGetValue(index, out ushort color) ? color : SamusVisorColorDefinitions.Color(index);
+        return colors.TryGetValue(index, out Bgr555 color) ? color : SamusVisorColorDefinitions.Color(index);
     }
 
     private static void RejectDuplicates(JsonElement value) =>

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -2297,7 +2297,7 @@ internal static class ShitroidEnemyStateAccess
     extension(ShitroidEnemyState self)
     {
         /// <summary>The independent 256-color target palette written during initialization.</summary>
-        internal ReadOnlyMemory<ushort> TargetPalette => PrivateState.Field<ushort[]>(self, "_targetPalette");
+        internal ReadOnlyMemory<Bgr555> TargetPalette => PrivateState.Field<Bgr555[]>(self, "_targetPalette");
     }
 }
 
@@ -2376,7 +2376,7 @@ internal static class SporeSpawnEnemyStateAccess
         /// presents completed room fades directly in CGRAM, but retaining this buffer makes the
         /// cartridge's separate target/current ownership inspectable and testable.
         /// </summary>
-        internal ReadOnlyMemory<ushort> TargetPalette => PrivateState.Field<ushort[]>(self, "_targetPalette");
+        internal ReadOnlyMemory<Bgr555> TargetPalette => PrivateState.Field<Bgr555[]>(self, "_targetPalette");
     }
 }
 

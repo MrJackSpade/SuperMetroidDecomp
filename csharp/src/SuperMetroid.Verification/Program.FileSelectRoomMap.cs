@@ -173,7 +173,7 @@ internal static partial class Program
             return (int)state.GetType().GetField("Frame")!.GetValue(state)!;
         }
         var cgram = new SnesCgram();
-        cgram.SetColor(175, 77); cgram.SetColor(192, 88);
+        cgram.SetColor(175, new Bgr555(13, 2, 0)); cgram.SetColor(192, new Bgr555(24, 2, 0));
         AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
         for (int color = 0; color < 16; color++)
             AssertEqual(116 + color, cgram.Colors[176 + color], "map palette copies frame one including transparent entry");

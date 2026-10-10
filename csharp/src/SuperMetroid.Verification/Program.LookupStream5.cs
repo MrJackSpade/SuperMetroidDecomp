@@ -488,7 +488,7 @@ internal static partial class Program
         {
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
             var result = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorCatalog.Write(document)));
-            Func<int, ushort>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
+            Func<int, Bgr555>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
             var cgram = new SnesCgram(); result.ApplyInitial(cgram);
             for (int band = 1; band <= 2; band++)
                 for (int ink = 0; ink < counts[band]; ink++)
@@ -956,7 +956,7 @@ internal static partial class Program
         void CheckResidualCount(string field, int expected)
         {
             object ramp = typeof(TourianStatueColorCatalog).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-            var edits = (Dictionary<int, ushort>)ramp.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ramp)!;
+            var edits = (Dictionary<int, Bgr555>)ramp.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ramp)!;
             AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
         }
 
@@ -1040,7 +1040,7 @@ internal static partial class Program
         var native = System.Text.Json.JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         MagdollitePaletteCycle stock = Check(native);
-        var residuals = (Dictionary<int, ushort>)typeof(MagdollitePaletteCycle)
+        var residuals = (Dictionary<int, Bgr555>)typeof(MagdollitePaletteCycle)
             .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
         for (int frame = 0; frame < native.Frames.Length; frame++)
@@ -1089,7 +1089,7 @@ internal static partial class Program
         var native = System.Text.Json.JsonSerializer.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         ZebetiteColorCatalog stock = Check(native);
-        var residuals = (Dictionary<int, ushort>)typeof(ZebetiteColorCatalog)
+        var residuals = (Dictionary<int, Bgr555>)typeof(ZebetiteColorCatalog)
             .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
         for (int frame = 0; frame < native.Frames.Length; frame++)
@@ -1233,8 +1233,8 @@ internal static partial class Program
         var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
         MapPaletteCycle stock = Check(original);
         AssertEqual(0, ((Dictionary<int, byte>)typeof(MapPaletteCycle).GetField("durationEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock duration lookup retained");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(MapPaletteCycle).GetField("reverseColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock reverse-frame lookup retained");
-        AssertEqual(8, ((ushort[][])typeof(MapPaletteCycle).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Length, "Only independent color phases remain");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(MapPaletteCycle).GetField("reverseColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock reverse-frame lookup retained");
+        AssertEqual(8, ((Bgr555[][])typeof(MapPaletteCycle).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
             AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
@@ -1492,11 +1492,11 @@ internal static partial class Program
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         object animation = typeof(CeresDoorVisualCatalog).GetField("animation", flags)!.GetValue(stock)!;
         object escape = typeof(CeresDoorVisualCatalog).GetField("escape", flags)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, ushort>)animation.GetType().GetField("seedEdits", flags)!.GetValue(animation)!).Count,
+        AssertEqual(0, ((Dictionary<int, Bgr555>)animation.GetType().GetField("seedEdits", flags)!.GetValue(animation)!).Count,
             "stock animation seeds derive from the normal paint");
-        AssertEqual(0, ((Dictionary<int, ushort>)animation.GetType().GetField("edits", flags)!.GetValue(animation)!).Count,
+        AssertEqual(0, ((Dictionary<int, Bgr555>)animation.GetType().GetField("edits", flags)!.GetValue(animation)!).Count,
             "stock animation phases require no cell storage");
-        AssertEqual(0, ((Dictionary<int, ushort>)escape.GetType().GetField("edits", flags)!.GetValue(escape)!).Count,
+        AssertEqual(0, ((Dictionary<int, Bgr555>)escape.GetType().GetField("edits", flags)!.GetValue(escape)!).Count,
             "stock escape colors derive from the normal paint");
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 15; color++)
@@ -1909,8 +1909,8 @@ internal static partial class Program
         string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
         AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(typeof(CeresDoorWarmTargetPaintDefinitions).GetFields(flags)
             .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorWarmTargetPaintDefinitions).GetField("edits", flags)!.GetValue(stock.WarmTargets)!).Count, "Shared native warm shades need no overrides");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorNormalPaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorWarmTargetPaintDefinitions).GetField("edits", flags)!.GetValue(stock.WarmTargets)!).Count, "Shared native warm shades need no overrides");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorNormalPaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Normal[color];
@@ -1928,7 +1928,7 @@ internal static partial class Program
         CeresDoorNormalPaintDefinitions Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray());
+            var basis = new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray()));
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
@@ -1972,8 +1972,8 @@ internal static partial class Program
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
         object surface = typeof(CeresDoorEscapePaintDefinitions).GetField("surface", flags)!.GetValue(stock)!;
         AssertEqual(4, ((int[])typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("highlightAndEdgeLevels", flags)!.GetValue(surface)!).Length, "Four selected highlight/edge/outline levels");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorEscapePaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits", flags)!.GetValue(surface)!).Count, "Native calculated surface channels need no unexplained overrides");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorEscapePaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits", flags)!.GetValue(surface)!).Count, "Native calculated surface channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Escape[color];
@@ -1991,7 +1991,7 @@ internal static partial class Program
         CeresDoorEscapePaintDefinitions Check()
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorEscapePaintDefinitions(document.Escape.Select(Pack).ToArray(), new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray()));
+            var basis = new CeresDoorEscapePaintDefinitions(ToColors(document.Escape.Select(Pack).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
@@ -2056,7 +2056,7 @@ internal static partial class Program
         CeresDoorAnimationPaintDefinitions Check(int editedRow)
         {
             ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
-            var basis = new CeresDoorAnimationPaintDefinitions(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray(), new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray()));
+            var basis = new CeresDoorAnimationPaintDefinitions(ToColors(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray()), new CeresDoorNormalPaintDefinitions(ToColors(document.Normal.Select(Pack).ToArray())));
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");

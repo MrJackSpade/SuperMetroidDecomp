@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -35,24 +37,24 @@ internal sealed class DraygonMaterialPaintDefinitions
     /// </summary>
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal DraygonMaterialPaintDefinitions(ReadOnlySpan<ushort> colors)
+    internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 16) throw new ArgumentException("Draygon material requires sixteen colors.", nameof(colors));
         for (int color = 0; color < colors.Length; color++)
             if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
     }
 
-    internal ushort Color(int index)
+    internal Bgr555 Color(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(index, out ushort edited) ? edited : StockColor(index);
+        return edits.TryGetValue(index, out Bgr555 edited) ? edited : StockColor(index);
     }
 
-    internal static ushort ClearTarget => Pack(0, 0, ClearBlue);
+    internal static Bgr555 ClearTarget => Pack(0, 0, ClearBlue);
 
-    private static ushort StockColor(int color)
+    private static Bgr555 StockColor(int color)
     {
         if (color is >= 5 and <= 8)
         {
@@ -75,5 +77,5 @@ internal sealed class DraygonMaterialPaintDefinitions
         };
     }
 
-    private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

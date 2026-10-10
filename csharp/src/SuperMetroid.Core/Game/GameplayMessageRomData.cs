@@ -104,11 +104,11 @@ public static class GameplayMessageRomData
         /// <summary>CGRAM color index replaced by the light message color.</summary>
         public const int TemporaryLightIndex = 25;
         /// <summary>SNES BGR555 light color installed for the message box.</summary>
-        public const ushort TemporaryLightColor = 0x0bb1;
+        public static Bgr555 TemporaryLightColor => Bgr555.FromWord(0x0bb1);
         /// <summary>CGRAM color index replaced by the dark message color.</summary>
         public const int TemporaryDarkIndex = 26;
         /// <summary>SNES BGR555 dark color installed for the message box.</summary>
-        public const ushort TemporaryDarkColor = 0x001f;
+        public static Bgr555 TemporaryDarkColor => new(31, 0, 0);
     }
 
     /// <summary>Controller-binding glyph selection and message-relative patch offsets.</summary>

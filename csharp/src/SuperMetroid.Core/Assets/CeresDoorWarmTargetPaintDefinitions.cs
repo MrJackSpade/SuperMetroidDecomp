@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -13,36 +15,36 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     private const int GoldRedStep = 3;
     private const int GoldGreenStep = 6;
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<ushort> colors)
+    internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 6) throw new ArgumentException("Warm target paint requires six colors.", nameof(colors));
-        highlightBlue = colors[0] >> 10;
-        amberRed = colors[1] & Maximum;
-        amberGreen = colors[1] >> 5 & Maximum;
-        red = colors[2] & Maximum;
-        goldRed = colors[3] & Maximum;
-        goldGreen = colors[3] >> 5 & Maximum;
-        goldBlue = colors[3] >> 10;
+        highlightBlue = colors[0].Blue;
+        amberRed = colors[1].Red;
+        amberGreen = colors[1].Green;
+        red = colors[2].Red;
+        goldRed = colors[3].Red;
+        goldGreen = colors[3].Green;
+        goldBlue = colors[3].Blue;
         for (int index = 0; index < colors.Length; index++)
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
     }
 
-    internal ushort ColorAt(int index)
+    internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 6) throw new IndexOutOfRangeException();
-        return edits.TryGetValue(index, out ushort edited) ? edited : Calculate(index);
+        return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
-    private ushort Calculate(int index)
+    private Bgr555 Calculate(int index)
     {
-        if (index == 0) return (ushort)(Maximum | Maximum << 5 | highlightBlue << 10);
-        if (index == 1) return (ushort)(amberRed | amberGreen << 5);
-        if (index == 2) return (ushort)red;
+        if (index == 0) return new(Maximum, Maximum, highlightBlue);
+        if (index == 1) return new(amberRed, amberGreen, 0);
+        if (index == 2) return new(red, 0, 0);
         int shade = index - 3;
-        return (ushort)(Math.Max(0, goldRed - GoldRedStep * shade)
-            | Math.Max(0, goldGreen - GoldGreenStep * shade) << 5
-            | Math.Max(0, goldBlue * (1 - shade)) << 10);
+        return new(Math.Max(0, goldRed - GoldRedStep * shade),
+            Math.Max(0, goldGreen - GoldGreenStep * shade),
+            Math.Max(0, goldBlue * (1 - shade)));
     }
 }

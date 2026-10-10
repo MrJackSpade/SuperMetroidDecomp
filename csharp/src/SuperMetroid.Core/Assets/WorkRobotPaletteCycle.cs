@@ -15,18 +15,18 @@ public sealed class WorkRobotPaletteCycle
     public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
         {
             content.Append("frames", WorkRobotPaletteTimingDefinitions.RecordCount);
-            Span<ushort> row = stackalloc ushort[WorkRobotPaletteRomData.ColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[WorkRobotPaletteRomData.ColorCount];
             for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.RecordCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++)
                     row[color] = Resolve(frame, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
-    private readonly ushort[][]? frames;
+    private readonly Bgr555[][]? frames;
 
-    private WorkRobotPaletteCycle(ushort[][] frames)
+    private WorkRobotPaletteCycle(Bgr555[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
         for (int color = 0; color < frames[frame].Length; color++)
@@ -44,11 +44,11 @@ public sealed class WorkRobotPaletteCycle
     /// forward three positions and back. The four brightness levels form two
     /// pairs separated by sixteen, with seven between the members of each pair.
     /// </summary>
-    private static ushort StockColor(int frame, int color)
+    private static Bgr555 StockColor(int frame, int color)
     {
         int phase = Math.Min(frame, 6 - frame);
         int position = (color + phase) & 3;
-        return (ushort)(31 - 16 * (position >> 1) - 7 * (position & 1));
+        return new Bgr555(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -62,7 +62,7 @@ public sealed class WorkRobotPaletteCycle
     /// <param name="frame">Zero-based native palette record from 0 through 5.</param>
     /// <param name="color">Zero-based color within the four-color record.</param>
     /// <returns>The selected packed SNES RGB555 word.</returns>
-    public ushort Resolve(int frame, int color)
+    public Bgr555 Resolve(int frame, int color)
     {
         if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
@@ -109,13 +109,13 @@ public sealed class WorkRobotPaletteCycle
             document.Frames.Length != WorkRobotPaletteTimingDefinitions.RecordCount)
             throw new InvalidDataException("Work Robot palette cycle requires six version-one frames.");
 
-        var compiled = new ushort[WorkRobotPaletteTimingDefinitions.RecordCount][];
+        var compiled = new Bgr555[WorkRobotPaletteTimingDefinitions.RecordCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
             if (source is null || source.Length != WorkRobotPaletteRomData.ColorCount)
                 throw new InvalidDataException($"Work Robot palette frame {frame} requires four RGB5 colors.");
-            compiled[frame] = new ushort[source.Length];
+            compiled[frame] = new Bgr555[source.Length];
             for (int color = 0; color < source.Length; color++)
             {
                 PaletteRgb5? rgb = source[color];
@@ -123,7 +123,7 @@ public sealed class WorkRobotPaletteCycle
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Work Robot palette frame {frame} color {color} requires RGB5 channels 0..31.");
-                compiled[frame][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                compiled[frame][color] = rgb.ToBgr555();
             }
         }
         return new WorkRobotPaletteCycle(compiled);

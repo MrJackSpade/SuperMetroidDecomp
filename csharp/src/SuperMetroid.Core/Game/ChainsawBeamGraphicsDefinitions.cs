@@ -25,8 +25,9 @@ internal static class ChainsawBeamGraphicsDefinitions
     internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)
+            // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + color,
-                SnesIndirectLongDataRead.ReadWord(bus, 0x90, PalettePointer, (ushort)(color * 2),
-                    InstructionBytes, InstructionAddress));
+                Bgr555.FromCgramPortWord(SnesIndirectLongDataRead.ReadWord(bus, 0x90, PalettePointer, (ushort)(color * 2),
+                    InstructionBytes, InstructionAddress)));
     }
 }

@@ -741,7 +741,7 @@ static void VerifySamusDeathSequence()
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
         .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
-    var artwork = new SamusDeathPaletteArtworkCatalog([suitColors, suitColors, suitColors], suitlessColors, shades, paletteIndices);
+    var artwork = new SamusDeathPaletteArtworkCatalog([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
 
     ushort ReadFixtureWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
     ushort[] ReadFixturePalette(int pointerAddress)
@@ -751,10 +751,10 @@ static void VerifySamusDeathSequence()
             ReadFixtureWord(0x9b0000 | (pointer + color * 2))).ToArray();
     }
     var deathPalettes = new SamusDeathPaletteArtworkCatalog(
-        Enumerable.Range(0, 3).Select(suit => Enumerable.Range(0, 10).Select(palette =>
-            ReadFixturePalette(0x9bb7d3 + suit * 20 + palette * 2)).ToArray()).ToArray(),
-        Enumerable.Range(0, 10).Select(palette => ReadFixturePalette(0x9bb80f + palette * 2)).ToArray(),
-        shades,
+        ToColors(Enumerable.Range(0, 3).Select(suit => Enumerable.Range(0, 10).Select(palette =>
+            ReadFixturePalette(0x9bb7d3 + suit * 20 + palette * 2)).ToArray()).ToArray()),
+        ToColors(Enumerable.Range(0, 10).Select(palette => ReadFixturePalette(0x9bb80f + palette * 2)).ToArray()),
+        ToColors(shades),
         Enumerable.Range(0, 9).Select(frame => (ushort)bus.ReadByte(
             SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + frame * 2 + 1)).ToArray());
     var guardedBus = new SamusDeathExplosionTimingReadGuard(bus);

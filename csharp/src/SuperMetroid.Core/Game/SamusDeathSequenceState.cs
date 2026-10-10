@@ -294,7 +294,7 @@ public sealed class SamusDeathSequenceState
         if (AnimationIndex == 0)
             return false;
 
-        ushort shade = (artwork ?? throw new InvalidOperationException(
+        Bgr555 shade = (artwork ?? throw new InvalidOperationException(
             "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
         for (int color = 0; color < SamusPaletteRomData.Common.SamusObjPaletteStart; color++)
             cgram.SetColor(color, shade);

@@ -121,7 +121,7 @@ internal static partial class Program
         {
             for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
             {
-                ushort expected = colors.TargetColor(target, color);
+                Bgr555 expected = colors.TargetColor(target, color);
                 AssertEqual(expected, state.TargetPalette.Span[destination + color],
                     $"live Shitroid {target} target buffer color {color}");
                 AssertEqual(expected, cgram.Colors[destination + color],

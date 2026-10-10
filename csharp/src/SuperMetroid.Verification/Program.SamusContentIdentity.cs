@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -98,7 +99,7 @@ internal static partial class Program
         if (edit == "death-suitless") suitless[0][0] = 1;
         if (edit == "death-whiteout") whiteout[0] = 1;
         if (edit == "death-selector") explosion[0] = 1;
-        var deathPalettes = new SamusDeathPaletteArtworkCatalog(suited, suitless, whiteout, explosion);
+        var deathPalettes = new SamusDeathPaletteArtworkCatalog(ToColors(suited), ToColors(suitless), ToColors(whiteout), explosion);
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(Png(SamusDeathTileAtlasFormat.Width,
             SamusDeathTileAtlasFormat.Height, edit == "death-tiles"));
         var cannonDocument = new SamusArmCannonArtworkDocument

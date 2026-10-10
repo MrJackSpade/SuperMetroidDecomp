@@ -17,7 +17,7 @@ internal static class MapStaticPalettesExtractor
         for (int selected = 0; selected < FileSelectMapRomData.AreaCount; selected++)
         {
             var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.EntryPalette);
-            colors.SetColor(14, 0); colors.SetColor(30, 0);
+            colors.SetColor(14, Bgr555.Black); colors.SetColor(30, Bgr555.Black);
             for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
             {
                 int offsets = area == selected ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
@@ -40,6 +40,5 @@ internal static class MapStaticPalettesExtractor
         MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
         return json.ToArray();
     }
-    private static PaletteRgb5[] ToRgb(SnesCgram palette) => palette.Colors.ToArray()
-        .Select(word => new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray();
+    private static PaletteRgb5[] ToRgb(SnesCgram palette) => palette.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
 }

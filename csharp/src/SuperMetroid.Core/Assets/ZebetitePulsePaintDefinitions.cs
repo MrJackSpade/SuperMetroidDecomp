@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -17,7 +19,7 @@ internal static class ZebetitePulsePaintDefinitions
     private const int DarkShadeNumerator = 3;
     private const int DarkShadeDenominator = 4;
 
-    internal static ushort Color(int frame, int color)
+    internal static Bgr555 Color(int frame, int color)
     {
         int intervals = ZebetiteColorFormat.FrameCount / 2;
         int phase = Math.Min(frame, ZebetiteColorFormat.FrameCount - frame);
@@ -25,6 +27,6 @@ internal static class ZebetitePulsePaintDefinitions
         int greenStart = color == 0 ? WarmGreenBias : WarmGreenBias / 2;
         int red = redStart + (ChannelMaximum - redStart) * phase / intervals;
         int green = greenStart * (intervals - phase) / intervals;
-        return (ushort)(red | green << 5);
+        return new Bgr555(red, green, 0);
     }
 }

@@ -24,7 +24,7 @@ internal static partial class Program
         Set("mapArrows", null!);
         pause.BindMapPresentation(RetailPresentationFixture());
         var nativeColors = new SnesCgram();
-        for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Read(0xb6f000 + color * 2));
+        for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked((ushort)(Read(0xb6f000 + color * 2)))));
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
@@ -40,7 +40,7 @@ internal static partial class Program
                 if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
                 nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
                 for (int color = 0; color < 16; color++)
-                    nativeColors.SetColor(176 + color, Read(0x82a987 + nativePaletteFrame * 32 + color * 2));
+                    nativeColors.SetColor(176 + color, Bgr555.FromWord(checked((ushort)(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)))));
             }
             var expected = new OamBuffer();
             expected.BeginFrame();

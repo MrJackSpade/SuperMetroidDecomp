@@ -11,7 +11,7 @@ internal static partial class Program
         var guardedBus = new PostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
-        ushort[] initial = cgram.Colors.ToArray();
+        Bgr555[] initial = cgram.Colors.ToArray();
         var vram = new SnesVram();
         var expected = Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray();
         vram.LoadBytes(0, expected);
@@ -35,10 +35,10 @@ internal static partial class Program
                 int remaining = 32 - Math.Clamp(frame - (start == 240 ? 16 : 0), 0, 32);
                 for (int i = start; i < start + 16; i++)
                 {
-                    ushort color = initial[i];
-                    ushort faded = (ushort)(((color & 31) * remaining / 32)
-                        | ((color >> 5 & 31) * remaining / 32) << 5
-                        | ((color >> 10 & 31) * remaining / 32) << 10);
+                    Bgr555 color = initial[i];
+                    ushort faded = (ushort)(((color.ToWord() & 31) * remaining / 32)
+                        | ((color.ToWord() >> 5 & 31) * remaining / 32) << 5
+                        | ((color.ToWord() >> 10 & 31) * remaining / 32) << 10);
                     AssertEqual(faded, cgram.Colors[i], "post-shot palette component and delayed Samus fade");
                 }
             }

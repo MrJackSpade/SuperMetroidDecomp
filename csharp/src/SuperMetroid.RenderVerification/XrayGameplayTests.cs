@@ -17,8 +17,8 @@ internal static class XrayGameplayTests
             var vram = new SnesVram();
             var cgram = new SnesCgram();
             cgram.SetColor(0, XrayRoomDisplayRules.ActiveBackdrop);
-            cgram.SetColor(1, 31); cgram.SetColor(2, 20 << 5); cgram.SetColor(3, 10 << 10);
-            cgram.SetColor(128 + palette * 16 + 1, 31);
+            cgram.SetColor(1, new Bgr555(31, 0, 0)); cgram.SetColor(2, new Bgr555(0, 20, 0)); cgram.SetColor(3, new Bgr555(0, 0, 10));
+            cgram.SetColor(128 + palette * 16 + 1, new Bgr555(31, 0, 0));
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 }); // OBJ character zero, red.
@@ -92,7 +92,7 @@ internal static class XrayGameplayTests
                 foreach (bool blackBody in new[] { false, true })
                 {
                     var bodyColors = cgram.Colors.ToArray();
-                    if (blackBody) bodyColors[2] = 0;
+                    if (blackBody) bodyColors[2] = Bgr555.Black;
                     var addScene = new LayeredRenderSnapshot(new(vram.Bytes, bodyColors, oam, 1), [additive], 0, 15);
                     var addPixels = SoftwareLayeredSnapshotRenderer.Render(addScene);
                     var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
@@ -130,7 +130,7 @@ internal static class XrayGameplayTests
         {
             var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
             var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
-            var colors = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
+            var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
             var memory = new PpuMemorySnapshot(bytes, colors, oam, 128);
             ushort Word() => (ushort)random.Next(65536);
             var registers = new OrdinaryGameplayRegisters(Word(), Word(), Word(), Word(),

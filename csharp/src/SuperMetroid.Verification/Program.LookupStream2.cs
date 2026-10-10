@@ -119,11 +119,11 @@ internal static partial class Program
             AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
-            cgram.SetColor(128 + color, 0x7fff);
+            cgram.SetColor(128 + color, Bgr555.FromWord(0x7fff));
         }
         brightening(slot, state);
         AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
-        AssertTrue(state.TargetPalette.Span.SequenceEqual(native), "Actual target buffer includes unused sprite slots");
+        AssertTrue(state.TargetPalette.Span.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
         {
             int expectedChanges = 0;
@@ -1567,7 +1567,7 @@ internal static partial class Program
         var stock = Load(original);
         Check(stock, original);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertEqual(8, ((ushort[])typeof(ChozoAndTubeColorCatalog).GetField("tubeColorSeeds", flags)!.GetValue(stock)!).Length,
+        AssertEqual(8, ((Bgr555[])typeof(ChozoAndTubeColorCatalog).GetField("tubeColorSeeds", flags)!.GetValue(stock)!).Length,
             "tube stores only its eight authored seed colors");
         foreach (string statue in new[] { "wreckedShipEdits", "lowerNorfairEdits" })
             AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField(statue, flags)!.GetValue(stock)!).Count,
@@ -1726,7 +1726,7 @@ internal static partial class Program
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
-        var edits = (Dictionary<int, ushort>)typeof(PauseReserveUiPresentation)
+        var edits = (Dictionary<int, Bgr555>)typeof(PauseReserveUiPresentation)
             .GetField("arrowColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new SnesCgram();
@@ -2031,7 +2031,7 @@ internal static partial class Program
         }
         var storedBubble = typeof(CrystalFlashColorCatalog).GetField("bubble",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var residuals = (Dictionary<int, ushort>)storedBubble.GetValue(stock)!;
+        var residuals = (Dictionary<int, Bgr555>)storedBubble.GetValue(stock)!;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
         AssertEqual((ushort)0x7fff, residuals[30], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)

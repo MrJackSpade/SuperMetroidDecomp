@@ -10,7 +10,7 @@ public sealed class MotherBrainHealthPalettePresentation
     private readonly TintPalette body;
     private readonly TintPalette backLegs;
 
-    private MotherBrainHealthPalettePresentation(ushort[][] body, ushort[][] backLegs)
+    private MotherBrainHealthPalettePresentation(Bgr555[][] body, Bgr555[][] backLegs)
     {
         this.body = new TintPalette(body, backLeg: false);
         this.backLegs = new TintPalette(backLegs, backLeg: true, this.body);
@@ -20,25 +20,22 @@ public sealed class MotherBrainHealthPalettePresentation
     /// $A9:9474/9494 normal restoration repeats the $AD:E6AC/E74C health-state-zero bases.
     /// Independent installed documents use this only when their own supplied colors match.
     /// </summary>
-    internal static ushort StockBaseColor(bool backLeg, int color) =>
+    internal static Bgr555 StockBaseColor(bool backLeg, int color) =>
         (backLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color);
 
     /// <summary>$AD:EA0A/EA26 and F119 use health state three as their death-fade starting point.</summary>
-    internal static ushort StockDeathStartColor(bool backLeg, int color) =>
+    internal static Bgr555 StockDeathStartColor(bool backLeg, int color) =>
         TintColor(StockBaseColor(backLeg, color), 3, backLeg);
 
-    private static ushort TintColor(ushort initial, int state, bool backLeg)
+    private static Bgr555 TintColor(Bgr555 initial, int state, bool backLeg)
     {
         int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
-        int result = 0;
-        for (int component = 0; component < 3; component++)
+        return initial.Map((channel, value) =>
         {
-            int rgb8 = (((initial >> (component * 5)) & 31) * 8) + 1;
-            int target = component == 0 ? 31 * 8 : 0;
-            int value = (rgb8 * (30 - amount) + target * amount) / (30 * 8);
-            result |= value << (component * 5);
-        }
-        return (ushort)result;
+            int rgb8 = value * 8 + 1;
+            int target = channel == ColorChannel.Red ? 31 * 8 : 0;
+            return (rgb8 * (30 - amount) + target * amount) / (30 * 8);
+        });
     }
     /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
     /// <param name="cgram">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
@@ -66,9 +63,9 @@ public sealed class MotherBrainHealthPalettePresentation
     {
         private readonly BasePalette basis;
         private readonly bool backLeg;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[][]? supplied;
 
-        public TintPalette(ushort[][] rows, bool backLeg, TintPalette? front = null)
+        public TintPalette(Bgr555[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
             basis = BasePalette.Create(rows[0], backLeg, front?.basis);
@@ -78,19 +75,19 @@ public sealed class MotherBrainHealthPalettePresentation
                     { supplied = rows; return; }
         }
 
-        public ushort Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
+        public Bgr555 Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
-        private ushort Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
+        private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     private sealed class BasePalette
     {
-        private readonly ushort highlight;
-        private readonly ushort midtone;
-        private readonly ushort shadow;
-        private readonly ushort brown;
+        private readonly Bgr555 highlight;
+        private readonly Bgr555 midtone;
+        private readonly Bgr555 shadow;
+        private readonly Bgr555 brown;
         private readonly bool backLeg;
-        private readonly ushort[]? supplied;
+        private readonly Bgr555[]? supplied;
         private readonly BasePalette? front;
 
         internal static BasePalette StockBody { get; } = new(false);
@@ -109,7 +106,7 @@ public sealed class MotherBrainHealthPalettePresentation
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
-        internal static BasePalette Create(ushort[] colors, bool backLeg, BasePalette? front)
+        internal static BasePalette Create(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             BasePalette stock = backLeg ? StockRear : StockBody;
             bool matches = !backLeg || ReferenceEquals(front, StockBody);
@@ -118,65 +115,60 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, backLeg, front);
         }
 
-        public BasePalette(ushort[] colors, bool backLeg, BasePalette? front)
+        public BasePalette(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;
             this.front = front;
-            highlight = backLeg ? (ushort)0 : colors[0];
-            midtone = backLeg ? (ushort)0 : colors[1];
-            shadow = backLeg ? (ushort)0 : colors[2];
-            Outline = front is null ? colors[3] : (ushort)0;
-            Gray = front is null ? colors[4] : (ushort)0;
-            brown = backLeg ? (ushort)0 : colors[8];
+            highlight = backLeg ? Bgr555.Black : colors[0];
+            midtone = backLeg ? Bgr555.Black : colors[1];
+            shadow = backLeg ? Bgr555.Black : colors[2];
+            Outline = front is null ? colors[3] : Bgr555.Black;
+            Gray = front is null ? colors[4] : Bgr555.Black;
+            brown = backLeg ? Bgr555.Black : colors[8];
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color])
                 { supplied = colors; return; }
         }
 
-        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
 
-        private ushort Calculate(int color) => color switch
+        private Bgr555 Calculate(int color) => color switch
         {
-            0 => backLeg ? (ushort)0 : highlight,
-            1 => backLeg ? (ushort)0 : midtone,
-            2 => backLeg ? (ushort)0 : shadow,
+            0 => backLeg ? Bgr555.Black : highlight,
+            1 => backLeg ? Bgr555.Black : midtone,
+            2 => backLeg ? Bgr555.Black : shadow,
             3 => Outline,
             >= 4 and <= 7 => Shade(Gray, 8 - color, 4),
-            >= 8 and <= 12 => backLeg ? (ushort)0 : Shade(brown, 13 - color, 5),
-            13 => backLeg ? Gray : (ushort)((31 << 10) | (31 << 5) | 31),
-            _ => 0,
+            >= 8 and <= 12 => backLeg ? Bgr555.Black : Shade(brown, 13 - color, 5),
+            13 => backLeg ? Gray : Bgr555.White,
+            _ => Bgr555.Black,
         };
 
         // The rear outline keeps the front red/blue and adds one RGB5 green
         // step. This names the chosen rear tint; it is not a universal lighting law.
-        private ushort Outline
+        private Bgr555 Outline
         {
             get
             {
                 if (front is null) return field;
-                ushort lit = front.Color(3);
-                int green = Math.Min(31, (lit >> 5 & 31) + 1);
-                return (ushort)((lit & ~(31 << 5)) | green << 5);
+                Bgr555 lit = front.Color(3);
+                return lit.WithGreen(Math.Min(31, lit.Green + 1));
             }
         }
         // Rear illumination halves the front gray endpoint, rounding R/G upward
         // and B downward before generating its own four shade levels.
-        private ushort Gray
+        private Bgr555 Gray
         {
             get
             {
                 if (front is null) return field;
-                ushort lit = front.Color(4);
-                return (ushort)(((lit & 31) + 1) / 2 |
-                    (((lit >> 5 & 31) + 1) / 2) << 5 | ((lit >> 10 & 31) / 2) << 10);
+                Bgr555 lit = front.Color(4);
+                return new((lit.Red + 1) / 2, (lit.Green + 1) / 2, lit.Blue / 2);
             }
         }
-        private static ushort Shade(ushort source, int numerator, int denominator)
+        private static Bgr555 Shade(Bgr555 source, int numerator, int denominator)
         {
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                result |= ((((source >> shift) & 31) * numerator + denominator / 2) / denominator) << shift;
-            return (ushort)result;
+            return source.Map((_, a) => ((a * numerator + denominator / 2) / denominator));
         }
     }
     /// <summary>Compiles installed RGB5 health-state artwork, retaining supplied edits independently of the native shade ramps and red-tint calculations.</summary>
@@ -193,23 +185,23 @@ public sealed class MotherBrainHealthPalettePresentation
         return new(Convert(document.Body, nameof(document.Body)),
             Convert(document.BackLegs, nameof(document.BackLegs)));
 
-        static ushort[][] Convert(PaletteRgb5[][]? frames, string name)
+        static Bgr555[][] Convert(PaletteRgb5[][]? frames, string name)
         {
             if (frames is null || frames.Length != MotherBrainHealthPaletteFormat.StateCount)
                 throw new InvalidDataException($"Mother Brain {name} requires four damage states.");
-            var values = new ushort[frames.Length][];
+            var values = new Bgr555[frames.Length][];
             for (int state = 0; state < frames.Length; state++)
             {
                 PaletteRgb5[]? colors = frames[state];
                 if (colors is null || colors.Length != MotherBrainRainbowPaletteRomData.ColorCount)
                     throw new InvalidDataException($"Mother Brain {name} state {state} requires fifteen colors.");
-                values[state] = new ushort[colors.Length];
+                values[state] = new Bgr555[colors.Length];
                 for (int color = 0; color < colors.Length; color++)
                 {
                     PaletteRgb5? rgb = colors[color];
                     if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                         throw new InvalidDataException($"Mother Brain {name} state {state} color {color} requires RGB5 components.");
-                    values[state][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                    values[state][color] = rgb.ToBgr555();
                 }
             }
             return values;

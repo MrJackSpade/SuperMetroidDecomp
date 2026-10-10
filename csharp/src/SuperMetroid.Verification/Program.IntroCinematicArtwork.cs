@@ -153,8 +153,8 @@ internal static partial class Program
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(guarded, characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-            ushort[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
-            ushort[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
+            Bgr555[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
+            Bgr555[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
             AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
                 editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
                 editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),

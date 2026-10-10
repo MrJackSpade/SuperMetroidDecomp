@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -10,21 +11,21 @@ public sealed class ShitroidColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
-            Span<ushort> selectedSidehopper = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            Span<Bgr555> selectedSidehopper = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
             for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = sidehopper.Resolve(color);
-            content.AppendWords("sidehopper", selectedSidehopper);
-            Span<ushort> selectedShitroid = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            content.AppendColors("sidehopper", selectedSidehopper);
+            Span<Bgr555> selectedShitroid = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
             for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = TargetColor(ShitroidColorTarget.Shitroid, color);
-            content.AppendWords("shitroid", selectedShitroid);
-            Span<ushort> selectedCorpse = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            content.AppendColors("shitroid", selectedShitroid);
+            Span<Bgr555> selectedCorpse = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
             for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = deadSidehopper.Resolve(color);
-            content.AppendWords("deadSidehopper", selectedCorpse);
+            content.AppendColors("deadSidehopper", selectedCorpse);
             content.Append("normal", ShitroidColorRomData.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
             {
-                var row = new ushort[ShitroidColorRomData.NormalColorsPerFrame];
+                var row = new Bgr555[ShitroidColorRomData.NormalColorsPerFrame];
                 for (int color = 0; color < row.Length; color++) row[color] = NormalColor(frame, color);
-                content.AppendWords("row", row);
+                content.AppendColors("row", row);
             }
         });
 
@@ -34,11 +35,11 @@ public sealed class ShitroidColorCatalog
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
-    private readonly ushort shitroidTransparentSlot;
+    private readonly Bgr555 shitroidTransparentSlot;
     private readonly SidehopperCorpsePalette deadSidehopper;
 
-    private ShitroidColorCatalog(ushort[][] normal, ushort[] sidehopper,
-        ushort[] shitroid, ushort[] deadSidehopper)
+    private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
+        Bgr555[] shitroid, Bgr555[] deadSidehopper)
     {
         this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
         this.normal = new ColorPulse(normal, this.shitroid);
@@ -55,14 +56,14 @@ public sealed class ShitroidColorCatalog
     };
 
     /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
-    public ushort NormalColor(int frame, int color) =>
+    public Bgr555 NormalColor(int frame, int color) =>
         (uint)frame < ShitroidColorRomData.NormalFrameCount && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
             ? normal.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
                 $"Shitroid normal frame {frame}, color {color} is outside the authored image.");
 
     /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot word; the actor copies targets to its palette image and current CGRAM during setup.</summary>
-    public ushort TargetColor(ShitroidColorTarget target, int color)
+    public Bgr555 TargetColor(ShitroidColorTarget target, int color)
     {
         if (target == ShitroidColorTarget.Shitroid)
         {
@@ -114,11 +115,11 @@ public sealed class ShitroidColorCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int required, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
             throw new InvalidDataException($"Shitroid {name} requires {required} RGB5 colors.");
-        var compiled = new ushort[required];
+        var compiled = new Bgr555[required];
         for (int color = 0; color < required; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -126,7 +127,7 @@ public sealed class ShitroidColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Shitroid {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }
@@ -134,9 +135,9 @@ public sealed class ShitroidColorCatalog
     private sealed class ColorPulse
     {
         private readonly BabyMetroidInitialPalette target;
-        private readonly ushort[][]? supplied;
+        private readonly Bgr555[][]? supplied;
 
-        public ColorPulse(ushort[][] frames, BabyMetroidInitialPalette target)
+        public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
         {
             this.target = target;
             // Sharing the target's innard colors is valid only when every supplied
@@ -147,25 +148,21 @@ public sealed class ShitroidColorCatalog
                 { supplied = frames; return; }
         }
 
-        public ushort Resolve(int frame, int color)
+        public Bgr555 Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
             int phase = Math.Min(frame, ShitroidColorRomData.NormalFrameCount - 1 - frame);
-            ushort paint = target.Resolve(ShitroidColorRomData.NormalFirstInitialColor + color);
-            int result = 0;
-            for (int channel = 0; channel < 3; channel++)
+            Bgr555 paint = target.Resolve(ShitroidColorRomData.NormalFirstInitialColor + color);
+            return paint.Map((channel, origin) =>
             {
-                int origin = paint >> (5 * channel) & 31;
                 int floor = 0;
-                if (channel == 0)
+                if (channel == ColorChannel.Red)
                 {
                     floor = ShitroidColorRomData.NormalOrganRedFloor;
                     if (origin == 31) origin += ShitroidColorRomData.NormalOrganRedHeadroom;
                 }
-                result |= Math.Clamp(origin - ShitroidColorRomData.NormalOrganDimmingStep * phase,
-                    floor, 31) << (5 * channel);
-            }
-            return (ushort)result;
+                return Math.Clamp(origin - ShitroidColorRomData.NormalOrganDimmingStep * phase, floor, 31);
+            });
         }
     }
     private static void RejectDuplicates(JsonElement value) =>

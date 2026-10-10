@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -15,23 +17,25 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     private readonly CeresDoorEscapePaintDefinitions armor;
     private readonly CeresBabyPaintDefinitions organ;
     private readonly int clearBlue;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<ushort> colors)
+    internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 32) throw new ArgumentException("Norfair Ridley initial paint requires thirty-two colors.", nameof(colors));
-        clearBlue = colors[0] >> 10;
-        if (colors[0] != clearBlue << 10) edits.Add(0, colors[0]);
-        if (colors[16] != clearBlue << 10) edits.Add(16, colors[16]);
+        clearBlue = colors[0].Blue;
+        if (colors[0] != ClearSlot) edits.Add(0, colors[0]);
+        if (colors[16] != ClearSlot) edits.Add(16, colors[16]);
         armor = new(colors.Slice(1, 15));
         organ = new(colors.Slice(17, 15));
     }
 
-    internal ushort ColorAt(int index)
+    private Bgr555 ClearSlot => new(0, 0, clearBlue);
+
+    internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 32) throw new IndexOutOfRangeException();
-        if (edits.TryGetValue(index, out ushort edited)) return edited;
-        if (index is 0 or 16) return (ushort)(clearBlue << 10);
+        if (edits.TryGetValue(index, out Bgr555 edited)) return edited;
+        if (index is 0 or 16) return ClearSlot;
         return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(0, index - 17);
     }
 }

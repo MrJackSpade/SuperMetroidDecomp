@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 
 namespace SuperMetroid.Core.Assets;
@@ -15,9 +16,9 @@ namespace SuperMetroid.Core.Assets;
 /// the underlying normal suit artwork from its own review. Nonmatching player channel
 /// edits remain explicit overrides. No complete stock endpoint word is cached.
 /// </remarks>
-internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, ushort>
+internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
-    private readonly Dictionary<ushort, ushort> colors;
+    private readonly Dictionary<ushort, Bgr555> colors;
     private readonly int redTarget;
     private readonly int mixedRedTarget;
     private readonly int mixedGreenTarget;
@@ -25,53 +26,51 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, ushort>
     private readonly int? blueOverride;
     private readonly int? mixedBlueOverride;
 
-    internal HeatPaletteInputView(Dictionary<ushort, ushort> colors)
+    internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
-        ushort red = colors[0xe55c];
-        ushort mixed = colors[0xe55e];
-        ushort redBase = ReadBase(0xe46e);
-        ushort mixedBase = ReadBase(0xe470);
-        redTarget = red & 31;
-        mixedRedTarget = mixed & 31;
-        mixedGreenTarget = mixed >> 5 & 31;
-        greenOverride = (red >> 5 & 31) == (redBase >> 5 & 31) ? null : red >> 5 & 31;
-        blueOverride = (red >> 10 & 31) == (redBase >> 10 & 31) ? null : red >> 10 & 31;
-        int calculatedBlue = (mixedBase >> 10 & 31) + mixedGreenTarget - (mixedBase >> 5 & 31);
-        mixedBlueOverride = (mixed >> 10 & 31) == calculatedBlue ? null : mixed >> 10 & 31;
+        Bgr555 red = colors[0xe55c];
+        Bgr555 mixed = colors[0xe55e];
+        Bgr555 redBase = ReadBase(0xe46e);
+        Bgr555 mixedBase = ReadBase(0xe470);
+        redTarget = red.Red;
+        mixedRedTarget = mixed.Red;
+        mixedGreenTarget = mixed.Green;
+        greenOverride = red.Green == redBase.Green ? null : red.Green;
+        blueOverride = red.Blue == redBase.Blue ? null : red.Blue;
+        int calculatedBlue = mixedBase.Blue + mixedGreenTarget - mixedBase.Green;
+        mixedBlueOverride = mixed.Blue == calculatedBlue ? null : mixed.Blue;
         colors.Remove(0xe55c);
         colors.Remove(0xe55e);
     }
 
-    private ushort ReadBase(ushort pointer)
+    private Bgr555 ReadBase(ushort pointer)
     {
-        if (colors.TryGetValue(pointer, out ushort value)) return value;
+        if (colors.TryGetValue(pointer, out Bgr555 value)) return value;
         if (HeatPaletteColorDefinitions.TryBasePalettePointer(pointer, out ushort source) &&
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value)) return value;
         throw new InvalidDataException($"Missing installed heat base ${pointer:X4}.");
     }
 
-    public bool TryGetValue(ushort pointer, out ushort value)
+    public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         if (pointer == 0xe55c)
         {
-            ushort original = ReadBase(0xe46e);
-            int green = greenOverride ?? (original >> 5 & 31);
-            int blue = blueOverride ?? (original >> 10 & 31);
-            value = (ushort)(redTarget | green << 5 | blue << 10);
+            Bgr555 original = ReadBase(0xe46e);
+            value = new(redTarget, greenOverride ?? original.Green, blueOverride ?? original.Blue);
             return true;
         }
         if (pointer == 0xe55e)
         {
-            ushort original = ReadBase(0xe470);
-            int blue = mixedBlueOverride ?? ((original >> 10 & 31) + mixedGreenTarget - (original >> 5 & 31));
-            value = (ushort)(mixedRedTarget | mixedGreenTarget << 5 | blue << 10);
+            Bgr555 original = ReadBase(0xe470);
+            int blue = mixedBlueOverride ?? (original.Blue + mixedGreenTarget - original.Green);
+            value = new(mixedRedTarget, mixedGreenTarget, blue);
             return true;
         }
         return colors.TryGetValue(pointer, out value);
     }
 
-    public ushort this[ushort key] => TryGetValue(key, out ushort value) ? value : throw new KeyNotFoundException();
+    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     public int Count => colors.Count + 2;
     public bool ContainsKey(ushort key) => key is 0xe55c or 0xe55e || colors.ContainsKey(key);
     public IEnumerable<ushort> Keys
@@ -83,8 +82,8 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, ushort>
             yield return 0xe55e;
         }
     }
-    public IEnumerable<ushort> Values => Keys.Select(key => this[key]);
-    public IEnumerator<KeyValuePair<ushort, ushort>> GetEnumerator()
+    public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }

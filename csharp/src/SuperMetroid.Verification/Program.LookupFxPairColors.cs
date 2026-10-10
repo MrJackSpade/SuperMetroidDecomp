@@ -34,10 +34,10 @@ internal static partial class Program
                 _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue(id, native & 31, (native >> 5) & 31, color == 0),
             };
             AssertEqual(expected, calculated!.Value, "Native paired-color component rule");
-            AssertEqual(expected, (stock.Resolve(id)[color] >> shift) & 31, "Installed paired-color component");
+            AssertEqual(expected, (stock.Resolve(id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
             var cgram = new SnesCgram();
             stock.Apply(cgram, id);
-            AssertEqual(expected, (cgram.Colors[25 + color] >> shift) & 31, "Applied paired-color component");
+            AssertEqual(expected, (cgram.Colors[25 + color].ToWord() >> shift) & 31, "Applied paired-color component");
         }
     }
 
@@ -47,7 +47,7 @@ internal static partial class Program
         {
             for (int color = 0; color < 2; color++)
             {
-                var owner = new RoomFxPairColor(id, ReadVerificationWord(rom, 0x89aa02 + id + color * 2), color == 0);
+                var owner = new RoomFxPairColor(id, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x89aa02 + id + color * 2)))), color == 0);
                 foreach (var field in new[] { (Name: "redOverride", Shift: 0), (Name: "greenOverride", Shift: 5), (Name: "blueOverride", Shift: 10) })
                 {
                     var info = typeof(RoomFxPairColor).GetField(field.Name, BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -61,7 +61,7 @@ internal static partial class Program
             // including intensities above the stock tint's range and saturated values.
             foreach (bool isPrimary in new[] { false, true })
             for (int word = 0; word < 0x8000; word++)
-                AssertEqual((ushort)word, new RoomFxPairColor(id, (ushort)word, isPrimary).CreateColor(), "All RGB5 edits round-trip");
+                AssertEqual((ushort)word, new RoomFxPairColor(id, Bgr555.FromWord(checked((ushort)((ushort)word))), isPrimary).CreateColor(), "All RGB5 edits round-trip");
             foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {

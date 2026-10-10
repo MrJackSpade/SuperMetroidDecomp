@@ -336,14 +336,14 @@ internal static partial class Program
             var installed = new SnesCgram();
             // Revival writes thirteen colors and deliberately leaves the last two from
             // the preceding phase. Seed both CGRAM images to catch an overlong copy.
-            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, 0x1234);
-            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, 0x1235);
-            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, 0x2234);
-            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, 0x2235);
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, 0x1234);
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, 0x1235);
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, 0x2234);
-            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, 0x2235);
+            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, Bgr555.FromWord(0x1234));
+            native.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, Bgr555.FromWord(0x1235));
+            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, Bgr555.FromWord(0x2234));
+            native.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, Bgr555.FromWord(0x2235));
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 13, Bgr555.FromWord(0x1234));
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + 14, Bgr555.FromWord(0x1235));
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 13, Bgr555.FromWord(0x2234));
+            installed.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + 14, Bgr555.FromWord(0x2235));
             int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable :
                 MotherBrainDrainedPaletteRomData.FromGreyTable;
             int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors :
@@ -388,11 +388,11 @@ internal static partial class Program
             int cursor = frame * MotherBrainBeamRomData.ColorStride;
             int address = MotherBrainBeamRomData.ColorTable + cursor;
             ushort nativeBeamColor = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-            AssertEqual(nativeBeamColor, original.MotherBrainRainbowPalette.BeamColorWord(cursor),
-                $"installed beam HDMA color {frame} matches bank-$88");
+            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(cursor, out Bgr555 beamColor) &&
+                beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
-        AssertEqual(ushort.MaxValue, original.MotherBrainRainbowPalette.BeamColorWord(
-                MotherBrainRainbowPaletteFormat.BeamCycleColorCount * MotherBrainBeamRomData.ColorStride),
+        AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
+                MotherBrainRainbowPaletteFormat.BeamCycleColorCount * MotherBrainBeamRomData.ColorStride, out _),
             "installed beam color loop retains its native signed terminator");
         var nativeBeamSequence = new MotherBrainRainbowBeamHdmaState
         {

@@ -10,18 +10,18 @@ public static class DoorTransitionPaletteDefinitions
     /// <summary>$82:E52E writes Palettes_SpriteP4C4 when door IRQ scrolling completes.</summary>
     public const int VisorColorIndex = 196;
     /// <summary>$82:E52B loads the ordinary green visor color before the final loading PLM call.</summary>
-    private const ushort DoorCompletionVisorGreen = 0x3be0;
+    private static readonly Bgr555 DoorCompletionVisorGreen = Bgr555.FromWord(0x3be0);
 
     /// <summary>Reproduces the live sprite-palette-six write of $90:ACCD after restoring the faded source colors; the newly loaded beam colors do not wait for the destination palette fade.</summary>
     /// <param name="current">Live CGRAM palette to receive colors 224..239; all other colors are retained.</param>
-    /// <param name="loaded">Destination's captured palette, indexed by CGRAM color number, containing at least 240 packed SNES RGB5 words.</param>
-    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<ushort> loaded)
+    /// <param name="loaded">Destination's captured palette, indexed by CGRAM color number, containing at least 240 colors.</param>
+    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<Bgr555> loaded)
     {
         for (int index = BeamPaletteStart; index < BeamPaletteStart + BeamPaletteCount; index++)
             current.SetColor(index, loaded[index]);
     }
 
-    /// <summary>Performs $82:E52B-$E52E's live visor reset to packed RGB5 $3BE0 when door scrolling completes, before the final loading PLM handler.</summary>
+    /// <summary>Performs $82:E52B-$E52E's live visor reset to $3BE0 when door scrolling completes, before the final loading PLM handler.</summary>
     /// <param name="current">Live CGRAM palette whose sprite-palette-four color four (index 196) is replaced; no fade target is modified.</param>
     public static void PublishCompletedScrollVisor(SnesCgram current) =>
         current.SetColor(VisorColorIndex, DoorCompletionVisorGreen);
@@ -80,7 +80,7 @@ public static class DoorTransitionPaletteDefinitions
     /// <summary>Copies the eight always-preserved minimap and highlighted-item colors of $82:E1F1-$E21E into the source-room fade target, keeping their current appearance while room colors fade to black.</summary>
     /// <param name="current">Live packed RGB5 colors, indexed by CGRAM color number, with at least 30 entries.</param>
     /// <param name="target">Caller-owned fade target with at least 30 entries; only indices 9, 10, 13, 14, 17, 18, 19, and 29 are overwritten.</param>
-    public static void PreserveHud(ReadOnlySpan<ushort> current, Span<ushort> target)
+    public static void PreserveHud(ReadOnlySpan<Bgr555> current, Span<Bgr555> target)
     {
         target[MinimapExplored] = current[MinimapExplored];
         target[MinimapExploredFeature] = current[MinimapExploredFeature];
@@ -95,7 +95,7 @@ public static class DoorTransitionPaletteDefinitions
     /// <summary>Copies the five additional common-room HUD/minimap colors of $82:E22C-$E247; the caller selects this operation only when bit zero is clear in both source and destination CRE bitsets.</summary>
     /// <param name="current">Live packed RGB5 colors, indexed by CGRAM color number, with at least 29 entries.</param>
     /// <param name="target">Caller-owned source fade target with at least 29 entries; only indices 20..23 and 28 are overwritten.</param>
-    public static void PreserveCommonCre(ReadOnlySpan<ushort> current, Span<ushort> target)
+    public static void PreserveCommonCre(ReadOnlySpan<Bgr555> current, Span<Bgr555> target)
     {
         target[HudPaletteBackground] = current[HudPaletteBackground];
         target[ItemBackgroundOutline] = current[ItemBackgroundOutline];
@@ -107,7 +107,7 @@ public static class DoorTransitionPaletteDefinitions
     /// <summary>Copies sprite-palette-five timer colors 1, 2, 4, and 13 as at $82:E24F-$E264; the caller requires an active escape timer and the same CRE-bit-zero condition as the common-room colors.</summary>
     /// <param name="current">Live packed RGB5 colors, indexed by CGRAM color number, with at least 222 entries.</param>
     /// <param name="target">Caller-owned source fade target with at least 222 entries; only indices 209, 210, 212, and 221 are overwritten.</param>
-    public static void PreserveEscapeTimer(ReadOnlySpan<ushort> current, Span<ushort> target)
+    public static void PreserveEscapeTimer(ReadOnlySpan<Bgr555> current, Span<Bgr555> target)
     {
         target[TimerFirstColor] = current[TimerFirstColor];
         target[TimerSecondColor] = current[TimerSecondColor];

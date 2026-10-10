@@ -192,7 +192,7 @@ public static class EndingCreditsRomData
         /// <summary>Source and destination color index four for the post-credits palette restoration, preserving colors zero through three.</summary>
         public const int PostCreditsPaletteDestination = 4;
         /// <summary>Packed SNES BGR555 white, with all three five-bit channels at full intensity.</summary>
-        public const ushort WhiteColor = 0x7fff;
+        public static Bgr555 WhiteColor => Bgr555.White;
     }
 
     /// <summary>Native music data and track selectors queued at escape and ending sequence boundaries.</summary>

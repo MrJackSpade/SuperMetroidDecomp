@@ -97,7 +97,7 @@ internal static partial class Program
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             runtime.StepFrame(0);
             palettes.LoadTo(runtime.Cgram, beam);
-            runtime.Cgram.SetColor(223, 0x1234);
+            runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame((ushort)SnesButton.X);
             AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
@@ -106,7 +106,7 @@ internal static partial class Program
             samus.InitializeAnimation(bus);
             samus.CommitPoseHistory(bus);
             palettes.LoadTo(runtime.Cgram, beam);
-            runtime.Cgram.SetColor(223, 0x1234);
+            runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame((ushort)SnesButton.X);
             AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");

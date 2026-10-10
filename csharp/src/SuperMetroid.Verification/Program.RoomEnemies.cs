@@ -210,7 +210,7 @@ static void VerifyRoomEnemyLoading()
     int emptyPopulationAddress = 0xa10000 | emptyPopulationPointer;
     WriteWord(bus, emptyPopulationAddress, 0xffff);
     bus.WriteByte(emptyPopulationAddress + 2, 0x7f);
-    cgram.SetColor(128, 0x4567);
+    cgram.SetColor(128, Bgr555.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(bus, emptyPopulationPointer, 0xffff, vram, cgram, () => 0);
 
@@ -1458,7 +1458,7 @@ static void VerifyCeresRidleyRoomEntry()
 
     int retreatFrames = 0;
     bool observedFakeRetreat = false;
-    ushort? retreatBackgroundColor = null;
+    Bgr555? retreatBackgroundColor = null;
     while (enemies.CeresStatus != 1 && retreatFrames < 1024)
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
@@ -1489,7 +1489,7 @@ static void VerifyCeresRidleyRoomEntry()
         .ToArray();
     AssertEqual(2, mode7Walls.Length,
         "Ceres Ridley spawns both native Mode-7 wall actors");
-    AssertEqual((ushort?)0x6100, retreatBackgroundColor,
+    AssertEqual((Bgr555?)Bgr555.FromWord(0x6100), retreatBackgroundColor,
         "Ceres Ridley retreat copies BG palette-five colors");
     AssertEqual(0x6200, cgram.Colors[0x21],
         "Ceres Ridley retreat copies BG palette-two colors");

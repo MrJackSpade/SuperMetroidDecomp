@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -29,7 +30,7 @@ public enum WreckedShipGhostAiFunction : ushort
 public sealed class WreckedShipGhostEnemyState
 {
     private readonly RoomEnemySlot _slot;
-    private readonly ushort[] _targetPalette = new ushort[16];
+    private readonly Bgr555[] _targetPalette = new Bgr555[16];
 
     internal WreckedShipGhostEnemyState(RoomEnemySlot slot) => _slot = slot;
 
@@ -102,9 +103,9 @@ public sealed class WreckedShipGhostEnemyState
     /// palette WRAM; the sidecar preserves that second buffer because <see cref="Hardware.SnesCgram"/>
     /// models the independently visible current palette.
     /// </summary>
-    public ReadOnlyMemory<ushort> TargetPalette => _targetPalette;
+    public ReadOnlyMemory<Bgr555> TargetPalette => _targetPalette;
 
-    internal Span<ushort> MutableTargetPalette => _targetPalette;
+    internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 }
 
 /// <summary>
@@ -166,7 +167,7 @@ public sealed partial class RoomEnemySystem
         state.MutableTargetPalette.Clear();
         int paletteStart = WreckedShipGhostPaletteStart(slot);
         for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(paletteStart + color, 0);
+            _cgram!.SetColor(paletteStart + color, Bgr555.Black);
         _wreckedShipGhostStates[slot.SlotIndex] = state;
     }
 
@@ -336,13 +337,15 @@ public sealed partial class RoomEnemySystem
         int colorsChanged = 0;
         for (int color = 0; color < 16; color++)
         {
-            ushort current = _cgram!.Colors[paletteStart + color];
-            if ((current & 0x001f) >= 31)
+            Bgr555 current = _cgram!.Colors[paletteStart + color];
+            if (current.Red >= 31)
                 continue;
 
             // Native adds $0421 as a word, raising red, green, and blue together. It gates
-            // only on red and does not independently saturate the other components.
-            _cgram.SetColor(paletteStart + color, unchecked((ushort)(current + 0x0421)));
+            // only on red and does not saturate the others: a full green or blue carries
+            // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
+            _cgram.SetColor(paletteStart + color,
+                Bgr555.FromCgramPortWord(unchecked((ushort)(current.ToWord() + 0x0421))));
             colorsChanged++;
         }
 
@@ -411,7 +414,7 @@ public sealed partial class RoomEnemySystem
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.MutableTargetPalette.Fill(0x7fff);
+        state.MutableTargetPalette.Fill(Bgr555.White);
     }
 
     /// <summary>Ports $A8:9C69: finish whitening, hide, and restart the 120-frame delay.</summary>
@@ -476,35 +479,34 @@ public sealed partial class RoomEnemySystem
     {
         int paletteStart = WreckedShipGhostPaletteStart(slot);
         int componentsChanged = 0;
-        ReadOnlySpan<ushort> target = state.TargetPalette.Span;
+        ReadOnlySpan<Bgr555> target = state.TargetPalette.Span;
         for (int color = 0; color < 16; color++)
         {
-            ushort current = _cgram!.Colors[paletteStart + color];
-            ushort next = current;
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], 0x001f, 0, ref componentsChanged);
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], 0x03e0, 5, ref componentsChanged);
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], 0x7c00, 10, ref componentsChanged);
+            Bgr555 current = _cgram!.Colors[paletteStart + color];
+            Bgr555 next = current;
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Red, ref componentsChanged);
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Green, ref componentsChanged);
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Blue, ref componentsChanged);
             if (next != current)
                 _cgram.SetColor(paletteStart + color, next);
         }
         return componentsChanged;
     }
 
-    private static ushort StepWreckedShipGhostPaletteComponent(
-        ushort current,
-        ushort target,
-        ushort mask,
-        int shift,
+    private static Bgr555 StepWreckedShipGhostPaletteComponent(
+        Bgr555 current,
+        Bgr555 target,
+        ColorChannel channel,
         ref int componentsChanged)
     {
-        int currentComponent = (current & mask) >> shift;
-        int targetComponent = (target & mask) >> shift;
+        int currentComponent = current[channel];
+        int targetComponent = target[channel];
         if (currentComponent == targetComponent)
             return current;
 
         currentComponent += currentComponent > targetComponent ? -1 : 1;
         componentsChanged++;
-        return unchecked((ushort)((current & ~mask) | (currentComponent << shift)));
+        return current.With(channel, currentComponent);
     }
 
     private static int WreckedShipGhostPaletteStart(RoomEnemySlot slot)

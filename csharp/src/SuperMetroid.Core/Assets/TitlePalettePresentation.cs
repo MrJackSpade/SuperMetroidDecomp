@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
-    private readonly ushort[] colors;
-    private readonly Dictionary<ushort, ushort> animatedColors;
+    private readonly Bgr555[] colors;
+    private readonly Dictionary<ushort, Bgr555> animatedColors;
 
     private TitlePalettePresentation(
-        ushort[] colors,
-        Dictionary<ushort, ushort> animatedColors,
-        ushort skipCopyrightWhite,
-        ushort skipCopyrightRed)
+        Bgr555[] colors,
+        Dictionary<ushort, Bgr555> animatedColors,
+        Bgr555 skipCopyrightWhite,
+        Bgr555 skipCopyrightRed)
     {
         this.colors = colors;
         this.animatedColors = animatedColors;
@@ -26,15 +26,15 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     }
 
     /// <summary>Selected BGR555 copyright highlight restored at CGRAM color 201 by the title fast-skip route and title-screen presentation rebinding.</summary>
-    public ushort SkipCopyrightWhite { get; }
+    public Bgr555 SkipCopyrightWhite { get; }
     /// <summary>Selected BGR555 copyright tint restored at CGRAM color 202 on fast skip; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
-    public ushort SkipCopyrightRed { get; }
+    public Bgr555 SkipCopyrightRed { get; }
 
     /// <inheritdoc />
     /// <param name="pointer">Bank-$8D address of a color operand in the tube-light or display program, not its duration or instruction word.</param>
     /// <param name="color">Selected native BGR555 word when found, otherwise zero.</param>
     /// <returns>True when the pointer identifies an authored or matching calculated ambient color; false for unrelated program addresses.</returns>
-    public bool TryReadColor(ushort pointer, out ushort color) =>
+    public bool TryReadColor(ushort pointer, out Bgr555 color) =>
         animatedColors.TryGetValue(pointer, out color) ||
         TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out color);
 
@@ -67,7 +67,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
                 $"{SnesCgram.ColorCount} RGB5 colors.");
         }
 
-        var colors = new ushort[SnesCgram.ColorCount];
+        var colors = new Bgr555[SnesCgram.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -77,9 +77,9 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
                 throw new InvalidDataException(
                     $"Title palette color {index} requires RGB components from 0 to 31.");
             }
-            colors[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            colors[index] = color.ToBgr555();
         }
-        var animatedColors = new Dictionary<ushort, ushort>();
+        var animatedColors = new Dictionary<ushort, Bgr555>();
         foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
                  TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -121,11 +121,11 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
                     }
 
                     ushort pointer = unchecked((ushort)(
-                        definition.FramePointer(frame) + sizeof(ushort) +
-                        index * sizeof(ushort)));
+                        definition.FramePointer(frame) + Bgr555.ByteCount +
+                        index * Bgr555.ByteCount));
                     animatedColors.Add(
                         pointer,
-                        (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+                        color.ToBgr555());
                 }
             }
         }
@@ -134,8 +134,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
-            ushort pointer = (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
-            if (TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out ushort calculated) &&
+            ushort pointer = (ushort)(program.FramePointer(frame) + Bgr555.ByteCount * (index + 1));
+            if (TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out Bgr555 calculated) &&
                 animatedColors[pointer] == calculated) animatedColors.Remove(pointer);
         }
         return new TitlePalettePresentation(colors, animatedColors,
@@ -143,12 +143,12 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
     }
 
-    private static ushort PackColor(PaletteRgb5? color, string name)
+    private static Bgr555 PackColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
             (uint)color.Blue > 31)
             throw new InvalidDataException($"Title {name} requires RGB components from 0 to 31.");
-        return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+        return color.ToBgr555();
     }
 
     /// <summary>Serializes and validates the complete title palette document before writing any UTF-8 JSON bytes.</summary>

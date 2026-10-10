@@ -18,7 +18,8 @@ internal static class SamusSpeedBoosterPalette
                     ? SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus,
                         (byte)(SamusPaletteRomData.Banks.Palette >> 16), (ushort)(index * 2), pointer)
                     : SpeedBoosterPaletteOverrunDefinitions.GrappleInstructionWord(index);
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, word);
+                // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromCgramPortWord(word));
             }
             return;
         }

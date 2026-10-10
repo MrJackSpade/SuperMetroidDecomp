@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class CartridgePaletteTransition
 {
-    private readonly ushort[] target;
+    private readonly Bgr555[] target;
     private readonly int denominator;
     private readonly GradualColorChangeCounter numerator;
 
-    /// <param name="target">All 256 destination CGRAM color words in native BGR555 order; copied into the transition's target buffer.</param>
+    /// <param name="target">All 256 destination CGRAM colors in native order; copied into the transition's target buffer.</param>
     /// <param name="denominator">Native interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
     /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
-    public CartridgePaletteTransition(ReadOnlySpan<ushort> target, int denominator, GradualColorChangeCounter numerator)
+    public CartridgePaletteTransition(ReadOnlySpan<Bgr555> target, int denominator, GradualColorChangeCounter numerator)
     {
         ArgumentNullException.ThrowIfNull(numerator);
         if (target.Length != SnesCgram.ColorCount)
@@ -47,7 +47,7 @@ internal sealed class CartridgePaletteTransition
         {
             if ((paletteMask & (1 << (color / 16))) == 0)
                 continue;
-            ushort current = cgram.Colors[color];
+            Bgr555 current = cgram.Colors[color];
             if (current != target[color])
                 cgram.SetColor(color, CalculateColor(transitionNumber, current, target[color]));
         }
@@ -56,15 +56,10 @@ internal sealed class CartridgePaletteTransition
     }
 
     /// <summary>Updates the native target buffer without resetting fade progress or current colors.</summary>
-    internal void SetTargetColor(int index, ushort color) => target[index] = color;
+    internal void SetTargetColor(int index, Bgr555 color) => target[index] = color;
 
-    private ushort CalculateColor(int step, ushort current, ushort destination)
-    {
-        int red = CalculateComponent(step, current & 0x1f, destination & 0x1f);
-        int green = CalculateComponent(step, (current >> 5) & 0x1f, (destination >> 5) & 0x1f);
-        int blue = CalculateComponent(step, (current >> 10) & 0x1f, (destination >> 10) & 0x1f);
-        return unchecked((ushort)(red | (green << 5) | (blue << 10)));
-    }
+    private Bgr555 CalculateColor(int step, Bgr555 current, Bgr555 destination) =>
+        current.Zip(destination, (_, from, to) => CalculateComponent(step, from, to));
 
     private int CalculateComponent(int step, int current, int destination)
     {

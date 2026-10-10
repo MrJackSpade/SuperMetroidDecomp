@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
@@ -43,7 +44,7 @@ internal sealed partial class EndingCreditsState
             "Ending palettes require installed artwork."))[id].LoadTo(cgram, sourceColor, count, destinationColor);
     }
 
-    private ushort StaticPaletteColor(EndingPaletteId id, int color)
+    private Bgr555 StaticPaletteColor(EndingPaletteId id, int color)
         => (paletteArtwork ?? throw new InvalidOperationException(
             "Ending palettes require installed artwork."))[id].Color(color);
 }

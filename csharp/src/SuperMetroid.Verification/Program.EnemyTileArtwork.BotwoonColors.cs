@@ -62,7 +62,7 @@ internal static partial class Program
             PaletteDestinationByteOffset =
                 BotwoonHealthPaletteDefinitions.DestinationColor * sizeof(ushort),
         };
-        cgram.SetColor(BotwoonHealthPaletteDefinitions.DestinationColor - 1, 0x1234);
+        cgram.SetColor(BotwoonHealthPaletteDefinitions.DestinationColor - 1, Bgr555.FromWord(0x1234));
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
             ushort phase = (ushort)(band * sizeof(ushort));

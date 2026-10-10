@@ -147,7 +147,7 @@ public sealed partial class IntroCinematicState
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     private byte[] japaneseBlankCharacter = [];
-    private readonly ushort[] introPalette = new ushort[SnesCgram.ColorCount];
+    private readonly Bgr555[] introPalette = new Bgr555[SnesCgram.ColorCount];
     private IntroCinematicObjectSystem? objects;
     private readonly IntroJapaneseSubtitles subtitles;
     private CinematicPaletteFader? paletteFader;

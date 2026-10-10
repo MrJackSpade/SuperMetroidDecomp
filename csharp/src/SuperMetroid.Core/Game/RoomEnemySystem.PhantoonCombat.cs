@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -431,8 +433,8 @@ public sealed partial class RoomEnemySystem
 
         for (int color = 0; color < 16; color++)
         {
-            ushort current = _cgram!.Colors[112 + color];
-            ushort target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
+            Bgr555 current = _cgram!.Colors[112 + color];
+            Bgr555 target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
             _cgram.SetColor(
                 112 + color,

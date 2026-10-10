@@ -79,7 +79,7 @@ internal static partial class Program
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, persistent overrides, ROM guard, and strict failures pass.");
 
-        void VerifyBand(int source, Func<int, ushort> resolve, string name)
+        void VerifyBand(int source, Func<int, Bgr555> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -87,7 +87,7 @@ internal static partial class Program
                     $"installed {name} color {color} preserves native RGB5");
         }
 
-        void VerifyLive(ushort variant, Func<int, ushort> resolve, string name,
+        void VerifyLive(ushort variant, Func<int, Bgr555> resolve, string name,
             string initializer, ushort? expectedInstruction)
         {
             var cgram = new SnesCgram();
@@ -116,8 +116,8 @@ internal static partial class Program
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedBand(Func<int, ushort> original,
-            Func<int, ushort> changed, string name)
+        static void CheckEditedBand(Func<int, Bgr555> original,
+            Func<int, Bgr555> changed, string name)
         {
             AssertTrue(original(5) != changed(5),
                 $"{name} edit changes selected RGB5 word");

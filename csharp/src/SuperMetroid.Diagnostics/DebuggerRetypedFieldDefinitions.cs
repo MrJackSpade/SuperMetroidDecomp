@@ -33,6 +33,12 @@ internal static class DebuggerRetypedFieldDefinitions
             converted = convert(saved);
             return true;
         }
+        // Color words that became Bgr555 restore through one shape-preserving rule.
+        if (DebuggerColorWordShapes.Applies(field.FieldType, saved.GetType()))
+        {
+            converted = DebuggerColorWordShapes.Convert(saved, field.FieldType);
+            return true;
+        }
         converted = saved;
         return false;
     }

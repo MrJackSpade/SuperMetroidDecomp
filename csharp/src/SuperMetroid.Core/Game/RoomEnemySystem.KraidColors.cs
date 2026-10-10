@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>
-    private ushort ReadKraidColor(KraidPaletteSource source, int index)
+    private Bgr555 ReadKraidColor(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPaletteRomData.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));

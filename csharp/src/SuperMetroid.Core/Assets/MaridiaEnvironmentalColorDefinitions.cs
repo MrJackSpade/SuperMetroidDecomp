@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -30,9 +31,9 @@ internal static class MaridiaEnvironmentalColorDefinitions
     }
 
     /// <summary>$8D:F4EF..F4FD and F57F..F58D: eight required sand colors and eight required waterfall colors, selected by cyclic phase.</summary>
-    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> inputs, out ushort color)
+    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> inputs, out Bgr555 color)
     {
-        color = 0;
+        color = Bgr555.Black;
         return TrySourcePointer(pointer, out ushort source) && inputs.TryGetValue(source, out color);
     }
 }

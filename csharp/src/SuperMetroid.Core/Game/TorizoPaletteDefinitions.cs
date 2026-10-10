@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Targets and mask for Torizo's native palette-transition instructions.</summary>
@@ -14,46 +16,51 @@ internal static class TorizoPaletteDefinitions
     /// fifteen): orb/flame and statue-shading paint. Row eleven's colors nine to fifteen and
     /// row fifteen's nine to eleven, thirteen and fourteen are single repeated fill colors.
     /// </summary>
-    internal static ReadOnlySpan<ushort> SharedRows =>
+    internal static ReadOnlySpan<Bgr555> SharedRows => SharedRowsColors;
+    private static readonly Bgr555[] SharedRowsColors =
     [
-        0x3800, 0x03ff, 0x033b, 0x0216, 0x0113, 0x6b1e, 0x4a16, 0x3591,
-        0x20e9, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580,
-        0x3800, 0x02df, 0x01d7, 0x00ac, 0x5a73, 0x41ad, 0x2d08, 0x1863,
-        0x1486, 0x0145, 0x0145, 0x0145, 0x7fff, 0x0145, 0x0145, 0x0000,
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x03ff), Bgr555.FromWord(0x033b), Bgr555.FromWord(0x0216), Bgr555.FromWord(0x0113), Bgr555.FromWord(0x6b1e), Bgr555.FromWord(0x4a16), Bgr555.FromWord(0x3591),
+        Bgr555.FromWord(0x20e9), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580), Bgr555.FromWord(0x1580),
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x02df), Bgr555.FromWord(0x01d7), Bgr555.FromWord(0x00ac), Bgr555.FromWord(0x5a73), Bgr555.FromWord(0x41ad), Bgr555.FromWord(0x2d08), Bgr555.FromWord(0x1863),
+        Bgr555.FromWord(0x1486), Bgr555.FromWord(0x0145), Bgr555.FromWord(0x0145), Bgr555.FromWord(0x0145), Bgr555.FromWord(0x7fff), Bgr555.FromWord(0x0145), Bgr555.FromWord(0x0145), Bgr555.FromWord(0x0000),
     ];
     /// <summary>$AA:86C7/$86E7, Bomb Torizo's initial (statue) body rows nine and ten.</summary>
-    internal static ReadOnlySpan<ushort> BombInitial =>
+    internal static ReadOnlySpan<Bgr555> BombInitial => BombInitialColors;
+    private static readonly Bgr555[] BombInitialColors =
     [
-        0x3800, 0x679f, 0x5299, 0x252e, 0x14aa, 0x5efc, 0x4657, 0x35b2,
-        0x2d70, 0x5b7f, 0x3df8, 0x2d0e, 0x5f5f, 0x5e1a, 0x5d35, 0x0c63,
-        0x3800, 0x4aba, 0x35b2, 0x0847, 0x0003, 0x4215, 0x2970, 0x18cb,
-        0x1089, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x679f), Bgr555.FromWord(0x5299), Bgr555.FromWord(0x252e), Bgr555.FromWord(0x14aa), Bgr555.FromWord(0x5efc), Bgr555.FromWord(0x4657), Bgr555.FromWord(0x35b2),
+        Bgr555.FromWord(0x2d70), Bgr555.FromWord(0x5b7f), Bgr555.FromWord(0x3df8), Bgr555.FromWord(0x2d0e), Bgr555.FromWord(0x5f5f), Bgr555.FromWord(0x5e1a), Bgr555.FromWord(0x5d35), Bgr555.FromWord(0x0c63),
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x4aba), Bgr555.FromWord(0x35b2), Bgr555.FromWord(0x0847), Bgr555.FromWord(0x0003), Bgr555.FromWord(0x4215), Bgr555.FromWord(0x2970), Bgr555.FromWord(0x18cb),
+        Bgr555.FromWord(0x1089), Bgr555.FromWord(0x463a), Bgr555.FromWord(0x28b3), Bgr555.FromWord(0x1809), Bgr555.FromWord(0x6f7f), Bgr555.FromWord(0x51fd), Bgr555.FromWord(0x4113), Bgr555.FromWord(0x0c63),
     ];
     /// <summary>$AA:8707/$8727, normal body targets loaded by $AA:C268.</summary>
-    internal static ReadOnlySpan<ushort> Normal =>
+    internal static ReadOnlySpan<Bgr555> Normal => NormalColors;
+    private static readonly Bgr555[] NormalColors =
     [
-        0x3800, 0x56ba, 0x41b2, 0x1447, 0x0403, 0x4e15, 0x3570, 0x24cb,
-        0x1868, 0x6f7f, 0x51f8, 0x410e, 0x031f, 0x01da, 0x00f5, 0x0c63,
-        0x3800, 0x4215, 0x2d0d, 0x0002, 0x0000, 0x3970, 0x20cb, 0x0c26,
-        0x0403, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x56ba), Bgr555.FromWord(0x41b2), Bgr555.FromWord(0x1447), Bgr555.FromWord(0x0403), Bgr555.FromWord(0x4e15), Bgr555.FromWord(0x3570), Bgr555.FromWord(0x24cb),
+        Bgr555.FromWord(0x1868), Bgr555.FromWord(0x6f7f), Bgr555.FromWord(0x51f8), Bgr555.FromWord(0x410e), Bgr555.FromWord(0x031f), Bgr555.FromWord(0x01da), Bgr555.FromWord(0x00f5), Bgr555.FromWord(0x0c63),
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x4215), Bgr555.FromWord(0x2d0d), Bgr555.FromWord(0x0002), Bgr555.FromWord(0x0000), Bgr555.FromWord(0x3970), Bgr555.FromWord(0x20cb), Bgr555.FromWord(0x0c26),
+        Bgr555.FromWord(0x0403), Bgr555.FromWord(0x463a), Bgr555.FromWord(0x28b3), Bgr555.FromWord(0x1809), Bgr555.FromWord(0x6f7f), Bgr555.FromWord(0x51fd), Bgr555.FromWord(0x4113), Bgr555.FromWord(0x0c63),
     ];
     /// <summary>
     /// $AA:8747/$8767, the Golden encounter's initial body pair written by Torizo_C280 before
     /// the first live damage callback switches to bank $84's health-indexed gradient.
     /// </summary>
-    internal static ReadOnlySpan<ushort> GoldenInitial =>
+    internal static ReadOnlySpan<Bgr555> GoldenInitial => GoldenInitialColors;
+    private static readonly Bgr555[] GoldenInitialColors =
     [
-        0x3800, 0x6ab5, 0x49b0, 0x1c45, 0x0c01, 0x5613, 0x416d, 0x2cc9,
-        0x2066, 0x5714, 0x31cc, 0x14e3, 0x5630, 0x3569, 0x1883, 0x0c66,
-        0x3800, 0x5610, 0x350b, 0x0800, 0x0000, 0x416e, 0x2cc8, 0x1823,
-        0x0c01, 0x6a31, 0x4caa, 0x2406, 0x7f7b, 0x75f4, 0x4d10, 0x0c63,
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x6ab5), Bgr555.FromWord(0x49b0), Bgr555.FromWord(0x1c45), Bgr555.FromWord(0x0c01), Bgr555.FromWord(0x5613), Bgr555.FromWord(0x416d), Bgr555.FromWord(0x2cc9),
+        Bgr555.FromWord(0x2066), Bgr555.FromWord(0x5714), Bgr555.FromWord(0x31cc), Bgr555.FromWord(0x14e3), Bgr555.FromWord(0x5630), Bgr555.FromWord(0x3569), Bgr555.FromWord(0x1883), Bgr555.FromWord(0x0c66),
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x5610), Bgr555.FromWord(0x350b), Bgr555.FromWord(0x0800), Bgr555.FromWord(0x0000), Bgr555.FromWord(0x416e), Bgr555.FromWord(0x2cc8), Bgr555.FromWord(0x1823),
+        Bgr555.FromWord(0x0c01), Bgr555.FromWord(0x6a31), Bgr555.FromWord(0x4caa), Bgr555.FromWord(0x2406), Bgr555.FromWord(0x7f7b), Bgr555.FromWord(0x75f4), Bgr555.FromWord(0x4d10), Bgr555.FromWord(0x0c63),
     ];
     /// <summary>$AA:8787/$87A7, Golden body targets loaded by $AA:C298.</summary>
-    internal static ReadOnlySpan<ushort> Golden =>
+    internal static ReadOnlySpan<Bgr555> Golden => GoldenColors;
+    private static readonly Bgr555[] GoldenColors =
     [
-        0x3800, 0x4bbe, 0x06b9, 0x00a8, 0x0000, 0x173a, 0x0276, 0x01f2,
-        0x014d, 0x73e0, 0x4f20, 0x2a20, 0x7fe0, 0x5aa0, 0x5920, 0x0043,
-        0x3800, 0x3719, 0x0214, 0x0003, 0x0000, 0x0295, 0x01d1, 0x014d,
-        0x00a8, 0x4b40, 0x25e0, 0x00e0, 0x6b40, 0x4600, 0x4480, 0x0000,
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x4bbe), Bgr555.FromWord(0x06b9), Bgr555.FromWord(0x00a8), Bgr555.FromWord(0x0000), Bgr555.FromWord(0x173a), Bgr555.FromWord(0x0276), Bgr555.FromWord(0x01f2),
+        Bgr555.FromWord(0x014d), Bgr555.FromWord(0x73e0), Bgr555.FromWord(0x4f20), Bgr555.FromWord(0x2a20), Bgr555.FromWord(0x7fe0), Bgr555.FromWord(0x5aa0), Bgr555.FromWord(0x5920), Bgr555.FromWord(0x0043),
+        Bgr555.FromWord(0x3800), Bgr555.FromWord(0x3719), Bgr555.FromWord(0x0214), Bgr555.FromWord(0x0003), Bgr555.FromWord(0x0000), Bgr555.FromWord(0x0295), Bgr555.FromWord(0x01d1), Bgr555.FromWord(0x014d),
+        Bgr555.FromWord(0x00a8), Bgr555.FromWord(0x4b40), Bgr555.FromWord(0x25e0), Bgr555.FromWord(0x00e0), Bgr555.FromWord(0x6b40), Bgr555.FromWord(0x4600), Bgr555.FromWord(0x4480), Bgr555.FromWord(0x0000),
     ];
 }

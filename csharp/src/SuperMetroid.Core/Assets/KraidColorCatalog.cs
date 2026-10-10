@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -15,18 +16,18 @@ public sealed class KraidColorCatalog
             Append(KraidPaletteSource.Health, health);
             Append(KraidPaletteSource.Secondary, secondary);
             Append(KraidPaletteSource.DeathArm, deathArm);
-            void Append(KraidPaletteSource source, IReadOnlyList<ushort> row)
+            void Append(KraidPaletteSource source, IReadOnlyList<Bgr555> row)
             {
                 content.Append("source", (int)source);
-                content.AppendWords("colors", row.ToArray());
+                content.AppendColors("colors", row.ToArray());
             }
         });
 
-    private readonly IReadOnlyList<ushort> roomBackdrop;
-    private readonly IReadOnlyList<ushort> initialTarget;
-    private readonly IReadOnlyList<ushort> health;
-    private readonly IReadOnlyList<ushort> secondary;
-    private readonly IReadOnlyList<ushort> deathArm;
+    private readonly IReadOnlyList<Bgr555> roomBackdrop;
+    private readonly IReadOnlyList<Bgr555> initialTarget;
+    private readonly IReadOnlyList<Bgr555> health;
+    private readonly IReadOnlyList<Bgr555> secondary;
+    private readonly IReadOnlyList<Bgr555> deathArm;
 
     private KraidColorCatalog(KraidColorDocument document)
     {
@@ -35,7 +36,7 @@ public sealed class KraidColorCatalog
         initialTarget = new StockBand(KraidPaletteSource.InitialTarget,
             Compile(document.InitialTarget, KraidPaletteSource.InitialTarget));
         health = new HealthPalette(Compile(document.Health, KraidPaletteSource.Health));
-        ushort[] suppliedSecondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
+        Bgr555[] suppliedSecondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
         secondary = suppliedSecondary.SequenceEqual(health) ? health : new HealthPalette(suppliedSecondary);
         deathArm = new StockBand(KraidPaletteSource.DeathArm,
             Compile(document.DeathArm, KraidPaletteSource.DeathArm));
@@ -45,9 +46,9 @@ public sealed class KraidColorCatalog
     /// Selects one of five named editable sources directly. Each source keeps its
     /// own loaded color bounds; unknown sources and out-of-range indices are rejected.
     /// </summary>
-    public ushort Resolve(KraidPaletteSource source, int index)
+    public Bgr555 Resolve(KraidPaletteSource source, int index)
     {
-        IReadOnlyList<ushort> band = source switch
+        IReadOnlyList<Bgr555> band = source switch
         {
             KraidPaletteSource.RoomBackdrop => roomBackdrop,
             KraidPaletteSource.InitialTarget => initialTarget,
@@ -65,12 +66,12 @@ public sealed class KraidColorCatalog
     /// One sixteen-color source stored as its supplied deviations from the stock paint in
     /// <see cref="KraidPaintDefinitions"/>; an unedited stock band stores nothing.
     /// </summary>
-    private sealed class StockBand : IReadOnlyList<ushort>
+    private sealed class StockBand : IReadOnlyList<Bgr555>
     {
         private readonly KraidPaletteSource source;
-        private readonly Dictionary<int, ushort> deviations = new();
+        private readonly Dictionary<int, Bgr555> deviations = new();
 
-        internal StockBand(KraidPaletteSource source, ushort[] supplied)
+        internal StockBand(KraidPaletteSource source, Bgr555[] supplied)
         {
             this.source = source;
             for (int index = 0; index < supplied.Length; index++)
@@ -79,10 +80,10 @@ public sealed class KraidColorCatalog
         }
 
         public int Count => KraidPaletteRomData.ColorCount(source);
-        public ushort this[int index] => deviations.TryGetValue(index, out ushort supplied)
+        public Bgr555 this[int index] => deviations.TryGetValue(index, out Bgr555 supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
 
-        public IEnumerator<ushort> GetEnumerator()
+        public IEnumerator<Bgr555> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
@@ -94,20 +95,14 @@ public sealed class KraidColorCatalog
     /// Interpolates one channelwise health color for <paramref name="band"/> between the first
     /// normal band and the final band, to nearest integer over the seven intervals.
     /// </summary>
-    internal static ushort InterpolateHealth(ushort first, ushort last, int band)
+    internal static Bgr555 InterpolateHealth(Bgr555 first, Bgr555 last, int band)
     {
-        int result = 0;
         int intervals = KraidPaletteRomData.HealthBandCount - 2;
-        for (int shift = 0; shift <= 10; shift += 5)
+        return first.Zip(last, (_, start, end) =>
         {
-            int start = first >> shift & 31;
-            int end = last >> shift & 31;
             int delta = end - start;
-            int channel = start + Math.Sign(delta) *
-                ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
-            result |= channel << shift;
-        }
-        return (ushort)result;
+            return start + Math.Sign(delta) * ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
+        });
     }
 
     /// <summary>
@@ -117,15 +112,15 @@ public sealed class KraidColorCatalog
     /// interpolate the current endpoints, and their transparent slot is the final band's.
     /// Only supplied deviations are stored, so edited endpoints still drive every step.
     /// </summary>
-    private sealed class HealthPalette : IReadOnlyList<ushort>
+    private sealed class HealthPalette : IReadOnlyList<Bgr555>
     {
-        private readonly Dictionary<int, ushort> deviations = new();
+        private readonly Dictionary<int, Bgr555> deviations = new();
 
-        internal HealthPalette(ushort[] supplied)
+        internal HealthPalette(Bgr555[] supplied)
         {
             // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
             for (int index = 0; index < supplied.Length; index++)
-                if (KraidPaintDefinitions.HealthAuthored(index) is ushort stock && stock != supplied[index])
+                if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 stock && stock != supplied[index])
                     deviations.Add(index, supplied[index]);
             for (int index = 0; index < supplied.Length; index++)
                 if (KraidPaintDefinitions.HealthAuthored(index) is null && Calculate(index) != supplied[index])
@@ -133,19 +128,19 @@ public sealed class KraidColorCatalog
         }
 
         public int Count => KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors;
-        public ushort this[int index]
+        public Bgr555 this[int index]
         {
             get
             {
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
-                return deviations.TryGetValue(index, out ushort supplied) ? supplied : Calculate(index);
+                return deviations.TryGetValue(index, out Bgr555 supplied) ? supplied : Calculate(index);
             }
         }
 
-        private ushort Calculate(int index)
+        private Bgr555 Calculate(int index)
         {
-            if (KraidPaintDefinitions.HealthAuthored(index) is ushort authored)
+            if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 authored)
                 return authored;
             int band = index / KraidPaletteRomData.BandColors;
             int color = index % KraidPaletteRomData.BandColors;
@@ -155,7 +150,7 @@ public sealed class KraidColorCatalog
             return InterpolateHealth(this[KraidPaletteRomData.BandColors + color], this[finalBand + color], band);
         }
 
-        public IEnumerator<ushort> GetEnumerator()
+        public IEnumerator<Bgr555> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
@@ -198,12 +193,12 @@ public sealed class KraidColorCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
     {
         int expected = KraidPaletteRomData.ColorCount(kind);
         if (source is null || source.Length != expected)
             throw new InvalidDataException($"Kraid {kind} requires {expected} colors.");
-        var result = new ushort[expected];
+        var result = new Bgr555[expected];
         for (int index = 0; index < expected; index++)
         {
             PaletteRgb5? rgb = source[index];
@@ -211,7 +206,7 @@ public sealed class KraidColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Kraid {kind} color {index} requires RGB5 channels 0..31.");
-            result[index] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            result[index] = rgb.ToBgr555();
         }
         return result;
     }

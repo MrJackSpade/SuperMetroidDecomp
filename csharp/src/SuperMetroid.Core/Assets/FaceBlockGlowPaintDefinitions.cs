@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Reviewed eye/mouth glow composition at $A8:E7CC-E80B, copied to inks9..12 by E893-E8AA.
@@ -19,7 +21,7 @@ internal static class FaceBlockGlowPaintDefinitions
     /// <summary>$A8:E7CC-E80B: four light depths followed by their reverse, including both repeated ends.</summary>
     private const int PeakDepth = 3;
 
-    internal static bool Matches(ushort[][] frames)
+    internal static bool Matches(Bgr555[][] frames)
     {
         for (int frame = 0; frame < 2 * (PeakDepth + 1); frame++)
         for (int color = 0; color < 4; color++)
@@ -27,18 +29,18 @@ internal static class FaceBlockGlowPaintDefinitions
         return true;
     }
 
-    internal static ushort Color(int frame, int color)
+    internal static Bgr555 Color(int frame, int color)
     {
         if ((uint)frame >= 2 * (PeakDepth + 1) || (uint)color >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
         int depth = Math.Min(frame, 2 * PeakDepth + 1 - frame);
         int green = Interpolate(0, PeakGreen, depth, PeakDepth);
         return color switch
         {
-            0 => (ushort)(31 | green << 5 | depth * BlueDepthStep << 10),
-            1 => (ushort)(Interpolate(MiddleRestRed, 31, depth, PeakDepth) | (green + 1) / 2 << 5),
-            2 => (ushort)Interpolate(ShadowRestRed, 31, depth, PeakDepth),
-            3 when depth == 0 => (ushort)(ShadowRestRed + RestWarmAddition | RestWarmAddition << 5),
-            3 => (ushort)Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1),
+            0 => new Bgr555(31, green, depth * BlueDepthStep),
+            1 => new Bgr555(Interpolate(MiddleRestRed, 31, depth, PeakDepth), (green + 1) / 2, 0),
+            2 => new Bgr555(Interpolate(ShadowRestRed, 31, depth, PeakDepth), 0, 0),
+            3 when depth == 0 => new Bgr555(ShadowRestRed + RestWarmAddition, RestWarmAddition, 0),
+            3 => new Bgr555(Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1), 0, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }

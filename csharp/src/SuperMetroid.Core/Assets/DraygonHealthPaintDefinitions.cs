@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -20,16 +22,16 @@ internal sealed class DraygonHealthPaintDefinitions
     /// rule selecting alternate paint. Pixels and health thresholds are separate.
     /// </summary>
     private const int HealthyRedStep = 5, HealthyGreenStep = 6;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal DraygonHealthPaintDefinitions(ushort[][] rows)
+    internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < Bands; band++)
             for (int shade = 0; shade < Shades; shade++)
                 if (rows[band][shade] != Calculate(band, shade)) edits.Add(band * Shades + shade, rows[band][shade]);
     }
 
-    internal ushort Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out ushort edited)
+    internal Bgr555 Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out Bgr555 edited)
         ? edited : Calculate(band, shade);
 
     /// <summary>
@@ -38,18 +40,18 @@ internal sealed class DraygonHealthPaintDefinitions
     /// nearest sevenths; there are no retained output samples. The gold-to-red
     /// hue transition and shade assignment are selected health-color composition.
     /// </summary>
-    private static ushort Calculate(int band, int shade)
+    private static Bgr555 Calculate(int band, int shade)
     {
         int healthyRed = HealthyRedStep * (Shades + 1 - shade);
         int healthyGreen = HealthyGreenStep * (Shades - shade);
         int criticalRed = (Maximum * (Shades - shade) + Shades / 2) / Shades;
         int red = Interpolate(healthyRed, criticalRed, band);
         int green = Interpolate(healthyGreen, 0, band);
-        return (ushort)(red | green << 5);
+        return new Bgr555(red, green, 0);
     }
 
     /// <summary>Immutable healthy gold material shared with the primary body palette.</summary>
-    internal static ushort HealthyShade(int shade)
+    internal static Bgr555 HealthyShade(int shade)
     {
         if ((uint)shade >= Shades) throw new ArgumentOutOfRangeException(nameof(shade));
         return Calculate(0, shade);

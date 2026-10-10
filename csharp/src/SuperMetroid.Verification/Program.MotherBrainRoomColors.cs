@@ -322,6 +322,6 @@ internal static partial class Program
     private static void Seed(SnesCgram cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, (ushort)(index * 71 & 0x7fff));
+            cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 71 & 0x7fff)));
     }
 }

@@ -10,8 +10,8 @@ public sealed class BeamPaletteCatalog
 {
     // Reviewed exact material paint and copied target metadata have bounded dispositions;
     // every stock output calculates, while independently supplied words stay exact.
-    private readonly Dictionary<int, ushort> palettes = new();
-    private BeamPaletteCatalog(ushort[][] rows)
+    private readonly Dictionary<int, Bgr555> palettes = new();
+    private BeamPaletteCatalog(Bgr555[][] rows)
     {
         for (int selection = 0; selection < rows.Length; selection++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
@@ -19,8 +19,8 @@ public sealed class BeamPaletteCatalog
                 palettes.Add(selection * BeamPaletteDefinitions.ColorCount + color, rows[selection][color]);
     }
 
-    private ushort Color(int selection, int color) =>
-        palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out ushort supplied)
+    private Bgr555 Color(int selection, int color) =>
+        palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -46,19 +46,19 @@ public sealed class BeamPaletteCatalog
         if (document.Version != BeamPaletteDefinitions.Version || document.Palettes is null ||
             document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
-        var compiled = new ushort[BeamTileAtlasDefinitions.SelectionCount][];
+        var compiled = new Bgr555[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
             if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(selection), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
-            compiled[selection] = new ushort[colors.Length];
+            compiled[selection] = new Bgr555[colors.Length];
             for (int i = 0; i < colors.Length; i++)
             {
                 var color = colors[i];
                 if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                     throw new InvalidDataException("Beam colors require RGB components from zero through 31.");
-                compiled[selection][i] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+                compiled[selection][i] = color.ToBgr555();
             }
         }
         return new(compiled);

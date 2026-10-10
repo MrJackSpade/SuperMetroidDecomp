@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
-    private readonly ushort[] initial;
-    private readonly ushort[] commonSprites;
+    private readonly Bgr555[] initial;
+    private readonly Bgr555[] commonSprites;
 
-    private GameplayBasePaletteCatalog(ushort[] initial, ushort[] commonSprites)
+    private GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
     {
         this.initial = initial;
         this.commonSprites = commonSprites;
@@ -18,8 +18,8 @@ public sealed class GameplayBasePaletteCatalog
     /// <summary>Identity of the decoded selected colors, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(GameplayBasePaletteCatalog), content =>
     {
-        content.AppendWords("initial", initial);
-        content.AppendWords("common sprites", commonSprites);
+        content.AppendColors("initial", initial);
+        content.AppendColors("common sprites", commonSprites);
     });
 
     /// <summary>Loads the complete selected 256-color starting image into CGRAM.</summary>
@@ -69,18 +69,18 @@ public sealed class GameplayBasePaletteCatalog
         return bytes;
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, int expected, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)
             throw new InvalidDataException($"Gameplay {name} palette requires {expected} RGB5 colors.");
-        var result = new ushort[expected];
+        var result = new Bgr555[expected];
         for (int color = 0; color < expected; color++)
         {
             PaletteRgb5 entry = source[color] ??
                 throw new InvalidDataException($"Gameplay {name} color {color} is null.");
             if ((uint)entry.Red > 31 || (uint)entry.Green > 31 || (uint)entry.Blue > 31)
                 throw new InvalidDataException($"Gameplay {name} color {color} exceeds RGB5.");
-            result[color] = (ushort)(entry.Red | entry.Green << 5 | entry.Blue << 10);
+            result[color] = entry.ToBgr555();
         }
         return result;
     }

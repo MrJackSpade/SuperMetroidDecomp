@@ -192,6 +192,18 @@ internal static class VerificationAssert
     internal static void AssertEqual(int expected, ushort? actual, string context) =>
         AssertEqual<ushort?>(checked((ushort)expected), actual, context);
 
+    /// <summary>Compares a color with an expected cartridge word, decoded as a 15-bit color.</summary>
+    internal static void AssertEqual(int expectedWord, Bgr555 actual, string context) =>
+        AssertEqual(Bgr555.FromWord(checked((ushort)expectedWord)), actual, context);
+
+    /// <summary>Compares an expected color with an actual cartridge word, decoded as a 15-bit color.</summary>
+    internal static void AssertEqual(Bgr555 expected, ushort actualWord, string context) =>
+        AssertEqual(expected, Bgr555.FromWord(actualWord), context);
+
+    /// <summary>Compares a nullable color with an expected cartridge word.</summary>
+    internal static void AssertEqual(int expectedWord, Bgr555? actual, string context) =>
+        AssertEqual<Bgr555?>(Bgr555.FromWord(checked((ushort)expectedWord)), actual, context);
+
     internal static TException AssertThrows<TException>(Action action, string context)
         where TException : Exception
     {

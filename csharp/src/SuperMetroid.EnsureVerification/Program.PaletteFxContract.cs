@@ -56,10 +56,10 @@ internal static partial class Program
             // Expected failure stays inside the guarded verifier, never Windows UI.
         }
         int colorIndex = CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex / sizeof(ushort);
-        if (cgram.Colors[colorIndex] != 0 || fx.ActiveCount != 1)
+        if (cgram.Colors[colorIndex] != Bgr555.Black || fx.ActiveCount != 1)
             throw new InvalidOperationException("Rejected null colors mutated CGRAM or native slots.");
         fx.Step(bus, cgram, new ContractPaletteColors(), 0, 0, false, false);
-        if (cgram.Colors[colorIndex] != 31)
+        if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0))
             throw new InvalidOperationException("Rejected null colors advanced the native palette instruction timer.");
         Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
     }
@@ -93,9 +93,9 @@ internal static partial class Program
 
     private sealed class ContractPaletteColors : IPaletteFxColorSource
     {
-        public bool TryReadColor(ushort pointer, out ushort color)
+        public bool TryReadColor(ushort pointer, out Bgr555 color)
         {
-            color = 31; // Constructed red confirms the first native frame executes after the rejection.
+            color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
             return pointer == CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorPointer(0, 0);
         }
     }

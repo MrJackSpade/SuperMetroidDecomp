@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 
@@ -12,8 +13,8 @@ public sealed partial class D3D11FrameRenderer
         data[1] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RowCount * 4);
         data[2] = GameplayMessageRomData.Layout.CharacterBaseWord;
         data[3] = (uint)layer.RowCount;
-        data[10] = GameplayMessageRomData.Palette.TemporaryLightColor;
-        data[11] = GameplayMessageRomData.Palette.TemporaryDarkColor;
+        data[10] = GameplayMessageRomData.Palette.TemporaryLightColor.ToWord();
+        data[11] = GameplayMessageRomData.Palette.TemporaryDarkColor.ToWord();
         data[12] = GameplayMessageRomData.Palette.TemporaryLightIndex;
         data[13] = GameplayMessageRomData.Palette.TemporaryDarkIndex;
         data[25] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RadiusPixels);

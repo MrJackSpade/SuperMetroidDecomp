@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -11,9 +13,9 @@ internal sealed class DraygonIntroPaintDefinitions
 {
     private readonly DraygonMaterialPaintDefinitions primary;
     private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
-    private readonly ushort? clearEdit;
+    private readonly Bgr555? clearEdit;
 
-    internal DraygonIntroPaintDefinitions(ReadOnlySpan<ushort> colors)
+    internal DraygonIntroPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 25) throw new ArgumentException("Draygon intro requires twenty-five colors.", nameof(colors));
         primary = new(colors[..16]);
@@ -21,7 +23,7 @@ internal sealed class DraygonIntroPaintDefinitions
         clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];
     }
 
-    internal ushort Color(int index)
+    internal Bgr555 Color(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 16) return primary.Color(index);

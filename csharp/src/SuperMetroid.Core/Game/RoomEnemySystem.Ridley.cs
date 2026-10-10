@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -86,9 +87,9 @@ public sealed partial class RoomEnemySystem
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_cgram!);
         for (int color = 113; color <= 127; color++)
-            _cgram!.SetColor(color, 0);
+            _cgram!.SetColor(color, Bgr555.Black);
         for (int color = 241; color <= 255; color++)
-            _cgram!.SetColor(color, 0);
+            _cgram!.SetColor(color, Bgr555.Black);
     }
 
     /// <summary>

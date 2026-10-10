@@ -276,7 +276,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(112 + color, 0x7fff);
+            _cgram!.SetColor(112 + color, Bgr555.White);
         tentacles.Parameter2 |= 0x0100;
     }
 
@@ -289,7 +289,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
-    private ushort ReadPhantoonHealthColor(int healthBand, int color) =>
+    private Bgr555 ReadPhantoonHealthColor(int healthBand, int color) =>
         (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Game;
 
@@ -9,13 +10,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
-    internal readonly Dictionary<ushort, ushort> colors;
+    internal readonly Dictionary<ushort, Bgr555> colors;
 
     private readonly HeatPaletteInputView heatInputs;
     private readonly LoadingPaletteInputView loadingInputs;
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
-    private RoomPaletteFxPresentation(Dictionary<ushort, ushort> colors)
+    private RoomPaletteFxPresentation(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
         heatInputs = new HeatPaletteInputView(colors);
@@ -24,7 +25,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     }
 
     /// <inheritdoc />
-    public bool TryReadColor(ushort pointer, out ushort color) =>
+    public bool TryReadColor(ushort pointer, out Bgr555 color) =>
         gunshipInputs.TryGetValue(pointer, out color) ||
         PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out color) ||
         MaridiaEnvironmentalColorDefinitions.TryReadColor(pointer, colors, out color) ||
@@ -58,7 +59,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 $"{RoomPaletteFxPresentationFormat.Version}.");
         }
 
-        var colors = new Dictionary<ushort, ushort>();
+        var colors = new Dictionary<ushort, Bgr555>();
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {
@@ -80,7 +81,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
                 {
                     ushort pointer = ColorPointer(frame, index);
-                    if (!previousVersionFallback!.TryReadColor(pointer, out ushort stockColor))
+                    if (!previousVersionFallback!.TryReadColor(pointer, out Bgr555 stockColor))
                         throw new InvalidDataException(
                             $"Current stock is missing {definition.Suit} heat color $8D:{pointer:X4}.");
                     colors.Add(pointer, stockColor);
@@ -489,8 +490,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < 15; index++)
         {
             ushort pointer = (ushort)(frame.FirstColorPointer + 2 * index);
-            if (colors.TryGetValue(pointer, out ushort supplied) &&
-                HeatPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) && supplied == calculated)
+            if (colors.TryGetValue(pointer, out Bgr555 supplied) &&
+                HeatPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) && supplied == calculated)
                 colors.Remove(pointer);
         }
         foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
@@ -506,8 +507,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < 16; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
-            if (colors.TryGetValue(pointer, out ushort supplied) &&
-                LoadingPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) && supplied == calculated)
+            if (colors.TryGetValue(pointer, out Bgr555 supplied) &&
+                LoadingPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) && supplied == calculated)
                 colors.Remove(pointer);
         }
         // Only matching samples are discarded. If the player edits a base color,
@@ -516,14 +517,14 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
         {
             ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-            if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
+            if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount - 1; frame++)
         for (int index = 0; index < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
         {
             ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
+            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         // Keep both endpoints and independent sample edits. Only values matching
@@ -532,7 +533,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
         {
             ushort pointer = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-            if (TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
+            if (TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         var surfaceLightning = CrateriaLightningColorDefinitions.SurfaceProgram;
@@ -540,7 +541,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < surfaceLightning.ColorsPerFrame; index++)
         {
             ushort pointer = surfaceLightning.ColorPointer(frame, index);
-            if (CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out ushort calculated) &&
+            if (CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         var darkLightning = CrateriaLightningColorDefinitions.DarkProgram;
@@ -548,7 +549,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         for (int index = 0; index < darkLightning.ColorsPerFrame; index++)
         {
             ushort pointer = darkLightning.ColorPointer(frame, index);
-            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(pointer, colors, out ushort calculated) &&
+            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
@@ -557,7 +558,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         {
             ushort pointer = program.ColorPointer(frame, index);
             if (pointer != PlanetZebesTextColorDefinitions.EndpointPointer(index)
-                && PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out ushort calculated)
+                && PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out Bgr555 calculated)
                 && colors[pointer] == calculated) colors.Remove(pointer);
         }
         foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
@@ -590,7 +591,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         int frameCount,
         int colorCount,
         Func<int, int, ushort> colorPointer,
-        Dictionary<ushort, ushort> destination)
+        Dictionary<ushort, Bgr555> destination)
     {
         if (frames is null || frames.Length != frameCount)
         {
@@ -622,7 +623,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 ushort pointer = colorPointer(frame, index);
                 destination.Add(
                     pointer,
-                    (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+                    color.ToBgr555());
             }
         }
     }

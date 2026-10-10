@@ -15,14 +15,14 @@ namespace SuperMetroid.Core.Rendering;
 public sealed class PpuMemorySnapshot
 {
     private readonly byte[] vram;
-    private readonly ushort[] cgram;
+    private readonly Bgr555[] cgram;
     private readonly byte[] oam;
 
     /// <summary>Physical VRAM bytes, including Mode 7's interleaved map/characters.</summary>
     public ReadOnlySpan<byte> Vram => vram;
 
     /// <summary>Native palette words; conversion to display colors is backend work.</summary>
-    public ReadOnlySpan<ushort> Cgram => cgram;
+    public ReadOnlySpan<Bgr555> Cgram => cgram;
 
     /// <summary>Contiguous low and high OAM tables in DMA upload order.</summary>
     public ReadOnlySpan<byte> Oam => oam;
@@ -38,7 +38,7 @@ public sealed class PpuMemorySnapshot
     /// Copies complete memory images. No caller-owned arrays or mutable hardware
     /// references survive construction, including when loading a serialized fixture.
     /// </summary>
-    public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<ushort> cgram,
+    public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
         ReadOnlySpan<byte> oam, int modeledSpriteCount = SnesPpuLayout.OamSpriteCount)
         : this(vram.ToArray(), cgram.ToArray(), oam.ToArray(), modeledSpriteCount)
     {
@@ -48,7 +48,7 @@ public sealed class PpuMemorySnapshot
     /// Takes ownership of arrays nothing will write again. Capture passes
     /// <see cref="SnesVram.CaptureImage"/>, so snapshots of an unchanged VRAM share one image.
     /// </summary>
-    private PpuMemorySnapshot(byte[] vram, ushort[] cgram, byte[] oam, int modeledSpriteCount)
+    private PpuMemorySnapshot(byte[] vram, Bgr555[] cgram, byte[] oam, int modeledSpriteCount)
     {
         if ((uint)modeledSpriteCount > SnesPpuLayout.OamSpriteCount)
             throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));

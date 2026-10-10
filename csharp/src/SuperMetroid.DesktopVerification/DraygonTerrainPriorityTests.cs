@@ -89,7 +89,7 @@ internal static partial class Program
                 // BG1 low, BG2 low. Color zero is transparent on either plane.
                 bool terrainWins = a.Opaque && (!b.Opaque || a.High || !b.High);
                 int palette = terrainWins ? a.Palette : b.Opaque ? b.Palette : 0;
-                Rgba32 expected = SnesGraphics.DecodeBgr555Color(capture.Memory.Cgram[palette]);
+                Rgba32 expected = capture.Memory.Cgram[palette].ToRgba32();
                 if (actual[y * 256 + x] != expected)
                     throw new InvalidOperationException($"Draygon BG priority mismatch at ({x},{y}): terrain high={a.High}, body high={b.High}.");
                 if (a.Opaque && b.Opaque)

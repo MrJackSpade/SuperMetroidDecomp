@@ -96,7 +96,7 @@ internal static partial class Program
             (CeresDestructionCinematicState)typeof(SuperMetroidGame)
                 .GetField("ceresDestruction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
 
-        static ushort[] Colors(CeresDestructionCinematicState owner) =>
+        static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             ((SnesCgram)typeof(CeresDestructionCinematicState)
                 .GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!).Colors.ToArray();
     }

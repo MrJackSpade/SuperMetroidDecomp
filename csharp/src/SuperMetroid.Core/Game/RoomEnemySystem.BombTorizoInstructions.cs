@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -86,7 +87,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToBlack:
-                SetTorizoPaletteTarget(state, new ushort[32]);
+                SetTorizoPaletteTarget(state, new Bgr555[32]);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

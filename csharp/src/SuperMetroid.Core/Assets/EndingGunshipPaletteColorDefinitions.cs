@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -51,49 +52,49 @@ internal static class EndingGunshipPaletteColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = pointer - (ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FirstFramePointer + sizeof(ushort));
+        int offset = pointer - (ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FirstFramePointer + Bgr555.ByteCount);
         if ((uint)offset >= ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount *
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
         int within = offset % ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount;
-        if ((within & 1) != 0 || within >= 16 * sizeof(ushort)) return false;
+        if ((within & 1) != 0 || within >= 16 * Bgr555.ByteCount) return false;
         frame = offset / ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount;
-        color = within / sizeof(ushort);
+        color = within / Bgr555.ByteCount;
         return true;
     }
 
     /// <summary>Defaults are calculated only after explicit supplied edits have been
     /// checked. Endpoint resolution has one bounded level: white/dim depend at most on
     /// the supplied bright row. No generated palette row is stored.</summary>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         if (!TryCoordinates(pointer, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
             return false;
         if (frame == 0)
         {
-            value = color == 0 ? (ushort)0 : (ushort)0x7fff;
+            value = color == 0 ? Bgr555.Black : Bgr555.FromWord(0x7fff);
             return true;
         }
         if (frame is 7 or 8)
         {
-            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, color), out ushort bright))
+            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, color), out Bgr555 bright))
                 return false;
-            value = Pack((bright & 31) * 2 / 7, (bright >> 5 & 31) * 2 / 7, (bright >> 10 & 31) * 2 / 7);
+            value = Pack((bright.Red) * 2 / 7, (bright.Green) * 2 / 7, (bright.Blue) * 2 / 7);
             return true;
         }
         int first = frame < 8 ? 0 : 8, last = frame < 8 ? 7 : 15;
-        if (!Endpoint(first, color, colors, out ushort a) || !Endpoint(last, color, colors, out ushort b)) return false;
+        if (!Endpoint(first, color, colors, out Bgr555 a) || !Endpoint(last, color, colors, out Bgr555 b)) return false;
         int t = frame - first, bias = frame < 8 ? 0 : 3;
-        value = Pack(((a & 31) * (7 - t) + (b & 31) * t + bias) / 7,
-            ((a >> 5 & 31) * (7 - t) + (b >> 5 & 31) * t + bias) / 7,
-            ((a >> 10 & 31) * (7 - t) + (b >> 10 & 31) * t + bias) / 7);
+        value = Pack(((a.Red) * (7 - t) + (b.Red) * t + bias) / 7,
+            ((a.Green) * (7 - t) + (b.Green) * t + bias) / 7,
+            ((a.Blue) * (7 - t) + (b.Blue) * t + bias) / 7);
         return true;
     }
 
-    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
         ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
         return colors.TryGetValue(pointer, out value) || TryCalculatedColor(pointer, colors, out value);
     }
-    private static ushort Pack(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

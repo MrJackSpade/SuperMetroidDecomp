@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -13,30 +14,30 @@ public sealed class SporeSpawnColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
         {
-            content.AppendWords("spores", Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame).Select(ResolveSpore).ToArray());
-            content.AppendWordFrames("health", Enumerable.Range(0, SporeSpawnColorRomData.HealthFrameCount)
+            content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame).Select(ResolveSpore).ToArray());
+            content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorRomData.HealthFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
                     .Select(color => health.Resolve(frame, color)).ToArray()).ToArray());
-            content.AppendWordFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorRomData.DeathSpriteFrameCount)
+            content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorRomData.DeathSpriteFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
                     .Select(color => ResolveDeathSprite(frame, color)).ToArray()).ToArray());
-            content.AppendWordFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorRomData.DeathSceneFrameCount)
+            content.AppendColorFrames("deathLevel", Enumerable.Range(0, SporeSpawnColorRomData.DeathSceneFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
                     .Select(color => ResolveDeathLevel(frame, color)).ToArray()).ToArray());
-            content.AppendWordFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorRomData.DeathSceneFrameCount)
+            content.AppendColorFrames("deathBackground", Enumerable.Range(0, SporeSpawnColorRomData.DeathSceneFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
                     .Select(color => ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
-    private readonly Dictionary<int, ushort> spores = new();
+    private readonly Dictionary<int, Bgr555> spores = new();
     private readonly HealthRows health;
     // Endpoint colors remain required inputs; intermediate entries store independent edits only.
-    private readonly Dictionary<int, ushort> deathSprite = new();
-    private readonly Dictionary<int, ushort> deathLevel = new();
-    private readonly Dictionary<int, ushort> deathBackground = new();
+    private readonly Dictionary<int, Bgr555> deathSprite = new();
+    private readonly Dictionary<int, Bgr555> deathLevel = new();
+    private readonly Dictionary<int, Bgr555> deathBackground = new();
 
-    private SporeSpawnColorCatalog(ushort[] spores, ushort[][] health,
-        ushort[][] deathSprite, ushort[][] deathLevel, ushort[][] deathBackground)
+    private SporeSpawnColorCatalog(Bgr555[] spores, Bgr555[][] health,
+        Bgr555[][] deathSprite, Bgr555[][] deathLevel, Bgr555[][] deathBackground)
     {
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
             if (spores[color] != health[0][color]) this.spores[color] = spores[color];
@@ -56,7 +57,7 @@ public sealed class SporeSpawnColorCatalog
         {
             this.deathLevel[levelLast * SporeSpawnColorRomData.ColorsPerFrame + color] = deathLevel[levelLast][color];
             for (int frame = 0; frame < levelLast; frame++)
-                if (!SporeSpawnDeathColorDefinitions.TryLevelColor(deathLevel[levelLast][color], frame, color, out ushort calculated)
+                if (!SporeSpawnDeathColorDefinitions.TryLevelColor(deathLevel[levelLast][color], frame, color, out Bgr555 calculated)
                     || deathLevel[frame][color] != calculated)
                     this.deathLevel[frame * SporeSpawnColorRomData.ColorsPerFrame + color] = deathLevel[frame][color];
         }
@@ -82,14 +83,14 @@ public sealed class SporeSpawnColorCatalog
     /// palette7. The chosen healthy colors remain required under the health payload.
     /// Independently supplied spore colors override this original shared coloring.
     /// </summary>
-    public ushort ResolveSpore(int color)
+    public Bgr555 ResolveSpore(int color)
     {
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return spores.TryGetValue(color, out ushort selected) ? selected : health.Resolve(0, color);
+        return spores.TryGetValue(color, out Bgr555 selected) ? selected : health.Resolve(0, color);
     }
     /// <summary>Gets packed RGB5 ink 0–15 from health row 0–3 at $A5:E379–$E3F8, selected by boss health and copied to OBJ palette 1 at CGRAM 144–159.</summary>
-    public ushort ResolveHealth(int frame, int color)
+    public Bgr555 ResolveHealth(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.HealthFrameCount);
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
@@ -108,17 +109,17 @@ public sealed class SporeSpawnColorCatalog
     {
         private const int FirstInterpolatedColor = 9;
         private const int LastPaintedColor = 8;
-        private readonly ushort[] healthy;
-        private readonly ushort[] critical;
-        private readonly ushort[][] intermediatePaint;
-        private readonly Dictionary<int, ushort> intermediateEdits = new();
+        private readonly Bgr555[] healthy;
+        private readonly Bgr555[] critical;
+        private readonly Bgr555[][] intermediatePaint;
+        private readonly Dictionary<int, Bgr555> intermediateEdits = new();
 
-        internal HealthRows(ushort[][] supplied)
+        internal HealthRows(Bgr555[][] supplied)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
             healthy = supplied[0];
             critical = supplied[last];
-            intermediatePaint = new ushort[last - 1][];
+            intermediatePaint = new Bgr555[last - 1][];
             for (int frame = 1; frame < last; frame++)
             {
                 intermediatePaint[frame - 1] = supplied[frame].AsSpan(1, LastPaintedColor).ToArray();
@@ -128,41 +129,35 @@ public sealed class SporeSpawnColorCatalog
             }
         }
 
-        internal ushort Resolve(int frame, int color)
+        internal Bgr555 Resolve(int frame, int color)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
             if (frame == 0) return healthy[color];
             if (frame == last) return critical[color];
             if (!IsCalculated(color)) return intermediatePaint[frame - 1][color - 1];
-            return intermediateEdits.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort edit)
+            return intermediateEdits.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out Bgr555 edit)
                 ? edit : Calculate(frame, color);
         }
 
         private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
-        private ushort Calculate(int frame, int color)
+        private Bgr555 Calculate(int frame, int color)
         {
             if (color == 0) return critical[0];
             int intervals = SporeSpawnColorRomData.HealthFrameCount - 1;
-            int result = 0;
-            for (int shift = 0; shift <= 10; shift += 5)
-            {
-                int start = (healthy[color] >> shift) & 31;
-                int end = (critical[color] >> shift) & 31;
-                result |= (start * (intervals - frame) + end * frame + intervals / 2) / intervals << shift;
-            }
-            return (ushort)result;
+            return healthy[color].Zip(critical[color], (_, start, end) =>
+                (start * (intervals - frame) + end * frame + intervals / 2) / intervals);
         }
     }
     /// <summary>Gets packed RGB5 ink 0–15 from sprite-death phase 0–7 at $A5:E3F9–$E4F8; independently supplied samples override the calculated fade from critical-health colors to the final row.</summary>
-    public ushort ResolveDeathSprite(int frame, int color)
+    public Bgr555 ResolveDeathSprite(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSpriteFrameCount);
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (deathSprite.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort selected))
+        if (deathSprite.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out Bgr555 selected))
             return selected;
-        ushort first = deathSprite.TryGetValue(color, out ushort suppliedFirst)
+        Bgr555 first = deathSprite.TryGetValue(color, out Bgr555 suppliedFirst)
             ? suppliedFirst : health.Resolve(SporeSpawnColorRomData.HealthFrameCount - 1, color);
         return CalculateDeathSpriteColor(first, deathSprite[
             (SporeSpawnColorRomData.DeathSpriteFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color], frame);
@@ -174,41 +169,33 @@ public sealed class SporeSpawnColorCatalog
     /// seven intervals. The first endpoint repeats critical-health row3 (..E3F8);
     /// its sixteen colors remain required under health. Sixteen final colors also remain required.
     /// </summary>
-    internal static ushort CalculateDeathSpriteColor(ushort first, ushort last, int frame)
+    internal static Bgr555 CalculateDeathSpriteColor(Bgr555 first, Bgr555 last, int frame)
     {
         int intervals = SporeSpawnColorRomData.DeathSpriteFrameCount - 1;
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
-        {
-            int start = (first >> shift) & 31;
-            int end = (last >> shift) & 31;
-            int channel = (start * (intervals - frame) + end * frame + intervals / 2) / intervals;
-            result |= channel << shift;
-        }
-        return (ushort)result;
+        return first.Zip(last, (_, start, end) => (start * (intervals - frame) + end * frame + intervals / 2) / intervals);
     }
     /// <summary>Gets packed RGB5 ink 0–15 from level-graphics death phase 0–6 at $A5:E4F9–$E5D8, assigned to BG palette 4 at CGRAM 64–79 by the death-script owner.</summary>
-    public ushort ResolveDeathLevel(int frame, int color)
+    public Bgr555 ResolveDeathLevel(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSceneFrameCount);
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (deathLevel.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort selected))
+        if (deathLevel.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out Bgr555 selected))
             return selected;
-        ushort finalColor = deathLevel[(SporeSpawnColorRomData.DeathSceneFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color];
-        if (SporeSpawnDeathColorDefinitions.TryLevelColor(finalColor, frame, color, out ushort calculated))
+        Bgr555 finalColor = deathLevel[(SporeSpawnColorRomData.DeathSceneFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color];
+        if (SporeSpawnDeathColorDefinitions.TryLevelColor(finalColor, frame, color, out Bgr555 calculated))
             return calculated;
         throw new InvalidOperationException("Required Spore Spawn level color is absent.");
     }
     /// <summary>Gets packed RGB5 ink 0–15 from background death phase 0–6 at $A5:E5D9–$E6B8, assigned to BG palette 7 at CGRAM 112–127 by the death-script owner.</summary>
-    public ushort ResolveDeathBackground(int frame, int color)
+    public Bgr555 ResolveDeathBackground(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSceneFrameCount);
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (deathBackground.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort selected))
+        if (deathBackground.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out Bgr555 selected))
             return selected;
-        ushort finalColor = deathBackground[(SporeSpawnColorRomData.DeathSceneFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color];
+        Bgr555 finalColor = deathBackground[(SporeSpawnColorRomData.DeathSceneFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color];
         return SporeSpawnDeathColorDefinitions.BackgroundColor(finalColor, frame, color);
     }
 
@@ -216,7 +203,7 @@ public sealed class SporeSpawnColorCatalog
     /// <param name="layer">Mutually exclusive sprite, level, or background palette row.</param>
     /// <param name="frame">Zero-based phase, not a native byte offset: 0–7 for sprite, 0–6 for level/background.</param>
     /// <param name="color">Ink index 0–15, including the row's retained transparent-slot word.</param>
-    public ushort ResolveDeath(SporeSpawnDeathPaletteLayer layer, int frame, int color) =>
+    public Bgr555 ResolveDeath(SporeSpawnDeathPaletteLayer layer, int frame, int color) =>
         layer switch
         {
             SporeSpawnDeathPaletteLayer.Sprite => ResolveDeathSprite(frame, color),
@@ -267,7 +254,7 @@ public sealed class SporeSpawnColorCatalog
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));
 
-    private static ushort[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
+    private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Spore Spawn {name} requires {count} frames.");
@@ -275,12 +262,12 @@ public sealed class SporeSpawnColorCatalog
             .ToArray();
     }
 
-    private static ushort[] Compile(PaletteRgb5[]? source, string name)
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SporeSpawnColorRomData.ColorsPerFrame)
             throw new InvalidDataException(
                 $"Spore Spawn {name} requires {SporeSpawnColorRomData.ColorsPerFrame} RGB5 colors.");
-        var compiled = new ushort[source.Length];
+        var compiled = new Bgr555[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -288,7 +275,7 @@ public sealed class SporeSpawnColorCatalog
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Spore Spawn {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+            compiled[color] = rgb.ToBgr555();
         }
         return compiled;
     }

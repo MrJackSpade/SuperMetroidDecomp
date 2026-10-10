@@ -15,9 +15,9 @@ public sealed class IntroCinematicPalette
         rows = new PaletteRow[SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
-            var colors = new ushort[IntroCinematicPaletteFormat.ColorsPerRow];
+            var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
             for (int color = 0; color < colors.Length; color++)
-                colors[color] = BinaryPrimitives.ReadUInt16LittleEndian(nativeBytes.AsSpan(2 * (row * colors.Length + color)));
+                colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(nativeBytes.AsSpan(2 * (row * colors.Length + color))));
             rows[row] = new PaletteRow(colors, row == IntroCinematicPaletteFormat.NeutralCycleRow,
                 row == IntroCinematicPaletteFormat.CrossFadeRow ? rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow] : null);
         }
@@ -31,7 +31,7 @@ public sealed class IntroCinematicPalette
             var output = new byte[SnesCgram.ByteCount];
             for (int row = 0; row < SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
             for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
-                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(2 * (row * IntroCinematicPaletteFormat.ColorsPerRow + color)), rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color));
+                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(2 * (row * IntroCinematicPaletteFormat.ColorsPerRow + color)), (rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color)).ToWord());
             return output;
         }
     }
@@ -46,12 +46,12 @@ public sealed class IntroCinematicPalette
 
     private sealed class PaletteRow
     {
-        private readonly ushort background, foreground;
-        private readonly ushort[]? supplied;
+        private readonly Bgr555 background, foreground;
+        private readonly Bgr555[]? supplied;
         private readonly bool cycle;
         private readonly PaletteRow? sharedGradient;
-        private readonly ushort[]? crossFadeInputs;
-        internal PaletteRow(ushort[] colors, bool allowCycle, PaletteRow? crossFadeSource)
+        private readonly Bgr555[]? crossFadeInputs;
+        internal PaletteRow(Bgr555[] colors, bool allowCycle, PaletteRow? crossFadeSource)
         {
             if (crossFadeSource is not null && MatchesCrossFade(colors, crossFadeSource))
             {
@@ -68,41 +68,38 @@ public sealed class IntroCinematicPalette
             {
                 if (cycle && colors[color] == CycleColor(color)) continue;
                 supplied = colors;
-                background = foreground = 0;
+                background = foreground = Bgr555.Black;
                 break;
             }
         }
-        private static bool MatchesCrossFade(ushort[] colors, PaletteRow source)
+        private static bool MatchesCrossFade(Bgr555[] colors, PaletteRow source)
         {
             for (int color = 1; color <= 8; color++)
                 if (colors[color] != source.Resolve(color)) return false;
-            int blue = colors[9] >> 10;
-            if ((colors[9] & 0x3ff) != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
+            int blue = colors[9].Blue;
+            if (colors[9].Red != 0 || colors[9].Green != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
             for (int shade = 1; shade < 4; shade++)
-                if (colors[9 + shade] != (blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep) << 10) return false;
+                if (colors[9 + shade] != new Bgr555(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
             return true;
         }
-        internal ushort Resolve(int color)
+        internal Bgr555 Resolve(int color)
         {
             if (crossFadeInputs is not null)
             {
                 if (color == 0) return crossFadeInputs[0];
                 if (color <= 8) return sharedGradient!.Resolve(color);
-                if (color <= 12) return (ushort)(((crossFadeInputs[1] >> 10) -
-                    (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep) << 10);
+                if (color <= 12) return new Bgr555(0, 0, crossFadeInputs[1].Blue -
+                    (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep);
                 return crossFadeInputs[color - 11];
             }
             return supplied is not null ? supplied[color] :
                 color == 0 ? background : cycle ? CycleColor(color) : foreground;
         }
-        private ushort CycleColor(int color)
+        private Bgr555 CycleColor(int color)
         {
             int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *
                 IntroCinematicPaletteFormat.NeutralCycleStep;
-            int result = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                result |= Math.Max(0, (foreground >> shift & 31) - decrease) << shift;
-            return (ushort)result;
+            return foreground.Map((_, a) => Math.Max(0, a - decrease));
         }
     }
     /// <summary>Validates 256 ordered RGB5 colors and compiles their little-endian BGR555 image, calculating stock/shared shade relationships only when supplied colors match them.</summary>
@@ -125,8 +122,8 @@ public sealed class IntroCinematicPalette
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
-            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)),
-                (ushort)(color.Red | color.Green << 5 | color.Blue << 10));
+            BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(index * Bgr555.ByteCount),
+                color.ToBgr555().ToWord());
         }
         return new IntroCinematicPalette(native);
     }

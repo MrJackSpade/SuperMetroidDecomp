@@ -58,10 +58,10 @@ internal static partial class Program
             ushort palette = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (nativePointer + 2));
             for (int color = 0; color < 12; color++)
             {
-                expected.SetColor(0x34 + color, ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + color * 2)));
+                expected.SetColor(0x34 + color, Bgr555.FromWord(checked((ushort)(ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + color * 2))))));
                 ushort second = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + (12 + color) * 2));
-                expected.SetColor(0x53 + color, second);
-                expected.SetColor(0x73 + color, second);
+                expected.SetColor(0x53 + color, Bgr555.FromWord(checked((ushort)(second))));
+                expected.SetColor(0x73 + color, Bgr555.FromWord(checked((ushort)(second))));
             }
             run.Invoke(enemies, [state]);
             AssertEqual(nativePointer, state.RoomPaletteInstructionPointer, "native room flash pointer and loop");

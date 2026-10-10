@@ -106,9 +106,15 @@ public static class SamusDeathPaletteArtworkFiles
             document.Suitless is null || document.Whiteout is null ||
             document.ExplosionPaletteIndices is null)
             throw new InvalidDataException("Samus death-palette artwork has an invalid structure.");
-        return new SamusDeathPaletteArtworkCatalog(document.Suited, document.Suitless,
-            document.Whiteout, document.ExplosionPaletteIndices);
+        return new SamusDeathPaletteArtworkCatalog(
+            Array.ConvertAll(document.Suited, suit => suit is null ? null! : Array.ConvertAll(suit, Colors)),
+            Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), document.ExplosionPaletteIndices);
     }
+
+    /// <summary>The artwork file stores CGRAM words; each must be a fifteen-bit color.</summary>
+    private static Bgr555[] Colors(ushort[]? words) => words is null ? null! : Array.ConvertAll(words, word =>
+        (word & 0x8000) == 0 ? Bgr555.FromWord(word)
+            : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
     private static ushort[] ReadPalette(ISnesAddressSpace bus, ushort pointer)
     {

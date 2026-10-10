@@ -49,7 +49,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     public void RunPreInstruction(
         SnesCgram cgram,
-        ReadOnlySpan<ushort> introPalette,
+        ReadOnlySpan<Bgr555> introPalette,
         ushort cinematicFrameCounter,
         ushort introCrossfadeTimer)
     {
@@ -83,7 +83,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(SnesCgram cgram, ReadOnlySpan<ushort> introPalette)
+    public void ApplyHurtFlash(SnesCgram cgram, ReadOnlySpan<Bgr555> introPalette)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         if (hurtFlashTimer == 0)
@@ -94,7 +94,7 @@ internal sealed class IntroMotherBrainSpriteState
         {
             cgram.SetColor(240 + color, normalPalette
                 ? introPalette[240 + color]
-                : (ushort)0x7fff);
+                : Bgr555.White);
         }
         hurtFlashTimer--;
     }

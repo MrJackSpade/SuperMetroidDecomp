@@ -89,7 +89,7 @@ internal static class SnesCgramAccess
     extension(SnesCgram self)
     {
         /// <summary>Clears all 256 colors to black.</summary>
-        internal void Clear() => Array.Clear(PrivateState.Field<ushort[]>(self, "_colors"));
+        internal void Clear() => Array.Clear(PrivateState.Field<Bgr555[]>(self, "_colors"));
     }
 }
 

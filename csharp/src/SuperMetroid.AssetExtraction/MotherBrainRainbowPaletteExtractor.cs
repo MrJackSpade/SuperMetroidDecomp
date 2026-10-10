@@ -31,7 +31,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false,
                 MotherBrainRainbowPaletteRomData.NormalSecondarySource),
-            BeamInitial = ToColor(MotherBrainBeamRomData.InitialColor),
+            BeamInitial = PaletteRgb5.From(MotherBrainBeamRomData.InitialColor),
             BeamCycle = ReadBeamCycle(),
         });
         return json.ToArray();

@@ -77,10 +77,10 @@ internal static partial class Program
         {
             ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
             native.Add(pointer, Word(0x8d0000 | pointer));
-            AssertTrue(stock.TryReadColor(pointer, out ushort value), "calculated title ambient color resolves");
+            AssertTrue(stock.TryReadColor(pointer, out Bgr555 value), "calculated title ambient color resolves");
             AssertEqual(native[pointer], value, "native title ambient color");
         }
-        var stored = (Dictionary<ushort, ushort>)typeof(TitlePalettePresentation).GetField("animatedColors",
+        var stored = (Dictionary<ushort, Bgr555>)typeof(TitlePalettePresentation).GetField("animatedColors",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
         AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
@@ -105,7 +105,7 @@ internal static partial class Program
             ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
             PaletteRgb5 supplied = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                 ? document.BabyMetroidTubeLight[frame][index] : document.FlickeringDisplays[frame][index];
-            AssertTrue(changed.TryReadColor(pointer, out ushort value), "edited ambient color resolves");
+            AssertTrue(changed.TryReadColor(pointer, out Bgr555 value), "edited ambient color resolves");
             AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
@@ -195,7 +195,7 @@ internal static partial class Program
                 for (int frame = 0; frame < rows.Length; frame++)
                 for (int index = 0; index < rows[frame].Length; index++)
                 {
-                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out ushort actual), "Every supplied ambient word resolves");
+                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out Bgr555 actual), "Every supplied ambient word resolves");
                     AssertEqual(Pack(rows[frame][index]), actual, "Independent initial/animated edits preserve every supplied neighbor");
                 }
             }
@@ -246,7 +246,7 @@ internal static partial class Program
                     for (int index = 0; index < program.ColorsPerFrame; index++)
                         expected[program.ColorByteIndex / 2 + index] = Pack(rows[frame][index]);
                 }
-                AssertTrue(expected.AsSpan().SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
+                AssertTrue(ToColors(expected).AsSpan().SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
             AssertEqual(0, guarded.PresentationReadCount, "Installed title colors avoid live reads");
@@ -326,7 +326,7 @@ internal static partial class Program
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
-        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
             .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         var sites = new List<(int Owner, int Frame, int Color, ushort Pointer)>();
         for (int owner = 0; owner < 3; owner++)
@@ -341,7 +341,7 @@ internal static partial class Program
                 AssertTrue(MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source), "native rotation domain");
                 AssertEqual(Word(pointer), Word(source), "direct native color rotation relationship");
                 AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
-                AssertTrue(stock.TryReadColor(pointer, out ushort installed), "installed environmental color resolves");
+                AssertTrue(stock.TryReadColor(pointer, out Bgr555 installed), "installed environmental color resolves");
                 AssertEqual(Word(pointer), installed, "native installed environmental color");
             }
         }
@@ -358,9 +358,9 @@ internal static partial class Program
             var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
             foreach (var site in sites)
             {
-                AssertTrue(changed.TryReadColor(site.Pointer, out ushort actual), "edited environmental pointer resolves");
+                AssertTrue(changed.TryReadColor(site.Pointer, out Bgr555 actual), "edited environmental pointer resolves");
                 AssertEqual((ushort)(Word(site.Pointer) ^ (site.Pointer == edit.Pointer ? 1 : 0)), actual, "independent source/rotated/shared color edit");
-                AssertTrue(stock.TryReadColor(site.Pointer, out ushort original), "stock environmental pointer resolves");
+                AssertTrue(stock.TryReadColor(site.Pointer, out Bgr555 original), "stock environmental pointer resolves");
                 AssertEqual(Word(site.Pointer), original, "stock environmental colors remain immutable");
             }
         }
@@ -398,7 +398,7 @@ internal static partial class Program
         Suite(nameof(VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions), () => VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom));
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
-        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
             .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         int storedCount = 0;
         for (int owner = 0; owner < 2; owner++)
@@ -407,12 +407,12 @@ internal static partial class Program
         {
             ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
             AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
-            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out ushort calculated), "native text interpolation domain");
+            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out Bgr555 calculated), "native text interpolation domain");
             AssertEqual(Word(pointer), calculated, "direct calculated native text color");
             bool required = owner == 0 && frame == 7;
             AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
             if (stored.ContainsKey(pointer)) storedCount++;
-            AssertTrue(stock.TryReadColor(pointer, out ushort installed), "installed text color available");
+            AssertTrue(stock.TryReadColor(pointer, out Bgr555 installed), "installed text color available");
             AssertEqual(Word(pointer), installed, "installed native text color");
         }
         AssertEqual(3, storedCount, "three required selected endpoint colors");
@@ -431,9 +431,9 @@ internal static partial class Program
             for (int color = 0; color < 3; color++)
             {
                 ushort pointer = all[owner].ColorPointer(frame, color);
-                AssertTrue(changed.TryReadColor(pointer, out ushort actual), "edited text pointer resolves");
+                AssertTrue(changed.TryReadColor(pointer, out Bgr555 actual), "edited text pointer resolves");
                 AssertEqual((ushort)(Word(pointer) ^ (owner * 24 + frame * 3 + color == edit ? 1 : 0)), actual, "independent text endpoint/derived edit");
-                AssertTrue(stock.TryReadColor(pointer, out ushort original), "stock text pointer resolves");
+                AssertTrue(stock.TryReadColor(pointer, out Bgr555 original), "stock text pointer resolves");
                 AssertEqual(Word(pointer), original, "stock text remains immutable");
             }
         }
@@ -545,7 +545,7 @@ internal static partial class Program
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         var definition = (CeresRidleyAlarmColorDefinitions)typeof(CeresRidleyColorCatalog)
             .GetField("alarm", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var inputs = (Dictionary<int, ushort>)typeof(CeresRidleyAlarmColorDefinitions)
+        var inputs = (Dictionary<int, Bgr555>)typeof(CeresRidleyAlarmColorDefinitions)
             .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
         for (int row = 0; row < 16; row++)
@@ -571,7 +571,7 @@ internal static partial class Program
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                 var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
                 var cgram = new SnesCgram();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 var update = typeof(RoomEnemySystem).GetMethod("UpdateCeresSelfDestructPalette", flags)!
                     .CreateDelegate<Action<RidleyEnemyState, ushort>>(enemies);
@@ -596,7 +596,7 @@ internal static partial class Program
             for (int row = 0; row < 16; row++)
             {
                 var cgram = new SnesCgram();
-                cgram.SetColor(96, 0x1234); cgram.SetColor(100, 0x2345);
+                cgram.SetColor(96, Bgr555.FromWord(0x1234)); cgram.SetColor(100, Bgr555.FromWord(0x2345));
                 selected.ApplyAlarm(cgram, row);
                 for (int color = 0; color < 3; color++)
                 {
@@ -798,7 +798,7 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("spores",
+        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("spores",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
         for (int color = 0; color < 16; color++)
@@ -853,7 +853,7 @@ internal static partial class Program
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathLevel",
+        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathLevel",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
         for (int color = 0; color < 16; color++)
@@ -868,7 +868,7 @@ internal static partial class Program
             for (int frame = 0; frame < 7; frame++)
             {
                 AssertEqual(frame == 6 || unresolved, values.ContainsKey(frame * 16 + color), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Word(0xa5e5b9 + color * 2), frame, color, out ushort value);
+                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Bgr555.FromWord(checked((ushort)(Word(0xa5e5b9 + color * 2)))), frame, color, out Bgr555 value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
                     AssertEqual(Word(0xa5e4f9 + frame * 32 + color * 2), value, "Direct level interpolation matches original native words");
@@ -930,7 +930,7 @@ internal static partial class Program
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathBackground",
+        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathBackground",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
         for (int frame = 0; frame < 7; frame++)
@@ -938,7 +938,7 @@ internal static partial class Program
             {
                 AssertEqual(frame == 6, values.ContainsKey(frame * 16 + color), "Stock background has no interior fallback samples");
                 AssertEqual(Word(0xa5e5d9 + frame * 32 + color * 2),
-                    SporeSpawnDeathColorDefinitions.BackgroundColor(Word(0xa5e699 + color * 2), frame, color),
+                    SporeSpawnDeathColorDefinitions.BackgroundColor(Bgr555.FromWord(checked((ushort)(Word(0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
             }
         Verify(stock, -1, -1);
@@ -989,7 +989,7 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, ushort>)typeof(SporeSpawnColorCatalog).GetField("deathSprite",
+        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathSprite",
             BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
         for (int frame = 0; frame < 8; frame++)
@@ -997,7 +997,7 @@ internal static partial class Program
             {
                 AssertEqual(frame == 7, values.ContainsKey(frame * 16 + color), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(Word(0xa5e3f9 + frame * 32 + color * 2),
-                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Word(0xa5e3f9 + color * 2), Word(0xa5e4d9 + color * 2), frame),
+                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Bgr555.FromWord(checked((ushort)(Word(0xa5e3f9 + color * 2)))), Bgr555.FromWord(checked((ushort)(Word(0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
             }
         for (int color = 0; color < 16; color++)
@@ -1642,7 +1642,7 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
-        var stored = (Dictionary<int, ushort>)typeof(BeamPaletteCatalog).GetField("palettes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = (Dictionary<int, Bgr555>)typeof(BeamPaletteCatalog).GetField("palettes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
         for (int edit = -1; edit < 576; edit++)
@@ -1660,7 +1660,7 @@ internal static partial class Program
             for (int selection = 0; selection < 12; selection++)
             {
                 var actual = new SnesCgram();
-                for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, (ushort)(index * 31));
+                for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, Bgr555.FromWord((ushort)(index * 31)));
                 if (edit is -1 or 0 or 575)
                 {
                     var queue = new VramWriteQueue();
@@ -1982,13 +1982,13 @@ internal static partial class Program
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
         for (int frame = 0; frame < 14; frame++)
         for (int index = 0; index < 7; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8);
-            AssertTrue(original.TryReadColor(pointer, out ushort actual), "dark lightning installed color exists");
+            AssertTrue(original.TryReadColor(pointer, out Bgr555 actual), "dark lightning installed color exists");
             AssertEqual(native, actual, "dark lightning calculated native RGB5");
             AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
@@ -2004,7 +2004,7 @@ internal static partial class Program
             for (int color = 0; color < 7; color++)
             {
                 var expected = document.CrateriaUnusedDarkLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out ushort actual), "dark lightning edited color exists");
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out Bgr555 actual), "dark lightning edited color exists");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                     "dark lightning independent base/sample edit and neighbors preserved");
             }
@@ -2021,13 +2021,13 @@ internal static partial class Program
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
         for (int frame = 0; frame < 13; frame++)
         for (int index = 0; index < 8; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = (ushort)(rom.ReadByte(0x8d0000 | pointer) | rom.ReadByte(0x8d0000 | (pointer + 1)) << 8);
-            AssertTrue(original.TryReadColor(pointer, out ushort actual), "surface lightning installed color exists");
+            AssertTrue(original.TryReadColor(pointer, out Bgr555 actual), "surface lightning installed color exists");
             AssertEqual(native, actual, "surface lightning calculated native RGB5");
             AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
@@ -2043,7 +2043,7 @@ internal static partial class Program
             for (int color = 0; color < 8; color++)
             {
                 var expected = document.CrateriaSurfaceLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out ushort actual), "surface lightning edited color exists");
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out Bgr555 actual), "surface lightning edited color exists");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                     "surface lightning independent edit and neighbors preserved");
             }
@@ -2186,18 +2186,18 @@ internal static partial class Program
             bool owned = native.ContainsKey(pointer);
             AssertEqual(owned, TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
             bool intermediate = owned && frame is > 0 and < 7;
-            AssertEqual(intermediate, TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, native, out ushort calculated), "stream4 statue intermediate domain");
+            AssertEqual(intermediate, TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, ToColors(native), out Bgr555 calculated), "stream4 statue intermediate domain");
             if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
             if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
         }
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
         int storedStatueColors = 0;
         foreach (var pair in native)
         {
-            AssertTrue(original.TryReadColor(pair.Key, out ushort value), "stream4 original statue color remains readable");
+            AssertTrue(original.TryReadColor(pair.Key, out Bgr555 value), "stream4 original statue color remains readable");
             AssertEqual(pair.Value, value, "stream4 loaded original statue color");
             if (stored.ContainsKey(pair.Key)) storedStatueColors++;
         }
@@ -2216,11 +2216,11 @@ internal static partial class Program
             for (int color = 0; color < 8; color++)
             {
                 var expected = document.TourianStatueGrey[frame][color];
-                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out ushort actual), "stream4 edited statue color readable");
+                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out Bgr555 actual), "stream4 edited statue color readable");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual, "stream4 endpoints and independent intermediate edits preserved");
             }
         }
-        AssertTrue(!TourianStatueGreyColorDefinitions.TryCalculatedColor(0xe254, new Dictionary<ushort, ushort>(), out _), "stream4 absent statue endpoints are not invented");
+        AssertTrue(!TourianStatueGreyColorDefinitions.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
     }
     private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
     {
@@ -2464,8 +2464,8 @@ internal static partial class Program
         var intro = (DraygonIntroPaintDefinitions)typeof(DraygonColorCatalog).GetField("intro",flags)!.GetValue(stock)!;
         var primary = (DraygonMaterialPaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("primary",flags)!.GetValue(intro)!;
         var surface = (CeresDoorEscapeSurfacePaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("surface",flags)!.GetValue(intro)!;
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(primary)!).Count,"Intro primary zero native overrides");
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits",flags)!.GetValue(surface)!).Count,"Intro surface zero native overrides");
+        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(primary)!).Count,"Intro primary zero native overrides");
+        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits",flags)!.GetValue(surface)!).Count,"Intro surface zero native overrides");
         AssertEqual<object?>(null,typeof(DraygonIntroPaintDefinitions).GetField("clearEdit",flags)!.GetValue(intro),"Intro clear has no native override");
         for(int edit=-1;edit<75;edit++)
         {
@@ -2494,7 +2494,7 @@ internal static partial class Program
                 AssertEqual(Word(0xa5a277+color*2),selected.ResolveBackground(color),"Intro edits leave background independent");
                 AssertEqual(Word(0xa5a1f7+color*2),selected.ResolveSprite(color),"Intro edits leave sprite independent");
             }
-            var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,0x1234);
+            var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,Bgr555.FromWord(0x1234));
             selected.ApplyIntro(cgram);
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             if(edit is -1 or 0 or 48 or 74)
@@ -2513,7 +2513,7 @@ internal static partial class Program
         for(int edit=-1;edit<45;edit++)
         {
             ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
-            var paint=new CeresDoorEscapePaintDefinitions(selected);
+            var paint=new CeresDoorEscapePaintDefinitions(ToColors(selected));
             for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
             for(int color=0;color<25;color++)AssertEqual(Word(0xa5a217+color*2),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
         }
@@ -2529,7 +2529,7 @@ internal static partial class Program
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("sprite",flags)!.GetValue(stock)!;
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"Shared native sprite material has zero overrides");
+        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
         {
             var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -2555,7 +2555,7 @@ internal static partial class Program
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,0x1234);
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,Bgr555.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,10);
                 for(int color=0;color<256;color++)
                 {
@@ -2590,7 +2590,7 @@ internal static partial class Program
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("background",flags)!.GetValue(stock)!;
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"All16 background colors calculate without unexplained stock overrides");
+        AssertEqual(0,((Dictionary<int,Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
         {
             var document = JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -2617,7 +2617,7 @@ internal static partial class Program
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new SnesCgram(); for(int color=0;color<256;color++) cgram.SetColor(color,0x1234);
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++) cgram.SetColor(color,Bgr555.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,6);
                 for(int color=0;color<256;color++)
                 {
@@ -2672,7 +2672,7 @@ internal static partial class Program
             AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
             for (int band = 0; band < 8; band++)
             {
-                var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyHealthBand(cgram, (ushort)(band * 2));
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
@@ -2696,7 +2696,7 @@ internal static partial class Program
                     update(state);
                     AssertEqual((ushort)(band * 2), state.HealthPaletteTableByteIndex, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
-                    cgram.SetColor(89, 0x1234); update(state);
+                    cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
                     AssertEqual((ushort)0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
                     body.FlashTimer = 2; hurt(body,state,null);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
@@ -2720,7 +2720,7 @@ internal static partial class Program
             .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
         AssertEqual(0, Stored("whiteFlash"), "Draygon stock flash is calculated without stored colors");
         var health = (DraygonHealthPaintDefinitions)typeof(DraygonColorCatalog).GetField("healthBands", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(DraygonHealthPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(health)!).Count, "All native Draygon health colors calculate without overrides");
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(DraygonHealthPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(health)!).Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
             var document = JsonSerializer.Deserialize<DraygonColorDocument>(original, options)!;
@@ -2775,7 +2775,7 @@ internal static partial class Program
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definition = (NorfairRidleyRevealPaintDefinitions)typeof(NorfairRidleyColorCatalog).GetField("reveal", flags)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(NorfairRidleyRevealPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!).Count,
+        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(NorfairRidleyRevealPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!).Count,
             "All210 native reveal words calculate without residual samples");
         byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesetDefinitions.Get(9).PaletteAddress);
         for (int color = 0; color < 14; color++)
@@ -2805,7 +2805,7 @@ internal static partial class Program
             for (int row = 0; row < 15; row++)
             {
                 var cgram = new SnesCgram();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyReveal(cgram, row);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
@@ -2822,7 +2822,7 @@ internal static partial class Program
                     new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), norfairRidleyColors: selected);
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
                 typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
@@ -2867,7 +2867,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         static void NoEdits(object provider)
         {
-            var edits = (Dictionary<int, ushort>)provider.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(provider)!;
+            var edits = (Dictionary<int, Bgr555>)provider.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(provider)!;
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         }
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
@@ -2901,7 +2901,7 @@ internal static partial class Program
             });
             AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
             var cgram = new SnesCgram();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyInitial(cgram);
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
@@ -2932,7 +2932,7 @@ internal static partial class Program
             }
         }
         ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
-        var normalStock = new CeresDoorNormalPaintDefinitions(normalWords);
+        var normalStock = new CeresDoorNormalPaintDefinitions(ToColors(normalWords));
         NoEdits(normalStock); NoEdits(normalStock.WarmTargets);
         for (int edit = -1; edit < 90; edit++)
         {
@@ -2942,9 +2942,9 @@ internal static partial class Program
                 int local = edit % 45;
                 (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
             }
-            var normalProvider = new CeresDoorNormalPaintDefinitions(normal);
-            var dependentEscape = new CeresDoorEscapePaintDefinitions(escape, normalProvider);
-            var standaloneEscape = new CeresDoorEscapePaintDefinitions(escape);
+            var normalProvider = new CeresDoorNormalPaintDefinitions(ToColors(normal));
+            var dependentEscape = new CeresDoorEscapePaintDefinitions(ToColors(escape), normalProvider);
+            var standaloneEscape = new CeresDoorEscapePaintDefinitions(ToColors(escape));
             for (int color = 0; color < 15; color++)
             {
                 AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");
@@ -3010,7 +3010,7 @@ internal static partial class Program
                 var state = new BotwoonEnemyState(head) { PaletteDestinationByteOffset = 0x1e0 };
                 for (int band = 0; band < 8; band++)
                 {
-                    for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                    for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                     state.PalettePhaseByteOffset = (ushort)(band * 2);
                     head.Health = Word(0xb3981b + band * 2);
                     update(head, state);
@@ -3022,7 +3022,7 @@ internal static partial class Program
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram.Colors[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
                 }
-                ushort[] completed = cgram.Colors.ToArray(); update(head, state);
+                Bgr555[] completed = cgram.Colors.ToArray(); update(head, state);
                 for (int color = 0; color < 256; color++) AssertEqual(completed[color], cgram.Colors[color], "completed palette remains unchanged");
                 AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
             }
@@ -3264,7 +3264,7 @@ internal static partial class Program
             AssertEqual(Native(0xA6E1F1 + color * 2), stock.ResolveStart(17 + color), "Native Baby initial identity");
         var definition = (CeresRidleyStartColorDefinitions)typeof(CeresRidleyColorCatalog)
             .GetField("start", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var edits = (Dictionary<int, ushort>)typeof(CeresRidleyStartColorDefinitions)
+        var edits = (Dictionary<int, Bgr555>)typeof(CeresRidleyStartColorDefinitions)
             .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
         AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
         for (int channel = 0; channel < 3; channel++)
@@ -3285,7 +3285,7 @@ internal static partial class Program
             }
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, Baby = babies })));
             var cgram = new SnesCgram();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyStart(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3317,7 +3317,7 @@ internal static partial class Program
             return (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         }
         var definition = (CeresBabyPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var overrides = (Dictionary<int, ushort>)typeof(CeresBabyPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        var overrides = (Dictionary<int, Bgr555>)typeof(CeresBabyPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
         AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
         for (int color = 0; color < 3; color++)
         {
@@ -3351,7 +3351,7 @@ internal static partial class Program
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new SnesCgram();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyBaby(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {
@@ -3403,7 +3403,7 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         ushort Native(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        var stored = (Dictionary<int, ushort>)typeof(CeresRidleyColorCatalog).GetField("retreatShared", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = (Dictionary<int, Bgr555>)typeof(CeresRidleyColorCatalog).GetField("retreatShared", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
         {
@@ -3422,7 +3422,7 @@ internal static partial class Program
             }
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, RetreatShared = shared })));
             var cgram = new SnesCgram();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3444,7 +3444,7 @@ internal static partial class Program
         var zoomDocument = JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions)!;
         var zoomStock = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(zoomJson));
         var zoomDefinition = (CeresRidleyMode7PaintDefinitions)typeof(CeresRidleyMode7ColorCatalog).GetField("rows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomStock)!;
-        var zoomEdits = (Dictionary<int, ushort>)typeof(CeresRidleyMode7PaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomDefinition)!;
+        var zoomEdits = (Dictionary<int, Bgr555>)typeof(CeresRidleyMode7PaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomDefinition)!;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
         AssertEqual(Word(0x848050), Word(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
         AssertEqual(Word(0xa6b123), GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false), "Existing immutable neutral source owner");
@@ -3466,7 +3466,7 @@ internal static partial class Program
             var apply = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyMode7Palette", flags)!.CreateDelegate<Action<ushort>>(enemies);
             for (int row = 0; row < 9; row++)
             {
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
                 for (int color = 0; color < 256; color++)
                 {
@@ -3481,7 +3481,7 @@ internal static partial class Program
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
-        var retreatEdits = (Dictionary<int, ushort>)typeof(CeresRidleyColorCatalog).GetField("retreatBg", flags)!.GetValue(stock)!;
+        var retreatEdits = (Dictionary<int, Bgr555>)typeof(CeresRidleyColorCatalog).GetField("retreatBg", flags)!.GetValue(stock)!;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
         {
@@ -3493,7 +3493,7 @@ internal static partial class Program
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
             var cgram = new SnesCgram();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3529,7 +3529,7 @@ internal static partial class Program
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definition = (CeresRidleyHealthPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("health", flags)!.GetValue(stock)!;
-        var overrides = (Dictionary<int, ushort>)typeof(CeresRidleyHealthPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!;
+        var overrides = (Dictionary<int, Bgr555>)typeof(CeresRidleyHealthPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!;
         AssertEqual(0, overrides.Count, "All42 native health colors calculate");
         static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch
         { 0 => value with { Red = value.Red ^ 1 }, 1 => value with { Green = value.Green ^ 1 }, _ => value with { Blue = value.Blue ^ 1 } };
@@ -3545,7 +3545,7 @@ internal static partial class Program
             for (int row = 0; row < 3; row++)
             {
                 var cgram = new SnesCgram();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 selected.ApplyHealth(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {
@@ -3567,7 +3567,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
             var norfair = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyHealthPalette", flags)!.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
             var ceres = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyHealthPalette", flags)!.CreateDelegate<Action<RidleyEnemyState>>(enemies);
-            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234); }
+            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234)); }
             void Check(int row)
             {
                 for (int color = 0; color < 256; color++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -25,22 +26,22 @@ internal static class TourianStatueGreyColorDefinitions
     }
 
     /// <summary>Explicit supplied edits take precedence; generated colors are never cached.</summary>
-    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, ushort> colors, out ushort value)
+    internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        value = 0;
+        value = Bgr555.Black;
         if (!TryCoordinates(pointer, out int frame, out int color) || frame is 0 or 7 ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(0, color), out ushort first) ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(7, color), out ushort last))
+            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(0, color), out Bgr555 first) ||
+            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(7, color), out Bgr555 last))
             return false;
         if (color == 0)
         {
             value = last;
             return true;
         }
-        int red = Channel(first & 31, last & 31, frame);
-        int green = Channel((first >> 5) & 31, (last >> 5) & 31, frame);
-        int blue = Channel((first >> 10) & 31, (last >> 10) & 31, frame);
-        value = (ushort)(red | green << 5 | blue << 10);
+        int red = Channel(first.Red, last.Red, frame);
+        int green = Channel(first.Green, last.Green, frame);
+        int blue = Channel(first.Blue, last.Blue, frame);
+        value = new Bgr555(red, green, blue);
         return true;
     }
 

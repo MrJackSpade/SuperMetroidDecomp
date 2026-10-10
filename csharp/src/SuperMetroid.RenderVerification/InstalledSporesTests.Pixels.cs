@@ -17,9 +17,9 @@ internal static partial class InstalledSporesTests
         foreach (int enabled in Enumerable.Range(0, 4))
         {
             var vram = new SnesVram(); var colors = new SnesCgram();
-            colors.SetColor(0, 2 | 2 << 5 | 2 << 10);
-            colors.SetColor(1, 10); colors.SetColor(2, 12 << 5); colors.SetColor(3, 7 << 10);
-            colors.SetColor(128 + palette * 16 + 1, 18 | 2 << 5);
+            colors.SetColor(0, new Bgr555(2, 2, 2));
+            colors.SetColor(1, new Bgr555(10, 0, 0)); colors.SetColor(2, new Bgr555(0, 12, 0)); colors.SetColor(3, new Bgr555(0, 0, 7));
+            colors.SetColor(128 + palette * 16 + 1, new Bgr555(18, 2, 0));
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 });

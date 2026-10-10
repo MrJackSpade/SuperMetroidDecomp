@@ -12,7 +12,7 @@ internal static partial class Program
         ushort[] palette = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] objects = new byte[SnesPpuLayout.OamUploadByteCount];
         random.NextBytes(objects);
-        var capturedMemory = new PpuMemorySnapshot(bytes, palette, objects, 128);
+        var capturedMemory = new PpuMemorySnapshot(bytes, ToColors(palette), objects, 128);
         var memory = new SoftwarePpuSnapshotMemory(capturedMemory);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         var reference = new Dictionary<SnesMainScreenLayers, Rgba32[]>();

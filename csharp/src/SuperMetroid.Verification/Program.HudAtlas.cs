@@ -106,7 +106,7 @@ internal static partial class Program
             // No room palette has been installed in this focused runtime fixture.
             // Give every BG3 color a distinct grayscale value so a changed index is
             // observable, rather than accepting parity between two black HUDs.
-            for (int i = 0; i < 32; i++) runtime.Cgram.SetColor(i, (ushort)(i * 0x421));
+            for (int i = 0; i < 32; i++) runtime.Cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(guard, runtime.System,
                 AreaId.Crateria, 5, 5, 16, 16, 128, 128, 8, MapRevealMode.Secret,

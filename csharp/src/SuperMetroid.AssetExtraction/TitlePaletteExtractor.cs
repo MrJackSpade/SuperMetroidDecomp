@@ -14,12 +14,7 @@ internal static class TitlePaletteExtractor
         ArgumentNullException.ThrowIfNull(bus);
         var source = new SnesCgram();
         CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
-        PaletteRgb5[] colors = source.Colors.ToArray().Select(color => new PaletteRgb5
-        {
-            Red = color & 31,
-            Green = color >> 5 & 31,
-            Blue = color >> 10 & 31,
-        }).ToArray();
+        PaletteRgb5[] colors = source.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
         using var json = new MemoryStream();
         TitlePalettePresentation.Write(json, new TitlePaletteDocument
         {
@@ -29,8 +24,8 @@ internal static class TitlePaletteExtractor
                 TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight),
             FlickeringDisplays = ExtractAmbient(
                 TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
-            SkipCopyrightWhite = ToRgb5(TitleSequenceRomData.Palette.CopyrightWhite),
-            SkipCopyrightRed = ToRgb5(TitleSequenceRomData.Palette.CopyrightRed),
+            SkipCopyrightWhite = PaletteRgb5.From(TitleSequenceRomData.Palette.CopyrightWhite),
+            SkipCopyrightRed = PaletteRgb5.From(TitleSequenceRomData.Palette.CopyrightRed),
         });
         return json.ToArray();
 
@@ -61,12 +56,5 @@ internal static class TitlePaletteExtractor
             }
             return frames;
         }
-
-        static PaletteRgb5 ToRgb5(ushort color) => new()
-        {
-            Red = color & 31,
-            Green = color >> 5 & 31,
-            Blue = color >> 10 & 31,
-        };
     }
 }

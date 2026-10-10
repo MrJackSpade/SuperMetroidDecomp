@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -34,20 +36,20 @@ internal static class PhantoonHealthPaintDefinitions
     /// <summary>$A7:CB41-CC40: global green/blue quantization bias, applied before division to every ink/band. It accounts for all nine products whose remainder is14; there is no exceptional channel list.</summary>
     private const int CoolChannelNumeratorBias = 1;
 
-    internal static ushort Color(int band, int ink)
+    internal static Bgr555 Color(int band, int ink)
     {
         if ((uint)band >= 8) throw new ArgumentOutOfRangeException(nameof(band));
-        ushort healthy = Healthy(ink);
+        Bgr555 healthy = Healthy(ink);
         int weight = MinimumWeight + band;
-        int red = (31 * WeightDenominator + ((healthy & 31) - 31) * weight) / WeightDenominator;
-        int green = (((healthy >> 5) & 31) * weight + CoolChannelNumeratorBias) / WeightDenominator;
-        int blue = ((healthy >> 10) * weight + CoolChannelNumeratorBias) / WeightDenominator;
+        int red = (31 * WeightDenominator + ((healthy.Red) - 31) * weight) / WeightDenominator;
+        int green = ((healthy.Green) * weight + CoolChannelNumeratorBias) / WeightDenominator;
+        int blue = ((healthy.Blue) * weight + CoolChannelNumeratorBias) / WeightDenominator;
         return Rgb(red, green, blue);
     }
 
-    private static ushort Healthy(int ink) => ink switch
+    private static Bgr555 Healthy(int ink) => ink switch
     {
-        0 => 0,
+        0 => Bgr555.Black,
         1 => Olive(HideGlint, HideGlintBlue),
         2 => Olive(HideGlint * HideMidNumerator / HideMidDenominator,
             HideGlintBlue * HideMidNumerator / HideMidDenominator),
@@ -60,13 +62,13 @@ internal static class PhantoonHealthPaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
-    private static ushort BodyShade(int shade) => Olive(
+    private static Bgr555 BodyShade(int shade) => Olive(
         Math.Max(OliveFloor, OlivePeak - OliveStep * shade),
         GammaShade(OlivePeak - YellowSeparation, OliveFloor - YellowSeparation, shade, 3));
-    private static ushort IrisShade(int shade) => Olive(
+    private static Bgr555 IrisShade(int shade) => Olive(
         Math.Max(IrisFloor, OlivePeak - IrisStep * shade),
         GammaShade(IrisBlueLight, IrisBlueDark, shade, 2));
-    private static ushort SurroundShade(int shade) => Rgb(
+    private static Bgr555 SurroundShade(int shade) => Rgb(
         (SurroundLight * (2 - shade) + SurroundDark * shade + 1) / 2,
         0, Math.Max(0, SurroundBlue - SurroundBlueStep * shade));
     private static int GammaShade(int from, int to, int shade, int intervals)
@@ -76,6 +78,6 @@ internal static class PhantoonHealthPaintDefinitions
         double intensity = (Math.Sqrt(from) * (intervals - shade) + Math.Sqrt(to) * shade) / intervals;
         return (int)Math.Floor(intensity * intensity + 0.5);
     }
-    private static ushort Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
-    private static ushort Rgb(int red, int green, int blue) => (ushort)(red | green << 5 | blue << 10);
+    private static Bgr555 Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
+    private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

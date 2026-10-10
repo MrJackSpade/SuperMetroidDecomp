@@ -18,18 +18,18 @@ internal static partial class Program
         var forbidden = new HashSet<int>();
         for (int color = 0; color < TourianStatuePaletteRomData.BaseColorCount; color++)
             CheckSource(TourianStatuePaletteRomData.BaseColors + color * sizeof(ushort),
-                colors.ResolveBase(color));
+                colors.ResolveBase(color).ToWord());
         for (int color = 0; color < TourianStatuePaletteRomData.StatueColorCount; color++)
             CheckSource(TourianStatuePaletteRomData.StatueColors + color * sizeof(ushort),
-                colors.ResolveStatue(color));
+                colors.ResolveStatue(color).ToWord());
         for (int row = 0; row < TourianStatuePaletteRomData.EyeRowCount; row++)
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
             CheckSource(TourianStatuePaletteRomData.EyeColors +
                 (row * TourianStatuePaletteRomData.EyeColorCount + color) * sizeof(ushort),
-                colors.ResolveEye(row, color));
+                (colors.ResolveEye(row, color)).ToWord());
         for (int color = 0; color < TourianStatuePaletteRomData.GreyColorCount; color++)
             CheckSource(TourianStatuePaletteRomData.GreyColors + color * sizeof(ushort),
-                colors.ResolveGrey(color));
+                colors.ResolveGrey(color).ToWord());
 
         var guard = new TourianStatueColorReadGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
@@ -180,7 +180,7 @@ internal static partial class Program
         void CopyReferenceColors(SnesCgram cgram, int source, int destination, int count)
         {
             for (int color = 0; color < count; color++)
-                cgram.SetColor(destination + color, ReadReferenceWord(source + color * 2));
+                cgram.SetColor(destination + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(source + color * 2)))));
         }
 
         ushort ReadReferenceWord(int address) =>
@@ -190,7 +190,7 @@ internal static partial class Program
         {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, (ushort)(color * 31));
+                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             return cgram;
         }
 
@@ -240,7 +240,7 @@ internal static partial class Program
         {
             int mask = differences.Where(change => change.Index == color)
                 .Aggregate(0, (current, change) => current ^ change.Mask);
-            AssertEqual((ushort)(reference.Colors[color] ^ mask), edited.Colors[color],
+            AssertEqual((ushort)(reference.Colors[color].ToWord() ^ mask), edited.Colors[color],
                 $"{context} CGRAM {color}");
         }
     }

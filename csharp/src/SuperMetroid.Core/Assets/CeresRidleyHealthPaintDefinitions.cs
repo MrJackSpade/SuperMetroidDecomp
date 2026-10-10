@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -12,9 +14,9 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresRidleyHealthPaintDefinitions
 {
     private readonly CeresRidleyFadeColorDefinitions body, eyes;
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal CeresRidleyHealthPaintDefinitions(ushort[][] rows,
+    internal CeresRidleyHealthPaintDefinitions(Bgr555[][] rows,
         CeresRidleyFadeColorDefinitions body, CeresRidleyFadeColorDefinitions eyes)
     {
         this.body = body; this.eyes = eyes;
@@ -22,27 +24,23 @@ internal sealed class CeresRidleyHealthPaintDefinitions
             if (Calculate(row, color) != rows[row][color]) edits.Add(row * 14 + color, rows[row][color]);
     }
 
-    internal ushort Resolve(int row, int color)
+    internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= 3) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 14) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(row * 14 + color, out ushort edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(row * 14 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    private ushort Calculate(int row, int color)
+    private Bgr555 Calculate(int row, int color)
     {
-        ushort healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);
-        ushort target = body.Resolve(15, 9);
-        int strength = 2 + row, result = 0;
-        for (int channel = 0; channel < 3; channel++)
+        Bgr555 healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);
+        Bgr555 target = body.Resolve(15, 9);
+        int strength = 2 + row;
+        return healthy.Zip(target, (channel, original, toward) =>
         {
-            int shift = channel * 5;
-            int original = healthy >> shift & 31, toward = target >> shift & 31;
-            int value = (original * (20 - strength) + toward * strength) / 20;
-            if (row == 0 && color == 2 && channel == 1) value = original;
-            if (row == 1 && color == 5 && channel == 2) value = Calculate(0, color) >> shift & 31;
-            result |= value << shift;
-        }
-        return (ushort)result;
+            if (row == 0 && color == 2 && channel == ColorChannel.Green) return original;
+            if (row == 1 && color == 5 && channel == ColorChannel.Blue) return Calculate(0, color).Blue;
+            return (original * (20 - strength) + toward * strength) / 20;
+        });
     }
 }

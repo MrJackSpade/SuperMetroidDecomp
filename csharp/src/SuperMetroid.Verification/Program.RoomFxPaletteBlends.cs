@@ -37,7 +37,7 @@ internal static partial class Program
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
         {
-            ReadOnlySpan<ushort> compiled = catalog.Resolve(id);
+            ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
 
             (RoomLayer3FxState state, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) =
                 ConstructBlendLoad(catalog, tilemaps, id);
@@ -151,7 +151,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
-        ushort expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0];
+        Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0];
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlendDefinitions.Lava)[0],
             "room-FX blend edit changes the authored color");
         (_, ForbiddenRoomFxPaletteBus bus, SnesCgram cgram) = ConstructBlendLoad(
@@ -185,9 +185,9 @@ internal static partial class Program
         var memory = new TestAddressSpace();
         var bus = new ForbiddenRoomFxPaletteBus(memory);
         var cgram = new SnesCgram();
-        cgram.SetColor(25, 0x1234);
-        cgram.SetColor(26, 0x2345);
-        cgram.SetColor(27, 0x3456);
+        cgram.SetColor(25, Bgr555.FromWord(0x1234));
+        cgram.SetColor(26, Bgr555.FromWord(0x2345));
+        cgram.SetColor(27, Bgr555.FromWord(0x3456));
         var state = new RoomLayer3FxState
         {
             PaletteBlendColors = catalog,

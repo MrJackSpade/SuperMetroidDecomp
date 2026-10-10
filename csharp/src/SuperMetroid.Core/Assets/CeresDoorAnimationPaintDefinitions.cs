@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -18,17 +20,17 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     private readonly CeresDoorNormalPaintDefinitions normal;
     private readonly int firstSeedBlue;
     private readonly int dimMiddleAmberRed;
-    private readonly Dictionary<int, ushort> seedEdits = [];
-    private readonly Dictionary<int, ushort> edits = [];
+    private readonly Dictionary<int, Bgr555> seedEdits = [];
+    private readonly Dictionary<int, Bgr555> edits = [];
 
-    internal CeresDoorAnimationPaintDefinitions(ushort[][] rows, CeresDoorNormalPaintDefinitions normal)
+    internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
         if (rows.Length != 8 || rows.Any(row => row is null || row.Length != 6))
             throw new ArgumentException("Beacon paint requires eight six-color rows.", nameof(rows));
         this.normal = normal;
-        firstSeedBlue = rows[1][0] >> 10;
-        dimMiddleAmberRed = rows[3][4] & MaximumChannel;
+        firstSeedBlue = rows[1][0].Blue;
+        dimMiddleAmberRed = rows[3][4].Red;
         for (int color = 0; color < 6; color++)
             if (rows[1][color] != SharedSeed(color)) seedEdits.Add(color, rows[1][color]);
         for (int row = 0; row < 8; row++)
@@ -36,21 +38,24 @@ internal sealed class CeresDoorAnimationPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * 6 + color, rows[row][color]);
     }
 
-    private ushort SharedSeed(int color) => color == 0
-        ? (ushort)((normal.ColorAt(8) & 0x3ff) | firstSeedBlue << 10)
-        : normal.ColorAt(8 + color);
-
-    internal ushort ColorAt(int row, int color)
+    private Bgr555 SharedSeed(int color)
     {
-        if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
-        return edits.TryGetValue(row * 6 + color, out ushort edited) ? edited : Calculate(row, color);
+        if (color != 0) return normal.ColorAt(8 + color);
+        Bgr555 normalSeed = normal.ColorAt(8);
+        return new(normalSeed.Red, normalSeed.Green, firstSeedBlue);
     }
 
-    private ushort Calculate(int row, int color)
+    internal Bgr555 ColorAt(int row, int color)
+    {
+        if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
+        return edits.TryGetValue(row * 6 + color, out Bgr555 edited) ? edited : Calculate(row, color);
+    }
+
+    private Bgr555 Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);
-        ushort seed = seedEdits.TryGetValue(color, out ushort edited) ? edited : SharedSeed(color);
-        int red = seed & MaximumChannel, green = seed >> 5 & MaximumChannel, blue = seed >> 10;
+        Bgr555 seed = seedEdits.TryGetValue(color, out Bgr555 edited) ? edited : SharedSeed(color);
+        int red = seed.Red, green = seed.Green, blue = seed.Blue;
         if (phase == 0 && color >= 3)
         {
             red = Math.Min(MaximumChannel, red + GoldBrightening);
@@ -64,6 +69,6 @@ internal sealed class CeresDoorAnimationPaintDefinitions
             blue = Math.Clamp(blue + delta, 0, MaximumChannel);
             if (phase == 3 && color == 4) red = dimMiddleAmberRed;
         }
-        return (ushort)(red | green << 5 | blue << 10);
+        return new(red, green, blue);
     }
 }

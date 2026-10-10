@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -145,7 +147,7 @@ public sealed partial class RoomEnemySystem
         int destination = SporeSpawnColorRomData.DeathDestination(layer);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            ushort value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            Bgr555 value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 
@@ -244,7 +245,7 @@ public sealed partial class FileSelectMenuState
         copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
         int first = FileCopyArrowDefinitions.FirstColor;
         int last = first + FileCopyArrowDefinitions.ColorCount - 1;
-        ushort color = ppu.Cgram.Colors[first];
+        Bgr555 color = ppu.Cgram.Colors[first];
         for (int index = first; index < last; index++)
             ppu.Cgram.SetColor(index, ppu.Cgram.Colors[index + 1]);
         ppu.Cgram.SetColor(last, color);

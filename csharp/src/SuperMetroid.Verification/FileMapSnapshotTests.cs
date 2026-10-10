@@ -97,9 +97,9 @@ internal static partial class Program
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;
-        var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0);
         palette[0] = 31 << 10;
-        var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0);
         var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 3, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 3, 15);

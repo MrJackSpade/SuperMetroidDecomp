@@ -16,11 +16,11 @@ internal static partial class Program
         foreach (byte id in OriginalBlackBlendIds())
         {
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
-            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id)!.Value >> shift) & 31, "Original third-color component");
-            AssertEqual(expected, (stock.Resolve(id)[2] >> shift) & 31, "Resolved third-color component");
+            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id)!.Value.ToWord() >> shift) & 31, "Original third-color component");
+            AssertEqual(expected, (stock.Resolve(id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
             var cgram = new SnesCgram();
             stock.Apply(cgram, id);
-            AssertEqual(expected, (cgram.Colors[27] >> shift) & 31, "Applied third-color component");
+            AssertEqual(expected, (cgram.Colors[27].ToWord() >> shift) & 31, "Applied third-color component");
         }
     }
 
@@ -47,10 +47,10 @@ internal static partial class Program
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
         {
-            var owner = new RoomFxBlendColors(id, 0x1234, 0x2345, third);
+            var owner = new RoomFxBlendColors(id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked((ushort)(third))));
             var colors = owner.CreateColors();
             AssertEqual(third, colors[2], "Custom third-color components survive");
-            colors[2] ^= 1;
+            colors[2] = Bgr555.FromWord((ushort)(colors[2].ToWord() ^ (1)));
             AssertEqual(third, owner.CreateColors()[2], "Output edits do not mutate loaded colors");
         }
     }

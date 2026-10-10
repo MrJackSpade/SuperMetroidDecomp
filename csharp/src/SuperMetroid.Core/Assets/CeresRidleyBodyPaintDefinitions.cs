@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -17,31 +19,31 @@ internal sealed class CeresRidleyBodyPaintDefinitions
     private readonly int darkRed;
     private readonly int darkBlue;
 
-    internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<ushort> endpoint)
+    internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<Bgr555> endpoint)
         : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
 
     /// <summary>Shared membrane material, also present at $A6:E1F9-E1FE in the Baby palette.</summary>
-    internal CeresRidleyBodyPaintDefinitions(ushort highlight, ushort middle, ushort dark)
+    internal CeresRidleyBodyPaintDefinitions(Bgr555 highlight, Bgr555 middle, Bgr555 dark)
     {
-        highlightGreen = highlight >> 5 & MaximumChannel;
-        middleGreen = middle >> 5 & MaximumChannel;
-        blueTint = (highlight >> 10) - highlightGreen;
-        darkRed = dark & MaximumChannel;
-        darkBlue = dark >> 10;
+        highlightGreen = highlight.Green;
+        middleGreen = middle.Green;
+        blueTint = highlight.Blue - highlightGreen;
+        darkRed = dark.Red;
+        darkBlue = dark.Blue;
     }
 
-    private static ushort EndpointColor(ReadOnlySpan<ushort> endpoint, int index)
+    private static Bgr555 EndpointColor(ReadOnlySpan<Bgr555> endpoint, int index)
     {
         if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
         return endpoint[index];
     }
-    internal ushort Color(int color)
+    internal Bgr555 Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 8) return GoldenTorizoHealthPaintDefinitions.Color(0, color + 1, rear: false);
-        if (color == 10) return (ushort)(darkRed | darkBlue << 10);
+        if (color == 10) return new(darkRed, 0, darkBlue);
         int green = color == 8 ? highlightGreen : middleGreen;
         int blue = Math.Clamp(green + blueTint, 0, MaximumChannel);
-        return (ushort)(MaximumChannel | green << 5 | blue << 10);
+        return new(MaximumChannel, green, blue);
     }
 }

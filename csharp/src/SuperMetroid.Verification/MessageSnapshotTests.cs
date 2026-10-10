@@ -14,7 +14,7 @@ internal static partial class Program
         new Random(32107).NextBytes(graphics);
         vram.LoadBytes(0, graphics);
         var cgram = new SnesCgram();
-        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, (ushort)(i * 101 & 32767));
+        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 101 & 32767)));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
@@ -82,7 +82,7 @@ internal static partial class Program
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
             int top = 124 - Math.Min(radius, rows * 4), bottom = 124 + Math.Min(radius, rows * 4);
-            Rgba32 ink = SnesGraphics.DecodeBgr555Color(GameplayMessageRomData.Palette.TemporaryLightColor);
+            Rgba32 ink = GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32();
             for (int y = 0; y < 224; y++)
                 AssertTrue(actual.AsSpan(y * 256, 256).ToArray().All(p => p == (y >= top && y < bottom ? ink : baseline[y * 256])),
                     $"message geometry {rows} rows, radius {radius}, line {y}");

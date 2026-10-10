@@ -62,7 +62,7 @@ internal static partial class Program
         for (int call = 1; call <= 7; call++)
         {
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, sentinel);
+                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked((ushort)(sentinel))));
             SamusHurtFlashPalette.Update(
                 guarded, cgram, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,

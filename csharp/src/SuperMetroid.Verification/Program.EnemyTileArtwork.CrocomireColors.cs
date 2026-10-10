@@ -129,7 +129,7 @@ internal static partial class Program
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, persistent override, and strict failures pass.");
 
-        void VerifyBand(int source, int count, Func<int, ushort> resolve, string name)
+        void VerifyBand(int source, int count, Func<int, Bgr555> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -137,7 +137,7 @@ internal static partial class Program
                     $"installed Crocomire {name} color {color} preserves native RGB5");
         }
 
-        void AssertBand(int destination, int count, Func<int, ushort> resolve, string name)
+        void AssertBand(int destination, int count, Func<int, Bgr555> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram.Colors[destination + color],
@@ -149,8 +149,8 @@ internal static partial class Program
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedBand(int count, Func<int, ushort> original,
-            Func<int, ushort> changed, string name)
+        static void CheckEditedBand(int count, Func<int, Bgr555> original,
+            Func<int, Bgr555> changed, string name)
         {
             AssertTrue(original(1) != changed(1),
                 $"Crocomire {name} edit changes selected color");

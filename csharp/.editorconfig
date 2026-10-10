@@ -28,6 +28,8 @@ dotnet_diagnostic.IDE0032.severity = error
 dotnet_diagnostic.IDE0060.severity = error
 dotnet_diagnostic.IDE0078.severity = error
 dotnet_diagnostic.SYSLIB1054.severity = error
+# #627: a primitive switched over named constants is a closed domain; model it as a type.
+dotnet_diagnostic.SME6270.severity = error
 # #627: closed-domain switches handle every member and fail loudly on undefined values.
 dotnet_diagnostic.SME6271.severity = error
 # #627: a masked or shifted selector is decoded to its domain type before dispatch.

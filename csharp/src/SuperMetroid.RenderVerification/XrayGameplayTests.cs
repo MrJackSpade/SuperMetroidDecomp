@@ -3,8 +3,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies source-aware X-ray color math, layer masking, palette exemptions, and render-packet compatibility.</summary>
 internal static class XrayGameplayTests
 {
+    /// <summary>Checks known X-ray and enemy-specific color cases, then compares patterned scenes across software and GPU rendering.</summary>
+    /// <param name="device">The rendering device whose backend is included in verification output.</param>
+    /// <param name="renderer">The GPU renderer used to compare captured and round-tripped packets with software pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         int count = 0;

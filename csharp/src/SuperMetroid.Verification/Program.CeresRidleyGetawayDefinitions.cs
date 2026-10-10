@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Ceres Ridley getaway curve against native zoom and velocity words, including its terminal frame.</summary>
+    /// <param name="rom">Address space for the pinned game data used as the native curve reference.</param>
     private static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -24,6 +26,8 @@ internal static partial class Program
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
 
+    /// <summary>Compares all seven compiled Ceres Mode 7 transfer lists with ROM sources and their resulting VRAM effects.</summary>
+    /// <param name="rom">Address space containing the native transfer commands and source bytes.</param>
     private static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers =

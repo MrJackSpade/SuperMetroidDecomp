@@ -57,6 +57,12 @@ internal static partial class Program
             $"mixed remaps, native new-frame gating and {hitSamples} compiled collision samples ({hits} hits). RAM-only production.");
     }
 
+    /// <summary>
+    /// Verifies the complete BG2 tilemap against the ordered write documents, including untouched
+    /// cells that must remain zero.
+    /// </summary>
+    /// <param name="actual">VRAM produced by drawing the boss frame.</param>
+    /// <param name="writes">Tile writes expected for that frame, applied in document order.</param>
     private static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
@@ -67,6 +73,13 @@ internal static partial class Program
             AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayout.VramBase + index), "boss BG2 exact ordered destinations and payload");
     }
 
+    /// <summary>
+    /// Confirms that replacing boss display resources preserves animation state, RAM contents,
+    /// and the sound and music requests emitted by the enemy systems.
+    /// </summary>
+    /// <param name="baseline">Fixture using the stock display resources.</param>
+    /// <param name="edited">Fixture using the replacement display resources.</param>
+    /// <param name="context">Frame or pose label included in assertion failures.</param>
     private static void AssertBossDisplayMechanics(BossDisplayFixture baseline, BossDisplayFixture edited, string context)
     {
         AssertAnimationValues(baseline.Actor, edited.Actor, context);

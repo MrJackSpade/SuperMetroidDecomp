@@ -6,6 +6,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Replays a native Frog Speedway input trace and checks Samus movement, room-object pressure, and camera position.</summary>
+    /// <param name="path">CSV trace containing the native frame-by-frame Speedway results.</param>
+    /// <param name="beams">Equipped beam mask used to select the native trace variant.</param>
+    /// <param name="dash">Whether the trace uses the dash-button input.</param>
     private static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
     {
         string[] native = File.ReadLines(path).Skip(1).ToArray();
@@ -38,6 +42,7 @@ internal static partial class Program
         Console.WriteLine($"PASS {native.Length} native Speedway frames: beams={beams} dash={dash} endpoint={samus.XPosition}.");
     }
 
+    /// <summary>Checks that a full live PLM pool clears the Speedway speed-block collision without altering the block.</summary>
     private static void VerifyFrogSpeedwayPoolCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

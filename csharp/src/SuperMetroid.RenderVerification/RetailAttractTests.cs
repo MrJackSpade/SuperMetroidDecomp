@@ -5,8 +5,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies retail attract-demo transitions, held frames, cancellation, and captured rendering against the legacy game path.</summary>
 internal static class RetailAttractTests
 {
+    /// <summary>Runs completion and Start-cancellation attract sequences, checking state, audio, and sampled GPU pixels.</summary>
+    /// <param name="device">Render device whose adapter details identify pixel-comparison diagnostics.</param>
+    /// <param name="renderer">GPU renderer used to verify captured attract frames against legacy pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Attract scenes are compiled stock definitions, so the fixture tours the stock first

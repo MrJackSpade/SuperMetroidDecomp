@@ -7,8 +7,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies captured rendering throughout a retail save-station interaction and its completion sequence.</summary>
 internal static class RetailSaveCaptureTests
 {
+    /// <summary>Runs the Crateria save station through confirmation, electricity, completion, and player-control release.</summary>
+    /// <param name="device">Render device whose adapter identity is included in pixel-comparison diagnostics.</param>
+    /// <param name="renderer">GPU renderer used to compare each serialized captured frame with runtime output.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

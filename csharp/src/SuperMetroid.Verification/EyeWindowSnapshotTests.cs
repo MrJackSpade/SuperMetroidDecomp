@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks integer window intersections and eye-beam color-add snapshots across angles, widths, and off-screen origins.</summary>
     private static void VerifyEyeWindowSnapshots()
     {
         for (long coefficient = -9; coefficient <= 9; coefficient++)
@@ -55,6 +56,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares selected eye-beam window endpoints with values independently reported by the native routine.</summary>
+    /// <param name="bus">Retail address space used to capture each eye-beam scanline window.</param>
     private static void VerifyReportedEyeNativeEndpoints(ISnesAddressSpace bus)
     {
         // These endpoints were emitted by executing ROM $88:E987, not by the

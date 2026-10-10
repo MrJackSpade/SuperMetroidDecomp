@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>Checks persistent audio override selection, preservation during stock repair, and rejection of invalid content.</summary>
     private static void VerifyPersistentAudioOverrides()
     {
         string source = Path.GetFullPath("standalone-assets/audio");
@@ -120,6 +121,7 @@ internal static partial class Program
             "stable installation identity, compatibility guards and loud corruption failures pass.");
     }
 
+    /// <summary>Verifies aggregate game identity changes with each content component and reports compatibility drift.</summary>
     private static void VerifyGameContentIdentityComposition()
     {
         string audio = new('A', 64);

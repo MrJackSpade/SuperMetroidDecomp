@@ -2,6 +2,7 @@ using SuperMetroid.Android;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Routes repository-only integration-verification commands and runs the default Android-session checks when no focused mode is selected.</summary>
 try
 {
     // Match the existing console-host policy before import, replay or any native

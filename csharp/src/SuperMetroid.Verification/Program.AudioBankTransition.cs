@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    /// <summary>Checks that a released DSP voice stays silent across sample-bank replacement until a new key-on restarts mapped PCM playback.</summary>
     private static void VerifyReleasedVoiceBankSwitch()
     {
         var ram = new byte[65536];
@@ -36,6 +37,8 @@ internal static partial class Program
         }, "an audible unmapped source must still fail loudly");
     }
 
+    /// <summary>Verifies that every extracted music bank transitions to the captivity bank and continues producing audible samples.</summary>
+    /// <param name="directory">Root directory containing the extracted audio assets used to construct the renderer.</param>
     private static void VerifyAudioBankTransition(string directory)
     {
         Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());

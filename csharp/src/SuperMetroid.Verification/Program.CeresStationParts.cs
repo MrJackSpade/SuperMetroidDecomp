@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ceres station sprite composition, independent part edits, loader round trips, and native OAM output.</summary>
+    /// <param name="rom">Address space used to extract the retail station spritemap and compare its OAM output.</param>
     private static void VerifyCeresStationParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
@@ -57,6 +59,9 @@ internal static partial class Program
             }
         }
     }
+    /// <summary>Round trips one station sprite through presentation data and checks its on-screen and wrapped OAM.</summary>
+    /// <param name="pointer">Extended spritemap pointer identifying the station frame in the presentation catalog.</param>
+    /// <param name="visual">Sprite parts to serialize and compare with the compiled drawing reference.</param>
     private static void CheckCeresStationLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresFlightSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

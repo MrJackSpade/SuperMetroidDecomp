@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares captured GPU frames with legacy rendering throughout retail ending sequences.</summary>
 internal static class RetailEndingTests
 {
+    /// <summary>Checks ending composition, repeated-packet stability, and scene cadence for the tested completion times.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

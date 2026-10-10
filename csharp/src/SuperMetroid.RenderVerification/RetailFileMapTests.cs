@@ -7,8 +7,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies Direct3D rendering and captured snapshots for retail file-select maps, room maps, and navigation routes.</summary>
 internal static class RetailFileMapTests
 {
+    /// <summary>Loads the retail ROM, compares GPU readback with reference frames across map and save-menu scenarios, and runs load-appearance checks.</summary>
+    /// <param name="device">Active Direct3D device used to render and identify the verification output.</param>
+    /// <param name="renderer">Renderer that produces the GPU readback frames under verification.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

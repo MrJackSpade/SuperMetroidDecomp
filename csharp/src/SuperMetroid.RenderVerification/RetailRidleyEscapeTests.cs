@@ -8,6 +8,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests
 {
+    /// <summary>Exercises both native retreat triggers and compares captured Mode-7 escape frames with the runtime renderer.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (bool hitThreshold in new[] { false, true })
@@ -66,6 +67,7 @@ internal static class RetailRidleyEscapeTests
     }
 }
 
+/// <summary>Values used to stage the two native Ceres Ridley escape branches at hover.</summary>
 internal static class RidleyEscapeFixtureDefinitions
 {
     /// <summary>Ceres hover AI branches to the fake retreat at 100 registered projectile contacts.</summary>

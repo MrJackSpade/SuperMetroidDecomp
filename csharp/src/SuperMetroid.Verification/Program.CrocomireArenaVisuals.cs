@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies retail Crocomire visual extraction, visual-only overrides, persistence, and rejection of collision or stock-data edits.</summary>
     private static void VerifyCrocomireArenaVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -91,6 +92,13 @@ internal static partial class Program
         Console.WriteLine("Crocomire arena visuals: five stock draws, bridge/wall edits, physical isolation, override persistence and strict failures pass.");
     }
 
+    /// <summary>Checks that one Crocomire PLM mutation updates its BG1 tile while preserving collision data and avoiding source reads.</summary>
+    /// <param name="header">Native PLM header selecting the bridge or invisible-wall mutation.</param>
+    /// <param name="xOffset">Horizontal block offset within the mutation's draw region.</param>
+    /// <param name="yOffset">Vertical block offset within the mutation's draw region.</param>
+    /// <param name="physicalWord">Expected collision-layer word after the mutation runs.</param>
+    /// <param name="visualWord">Expected BG1 presentation word for the selected block.</param>
+    /// <param name="visuals">Optional installed visual catalog supplying the presentation override.</param>
     private static void VerifyCrocomireVisualDraw(ushort header,
         int xOffset, int yOffset, ushort physicalWord, ushort visualWord,
         RoomPlmCrocomireVisualCatalog? visuals)

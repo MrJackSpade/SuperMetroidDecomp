@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that striking a shaft wall clears horizontal momentum while the bomb-jump handler
+    /// continues the unobstructed upward movement.
+    /// </summary>
     private static void VerifyBombJumpWallContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -35,6 +39,10 @@ internal static partial class Program
         Suite(nameof(VerifyCarriedMorphCeiling), () => VerifyCarriedMorphCeiling(bus));
     }
 
+    /// <summary>
+    /// Checks ceiling response after upward carry and the bomb-jump pose-input lock through a hurt interruption.
+    /// </summary>
+    /// <param name="bus">The cartridge address space used to resolve pose and movement data.</param>
     private static void VerifyCarriedMorphCeiling(SuperMetroidAddressSpace bus)
     {
         var words = new ushort[32 * 16];

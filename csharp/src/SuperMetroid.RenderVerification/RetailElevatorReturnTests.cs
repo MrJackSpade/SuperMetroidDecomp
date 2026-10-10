@@ -10,12 +10,21 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Room-local upward elevator handoff using the existing Blue Brinstar regression route.</summary>
 internal static class RetailElevatorReturnTests
 {
+    /// <summary>Runs the upward return regression, followed by the paired downward departure regression.</summary>
+    /// <param name="device">Direct3D device used for frame comparisons.</param>
+    /// <param name="renderer">Renderer compared against each captured gameplay frame.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         RunUpward(device, renderer);
         RetailElevatorDepartureTests.Run(device, renderer);
     }
 
+    /// <summary>
+    /// Exercises the Blue Brinstar upward elevator handoff and return, comparing captured
+    /// frames throughout the transition and ride and checking the settled camera target.
+    /// </summary>
+    /// <param name="device">Direct3D device used for frame comparisons.</param>
+    /// <param name="renderer">Renderer compared against each captured gameplay frame.</param>
     private static void RunUpward(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

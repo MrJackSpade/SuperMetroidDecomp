@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares each Crocomire corpse frame's component offsets, hitbox rectangles, and callback
+    /// pointers with retail data, then confirms the reported empty frame stays non-colliding.
+    /// </summary>
     private static void VerifyCrocomireCorpseCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -69,6 +73,10 @@ internal static partial class Program
         Console.WriteLine("All 33 corpse frames match native offsets, rectangles and callbacks; production collision uses no ROM.");
     }
 
+    /// <summary>
+    /// Checks the camera boundaries and scroll-state changes at Crocomire's bridge-collapse and
+    /// left-side skeleton cutscene thresholds, including the final unlock phase.
+    /// </summary>
     private static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

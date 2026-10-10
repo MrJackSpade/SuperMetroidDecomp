@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Registers parity checks for the seven compiled Ceres destruction backdrop instruction lists.</summary>
+    /// <param name="rom">Retail ROM address space supplying the native bank-$8B program bytes and instruction behavior.</param>
     private static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false));
@@ -14,6 +16,12 @@ internal static partial class Program
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false));
     }
 
+    /// <summary>Compares one compiled backdrop list with its bank-$8B bytes and checks frame-by-frame instruction, visibility, and lifetime parity.</summary>
+    /// <param name="rom">Retail ROM address space used as the native byte and execution reference.</param>
+    /// <param name="start">Inclusive bank-$8B offset where the backdrop instruction list begins.</param>
+    /// <param name="end">Exclusive bank-$8B offset ending the list's owned bytes.</param>
+    /// <param name="title">Whether the list is the animated title backdrop, whose callbacks and eventual deletion are also checked.</param>
+    /// <remarks>Static backdrop loops are expected to remain active; the title backdrop is simulated for its longer authored sequence.</remarks>
     private static void VerifyCeresBackdropProgram(ISnesAddressSpace rom, ushort start, ushort end, bool title)
     {
         ushort OriginalWord(ushort p) => (ushort)(rom.ReadByte(0x8b0000 | p) |

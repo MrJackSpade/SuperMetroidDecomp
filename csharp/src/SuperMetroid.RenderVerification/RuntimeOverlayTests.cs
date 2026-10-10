@@ -8,6 +8,9 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests
 {
+    /// <summary>Compares production captures with software and D3D11 renders during combined overlay updates and retained-frame replays.</summary>
+    /// <param name="device">Direct3D device whose backend identifies the rendering comparisons.</param>
+    /// <param name="renderer">Renderer used to read back each captured frame from the GPU.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -65,6 +68,7 @@ internal static class RuntimeOverlayTests
     }
 }
 
+/// <summary>Retail room-header addresses used to load real room data for controlled overlay-rendering fixtures.</summary>
 internal static class OverlayFixtureRooms
 {
     /// <summary>Retail Alpha Power Bomb room $01/$26, header $8F:A3AE.</summary>

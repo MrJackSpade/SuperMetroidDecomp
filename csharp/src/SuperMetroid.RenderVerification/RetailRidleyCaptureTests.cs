@@ -6,8 +6,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies hardware rendering of captured retail Ridley Mode-7 scenes and their retained replay after video-memory changes.</summary>
 internal static class RetailRidleyCaptureTests
 {
+    /// <summary>Compares mixed floor-and-HUD captures across scale, tilt, and scroll settings, then checks retained packets and escape rendering.</summary>
+    /// <param name="device">Direct3D device identifying the backend in comparison diagnostics.</param>
+    /// <param name="renderer">Hardware renderer used for pixel readback against the runtime's software output.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

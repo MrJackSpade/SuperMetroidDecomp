@@ -8,6 +8,10 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that serialized room-load callbacks use stable debugger identities and
+    /// restore the captured runtime, room, and Samus references for known legacy identities.
+    /// </summary>
     private static void VerifyRoomCallbackStateIdentity()
     {
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -45,6 +49,11 @@ internal static partial class Program
             "unknown legacy compiler closures are not guessed");
     }
 
+    /// <summary>Replaces every length-prefixed UTF-8 string occurrence in a serialized graph with another encoded identity.</summary>
+    /// <param name="graph">Serialized object-graph bytes to scan.</param>
+    /// <param name="from">String identity whose encoded byte sequence is replaced.</param>
+    /// <param name="to">Replacement identity written wherever the encoded source occurs.</param>
+    /// <returns>A new byte array with each encoded source occurrence replaced.</returns>
     private static byte[] ReplaceEncodedIdentity(byte[] graph, string from, string to)
     {
         static byte[] Encode(string value)

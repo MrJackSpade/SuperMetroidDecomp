@@ -33,6 +33,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that debris PNG overrides reach already-queued PLM writes and that required source art cannot be omitted.</summary>
+    /// <param name="directory">Temporary extraction directory containing the stock debris PNG and override subdirectory.</param>
+    /// <param name="stock">Installed stock catalog used to confirm its original page remains available after rebinding.</param>
+    /// <param name="page">Debris sheet metadata identifying the PNG dimensions and native VRAM source range.</param>
     private static void VerifyBombTorizoDebrisOverride(string directory,
         EnemyTileArtworkCatalog stock, TorizoInstructionTileSheetDefinition page)
     {
@@ -73,6 +77,8 @@ internal static partial class Program
             "a missing required debris page is rejected at installation loading, not during play");
     }
 
+    /// <summary>Builds a valid all-black gameplay palette for the isolated Bomb Torizo artwork runtime fixture.</summary>
+    /// <returns>A loaded catalog containing zeroed backdrop and sprite colors.</returns>
     private static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,

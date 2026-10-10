@@ -10,6 +10,8 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Checks haze fade-phase transitions and visible ramp amplitudes against the pinned cartridge trace.</summary>
+    /// <param name="rom">Supported cartridge address space supplying the independently inspected instruction bytes.</param>
     private static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
         // Independently transcribed instruction trace from pinned bank_88.asm,
@@ -68,6 +70,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies Ceres haze channel ownership across the Ridley room and the retail escape-door fade into the final hallway.</summary>
     private static void VerifyCeresHazeLifecycle()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

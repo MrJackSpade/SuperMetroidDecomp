@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Deterministic render checks for nested scene-window layers, edge cases, brightness, and child-upload accounting.</summary>
 internal static class WindowSceneSmokeTests
 {
+    /// <summary>Compares Direct3D readback with software output across the configured parent/child window cases.</summary>
+    /// <param name="device">Render device whose adapter information is included in the completion report.</param>
+    /// <param name="renderer">Renderer used for GPU output and upload-statistics checks.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32116);

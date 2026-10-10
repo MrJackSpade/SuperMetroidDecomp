@@ -5,8 +5,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies saved-file map loading and Samus's temporary post-load appearance using paired retail game states.</summary>
 internal static class RetailLoadAppearanceTests
 {
+    /// <summary>Compares captured and legacy loading frames through map display, appearance timing, and control release.</summary>
+    /// <param name="device">Graphics device used to identify the renderer in verification output.</param>
+    /// <param name="renderer">Renderer used to compare captured saved-file frames with legacy output.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

@@ -6,8 +6,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies Direct3D captures for retail Ceres destruction and both game-over menu outcomes against their software-rendered frames.</summary>
 internal static class RetailTransitionTests
 {
+    /// <summary>Runs the destruction and game-over transition scenarios, checking rendered and retained snapshots on each sampled frame.</summary>
+    /// <param name="device">Active Direct3D device used to execute and identify the verification output.</param>
+    /// <param name="renderer">Renderer that produces the GPU readback frames under verification.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

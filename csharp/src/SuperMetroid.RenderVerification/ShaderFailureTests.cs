@@ -2,8 +2,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks missing-shader diagnostics and renderer recovery after partial initialization failure.</summary>
 internal static class ShaderFailureTests
 {
+    /// <summary>Removes each required shader in turn, verifies its diagnostic, then renders with a fresh renderer.</summary>
+    /// <param name="device">Graphics device reused to verify recovery after each failed initialization.</param>
     internal static void Run(D3D11RenderDevice device)
     {
         foreach (string missing in new[] { D3D11ShaderLayout.SolidResourceName, D3D11ShaderLayout.TileResourceName,

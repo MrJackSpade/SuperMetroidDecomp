@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks cinematic snapshot pixels and retained packet stability across Ceres, Zebes, and game-over scenes.</summary>
     private static void VerifyCinematicRenderSnapshots()
     {
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline());
@@ -107,6 +108,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares intro snapshots with an independent legacy display owner through the complete cinematic phases.</summary>
     private static void VerifyIntroDisplayCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

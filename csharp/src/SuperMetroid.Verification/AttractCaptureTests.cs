@@ -5,8 +5,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using System.Reflection;
 
+/// <summary>Verification entry-point portion that checks captured attract-demo frames against legacy frontend output.</summary>
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares attract playback, held final imagery, cancellation, and return-to-title captures
+    /// for matching pixels, game-state transitions, and ordered audio commands.
+    /// </summary>
     private static void VerifyAttractCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

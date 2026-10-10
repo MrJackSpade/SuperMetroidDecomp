@@ -7,6 +7,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted beam palettes against native CGRAM selection, editable single-color overrides, strict catalog validation, and queue timing.</summary>
+    /// <param name="bus">Retail address space used to extract the stock beam palette catalog and build native comparison fixtures.</param>
+    /// <param name="tiles">Installed beam tile catalog paired with the extracted palette presentation.</param>
     private static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
@@ -56,6 +59,9 @@ internal static partial class Program
             () => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 
+    /// <summary>Checks that accepted NMI publishes the installed beam palette without replacing active Crystal Flash or Hyper Beam colors.</summary>
+    /// <param name="bus">Retail address space used to initialize runtime fixtures and extract matching beam artwork.</param>
+    /// <param name="palettes">Beam palette catalog whose selected entries are checked for normal restoration and active-owner preservation.</param>
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);

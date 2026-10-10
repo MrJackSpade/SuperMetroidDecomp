@@ -3,10 +3,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks waterfall plane priority and subtractive color-math behavior against synthetic SNES video memory.</summary>
 internal static class WaterfallTests
 {
     // GR-3: native TM=$11, TS=$06, CGADSUB=$B1. Distinct colors make
     // an omitted plane, wrong priority, opaque overlay or halving observable.
+    /// <summary>Renders the synthetic waterfall composition and verifies key pixels through direct and serialized hardware paths.</summary>
+    /// <param name="device">Direct3D device identifying the backend in the success message.</param>
+    /// <param name="renderer">Hardware renderer used to compare readback with software-rendered pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new SnesVram();

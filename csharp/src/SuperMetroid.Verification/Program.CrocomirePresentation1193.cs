@@ -12,6 +12,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    /// <summary>
+    /// Runs either the room-spike animation and artwork checks or Crocomire's comeback-rumble scroll checks.
+    /// </summary>
+    /// <param name="spikes"><see langword="true"/> selects spike verification; <see langword="false"/> selects comeback-rumble verification.</param>
     private static int VerifyCrocomirePresentation(bool spikes)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -193,6 +197,12 @@ internal static partial class Program
         return 0;
     }
 
+    /// <summary>
+    /// Confirms legacy spike-art migration and debugger-state restoration preserve the selected frame and cadence.
+    /// </summary>
+    /// <param name="runtime">The active runtime whose room-spike animation state is serialized and stepped.</param>
+    /// <param name="bus">The address space used to read the pinned cartridge's spike artwork.</param>
+    /// <param name="stock">The installed animation atlas supplying current spike frames and legacy artwork defaults.</param>
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
     {

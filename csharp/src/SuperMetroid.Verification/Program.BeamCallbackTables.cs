@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks beam callback table words against the cartridge and verifies their installation on production firing paths.</summary>
+    /// <param name="initializeOnly">When <see langword="true"/>, checks projectile initialization without advancing charged or uncharged shots through firing.</param>
     private static void VerifyBeamCallbackTables(bool initializeOnly = false)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -93,6 +95,10 @@ internal static partial class Program
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
 
+    /// <summary>Reads one little-endian 16-bit callback pointer from the supplied cartridge address space.</summary>
+    /// <param name="bus">Address space containing the retail callback table.</param>
+    /// <param name="address">Cartridge address of the pointer's low byte.</param>
+    /// <returns>The two bytes at <paramref name="address"/> and the following address, combined as a word.</returns>
     private static ushort ReadBeamCallbackWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

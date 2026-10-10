@@ -2,6 +2,9 @@
 
 public static partial class RenderFrameSnapshotCodec
 {
+    /// <summary>Writes a gameplay Mode 7 layer's registers, HUD configuration, and optional floor band in snapshot wire order.</summary>
+    /// <param name="writer">Destination for the layer payload in the enclosing render-frame snapshot.</param>
+    /// <param name="layer">Resolved Mode 7 gameplay composition to serialize.</param>
     private static void WriteMode7Gameplay(BinaryWriter writer, Mode7GameplayRenderLayer layer)
     {
         Mode7RenderRegisters m = layer.Registers;
@@ -18,6 +21,10 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
+    /// <summary>Reconstructs a gameplay Mode 7 layer from its snapshot payload.</summary>
+    /// <param name="reader">Source positioned at the start of the Mode 7 gameplay layer payload.</param>
+    /// <param name="version">Snapshot format version used to decode the Mode 7 registers.</param>
+    /// <returns>The layer's transform, HUD settings, and optional floor band.</returns>
     private static Mode7GameplayRenderLayer ReadMode7Gameplay(BinaryReader reader, ushort version)
     {
         var m = ReadMode7Registers(reader, version);

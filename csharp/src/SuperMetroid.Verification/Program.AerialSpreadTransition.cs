@@ -32,6 +32,14 @@ internal static partial class Program
             : "Aerial down-aim spread: both directions and ten input timings, through expiry.");
     }
 
+    /// <summary>
+    /// Checks the turnaround route's per-frame charge and bomb state, including the narrow
+    /// release timing that launches the aerial spread and its eventual expiry.
+    /// </summary>
+    /// <param name="runtime">Runtime whose Samus and bomb-projectile state is checked.</param>
+    /// <param name="left">Whether this scenario performs the turnaround toward the left.</param>
+    /// <param name="delay">Input delay used by the scenario to reach the spread release window.</param>
+    /// <param name="frame">Current zero-based frame within the scenario.</param>
     private static void VerifyTurnaroundSpreadFrame(SuperMetroidRuntime runtime, bool left, int delay, int frame)
     {
         var samus = runtime.Samus!;
@@ -49,6 +57,16 @@ internal static partial class Program
             AssertEqual((ushort)0, samus.ProjectileFlareCounter, "airborne spread consumes charge");
     }
 
+    /// <summary>
+    /// Checks that a charged walljump retains charge through morphing, releases all five bombs
+    /// at the expected frame, and rejects held-Shoot or intervening-turn control cases.
+    /// </summary>
+    /// <param name="runtime">Runtime whose Samus and bomb-projectile state is checked.</param>
+    /// <param name="left">Whether the walljump route is performed toward the left.</param>
+    /// <param name="timingCase">Scenario timing or negative-control case being verified.</param>
+    /// <param name="delay">Input delay that determines the morph and spread-release frames.</param>
+    /// <param name="frame">Current zero-based frame within the scenario.</param>
+    /// <param name="previousY">Samus's packed vertical position from before the current frame.</param>
     private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, uint previousY)
     {
         var samus = runtime.Samus!;

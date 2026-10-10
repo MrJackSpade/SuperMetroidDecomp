@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies file-map captures against legacy rendering and checks navigation, retained packets, and saved-file loading.</summary>
     private static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
@@ -94,6 +95,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks windowed-scene pixel replacement, rectangle validation, nesting rejection, and serialized-version handling.</summary>
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;

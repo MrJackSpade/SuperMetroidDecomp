@@ -3,6 +3,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks native assignable-button order, inverse lookup, bounds, and swap-permutation rules against the ROM table.</summary>
+    /// <param name="rom">Address space containing the retail assignable-button table and its reverse-scan metadata.</param>
     private static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
     {
         // Independent original bytes, never the replacement cases, supply both directions.
@@ -44,6 +46,8 @@ internal static partial class Program
             "duplicate button invalidates permutation");
     }
 
+    /// <summary>Verifies default action bindings from native load instructions, including their WRAM destinations and menu order.</summary>
+    /// <param name="rom">Address space containing the retail controller-default initialization instructions.</param>
     private static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
     {
         // Parse the seven original LDA-immediate/STA-absolute pairs, including their

@@ -6,6 +6,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that a rejected shoot edge cancels charge only when the native bomb helper
+    /// runs, while preserving charge for equipment and selection paths that skip it.
+    /// </summary>
     private static void VerifyBombChargeRejection()
     {
         Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
@@ -45,6 +49,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that releasing Shoot cancels nonzero Morph Ball charge without placing a bomb or spending ammunition.</summary>
     private static void VerifyBombChargeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -65,6 +65,10 @@ internal static partial class Program
             $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing and installation acceptance.");
     }
 
+    /// <summary>Gets the BG2 tilemap writes associated with a stock boss frame's source family.</summary>
+    /// <param name="catalog">Installed artwork catalog containing the stock family tilemaps.</param>
+    /// <param name="frame">Frame whose bank selects the family and whose pointer identifies its tilemap entry.</param>
+    /// <returns>The frame's ordered BG2 writes, or an empty view when that family has no matching entry.</returns>
     private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(EnemyTileArtworkCatalog catalog, EnemyExtendedFrameDefinition frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
@@ -78,6 +82,10 @@ internal static partial class Program
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;
     }
 
+    /// <summary>Verifies stock boss display data and override remapping, reload identity, and malformed-resource rejection.</summary>
+    /// <param name="stock">Directory containing the extracted stock enemy artwork files.</param>
+    /// <param name="overrides">Directory where test display-binding edits are written.</param>
+    /// <param name="baseline">Loaded stock catalog used to compare content identity before and after overrides.</param>
     private static void VerifyBossDisplayInstallation(string stock, string overrides, EnemyTileArtworkCatalog baseline)
     {
         var json = new EnemyIdentityFixture();

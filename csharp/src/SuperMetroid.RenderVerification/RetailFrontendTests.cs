@@ -4,8 +4,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Retail-ROM rendering checks for the title sequence, file selection, options menu, and intro handoff.</summary>
 internal static class RetailFrontendTests
 {
+    /// <summary>Compares D3D11 output with software frames while checking captured frontend state and audio through intro handoff.</summary>
+    /// <param name="device">Direct3D device identifying the rendering backend used for comparisons.</param>
+    /// <param name="renderer">Renderer whose readback is compared with the retail fixture's expected pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Required fixture, not an optional skip. SRAM is private to these address

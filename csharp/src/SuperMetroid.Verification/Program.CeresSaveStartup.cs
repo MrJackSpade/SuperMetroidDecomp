@@ -160,9 +160,16 @@ internal static partial class Program
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }
 
+    /// <summary>Sets the game's private state property to arrange a specific verification transition.</summary>
+    /// <param name="owner">Game instance whose state is being staged.</param>
+    /// <param name="state">State value assigned through the non-public <c>GameState</c> property.</param>
     private static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>
         typeof(SuperMetroidGame).GetProperty(nameof(owner.GameState))!.SetValue(owner, state);
 
+    /// <summary>Assigns a named private instance field while preparing a verification scenario.</summary>
+    /// <param name="owner">Object containing the field to update.</param>
+    /// <param name="name">Exact field name discovered on the instance type.</param>
+    /// <param name="value">Value assigned to that field.</param>
     private static void SetField(SuperMetroidGame owner, string name, object value) =>
         typeof(SuperMetroidGame).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(owner, value);

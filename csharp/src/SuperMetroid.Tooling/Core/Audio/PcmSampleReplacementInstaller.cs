@@ -130,6 +130,12 @@ public static class PcmSampleReplacementInstaller
         return updated;
     }
 
+    /// <summary>Chooses the replacement's loop frame according to the requested policy.</summary>
+    /// <param name="previous">Existing sample metadata supplying the old rate and optional loop frame for time preservation.</param>
+    /// <param name="replacementSampleRate">Decoded replacement WAV rate used to convert a preserved loop time into a frame index.</param>
+    /// <param name="replacement">Policy selecting preserved time, no loop, or an explicit replacement frame.</param>
+    /// <returns>The resolved zero-based PCM frame index, or <see langword="null"/> when the replacement is unlooped.</returns>
+    /// <remarks>Preserved loop positions are rounded to the nearest frame; range validation is performed by the caller before files are replaced.</remarks>
     private static int? ResolveLoop(
         AudioCanonicalSampleMetadata previous,
         int replacementSampleRate,
@@ -144,6 +150,11 @@ public static class PcmSampleReplacementInstaller
             _ => throw new InvalidDataException($"Unknown PCM loop replacement mode {replacement.Kind}."),
         };
 
+    /// <summary>Resolves a manifest-relative asset path while rejecting rooted paths and paths outside the catalog directory.</summary>
+    /// <param name="root">Full path of the editable audio catalog directory.</param>
+    /// <param name="relativePath">Manifest path to resolve beneath <paramref name="root"/>.</param>
+    /// <returns>The normalized full path of the contained asset.</returns>
+    /// <exception cref="InvalidDataException">The manifest path is rooted or escapes the catalog directory.</exception>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))

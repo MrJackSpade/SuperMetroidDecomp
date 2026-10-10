@@ -44,17 +44,30 @@ internal enum D3D11TileOperation : uint
 {
     /// <summary>Writes palette entry zero as the backdrop without reading a tile layer.</summary>
     Backdrop = 0,
+    /// <summary>Composites a four-bit-per-pixel background with its scroll, priority, transparency, and window parameters.</summary>
     Bg4 = 1,
+    /// <summary>Composites a two-bit-per-pixel background with its scroll, priority, transparency, and window parameters.</summary>
     Bg2 = 2,
+    /// <summary>Scales the composed output by the submitted display-brightness level.</summary>
     Brightness = 3,
+    /// <summary>Adds the submitted fixed RGB color to the composed output.</summary>
     FixedAdd = 4,
+    /// <summary>Resolves modeled OAM entries into the intermediate object buffer.</summary>
     ResolveObj = 5,
+    /// <summary>Composites resolved objects for the selected priority and scanline range.</summary>
     InsertObj = 6,
+    /// <summary>Composites an affine Mode 7 background from the submitted matrix and scroll registers.</summary>
     Mode7 = 7,
+    /// <summary>Adds per-scanline fixed colors inside the submitted horizontal spans.</summary>
     ScanlineAdd = 8,
+    /// <summary>Adds a tile-background color-math source to the existing output.</summary>
     BgAdd = 9,
+    /// <summary>Subtracts a tile-background color-math source from the existing output.</summary>
     BgSubtract = 10,
+    /// <summary>Builds the selected background-and-object subscreen and adds it to the main output.</summary>
     SubscreenAdd = 11,
+    /// <summary>Draws the centered gameplay message window from its character tilemap.</summary>
     Message = 12,
+    /// <summary>Composites captured gameplay layers with X-ray window and color-math behavior.</summary>
     XrayGameplay = 14
 }

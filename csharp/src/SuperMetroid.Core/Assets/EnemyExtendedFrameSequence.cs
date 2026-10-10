@@ -32,5 +32,6 @@ internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length
         }
     }
 
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

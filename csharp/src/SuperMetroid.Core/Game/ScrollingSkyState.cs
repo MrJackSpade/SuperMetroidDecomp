@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// materializes an indirect HDMA byte table; this model retains the same 23 fixed-point
 /// data slots and exposes their final per-gameplay-scanline BG2HOFS values directly.
 /// </remarks>
+/// <param name="horizontalHdmaConfigured">Whether the room setup spawned the horizontal sky HDMA object.</param>
 public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
 {
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>

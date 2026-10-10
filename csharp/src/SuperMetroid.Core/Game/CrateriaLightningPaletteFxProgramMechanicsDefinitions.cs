@@ -69,6 +69,7 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
     public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
         Surface.TryReadByte(pointer, out value) || Dark.TryReadByte(pointer, out value);
 
+    /// <summary>Calculated two-program view exposing the surface and unused dark lightning definitions.</summary>
     private sealed class ProgramList : IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition>
     {
         /// <summary>Number of lightning program definitions exposed by this view.</summary>
@@ -83,6 +84,7 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
         /// <summary>Enumerates the live surface definition followed by the unused dark definition.</summary>
         public IEnumerator<CrateriaLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return Surface; yield return Dark; }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -240,6 +242,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
             for (int index = 0; index < Count; index++)
                 yield return at(index);
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -349,10 +349,8 @@ public sealed class FileSelectPresentation
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
 
-        /// <summary>Verifies every sparse patch cell remains inside the page at the supplied anchor.</summary>
-        /// <param name="anchor">Tile coordinate at which the patch is placed.</param>
-        /// <param name="patch">Compiled sparse cells to validate.</param>
-        /// <exception cref="InvalidDataException">Any placed cell lies beyond the page dimensions.</exception>
+        // Verify every compiled sparse patch cell remains inside the page when placed at
+        // the supplied tile-coordinate anchor, rejecting an escaped cell as invalid data.
         static void ValidatePatch(MapLabelPoint anchor, FileSelectCompiledPatch patch)
         {
             for (int index = 0; index < patch.Count; index++)

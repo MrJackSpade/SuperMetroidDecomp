@@ -37,6 +37,7 @@ internal sealed class IntroConfusedBabyParts(int frame) : IReadOnlyList<Compiled
     {
         yield return this[0];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

@@ -80,6 +80,7 @@ public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Resolves one compiled mechanics word across all three programs.</summary>

@@ -20,6 +20,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
     /// <summary>Separate policy for the copied warm target colors in palette slots nine through fourteen.</summary>
     private readonly CeresDoorWarmTargetPaintDefinitions warm;
 
+    /// <summary>Gets the separately retained warm target paints for palette slots nine through fourteen.</summary>
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets => warm;
 
     /// <summary>Five-bit paint seeds keyed by one-based palette slot and color-channel index.</summary>

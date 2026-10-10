@@ -72,7 +72,7 @@ internal static partial class Program
     {
         /// <summary>Routes cartridge-source reads through the guard's forbidden-range check.</summary>
         /// <param name="address">Cartridge address requested by the caller.</param>
-        /// <returns>The byte from <paramref name="source"/> unless the address belongs to a guarded table.</returns>
+        /// <returns>The byte from the wrapped <c>source</c> unless the address belongs to a guarded table.</returns>
         /// <exception cref="InvalidOperationException">The requested address belongs to either guarded selector table.</exception>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

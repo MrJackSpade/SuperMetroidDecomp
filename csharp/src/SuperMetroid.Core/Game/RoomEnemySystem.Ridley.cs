@@ -987,11 +987,11 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
-        Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
     /// <summary>Maps the clamped health stage to the divisor row used by hover movement.</summary>
     /// <param name="state">Ridley's health stage established by the health palette update.</param>
     /// <returns>The movement divisor table index associated with that stage.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
     private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
         RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 

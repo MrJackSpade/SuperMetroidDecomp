@@ -41,6 +41,10 @@ internal enum InstructionItemKind : byte
 /// <summary>One item of a program in native address order.</summary>
 internal readonly struct InstructionItem
 {
+    /// <summary>Creates one emitted-word or cursor-control item.</summary>
+    /// <param name="kind">Role this item performs in the program layout.</param>
+    /// <param name="words">Instruction words emitted by the item.</param>
+    /// <param name="value">Entry address, origin address, or skipped byte count.</param>
     private InstructionItem(InstructionItemKind kind, InstructionWord[] words, ushort value)
     {
         Kind = kind;
@@ -108,6 +112,7 @@ internal sealed class InstructionProgramLayout
     private readonly InstructionItem[] items;
     // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
     // out once and indexed by address instead of walked on every query.
+    /// <summary>Lazily constructed native-address lookup for the immutable program words.</summary>
     internal readonly Lazy<WordIndex> index;
 
     /// <summary>Builds the address index and validates each declared entry against the preceding layout.</summary>

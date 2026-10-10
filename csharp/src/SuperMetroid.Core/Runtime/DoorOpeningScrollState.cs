@@ -302,6 +302,10 @@ internal sealed class DoorOpeningScrollState
         CameraY = FinalCameraY;
     }
 
+    /// <summary>Replaces the whole-pixel word of a 16.16 camera position while preserving its fraction.</summary>
+    /// <param name="whole">New whole-pixel coordinate.</param>
+    /// <param name="fixedPosition">Existing fixed-point position supplying the fractional word.</param>
+    /// <returns>The combined 16.16 fixed-point position.</returns>
     private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>
         ((uint)whole << 16) | (fixedPosition & 0xffff);
 }

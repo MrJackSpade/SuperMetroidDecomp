@@ -225,6 +225,12 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
+    /// <summary>Draws one Draygon extended-spritemap frame and captures the resulting BG2 VRAM bytes.</summary>
+    /// <param name="art">Installed enemy artwork supplied to the room-enemy renderer.</param>
+    /// <param name="bus">Address space used by the focused Draygon draw fixture.</param>
+    /// <param name="pointer">Native extended-spritemap pointer to draw.</param>
+    /// <param name="newInstructionFrame">Whether the slot should publish a newly selected instruction frame.</param>
+    /// <returns>A snapshot of VRAM after the frame has been drawn.</returns>
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {

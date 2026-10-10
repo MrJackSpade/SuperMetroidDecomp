@@ -575,6 +575,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                     yield return new((ushort)(first + frame * 4 + 2), $"projectile_86_{program.InitialPointer:X4}_frame_{frame:D2}".ToLowerInvariant());
             }
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

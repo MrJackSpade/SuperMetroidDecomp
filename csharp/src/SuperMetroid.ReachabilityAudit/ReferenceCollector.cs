@@ -11,6 +11,11 @@ namespace SuperMetroid.ReachabilityAudit;
 /// deconstruction, collection initializers, user-defined operators and conversions, implicit
 /// indexers and base constructors). nameof and documentation crefs are not references.
 /// </summary>
+/// <param name="identity">Repository symbol identity service used to classify references.</param>
+/// <param name="graph">Reachability graph that receives discovered reference edges.</param>
+/// <param name="roots">Root collector used to recognize framework and runtime entry points.</param>
+/// <param name="json">Serialization scanner that records reflection-bound JSON payload members.</param>
+/// <param name="reflection">Reflection scanner that resolves name-based member access.</param>
 internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGraph graph, RootCollector roots,
     JsonSerializationScan json, ReflectionScan reflection)
 {

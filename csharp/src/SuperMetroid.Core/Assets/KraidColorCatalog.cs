@@ -103,6 +103,7 @@ public sealed class KraidColorCatalog
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -185,6 +186,7 @@ public sealed class KraidColorCatalog
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Validates and compiles all five Kraid RGB5 sources, preserving independent authored edits while leaving health-band selection and fade timing to the boss mechanics.</summary>

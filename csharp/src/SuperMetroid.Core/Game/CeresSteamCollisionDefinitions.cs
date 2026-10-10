@@ -108,6 +108,7 @@ internal static class CeresSteamCollisionDefinitions
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -127,6 +128,7 @@ internal static class CeresSteamCollisionDefinitions
         {
             yield return this[0];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the compiled rectangles for a native steam hitbox-list pointer.</summary>

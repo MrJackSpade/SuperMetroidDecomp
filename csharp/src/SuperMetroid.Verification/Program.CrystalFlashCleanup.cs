@@ -154,6 +154,9 @@ internal static partial class Program
 }
 
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
+/// <param name="inner">Underlying address space used for ordinary fixture reads and writes.</param>
+/// <param name="x">Horizontal position assigned to the constructed Ripper.</param>
+/// <param name="y">Vertical position assigned to the constructed Ripper.</param>
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {

@@ -98,10 +98,19 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
 }
 
 /// <summary>Routes the scene's shared approach frames and unique destruction frames.</summary>
+/// <param name="flight">Presentation catalog containing the shared Ceres flight frames.</param>
+/// <param name="destruction">Presentation catalog containing destruction-specific frames.</param>
 internal sealed class CeresSceneSpritePresentation(
     CeresFlightSpritePresentation flight,
     CeresDestructionSpritePresentation destruction) : IIntroCinematicSpritePresentation
 {
+    /// <summary>Draws a Ceres composition through the destruction catalog when it owns the pointer, otherwise through the shared flight catalog.</summary>
+    /// <param name="pointer">Bank-$8C spritemap pointer identifying the requested composition.</param>
+    /// <param name="oam">Object-attribute buffer that receives the compiled sprite parts.</param>
+    /// <param name="x">Screen-space origin X coordinate.</param>
+    /// <param name="y">Screen-space origin Y coordinate.</param>
+    /// <param name="paletteBits">Palette-selection bits applied to parts that inherit the actor palette.</param>
+    /// <param name="originIsOnScreen">Whether the actor origin is already within the visible screen bounds.</param>
     public void Draw(ushort pointer, OamBuffer oam, ushort x, ushort y,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -196,5 +205,6 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

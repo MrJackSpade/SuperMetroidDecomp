@@ -166,6 +166,11 @@ public sealed class HyperBeamFxColorCatalog
             blue = (supplied >> 10 & 31) == expectedBlue ? null : supplied >> 10 & 31;
         }
 
+        /// <summary>Reconstructs the packed RGB5 color from retained channel edits and the supplied shared endpoints.</summary>
+        /// <param name="redHue">Whether an unedited blue channel follows the resolved green channel instead of red.</param>
+        /// <param name="sharedRed">Red endpoint used when the source color retained the shared red relationship.</param>
+        /// <param name="sharedGreen">Green endpoint used when the source color retained the shared green relationship.</param>
+        /// <returns>The resolved packed RGB5 color.</returns>
         internal ushort Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
         {
             int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;

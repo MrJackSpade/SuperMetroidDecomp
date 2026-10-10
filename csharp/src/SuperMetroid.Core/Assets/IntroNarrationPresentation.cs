@@ -204,6 +204,7 @@ public sealed class IntroNarrationPresentation
         public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
             ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
             : CalculateLines(text!).GetEnumerator();
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

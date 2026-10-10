@@ -19,6 +19,7 @@ public readonly record struct SnesAddress
         Value = (bank << 16) | offset;
     }
 
+    /// <summary>Creates an address from a packed value already validated as 24-bit.</summary>
     private SnesAddress(int checkedValue)
     {
         Value = checkedValue;

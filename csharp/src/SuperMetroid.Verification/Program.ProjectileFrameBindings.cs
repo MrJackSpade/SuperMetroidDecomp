@@ -163,7 +163,7 @@ internal static partial class Program
 
         /// <summary>Rejects reads of blocked sprite-reference bytes and forwards other reads to the wrapped address space.</summary>
         /// <param name="address">Address to read from the guarded address space.</param>
-        /// <returns>The byte at an address not listed in <paramref name="blocked"/>.</returns>
+        /// <returns>The byte at an address not listed in the <c>blocked</c> address set.</returns>
         public byte ReadByte(int address) => blocked.Contains(address)
             ? throw new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}.")
             : source.ReadByte(address);

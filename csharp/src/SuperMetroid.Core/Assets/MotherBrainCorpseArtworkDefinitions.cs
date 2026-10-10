@@ -90,6 +90,7 @@ public static class MotherBrainCorpseArtworkDefinitions
         {
             for (int row = 0; row < Count; row++) yield return this[row];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

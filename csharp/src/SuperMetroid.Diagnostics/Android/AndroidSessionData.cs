@@ -9,12 +9,9 @@ namespace SuperMetroid.Android;
 /// <summary>
 /// Worker-owned game and diagnostic state. No Activity/View references are persisted.
 /// A reset recording starts from SRAM; a recording after a state load includes the exact
-    /// seed file alongside it so desktop replay need not invent a reset-time equivalent.
-    /// </summary>
-    /// <param name="root">Application data directory for settings, saves, recordings, and installed assets.</param>
-    /// <param name="cartridgePath">Optional cartridge import source; runtime uses the installed, cartridge-free content.</param>
-    /// <param name="audioDirectory">Optional override directory for extracted audio assets.</param>
-    internal sealed class AndroidSessionData : IDisposable
+/// seed file alongside it so desktop replay need not invent a reset-time equivalent.
+/// </summary>
+internal sealed class AndroidSessionData : IDisposable
 {
     /// <summary>Application-private directory containing settings, saves, and installed assets.</summary>
     private readonly string root;

@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>$82:CAE9-CBCA: three turning helmet drawings followed by five visor glints.
 /// Shared atlas packing and overlapping part coordinates calculate; selected drawings, native part order and visor alignment are retained as this exact display design. Pixels, colors, anchors and timing are excluded.</summary>
+/// <param name="frame">Zero-based helmet or visor animation frame to compose.</param>
 internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>$82:CAE9: first 24x24 helmet block begins at tileD0; three adjacent three-tile-wide poses share its atlas rows.</summary>
@@ -82,5 +83,6 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

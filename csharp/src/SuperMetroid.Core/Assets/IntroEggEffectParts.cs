@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native8C:8F7E..8FCA contains centered single-tile effects. Fragments
 /// traverse a two-column/three-row atlas patch; slime follows a three-cell row
 /// then continues down its first column. Shared OAM fields are calculated.</summary>
+/// <param name="frame">Zero-based shell-fragment or slime frame to compose.</param>
 internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Applies the single-tile provider for a matching shell-fragment or slime frame.</summary>
@@ -44,6 +45,7 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
     /// <summary>Enumerates the single sprite part emitted for this frame.</summary>
     /// <returns>An enumerator containing the centered effect tile.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

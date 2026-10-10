@@ -71,6 +71,7 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>Fallback queue countdown used only when no host audio state is supplied.</summary>
     private int musicQueueTimer = 14;
     // $8B:C11B's NMI waits completed so far; setup runs after the last one.
+    /// <summary>Counts the initial NMI waits completed before destruction-scene setup begins.</summary>
     private int initialNmiWaits;
     /// <summary>Shared cinematic update word used to time explosion and mosaic effects.</summary>
     private ushort cinematicFrameCounter;

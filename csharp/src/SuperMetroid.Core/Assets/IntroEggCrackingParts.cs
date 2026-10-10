@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Progressive replacement of intact cells with the matching cracked atlas patch.</summary>
+/// <param name="stage">Zero-based cracking stage whose cell replacements are composed.</param>
 internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Replaces a matching intact egg pose with the cell patches for the requested crack stage.</summary>
@@ -80,6 +81,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

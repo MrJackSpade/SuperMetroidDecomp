@@ -23,6 +23,7 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
+    /// <summary>Identifies each independently named Ceres flight composition in native display order.</summary>
     private enum Visual
     {
         /// <summary>Starfield spritemap selected by the Ceres stars program.</summary>
@@ -77,6 +78,7 @@ public static class CeresFlightSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

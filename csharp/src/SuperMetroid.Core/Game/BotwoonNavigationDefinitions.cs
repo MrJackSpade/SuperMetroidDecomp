@@ -11,7 +11,9 @@ internal readonly record struct BotwoonHoleDefinition(
     internal ushort Right => unchecked((ushort)(Left + 8));
     /// <summary>$B3:94A1 bottom boundaries: all four hole hitboxes are eight pixels tall.</summary>
     internal ushort Bottom => unchecked((ushort)(Top + 8));
+    /// <summary>Horizontal center used as Botwoon's destination within this hole.</summary>
     internal ushort TargetX => unchecked((ushort)(Left + 4));
+    /// <summary>Vertical center used as Botwoon's destination within this hole.</summary>
     internal ushort TargetY => unchecked((ushort)(Top + 4));
 }
 

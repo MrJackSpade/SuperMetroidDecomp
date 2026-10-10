@@ -137,6 +137,10 @@ public sealed class RoomFxPaletteBlendCatalog
         SelectColors(selection).Apply(cgram);
     }
 
+    /// <summary>Resolves a nonzero native room-FX selector to its authored three-color blend.</summary>
+    /// <param name="selection">One of the eight supported native room-FX blend selectors.</param>
+    /// <returns>The compiled blend selected by the native identifier.</returns>
+    /// <exception cref="InvalidDataException">The selector is not one of the authored blend selections.</exception>
     private RoomFxBlendColors SelectColors(byte selection) => selection switch
     {
         RoomFxPaletteBlendDefinitions.Lava => lava,
@@ -149,6 +153,11 @@ public sealed class RoomFxPaletteBlendCatalog
         RoomFxPaletteBlendDefinitions.MaridiaWaterD => maridiaWaterD,
         _ => throw new InvalidDataException($"Room-FX palette blend ${selection:X2} is not an authored retail selection."),
     };
+    /// <summary>Validates that an authored haze tint fits the SNES five-bit color channels.</summary>
+    /// <param name="color">RGB tint to validate.</param>
+    /// <param name="name">Property name included in an invalid-data failure.</param>
+    /// <returns>The validated tint unchanged.</returns>
+    /// <exception cref="InvalidDataException">Any color component lies outside zero through 31.</exception>
     private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
     {
         if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -156,6 +165,8 @@ public sealed class RoomFxPaletteBlendCatalog
         return color;
     }
 
+    /// <summary>Rejects duplicate properties in a room-FX blend JSON object.</summary>
+    /// <param name="value">Parsed JSON value whose object properties are validated.</param>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate room-FX blend property {name}."));

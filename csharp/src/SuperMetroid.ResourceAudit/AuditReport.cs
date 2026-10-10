@@ -3,15 +3,31 @@ using System.Text.Json;
 namespace SuperMetroid.ResourceAudit;
 
 /// <summary>One missing resource export or unresolved audit boundary.</summary>
+/// <param name="Code">Stable audit finding code.</param>
+/// <param name="Domain">Resource domain in which the finding occurred.</param>
+/// <param name="Owner">Source owner responsible for the resource reference.</param>
+/// <param name="Resource">Referenced resource identity.</param>
+/// <param name="Source">Source location or operation that produced the finding.</param>
+/// <param name="Message">Human-readable explanation of the missing export or boundary.</param>
 internal sealed record AuditFinding(string Code, string Domain, string Owner, string Resource,
     string Source, string Message);
 /// <summary>Reference and export totals for one audited resource domain.</summary>
+/// <param name="Domain">Audited resource domain.</param>
+/// <param name="References">Number of resource references discovered in the domain.</param>
+/// <param name="Exports">Number of matching compiled resource exports.</param>
 internal sealed record AuditCoverage(string Domain, int References, int Exports);
 /// <summary>One source operation that consumes an audited resource and its resolution status.</summary>
+/// <param name="Owner">Source owner containing the resource operation.</param>
+/// <param name="Source">Source operation or location being classified.</param>
+/// <param name="Resolution">Static resolution assigned to the consumer.</param>
 internal sealed record AuditConsumer(string Owner, string Source,     string Resolution);
 /// <summary>One resource definition found in compiled source.</summary>
+/// <param name="Domain">Resource domain containing the compiled definition.</param>
+/// <param name="Resource">Compiled resource identity.</param>
 internal sealed record AuditCompiledDefinition(string Domain, string Resource);
 /// <summary>One source site classified as a resource consumer.</summary>
+/// <param name="Owner">Source owner containing the classified site.</param>
+/// <param name="Source">Classified source operation or location.</param>
 internal sealed record AuditClassification(string Owner, string Source);
 
 /// <summary>Separate concrete missing exports from unresolved analysis boundaries.</summary>

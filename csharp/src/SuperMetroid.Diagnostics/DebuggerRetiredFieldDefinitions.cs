@@ -452,8 +452,16 @@ internal static class DebuggerRetiredFieldDefinitions
             values.TryGetValue(serializedName, out value);
     }
 
+    /// <summary>Retains a retired serialized value for a later migration step.</summary>
+    /// <param name="instance">Restored object that owns the retired value.</param>
+    /// <param name="serializedName">Former serialized field name.</param>
+    /// <param name="value">Retired value captured from the save state.</param>
     private static void Remember(object instance, string serializedName, object? value) =>
         LegacyValues.GetOrCreateValue(instance)[serializedName] = value;
 
+    /// <summary>Accepts a retired serialized value that requires no migration state.</summary>
+    /// <param name="instance">Restored object that formerly owned the field.</param>
+    /// <param name="serializedName">Former serialized field name.</param>
+    /// <param name="value">Retired value intentionally discarded during restoration.</param>
     private static void Discard(object instance, string serializedName, object? value) { }
 }

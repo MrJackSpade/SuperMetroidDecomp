@@ -25,6 +25,12 @@ internal static class JsonAssetDocument
         return Read<T>(json, options, typeof(T).Name);
     }
 
+    /// <summary>Deserializes a stream after rejecting duplicate properties and labels invalid data with a caller-supplied description.</summary>
+    /// <typeparam name="T">Document type to deserialize.</typeparam>
+    /// <param name="json">JSON input consumed from its current position and left open.</param>
+    /// <param name="options">Serializer rules applied after duplicate-property validation.</param>
+    /// <param name="description">Human-readable document name included in validation failures.</param>
+    /// <returns>The deserialized non-null document.</returns>
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -47,6 +53,12 @@ internal static class JsonAssetDocument
         }
     }
 
+    /// <summary>Deserializes buffered UTF-8 JSON after rejecting duplicate properties under the serializer's name-comparison rules.</summary>
+    /// <typeparam name="T">Document type to deserialize.</typeparam>
+    /// <param name="json">Complete UTF-8 JSON document.</param>
+    /// <param name="options">Serializer rules applied after duplicate-property validation.</param>
+    /// <param name="description">Human-readable document name included in validation failures.</param>
+    /// <returns>The deserialized non-null document.</returns>
     private static T Read<T>(ReadOnlySpan<byte> json, JsonSerializerOptions options, string description)
     {
         try

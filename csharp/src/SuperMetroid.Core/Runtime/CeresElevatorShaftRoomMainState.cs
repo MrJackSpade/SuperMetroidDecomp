@@ -145,6 +145,9 @@ public sealed class CeresElevatorShaftRoomMainState
         return Snapshot(matrixChanged: true);
     }
 
+    /// <summary>Tests Samus against the stationary departure region used by room main <c>$89:ACD0</c>.</summary>
+    /// <param name="samus">Player position and vertical velocity to inspect.</param>
+    /// <returns><see langword="true"/> when Samus is stationary inside the native trigger bounds.</returns>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
         // `$89:ACD0` uses strict X > 112, inclusive X <= 144, inclusive Y >= 75,
         // and strict Y < 128. Both whole and fractional vertical speed must be zero.
@@ -155,11 +158,16 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed == 0 &&
         samus.Kinematics.YSubspeed == 0;
 
+    /// <summary>Captures the current transform and this frame's departure result.</summary>
+    /// <param name="matrixChanged">Whether the current call changed the Mode 7 matrix.</param>
+    /// <returns>The debugger-visible result for the current room-main call.</returns>
     private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
         Transform,
         matrixChanged,
         DepartureRequestedThisFrame);
 
+    /// <summary>Creates the cartridge's initial Ceres elevator-shaft Mode 7 transform.</summary>
+    /// <returns>The starting matrix and rotation center.</returns>
     private static SamusMode7Transform CreateInitialTransform() => new(
         MatrixA: 0x0100,
         MatrixB: 0,

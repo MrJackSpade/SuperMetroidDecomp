@@ -131,6 +131,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         disposed = true;
     }
 
+    /// <summary>Owns one reusable set of GPU queries and the frame identity associated with its pending interval.</summary>
     private sealed class Slot : IDisposable
     {
         /// <summary>Timestamp queries for the whole interval and its optional composition boundary.</summary>

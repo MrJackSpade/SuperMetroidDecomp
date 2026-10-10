@@ -197,7 +197,9 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
 
+    /// <summary>First native speed-echo slot released from the active crash animation.</summary>
     private readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
+    /// <summary>Second native speed-echo slot released from the active crash animation.</summary>
     private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>

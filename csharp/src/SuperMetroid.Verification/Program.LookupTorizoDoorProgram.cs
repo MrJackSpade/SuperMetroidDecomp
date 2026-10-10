@@ -17,6 +17,9 @@ internal static partial class Program
     /// <summary>Checks the Torizo-door callback operands against their cartridge bytes and shared PLM reader.</summary>
     private static void VerifyTorizoDoorCallback(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 5);
 
+    /// <summary>Checks one Torizo-door operand field across the complete byte and overlapping-word address domain.</summary>
+    /// <param name="rom">Retail cartridge data that supplies the independent expected operands.</param>
+    /// <param name="field">Field selector identifying controls, draws, targets, sounds, hit count, or callbacks.</param>
     private static void VerifyTorizoDoorField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.

@@ -91,6 +91,9 @@ internal static partial class Program
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Checks installed Spore Spawn ceiling frames against their retail draw-word mappings and catalog contracts.</summary>
+    /// <param name="rom">Retail cartridge data used to read the independent native frame words.</param>
+    /// <param name="installed">Installed ceiling-visual catalog whose stock mapping is verified.</param>
     private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmSporeSpawnCeilingVisualCatalog installed)
     {

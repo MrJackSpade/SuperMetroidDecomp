@@ -26,6 +26,8 @@ internal static class TitlePalettePresentationTooling
             for (int index = 0; index < program.ColorsPerFrame; index++)
                 yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
         }
+        /// <summary>Returns a non-generic enumerator over the ambient palette color-word addresses.</summary>
+        /// <returns>An enumerator that follows program, frame, and color order.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

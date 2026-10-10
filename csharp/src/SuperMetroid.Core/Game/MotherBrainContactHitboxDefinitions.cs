@@ -75,5 +75,6 @@ internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPar
         for (int region = 0; region < Count; region++) yield return this[region];
     }
 
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -68,6 +68,7 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>

@@ -246,9 +246,8 @@ public static class SamusBodyArtworkFiles
     /// <summary>Loads each atlas in one body half and checks its identity, hash, and zero padding.</summary>
     /// <param name="stockDirectory">Directory containing the stock atlas files.</param>
     /// <param name="overrideDirectory">Optional directory containing replacements with stock filenames.</param>
-    /// <param name="sets">Manifest definition sets to load.</param>
+    /// <param name="manifest">Body definition sets and immutable stock PNG hashes used to validate each atlas.</param>
     /// <param name="upperHalf">Whether the definitions describe the upper body.</param>
-    /// <param name="hashes">Manifest of immutable stock PNG hashes.</param>
     /// <returns>Decoded body definitions grouped by set.</returns>
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
         string? overrideDirectory, Manifest manifest, bool upperHalf)

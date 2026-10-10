@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Seven small asteroids assembled from three reusable overlapping shapes.
 /// The original90FE anchors and copy orientations are authored scene placement.</summary>
+/// <param name="anchors">Authored screen-space anchors for the seven asteroid copies.</param>
 /// <remarks>
 /// The complete native composition scatters seven copies of three rock drawings.
 /// BF76/BF89 initializes one shared origin and translates it horizontally; CC4F
@@ -85,6 +86,7 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 /// <summary>Names the Tile16 atlas cells reused to assemble the Ceres small-asteroid shapes.</summary>

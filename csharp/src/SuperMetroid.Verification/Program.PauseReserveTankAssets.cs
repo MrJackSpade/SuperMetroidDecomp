@@ -122,6 +122,7 @@ internal static partial class Program
             return pause;
         }
     }
+    /// <summary>Rejects cartridge reads from reserve-tank presentation ranges that installed assets must replace.</summary>
     private sealed class ReserveTankAssetReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         /// <summary>Underlying address space delegated reads and writes that are not blocked as installed artwork data.</summary>

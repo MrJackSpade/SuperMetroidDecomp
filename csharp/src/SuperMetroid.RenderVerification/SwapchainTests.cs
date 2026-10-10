@@ -122,12 +122,25 @@ internal static partial class SwapchainTests
         /// <summary>Reserved field in the native <c>MSG</c> structure.</summary>
         public uint Private;
     }
+    /// <summary>Retrieves a queued Windows message for the hidden verification window.</summary>
+    /// <param name="message">Receives the queued native message.</param>
+    /// <param name="window">Window handle used to filter messages, or zero for the current thread.</param>
+    /// <param name="min">Lowest message identifier to retrieve.</param>
+    /// <param name="max">Highest message identifier to retrieve.</param>
+    /// <param name="flags">Native options controlling message removal and filtering.</param>
+    /// <returns><see langword="true"/> when a matching message was available.</returns>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool PeekMessageW(out WindowMessage message, nint window, uint min, uint max, uint flags);
+    /// <summary>Translates virtual-key information in a native message into character messages.</summary>
+    /// <param name="message">Native message to translate.</param>
+    /// <returns><see langword="true"/> when the message was translated.</returns>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool TranslateMessage(in WindowMessage message);
+    /// <summary>Dispatches a native message to its window procedure.</summary>
+    /// <param name="message">Native message to dispatch.</param>
+    /// <returns>The value returned by the target window procedure.</returns>
     [LibraryImport("user32.dll")]
     private static partial nint DispatchMessageW(in WindowMessage message);
 
@@ -169,9 +182,26 @@ internal static partial class SwapchainTests
         finally { if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
     }
 
+    /// <summary>Creates the hidden native window used to host the verification swapchain.</summary>
+    /// <param name="extendedStyle">Extended native window-style flags.</param>
+    /// <param name="className">Registered native window class name.</param>
+    /// <param name="windowName">Window title supplied to Windows.</param>
+    /// <param name="style">Native window-style flags.</param>
+    /// <param name="x">Initial horizontal window position.</param>
+    /// <param name="y">Initial vertical window position.</param>
+    /// <param name="width">Initial client width.</param>
+    /// <param name="height">Initial client height.</param>
+    /// <param name="parent">Parent or owner window handle.</param>
+    /// <param name="menu">Menu or child identifier handle.</param>
+    /// <param name="instance">Module instance handle.</param>
+    /// <param name="parameter">Application-defined creation parameter.</param>
+    /// <returns>The created window handle, or zero when creation fails.</returns>
     [LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     private static partial nint CreateWindowExW(uint extendedStyle, string className, string windowName,
         uint style, int x, int y, int width, int height, nint parent, nint menu, nint instance, nint parameter);
+    /// <summary>Destroys the hidden native window after swapchain verification.</summary>
+    /// <param name="window">Handle of the native window to destroy.</param>
+    /// <returns><see langword="true"/> when Windows destroyed the window.</returns>
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool DestroyWindow(nint window);

@@ -7,6 +7,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// Finds the members System.Text.Json reads or binds by reflection. Serializer access is not use:
 /// a member reached only this way is reported as serialization-only, never counted reachable.
 /// </summary>
+/// <param name="identity">Repository symbol identity service used to classify source-backed payloads.</param>
 internal sealed class JsonSerializationScan(SymbolIdentity identity)
 {
     /// <summary>Repository payload types discovered at serializer calls, keyed by stable symbol key.</summary>

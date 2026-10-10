@@ -95,6 +95,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
     }
 
+    /// <summary>Rejects background-tile flip bits outside the horizontal and vertical pair.</summary>
     private static void ValidateFlips(SnesTileFlipFlags flips)
     {
         if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)
@@ -202,6 +203,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public SnesObjAttributeWord Or(SnesObjAttributeWord attributes) =>
         new(unchecked((ushort)(Raw | attributes.Raw)));
 
+    /// <summary>Rejects object-tile flip bits outside the horizontal and vertical pair.</summary>
     private static void ValidateFlips(SnesTileFlipFlags flips)
     {
         if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)

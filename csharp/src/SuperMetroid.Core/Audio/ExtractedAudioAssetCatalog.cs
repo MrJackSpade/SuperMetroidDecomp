@@ -204,6 +204,7 @@ public sealed class ExtractedAudioAssetCatalog
     }
 
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
+    /// <param name="hash">Incremental hash that receives every serialized byte written to the stream.</param>
     private sealed class HashingWriteStream(IncrementalHash hash) : Stream
     {
         /// <summary>Always false because canonical serialization only writes to this stream.</summary>

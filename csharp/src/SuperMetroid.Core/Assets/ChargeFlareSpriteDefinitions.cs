@@ -46,6 +46,7 @@ public static class ChargeFlareSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Allocation-free view of the twenty-eight distinct flare/spark compositions required by the editable artwork catalog, independent of selector repetition.</summary>
@@ -75,6 +76,7 @@ public static class ChargeFlareSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

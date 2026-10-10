@@ -13,6 +13,7 @@ internal sealed class AndroidControllerPreferences
     /// <summary>Explicit physical-key overrides; keys absent here use device defaults.</summary>
     private readonly Dictionary<string, SnesButton> overrides;
 
+    /// <summary>Creates an empty preference snapshot that uses every device-default binding.</summary>
     public AndroidControllerPreferences() : this([]) { }
     /// <summary>Creates a preference snapshot backed by the supplied validated bindings.</summary>
     /// <param name="values">Physical-key bindings to preserve.</param>

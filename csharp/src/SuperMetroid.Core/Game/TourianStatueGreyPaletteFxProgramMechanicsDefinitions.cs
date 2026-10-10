@@ -62,6 +62,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>

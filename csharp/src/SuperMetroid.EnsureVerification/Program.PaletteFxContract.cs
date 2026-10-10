@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Runs compiler and runtime checks for the mandatory palette-FX color dependency.</summary>
 internal static partial class Program
 {
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
@@ -64,6 +65,10 @@ internal static partial class Program
         Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
     }
 
+    /// <summary>Compiles a call-site fixture against the palette-FX API contract.</summary>
+    /// <param name="description">A short name included when the fixture fails.</param>
+    /// <param name="statement">The invocation to compile inside a representative caller.</param>
+    /// <param name="expectedError">The sole expected compiler error identifier, if any.</param>
     private static void VerifyPaletteCall(string description, string statement, string? expectedError = null)
     {
         string source = $$"""
@@ -91,8 +96,13 @@ internal static partial class Program
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
     }
 
+    /// <summary>Supplies the constructed color used to confirm palette execution advances.</summary>
     private sealed class ContractPaletteColors : IPaletteFxColorSource
     {
+        /// <summary>Returns the constructed color only for the Gunship engine instruction pointer.</summary>
+        /// <param name="pointer">The native palette color pointer.</param>
+        /// <param name="color">Receives the constructed red color.</param>
+        /// <returns><see langword="true"/> when the pointer identifies that instruction.</returns>
         public bool TryReadColor(ushort pointer, out ushort color)
         {
             color = 31; // Constructed red confirms the first native frame executes after the rejection.

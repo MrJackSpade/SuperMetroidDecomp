@@ -129,7 +129,7 @@ internal static partial class Program
         /// <summary>Rejects reads from the selected area source and shared CRE source while forwarding other bytes.</summary>
         /// <param name="address">Address to read.</param>
         /// <returns>The byte returned by the underlying address space.</returns>
-        /// <exception cref="InvalidOperationException">The address matches <paramref name="areaSource"/> or the CRE block-definition source.</exception>
+        /// <exception cref="InvalidOperationException">The address matches the configured <c>areaSource</c> or the CRE block-definition source.</exception>
         public byte ReadByte(int address)
         {
             if (address == areaSource ||

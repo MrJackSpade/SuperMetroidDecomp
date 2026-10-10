@@ -11,6 +11,7 @@ public static class RoomStaticPaletteArtworkFiles
 {
     /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
+    /// <summary>Current room-palette provenance-manifest schema version.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates one stock RGB5 JSON palette per distinct room graphics-set color source and writes their provenance manifest.</summary>

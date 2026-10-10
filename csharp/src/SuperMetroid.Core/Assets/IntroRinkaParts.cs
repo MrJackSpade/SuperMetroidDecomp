@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Native8C:8C8D..8CCE mirrors one eight-pixel tile into four quadrants.
 /// Preserve bottom-right,bottom-left,top-right,top-left order and actor palette.</summary>
+/// <param name="frame">Zero-based Rinka animation frame selecting the source tile.</param>
 internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Replaces recognized Rinka frame pointers with the four-part mirrored-tile composition.</summary>
@@ -42,6 +43,7 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

@@ -156,5 +156,6 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

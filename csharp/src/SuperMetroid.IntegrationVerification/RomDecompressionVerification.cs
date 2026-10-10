@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Verifies bounded ROM decompression and typed cartridge-source access behavior.</summary>
 internal static class RomDecompressionVerification
 {
     /// <summary>Verifies framed ROM decompression, exact typed-source read extents, fixed-bank bounds, and dense-stream allocation.</summary>

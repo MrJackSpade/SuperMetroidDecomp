@@ -159,6 +159,7 @@ internal sealed class IntroScientistCutsceneState
         }
     }
 
+    /// <summary>Identifies which scientist vignette supplies the scene's pan direction and page handoff.</summary>
     private enum ScientistSceneKind
     {
         /// <summary>Delivery vignette with a horizontal background pan and page-four handoff.</summary>

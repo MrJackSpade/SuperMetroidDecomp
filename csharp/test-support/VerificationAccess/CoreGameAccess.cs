@@ -192,6 +192,7 @@ internal static class CeresMode7TransferDefinitionsTileSequenceAccess
 {
     extension(CeresMode7TransferDefinitions.TileSequence self)
     {
+        /// <summary>Gets the number of tile transfers in the sequence.</summary>
         internal int Length => self.Count;
     }
 }
@@ -201,6 +202,7 @@ internal static class CeresSteamCollisionDefinitionsAccess
 {
     extension(CeresSteamCollisionDefinitions)
     {
+        /// <summary>Enumerates the native hitbox-list pointers used by the Ceres steam frames.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<CeresSteamCollisionHitbox>>(typeof(CeresSteamCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -210,6 +212,7 @@ internal static class CeresSteamCollisionDefinitionsComponentSequenceAccess
 {
     extension(CeresSteamCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets the number of collision components in the sequence.</summary>
         internal int Length => self.Count;
     }
 }
@@ -230,6 +233,7 @@ internal static class CommonEnemyProjectileInstructionProgramDefinitionsAccess
 {
     extension(CommonEnemyProjectileInstructionProgramDefinitions)
     {
+        /// <summary>Reads a compiled mechanics word or rejects an address outside the mechanics data.</summary>
         internal static ushort ReadMechanicsWord(ushort address)
         {
             if (CommonEnemyProjectileInstructionProgramDefinitions.TryReadMechanicsWord(address, out ushort value))
@@ -274,8 +278,10 @@ internal static class CrateriaLightningPaletteFxProgramDefinitionAccess
         /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
         internal ushort DefinitionPointer => PrivateState.Property<bool>(self, "IsSurface") ? (ushort)0xf765 : (ushort)0xf769;
 
+        /// <summary>Gets the complete duration of the lightning palette cycle in frames.</summary>
         internal int CycleFrames => 240 * (1 + PrivateState.Property<int>(self, "NeutralCount")) + 2 * 9 + 5;
 
+        /// <summary>Gets the number of palette records displayed during one complete cycle.</summary>
         internal int DisplayedRecordsPerCycle => 1 + 14 + PrivateState.Property<int>(self, "NeutralCount") + 4 + 1;
     }
 }
@@ -285,6 +291,7 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
 {
     extension(CrocomireBg2ScrollDefinitions)
     {
+        /// <summary>Gets the number of compiled vertical-correction entries.</summary>
         internal static int EntryCount => 17;
 
         /// <summary>Native pointer order: twelve charge/step-back frames followed by
@@ -328,6 +335,7 @@ internal static class CrocomireMeltingUploadSequenceAccess
 {
     extension(CrocomireMeltingUploadSequence self)
     {
+        /// <summary>Enumerates the melting uploads in native sequence order.</summary>
         internal IEnumerator<CrocomireMeltingUpload> GetEnumerator()
         {
             for (int index = 0; index < self.Length; index++)
@@ -373,8 +381,10 @@ internal static class DachoraInstructionProgramDefinitionsAccess
 
     extension(DachoraInstructionProgramDefinitions)
     {
+        /// <summary>Gets the number of Dachora instruction programs exposed for verification.</summary>
         internal static int ProgramCount => ProgramEntries.Length;
 
+        /// <summary>Returns the indexed Dachora program with its frame count and loop state.</summary>
         internal static DachoraInstructionProgram Program(int index)
         {
             ushort entry = ProgramEntries[index];
@@ -389,6 +399,7 @@ internal static class DeadMonsterRottingDefinitionsTransferRowsAccess
 {
     extension(DeadMonsterRottingDefinitions.TransferRows self)
     {
+        /// <summary>Gets the number of transfer rows in the rotting sequence.</summary>
         internal int Length => self.Count;
     }
 }
@@ -398,6 +409,7 @@ internal static class DeadTorizoVramTransferDefinitionsPhaseRowsAccess
 {
     extension(DeadTorizoVramTransferDefinitions.PhaseRows self)
     {
+        /// <summary>Gets the number of VRAM-transfer rows in the phase.</summary>
         internal int Length => self.Count;
     }
 }
@@ -407,6 +419,7 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsAccess
 {
     extension(DeadTourianCorpseInstructionProgramDefinitions)
     {
+        /// <summary>Returns the address of the sleep word in the indexed corpse program.</summary>
         internal static ushort SleepWordAddress(int index) => (ushort)(DeadTourianCorpseInstructionProgramDefinitions.Program(index)+4);
     }
 }
@@ -416,6 +429,7 @@ internal static class DraygonCollisionDefinitionsAccess
 {
     extension(DraygonCollisionDefinitions)
     {
+        /// <summary>Gets the number of frames whose native OAM list is empty.</summary>
         internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
     }
 }
@@ -425,6 +439,7 @@ internal static class DraygonCollisionDefinitionsComponentSequenceAccess
 {
     extension(DraygonCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets one when the optional component is present, otherwise zero.</summary>
         internal int Length => self.HasComponent ? 1 : 0;
     }
 }
@@ -437,6 +452,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsAccess
         /// <summary>Native $86:E42C selector domain, including its final two out-of-order roots.</summary>
         internal static int MiscDustProgramCount => 30;
 
+        /// <summary>Reports whether an address stores a visual operand in a compiled projectile program.</summary>
         internal static bool IsVisualOperand(ushort address)
         {
             int offset = address - EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial;
@@ -483,12 +499,15 @@ internal static class EnemyPropertyFlagExtensionsAccess
         return flags;
     }
 
+    /// <summary>Reports whether a native enemy-property word contains any requested flag.</summary>
     internal static bool HasAny(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) != 0;
 
+    /// <summary>Reports whether a native enemy-property word contains every requested flag.</summary>
     internal static bool HasAll(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) == flags;
 
+    /// <summary>Reports whether a native extra-property word contains every requested flag.</summary>
     internal static bool HasAll(this ushort word, EnemyExtraProperties flags)
     {
         PrivateState.InvokeStatic(typeof(EnemyPropertyFlagExtensions), "ValidateKnown", (EnemyExtraProperties)(flags));
@@ -525,6 +544,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoAwakeningInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled awakening-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
@@ -545,6 +565,7 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitionsAcce
 {
     extension(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled eye-beam-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -555,6 +576,7 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoInitialInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled initial-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWordCount; index++)
@@ -577,6 +599,7 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoJumpLandingInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled jump-landing-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoJumpLandingInstructionProgramDefinitions.MechanicsWordCount; index++)
@@ -597,6 +620,7 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoLeftFootOrbInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled left-foot-orb mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftFootOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -607,6 +631,7 @@ internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoLeftOrbInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled left-orb mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -617,6 +642,7 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoLeftTurnInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled left-turn mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftTurnInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -627,6 +653,7 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoRightOrbInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled right-orb mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -637,6 +664,7 @@ internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoRightSonicInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled right-sonic mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightSonicInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -647,6 +675,7 @@ internal static class GoldenTorizoRightwardInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoRightwardInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled rightward-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightwardInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -657,6 +686,7 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoStunnedInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled stunned-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoStunnedInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -667,6 +697,7 @@ internal static class GoldenTorizoWalkingInstructionProgramDefinitionsAccess
 {
     extension(GoldenTorizoWalkingInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled walking-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoWalkingInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -677,6 +708,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsAccess
 {
     extension(GrowingShutterInstructionProgramDefinitions)
     {
+        /// <summary>Gets the number of compiled growing-shutter instruction programs.</summary>
         internal static int ProgramCount => 4;
 
         /// <summary>Each growth stage owns a six-byte duration/visual/sleep program.</summary>
@@ -693,6 +725,7 @@ internal static class GunshipDustInstructionProgramDefinitionsAccess
 {
     extension(GunshipDustInstructionProgramDefinitions)
     {
+        /// <summary>Maps a native gunship-dust parameter to its initial instruction pointer.</summary>
         internal static ushort InitialForParameter(ushort parameter) => parameter switch
         {
             0 => GunshipDustInstructionProgramDefinitions.Index0,
@@ -786,6 +819,7 @@ internal static class KraidArmHitboxSequenceAccess
 {
     extension(KraidArmHitboxSequence self)
     {
+        /// <summary>Copies the complete Kraid arm hitbox sequence into an array.</summary>
         internal KraidArmCollisionHitbox[] ToArray()
         {
             var result = new KraidArmCollisionHitbox[self.Length];
@@ -800,6 +834,7 @@ internal static class KraidEnemyStateAccess
 {
     extension(KraidEnemyState self)
     {
+        /// <summary>Returns the indexed quarter-health threshold derived from Kraid's initial health.</summary>
         internal ushort HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(self.InitialHealth, index);
     }
 }
@@ -809,6 +844,7 @@ internal static class KraidFootCollisionDefinitionsAccess
 {
     extension(KraidFootCollisionDefinitions)
     {
+        /// <summary>Returns the native collision-frame pointer at the supplied index.</summary>
         internal static ushort FramePointer(int index) =>
             checked((ushort)(KraidFootCollisionDefinitions.FirstFrame + index * PrivateState.StaticField<int>(typeof(KraidFootCollisionDefinitions), "FrameByteCount")));
     }
@@ -819,6 +855,7 @@ internal static class KraidFootHitboxSequenceAccess
 {
     extension(KraidFootHitboxSequence self)
     {
+        /// <summary>Copies the single Kraid foot hitbox into an array.</summary>
         internal KraidFootCollisionHitbox[] ToArray() => [self[0]];
     }
 }
@@ -979,6 +1016,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
 {
     extension(MaridiaLargeSnailCollisionDefinitions)
     {
+        /// <summary>Enumerates the native hitbox-list pointers used by large Maridia snail frames.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>>(typeof(MaridiaLargeSnailCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -1041,14 +1079,17 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
 {
     extension(MotherBrainHandBeamInstructionProgramDefinitions)
     {
+        /// <summary>Gets the number of external-call stages in the hand-beam program.</summary>
         internal static int ExternalCallCount => PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageCount");
 
+        /// <summary>Returns the external-call instruction address for the indexed stage.</summary>
         internal static ushort ExternalCallInstruction(int index)
         {
             if ((uint)index >= MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount) throw new ArgumentOutOfRangeException(nameof(index));
             return (ushort)(((int)(PrivateState.InvokeStatic(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageStart", (int)(index)))!) + PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes"));
         }
 
+        /// <summary>Reports whether a bank-$86 address belongs to a compiled hand-beam presentation operand.</summary>
         internal static bool IsPresentationByte(int address)
         {
             if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
@@ -1172,6 +1213,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
 {
     extension(MotherBrainRoomPaletteProgramDefinitions)
     {
+        /// <summary>Returns the indexed mechanics word from the compiled room-palette program.</summary>
         internal static InstructionMechanicsWord MechanicsWord(int index)
         {
             if ((uint)index >= MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -1181,6 +1223,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
                     index == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount ? MotherBrainRoomPaletteProgramDefinitions.GotoInstruction : MotherBrainRoomPaletteProgramDefinitions.FlashStart);
         }
 
+        /// <summary>Reports whether an address belongs to a compiled room-palette mechanics word.</summary>
         internal static bool IsCompiledMechanicsByte(int address)
         {
             if ((address & 0xff0000) != 0xa90000) return false;
@@ -1189,6 +1232,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
                 offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 + 4;
         }
 
+        /// <summary>Attempts to map a presentation-byte address to its containing word address.</summary>
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
         {
             wordAddress = 0;
@@ -1206,14 +1250,18 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsAccess
 {
     extension(MotherBrainTurretInstructionProgramDefinitions)
     {
+        /// <summary>Gets the number of supported Mother Brain turret directions.</summary>
         internal static int DirectionCount => 8;
 
+        /// <summary>Returns the turret instruction program for the requested direction.</summary>
         internal static ushort TurretProgram(MotherBrainTurretDirection direction) =>
             MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.TurretLeft, direction);
 
+        /// <summary>Returns the turret-bullet instruction program for the requested direction.</summary>
         internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
             MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(PrivateState.StaticField<ushort>(typeof(MotherBrainTurretInstructionProgramDefinitions), "BulletLeft"), direction);
 
+        /// <summary>Offsets a first-direction program pointer to the requested directional program.</summary>
         internal static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
         {
             int index = (byte)direction;
@@ -1264,6 +1312,7 @@ internal static class PhantoonCasualFlameDefinitionsScheduleAccess
 {
     extension(PhantoonCasualFlameDefinitions.Schedule self)
     {
+        /// <summary>Gets the number of entries in the casual-flame schedule.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1273,6 +1322,7 @@ internal static class PhantoonCollisionDefinitionsComponentSequenceAccess
 {
     extension(PhantoonCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets the number of components in the Phantoon collision sequence.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1282,6 +1332,7 @@ internal static class PhantoonCollisionDefinitionsHitboxSequenceAccess
 {
     extension(PhantoonCollisionDefinitions.HitboxSequence self)
     {
+        /// <summary>Gets the number of hitboxes in the Phantoon collision sequence.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1291,6 +1342,7 @@ internal static class PhantoonWaveHdmaStateAccess
 {
     extension(PhantoonWaveHdmaState self)
     {
+        /// <summary>Gets the active portion of the generated horizontal-scroll cycle.</summary>
         internal ReadOnlySpan<ushort> ScrollCycle => PrivateState.Field<ushort[]>(self, "_cycle").AsSpan(0, PrivateState.Field<int>(self, "_cycleLength"));
     }
 }
@@ -1322,6 +1374,7 @@ internal static class RidleyCollisionDefinitionsAccess
             }
         }
 
+        /// <summary>Enumerates the native hitbox-list pointers used by Ridley's collision frames.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<RidleyCollisionHitbox>>(typeof(RidleyCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -1421,6 +1474,7 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => PrivateState.Field<ElevatorEnemyState?[]>(self, "_elevatorStates");
 
+        /// <summary>Typed Kago state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<KagoEnemyState?> KagoStates => PrivateState.Field<KagoEnemyState?[]>(self, "_kagoStates");
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
@@ -1462,6 +1516,7 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
         internal IReadOnlyList<StokeEnemyState?> StokeStates => PrivateState.Field<StokeEnemyState?[]>(self, "_stokeStates");
 
+        /// <summary>Typed Fake Kraid state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => PrivateState.Field<FakeKraidEnemyState?[]>(self, "_fakeKraidStates");
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
@@ -1484,6 +1539,7 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
             PrivateState.Field<EscapeEtecoonEnemyState?[]>(self, "_escapeEtecoonStates");
 
+        /// <summary>Typed Nuclear Waffle state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
             PrivateState.Field<NuclearWaffleEnemyState?[]>(self, "_nuclearWaffleStates");
 
@@ -1511,17 +1567,21 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
         internal IReadOnlyList<RinkaEnemyState?> RinkaStates => PrivateState.Field<RinkaEnemyState?[]>(self, "_rinkaStates");
 
+        /// <summary>Typed walking Space Pirate state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
             PrivateState.Field<WalkingSpacePirateEnemyState?[]>(self, "_walkingSpacePirateStates");
 
+        /// <summary>Typed wall Space Pirate state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
             PrivateState.Field<WallSpacePirateEnemyState?[]>(self, "_wallSpacePirateStates");
 
+        /// <summary>Typed Magdollite state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => PrivateState.Field<MagdolliteEnemyState?[]>(self, "_magdolliteStates");
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates => PrivateState.Field<MetroidEnemyState?[]>(self, "_metroidStates");
 
+        /// <summary>Gets the room's Shitroid state when that enemy is present.</summary>
         internal ShitroidEnemyState? Shitroid => PrivateState.Field<ShitroidEnemyState?>(self, "_shitroid");
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
@@ -1584,6 +1644,7 @@ internal static class RoomEnemySystemAccess
         internal TorizoEnemyState? BombTorizo =>
             PrivateState.Field<TorizoEnemyState?>(self, "_torizoState") is { IsGolden: false } ? PrivateState.Field<TorizoEnemyState?>(self, "_torizoState") : null;
 
+        /// <summary>Typed growing-shutter state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => PrivateState.Field<GrowingShutterEnemyState?[]>(self, "_growingShutterStates");
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
@@ -1671,6 +1732,7 @@ internal static class RoomFxRecordDefinitionAccess
             _ => throw new ArgumentOutOfRangeException(nameof(offset)),
         };
 
+        /// <summary>Reads a little-endian word from the room FX record at the supplied byte offset.</summary>
         internal ushort ReadWord(int offset)
         {
             if ((uint)offset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
@@ -1788,6 +1850,7 @@ internal static class RoomSpriteObjectInstructionProgramDefinitionsAccess
 {
     extension(RoomSpriteObjectInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to map a presentation-byte address to its containing instruction word.</summary>
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(RoomSpriteObjectInstructionProgramDefinitions), "Layout").TryGetPresentationWord(address, out wordAddress);
     }
@@ -1845,6 +1908,7 @@ internal static class SamusAnimationDelayProgramsAccess
 {
     extension(SamusAnimationDelayPrograms)
     {
+        /// <summary>Gets every compiled Samus animation-delay segment in native order.</summary>
         internal static ReadOnlySpan<SamusAnimationSegment> Segments => PrivateState.StaticField<SamusAnimationSegment[]>(typeof(SamusAnimationDelayPrograms), "segments");
     }
 }
@@ -1899,9 +1963,11 @@ internal static class SamusDrainedStateAccess
 /// <summary>Verification access to <see cref="SamusEquipmentFlagExtensions"/> members production does not use.</summary>
 internal static class SamusEquipmentFlagExtensionsAccess
 {
+    /// <summary>Reports whether a native equipment word contains every requested equipment flag.</summary>
     internal static bool HasAll(this ushort word, SamusEquipmentFlags flags) =>
         ((SamusEquipmentFlags)word & flags) == flags;
 
+    /// <summary>Reports whether a native equipment word contains every requested beam flag.</summary>
     internal static bool HasAll(this ushort word, SamusBeamFlags flags) =>
         ((SamusBeamFlags)word & flags) == flags;
 
@@ -1925,6 +1991,7 @@ internal static class SamusEquipmentFlagExtensionsAccess
     internal static ushort Without(this ushort word, SamusBeamFlags flags) =>
         (ushort)(word & ~(ushort)flags);
 
+    /// <summary>Converts a typed equipment-flag set to its native 16-bit representation.</summary>
     internal static ushort ToNativeWord(this SamusEquipmentFlags flags) => (ushort)flags;
 }
 
@@ -2088,8 +2155,10 @@ internal static class SamusProjectileTrailSlotAccess
 {
     extension(SamusProjectileTrailSlot self)
     {
+        /// <summary>Gets the projectile trail slot's byte index in native two-byte-slot storage.</summary>
         internal int NativeByteIndex => self.SlotIndex * 2;
 
+        /// <summary>Gets whether the trail slot has an active left-side instruction.</summary>
         internal bool IsActive => self.Left.InstructionTimer != 0;
     }
 }
@@ -2099,6 +2168,7 @@ internal static class SamusProjectileTypeWordAccess
 {
     extension(SamusProjectileTypeWord self)
     {
+        /// <summary>Gets whether the projectile type word carries the native live marker.</summary>
         internal bool IsLive => (self.Raw & PrivateState.StaticField<ushort>(typeof(SamusProjectileTypeWord), "LiveMarker")) != 0;
     }
 }
@@ -2254,6 +2324,7 @@ internal static class ScrollBoundaryCameraAccess
 {
     extension(ScrollBoundaryCamera)
     {
+        /// <summary>Requires a positive forward pixel distance representable by the native camera arithmetic.</summary>
         internal static void RequireDistance(ushort pixelDistance)
         {
             if (pixelDistance == 0 || pixelDistance >= 0x8000)
@@ -2321,6 +2392,7 @@ internal static class SkreeMetareeInstructionProgramDefinitionsAccess
 {
     extension(SkreeMetareeInstructionProgramDefinitions)
     {
+        /// <summary>Reports whether an address belongs to a compiled Skree or Metaree mechanics word.</summary>
         internal static bool IsCompiledMechanicsByte(int address)
         {
             if ((address & 0xff0000) != 0xa30000) return false;
@@ -2341,13 +2413,17 @@ internal static class SpacePirateCollisionDefinitionsAccess
 {
     extension(SpacePirateCollisionDefinitions)
     {
+        /// <summary>Gets the number of compiled Space Pirate collision frames.</summary>
         internal static int FrameCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").Count;
 
+        /// <summary>Gets the number of compiled Space Pirate hitbox lists.</summary>
         internal static int ListCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").Count;
 
+        /// <summary>Returns the indexed Space Pirate collision frame and its native pointer.</summary>
         internal static SpacePirateCollisionFrame Frame(int index) =>
             new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").RecordAt(index));
 
+        /// <summary>Returns the indexed Space Pirate hitbox list and its native pointer.</summary>
         internal static SpacePirateCollisionList List(int index) =>
             new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").RecordAt(index));
     }
@@ -2375,8 +2451,10 @@ internal static class SporeSpawnCollisionDefinitionsAccess
 
     extension(SporeSpawnCollisionDefinitions)
     {
+        /// <summary>Gets the number of compiled Spore Spawn collision frames.</summary>
         internal static int FrameCount => 12;
 
+        /// <summary>Gets the number of native Spore Spawn hitbox lists.</summary>
         internal static int ListCount => ListPointers.Length;
     }
 }
@@ -2470,6 +2548,7 @@ internal static class TorizoCollisionDefinitionsAccess
 
     extension(TorizoCollisionDefinitions)
     {
+        /// <summary>Gets the total number of compiled Torizo collision frames across all runs.</summary>
         internal static int FrameCount => 2 + PrivateState.StaticProperty<int>(typeof(TorizoCollisionDefinitions), "MirroredCount") * 2 + PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "JumpBackFrames").Length;
 
         /// <summary>Every frame pointer, derived from the four runs.</summary>
@@ -2505,10 +2584,13 @@ internal static class TorizoCollisionDefinitionsAccess
             }
         }
 
+        /// <summary>Enumerates every native Torizo hitbox-list pointer.</summary>
         internal static IEnumerable<ushort> HitboxPointers => ListPointers;
 
+        /// <summary>Reports whether the supplied pointer identifies a compiled Torizo collision frame.</summary>
         internal static bool HasFrame(ushort frame) => TorizoCollisionDefinitions.TryGetComponents(frame, out _);
 
+        /// <summary>Attempts to read the collision components for a native Torizo frame pointer.</summary>
         internal static bool TryGetComponents(ushort frame, out TorizoCollisionComponents components)
         {
             foreach (ushort pointer in TorizoCollisionDefinitions.FramePointers)
@@ -2528,6 +2610,7 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsAccess
 {
     extension(TorizoFallingLeftInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled falling-left-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoFallingLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2538,6 +2621,7 @@ internal static class TorizoInstructionProgramDefinitionsAccess
 {
     extension(TorizoInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled Torizo instruction mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2548,6 +2632,7 @@ internal static class TorizoInstructionVramTransferDefinitionsAccess
 {
     extension(TorizoInstructionVramTransferDefinitions)
     {
+        /// <summary>Gets every compiled Torizo instruction VRAM-transfer definition.</summary>
         internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => PrivateState.StaticField<TorizoInstructionVramTransferDefinition[]>(typeof(TorizoInstructionVramTransferDefinitions), "Entries");
     }
 }
@@ -2557,6 +2642,7 @@ internal static class TorizoJumpBackInstructionProgramDefinitionsAccess
 {
     extension(TorizoJumpBackInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled jump-back-program mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2567,6 +2653,7 @@ internal static class TorizoJumpBackLeftInstructionProgramDefinitionsAccess
 {
     extension(TorizoJumpBackLeftInstructionProgramDefinitions)
     {
+        /// <summary>Attempts to read a compiled leftward jump-back mechanics word at the supplied address.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }

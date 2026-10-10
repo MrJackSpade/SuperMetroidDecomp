@@ -150,7 +150,6 @@ internal static partial class Program
         }
     }
     /// <summary>Blocks pause-selector asset reads after setup while forwarding all other address-space access.</summary>
-    /// <param name="source">Underlying cartridge address space wrapped by the guard.</param>
     private sealed class PauseSelectorReadGuard : ISnesAddressSpace, IImportCartridgeSource
     {
         /// <summary>Address space that supplies reads and receives writes not intercepted by this guard.</summary>

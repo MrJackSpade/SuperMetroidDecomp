@@ -50,6 +50,7 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
             yield return Varia;
             yield return Gravity;
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -73,6 +74,8 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>Calculated sixteen-phase frame view for this suit's heat program.</summary>
     private readonly IReadOnlyList<PaletteFxHeatProgramFrameDefinition> frames;
 
+    /// <summary>Creates the calculated native heat program for one suit palette.</summary>
+    /// <param name="suit">Suit whose instruction list and frame colors this definition exposes.</param>
     internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
     {
         Suit = suit;
@@ -128,6 +131,7 @@ public sealed class PaletteFxHeatProgramDefinition
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

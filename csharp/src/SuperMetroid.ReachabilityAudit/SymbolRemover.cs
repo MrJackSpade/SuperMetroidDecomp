@@ -94,6 +94,8 @@ internal static class SymbolRemover
 
     /// <summary>The syntax a set of positional-parameter removals takes out of one file.</summary>
     /// <summary>Syntax removals for a tree plus record parameters whose XML entries must be removed.</summary>
+    /// <param name="Nodes">Syntax nodes removed from the source tree.</param>
+    /// <param name="DocumentedParameters">Record and parameter names whose XML parameter entries must also be removed.</param>
     private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<(string Record, string Parameter)> DocumentedParameters);
 
     /// <summary>

@@ -34,6 +34,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -1057,6 +1058,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:A24D..A27E: eight centered one-tile Power poses (also the first four Ice poses at $93:EDF6) traverse a triangular three-glyph cycle and rotate its horizontal/vertical reflection phases.</summary>
@@ -1085,6 +1087,7 @@ public static class ProjectileSpriteDefinitions
         {
             yield return this[0];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:EC54..ED88 and ED9E..EDE0 mirror one glyph across a centered two-by-two cell square; Power uses column order and Ice row order.</summary>
@@ -1115,6 +1118,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:EC43/EDA3: charged Power/Ice use independently selected OBJ glyphs $33/$34, sharing palette6/priority2 with the single-tile beam.</summary>
@@ -1187,20 +1191,15 @@ public static class ProjectileSpriteDefinitions
         }
         /// <summary>Enumerates the sole tile in the selected ordinary Wave pose.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>Recognizes vertical charged Wave and IceWave seed/spread compositions.</summary>
-    /// <param name="pointer">Bank-$93 composition address.</param><param name="phase">Receives the vertical phase index shared by the recognized families.</param>
-    /// <returns><see langword="true"/> for a vertical seed or one of its selected spread poses.</returns>
     /// <summary>Recognizes vertical charged Wave and IceWave seed or spread compositions.</summary>
     /// <param name="pointer">Bank-$93 composition address.</param><param name="phase">Receives the phase index shared by the recognized families.</param>
     /// <returns><see langword="true"/> for a vertical seed or selected spread pose.</returns>
     internal static bool TryVerticalChargedWavePhase(ushort pointer, out int phase) =>
         TryVerticalChargedWavePhase(pointer, ChargedWaveStart, out phase) ||
         TryVerticalChargedWavePhase(pointer, ChargedIceWaveStart, out phase);
-    /// <summary>Classifies vertical records within one charged Wave family, skipping its unselected intervening compositions.</summary>
-    /// <param name="pointer">Composition address.</param><param name="start">Family's first core address.</param><param name="phase">Receives the seed or spread phase.</param>
-    /// <returns><see langword="true"/> when the pointer is one of the selected vertical records.</returns>
     /// <summary>Classifies vertical records within one charged Wave family, skipping its unselected compositions.</summary>
     /// <param name="pointer">Composition address.</param><param name="start">Family's first core address.</param><param name="phase">Receives the seed or spread phase.</param>
     /// <returns><see langword="true"/> when the pointer is a selected vertical record.</returns>
@@ -1240,13 +1239,10 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>Native93:AD6D/AD8A/ADA7/ADC4 andADE1/ADFE/AE1B/AE38: diagonal records follow each two-part axial record.</summary>
-    /// <summary>Recognizes diagonal Missile or SuperMissile records and identifies the selected projectile artwork family.</summary>
-    /// <param name="pointer">Composition address.</param><param name="pose">Receives the diagonal orientation.</param><param name="super">Receives <see langword="true"/> for SuperMissile.</param>
-    /// <returns><see langword="true"/> when the pointer identifies a diagonal record in either missile group.</returns>
-    /// <summary>Recognizes diagonal Missile or SuperMissile records and identifies the artwork family.</summary>
+    /// <summary>Recognizes the diagonal records following each two-part axial record at native $93:AD6D/AD8A/ADA7/ADC4 and $93:ADE1/ADFE/AE1B/AE38, and identifies the Missile or Super Missile artwork family.</summary>
     /// <param name="pointer">Composition address.</param><param name="pose">Receives the diagonal orientation.</param><param name="super">Receives <see langword="true"/> for SuperMissile.</param>
     /// <returns><see langword="true"/> when the pointer identifies a diagonal record in either missile group.</returns>
     internal static bool TryDiagonalMissilePose(ushort pointer, out int pose, out bool super)
@@ -1303,6 +1299,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:AD45-AD60: four centered single-cell Bomb poses use consecutive glyphs from4C. Glyph origin/priority remain REQUIRED artwork inputs; palette selects the installed fixed-projectile row.</summary>
@@ -1347,11 +1344,9 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>Recognizes the selected eight-part horizontal spread records in charged Wave and IceWave groups.</summary>
-    /// <param name="pointer">Composition address.</param><param name="phase">Receives the spread phase.</param>
-    /// <returns><see langword="true"/> for one of the selected horizontal spread records.</returns>
     /// <summary>Recognizes selected eight-part horizontal spread records in charged Wave and IceWave groups.</summary>
     /// <param name="pointer">Composition address.</param><param name="phase">Receives the spread phase.</param>
     /// <returns><see langword="true"/> for one of the selected horizontal spread records.</returns>
@@ -1392,6 +1387,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Classifies a Spazer seed record and returns its orientation across the diagonal and axial groups.</summary>
@@ -1412,7 +1408,25 @@ public static class ProjectileSpriteDefinitions
         return offset >= 0 && offset < 4 * axialGroupBytes && offset % axialGroupBytes == 0;
     }
     /// <summary>$93:D10E/D25A/D3A6/D4F2/D63E/D6EA/D796/D842: native seed travel directions; chosen footprint lengths/glyphs/priority remain REQUIRED.</summary>
-    private enum SpazerSeedDirection { UpRight, DownRight, DownLeft, UpLeft, Down, Left, Up, Right }
+    private enum SpazerSeedDirection
+    {
+        /// <summary>Seed travels diagonally upward and right.</summary>
+        UpRight,
+        /// <summary>Seed travels diagonally downward and right.</summary>
+        DownRight,
+        /// <summary>Seed travels diagonally downward and left.</summary>
+        DownLeft,
+        /// <summary>Seed travels diagonally upward and left.</summary>
+        UpLeft,
+        /// <summary>Seed travels vertically downward.</summary>
+        Down,
+        /// <summary>Seed travels horizontally left.</summary>
+        Left,
+        /// <summary>Seed travels vertically upward.</summary>
+        Up,
+        /// <summary>Seed travels horizontally right.</summary>
+        Right
+    }
     /// <summary>$93:D113/D118 and D643/D6EF: selected diagonal32/31,vertical33,horizontal30 atlas cells remain REQUIRED artwork identities.</summary>
     private const int SpazerDiagonalGlyph = 0x32, SpazerVerticalGlyph = 0x33, SpazerHorizontalGlyph = 0x30;
     /// <summary>Provides the four-cell diagonal or two-cell axial seed in a decoded Spazer orientation.</summary>
@@ -1464,6 +1478,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Recognizes a selected diagonal Spazer spread record and decodes its direction and spread stage.</summary>
@@ -1509,6 +1524,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:D64A/D6F6/D7A2/D84E: axial spread records follow their two-cell seeds. D84E's distinct flip/order policy remains required.</summary>
@@ -1566,6 +1582,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:D8EE..DA39: horizontal charged Spazer seed and five spread records, ending before the vertical family.</summary>
@@ -1608,6 +1625,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:DA8E..DB85: later vertical charged Spazer spreads follow the vertical seed and its first spread. Initial DA3A/DA50 ordering remains required.</summary>
@@ -1644,6 +1662,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:EE12..F085: each startup orientation group begins with a one-cell and two-cell axial strip, before its diagonal records.</summary>
@@ -1691,6 +1710,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:EE4C/EE58,EEC8/EED4,EF44/EF50: ordinary diagonal startup strips select one or two tile pairs after four physical axial records.</summary>
@@ -1735,6 +1755,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Recognizes one of the selected Plasma startup core compositions.</summary>
@@ -1811,6 +1832,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:F0FA/F194/F22E/F2CE and alternate groupsF36E/F408/F4A2/F542: centered startup cores share tile geometry; selected glyph/footprint/style remain REQUIRED.</summary>
@@ -1846,6 +1868,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:BC0A..BCC7: horizontal PlasmaWave Short core and four two-lobe spreads.</summary>
@@ -1886,6 +1909,7 @@ public static class ProjectileSpriteDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Formats a bank-relative sprite identity as the case-sensitive projectile-composition JSON frame key, such as sprite_A117 for the Nothing composition.</summary>

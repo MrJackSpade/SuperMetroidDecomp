@@ -13,6 +13,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
     /// <summary>Diagnostic identifier for reusable argument validation that should use the shared Ensure API.</summary>
     public const string GuardId = "SME6201";
 
+    /// <summary>Describes reusable guards that can delegate to the shared Ensure API.</summary>
     private static readonly DiagnosticDescriptor GuardRule = new(
         GuardId,
         "Use Ensure for reusable validation",
@@ -43,6 +44,8 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         });
     }
 
+    /// <summary>Finds direct framework guard calls that have shared Ensure equivalents.</summary>
+    /// <param name="context">The invocation analysis context.</param>
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -61,6 +64,8 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         if (operation is not null)
             Report(context, invocation.GetLocation(), operation);
     }
+    /// <summary>Finds simple throwing conditionals that express reusable argument guards.</summary>
+    /// <param name="context">The if-statement analysis context.</param>
     private static void AnalyzeIf(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -82,6 +87,8 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         Report(context, statement.Condition.GetLocation(), operation);
     }
 
+    /// <summary>Finds null-coalescing throws that can use the shared null guard.</summary>
+    /// <param name="context">The coalesce-expression analysis context.</param>
     private static void AnalyzeCoalesce(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -97,6 +104,11 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         Report(context, expression.GetLocation(), "NotNull");
     }
 
+    /// <summary>Maps a supported guard condition to its Ensure operation and guarded value.</summary>
+    /// <param name="condition">The condition to classify.</param>
+    /// <param name="model">The semantic model used to identify numeric operands.</param>
+    /// <param name="value">Receives the expression whose value is guarded.</param>
+    /// <returns>The matching Ensure operation, or <see langword="null"/> when unsupported.</returns>
     private static string? GuardOperation(
         ExpressionSyntax condition,
         SemanticModel model,
@@ -150,6 +162,10 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return "AtLeastZero";
     }
 
+    /// <summary>Recognizes a value below a lower bound or above an upper bound.</summary>
+    /// <param name="expression">The disjunction to inspect.</param>
+    /// <param name="value">Receives the repeated bounded expression.</param>
+    /// <returns><see langword="true"/> when the disjunction is an inclusive-range rejection.</returns>
     private static bool TryOutsideInclusiveRange(
         BinaryExpressionSyntax expression,
         out ExpressionSyntax? value)
@@ -165,6 +181,12 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
+    /// <summary>Extracts a single directly thrown argument exception from a statement.</summary>
+    /// <param name="statement">The statement or one-statement block to inspect.</param>
+    /// <param name="model">The semantic model used to classify the exception.</param>
+    /// <param name="exceptionType">Receives the fully qualified exception type.</param>
+    /// <param name="arguments">Receives the exception constructor arguments.</param>
+    /// <returns><see langword="true"/> when the statement throws a supported argument exception.</returns>
     private static bool TryGetThrownArgumentException(
         StatementSyntax statement, SemanticModel model,
         out string exceptionType, out ArgumentListSyntax arguments)
@@ -188,6 +210,10 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
+    /// <summary>Checks that a supported exception call supplies a <c>nameof</c> argument.</summary>
+    /// <param name="arguments">The constructor arguments to inspect.</param>
+    /// <param name="exceptionType">The fully qualified exception type.</param>
+    /// <returns><see langword="true"/> when the expected argument position contains an invocation.</returns>
     private static bool HasParameterName(ArgumentListSyntax arguments, string exceptionType) =>
         exceptionType switch
         {
@@ -200,6 +226,11 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             _ => false
         };
 
+    /// <summary>Checks that an exception's <c>nameof</c> argument identifies the guarded expression.</summary>
+    /// <param name="arguments">The exception constructor arguments.</param>
+    /// <param name="value">The expression guarded by the condition.</param>
+    /// <param name="exceptionType">The fully qualified exception type.</param>
+    /// <returns><see langword="true"/> when both expressions name the same value.</returns>
     private static bool ParameterNameMatches(
         ArgumentListSyntax arguments, ExpressionSyntax value, string exceptionType)
     {
@@ -212,6 +243,9 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return nameOf.ArgumentList.Arguments[0].Expression.ToString() == value.ToString();
     }
 
+    /// <summary>Reports whether a type participates in supported numeric lower-bound checks.</summary>
+    /// <param name="type">The operand type.</param>
+    /// <returns><see langword="true"/> for a supported numeric type.</returns>
     private static bool IsNumeric(ITypeSymbol? type) => type?.SpecialType is
         SpecialType.System_SByte or SpecialType.System_Byte or
         SpecialType.System_Int16 or SpecialType.System_UInt16 or
@@ -222,6 +256,10 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         type?.ToDisplayString() is "System.Half" or "System.IntPtr" or "System.UIntPtr" or
             "System.Int128" or "System.UInt128" or "System.Numerics.BigInteger";
 
+    /// <summary>Limits suggestions to parameters on non-private API methods.</summary>
+    /// <param name="expression">The candidate guarded expression.</param>
+    /// <param name="context">The syntax analysis context.</param>
+    /// <returns><see langword="true"/> when the expression resolves to a method parameter.</returns>
     private static bool IsApiArgument(ExpressionSyntax expression, SyntaxNodeAnalysisContext context)
     {
         // A private cartridge routine often validates its own transient state with the
@@ -236,16 +274,29 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return context.SemanticModel.GetSymbolInfo(identifier).Symbol is IParameterSymbol;
     }
 
+    /// <summary>Checks whether an expression is a supported literal zero.</summary>
+    /// <param name="expression">The expression to inspect.</param>
+    /// <returns><see langword="true"/> for integer or decimal zero literals.</returns>
     private static bool IsZero(ExpressionSyntax expression) =>
         expression is LiteralExpressionSyntax literal &&
         literal.Token.ValueText is "0" or "0.0";
 
+    /// <summary>Checks whether an expression is the null literal.</summary>
+    /// <param name="expression">The expression to inspect.</param>
+    /// <returns><see langword="true"/> for a null literal.</returns>
     private static bool IsNull(ExpressionSyntax expression) =>
         expression is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression);
 
+    /// <summary>Checks whether analysis is currently inside the shared Ensure implementation.</summary>
+    /// <param name="context">The syntax analysis context.</param>
+    /// <returns><see langword="true"/> when the containing type is the Ensure API.</returns>
     private static bool InsideEnsure(SyntaxNodeAnalysisContext context) =>
         context.ContainingSymbol?.ContainingType?.ToDisplayString() == "SuperMetroid.Core.Ensure";
 
+    /// <summary>Reports a suggestion to use the named shared Ensure operation.</summary>
+    /// <param name="context">The syntax analysis context.</param>
+    /// <param name="location">The source location to highlight.</param>
+    /// <param name="operation">The Ensure operation name.</param>
     private static void Report(SyntaxNodeAnalysisContext context, Location location, string operation) =>
         context.ReportDiagnostic(Diagnostic.Create(GuardRule, location, operation));
 }

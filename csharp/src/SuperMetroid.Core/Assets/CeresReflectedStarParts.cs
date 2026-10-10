@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The23 stars in8C:8FE7 reflect parts2..24 of8C:9478 horizontally.
 /// The first two source stars would overlap the vortex drawing and are omitted.
 /// Preserve fixed source ordering; this is not dynamic clipping of edited stars.</summary>
+/// <param name="source">Source star composition whose trailing parts are reflected.</param>
 internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Returns the supplied parts unless they match the fixed 23-part horizontal reflection of a 25-part source composition.</summary>
@@ -43,5 +44,6 @@ internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadO
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

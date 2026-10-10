@@ -9,6 +9,13 @@ namespace SuperMetroid.Core.Rendering;
 /// not call count, so clipping, flipped tiles and discontinuous HDMA remain exact.
 /// Create a new sampler after changing VRAM or palette contents.
 /// </summary>
+/// <param name="vram">Immutable VRAM snapshot containing tilemap and character data.</param>
+/// <param name="colors">Decoded palette colors addressed by sampled tile pixels.</param>
+/// <param name="map">Word offset of the background tilemap in VRAM.</param>
+/// <param name="characters">Byte offset of the background character data in VRAM.</param>
+/// <param name="mapWidth">Tilemap width in cells.</param>
+/// <param name="mapHeight">Tilemap height in cells.</param>
+/// <param name="fourBit">Whether characters use four bitplanes instead of two.</param>
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
     int map, int characters, int mapWidth, int mapHeight, bool fourBit)
 {

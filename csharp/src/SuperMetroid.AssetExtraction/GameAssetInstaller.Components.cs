@@ -188,6 +188,9 @@ public static partial class GameAssetInstaller
         catch (Exception error) when (IsRepairableContentFailure(error)) { return false; }
     }
 
+    /// <summary>Copies every directory and file beneath a source tree into a newly populated destination tree.</summary>
+    /// <param name="source">Existing directory whose complete contents are copied.</param>
+    /// <param name="destination">Destination root created as needed and populated without overwriting files.</param>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

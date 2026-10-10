@@ -36,6 +36,7 @@ internal static class IntroCaretSpriteDefinitions
         {
             yield return Visible;
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

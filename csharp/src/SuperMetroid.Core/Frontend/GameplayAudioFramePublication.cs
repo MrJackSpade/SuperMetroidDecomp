@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Once-only publication of the sound producers preceding Samus's echo call.
 /// One instance belongs to one frontend Step, never to the serialized game graph.
 /// </summary>
+/// <param name="audio">Cartridge audio state whose queued requests are published once per frame.</param>
 internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
 {
     /// <summary>Counts room, palette-sound, palette-music, and liquid-sound requests already published for this frame.</summary>

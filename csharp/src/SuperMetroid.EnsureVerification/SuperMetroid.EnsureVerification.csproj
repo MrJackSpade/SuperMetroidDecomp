@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
-    <ProjectReference Include="../SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj" />
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
@@ -15,6 +14,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <!-- Compile the analyzer sources under the analyzer-only project reference supplied by
+         Directory.Build.targets so the analyzer enforces documentation on its own code. -->
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/*.cs"
+             Link="AnalyzerSource/%(Filename)%(Extension)" />
     <Compile Include="../../test-support/VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />
   </ItemGroup>
 </Project>

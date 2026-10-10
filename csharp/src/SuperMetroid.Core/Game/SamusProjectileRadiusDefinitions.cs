@@ -37,6 +37,7 @@ internal static class SamusProjectileRadiusDefinitions
 
         /// <summary>Returns an enumerator over the calculated pointers in native definition order.</summary>
         public IEnumerator<ushort> GetEnumerator() => SamusProjectileInstructionDefinitions.EnumerateTimedPointers().GetEnumerator();
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

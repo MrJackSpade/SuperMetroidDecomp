@@ -1,6 +1,8 @@
 namespace SuperMetroid.Desktop;
 
 /// <summary>Preserves the WinMM operation and error number for endpoint-specific recovery.</summary>
+/// <param name="result">WinMM multimedia result code reported by the failed operation.</param>
+/// <param name="operation">Name of the WinMM operation that failed.</param>
 internal sealed class WaveOutDeviceException(uint result, string operation)
     : InvalidOperationException($"{operation} failed with multimedia error {result}.")
 {

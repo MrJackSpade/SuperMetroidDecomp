@@ -291,8 +291,16 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
     }
 }
 
+/// <summary>One rectangular collision region relative to a Kraid arm component.</summary>
+/// <param name="Left">Left edge relative to the component origin.</param>
+/// <param name="Top">Top edge relative to the component origin.</param>
+/// <param name="Right">Right edge relative to the component origin.</param>
+/// <param name="Bottom">Bottom edge relative to the component origin.</param>
 internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);
 
+/// <summary>Position of one physical Kraid arm component relative to the actor origin.</summary>
+/// <param name="X">Horizontal component offset.</param>
+/// <param name="Y">Vertical component offset.</param>
 internal readonly record struct KraidArmComponentPosition(short X, short Y);
 
 /// <summary>Ordered physical component view with calculated hitbox selectors.</summary>

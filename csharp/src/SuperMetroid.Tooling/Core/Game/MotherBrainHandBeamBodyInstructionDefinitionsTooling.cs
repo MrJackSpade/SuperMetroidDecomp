@@ -44,6 +44,8 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsTooling
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over the beam body's visual operand addresses.</summary>
+        /// <returns>An enumerator following instruction-list order.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

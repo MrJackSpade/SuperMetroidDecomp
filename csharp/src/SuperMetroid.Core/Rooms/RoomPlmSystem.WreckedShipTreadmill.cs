@@ -202,6 +202,8 @@ internal static class WreckedShipTreadmillPlmRomData
 /// <summary>Hardcoded coordinates supplied to elevatube PLM header $84:B8F9.</summary>
 internal static class MaridiaElevatubePlmRomData
 {
+    /// <summary>Hardcoded elevatube PLM block-column coordinate.</summary>
     public const byte BlockX = 1;
+    /// <summary>Hardcoded elevatube PLM block-row coordinate.</summary>
     public const byte BlockY = 0;
 }

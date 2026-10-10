@@ -118,6 +118,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

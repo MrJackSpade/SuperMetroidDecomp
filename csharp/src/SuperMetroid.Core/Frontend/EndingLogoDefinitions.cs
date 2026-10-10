@@ -80,8 +80,12 @@ internal readonly record struct EndingLogoActorDefinition(
 /// <summary>Four mutually exclusive native logo roles, in E554..E569 allocation order.</summary>
 internal enum EndingLogoActorKind
 {
+    /// <summary>Upper half of the stylized ending-logo S.</summary>
     UpperS,
+    /// <summary>Lower half of the stylized ending-logo S.</summary>
     LowerS,
+    /// <summary>Upper half of the ending logo's circular element.</summary>
     UpperCircle,
+    /// <summary>Lower half of the ending logo's circular element.</summary>
     LowerCircle,
 }

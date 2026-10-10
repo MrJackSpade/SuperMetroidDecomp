@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
+/// <summary>Selects the eye or body color model used to reconstruct Ceres Ridley's native fade.</summary>
 internal enum CeresRidleyFadeKind
 {
     /// <summary>Selects the separately authored eye-channel fade layout and eye paint model.</summary>

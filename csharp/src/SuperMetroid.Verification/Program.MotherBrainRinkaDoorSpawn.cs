@@ -68,6 +68,8 @@ internal static partial class Program
     }
 
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
+    /// <param name="runtime">Runtime whose current layer-1 camera position controls readiness.</param>
+    /// <param name="cameraX">Horizontal camera threshold at which enemy initialization is reported.</param>
     private sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
         /// <summary>Signals that enemy initialization may proceed after the runtime camera reaches the configured X coordinate.</summary>

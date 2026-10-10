@@ -67,6 +67,7 @@ public sealed class OamBuffer
         SnesObjAttributeWord attributes, ushort originX, ushort originY)
         => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: false);
 
+    /// <summary>Appends one generic sprite part with native coordinate wrapping and vertical clipping.</summary>
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
         SnesObjAttributeWord finalAttributes, ushort originX, ushort originY, bool originIsOnScreen)
     {
@@ -221,6 +222,7 @@ public sealed class OamBuffer
             AppendEnemySpritemapPart(parts[index], originX, originY, paletteBits,
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
+    /// <summary>Appends one enemy spritemap part after applying its origin, palette, and base tile.</summary>
     private void AppendEnemySpritemapPart(EnemySpritemapPart part,
         ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
@@ -387,6 +389,7 @@ public sealed class OamBuffer
         NextByteOffset = 0;
     }
 
+    /// <summary>Replaces one sprite's packed X-high and size bits in the shared high-OAM table.</summary>
     private void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
     {
         int byteIndex = spriteIndex >> 2;
@@ -406,6 +409,7 @@ public sealed class OamBuffer
         _lowTable[lowOffset + 3] = unchecked((byte)(attributes.Raw >> 8));
     }
 
+    /// <summary>Determines whether native vertical wrapping hides a part whose origin is on screen.</summary>
     private static bool ShouldHideForOnScreenOrigin(int unsignedYSum, bool offsetIsNegative)
     {
         byte wrappedY = (byte)unsignedYSum;
@@ -419,6 +423,14 @@ public sealed class OamBuffer
 }
 
 /// <summary>A readable projection of one hardware OAM record.</summary>
+/// <param name="X">Nine-bit wrapped horizontal object coordinate.</param>
+/// <param name="Y">Eight-bit wrapped vertical object coordinate.</param>
+/// <param name="TileNumber">Nine-bit OBJ character number.</param>
+/// <param name="Palette">Three-bit object palette selector.</param>
+/// <param name="Priority">Two-bit background-relative object priority.</param>
+/// <param name="FlipX">Whether the object is mirrored horizontally.</param>
+/// <param name="FlipY">Whether the object is mirrored vertically.</param>
+/// <param name="IsLarge">Whether OBSEL's large dimensions apply to this object.</param>
 public readonly record struct OamEntry(
     int X,
     byte Y,

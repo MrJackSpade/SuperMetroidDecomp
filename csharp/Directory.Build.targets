@@ -2,8 +2,10 @@
   <PropertyGroup>
     <!-- #620 starts as advisory while existing guards are migrated. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6201</WarningsNotAsErrors>
+    <!-- #1274 makes XML documentation mandatory for all repository-owned symbols. -->
+    <WarningsAsErrors>$(WarningsAsErrors);SME1274</WarningsAsErrors>
   </PropertyGroup>
-  <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />

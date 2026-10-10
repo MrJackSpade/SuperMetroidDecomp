@@ -3,9 +3,15 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Android;
 
 /// <summary>Supported Android controls for the shared host INI, not separate cheat implementations.</summary>
+/// <param name="Label">User-facing setting label displayed by the Android host.</param>
+/// <param name="Section">Shared INI section containing the setting.</param>
+/// <param name="Key">Shared INI key updated by the control.</param>
+/// <param name="Values">Allowed serialized values offered by the control.</param>
+/// <param name="Read">Reads the current serialized value from the shared game options.</param>
 internal sealed record AndroidSettingDefinition(string Label, string Section, string Key,
     string[] Values, Func<SuperMetroidGameOptions, string> Read);
 
+/// <summary>Catalogs the Android controls that edit shared host INI settings.</summary>
 internal static class AndroidSettingDefinitions
 {
     /// <summary>Settings exposed by Android controls, mapped to the shared host INI values.</summary>

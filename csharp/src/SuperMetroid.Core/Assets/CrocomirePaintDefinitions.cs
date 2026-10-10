@@ -190,6 +190,10 @@ internal static class CrocomirePaintDefinitions
         (from * (count - step) + to * step + count / 2) / count;
     // Squared midpoint of square-root intensity; endpoints remain their exact RGB5 values.
     // This is the selected material's exact gamma-two shade rule, not a historical-tool claim.
+    /// <summary>Calculates the lower integer gamma-two midpoint between two five-bit channel levels.</summary>
+    /// <param name="from">First endpoint channel level.</param>
+    /// <param name="to">Second endpoint channel level.</param>
+    /// <returns>The floored midpoint after interpolating in square-root intensity space.</returns>
     private static int FloorGammaMidpoint(int from, int to) =>
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
     /// <summary>Packs three five-bit color channels into the game's BGR555 palette word.</summary>

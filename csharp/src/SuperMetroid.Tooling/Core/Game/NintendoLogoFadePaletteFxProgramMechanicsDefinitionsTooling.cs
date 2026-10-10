@@ -31,6 +31,8 @@ internal static class NintendoLogoFadePaletteFxProgramMechanicsDefinitionsToolin
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over the boot-logo and copyright fade definitions.</summary>
+        /// <returns>An enumerator following native definition order.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

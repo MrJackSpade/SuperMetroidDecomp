@@ -107,6 +107,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
+    /// <summary>Gets the number of arm pieces generated for the selected ending pose.</summary>
     private int ArmCount => splitArm ? 3 : 2;
     /// <summary>Total arm and shoulder pieces yielded for the selected pose.</summary>
     public int Count => ArmCount + 3;
@@ -152,6 +153,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

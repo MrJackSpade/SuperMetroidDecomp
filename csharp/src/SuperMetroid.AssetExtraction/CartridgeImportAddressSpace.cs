@@ -32,6 +32,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
         _rom = CartridgeImageCache.Share(unheaderedRom, out _romSha256);
     }
 
+    /// <summary>Reattaches the process-shared cartridge image identified by the serialized digest after debugger-state restoration.</summary>
     void IRestoredSharedContent.ReattachSharedContent() => _rom = CartridgeImageCache.Resolve(_romSha256);
 
     /// <summary>Reads the immutable image through an upper-window LoROM CPU address and its mirrored banks.</summary>

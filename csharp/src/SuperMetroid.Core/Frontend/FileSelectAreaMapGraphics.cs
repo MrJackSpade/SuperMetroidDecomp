@@ -130,10 +130,8 @@ public sealed partial class FileSelectAreaMapGraphics
         for (int color = 0; color < colors.Length; color++) Cgram.SetColor(color, colors[color]);
     }
 
-    /// <summary>
-    /// Steady state six leaves BG1 on main and BG3 on sub, with additive color math
-    /// enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
-    /// </summary>
+    // Steady state six leaves BG1 on main and BG3 on sub, with additive color math
+    // enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
     /// <summary>Reusable RGBA target for rasterizing the map's BG1 foreground layer.</summary>
     [NonSerialized] private Rgba32[]? foregroundScratch;

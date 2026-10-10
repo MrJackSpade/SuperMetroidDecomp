@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 // Keep faults in the CLI. Without this process policy Windows can display a modal "unknown
 // software exception" dialog for an unhandled failure, steal desktop focus, and leave the
 // build output locked until somebody dismisses it.
-/// <summary>Runs the debug and asset command-line tools with failures reported through stderr and exit codes.</summary>
 if (OperatingSystem.IsWindows())
     NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 

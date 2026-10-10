@@ -147,6 +147,7 @@ public sealed partial class IntroCinematicState
     // word, so both gameplay-style flashbacks deliberately inherit the same eight-pixel
     // source offset. Their actor coordinates are already screen-relative and must not be
     // moved with it.
+    /// <summary>BG1 vertical source offset inherited by both gameplay-style intro flashbacks.</summary>
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
     /// <summary>Cartridge address space used by scene actors, demos, and projectile updates.</summary>

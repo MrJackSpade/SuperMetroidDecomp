@@ -148,6 +148,7 @@ public static class SnesObjRenderer
 
     }
 
+    /// <summary>Rasterizes one OAM entry and records its color, priority, and palette ownership.</summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void DrawSprite(
         Span<Rgba32> output,
@@ -259,6 +260,7 @@ public static class SnesObjRenderer
         return (tileWord & 0x7fff) * 2;
     }
 
+    /// <summary>Decodes one indexed pixel from a planar SNES 4-bpp object tile.</summary>
     private static byte Decode4BppPixel(SnesVram vram, int tileByteAddress, int x, int y)
     {
         // Planes 0/1 are interleaved in bytes 0-15; planes 2/3 repeat that layout in

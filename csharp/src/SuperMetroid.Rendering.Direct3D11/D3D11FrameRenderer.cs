@@ -18,6 +18,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11ComputeShader shader;
     /// <summary>Compute-writable output texture consumed by display and readback paths.</summary>
     internal readonly ID3D11Texture2D output;
+    /// <summary>Identity currently held in <see cref="output"/>, or <see langword="null"/> until a submitted frame finishes composition.</summary>
     internal RenderFrameIdentity? renderedIdentity;
     /// <summary>Identity of the most recently submitted frame whose composition completed successfully.</summary>
     internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;

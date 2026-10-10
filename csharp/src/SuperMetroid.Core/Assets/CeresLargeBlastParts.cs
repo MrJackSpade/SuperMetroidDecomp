@@ -55,5 +55,6 @@ internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<
     /// </summary>
     /// <returns>An enumerator containing the part at index zero.</returns>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

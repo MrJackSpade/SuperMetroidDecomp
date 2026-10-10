@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 /// This file is linked only into verification/debug tools, never gameplay Core.
 /// Production owners supply their installed presentation catalogs instead.
 /// </summary>
+/// <param name="source">Address space containing the reference palette-FX color data.</param>
 internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : IPaletteFxColorSource
 {
     /// <summary>Reads the reference palette-FX word at a bank-local byte pointer.</summary>

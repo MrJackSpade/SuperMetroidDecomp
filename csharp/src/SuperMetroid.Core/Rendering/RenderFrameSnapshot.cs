@@ -68,6 +68,7 @@ public sealed class RenderFrameSnapshot
         ReadOnlySpan<byte> brightnessPasses = default)
         : this(identity, brightnessPasses) => SolidColor = solidColor;
 
+    /// <summary>Validates publication identity and captures the ordered master-brightness passes.</summary>
     private RenderFrameSnapshot(RenderFrameIdentity identity, ReadOnlySpan<byte> brightnessPasses)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Sequence);

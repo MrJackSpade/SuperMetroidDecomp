@@ -335,7 +335,19 @@ internal static class ProjectileTrailCoordinateDefinitions
     private readonly record struct Offset(sbyte LeftX, sbyte LeftY, sbyte RightX, sbyte RightY);
 
     /// <summary>How a block's right sparkle reflects its left sparkle across the travel axis.</summary>
-    private enum Reflection { AcrossVertical, AcrossHorizontal, AcrossDiagonalDownRight, AcrossDiagonalUpRight, ThroughOrigin }
+    private enum Reflection
+    {
+        /// <summary>Mirrors the horizontal displacement across the vertical travel axis.</summary>
+        AcrossVertical,
+        /// <summary>Mirrors the vertical displacement across the horizontal travel axis.</summary>
+        AcrossHorizontal,
+        /// <summary>Reflects the displacement across the downward-right diagonal axis.</summary>
+        AcrossDiagonalDownRight,
+        /// <summary>Reflects the displacement across the upward-right diagonal axis.</summary>
+        AcrossDiagonalUpRight,
+        /// <summary>Negates both displacement components through the projectile origin.</summary>
+        ThroughOrigin
+    }
 
     /// <summary>Native left-sparkle coordinates plus the reflection rule used to derive its paired sparkle.</summary>
     /// <param name="LeftX">Signed horizontal displacement recorded for the left sparkle.</param>
@@ -343,6 +355,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// <param name="Reflection">Axis transformation that supplies the right sparkle's displacement.</param>
     private readonly record struct StoredFrame(sbyte LeftX, sbyte LeftY, Reflection Reflection);
 
+    /// <summary>Native projectile-trail frame coordinates keyed by their bank-$9B pointer.</summary>
     private static readonly FrozenDictionary<int, StoredFrame> Frames = CreateFrames();
 
     /// <summary>

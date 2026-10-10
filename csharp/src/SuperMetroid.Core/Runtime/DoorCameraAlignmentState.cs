@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Runtime;
 /// either <c>$01 -> $00</c> or <c>$FF -> $00</c>. Completion is reported only by the
 /// following call that observes an already aligned coordinate.
 /// </remarks>
+/// <param name="CameraX">Horizontal camera coordinate after this alignment step.</param>
+/// <param name="CameraY">Vertical camera coordinate after this alignment step.</param>
+/// <param name="Completed">Whether the call observed an already aligned coordinate.</param>
 internal readonly record struct DoorCameraAlignmentState(
     ushort CameraX,
     ushort CameraY,

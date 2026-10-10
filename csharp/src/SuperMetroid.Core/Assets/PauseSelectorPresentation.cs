@@ -110,6 +110,7 @@ public sealed class PauseSelectorPresentation
     }
     /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
+    /// <param name="basis">Base selector composition reused by phases without an override.</param>
     private sealed class PhaseComposition(PauseSelectorVisual basis)
     {
         /// <summary>Base composition reused in phases with no explicitly authored visual change.</summary>

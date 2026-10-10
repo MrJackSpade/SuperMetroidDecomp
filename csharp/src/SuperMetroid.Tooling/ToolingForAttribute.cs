@@ -4,6 +4,7 @@ namespace SuperMetroid.Tooling;
 /// Marks a development-tool adapter as the catalog view of a shipped type: the type keeps its
 /// gameplay members and the adapter carries what only tools read.
 /// </summary>
+/// <param name="owner">Shipped catalog type described by the annotated tooling adapter.</param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ToolingForAttribute(Type owner) : Attribute
 {

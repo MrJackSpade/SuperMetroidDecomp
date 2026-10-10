@@ -49,6 +49,7 @@ internal static class ExploredMapPackingDefinitions
     /// A calculated view, not a stored index list. Bank B5's map words and bank $81's
     /// sparse lists agree exactly: a byte is saved iff one of its eight cells is nonblank.
     /// </summary>
+    /// <param name="stockRules">Stock area-map view used to identify discoverable cells.</param>
     internal readonly struct OccupiedByteIndexes(IAreaMapView stockRules) : IReadOnlyList<byte>
     {
         /// <summary>Gets the number of native map bytes containing at least one discoverable tile.</summary>
@@ -99,6 +100,7 @@ internal static class ExploredMapPackingDefinitions
             for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
                 if (Contains(candidate)) yield return checked((byte)candidate);
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -143,6 +143,7 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
             yield return Varia;
             yield return Gravity;
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the bank-local offset of one counted group.</summary>
@@ -188,6 +189,10 @@ public sealed class SamusLoadingSuitPaletteFxProgramDefinition
     /// <summary>Byte offset of the terminal delete command from the selected program's start.</summary>
     private const ushort DeleteInstructionOffset = 0x0164;
 
+    /// <summary>Creates one complete loading-suit palette program definition.</summary>
+    /// <param name="owner">Suit palette selected by this program.</param>
+    /// <param name="definitionPointer">Bank-$8D palette-FX definition pointer.</param>
+    /// <param name="programStart">Native instruction-list entry.</param>
     internal SamusLoadingSuitPaletteFxProgramDefinition(
         SamusLoadingSuitPaletteFxProgramOwner owner,
         ushort definitionPointer,

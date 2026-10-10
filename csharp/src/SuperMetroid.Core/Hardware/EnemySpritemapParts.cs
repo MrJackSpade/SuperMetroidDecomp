@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>Immutable indexed enemy OBJ composition; parts may calculate instead of occupying a complete stored array.</summary>
 public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
 {
+    /// <summary>Initializes an immutable enemy spritemap-part collection.</summary>
     private protected EnemySpritemapParts() { }
 
     /// <summary>The number of hardware OBJ parts in the immutable spritemap composition.</summary>
@@ -19,6 +20,7 @@ public abstract class EnemySpritemapParts : IReadOnlyList<EnemySpritemapPart>
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over the spritemap parts.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>Shared zero-part composition used when an enemy has no visible pieces.</summary>

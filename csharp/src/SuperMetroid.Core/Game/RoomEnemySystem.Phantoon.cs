@@ -97,6 +97,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>Initializes a non-body Phantoon slot with shared graphics and its starting instruction.</summary>
+    /// <param name="part">Enemy slot assigned to the Phantoon component.</param>
+    /// <param name="instruction">Bank-$A7 instruction pointer installed for the component.</param>
     private void InitializePhantoonPart(RoomEnemySlot part, ushort instruction)
     {
         PhantoonEnemyState state = _phantoonState ??

@@ -91,10 +91,13 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
             $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
+    /// <summary>Returns whether a bank mirrors the SNES system and work-RAM windows.</summary>
     private static bool IsSystemBank(int bank) => bank <= 0x3f || bank is >= 0x80 and <= 0xbf;
 
+    /// <summary>Returns whether a bank maps the cartridge save-RAM window.</summary>
     private static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
 
+    /// <summary>Rejects CPU addresses outside the native 24-bit address space.</summary>
     private static void ValidateAddress(int address)
     {
         if ((uint)address > 0x00ff_ffff)

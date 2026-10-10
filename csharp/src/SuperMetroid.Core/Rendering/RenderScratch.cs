@@ -77,6 +77,7 @@ internal sealed class RenderScratch : IDisposable
         return new ResolvedObjFrame(pixels, priorities);
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         if (disposed) return;
@@ -89,9 +90,11 @@ internal sealed class RenderScratch : IDisposable
         memories.Clear();
     }
 
+    /// <summary>Takes an exact-length plane from its free list or allocates one when none is available.</summary>
     private static T[] Take<T>(Dictionary<int, Stack<T[]>> free, int length) =>
         free.TryGetValue(length, out Stack<T[]>? stack) && stack.TryPop(out T[]? plane) ? plane : new T[length];
 
+    /// <summary>Returns an exact-length plane to its per-thread free list.</summary>
     private static void Give<T>(Dictionary<int, Stack<T[]>> free, T[] plane)
     {
         if (!free.TryGetValue(plane.Length, out Stack<T[]>? stack))

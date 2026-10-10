@@ -23,6 +23,10 @@ public static class SpcAudioAssetExtractor
         return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);
     }
 
+    /// <summary>Extracts and validates every defined SPC upload stream, decoded program, instrument, and deduplicated sample asset.</summary>
+    /// <param name="readStream">Reader that supplies one complete native upload stream for each catalog definition.</param>
+    /// <param name="audioDirectory">Destination directory for streams, decoded definitions, samples, and the generated manifest.</param>
+    /// <returns>The validated runtime audio manifest written to the destination.</returns>
     internal static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);

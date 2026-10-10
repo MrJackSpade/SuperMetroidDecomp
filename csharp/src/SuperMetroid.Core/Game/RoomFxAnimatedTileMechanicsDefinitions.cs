@@ -88,6 +88,13 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// <summary>Calculated read-only frame view derived from the instruction start, count, and shared duration.</summary>
     private readonly CalculatedFrames frames;
 
+    /// <summary>Creates one calculated animated-tile loop from its native object header and frame layout.</summary>
+    /// <param name="objectPointer">Bank-$87 object header pointer.</param>
+    /// <param name="instructionPointer">First instruction-list frame pointer.</param>
+    /// <param name="transferByteCount">Bytes transferred for each frame.</param>
+    /// <param name="encodedVramDestination">Native encoded VRAM destination.</param>
+    /// <param name="frameCount">Number of frames in the loop.</param>
+    /// <param name="frameDuration">Shared duration of each frame.</param>
     internal RoomFxAnimatedTileObjectDefinition(
         ushort objectPointer,
         ushort instructionPointer,
@@ -140,6 +147,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
         {
             for (int index = 0; index < count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The object-header address within bank $87.</summary>

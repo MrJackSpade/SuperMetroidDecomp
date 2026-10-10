@@ -7,12 +7,21 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 public sealed class FrameInputLatch
 {
+    /// <summary>Protects producer updates and simulation sampling from racing each other.</summary>
     private readonly object gate = new();
+
+    /// <summary>Current button contribution keyed by the independent host producer.</summary>
     private readonly Dictionary<int, SnesButton> sources = [];
+
+    /// <summary>Union of all buttons currently contributed by producers.</summary>
     private SnesButton held;
+
+    /// <summary>Rising edges retained until the next simulation sample.</summary>
     private SnesButton pressed;
 
     /// <summary>Each physical key/axis producer owns an independent contribution.</summary>
+    /// <param name="source">Stable identity for the producer whose contribution is being replaced.</param>
+    /// <param name="value">Buttons currently contributed; <see cref="SnesButton.None"/> removes that producer.</param>
     public void Set(int source, SnesButton value)
     {
         lock (gate)

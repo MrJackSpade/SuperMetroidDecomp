@@ -788,6 +788,15 @@ internal static partial class Program
         Console.WriteLine("Body pose pointers:253 native semantic cases,156 list identities, zero stock overrides,253 independent edits, supplied frame resolution and exact canonical hashes pass.");
     }
 
+    /// <summary>Computes the canonical selected-presentation identity for a reconstructed Samus body-artwork catalog.</summary>
+    /// <param name="template">Catalog supplying the non-pointer presentation components.</param>
+    /// <param name="upper">Upper-body tile-definition group pointers.</param>
+    /// <param name="lower">Lower-body tile-definition group pointers.</param>
+    /// <param name="posePointers">Frame-list pointer selected by each Samus pose.</param>
+    /// <param name="frames">Decoded frame selections included in the identity.</param>
+    /// <param name="upperGroups">Decoded upper-body tile definitions grouped by pointer.</param>
+    /// <param name="lowerGroups">Decoded lower-body tile definitions grouped by pointer.</param>
+    /// <returns>The canonical hexadecimal content identity.</returns>
     private static string CanonicalBodyHash(SamusBodyArtworkCatalog template, ushort[] upper, ushort[] lower, ushort[] posePointers, SamusBodyFrameSelection[] frames, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) =>
         SelectedPresentationHash.Create(nameof(SamusBodyArtworkCatalog), content =>
         {
@@ -1886,6 +1895,9 @@ internal static partial class Program
     /// <summary>Fails verification if flare rendering attempts to read cartridge memory.</summary>
     private sealed class LookupFlareForbiddenBus : ISnesAddressSpace
     {
+        /// <summary>Rejects an unexpected cartridge-address-space write during flare rendering.</summary>
+        /// <param name="address">Address the renderer attempted to write.</param>
+        /// <param name="value">Byte value the renderer attempted to write.</param>
         void ISnesAddressSpace.WriteByte(int address, byte value) => throw new InvalidOperationException($"Unexpected flare write {address:X6}");
     }
     /// <summary>Runs the lookup-stream verification checks over the supplied cartridge data.</summary>

@@ -263,7 +263,7 @@ sealed class NonSeekableStream(byte[] bytes) : Stream
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
     /// <summary>Disposes the in-memory source when requested, then releases the base stream resources.</summary>
-    /// <param name="disposing">True when called by <see cref="Dispose()"/> rather than finalization.</param>
+    /// <param name="disposing">True when called by <see cref="IDisposable.Dispose"/> rather than finalization.</param>
     protected override void Dispose(bool disposing) { if (disposing) inner.Dispose(); base.Dispose(disposing); }
 }
 }

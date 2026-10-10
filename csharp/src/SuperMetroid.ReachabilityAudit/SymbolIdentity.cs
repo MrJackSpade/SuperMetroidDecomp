@@ -6,6 +6,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// Stable keys for repository source symbols. A key combines the documentation-comment ID with
 /// the declaring file, so a shared-source file compiled into several assemblies is one symbol.
 /// </summary>
+/// <param name="repositoryRoot">Absolute repository root used to normalize source paths.</param>
 internal sealed class SymbolIdentity(string repositoryRoot)
 {
     /// <summary>Suffix of the key that stands for a source type's compiler-generated constructor.</summary>

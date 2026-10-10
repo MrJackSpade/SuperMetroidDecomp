@@ -6,6 +6,8 @@ namespace SuperMetroid.ReachabilityAudit;
 /// Entry points and the reachability the runtime adds without source references: framework
 /// instantiation, virtual and interface dispatch, interop layout and reflection by name.
 /// </summary>
+/// <param name="identity">Repository symbol identity service used to assign stable root keys.</param>
+/// <param name="graph">Reachability graph that receives root and dispatch edges.</param>
 internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph graph)
 {
     /// <summary>Marks a member or type that only reflection reaches (SuperMetroid.Core.AccessedByReflectionAttribute).</summary>

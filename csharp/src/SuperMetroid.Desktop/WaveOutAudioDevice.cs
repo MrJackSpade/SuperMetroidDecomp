@@ -535,8 +535,8 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         int SampleCount,
         long Generation);
 
-    [StructLayout(LayoutKind.Sequential)]
     /// <summary>Native PCM format structure passed to <c>waveOutOpen</c>.</summary>
+    [StructLayout(LayoutKind.Sequential)]
     private struct WaveFormat
     {
         /// <summary>Windows format tag; one denotes integer PCM.</summary>
@@ -555,8 +555,8 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         public ushort ExtraSize;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
     /// <summary>Native buffer descriptor whose ownership flags are updated by Windows.</summary>
+    [StructLayout(LayoutKind.Sequential)]
     private struct WaveHeader
     {
         /// <summary>Pointer to the pinned PCM bytes supplied to waveOut.</summary>

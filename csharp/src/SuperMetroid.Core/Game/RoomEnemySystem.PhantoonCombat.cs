@@ -450,14 +450,14 @@ public sealed partial class RoomEnemySystem
             body.YPosition = 216;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Performance",
-        "CA1822:Mark members as static",
-        Justification = "Retains instance ownership inside the native Phantoon phase dispatcher without forcing unrelated phase methods static.")]
     /// <summary>Selects the eye animation for the octant containing Samus relative to Phantoon.</summary>
     /// <param name="body">The boss position used as the aim origin.</param>
     /// <param name="eye">The eye record whose animation pointer is replaced.</param>
     /// <param name="samus">The player position used to select an eye direction.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification = "Retains instance ownership inside the native Phantoon phase dispatcher without forcing unrelated phase methods static.")]
     private void PointPhantoonEyeAtSamus(
         RoomEnemySlot body,
         RoomEnemySlot eye,

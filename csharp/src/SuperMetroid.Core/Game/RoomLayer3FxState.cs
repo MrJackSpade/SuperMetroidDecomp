@@ -18,8 +18,11 @@ public sealed class RoomLayer3FxState
 {
     /// <summary>Owns animated BG3 tile transfer timing for the selected room effect.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
+    /// <summary>Host-owned animated BG3 artwork excluded from debugger serialization.</summary>
     [NonSerialized] private RoomFxAnimatedTileAtlas? animatedTileArtwork;
+    /// <summary>Host-owned BG3 tilemap catalog excluded from debugger serialization.</summary>
     [NonSerialized] private RoomFxLayer3TilemapCatalog? layer3Tilemaps;
+    /// <summary>Host-owned palette-blend catalog excluded from debugger serialization.</summary>
     [NonSerialized] private RoomFxPaletteBlendCatalog? paletteBlendColors;
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>

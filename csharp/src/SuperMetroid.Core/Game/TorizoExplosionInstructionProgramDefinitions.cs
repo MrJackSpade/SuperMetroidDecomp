@@ -31,6 +31,7 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
     /// <summary>$86:A43B: smoke packed vertical bias and random mask.</summary>
     private const ushort SmokeVerticalSpread = 0x043f;
 
+    /// <summary>Selects the authored spread and presentation sequence for a Torizo explosion branch.</summary>
     private enum ExplosionPhase
     {
         /// <summary>Small random-spread explosion used by Bomb Torizo's low-health attack.</summary>

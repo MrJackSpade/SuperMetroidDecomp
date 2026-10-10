@@ -323,14 +323,14 @@ internal static partial class CoreAccess
 }
 
 /// <summary>One active station PLM as a verification snapshot.</summary>
+/// <param name="NativeSlotIndex">Native PLM slot containing this station.</param>
+/// <param name="BlockIndex">Room block associated with the station.</param>
+/// <param name="RoomArgument">Argument word supplied by the room's PLM record.</param>
+/// <param name="Kind">Station behavior represented by the PLM.</param>
+/// <param name="Triggered">Whether Samus has activated the station.</param>
+/// <param name="SavePhase">Current save-station interaction phase.</param>
+/// <param name="SaveStationLockedOut">Whether save activation is currently blocked.</param>
 internal readonly record struct StationPlmSnapshot(
-    /// <param name="NativeSlotIndex">Native PLM slot containing this station.</param>
-    /// <param name="BlockIndex">Room block associated with the station.</param>
-    /// <param name="RoomArgument">Argument word supplied by the room's PLM record.</param>
-    /// <param name="Kind">Station behavior represented by the PLM.</param>
-    /// <param name="Triggered">Whether Samus has activated the station.</param>
-    /// <param name="SavePhase">Current save-station interaction phase.</param>
-    /// <param name="SaveStationLockedOut">Whether save activation is currently blocked.</param>
     int NativeSlotIndex,
     int BlockIndex,
     ushort RoomArgument,

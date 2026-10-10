@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
+    /// <summary>Active native-style explosion actors, each retaining its own instruction pointer and timer.</summary>
     private readonly List<ExplosionActor> actors = [];
 
     /// <summary>

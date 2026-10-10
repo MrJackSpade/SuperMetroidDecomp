@@ -30,6 +30,8 @@ internal sealed class GameForm : Form
     {
     }
 
+    /// <summary>Initializes the game window around an already constructed gameplay control.</summary>
+    /// <param name="gameControl">Gameplay control whose renderer and session are hosted by the window.</param>
     private GameForm(PlayableGameControl gameControl)
     {
         Text = "Super Metroid C#";

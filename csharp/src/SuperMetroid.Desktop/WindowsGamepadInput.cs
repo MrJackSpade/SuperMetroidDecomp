@@ -193,8 +193,8 @@ internal sealed partial class WindowsGamepadInput
         return checked((short)normalized);
     }
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     /// <summary>Managed layout matching WinMM's JOYCAPSW capabilities structure.</summary>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct JoystickCapabilities
     {
         /// <summary>USB or driver manufacturer identifier used for controller layout selection.</summary>

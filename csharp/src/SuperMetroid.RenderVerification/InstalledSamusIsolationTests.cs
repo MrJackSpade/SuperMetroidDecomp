@@ -129,6 +129,7 @@ internal sealed partial class InstalledSamusIsolationTests
     /// <summary>Keeps matching stock and edited actors synchronized through the same operations.</summary>
     private sealed class Pair
     {
+        /// <summary>Owning fixture whose installed artwork and comparison helpers are shared by the paired actors.</summary>
         private readonly InstalledSamusIsolationTests tests;
         /// <summary>Actor bound to the original installation assets.</summary>
         internal Actor Stock { get; }

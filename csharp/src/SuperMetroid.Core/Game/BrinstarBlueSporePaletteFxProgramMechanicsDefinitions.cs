@@ -52,6 +52,7 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
             yield return Standard;
             yield return SporeSpawn;
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>

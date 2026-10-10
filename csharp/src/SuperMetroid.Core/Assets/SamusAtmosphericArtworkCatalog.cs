@@ -94,6 +94,7 @@ public sealed class SamusAtmosphericArtworkCatalog
         {
             for (int frame = 0; frame < Count; frame++) yield return this[frame];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

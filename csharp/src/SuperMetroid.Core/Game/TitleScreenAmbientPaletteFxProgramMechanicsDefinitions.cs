@@ -80,6 +80,7 @@ public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
             yield return TubeLight;
             yield return Displays;
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

@@ -41,6 +41,7 @@ public static class ProjectileTrailVisualDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Formats a native trail-record pointer as the canonical appearance-document key; formatting alone does not validate that the pointer belongs to <see cref="Frames"/>.</summary>

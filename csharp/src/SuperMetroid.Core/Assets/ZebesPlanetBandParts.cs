@@ -104,6 +104,7 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 /// <summary>Tile-column anchors and stride calculation for the packed Ceres planet-band atlas.</summary>

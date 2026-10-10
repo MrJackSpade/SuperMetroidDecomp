@@ -369,8 +369,6 @@ public sealed partial class RoomEnemySystem
     /// <param name="slot">Physical enemy record being updated.</param>
     /// <param name="state">Pipe Bug variables retaining spawn and emergence positions.</param>
     /// <param name="samus">Active player state used for trigger distance checks.</param>
-    /// <param name="cameraX">Horizontal camera position for center-on-screen detection.</param>
-    /// <param name="cameraY">Vertical camera position for center-on-screen detection.</param>
     private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,

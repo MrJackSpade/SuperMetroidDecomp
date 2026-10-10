@@ -107,6 +107,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

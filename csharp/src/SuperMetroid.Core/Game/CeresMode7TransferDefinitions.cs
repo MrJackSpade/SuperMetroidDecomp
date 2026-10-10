@@ -101,6 +101,7 @@ public static class CeresMode7TransferDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Allocation-free view of the authored character selectors in one contiguous Ceres Mode 7 map-row transfer.</summary>
@@ -122,6 +123,7 @@ public static class CeresMode7TransferDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$A6:F918/F91C: the selected light and dark platform left caps in the source Mode7 atlas. Their adjacent cells are the corresponding interior strips.</summary>

@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.ResourceAudit;
 
 /// <summary>A finite arithmetic index range with an optional additional inclusive range.</summary>
+/// <param name="First">First value in the primary arithmetic range.</param>
+/// <param name="Count">Number of values in the primary range.</param>
+/// <param name="Stride">Distance between consecutive primary-range values.</param>
+/// <param name="Additional">Optional first value of an additional inclusive range.</param>
+/// <param name="AdditionalMaximum">Optional final value of the additional inclusive range.</param>
 internal readonly record struct ProviderIndexDomain(int First, int Count, int Stride = 1, int? Additional = null, int? AdditionalMaximum = null)
 {
     /// <summary>Tests whether a value belongs to the primary or additional range.</summary>

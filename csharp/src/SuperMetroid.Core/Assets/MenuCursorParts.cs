@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>$82:CBCB-CBFA: two eight-pixel tiles form the centered selection missile.
 /// Stock glyph identities and native part order specify the selected missile drawings. Only this display design is retained; atlas/centering relationships calculate and supplied edits remain independent. Pixels, colors and timing are excluded.</summary>
+/// <param name="frame">Zero-based cursor animation frame selecting the missile tiles.</param>
 internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Rebuilds a recognized menu-missile composition from its native frame identity and selected atlas tiles.</summary>
@@ -61,5 +62,6 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

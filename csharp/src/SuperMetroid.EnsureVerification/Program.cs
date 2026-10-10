@@ -3,8 +3,12 @@ using SuperMetroid.Core;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Runs focused runtime and compiler-contract checks for the Ensure API.</summary>
 internal static partial class Program
 {
+    /// <summary>Runs the requested verifier mode and converts failures to a nonzero process exit.</summary>
+    /// <param name="args">Optional verifier mode arguments.</param>
+    /// <returns>Zero when all selected checks pass; otherwise one.</returns>
     private static int Main(string[] args)
     {
         try
@@ -31,6 +35,7 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks Ensure's null, range, and length contracts, including exception parameter names.</summary>
     private static void VerifyEnsure()
     {
         string? text = "okay";
@@ -58,12 +63,21 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Throws when two verification values differ.</summary>
+    /// <typeparam name="T">The compared value type.</typeparam>
+    /// <param name="expected">The required value.</param>
+    /// <param name="actual">The observed value.</param>
     private static void Equal<T>(T expected, T actual)
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual))
             throw new InvalidOperationException($"Expected {expected}, got {actual}.");
     }
 
+    /// <summary>Checks that an action throws the exact expected argument exception.</summary>
+    /// <typeparam name="T">The required exception type.</typeparam>
+    /// <param name="action">The action expected to throw.</param>
+    /// <param name="parameterName">The required exception parameter name.</param>
+    /// <param name="messageFragment">Optional text required in the exception message.</param>
     private static void Throws<T>(Action action, string parameterName, string? messageFragment = null) where T : ArgumentException
     {
         try
@@ -82,8 +96,12 @@ internal static partial class Program
     }
 }
 
+/// <summary>Provides the Windows process error-mode call used to suppress modal crash dialogs.</summary>
 internal static partial class NativeConsoleProcess
 {
+    /// <summary>Sets process error handling flags before verifier work begins.</summary>
+    /// <param name="errorMode">The Windows error-mode flags to enable.</param>
+    /// <returns>The previous process error mode.</returns>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

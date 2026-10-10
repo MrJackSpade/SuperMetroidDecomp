@@ -5,6 +5,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Calculate the common small-sprite attributes of Ceres star sheets.
 /// Point positions and selected star drawings remain a separate content mapping.</summary>
+/// <param name="points">Authored positions and tile identities for the star points.</param>
+/// <param name="reflected">Whether each star tile is horizontally reflected.</param>
 internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bool reflected)
     : IReadOnlyList<CompiledSpritePart>
 {
@@ -58,5 +60,6 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns a non-generic enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

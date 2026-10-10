@@ -76,6 +76,7 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
         /// <summary>Enumerates the two definitions in the same order as the indexer.</summary>
         public IEnumerator<CrateriaEscapeLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return YellowLightning; yield return CreBlockPixel; }
+        /// <summary>Returns a non-generic enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>

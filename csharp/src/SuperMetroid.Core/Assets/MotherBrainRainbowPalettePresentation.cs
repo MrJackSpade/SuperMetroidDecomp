@@ -640,8 +640,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly DrainedBodyColors? drained;
         /// <summary>Number of body inks represented.</summary>
         public int Length { get; }
-        /// <summary>Recognizes stock and drained paint patterns while preserving unsupported edited rows.</summary>
-        /// <param name="colors">Packed body/brain colors from the document.</param>
         /// <summary>Recognizes stock or drained paint, otherwise retaining the supplied rows exactly.</summary>
         /// <param name="colors">Packed body and brain colors.</param>
         public BodyColors(ushort[] colors)
@@ -940,6 +938,7 @@ public sealed record MotherBrainRainbowPaletteFrameDocument
 /// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
+    /// <summary>Defines the body-color index ranges used to reconstruct the red-origin palette layout.</summary>
     internal static class RedOriginLayout
     {
         /// <summary>Index ranges dividing the source body into head, plates, tissue, and independent tail inks.</summary>

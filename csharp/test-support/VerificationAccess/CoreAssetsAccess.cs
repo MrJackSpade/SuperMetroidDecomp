@@ -15,6 +15,8 @@ internal static class BeamTileAtlasAccess
     /// <summary>Supplies VRAM loading access for focused atlas checks.</summary>
     extension(BeamTileAtlas self)
     {
+        /// <summary>Loads the atlas transfer bytes into their native VRAM destination.</summary>
+        /// <param name="vram">Video memory that receives the beam tiles.</param>
         internal void LoadTo(SnesVram vram) =>
             vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, self.Transfer.Span);
     }
@@ -26,6 +28,11 @@ internal static class BeamTileCatalogAccess
     /// <summary>Creates beam catalogs from test-provided artwork files.</summary>
     extension(BeamTileCatalog)
     {
+        /// <summary>Loads every beam tile sheet and combines it with optional palette catalogs for verification.</summary>
+        /// <param name="files">Artwork files keyed by their defined beam-sheet names.</param>
+        /// <param name="palettes">Optional beam palette catalog to attach.</param>
+        /// <param name="hyperBeamFxColors">Optional Hyper Beam effect colors to attach.</param>
+        /// <returns>The beam tile catalog constructed from the supplied verification assets.</returns>
         internal static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
             BeamPaletteCatalog? palettes = null, HyperBeamFxColorCatalog? hyperBeamFxColors = null)
         {
@@ -48,6 +55,9 @@ internal static class CeresEscapeOverlayTilemapDefinitionsAccess
     /// <summary>Exposes source range membership for tilemap definition checks.</summary>
     extension(CeresEscapeOverlayTilemapDefinitions)
     {
+        /// <summary>Determines whether an address belongs to any Ceres escape overlay tilemap page.</summary>
+        /// <param name="address">SNES byte address to test.</param>
+        /// <returns><see langword="true"/> when a defined page contains the address.</returns>
         internal static bool ContainsByteAddress(int address)
         {
             foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
@@ -65,16 +75,39 @@ internal static class CeresRidleyColorCatalogAccess
     /// <summary>Exposes resolved Ridley palette bands for focused checks.</summary>
     extension(CeresRidleyColorCatalog self)
     {
+        /// <summary>Resolves a color from Ceres Ridley's starting palette.</summary>
+        /// <param name="color">Color index within the starting palette.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveStart(int color) => PrivateState.Field<CeresRidleyStartColorDefinitions>(self, "start").Resolve(color);
 
+        /// <summary>Resolves a color from one row of Ceres Ridley's eye-fade palette.</summary>
+        /// <param name="row">Eye-fade row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveEyeFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "eyeFade").Resolve(row, color);
 
+        /// <summary>Resolves a color from one row of Ceres Ridley's body-fade palette.</summary>
+        /// <param name="row">Body-fade row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveBodyFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "bodyFade").Resolve(row, color);
 
+        /// <summary>Resolves a health-dependent Ceres Ridley paint color.</summary>
+        /// <param name="row">Health-palette row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveHealth(int row, int color) => PrivateState.Field<CeresRidleyHealthPaintDefinitions>(self, "health").Resolve(row, color);
 
+        /// <summary>Resolves a color from one row of the Ceres alarm palette.</summary>
+        /// <param name="row">Alarm-palette row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveAlarm(int row, int color) => PrivateState.Field<CeresRidleyAlarmColorDefinitions>(self, "alarm").Resolve(row, color);
 
+        /// <summary>Resolves a color from one row of the Ceres baby-paint palette.</summary>
+        /// <param name="row">Baby-paint row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveBaby(int row, int color) => PrivateState.Field<CeresBabyPaintDefinitions>(self, "baby").Resolve(row, color);
     }
 }
@@ -85,8 +118,14 @@ internal static class ChozoAndTubeColorCatalogAccess
     /// <summary>Exposes statue palette colors for verification.</summary>
     extension(ChozoAndTubeColorCatalog self)
     {
+        /// <summary>Resolves a Wrecked Ship Chozo statue palette color.</summary>
+        /// <param name="color">Color index within the statue palette.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveWreckedShip(int color) => ((ushort)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
 
+        /// <summary>Resolves a Lower Norfair Chozo statue palette color.</summary>
+        /// <param name="color">Color index within the statue palette.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveLowerNorfair(int color) => ((ushort)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
     }
 }
@@ -97,6 +136,9 @@ internal static class CreditsPresentationAccess
     /// <summary>Constructs test presentations from precompiled credits rows.</summary>
     extension(CreditsPresentation)
     {
+        /// <summary>Constructs a credits presentation from precompiled tilemap rows supplied by a verification fixture.</summary>
+        /// <param name="rows">Nonempty 32-word credits rows in display order.</param>
+        /// <returns>The verification-only credits presentation.</returns>
         internal static CreditsPresentation FromCompiledRowsForVerification(
             params ushort[][] rows)
         {
@@ -117,6 +159,8 @@ internal static class CrocomireBodyFrameSequenceAccess
     /// <summary>Provides ordered array access for frame sequence assertions.</summary>
     extension(CrocomireBodyFrameSequence self)
     {
+        /// <summary>Copies the Crocomire body-frame pointers into an array in sequence order.</summary>
+        /// <returns>A new array containing every frame pointer.</returns>
         internal ushort[] ToArray()
         {
             var result = new ushort[self.Length];
@@ -132,14 +176,29 @@ internal static class CrocomireColorCatalogAccess
     /// <summary>Exposes individual Crocomire palette bands for verification.</summary>
     extension(CrocomireColorCatalog self)
     {
+        /// <summary>Resolves a color from Crocomire's fight-body palette band.</summary>
+        /// <param name="color">Color index within the band.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveFightBody(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "FightBody"), (int)(color)))!);
 
+        /// <summary>Resolves a color from Crocomire's initial wall palette band.</summary>
+        /// <param name="color">Color index within the band.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveInitialWall(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialWall"), (int)(color)))!);
 
+        /// <summary>Resolves a color from Crocomire's initial projectile palette band.</summary>
+        /// <param name="color">Color index within the band.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveInitialProjectile(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialProjectile"), (int)(color)))!);
 
+        /// <summary>Resolves a color from Crocomire's skeleton-arm palette band.</summary>
+        /// <param name="color">Color index within the band.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveSkeletonArm(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "SkeletonArm"), (int)(color)))!);
 
+        /// <summary>Resolves a color from Crocomire's wall-spike palette band.</summary>
+        /// <param name="color">Color index within the band.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveWallSpikes(int color) => ((ushort)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "WallSpikes"), (int)(color)))!);
     }
 }
@@ -168,6 +227,8 @@ internal static class EnemyBg2FrameDefinitionSequenceAccess
     /// <summary>Exposes ordered array materialization for BG2 frame checks.</summary>
     extension(EnemyBg2FrameDefinitionSequence self)
     {
+        /// <summary>Copies the BG2 frame definitions into an array in sequence order.</summary>
+        /// <returns>A new array containing every frame definition.</returns>
         internal EnemyBg2FrameDefinition[] ToArray()
         {
             var result = new EnemyBg2FrameDefinition[self.Length];
@@ -294,6 +355,7 @@ internal static class GameplayBasePaletteCatalogAccess
     /// <summary>Provides access to base palette data for focused checks.</summary>
     extension(GameplayBasePaletteCatalog self)
     {
+        /// <summary>Gets the common sprite colors stored by the gameplay base palette.</summary>
         internal ReadOnlySpan<ushort> CommonSprites => PrivateState.Field<ushort[]>(self, "commonSprites");
     }
 }
@@ -304,6 +366,9 @@ internal static class GoldenTorizoStrideGeometryDefinitionsAccess
     /// <summary>Exposes native frame identities for geometry definition checks.</summary>
     extension(GoldenTorizoStrideGeometryDefinitions)
     {
+        /// <summary>Calculates the native frame identity for a Golden Torizo stride phase.</summary>
+        /// <param name="phase">Zero-based stride phase.</param>
+        /// <returns>The native byte identity for the phase's frame.</returns>
         internal static int NativeFrameIdentity(int phase)
         {
             if ((uint)phase >= 10) throw new ArgumentOutOfRangeException(nameof(phase));
@@ -318,6 +383,7 @@ internal static class MapArrowVisualAccess
     /// <summary>Exposes explicit timing storage for map arrow checks.</summary>
     extension(MapArrowVisual self)
     {
+        /// <summary>Gets the number of explicitly stored map-arrow duration overrides.</summary>
         internal int StoredDurationCount => PrivateState.Field<Dictionary<int, byte>?>(self, "durationOverrides")?.Count ?? 0;
     }
 }
@@ -328,6 +394,7 @@ internal static class MapMarkerTileArtworkAccess
     /// <summary>Exposes explicit marker artwork edit storage.</summary>
     extension(MapMarkerTileArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored marker-pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -338,10 +405,13 @@ internal static class MapObjectTileArtworkAccess
     /// <summary>Exposes pixel edit and payload storage for map objects.</summary>
     extension(MapObjectTileArtwork self)
     {
+        /// <summary>Gets the number of stored highlighted-map-object pixel edits.</summary>
         internal int StoredHighlightPixelCount => PrivateState.Field<Dictionary<int, byte>?>(self, "highlightEdits")?.Count ?? 0;
 
+        /// <summary>Gets the number of stored reserve-map-object pixel edits.</summary>
         internal int StoredReservePixelCount => PrivateState.Field<Dictionary<int, byte>?>(self, "reserveEdits")?.Count ?? 0;
 
+        /// <summary>Gets the byte count of the retained non-highlight, non-reserve character payload.</summary>
         internal int StoredOtherByteCount => PrivateState.Field<byte[]>(self, "otherCharacters").Length;
     }
 }
@@ -352,6 +422,7 @@ internal static class MapSaveMarkerLayoutAccess
     /// <summary>Exposes coordinate override storage for map layout checks.</summary>
     extension(MapSaveMarkerLayout self)
     {
+        /// <summary>Gets the number of individually stored X or Y coordinate overrides.</summary>
         internal int StoredCoordinateComponentCount => PrivateState.Field<Dictionary<string, (int? X, int? Y)>>(self, "coordinateOverrides").Values.Sum(point =>
             (point.X.HasValue ? 1 : 0) + (point.Y.HasValue ? 1 : 0));
     }
@@ -360,12 +431,19 @@ internal static class MapSaveMarkerLayoutAccess
 /// <summary>Verification access to <see cref="MapSpriteCatalog"/> members production does not use.</summary>
 internal static class MapSpriteCatalogAccess
 {
+    /// <summary>Gets the world-map label associated with a native map-sprite identifier.</summary>
+    /// <param name="catalog">Map sprite catalog to inspect.</param>
+    /// <param name="id">Native map-sprite identifier.</param>
+    /// <returns>The matching world-map label, or <see langword="null"/> when the identifier is not a label.</returns>
     private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, ushort id) =>
         (WorldMapLabelComposition?)PrivateState.Invoke(catalog, "GetWorldLabel", id);
 
     /// <summary>Exposes composition and storage details for map sprite checks.</summary>
     extension(MapSpriteCatalog self)
     {
+        /// <summary>Determines whether a sprite or world label stores an authored composition.</summary>
+        /// <param name="id">Native map-sprite identifier to inspect.</param>
+        /// <returns><see langword="true"/> when an authored composition is stored.</returns>
         internal bool StoresComposition(ushort id) => WorldLabel(self, id) is { } label
             ? PrivateState.Field<SpriteComposition?>(label, "authored") is not null
             : PrivateState.Invoke(self, "GetFrame", id) is not null;
@@ -379,10 +457,13 @@ internal static class MapSpriteCatalogAccess
             return origins + (PrivateState.Field<Dictionary<int, int>?>(label, "letterAdvances")?.Count ?? 0);
         }
 
+        /// <summary>Gets the number of highlighted character-pixel edits stored by the catalog.</summary>
         internal int StoredHighlightPixelCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredHighlightPixelCount;
 
+        /// <summary>Gets the number of reserve character-pixel edits stored by the catalog.</summary>
         internal int StoredReservePixelCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredReservePixelCount;
 
+        /// <summary>Gets the retained byte count for other map-sprite character artwork.</summary>
         internal int StoredArtworkByteCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredOtherByteCount;
     }
 }
@@ -393,6 +474,7 @@ internal static class MenuBeveledSquareArtworkAccess
     /// <summary>Exposes stored edits for beveled-square artwork checks.</summary>
     extension(MenuBeveledSquareArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored beveled-square pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -403,10 +485,17 @@ internal static class MenuCompactLetteringArtworkAccess
     /// <summary>Exposes glyph and pixel edit storage for compact lettering checks.</summary>
     extension(MenuCompactLetteringArtwork self)
     {
+        /// <summary>Gets the byte count of the stored compact-letter glyph definitions.</summary>
         internal int StoredInkByteCount => PrivateState.Field<Dictionary<char, uint>>(self, "glyphs").Count * sizeof(uint);
 
+        /// <summary>Gets the number of explicitly stored compact-letter pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
+        /// <summary>Determines whether a compact-letter tile pixel has an explicit override.</summary>
+        /// <param name="tile">Tile index to inspect.</param>
+        /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+        /// <param name="y">Vertical pixel coordinate within the tile.</param>
+        /// <returns><see langword="true"/> when the pixel is explicitly overridden.</returns>
         internal bool HasPixelOverride(int tile, int x, int y)
         {
             if (!MenuCompactLetteringArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -421,10 +510,17 @@ internal static class MenuLargeFontArtworkAccess
     /// <summary>Exposes face and edit storage for large-font checks.</summary>
     extension(MenuLargeFontArtwork self)
     {
+        /// <summary>Gets the byte count of the stored large-font face payload.</summary>
         internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
 
+        /// <summary>Gets the number of explicitly stored large-font pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
+        /// <summary>Determines whether a large-font tile pixel has an explicit override.</summary>
+        /// <param name="tile">Tile index to inspect.</param>
+        /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+        /// <param name="y">Vertical pixel coordinate within the tile.</param>
+        /// <returns><see langword="true"/> when the pixel is explicitly overridden.</returns>
         internal bool HasPixelOverride(int tile, int x, int y)
         {
             if (!MenuLargeFontArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -439,6 +535,7 @@ internal static class MenuPanelTileArtworkAccess
     /// <summary>Exposes explicit edit storage for panel artwork checks.</summary>
     extension(MenuPanelTileArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored panel-tile pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -449,6 +546,7 @@ internal static class MenuShoulderButtonArtworkAccess
     /// <summary>Exposes explicit edit storage for shoulder button checks.</summary>
     extension(MenuShoulderButtonArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored shoulder-button pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -459,6 +557,7 @@ internal static class MenuShoulderHighlightArtworkAccess
     /// <summary>Exposes explicit edit storage for shoulder highlight checks.</summary>
     extension(MenuShoulderHighlightArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored shoulder-highlight pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -469,10 +568,17 @@ internal static class MenuSmallFontArtworkAccess
     /// <summary>Exposes face and edit storage for small-font checks.</summary>
     extension(MenuSmallFontArtwork self)
     {
+        /// <summary>Gets the byte count of the stored small-font face payload.</summary>
         internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
 
+        /// <summary>Gets the number of explicitly stored small-font pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
 
+        /// <summary>Determines whether a small-font tile pixel has an explicit override.</summary>
+        /// <param name="tile">Tile index to inspect.</param>
+        /// <param name="x">Horizontal pixel coordinate within the tile.</param>
+        /// <param name="y">Vertical pixel coordinate within the tile.</param>
+        /// <returns><see langword="true"/> when the pixel is explicitly overridden.</returns>
         internal bool HasPixelOverride(int tile, int x, int y)
         {
             if (!MenuSmallFontArtwork.Contains(tile) || (uint)x >= 8 || (uint)y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -487,6 +593,7 @@ internal static class MenuThinBorderArtworkAccess
     /// <summary>Exposes explicit edit storage for thin-border artwork checks.</summary>
     extension(MenuThinBorderArtwork self)
     {
+        /// <summary>Gets the number of explicitly stored thin-border pixel edits.</summary>
         internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
     }
 }
@@ -497,6 +604,7 @@ internal static class MotherBrainBodyVisualDefinitionsAccess
     /// <summary>Exposes ordered frame definitions for Mother Brain body checks.</summary>
     extension(MotherBrainBodyVisualDefinitions)
     {
+        /// <summary>Gets all Mother Brain body visual frames in native frame order.</summary>
         internal static EnemyExtendedFrameDefinition[] Frames =>
             [.. Enumerable.Range(0, MotherBrainBodyVisualDefinitions.FrameCount).Select(MotherBrainBodyVisualDefinitions.Frame)];
     }
@@ -508,8 +616,15 @@ internal static class NorfairRidleyColorCatalogAccess
     /// <summary>Exposes initial and reveal paint colors for Ridley palette checks.</summary>
     extension(NorfairRidleyColorCatalog self)
     {
+        /// <summary>Resolves a color from Norfair Ridley's initial paint palette.</summary>
+        /// <param name="color">Color index within the initial palette.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveInitial(int color) => PrivateState.Field<NorfairRidleyInitialPaintDefinitions>(self, "initial").ColorAt(color);
 
+        /// <summary>Resolves a color from one row of Norfair Ridley's reveal palette.</summary>
+        /// <param name="row">Reveal-palette row to select.</param>
+        /// <param name="color">Color index within the row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveReveal(int row, int color) => PrivateState.Field<NorfairRidleyRevealPaintDefinitions>(self, "reveal").ColorAt(row, color);
     }
 }
@@ -520,8 +635,10 @@ internal static class PauseReserveTankPresentationAccess
     /// <summary>Exposes stored frames and anchors for reserve meter checks.</summary>
     extension(PauseReserveTankPresentation self)
     {
+        /// <summary>Gets the number of reserve-tank meter frames stored as authored compositions.</summary>
         internal int StoredFrameCount => (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Full") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "EndCap") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Empty") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill1") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill2") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill3") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill4") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill5") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill6") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill7") is null ? 0 : 1);
 
+        /// <summary>Gets the number of individually stored reserve-meter anchor coordinates.</summary>
         internal int StoredAnchorComponentCount => PrivateState.Field<Dictionary<int, (int? X, int? Y)>>(self, "anchorOverrides").Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     }
 }
@@ -539,15 +656,19 @@ internal static class PauseSelectorPresentationAccess
     /// <summary>Exposes duration, composition, and anchor storage for selector checks.</summary>
     extension(PauseSelectorPresentation self)
     {
+        /// <summary>Gets the number of explicitly stored selector duration overrides.</summary>
         internal int StoredDurationCount => PrivateState.Field<Dictionary<int, int>?>(self, "durationOverrides")?.Count ?? 0;
 
+        /// <summary>Gets whether any selector category stores authored composition parts.</summary>
         internal bool StoresCompositionParts => Categories(self).Any(category =>
             StoresParts(PrivateState.Field<PauseSelectorVisual>(category, "basis")) ||
             (PrivateState.Field<Dictionary<int, PauseSelectorVisual>?>(category, "overrides")?.Values.Any(StoresParts) ?? false));
 
+        /// <summary>Gets the number of selector phase composition overrides stored across all categories.</summary>
         internal int StoredCompositionOverrideCount => Categories(self).Sum(category =>
             PrivateState.Field<Dictionary<int, PauseSelectorVisual>?>(category, "overrides")?.Count ?? 0);
 
+        /// <summary>Gets the number of individually stored selector anchor coordinates.</summary>
         internal int StoredAnchorComponentCount => PrivateState.Field<Dictionary<string, (int? X, int? Y)>>(self, "anchorOverrides").Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     }
 }
@@ -559,6 +680,8 @@ internal static class RoomFxBlendColorsAccess
     extension(RoomFxBlendColors self)
     {
         // The generated array is the requested output, never a retained stock-color cache.
+        /// <summary>Creates the three resolved room-effect blend colors.</summary>
+        /// <returns>A new array containing the primary, secondary, and optional third color.</returns>
         internal ushort[] CreateColors() => [PrivateState.Field<RoomFxPairColor>(self, "primary").CreateColor(), PrivateState.Field<RoomFxPairColor>(self, "secondary").CreateColor(), PrivateState.Field<RoomFxThirdColor?>(self, "thirdOverride")?.CreateColor() ?? 0];
     }
 }
@@ -569,6 +692,9 @@ internal static class RoomFxPaletteBlendCatalogAccess
     /// <summary>Exposes selected room FX blend palettes for verification.</summary>
     extension(RoomFxPaletteBlendCatalog self)
     {
+        /// <summary>Resolves the three blend colors selected by a room FX palette index.</summary>
+        /// <param name="selection">Room FX blend selection byte.</param>
+        /// <returns>The selected primary, secondary, and optional third color.</returns>
         internal ReadOnlySpan<ushort> Resolve(byte selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", (byte)(selection)))!).CreateColors();
     }
 }
@@ -579,6 +705,12 @@ internal static class SamusBodyTileDefinitionAccess
     /// <summary>Exposes body tile transfer geometry calculation for tests.</summary>
     extension(SamusBodyTileDefinition self)
     {
+        /// <summary>Calculates transfer geometry using the supplied body's pose pointers and frame selections.</summary>
+        /// <param name="body">Samus body catalog that owns the selected definitions.</param>
+        /// <param name="upper">Whether the definition belongs to the upper-body table.</param>
+        /// <param name="set">Tile-definition set index.</param>
+        /// <param name="position">Definition position within the set.</param>
+        /// <returns>A copy of the definition with its transfer geometry populated.</returns>
         internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
             self.WithTransferGeometry(body, upper, set, position, body.PosePointers, body.Frames);
     }
@@ -615,6 +747,12 @@ internal static class SamusChargeColorCatalogAccess
     /// <summary>Exposes charged-beam and pseudo-screw color resolution.</summary>
     extension(SamusChargeColorCatalog self)
     {
+        /// <summary>Resolves one charged-beam or pseudo-screw palette color.</summary>
+        /// <param name="pseudo">Whether to use the pseudo-screw palette instead of the charged-beam palette.</param>
+        /// <param name="suit">Suit palette index.</param>
+        /// <param name="phase">Charge animation phase.</param>
+        /// <param name="color">Color index within the selected palette row.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveCharge(bool pseudo, int suit, int phase, int color) =>
             ((ushort)(PrivateState.Invoke((pseudo ? PrivateState.Field<object>(self, "pseudoScrew") : PrivateState.Field<object>(self, "chargedBeam")), "Resolve", (int)(suit), (int)(phase), (int)(color)))!);
     }
@@ -626,6 +764,7 @@ internal static class SamusSpritemapArtworkCatalogAccess
     /// <summary>Exposes installed spritemap definitions for coverage checks.</summary>
     extension(SamusSpritemapArtworkCatalog self)
     {
+        /// <summary>Gets every installed Samus spritemap definition.</summary>
         internal IReadOnlyCollection<SamusSpritemapDefinition> Definitions => PrivateState.Field<Dictionary<ushort, SamusSpritemapDefinition>>(self, "definitions").Values;
     }
 }
@@ -636,9 +775,17 @@ internal static class SelectedPresentationHashAccess
     /// <summary>Adapts test frame collections to the presentation hash contract.</summary>
     extension(SelectedPresentationHash)
     {
+        /// <summary>Creates a canonical identity from frames that each contain one word run.</summary>
+        /// <param name="domain">Domain label included in the presentation identity.</param>
+        /// <param name="frames">Frame words keyed by native frame pointer.</param>
+        /// <returns>The canonical hexadecimal content identity.</returns>
         internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[]> frames) =>
             SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
+        /// <summary>Creates a canonical identity from frames that each contain one word.</summary>
+        /// <param name="domain">Domain label included in the presentation identity.</param>
+        /// <param name="frames">Single frame words keyed by native frame pointer.</param>
+        /// <returns>The canonical hexadecimal content identity.</returns>
         internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort> frames) =>
             SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
@@ -663,6 +810,7 @@ internal static class TitlePalettePresentationAccess
     /// <summary>Exposes title palette words for presentation checks.</summary>
     extension(TitlePalettePresentation self)
     {
+        /// <summary>Gets the title palette colors in stored CGRAM order.</summary>
         internal ReadOnlySpan<ushort> Colors => PrivateState.Field<ushort[]>(self, "colors");
     }
 }
@@ -673,6 +821,9 @@ internal static class TourianStatueColorCatalogAccess
     /// <summary>Exposes resolved Tourian statue palette entries.</summary>
     extension(TourianStatueColorCatalog self)
     {
+        /// <summary>Resolves one Tourian statue palette color.</summary>
+        /// <param name="color">Color index within the statue palette.</param>
+        /// <returns>The resolved SNES color word.</returns>
         internal ushort ResolveStatue(int color) => ((ushort)(PrivateState.Invoke(PrivateState.Field<object>(self, "statueColors"), "Read", (int)(color)))!);
     }
 }

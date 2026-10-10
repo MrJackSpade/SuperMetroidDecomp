@@ -5,6 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>A reflection lookup site, formatted as repository file, line and source text.</summary>
+/// <param name="File">Repository-relative source file containing the lookup.</param>
+/// <param name="Line">One-based source line containing the lookup.</param>
+/// <param name="Text">Compact source text for the lookup expression.</param>
 internal sealed record ReflectionSite(string File, int Line, string Text)
 {
     /// <summary>Formats a site as tab-separated file, line and source text.</summary>
@@ -17,6 +20,8 @@ internal sealed record ReflectionSite(string File, int Line, string Text)
 /// performing it. Lookups that cannot be resolved statically are listed: their targets need
 /// [AccessedByReflection].
 /// </summary>
+/// <param name="identity">Repository symbol identity service used to classify reflected targets.</param>
+/// <param name="graph">Reachability graph that receives resolved reflection edges.</param>
 internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph graph)
 {
     /// <summary>Type lookup methods whose constant name can identify a specific member.</summary>
@@ -135,6 +140,11 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
     }
 
     /// <summary>A reflection lookup that needs method-local literals or caller constants to resolve its name.</summary>
+    /// <param name="Receiver">Statically resolved receiver type, or null when the receiver is computed.</param>
+    /// <param name="Literals">Candidate member-name literals found in the enclosing source scope.</param>
+    /// <param name="NameParameter">Helper parameter that receives the member name, when applicable.</param>
+    /// <param name="Site">Source location of the deferred reflection lookup.</param>
+    /// <param name="Owner">Stable symbol key of the declaration containing the lookup.</param>
     private sealed record ComputedLookup(INamedTypeSymbol? Receiver, HashSet<string> Literals, IParameterSymbol? NameParameter,
         ReflectionSite Site, string Owner);
 

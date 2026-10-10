@@ -16,6 +16,10 @@ public sealed class GameplayMessagePanelPresentation
     /// <summary>Thirty-two copied BG3 words reused as the panel's top and bottom border rows.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Creates a validated gameplay-message panel catalog from its compiled panels, shared border, and source identity.</summary>
+    /// <param name="panels">Compiled title and content rows indexed by supported gameplay-message identity.</param>
+    /// <param name="border">Shared thirty-two-word BG3 border row.</param>
+    /// <param name="contentIdentity">Uppercase SHA-256 identity of the exact source JSON bytes.</param>
     private GameplayMessagePanelPresentation(
         Dictionary<GameplayMessageId, CompiledPanel> panels,
         ushort[] border,

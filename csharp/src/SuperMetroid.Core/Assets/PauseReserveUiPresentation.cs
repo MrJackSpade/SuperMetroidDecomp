@@ -19,6 +19,7 @@ public sealed class PauseReserveUiPresentation
     private readonly int enabledPalette, disabledPalette;
     /// <summary>Solid RGB555 colors for bevel slots six and eleven when pulse animation is not used.</summary>
     private readonly ushort solidColor6, solidColor11;
+    /// <summary>Optional authored overrides for the two reserve-arrow bevel colors at the first pulse step.</summary>
     private readonly (ushort? Color6, ushort? Color11) arrowStartEdits;
     /// <summary>Endpoint grey levels used to interpolate each arrow bevel channel across the pulse.</summary>
     private readonly (int Color6, int Color11) arrowGreyLevels;

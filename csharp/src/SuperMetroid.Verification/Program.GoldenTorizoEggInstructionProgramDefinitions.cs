@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Runs Golden Torizo egg mechanics and production-behavior checks against the retail ROM.</summary>
-    /// <param name="bus">Retail address space used for reference instruction words and guarded runtime execution.</param>
     private static void VerifyGoldenTorizoEggInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));

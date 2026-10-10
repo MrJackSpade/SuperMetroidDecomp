@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Applies Spore Spawn's native projectile-family and charged-beam acceptance test.</summary>
+    /// <param name="projectileType">Raw native projectile type word passed to the boss's shot routine.</param>
+    /// <returns><see langword="true"/> when a family bit in mask <c>$0700</c> or the charged marker <c>$0010</c> is set.</returns>
     private static bool SporeSpawnAcceptsProjectile(ushort projectileType) =>
         (projectileType & 0x0700) != 0 || (projectileType & 0x0010) != 0;
 

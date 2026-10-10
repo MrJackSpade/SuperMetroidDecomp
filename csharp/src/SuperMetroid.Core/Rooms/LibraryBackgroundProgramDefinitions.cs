@@ -13,6 +13,8 @@ public static partial class LibraryBackgroundProgramDefinitions
     /// <summary>All pinned program definitions, ordered by native list pointer.</summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; }
 
+    /// <summary>Publishes the immutable catalog and verifies it covers every distinct high-bank room-state list.</summary>
+    /// <exception cref="InvalidDataException">The compiled definitions do not match the retail pointer set or contain invalid list lengths.</exception>
     static LibraryBackgroundProgramDefinitions()
     {
         All = Array.AsReadOnly(programs);

@@ -41,5 +41,8 @@ public static class SlopeHeightDefinitions
         return (byte)height;
     }
 
+    /// <summary>Encodes a steep-slope profile height, preserving the native over-sixteen value as twenty.</summary>
+    /// <param name="height">Unclipped profile height calculated for the current tile column.</param>
+    /// <returns>Twenty when the profile exceeds sixteen; otherwise the nonnegative profile height.</returns>
     private static int EncodeSteepHeight(int height) => height > 16 ? 20 : Math.Max(0, height);
 }

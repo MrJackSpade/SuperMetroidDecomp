@@ -7,6 +7,10 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmBombedRevealProgramDefinitions
 {
+    /// <summary>Resolves a control, draw, or delete operand from a supported bombed-reveal instruction list.</summary>
+    /// <param name="address">Bank-$84 address of the candidate instruction word.</param>
+    /// <param name="value">Receives the compiled native word when owned, or zero for an unrecognized address.</param>
+    /// <returns><see langword="true"/> when the address belongs to a supported reveal list's duration, draw, or delete word.</returns>
     internal static bool TryReadWord(ushort address, out ushort value)
     {
         // Each supported list is one duration/draw pair followed by deletion.

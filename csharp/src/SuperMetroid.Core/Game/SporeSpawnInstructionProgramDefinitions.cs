@@ -76,6 +76,7 @@ internal abstract class SporeSpawnInstructionProgramDefinitions
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
 
+    /// <summary>Compiled instruction words and timing for Spore Spawn's native bank-$A5 programs.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe6b9),
         Entry(InitialDead),

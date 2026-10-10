@@ -91,6 +91,10 @@ internal static class SamusRunningCadenceDefinitions
             "or a mutable bank-$91 low-half alias.");
     }
 
+    /// <summary>Resolves addresses backed by the compiled bank-$91 running-cadence data.</summary>
+    /// <param name="address">The bank-$91 bus address to resolve.</param>
+    /// <param name="value">Receives the compiled byte, or zero when the address is outside the catalog.</param>
+    /// <returns><see langword="true"/> when the address maps to compiled cadence data; otherwise, <see langword="false"/>.</returns>
     private static bool TryReadCompiledByte(int address, out byte value)
     {
         if (address is OrdinaryPointer or OrdinaryPointer + 1)

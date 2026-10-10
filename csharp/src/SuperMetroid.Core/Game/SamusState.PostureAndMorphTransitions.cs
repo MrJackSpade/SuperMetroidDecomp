@@ -852,6 +852,11 @@ public sealed partial class SamusState
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
+    /// <summary>Selects the standing initializer frame, retaining raised-gun art when both poses aim vertically.</summary>
+    /// <param name="bus">Address space used to read the poses' movement types and shot directions.</param>
+    /// <param name="sourcePose">Pose being left by the transition.</param>
+    /// <param name="targetPose">Pose whose standing animation is being initialized.</param>
+    /// <returns>Frame one for a standing-to-standing vertical aim transition; otherwise frame zero.</returns>
     private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, byte sourcePose, byte targetPose)
     {
         // $91:F4DC keeps the gun raised when both the old and new standing

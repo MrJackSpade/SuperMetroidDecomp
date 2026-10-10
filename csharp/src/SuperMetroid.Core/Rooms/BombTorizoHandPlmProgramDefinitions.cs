@@ -20,6 +20,10 @@ internal static class BombTorizoHandPlmProgramDefinitions
     /// <summary>$84:D3BF: cleared-hand draw, music command and deletion after the eighth fragment.</summary>
     private const ushort Completion = 0xd3bf;
 
+    /// <summary>Reads a little-endian mechanics word when both bytes fall within the hand's compiled instruction range.</summary>
+    /// <param name="address">Address of the low byte; the following address supplies the high byte.</param>
+    /// <param name="value">Receives the assembled word on success, or zero when the address is outside the readable word range.</param>
+    /// <returns><see langword="true"/> when a complete word is available; otherwise, <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

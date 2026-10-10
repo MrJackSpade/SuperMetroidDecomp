@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Selects the current spin sound for cartridge Samus command $1C ($90:F41E).</summary>
 internal static class SamusSpinSoundCommand
 {
+    /// <summary>
+    /// Chooses the spin, Space Jump, or Screw Attack sound for spin-jump and wall-jump
+    /// movement. Wall jumps use animation-frame thresholds, while spin jumps use Samus's pose.
+    /// </summary>
+    /// <param name="bus">Address space used to resolve Samus's current movement type.</param>
+    /// <param name="samus">Samus state supplying the movement type and animation or pose used to classify the sound.</param>
+    /// <returns>The selected library-one sound, or <see langword="null"/> when Samus is not spin-jumping or wall-jumping.</returns>
     public static SoundEffectId? Select(ISnesAddressSpace bus, SamusState samus)
     {
         var movement = samus.ReadMovementType(bus);

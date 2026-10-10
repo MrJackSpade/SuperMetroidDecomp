@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesEarly
 {
+    /// <summary>Evaluates an early native pose-transition list in its cartridge-defined condition order.</summary>
+    /// <param name="pointer">Address identifying the transition list to evaluate.</param>
+    /// <param name="held">Canonical input buttons held during this update.</param>
+    /// <param name="newlyPressed">Canonical input buttons pressed on this update.</param>
+    /// <returns>The first matching target pose and whether the list contains any conditions.</returns>
+    /// <exception cref="InvalidOperationException">The pointer does not identify a compiled early transition list.</exception>
     internal static SamusPoseInputMatch Match(ushort pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         EmptyTransitionList => MatchEmptyTransitionList(held, newlyPressed),

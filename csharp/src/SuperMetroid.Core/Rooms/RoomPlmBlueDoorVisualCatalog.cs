@@ -26,6 +26,7 @@ public sealed class RoomPlmBlueDoorVisualCatalog
         }
     });
 
+    /// <summary>Owned replacement words keyed by canonical frame pointer; null when every selected frame matches its compiled shape.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual words differing from the compiled draw shapes.</summary>

@@ -22,6 +22,12 @@ public static partial class SamusBlockCollision
             state.YPosition = unchecked((ushort)(state.YPosition - GrappleVerticalOverlap(bus, level, state, down: true)));
     }
 
+    /// <summary>Measures the greatest overlap between one vertical edge of Samus's collision box and the room geometry.</summary>
+    /// <param name="bus">Address space used to read alignment data for non-square slopes.</param>
+    /// <param name="level">Room collision map against which the edge is checked.</param>
+    /// <param name="state">Samus position and radii defining the collision box.</param>
+    /// <param name="down"><see langword="true"/> checks the bottom edge; <see langword="false"/> checks the top edge.</param>
+    /// <returns>Maximum penetration depth across the covered columns, in pixels; zero means no overlap.</returns>
     private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
     {
         int boundary = unchecked((ushort)(state.YPosition + (down ? state.YRadius - 1 : -state.YRadius)));

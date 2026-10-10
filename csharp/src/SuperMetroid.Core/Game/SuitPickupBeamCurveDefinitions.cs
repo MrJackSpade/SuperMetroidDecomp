@@ -44,6 +44,9 @@ internal static class SuitPickupBeamCurveDefinitions
     }
     // Arguments stay in [0,pi/2]. Thirteen alternating Taylor terms bound the
     // omitted term below 2e-23; decimal rounding is far below pixel boundaries.
+    /// <summary>Approximates the sine used to derive a beam-curve width with a finite decimal Taylor series.</summary>
+    /// <param name="angle">An angle in radians in the first quadrant.</param>
+    /// <returns>The decimal sine approximation evaluated from thirteen alternating terms.</returns>
     private static decimal Sine(decimal angle)
     {
         decimal squared = angle * angle;

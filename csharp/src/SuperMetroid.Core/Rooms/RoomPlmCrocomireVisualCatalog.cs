@@ -30,6 +30,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
         }
     });
 
+    /// <summary>Copied visual-word overrides for changed draw layouts; null when all layouts use compiled words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all five Crocomire arena layouts and copies visual differences without changing physical level words, run geometry, or PLM programs.</summary>

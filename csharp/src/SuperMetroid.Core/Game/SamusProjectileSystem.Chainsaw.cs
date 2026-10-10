@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Invalid-beam callbacks reached by cartridge table overreads.</summary>
 public sealed partial class SamusProjectileSystem
 {
+    /// <summary>References the shared gameplay window-register cache modified by the Chainsaw callback.</summary>
     [NonSerialized]
     private GameplayWindowRegisterCache? chainsawWindowRegisters;
 

@@ -133,6 +133,15 @@ public static class SamusHurtFlashPalette
         return queued;
     }
 
+    /// <summary>
+    /// Selects the audio recovery performed when the hurt counter reaches its native
+    /// forty-call checkpoint: movement or grapple audio is resumed, or charging-beam
+    /// recovery is deferred through Samus's latch when its flare and X-button conditions hold.
+    /// </summary>
+    /// <param name="bus">Address space used to resolve the movement-specific spin recovery sound.</param>
+    /// <param name="samus">Samus state supplying grapple phase, projectile flare, and audio recovery state.</param>
+    /// <param name="controllerInput">Current held buttons; X is required for the deferred charging-beam request.</param>
+    /// <returns>The sound recovery or deferred request selected, or <see cref="SamusHurtFlashRecoveryAction.None"/> when no recovery applies.</returns>
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
         ISnesAddressSpace bus,
         SamusState samus,

@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesLate
 {
+    /// <summary>
+    /// Selects the first satisfied pose transition for a late-table list, preserving its native condition order.
+    /// </summary>
+    /// <param name="pointer">Address of the compiled pose-input list that selects the transition rules.</param>
+    /// <param name="held">Canonical buttons held during this update.</param>
+    /// <param name="newlyPressed">Canonical buttons newly pressed during this update.</param>
+    /// <returns>The matching target rule, or a result indicating that the list has conditions but none matched.</returns>
     internal static SamusPoseInputMatch Match(ushort pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),

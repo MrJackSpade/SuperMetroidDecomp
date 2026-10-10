@@ -26,6 +26,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
         }
     });
 
+    /// <summary>Owned visual replacements keyed by compiled frame pointer; null when all selected frames retain their stock words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete coverage of the forty-eight colored-door frames and copies visual differences while preserving compiled cap geometry and opening mechanics.</summary>

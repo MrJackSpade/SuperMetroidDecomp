@@ -12,6 +12,10 @@ internal static class EscapeAnimalPlmDrawDefinitions
     /// <summary>$84:9279, DrawInst_CrittersEscapeBlock_3: three $80FF blank solid words.</summary>
     internal const ushort Blank = 0x9279;
 
+    /// <summary>Compiles a rescue-wall frame pointer into its three-block vertical terrain draw.</summary>
+    /// <param name="pointer">Native draw-instruction address for one of the four wall break frames.</param>
+    /// <param name="draw">Receives the vertical run of three solid or blank terrain words when recognized; otherwise receives the default value.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> identifies a compiled rescue-wall frame.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         ushort word = pointer switch { Frame0 => 0x8053, Frame1 => 0x8054, Frame2 => 0x8055, Blank => 0x80ff, _ => 0 };

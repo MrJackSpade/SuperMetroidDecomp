@@ -15,6 +15,10 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// <summary>Native size of each timer/draw/delete list in bytes.</summary>
     internal const int ProgramByteLength = 6;
 
+    /// <summary>Resolves a word operand in the compiled Mother Brain fake-death room-mutation programs.</summary>
+    /// <param name="address">An even bank-$84 address within the bounded program range.</param>
+    /// <param name="value">The translated timer, draw, or delete word when found; zero on a miss.</param>
+    /// <returns><see langword="true"/> when the address belongs to one of these programs.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

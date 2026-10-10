@@ -12,6 +12,10 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8F38</c>, arcing flight facing right.</summary>
     internal const ushort ArcingRight = 0x8f38;
 
+    /// <summary>Decodes one word from the compiled straight-flight and arc instruction programs.</summary>
+    /// <param name="address">Native address within the four contiguous Yellow Pipe Bug program bodies.</param>
+    /// <returns>The mechanics word represented at that address, including timing values or control flow.</returns>
+    /// <exception cref="InvalidDataException">The address does not identify a compiled mechanics word.</exception>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlyingLeft;

@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class SamusState
 {
+    /// <summary>Backing state for the lazily created transition-owned pose-history words.</summary>
     private SamusPoseHistoryState? _poseHistory;
 
     /// <summary>

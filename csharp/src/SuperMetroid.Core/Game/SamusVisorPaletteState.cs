@@ -16,6 +16,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {
+    /// <summary>
+    /// Host-provided colors resolved by native table byte offset when the visor animation writes CGRAM.
+    /// </summary>
     [NonSerialized] private SamusVisorColorCatalog? presentationColors;
 
     /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>

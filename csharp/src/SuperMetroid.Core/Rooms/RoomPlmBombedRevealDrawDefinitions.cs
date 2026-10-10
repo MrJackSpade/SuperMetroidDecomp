@@ -10,6 +10,10 @@ internal static class RoomPlmBombedRevealDrawDefinitions
     /// <summary>DrawInst_SuperMissileBlockBombed at $84:A4ED; intact type-C parent $C09F.</summary>
     internal const ushort SuperMissile = 0xa4ed;
 
+    /// <summary>Resolves a compiled bombed-reveal pointer to the single intact parent tile used for its redraw.</summary>
+    /// <param name="pointer">Bank-$84 draw pointer for a supported crumble, Power Bomb, or Super Missile reveal.</param>
+    /// <param name="draw">The one-tile reveal draw list when found; otherwise the default draw list.</param>
+    /// <returns><see langword="true"/> when the pointer is one of the three compiled reveal layouts.</returns>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         if (pointer is PowerBomb or SuperMissile or CrumbleSingle)

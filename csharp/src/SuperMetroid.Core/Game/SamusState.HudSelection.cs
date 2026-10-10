@@ -81,6 +81,10 @@ public sealed partial class SamusState
         return new HudSelectionOutcome(changed, itemHandlerAccepted);
     }
 
+    /// <summary>Applies the cartridge's availability rule for each entry in the six-item HUD selection cycle.</summary>
+    /// <param name="index">HUD item index: zero for beams/nothing, then missiles, Super Missiles, Power Bombs, Grapple, or X-ray.</param>
+    /// <returns><see langword="true"/> when the item has ammunition or required equipment; index zero is always available.</returns>
+    /// <exception cref="InvalidDataException">The index is outside the six-entry selection table.</exception>
     private bool IsHudItemAvailable(ushort index) => index switch
     {
         0 => true,

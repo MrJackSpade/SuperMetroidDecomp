@@ -7,6 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>
+    /// Creates Ridley's twelve breakup fragments once and initializes them from his live body and tail poses.
+    /// </summary>
+    /// <param name="body">The intact enemy slot that anchors fragments to Ridley's body position.</param>
+    /// <param name="state">The death state that guards spawning and supplies the live tail-segment poses.</param>
     private void SpawnNorfairRidleyBreakupActors(
         RoomEnemySlot body,
         RidleyEnemyState state)

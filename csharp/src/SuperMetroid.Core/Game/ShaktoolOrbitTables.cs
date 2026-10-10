@@ -16,6 +16,10 @@ public static class ShaktoolOrbitTables
     // Twenty-four decimal Taylor terms through x^47/47! avoid platform libm.
     // The full-cycle remainder and decimal roundoff fit inside 1e-19 before scaling;
     // the one original-table proof checks both ends of that interval at every index.
+    /// <summary>Computes the pre-truncation decimal sine value represented by one Shaktool orbit-table word.</summary>
+    /// <param name="index">Zero-based table index from 0 through 319.</param>
+    /// <returns>The value of <c>3072 * sin(angle * 3.14159 / 128)</c>, with <c>angle = (index + 192) mod 256</c>.</returns>
+    /// <exception cref="IndexOutOfRangeException">The index is outside the 320-word table.</exception>
     internal static decimal UnquantizedSample(int index)
     {
         if ((uint)index >= 320) throw new IndexOutOfRangeException();

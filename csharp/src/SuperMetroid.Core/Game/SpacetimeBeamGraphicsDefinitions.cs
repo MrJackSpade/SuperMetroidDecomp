@@ -12,6 +12,9 @@ internal static class SpacetimeBeamGraphicsDefinitions
     /// <summary>$90:19FF: $90:C3E5's palette color used as a pointer by $90:ACCD, mirroring live WRAM.</summary>
     internal const ushort PalettePointer = 0x19ff;
 
+    /// <summary>Copies beam palette words from the bank-$90 indirect source into Samus's beam CGRAM slots.</summary>
+    /// <param name="bus">Address space used to read each color word from the selected source.</param>
+    /// <param name="cgram">CGRAM destination that receives the beam colors.</param>
     internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)

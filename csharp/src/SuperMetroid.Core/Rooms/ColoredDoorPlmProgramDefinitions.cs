@@ -33,6 +33,13 @@ internal static class ColoredDoorPlmProgramDefinitions
     /// <summary>$84:A9B3: left blue flash draw; orientation stride sixty bytes.</summary>
     private const ushort BlueFlashDraw = 0xa9b3;
 
+    /// <summary>
+    /// Reconstructs a little-endian mechanics word from the compiled yellow, green, and red
+    /// door streams, including words that overlap their packed bytecode.
+    /// </summary>
+    /// <param name="address">Bank-$84 address at which to read the word.</param>
+    /// <param name="value">Receives the reconstructed word, or zero when the address is rejected.</param>
+    /// <returns><see langword="true"/> when the address is in the compiled stream range and is not one of its three excluded end markers.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

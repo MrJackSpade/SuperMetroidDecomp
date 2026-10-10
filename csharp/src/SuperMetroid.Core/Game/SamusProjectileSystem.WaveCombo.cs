@@ -43,6 +43,10 @@ public sealed partial class SamusProjectileSystem
         return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.XVelocity < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
     }
 
+    /// <summary>Adjusts the Wave combo's signed 8.8 axis speed toward the target without exceeding the native speed limit.</summary>
+    /// <param name="speed">The current signed 8.8 velocity component.</param>
+    /// <param name="targetDelta">The signed displacement from the projectile to Samus on this axis.</param>
+    /// <returns>The velocity after applying the native per-frame acceleration when the limit permits.</returns>
     private static short AccelerateWaveAxis(short speed, short targetDelta)
     {
         if (targetDelta < 0)

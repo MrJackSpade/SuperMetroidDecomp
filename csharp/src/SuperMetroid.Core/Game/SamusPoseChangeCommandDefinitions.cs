@@ -63,6 +63,7 @@ public static class SamusPoseChangeCommandDefinitions
 }
 
 /// <summary>The prospective pose and command chosen by <c>HandleTransitionTableLookupFailure</c>.</summary>
+/// <param name="ProspectivePose">Resolved pose ID, which may be the current pose when command handling or the <c>$FF</c> fallback retains it.</param>
 public readonly record struct SamusLookupFailurePose(byte ProspectivePose)
 {
     /// <summary>

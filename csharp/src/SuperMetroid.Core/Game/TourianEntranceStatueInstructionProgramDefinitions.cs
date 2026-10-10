@@ -13,6 +13,7 @@ internal abstract class TourianEntranceStatueInstructionProgramDefinitions
     /// <summary><c>InstList_TourianStatue_BaseDecoration_0</c> at $AA:D7B9.</summary>
     internal const ushort BaseDecoration = 0xd7b9;
 
+    /// <summary>Number of compiled stop-script mechanics words, one for each entrance-statue list.</summary>
     public static int MechanicsWordCount => 3;
 
     /// <summary>

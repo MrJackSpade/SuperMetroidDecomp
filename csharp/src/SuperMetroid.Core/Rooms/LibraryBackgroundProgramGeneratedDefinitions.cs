@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 
 public static partial class LibraryBackgroundProgramDefinitions
 {
+    /// <summary>Stores compiled command lists in native-pointer order for retail background selection.</summary>
     private static readonly LibraryBackgroundProgram[] programs =
     [
         new(0xB76A, [

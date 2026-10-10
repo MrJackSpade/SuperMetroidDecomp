@@ -27,6 +27,10 @@ internal static class BlueDoorPlmProgramDefinitions
     /// <summary>$84:A9B3: first closed blue cap; orientation groups span five twelve-byte draws.</summary>
     private const ushort ClosedDrawLeft = 0xa9b3;
 
+    /// <summary>Reads a little-endian word view from the compiled blue-door PLM bytes, including overlapping instruction operands.</summary>
+    /// <param name="address">Bank-$84 address of the word's first byte.</param>
+    /// <param name="value">The combined word when the address belongs to the compiled program; otherwise zero.</param>
+    /// <returns><see langword="true"/> when the address is in the compiled word-start range.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

@@ -52,6 +52,10 @@ internal static class MetroidsClearedPlmRomData
         return wordIndex < 9 ? null : (EventNumber)((int)EventNumber.FirstMetroidHallCleared + wordIndex - 9);
     }
 
+    /// <summary>Validates a PLM byte offset and converts it to its index in the thirteen-word table.</summary>
+    /// <param name="roomArgument">Even byte offset selecting a word in <c>$84:DB28-$DB40</c>.</param>
+    /// <returns>The zero-based index of the selected table word.</returns>
+    /// <exception cref="InvalidDataException">The offset is odd or lies beyond the table.</exception>
     private static int ValidateAndGetWordIndex(ushort roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument / 2 >= 13)

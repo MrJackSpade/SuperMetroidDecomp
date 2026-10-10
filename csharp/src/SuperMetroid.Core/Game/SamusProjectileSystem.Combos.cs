@@ -70,6 +70,11 @@ public sealed partial class SamusProjectileSystem
         return activated;
     }
 
+    /// <summary>Loads a combo slot's compiled damage and instruction list from the matching native projectile-data table.</summary>
+    /// <param name="bus">Address space used to resolve ordinary projectile radii.</param>
+    /// <param name="slot">Projectile slot whose damage, instruction pointer, and timer are initialized.</param>
+    /// <param name="ordinary">Whether to use the charged ordinary-beam data table and derive its collision radii.</param>
+    /// <param name="echo">Whether this slot uses the echo-projectile table and type-based index.</param>
     private static void InitializeComboData(ISnesAddressSpace bus, SamusProjectileSlot slot, bool ordinary, bool echo)
     {
         int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :

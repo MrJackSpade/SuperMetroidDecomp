@@ -24,6 +24,10 @@ internal static class GreyDoorPlmProgramDefinitions
     /// <summary>$84:BD0F: follow the installed link when shot.</summary>
     private const ushort FollowLinkWhenShot = 0xbd0f;
 
+    /// <summary>Reads a little-endian word from the bounded native grey-door mechanics stream.</summary>
+    /// <param name="address">Address of the word's low byte within the compiled stream.</param>
+    /// <param name="value">Receives the word, or zero when the address is outside the readable range.</param>
+    /// <returns><see langword="true"/> when a word can be read; the final accepted word may include the stream's terminal byte.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

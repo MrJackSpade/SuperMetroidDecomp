@@ -59,6 +59,10 @@ public sealed partial class SamusProjectileSystem
         return persistentMemoryCorrupted;
     }
 
+    /// <summary>Reads one source byte through the memory provider selected by its SNES address region.</summary>
+    /// <param name="bus">Address-space implementation supplying mutable memory or peripheral reads.</param>
+    /// <param name="address">Translated 24-bit source address used by the SpaceTime palette copy.</param>
+    /// <returns>The byte stored at the classified source address.</returns>
     private static byte ReadSpacetimeSourceByte(ISnesAddressSpace bus, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

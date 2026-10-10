@@ -39,6 +39,10 @@ internal static class SkreeMetareeAnimationDefinitions
         _ => throw InvalidPhase(phase, "Skree"),
     };
 
+    /// <summary>Creates the data error raised when an enemy animation phase is outside the compiled selector table.</summary>
+    /// <param name="phase">Unrecognized phase value supplied to the selector.</param>
+    /// <param name="enemyName">Enemy name used to identify the affected animation table in the error.</param>
+    /// <returns>An exception describing the invalid phase value and enemy table.</returns>
     private static InvalidDataException InvalidPhase(SkreeMetareeAnimationPhase phase, string enemyName) =>
         new($"{enemyName} animation phase ${(int)phase:X4} exceeds its four-entry table.");
 }

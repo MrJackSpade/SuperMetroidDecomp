@@ -24,6 +24,7 @@ internal static class SamusDeathExplosionTimingDefinitions
     /// <summary>Number of authored suit-explosion timing records.</summary>
     public const ushort RecordCount = 9;
 
+    /// <summary>Provides the nine fixed countdown bytes that set the suit-explosion drawing cadence and final delay.</summary>
     private static ReadOnlySpan<byte> Durations =>
         [0x15, 0x06, 0x03, 0x04, 0x05, 0x05, 0x06, 0x06, 0x50];
 

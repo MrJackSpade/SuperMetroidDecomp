@@ -55,6 +55,9 @@ internal static class SamusVerticalMotionDefinitions
         _ => throw new IndexOutOfRangeException(),
     });
 
+    /// <summary>Converts an 8.8 fixed-point launch magnitude into the whole and fractional words used by Samus's vertical-velocity state.</summary>
+    /// <param name="speed">The launch magnitude encoded with its integer component in the high byte and fraction in the low byte.</param>
+    /// <returns>The high byte as the whole speed and the low byte shifted into the fractional word.</returns>
     private static (ushort Whole, ushort Fraction) SplitSpeed(int speed) =>
         ((ushort)(speed >> 8), (ushort)((speed & 0xff) << 8));
 }

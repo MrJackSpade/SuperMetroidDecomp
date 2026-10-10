@@ -16,6 +16,10 @@ internal static class SmallExplosionAnimationDefinitions
     /// <summary>$86:E14C/ED7F, Common_SmallExplosion_5/EnemyDeathExplosion_5: tile group $96 holds the final fading pose before termination.</summary>
     private const ushort FinalFadeDuration = 6;
 
+    /// <summary>Returns the authored update hold for one of the six shared small-explosion poses.</summary>
+    /// <param name="frame">Zero-based pose index from ignition (0) through the final fade (5).</param>
+    /// <returns>The pose hold in updates: 4 for ignition, 6 for initial expansion, 5 for each burst pose, or 6 for the final fade.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the six-pose sequence.</exception>
     internal static ushort Duration(int frame) => frame switch
     {
         0 => IgnitionDuration,

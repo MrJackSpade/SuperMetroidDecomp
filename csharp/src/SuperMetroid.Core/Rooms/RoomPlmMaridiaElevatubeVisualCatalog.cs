@@ -17,6 +17,7 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmMaridiaElevatubeVisualCatalog),
         content => content.Append("visual word", visualWord));
 
+    /// <summary>Validated metatile/flip word selected for the elevatube's only visual cell.</summary>
     private readonly ushort visualWord;
 
     /// <summary>Validates and selects the elevatube's single visual block without changing its physical word, sixteen-update hold, sound, or deletion.</summary>

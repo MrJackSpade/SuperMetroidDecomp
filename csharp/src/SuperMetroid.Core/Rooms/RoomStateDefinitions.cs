@@ -26,6 +26,9 @@ public static class RoomStateDefinitions
         throw new ArgumentOutOfRangeException(nameof(statePointer), statePointer,
             "Pointer is not one of the 323 selected retail room states.");
 
+    /// <summary>Looks up one address in the closed table of selected retail room states.</summary>
+    /// <param name="statePointer">Native 16-bit room-state pointer to resolve.</param>
+    /// <returns>The compiled settings for a selected state, or <see langword="null"/> for an unlisted address.</returns>
     private static CartridgeRoomState? Select(ushort statePointer) => statePointer switch
     {
         0x9213 =>

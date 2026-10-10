@@ -35,6 +35,15 @@ public static class XrayRevealOverlays
             Write(level, tilemap, tile.Word, tile.X, tile.Y, layer1X, layer1Y);
     }
 
+    /// <summary>Draws one room overlay metatile into the visible X-ray tilemap, preserving the native vertical-flip row swap.</summary>
+    /// <param name="level">Room block definitions used to expand the metatile into four tile words.</param>
+    /// <param name="tilemap">The two-screen native tilemap buffer to update.</param>
+    /// <param name="word">The visual metatile index and flip bits to draw.</param>
+    /// <param name="x">The overlay's horizontal room coordinate in metatiles.</param>
+    /// <param name="y">The overlay's vertical room coordinate in metatiles.</param>
+    /// <param name="layer1X">Horizontal layer scroll in pixels, used to position the overlay on screen.</param>
+    /// <param name="layer1Y">Vertical layer scroll in pixels, used to position the overlay on screen.</param>
+    /// <exception cref="InvalidDataException">The selected metatile extends beyond the room's block definitions.</exception>
     private static void Write(RoomLevelData level, Span<ushort> tilemap, ushort word, int x, int y,
         ushort layer1X, ushort layer1Y)
     {

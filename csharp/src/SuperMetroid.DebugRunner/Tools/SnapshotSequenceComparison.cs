@@ -36,6 +36,8 @@ internal static class SnapshotSequenceComparison
         }
     }
 
+    /// <summary>Verifies lexically ordered snapshot captures against software output on a persistent renderer for each D3D11 device kind.</summary>
+    /// <param name="directory">Directory containing the zero-padded <c>frame-*.smframe</c> capture sequence.</param>
     public static void Run(string directory)
     {
         // Lexically ordered, zero-padded capture names preserve the original frame

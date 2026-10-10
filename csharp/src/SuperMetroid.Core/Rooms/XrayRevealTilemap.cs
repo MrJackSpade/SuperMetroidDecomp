@@ -98,6 +98,10 @@ public static class XrayRevealTilemap
         }
     }
 
+    /// <summary>Maps a visible metatile coordinate to its top-left word in the two-screen tilemap buffer.</summary>
+    /// <param name="column">Visible metatile column; the final column begins on the second screen page.</param>
+    /// <param name="row">Visible metatile row in the projected tilemap.</param>
+    /// <returns>Word offset of the metatile's top-left tile within the buffer.</returns>
     private static int Destination(int column, int row) => row * XrayTilemapLayout.MetatileRowStride +
         (column == XrayTilemapLayout.MetatileColumns - 1 ? XrayTilemapLayout.ScreenWords : column * 2);
 }

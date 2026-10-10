@@ -5,6 +5,9 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
+    /// <summary>Confirms debugger-state loading and restart wait for an in-flight presentation before replacing game state.</summary>
+    /// <param name="control">Desktop game control whose render worker and load path are exercised.</param>
+    /// <param name="restart"><see langword="true"/> to exercise restart; otherwise exercises debugger-state loading.</param>
     private static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
     {
         var worker = Field<D3D11RenderWorker>(control, "gpuWorker");

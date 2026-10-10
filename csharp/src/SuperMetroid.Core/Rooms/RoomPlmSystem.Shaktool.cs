@@ -26,6 +26,13 @@ public sealed partial class RoomPlmSystem
         return false;
     }
 
+    /// <summary>
+    /// Applies Shaktool-room scroll updates and, after Samus crosses the cleared-path boundary, records the event and removes the controller PLM.
+    /// </summary>
+    /// <param name="slot">The PLM slot whose Shaktool pre-instruction is being dispatched.</param>
+    /// <param name="scrolls">Room scroll storage used to restore blue scroll settings while a power-bomb explosion is active.</param>
+    /// <param name="powerBombExplosionStatus">The complete native explosion status word; any nonzero value triggers the scroll update.</param>
+    /// <exception cref="InvalidOperationException">The matching controller has no scroll grid, Samus state, or event callback.</exception>
     private void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
         ushort powerBombExplosionStatus)
     {

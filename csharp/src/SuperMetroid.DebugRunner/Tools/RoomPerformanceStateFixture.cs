@@ -10,6 +10,10 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
 internal static class RoomPerformanceStateFixture
 {
+    /// <summary>Loads a representative retail room, measures its gameplay/render/audio frame costs, and exports a save plus screenshot.</summary>
+    /// <param name="scene">Fixture selection: <c>save</c>, <c>map</c>, or <c>surface</c>.</param>
+    /// <param name="destination">New directory that receives the exported fixture artifacts.</param>
+    /// <returns>Zero after the fixture is exported and its measurements are written.</returns>
     public static int Export(string scene, string destination)
     {
         if (scene is not ("save" or "map" or "surface"))

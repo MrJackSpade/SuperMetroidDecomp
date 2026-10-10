@@ -9,6 +9,14 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class PlaybackFrameBatch
 {
+    /// <summary>Advances a bounded batch, polling input separately at each emulated frame boundary.</summary>
+    /// <param name="requestedFrames">The maximum number of frames to attempt.</param>
+    /// <param name="readInput">Reads the controller word for the next frame.</param>
+    /// <param name="advanceFrame">Advances one frame with its sampled input, or returns null to stop the batch.</param>
+    /// <param name="canAdvance">Optional check performed before each frame; returning false stops the batch.</param>
+    /// <returns>The number of completed frames and the last completed frame, or null when none completed.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="requestedFrames"/> is negative.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="readInput"/> or <paramref name="advanceFrame"/> is null.</exception>
     internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
         int requestedFrames,
         Func<ushort> readInput,

@@ -32,6 +32,7 @@ public sealed class RoomPlmShotBlockVisualCatalog
         }
     });
 
+    /// <summary>Deep-copied visual runs keyed by draw-list pointer; null means all selected words match stock.</summary>
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
     /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists, deep-copying edited runs while retaining calculated stock visuals where supplied words match; native collision words and run placement are never replaced.</summary>

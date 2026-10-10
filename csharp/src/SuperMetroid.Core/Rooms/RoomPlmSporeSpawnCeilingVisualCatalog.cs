@@ -28,6 +28,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
         }
     });
 
+    /// <summary>Copied per-frame visual-word overrides; null when every frame matches its compiled appearance.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates complete coverage of the clear and three crumble frames, capturing edited ceiling appearance without changing compiled geometry or collision.</summary>

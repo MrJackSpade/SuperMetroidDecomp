@@ -31,6 +31,7 @@ public sealed class RoomPlmDownwardGateVisualCatalog
         }
     });
 
+    /// <summary>Sparse copied visual-run overrides; null when every selected layout matches compiled visual words.</summary>
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
     /// <summary>Validates complete downward-gate and shot-trigger coverage and copies visual differences without changing collision, shot filtering, or animation mechanics.</summary>

@@ -32,6 +32,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         }
     });
 
+    /// <summary>Copied visual-word overrides for changed draws, keyed by native draw pointer; draws without overrides use compiled words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all twenty-two fake-death room layouts and copies visual differences while retaining collision words, signed draw offsets, and PLM timing.</summary>

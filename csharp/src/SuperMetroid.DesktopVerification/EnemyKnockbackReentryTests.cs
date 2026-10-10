@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies enemy touch damage updates health and timers without replacing active knockback state.</summary>
     private static void VerifyEnemyKnockbackReentry()
     {
         var loaded = DebuggerFixtureLoader.Load("draygon-body-position", 0);

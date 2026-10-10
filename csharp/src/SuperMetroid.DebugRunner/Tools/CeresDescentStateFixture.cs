@@ -6,6 +6,11 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
 internal static class CeresDescentStateFixture
 {
+    /// <summary>Runs the Ceres-to-Zebes cinematic from a seeded post-escape state and exports a private session fixture at the approach phase.</summary>
+    /// <param name="destination">New directory in which the fixture's save and session data are created.</param>
+    /// <returns>Zero after the cinematic reaches the approach phase and the seed is reported.</returns>
+    /// <exception cref="IOException">The destination directory already exists.</exception>
+    /// <exception cref="InvalidDataException">The cinematic does not reach the approach phase within the simulated frames.</exception>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);

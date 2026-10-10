@@ -26,6 +26,7 @@ public sealed class RoomPlmEscapeGateVisualCatalog
         }
     });
 
+    /// <summary>Stores copied visual rows that differ from compiled gate frames; null means every frame uses its stock appearance.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all three escape-gate frames and copies visual differences without replacing physical level words, animation timing, or door handoff.</summary>

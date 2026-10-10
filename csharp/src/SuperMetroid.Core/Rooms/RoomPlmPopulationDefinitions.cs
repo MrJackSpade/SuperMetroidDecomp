@@ -11,6 +11,11 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmPopulationDefinitions
 {
 
+    /// <summary>Dispatches a compiled room population to its ordered setup operations.</summary>
+    /// <param name="pointer">Bank-$8F identity of the retail population list to expand.</param>
+    /// <param name="place">Receives each operation's header, room-block coordinates, and setup argument in native order.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="place"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidDataException">The pointer does not identify a compiled retail population.</exception>
     internal static void Place(ushort pointer, Action<ushort, byte, byte, ushort> place)
     {
         ArgumentNullException.ThrowIfNull(place);

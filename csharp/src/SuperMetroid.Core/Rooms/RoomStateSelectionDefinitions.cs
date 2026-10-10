@@ -30,6 +30,11 @@ public static class RoomStateSelectionDefinitions
         return variants.AsReadOnly();
     }
 
+    /// <summary>Applies a room's ordered state branches, selecting the first match or collecting every target.</summary>
+    /// <param name="roomPointer">Pointer identifying the compiled room header and its state-selection program.</param>
+    /// <param name="selection">Event, boss, and equipment facts evaluated by conditional branches.</param>
+    /// <param name="variants">Optional collector populated with branch targets in native order, including the default.</param>
+    /// <returns>The first satisfied target, or the default target when no branch matches.</returns>
     private static ushort Resolve(ushort roomPointer, RoomStateSelectionContext selection, List<ushort>? variants)
     {
         ushort target = 0;

@@ -7,6 +7,15 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Reaches a measured autonomous host frame without changing the demo sequence.</summary>
 internal static class AutonomousPerformanceStateFixture
 {
+    /// <summary>
+    /// Advances an Android session with neutral input through the requested frame, then
+    /// exports that frame's render and save-slot artifacts for autonomous performance work.
+    /// </summary>
+    /// <param name="targetFrame">One-based autonomous frame to capture, from 1 through 100000.</param>
+    /// <param name="destination">Path to a directory that does not already exist for the exported artifacts.</param>
+    /// <returns>Zero after the frame and save-slot artifacts have been written.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetFrame"/> is outside the supported range.</exception>
+    /// <exception cref="IOException"><paramref name="destination"/> already names an existing directory.</exception>
     public static int Export(int targetFrame, string destination)
     {
         if (targetFrame is < 1 or > 100000)

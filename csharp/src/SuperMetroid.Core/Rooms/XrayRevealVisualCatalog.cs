@@ -60,6 +60,10 @@ public sealed class XrayOverlayVisualCatalog
     {
     }
 
+    /// <summary>Copies the selected overlay data and optionally requires complete installed-source coverage.</summary>
+    /// <param name="itemMetatiles">The eight visual metatiles in native item-slot order.</param>
+    /// <param name="rooms">Room overlay lists keyed by their special-X-ray source pointers.</param>
+    /// <param name="requireCompleteInstallation">Whether every compiled room-overlay source must be supplied.</param>
     private XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)

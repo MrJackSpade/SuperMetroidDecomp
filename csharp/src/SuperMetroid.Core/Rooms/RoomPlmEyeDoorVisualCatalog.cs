@@ -27,6 +27,7 @@ public sealed class RoomPlmEyeDoorVisualCatalog
         }
     });
 
+    /// <summary>Copied visual-word overrides keyed by source draw pointer; unchanged frames use compiled stock words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all twenty-three editable eye-door frames and copies visual differences without changing collision, attacks, hit counters, timing, or persistence.</summary>

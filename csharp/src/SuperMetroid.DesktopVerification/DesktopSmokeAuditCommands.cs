@@ -3,6 +3,9 @@ using SuperMetroid.Desktop;
 /// <summary>Developer-only smoke commands formerly hosted by the player executable.</summary>
 internal static class DesktopSmokeAuditCommands
 {
+    /// <summary>Dispatches a recognized developer smoke-audit command without running the verification program's default audit path.</summary>
+    /// <param name="args">Command-line arguments to match against the supported desktop smoke commands.</param>
+    /// <returns><see langword="true"/> when a command was recognized and run; otherwise <see langword="false"/> so the caller can continue its normal dispatch.</returns>
     public static bool TryRun(string[] args)
     {
         if (args is ["--session-log-audit", var loggedGameAssembly])

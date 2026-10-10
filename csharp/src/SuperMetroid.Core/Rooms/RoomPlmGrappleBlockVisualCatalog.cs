@@ -26,6 +26,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
         }
     });
 
+    /// <summary>Authored visual-word overrides keyed by draw-list pointer; null when every frame uses its compiled appearance.</summary>
     private readonly Dictionary<ushort, ushort>? customWords;
 
     /// <summary>Validates all five compiled one-block frames and retains authored visual differences without changing Grapple collision, breakup timing, or draw shape.</summary>

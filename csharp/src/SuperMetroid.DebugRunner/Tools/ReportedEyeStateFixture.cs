@@ -8,6 +8,11 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Portable #51 seed for the reported Blue Brinstar eye, isolated from player saves.</summary>
 internal static class ReportedEyeStateFixture
 {
+    /// <summary>Creates an isolated Blue Brinstar eye save after advancing the reported room state until its beam is fully published.</summary>
+    /// <param name="destination">Path for the new fixture directory; it must not already exist.</param>
+    /// <returns>Zero after the fixture and save slot have been written.</returns>
+    /// <exception cref="IOException">The destination directory already exists.</exception>
+    /// <exception cref="InvalidDataException">The eye beam does not reach its fully published phase during fixture setup.</exception>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);

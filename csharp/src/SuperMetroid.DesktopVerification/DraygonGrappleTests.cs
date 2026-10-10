@@ -3,6 +3,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that Samus can fire, extend, attach, and cancel the grapple while Draygon holds her without displacing the held body.</summary>
     private static void VerifyDraygonGrapple()
     {
         var loaded = DebuggerFixtureLoader.Load("draygon-body-position", 0);

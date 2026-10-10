@@ -87,6 +87,11 @@ internal static partial class Program
         throw new InvalidDataException("Player-room sequence never reached a completed grapple wall jump.");
     }
 
+    /// <summary>Compares both uploaded wall-grab tile regions byte-for-byte with the pinned retail DMA source.</summary>
+    /// <param name="bus">Address space paired with the fixture; retail reference bytes are loaded separately.</param>
+    /// <param name="vram">VRAM containing the wall-grab graphics uploaded during the grapple sequence.</param>
+    /// <param name="definition">Native transfer-definition address for the selected wall-grab graphics set.</param>
+    /// <param name="destinations">The two VRAM destinations whose uploaded bytes are checked.</param>
     private static void VerifyGrappleWallGrabDma(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus,
         SuperMetroid.Core.Hardware.SnesVram vram, int definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)

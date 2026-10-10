@@ -6,6 +6,8 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that closing during a gate-blocked load or restart shuts down cleanly without a late game replacement.</summary>
+    /// <param name="restart"><see langword="true"/> to hold a restart operation, or <see langword="false"/> to hold a debugger-state load.</param>
     private static async Task VerifyCloseDuringLoad(bool restart)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "desktop-renderer", Guid.NewGuid().ToString("N")));

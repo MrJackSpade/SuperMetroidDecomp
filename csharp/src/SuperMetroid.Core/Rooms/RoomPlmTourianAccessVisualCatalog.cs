@@ -29,6 +29,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
         }
     });
 
+    /// <summary>Copied visual overrides keyed by draw pointer; null means every layout uses its compiled stock words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all five Tourian access-floor layouts and captures their selected appearance independently of compiled physical words and row offsets.</summary>

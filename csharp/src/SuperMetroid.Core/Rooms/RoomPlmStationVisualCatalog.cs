@@ -31,6 +31,7 @@ public sealed class RoomPlmStationVisualCatalog
         }
     });
 
+    /// <summary>Deep-copied visual run overrides for changed frames, keyed by draw-list pointer; unchanged frames use compiled visual bits.</summary>
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
     /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining native run geometry, collision, activation, and reward behavior.</summary>

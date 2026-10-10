@@ -31,6 +31,7 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
         }
     });
 
+    /// <summary>Visual-word overrides keyed by native draw-frame pointer, with each array flattened in run order.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete reachable cannon-frame coverage and copies visual differences without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>

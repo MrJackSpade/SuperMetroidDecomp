@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the 35 Kraid foot roots selected by the native instruction stream against catalog identity, two-component records, ordering, materialization, and bounds.</summary>
+    /// <param name="rom">Cartridge address space used to read native instruction operands and frame records.</param>
     private static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();

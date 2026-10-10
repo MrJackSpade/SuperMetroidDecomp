@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Kraid growth resumes at the native command cursor, preserves its delay and displayed frame, and resolves offset-two words without program reads.</summary>
     private static void VerifyKraidGrowthCommandCursor()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

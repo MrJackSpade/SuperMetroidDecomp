@@ -9,6 +9,7 @@ internal static partial class Program
     // base speed and branches past MoveSamus_Horizontally ($90:902B), so no post-move slope
     // alignment runs. Calling the mover with zero aligned Samus to a slope under her: in the
     // 100% movie's Red Fish room she dropped two pixels the frame after a ceiling hit.
+    /// <summary>Verifies that a jump update with no horizontal movement preserves Samus's position instead of applying horizontal-mover slope alignment.</summary>
     private static void VerifyJumpNoXMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

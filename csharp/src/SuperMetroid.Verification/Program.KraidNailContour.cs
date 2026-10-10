@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares Kraid nail reflection against the native contour-table walk across every
+    /// 16-bit body position, including edge and signed-velocity boundary cases.
+    /// </summary>
+    /// <param name="rom">Retail address space containing Kraid's contour records.</param>
     private static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);

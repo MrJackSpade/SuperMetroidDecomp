@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all Draygon cannon frames against native draw runs, including stock identity, word/run bounds, unknown pointers, and custom-visual isolation.</summary>
+    /// <param name="rom">Retail address space containing the cannon draw lists.</param>
+    /// <param name="installed">Installed cannon-visual catalog whose stock mapping is compared with the imported and built-in catalogs.</param>
     private static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDraygonCannonVisualCatalog installed)
     {

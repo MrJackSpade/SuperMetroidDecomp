@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Extracts and validates the stock Kraid artwork catalog, then runs the installed-content checks for backgrounds, controls, head frames, and required assets.</summary>
     private static void VerifyKraidInstalledPresentation()
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());

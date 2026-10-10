@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies collectible stock visual words, catalog identity, pointer coverage, and rejection of malformed or incomplete imports.</summary>
     private static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCollectibleVisualCatalog installed)
     {

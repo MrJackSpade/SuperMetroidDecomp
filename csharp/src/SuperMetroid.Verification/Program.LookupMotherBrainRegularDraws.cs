@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the eight regular Mother Brain draw layouts against bank-$84, including pointer ownership, all 63 cells, and native run continuations.</summary>
+    /// <param name="rom">Cartridge address space containing the native Mother Brain draw lists.</param>
     private static void VerifyMotherBrainRegularDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];

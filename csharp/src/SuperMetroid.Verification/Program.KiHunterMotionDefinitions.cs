@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the native Ki Hunter motion constants and exhaustively verifies wrapped detached-wing orbit positions and fixed-point gravity carry behavior.</summary>
+    /// <param name="rom">ROM-backed address space containing the native motion constants.</param>
     private static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

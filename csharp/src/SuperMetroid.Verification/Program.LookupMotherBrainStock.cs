@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all 22 Mother Brain fake-death frames against native ROM words, catalog identity and bounds, custom overrides, and invalid-data rejection.</summary>
     private static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {

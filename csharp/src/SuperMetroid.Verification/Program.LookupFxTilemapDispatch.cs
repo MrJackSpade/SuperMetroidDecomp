@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies named FX tilemap pages dispatch independently, preserve reviewed native fields, and reject unsupported types or malformed page keys.</summary>
     private static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var native = new Dictionary<RoomFxType, byte[]>();

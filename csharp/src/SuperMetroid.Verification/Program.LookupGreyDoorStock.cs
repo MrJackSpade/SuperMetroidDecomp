@@ -3,6 +3,12 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies stock and installed grey-door visual catalogs against the native four-row
+    /// frames, including lookup bounds, content identity, and catalog validation.
+    /// </summary>
+    /// <param name="rom">ROM address space supplying the native grey-door PLM frame data.</param>
+    /// <param name="installed">Catalog loaded from the current installation for comparison with stock data.</param>
     private static void VerifyGreyDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmGreyDoorVisualCatalog installed)
     {

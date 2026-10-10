@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the ROM's six quake-suppression room branches with the catalog and verifies room initialization controls sound emission and sentinel reset.</summary>
     private static void VerifyQuakeSoundSuppression(SuperMetroidAddressSpace rom)
     {
         var nativeRooms = new HashSet<ushort>();

@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the intact and cleared Bomb Torizo hand catalogs against native draw runs, including identity, custom-word isolation, validation, and lookup bounds.</summary>
+    /// <param name="rom">Retail address space containing the two hand draw lists.</param>
+    /// <param name="installed">Installed hand-visual catalog whose stock mapping is compared with the imported and built-in catalogs.</param>
     private static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBombTorizoHandVisualCatalog installed)
     {

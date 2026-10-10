@@ -3,6 +3,12 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that Crocomire's native PLM draw records map to the same visual words and
+    /// content identity in stock, reordered, and installed catalogs, including bounds and validation.
+    /// </summary>
+    /// <param name="rom">Retail address space containing Crocomire's native PLM draw records.</param>
+    /// <param name="installed">Visual catalog extracted from the game installation under verification.</param>
     private static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {

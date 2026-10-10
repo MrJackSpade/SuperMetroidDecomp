@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies artwork source mappings for every retail simple-animation frame and rejects non-frame cursors, null descriptors, and unknown objects.</summary>
+    /// <param name="rom">Retail address space supplying the original animation lists and artwork source operands.</param>
     private static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
     {
         int total = 0;

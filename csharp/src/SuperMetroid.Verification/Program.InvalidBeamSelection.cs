@@ -7,6 +7,7 @@ using System.Buffers.Binary;
 
 internal static partial class Program
 {
+    /// <summary>Checks Boots-to-Beams input ordering and the native Plasma label footprint for simultaneous, adjacent, and direction-only presses.</summary>
     private static void VerifyInvalidBeamSelection()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

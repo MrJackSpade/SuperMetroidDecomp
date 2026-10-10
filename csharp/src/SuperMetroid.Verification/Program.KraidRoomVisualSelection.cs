@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks Kraid's ten PLM visual roles, their block mappings and stable identity, and rejection of malformed or out-of-range selections.</summary>
     private static void VerifyKraidRoomVisualSelection()
     {
         // Independent published pointer/ID/shape contract, not production enumeration.

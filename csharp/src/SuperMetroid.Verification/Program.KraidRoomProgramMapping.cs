@@ -3,6 +3,15 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that Kraid room program definitions match the native bank-$84 lists,
+    /// including their exact word and byte read domains.
+    /// </summary>
+    /// <remarks>
+    /// Checks all 55 instruction words and confirms that the timer remains a separate
+    /// byte at $84:ABAB rather than part of a word list.
+    /// </remarks>
+    /// <param name="rom">ROM address space used to read the native Kraid room program data.</param>
     private static void VerifyKraidRoomProgramMapping(SuperMetroidAddressSpace rom)
     {
         // Independent native lists. The byte timer shifts the loop onto even addresses;

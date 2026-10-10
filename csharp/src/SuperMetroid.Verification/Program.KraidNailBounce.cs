@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Exhaustively checks the live Kraid nail flight routine's contour and wall reflections for every fractional velocity, including independent word negation and subpixel alignment.</summary>
+    /// <param name="rom">Cartridge address space used by the actual nail-flight routine for contour collision data.</param>
     private static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
     {
         var words = new ushort[32 * 32];

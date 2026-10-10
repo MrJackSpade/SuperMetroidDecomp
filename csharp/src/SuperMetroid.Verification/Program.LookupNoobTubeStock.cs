@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that Noob Tube stock frames match the native draw lists across stock, imported, and installed catalogs, including their identities, bounds checks, validation rules, and custom-frame isolation.</summary>
+    /// <param name="rom">Retail address space containing the native Noob Tube draw lists.</param>
+    /// <param name="installed">Installed visual catalog whose stock mappings are checked against the native and imported frame data.</param>
     private static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmNoobTubeVisualCatalog installed)
     {

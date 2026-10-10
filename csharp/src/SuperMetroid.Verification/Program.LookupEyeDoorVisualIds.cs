@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Preserves the eye-door editable pointer/visual-ID mapping, its ordinal reverse lookup rules, rejected identities, and the mirrored-source alias across the pointer domain.</summary>
     private static void VerifyEyeDoorVisualIds()
     {
         // Original 23-entry public override identity contract, before the naming conversion.

@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock, imported, and installed Elevatube artwork against its native visual word and verifies catalog identity, copying, and validation.</summary>
+    /// <param name="rom">Address space containing the native Elevatube PLM visual word.</param>
+    /// <param name="installed">Catalog installed by the runtime for comparison with stock and imported artwork.</param>
     private static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMaridiaElevatubeVisualCatalog installed)
     {

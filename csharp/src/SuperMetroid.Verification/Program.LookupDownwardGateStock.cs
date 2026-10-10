@@ -3,6 +3,12 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies stock and installed downward-gate visual catalogs against the native bank-$84
+    /// frames, including run and word lookup bounds and catalog validation.
+    /// </summary>
+    /// <param name="rom">ROM address space supplying the native downward-gate PLM frame data.</param>
+    /// <param name="installed">Catalog loaded from the current installation for comparison with stock data.</param>
     private static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDownwardGateVisualCatalog installed)
     {

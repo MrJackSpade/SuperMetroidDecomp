@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks canonical blue-door frames and physical aliases against retail data across stock, imported, and installed catalogs, including custom-data isolation and validation failures.</summary>
+    /// <param name="rom">Retail address space containing the blue-door PLM frame words.</param>
+    /// <param name="installed">Catalog loaded from the installed blue-door visual assets.</param>
     private static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBlueDoorVisualCatalog installed)
     {

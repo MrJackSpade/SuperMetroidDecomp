@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks production Kraid head, nail, lint, and body collision outcomes, aggregating failed impact and contact assertions.</summary>
     private static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {

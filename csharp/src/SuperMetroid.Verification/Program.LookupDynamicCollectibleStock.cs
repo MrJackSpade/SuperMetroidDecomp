@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies dynamic collectible stock artwork against cartridge graphics and palettes, including catalog identity and invalid import handling.</summary>
     private static void VerifyDynamicCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDynamicCollectibleArtCatalog installed)
     {

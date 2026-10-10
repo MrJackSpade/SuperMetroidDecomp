@@ -3,6 +3,12 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Mother Brain glass animation words and content identity against native PLM
+    /// runs, then checks lookup bounds, catalog isolation, and rejection of malformed visuals.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the native glass PLM draw records.</param>
+    /// <param name="installed">Glass visual catalog loaded from the game installation.</param>
     private static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {

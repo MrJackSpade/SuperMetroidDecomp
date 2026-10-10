@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Kraid head command map against an independently decoded native stream and verifies exact-address lookup and bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the native Kraid head instruction stream and growth-selection words.</param>
     private static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa70000 | pointer)

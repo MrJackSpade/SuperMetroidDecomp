@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the supported collectible kinds and verifies every exported tile palette offset against all three native dynamic-upload programs.</summary>
+    /// <param name="rom">Retail address space containing the collectible instruction headers and palette operands.</param>
     private static void VerifyDynamicCollectiblePaletteSelectors(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();

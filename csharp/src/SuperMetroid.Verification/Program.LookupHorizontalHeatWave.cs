@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks the cartridge's signed horizontal heat-wave displacements and the rendered BG2 scanline scrolls across wave and camera phases.</summary>
+    /// <param name="rom">Address space containing the native lava and acid horizontal-wave displacement table.</param>
     private static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that solid-enemy clipping during knockback clears horizontal momentum in both directions and that the next clear frame uses the native reset displacement.</summary>
     private static void VerifyKnockbackHorizontalStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

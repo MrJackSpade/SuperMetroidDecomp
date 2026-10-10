@@ -52,6 +52,12 @@ internal static partial class Program
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");
     }
 
+    /// <summary>
+    /// Tests whether the arm's header-radius box strictly overlaps Samus's radius box on both axes.
+    /// </summary>
+    /// <param name="arm">Enemy slot providing the arm's center and header radii.</param>
+    /// <param name="samus">Samus state providing her center and collision radii.</param>
+    /// <returns><see langword="true"/> when both axis separations are less than their summed radii.</returns>
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
         Math.Abs(arm.XPosition - samus.XPosition) < arm.XRadius + samus.Kinematics.XRadius &&
         Math.Abs(arm.YPosition - samus.YPosition) < arm.YRadius + samus.Kinematics.YRadius;

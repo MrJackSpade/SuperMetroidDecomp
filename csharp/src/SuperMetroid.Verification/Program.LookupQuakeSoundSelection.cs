@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the eight native earthquake sound selections, sequence restart at the reset marker, and each request's Library 2 queue settings.</summary>
+    /// <param name="rom">Retail address space containing the statue-earthquake sound sequence.</param>
     private static void VerifyQuakeSoundSelection(ISnesAddressSpace rom)
     {
         int count = 0;

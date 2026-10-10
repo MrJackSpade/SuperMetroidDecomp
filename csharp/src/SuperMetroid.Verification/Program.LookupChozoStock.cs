@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks that stock, imported, and installed Chozo statue catalogs preserve ROM-derived frame words, identity, bounds, and custom-data isolation.</summary>
     private static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmChozoStatueVisualCatalog installed)
     {

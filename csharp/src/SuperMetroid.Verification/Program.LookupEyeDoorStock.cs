@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks eye-door frame words and identity across stock, installed, and imported catalogs, including the mirrored clear frame, pointer bounds, and invalid imports.</summary>
+    /// <param name="rom">Retail address space containing native eye-door draw lists and the mirrored clear-frame data.</param>
+    /// <param name="installed">Installed eye-door visual catalog whose stock mapping is compared with the native and imported catalogs.</param>
     private static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [

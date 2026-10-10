@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies each named Kraid palette source resolves its own editable colors, enforces source-specific bounds, and preserves catalog identity.</summary>
     private static void VerifyKraidColorSourceSelection()
     {
         var original = new Dictionary<KraidPaletteSource, PaletteRgb5[]>();

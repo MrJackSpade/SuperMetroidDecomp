@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares compiled Kraid arm component hitbox selectors and enumeration order with native frame records, including component and pose bounds.</summary>
+    /// <param name="rom">Retail address space containing Kraid's arm-frame component records.</param>
     private static void VerifyKraidArmComponentHitboxes(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = NativeKraidArmPhysicalFrames(rom);

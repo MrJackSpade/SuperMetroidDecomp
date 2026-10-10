@@ -32,6 +32,10 @@ internal static partial class Program
         return result;
     }
 
+    /// <summary>Builds an import-only Kraid head-frame baseline by loading its native tilemap directly into VRAM.</summary>
+    /// <param name="source">Cartridge import address space used to read the native fixed-bank tilemap.</param>
+    /// <param name="pointer">Instruction-list pointer selecting the head tilemap data.</param>
+    /// <returns>State marked with one head-tilemap upload and VRAM containing the imported head words.</returns>
     private static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {

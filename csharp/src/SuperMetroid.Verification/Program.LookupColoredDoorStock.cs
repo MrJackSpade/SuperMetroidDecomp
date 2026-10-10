@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock, imported, and installed colored-door catalogs against native frame words, including identity, copying, shape, and pointer validation.</summary>
+    /// <param name="rom">Address space containing the native colored-door PLM frame data.</param>
+    /// <param name="installed">Catalog installed by the runtime for comparison with stock and freshly imported artwork.</param>
     private static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmColoredDoorVisualCatalog installed)
     {

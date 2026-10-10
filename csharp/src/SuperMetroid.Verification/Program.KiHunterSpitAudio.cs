@@ -8,6 +8,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that a Ki Hunter spit queues and writes its sound once, and that the drained
+    /// request does not hold up the following door transition.
+    /// </summary>
     private static void VerifyKiHunterSpitAudio()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

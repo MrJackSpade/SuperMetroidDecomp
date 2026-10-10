@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all four native rain horizontal-velocity words, their selection across the full random-number domain, and invalid selector handling.</summary>
+    /// <param name="rom">Cartridge address space containing the native signed 8.8 rain velocity table.</param>
     private static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
     {
         for (int selection = 0; selection < 4; selection++)

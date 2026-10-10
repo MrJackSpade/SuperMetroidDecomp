@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock, imported, and installed escape-gate catalogs against ROM frame words, including identity, bounds, custom-data isolation, and invalid catalog rejection.</summary>
     private static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {

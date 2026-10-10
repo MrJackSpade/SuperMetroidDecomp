@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the five Crocomire arena draw layouts match native bank-$84 encodings, including pointer ownership, all 60 block cells, and run continuations.</summary>
+    /// <param name="rom">Cartridge address space containing the native Crocomire draw lists.</param>
     private static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x9b5b, 0x9b73, 0x9b79, 0x9b7f, 0x9bbb];

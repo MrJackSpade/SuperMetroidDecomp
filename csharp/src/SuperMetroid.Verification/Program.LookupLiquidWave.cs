@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks native water and heat wave tables and validates their captured scroll projections across all phases, camera low nibbles, and 16-bit wraparound.</summary>
+    /// <param name="rom">Cartridge address space containing the original water and heat displacement tables.</param>
     private static void VerifyMirroredLiquidWave(SuperMetroidAddressSpace rom)
     {
         short Water(int index) => unchecked((short)ReadVerificationWord(rom, 0x88c46e + 2 * index));

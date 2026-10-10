@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the four animated objects spawned by the production Tourian statue sequence match the native setup routine in order, object pointer, initial program, and instruction timer.</summary>
+    /// <param name="rom">SNES address space containing the native statue setup routine and each spawned object's initial program pointer.</param>
     private static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {
         var expected = new List<ushort>();

@@ -43,15 +43,22 @@ internal static partial class Program
                 ticks++;
             }
         }
-        // A restored selector outside authored flare art cannot read adjacent ROM bytes.
-        var invalidSelector = Create();
-        ((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
-            .GetValue(invalidSelector)!)[0] = 54;
-        var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
-        subject.TileTransfers.BindArtwork(body);
-        AssertThrows<InvalidDataException>(() => invalidSelector.HandleChargeFlareAndDraw(
-            bus, new OamBuffer(), subject, 0, 0, placement: placement, compositions: stock),
-            "Non-catalog flare selector is rejected instead of reading adjacent ROM data");
+        // A selector past the $93:A1A1 table (the native wrap of a flare frame to $FF, as in
+        // the #1275 Mother Brain glitch movie) makes native draw WRAM/I/O bytes as a spritemap.
+        // The port draws nothing for it and never reads adjacent ROM bytes.
+        foreach (ushort outOfTableFrame in new ushort[] { 54, 0xffff })
+        {
+            var invalidSelector = Create();
+            Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
+                .GetValue(invalidSelector)!, outOfTableFrame);
+            var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
+            subject.TileTransfers.BindArtwork(body);
+            var outOfTableOam = new OamBuffer();
+            invalidSelector.HandleChargeFlareAndDraw(
+                guarded, outOfTableOam, subject, 0, 0, placement: placement, compositions: stock);
+            AssertEqual(0, outOfTableOam.NextByteOffset,
+                $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
+        }
 
         var runtime = new SuperMetroidRuntime(bus,
             initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };

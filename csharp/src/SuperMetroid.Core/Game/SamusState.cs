@@ -18,18 +18,62 @@ public sealed partial class SamusState
 {
 
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
+    /// <remarks>
+    /// An ordinary write also models <c>InitializeSamusPose_1</c> ($91:F433), publishing the
+    /// pose's direction and movement type to <see cref="InitializedPose"/>. Only native
+    /// writers that skip that initializer use <see cref="WritePoseWithoutInitialization"/>.
+    /// </remarks>
     public byte Pose
     {
         get;
         set
         {
             field = value;
+            InitializedPose = value;
             // Bank $94 reads the global pose word directly while resolving special
             // elevator doors. Mirror every pose write into the collision snapshot so the
             // low-level dispatcher can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
         }
     } = SamusPoseIds.FacingRightNormalPose;
+
+    /// <summary>
+    /// The pose whose definition bytes zero and one <c>InitializeSamusPose_1</c> last copied to
+    /// <c>$0A1E</c>/<c>$0A1F</c> (X direction and movement type). Movement dispatch and camera
+    /// tracking read those cached bytes, not the live pose.
+    /// </summary>
+    public byte InitializedPose { get; private set; } = SamusPoseIds.FacingRightNormalPose;
+
+    /// <summary>
+    /// Writes <c>$0A1C</c> as native code does when it skips <c>InitializeSamusPose_1</c>
+    /// (the drained-Samus controllers at $91:E571 and $91:E60C): the previous pose's
+    /// direction and movement type stay in force.
+    /// </summary>
+    internal void WritePoseWithoutInitialization(byte pose)
+    {
+        byte initialized = InitializedPose;
+        Pose = pose;
+        InitializedPose = initialized;
+    }
+
+    /// <summary>
+    /// Set when a Samus command returns carry set during enemy AI: <c>Run_Samus_Command</c>
+    /// ($90:F093) then clears every prospective pose and command, so this frame's pending
+    /// transition is not committed. The runtime consumes it before the pose update.
+    /// </summary>
+    public bool PendingPoseTransitionCancelled { get; private set; }
+
+    /// <summary>Records <c>$90:F095-$F0A7</c>'s cancellation of the pending pose transition.</summary>
+    internal void CancelPendingPoseTransition() => PendingPoseTransitionCancelled = true;
+
+    /// <summary>Returns and clears the pending-transition cancellation.</summary>
+    internal bool ConsumePendingPoseTransitionCancellation()
+    {
+        bool cancelled = PendingPoseTransitionCancelled;
+        PendingPoseTransitionCancelled = false;
+        return cancelled;
+    }
+
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
     public ushort AnimationFrame { get; set; }

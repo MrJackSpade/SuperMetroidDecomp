@@ -258,6 +258,24 @@ public sealed partial class BabyMetroidCutsceneState
         MotherBrainSpriteTileTransferRequest? attackTileTransfer = null;
         MotherBrainBackgroundPaletteTransferRequest? backgroundPaletteTransfer = null;
 
+        // EnemyCollisionHandling ($A0:903E) runs touch AI before main AI, against the Baby's
+        // position from the previous frame. `$CF03` is active only during `$CA66`; broad
+        // Samus/enemy hitboxes gate it, then its own acceleration-$10 helper decides when
+        // both axes have reached the latch point. Main AI and its mover follow this frame.
+        if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
+        {
+            bool reachedLatchPoint = AccelerateTowardsPoint(
+                samus.XPosition,
+                unchecked((ushort)(samus.YPosition - 0x0014)),
+                acceleration: 0x0010);
+            if (reachedLatchPoint)
+            {
+                XVelocity = 0;
+                YVelocity = 0;
+                Phase = BabyMetroidCutscenePhase.HealSamusToFullHealth;
+            }
+        }
+
         switch (Phase)
         {
             case BabyMetroidCutscenePhase.DashOntoScreen:
@@ -818,29 +836,6 @@ public sealed partial class BabyMetroidCutsceneState
         // Main AI calls this even on phase transitions and target snaps. In the snap case
         // both velocities were explicitly zeroed, so the pin remains exact.
         MoveAccordingToVelocity();
-
-        // Generic enemy processing invokes touch AI after main AI. `$CF03` is active only
-        // during `$CA66`; broad Samus/enemy hitboxes gate it, then its own acceleration-$10
-        // helper decides when both axes have actually reached the latch point. Its velocity
-        // changes therefore apply on the following main-AI mover, exactly like the SNES.
-        if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus &&
-            CollidesWithRectangle(
-                samus.XPosition,
-                samus.YPosition,
-                samus.Kinematics.XRadius,
-                samus.Kinematics.YRadius))
-        {
-            bool reachedLatchPoint = AccelerateTowardsPoint(
-                samus.XPosition,
-                unchecked((ushort)(samus.YPosition - 0x0014)),
-                acceleration: 0x0010);
-            if (reachedLatchPoint)
-            {
-                XVelocity = 0;
-                YVelocity = 0;
-                Phase = BabyMetroidCutscenePhase.HealSamusToFullHealth;
-            }
-        }
 
         // `$A9:C79C` is called after the common velocity mover. It decrements the same
         // extra word that onion-ring hits write and shows palette zero while bit one of the

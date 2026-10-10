@@ -29,7 +29,7 @@ public sealed partial class SamusState
     public byte ReadPoseXDirection(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return ReadPoseXDirection(bus, Pose);
+        return ReadPoseXDirection(bus, InitializedPose);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed partial class SamusState
     public SamusMovementType ReadMovementType(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return ReadMovementType(bus, Pose);
+        return ReadMovementType(bus, InitializedPose);
     }
 
     /// <summary>
@@ -572,6 +572,11 @@ public sealed partial class SamusState
         SamusPoseIds.TurningLeftToRightJumpAimDownPose or SamusPoseIds.TurningLeftToRightJumpAimDiagonalUpPose or
         SamusPoseIds.TurningLeftToRightFallingPose or SamusPoseIds.TurningLeftToRightFallingAimUpPose or
         SamusPoseIds.TurningLeftToRightFallingAimDownPose or SamusPoseIds.TurningLeftToRightFallingAimDiagonalUpPose;
+
+    /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
+    public static bool IsDrainedPose(byte pose) => pose is
+        SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose or
+        SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose;
 
     /// <summary>True for the two movement-type-$14 wall-jump launch records.</summary>
     public static bool IsWallJumpPose(byte pose) => pose is SamusPoseIds.WallJumpRightPose or SamusPoseIds.WallJumpLeftPose;

@@ -979,6 +979,35 @@ public sealed partial class SuperMetroidRuntime
         TourianStatues.StepDescent(this);
     }
 
+    /// <summary>
+    /// Runs <c>$90:A337</c>'s movement-type table for a pose stored without
+    /// <c>InitializeSamusPose_1</c>: the cached <c>$0A1F</c> type, not the pose, selects the mover.
+    /// </summary>
+    private void StepUninitializedPoseMovement()
+    {
+        RoomLevelData level = LevelData ?? throw new InvalidOperationException(
+            "Uninitialized-pose movement requires active room level data.");
+        switch (Samus!.ReadMovementType(_addressSpace))
+        {
+            case SamusMovementType.Special:
+                // `$90:A7DA` only clears the momentum-transition selector.
+                break;
+            case SamusMovementType.SpinJumping:
+                LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
+                    _addressSpace, level, Samus, Controller1.Current, NmiFrameCounter,
+                    Controller1.NewlyPressed, Plms);
+                break;
+            case SamusMovementType.NormalJumping:
+                LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
+                    _addressSpace, level, Samus, Controller1.Current, NmiFrameCounter, Plms);
+                break;
+            default:
+                throw new NotSupportedException(
+                    $"Cached movement type ${(byte)Samus.ReadMovementType(_addressSpace):X2} under " +
+                    $"uninitialized pose ${Samus.Pose:X2} has no translated $90:A337 mover.");
+        }
+    }
+
     /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(ushort controllerInput)
     {
@@ -1563,6 +1592,13 @@ public sealed partial class SuperMetroidRuntime
                     ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
                     RunEnemyMainPhase(processingListPrepared: true, previousCameraPoint);
+                // A carry-set Samus command issued by enemy AI cleared alpha's prospective
+                // poses and commands ($90:F093), so nothing pending is committed this frame.
+                if (Samus.ConsumePendingPoseTransitionCancellation())
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                }
                 // Actor commands replace beta before its dispatch in this same update.
                 stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
                 if (!TimeIsFrozen && !deathOwnsSamus)
@@ -1780,7 +1816,12 @@ public sealed partial class SuperMetroidRuntime
                 // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
                 // `$E725` during enemy AI, this same frame's beta dispatches the knockback
                 // pose's type-$0A mover below, as `$90:A5FC` does natively.
+                // The controller-held standing/crouching phases last only while Samus keeps a
+                // drained body: a pose the movement installs (a wall jump out of a drained
+                // spin) returns her to the ordinary movement and input dispatch.
                 else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive &&
+                    !(Samus.Drained.Phase is DrainedSamusPhase.Standing or DrainedSamusPhase.Crouching &&
+                      !SamusState.IsDrainedPose(Samus.Pose)) &&
                     !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked) &&
                     (Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !Samus.Shinespark.OwnsMovementHandler))
                 {
@@ -1793,6 +1834,14 @@ public sealed partial class SuperMetroidRuntime
                             LevelData,
                             Samus,
                             NmiFrameCounter);
+                    }
+                    else if (Samus.InitializedPose != Samus.Pose)
+                    {
+                        // Controllers $91:E571/$E60C store a drained pose without
+                        // InitializeSamusPose_1, and $90:A337 keeps dispatching the cached
+                        // $0A1F movement type. An airborne Samus therefore keeps her jump
+                        // physics in the drained pose until a real initializer runs.
+                        StepUninitializedPoseMovement();
                     }
                 }
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active

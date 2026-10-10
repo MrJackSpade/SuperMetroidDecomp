@@ -134,7 +134,8 @@ public sealed partial class SamusState
         bool refreshRadius)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        Pose = pose;
+        // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement.
+        WritePoseWithoutInitialization(pose);
         if (refreshRadius)
             RefreshCollisionRadii(bus);
         AnimationDelayListAddress = ResolveAnimationDelayList();

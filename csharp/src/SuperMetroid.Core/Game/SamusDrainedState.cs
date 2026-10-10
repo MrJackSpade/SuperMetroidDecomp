@@ -130,10 +130,12 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>Ports Samus command <c>$19</c> at <c>$90:F3FB</c>.</summary>
+    /// <remarks>The command returns carry set, which cancels the pending pose transition.</remarks>
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
         samus.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);
+        samus.CancelPendingPoseTransition();
     }
 
     /// <summary>Ports Samus command <c>$16</c> at <c>$90:F3C9</c>.</summary>

@@ -310,6 +310,11 @@ internal static class DebuggerStateFieldMigrations
         new("SuperMetroid.Core.Frontend.CeresDestructionCinematicState", ["withSamus"], null),
         // #1275: older builds ran game-over indexes zero and one without their NMI waits.
         new("SuperMetroid.Core.Frontend.GameOverMenuState", ["<ResumesAfterNmiWait>k__BackingField"], null),
+        // #1275: older builds committed transitions that a carry-set Samus command cancelled.
+        new(typeof(SamusState).FullName!, ["<PendingPoseTransitionCancelled>k__BackingField"], null),
+        // #1275: older builds derived $0A1E/$0A1F from the live pose on every read.
+        new(typeof(SamusState).FullName!, ["<InitializedPose>k__BackingField"], null,
+            samus => Set(samus, "<InitializedPose>k__BackingField", ((SamusState)samus).Pose)),
         // #1275: older builds cleared the layer-one fractions whenever a runtime was released.
         new(typeof(SuperMetroidGame).FullName!, ["retainedLayer1XSubposition", "retainedLayer1YSubposition"], null),
         new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!,

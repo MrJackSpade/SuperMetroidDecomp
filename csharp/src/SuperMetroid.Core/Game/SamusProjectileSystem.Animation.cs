@@ -183,12 +183,17 @@ public sealed partial class SamusProjectileSystem
         ushort indexOffset = unchecked((ushort)(facingLeft
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
-        ushort tableIndex = unchecked((ushort)(indexOffset + _flareFrames[component]));
-        // A selector outside the installed catalog is not valid executable art.
-        // The catalog rejects it loudly rather than reading adjacent ROM bytes.
-        (compositions ?? throw new InvalidOperationException(
-            "Charge flare requires installed sprite compositions."))
-            .Draw(tableIndex, oam, screenX, screenY);
+        // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
+        ushort tableIndex = unchecked((ushort)(indexOffset + (_flareFrames[component] & 0x00ff)));
+        var catalog = compositions ?? throw new InvalidOperationException(
+            "Charge flare requires installed sprite compositions.");
+        // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
+        // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
+        // index is masked to $1FF). That garbage needs full memory emulation and has no
+        // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
+        if (!Assets.ChargeFlareSpriteCatalog.Contains(tableIndex))
+            return;
+        catalog.Draw(tableIndex, oam, screenX, screenY);
     }
 
     private void ClearFlareAnimationState()

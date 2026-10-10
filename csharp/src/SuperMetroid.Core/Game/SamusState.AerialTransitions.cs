@@ -303,8 +303,12 @@ public sealed partial class SamusState
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (!IsSpinJumpPose(Pose))
-            throw new InvalidOperationException($"Wall-jump trigger requires spin pose, not ${Pose:X2}.");
+        // Only the type-3 spin mover reaches `$91:EABE`. The cached movement type, not the
+        // live pose, gates it: a drained pose stored without InitializeSamusPose_1 keeps
+        // spinning and still wall-jumps.
+        if (ReadMovementType(bus) != SamusMovementType.SpinJumping)
+            throw new InvalidOperationException(
+                $"Wall-jump trigger requires cached spin movement, not ${(byte)ReadMovementType(bus):X2}.");
 
         byte targetPose = IsFacingLeft(bus) ? SamusPoseIds.WallJumpLeftPose : SamusPoseIds.WallJumpRightPose;
         if (level is not null)
@@ -476,10 +480,13 @@ public sealed partial class SamusState
     /// This does not launch Samus: it rewinds the ordinary spin sequence to frame `$0A`
     /// with a one-tick timer so the visible wall-contact pose reaches eligibility naturally.
     /// </summary>
+    /// <remarks>
+    /// `$90:9DB2` tests only for the Screw Attack poses. It runs for whatever pose holds the
+    /// cached spin-jump movement type, including a drained pose stored without
+    /// InitializeSamusPose_1 ($91:E571).
+    /// </remarks>
     public void ApplyWallContactAnimationRewind()
     {
-        if (!IsSpinJumpPose(Pose))
-            throw new InvalidOperationException($"Wall-contact rewind requires spin pose, not ${Pose:X2}.");
         AnimationFrameTimer = 1;
 
         // `$90:9D96-$90:9DA6` gives Screw Attack a longer pre-contact animation. Its first

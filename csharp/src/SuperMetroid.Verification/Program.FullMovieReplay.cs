@@ -225,9 +225,9 @@ internal static partial class Program
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
-            $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4}");
+            $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer:X4}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
-            $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)}");
+            $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
@@ -278,6 +278,12 @@ internal static partial class Program
                     $"port inst={actor.CurrentInstruction:X4}/{actor.InstructionTimer:X4} prop={actor.Properties:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)}");
             }
+        }
+        if (game.RuntimeForVerification?.Enemies.MotherBrain?.BabyMetroid is { } baby)
+        {
+            // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
+            Console.WriteLine($"  baby port   pos={baby.XPosition:X4}.{baby.XSubposition:X4}/{baby.YPosition:X4}.{baby.YSubposition:X4} v={baby.XVelocity:X4}/{baby.YVelocity:X4}");
+            Console.WriteLine($"  baby native pos={Native(0x103a)}.{Native(0x103c)}/{Native(0x103e)}.{Native(0x1040)} v={Native(0x106a)}/{Native(0x106c)}");
         }
         if (game.RuntimeForVerification?.Enemies.Ridley is { } ridley)
         {

@@ -143,6 +143,21 @@ The complete input-only replay passes all 494,199 retained updates across all 51
 source frames with one initial SRAM import (`--drunk-playthrough-movie`). The Ridley,
 100% and 13% movies continue to pass.
 
+## Mother Brain glitch movie (#1275)
+
+`mother brain glitch.smv` (SMV v5, 7,762 frames) starts from an embedded snapshot taken
+on the pause menu during the second Mother Brain phase. The snapshot is imported once
+(including the pause menu, Mother Brain, enemy projectiles and the global enemy clock
+`$0E44`); the replay then runs on converted input alone (`--mother-brain-glitch-movie`).
+All 7,364 retained updates across all 7,762 source frames match.
+
+The glitch: drained-Samus controllers `$91:E571/$E60C` store a pose without
+`InitializeSamusPose_1`, so the cached movement type `$0A1F` keeps an airborne Samus
+spinning in the drained pose until she wall-jumps out. One frame later in the movie a
+charge-flare frame wraps to `$FF` and native draws a spritemap pointer read past the end of
+`$93:A1A1` (WRAM/I/O bytes into OAM only); the port draws nothing for that selector. This
+is the only known visual divergence and has no gameplay effect.
+
 ## Historical investigation evidence
 
 Earlier remaining-coverage lists and statements withholding completion describe

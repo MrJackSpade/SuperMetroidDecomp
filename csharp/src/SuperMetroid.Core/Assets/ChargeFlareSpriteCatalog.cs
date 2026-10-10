@@ -15,6 +15,9 @@ public sealed class ChargeFlareSpriteCatalog
     public static ChargeFlareSpriteCatalog Load(Stream json)
         => new(ProjectileSpriteCatalog.LoadFrames(json, ChargeFlareSpriteDefinitions.NativePointers.ToArray()));
 
+    /// <summary>True when <paramref name="selector"/> indexes the native $93:A1A1 flare table.</summary>
+    public static bool Contains(ushort selector) => selector < ChargeFlareSpriteDefinitions.Selectors.Length;
+
     /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
     public void Draw(ushort selector, OamBuffer oam, ushort x, ushort y)
     {

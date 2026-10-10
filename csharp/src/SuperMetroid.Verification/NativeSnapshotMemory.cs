@@ -560,8 +560,14 @@ internal static class NativeSnapshotMemory
     public const int Events = 0xd820;
     /// <summary>$D8B0: opened_door_bit_array, imported from the original movie.</summary>
     public const int OpenedDoors = 0xd8b0;
-    /// <summary>$18F0: first HDMA object pre-instruction, imported from the original movie.</summary>
-    public const int AcidHdmaPreInstruction = 0x18f0;
+    /// <summary>$0E44: NumberOfTimesMainEnemyRoutineExecuted, the global enemy clock.</summary>
+    public const int MainEnemyRoutineCount = 0x0e44;
+    /// <summary>$18B4: HDMA object channel bitflags, six words; zero marks a free or deleted slot.</summary>
+    public const int HdmaObjectChannelBitflags = 0x18b4;
+    /// <summary>$18F0: HDMA object pre-instructions, six words.</summary>
+    public const int HdmaObjectPreInstructions = 0x18f0;
+    /// <summary>Number of HDMA object slots.</summary>
+    public const int HdmaObjectCount = 6;
     /// <summary>$B3B0: bank-$88 lava/acid BG3 pre-instruction, imported from the original movie.</summary>
     public const int AcidHdmaCallback = 0xb3b0;
     /// <summary>$0F78: enemy_data, imported from the original movie.</summary>

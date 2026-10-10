@@ -40,7 +40,8 @@ internal static partial class Program
         object palette = PrivateState.Field<object>(menu, "paletteAnimation");
         PrivateState.SetField(palette, "timer", memory[PauseMemory.PaletteAnimationTimer]);
         PrivateState.SetField(palette, "frame", memory[PauseMemory.PaletteAnimationFrame]);
-        PrivateState.SetField(menu, "mapIndicatorAnimationFrame", (int)W(PauseMemory.IndicatorAnimationFrame));
+        // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
+        PrivateState.SetField(menu, "mapIndicatorAnimationFrame", W(PauseMemory.IndicatorAnimationFrame) / 2);
         PrivateState.SetField(menu, "mapIndicatorAnimationTimer", (int)W(PauseMemory.IndicatorAnimationTimer));
         PrivateState.SetField(game, "pauseMenu", menu);
         PrivateState.SetField(game, "pauseFadeDelay", (int)W(PauseMemory.ScreenFadeDelay));
@@ -68,7 +69,7 @@ internal static class PauseMemory
     public const int PaletteAnimationTimer = 0x073b, PaletteAnimationFrame = 0x074f;
     /// <summary>$0753: L/R/Start button label mode; zero labels the map page.</summary>
     public const int ButtonLabelMode = 0x0753;
-    /// <summary>$0776/$0778: Samus position indicator animation frame and timer.</summary>
+    /// <summary>$0776/$0778: Samus position indicator animation frame (word byte offset) and timer.</summary>
     public const int IndicatorAnimationFrame = 0x0776, IndicatorAnimationTimer = 0x0778;
     /// <summary>$B1/$B3: BG1 scroll, which the pause map page uses as its map scroll.</summary>
     public const int MapHorizontalScroll = 0x00b1, MapVerticalScroll = 0x00b3;

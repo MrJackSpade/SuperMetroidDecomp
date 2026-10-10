@@ -243,9 +243,17 @@ internal static partial class Program
             ImportNativeEnemyProjectile(projectile, W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
-        // Native frame zero already has the acid BG3 callback installed at $18F0.
-        AssertTrue(W(NativeSnapshotMemory.AcidHdmaPreInstruction) == NativeSnapshotMemory.AcidHdmaCallback, "initial native acid HDMA callback");
+        PrivateState.SetField(runtime.Enemies, "_randomEnemyCounter", W(NativeSnapshotMemory.MainEnemyRoutineCount));
+        // The liquid's BG3 HDMA object has already run its first pass, so its callback is
+        // installed. A live object owns the per-frame liquid motion; once Mother Brain's
+        // $A9:8C0C has cleared the channel flags, the room's liquid objects are deleted.
+        bool lavaAcidObjectLive = Enumerable.Range(0, NativeSnapshotMemory.HdmaObjectCount).Any(slot =>
+            W(NativeSnapshotMemory.HdmaObjectChannelBitflags + slot * 2) != 0 &&
+            W(NativeSnapshotMemory.HdmaObjectPreInstructions + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
+        AssertTrue(runtime.RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid,
+            "snapshot import models the lava/acid HDMA objects of its room");
         typeof(RoomLayer3FxState).GetField("lavaAcidBg3PreInstructionInstalled", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, true);
+        typeof(RoomLayer3FxState).GetField("liquidHdmaObjectsDeleted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, !lavaAcidObjectLive);
         typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.TidePhase));
         typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx,
             unchecked((int)((uint)W(NativeSnapshotMemory.TideOffset) << 16 | W(NativeSnapshotMemory.TideOffsetFraction))));
@@ -312,7 +320,13 @@ internal static partial class Program
     {
         int index = projectile.SlotIndex * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
-        if (id != 0)
+        if (id == 0)
+        {
+            // Room loading spawns the room's projectiles afresh; a slot the snapshot holds
+            // empty (for example Mother Brain's destroyed turrets) must be empty here too.
+            projectile.Clear();
+        }
+        else
         {
             var kind = (RoomEnemyProjectileKind)id;
             AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),

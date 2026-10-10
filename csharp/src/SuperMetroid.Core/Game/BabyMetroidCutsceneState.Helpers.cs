@@ -183,6 +183,29 @@ public sealed partial class BabyMetroidCutsceneState
         return unchecked((ushort)(wholePosition + wholeDelta));
     }
 
+    /// <summary>
+    /// <c>Enemy_vs_Samus_CollisionHandling</c> ($A0:A07A-$A0FE) for the Baby's radius hitbox.
+    /// A non-zero contact-damage index clears Samus's invincibility and proceeds; otherwise an
+    /// invincible Samus is not touched. Each axis then requires
+    /// <c>|delta| - SamusRadius &lt; enemy radius</c> (a delta inside Samus's own radius
+    /// always passes), which is strict, unlike <c>$A9:EF06</c>.
+    /// </summary>
+    private bool TouchesSamus(SamusState samus)
+    {
+        if (samus.HorizontalSpeed.ContactDamageIndex != 0)
+            samus.InvincibilityTimer = 0;
+        else if (samus.InvincibilityTimer != 0)
+            return false;
+        return AxisTouches(samus.XPosition, XPosition, samus.Kinematics.XRadius, XHitboxRadius) &&
+            AxisTouches(samus.YPosition, YPosition, samus.Kinematics.YRadius, YHitboxRadius);
+
+        static bool AxisTouches(ushort samusPosition, ushort enemyPosition, ushort samusRadius, ushort enemyRadius)
+        {
+            int distance = Math.Abs(unchecked((short)(samusPosition - enemyPosition)));
+            return distance < samusRadius || distance - samusRadius < enemyRadius;
+        }
+    }
+
     private bool CollidesWithRectangle(
         ushort centerX,
         ushort centerY,

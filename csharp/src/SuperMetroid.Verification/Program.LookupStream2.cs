@@ -1240,7 +1240,7 @@ internal static partial class Program
         {
             var lint = enemies.Slots[slot];
             ushort expected = Word(0xa7a916 + (slot - 2) * 2);
-            AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelayForSlot(slot), "Native per-part initial delay");
+            AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
             AssertEqual((ushort)0, lint.VariableB, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
@@ -1253,8 +1253,8 @@ internal static partial class Program
                 AssertEqual(unchecked((ushort)(body.XPosition - lint.XRadius)), lint.XPosition, "Alignment continues during delay");
             }
         }
-        foreach (int invalid in new[] { -1, 0, 1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KraidLintInitializationDefinitions.InitialDelayForSlot(invalid), "Only lint slots have launch policy");
+        foreach (KraidLintPart invalid in new[] { (KraidLintPart)0, (KraidLintPart)1, (KraidLintPart)5 })
+            AssertThrows<InvalidOperationException>(() => KraidLintInitializationDefinitions.InitialDelay(invalid), "Only lint slots have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
     private static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)

@@ -8,14 +8,6 @@ internal static class CrocomireArenaPlmProgramDefinitions
 {
     /// <summary><c>$84:AFCA</c>: clear the ten-block bridge.</summary>
     internal const ushort ClearBridge = RoomPlmInstructionLists.ClearCrocomireBridge;
-    /// <summary><c>$84:AFD0</c>: crumble one bridge block.</summary>
-    internal const ushort CrumbleBridgeBlock = RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock;
-    /// <summary><c>$84:AFD6</c>: clear one bridge block.</summary>
-    internal const ushort ClearBridgeBlock = RoomPlmInstructionLists.ClearCrocomireBridgeBlock;
-    /// <summary><c>$84:AFDC</c>: clear the invisible wall.</summary>
-    internal const ushort ClearInvisibleWall = RoomPlmInstructionLists.ClearCrocomireInvisibleWall;
-    /// <summary><c>$84:AFE2</c>: create the invisible wall.</summary>
-    internal const ushort CreateInvisibleWall = RoomPlmInstructionLists.CreateCrocomireInvisibleWall;
     /// <summary><c>$84:AFE8</c>: first byte of the following save-station program.</summary>
     internal const ushort EndExclusive = 0xafe8;
 

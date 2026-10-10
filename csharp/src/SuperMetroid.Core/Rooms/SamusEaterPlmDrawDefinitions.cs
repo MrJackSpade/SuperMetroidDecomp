@@ -33,7 +33,7 @@ internal enum SamusEaterDraw : ushort
 /// </summary>
 internal static class SamusEaterPlmDrawDefinitions
 {
-    internal readonly record struct Draw(SamusEaterDraw Pointer, bool Ceiling, int Phase)
+    internal readonly record struct Draw(bool Ceiling, int Phase)
     {
         internal static int Count(int run) => run switch
         {
@@ -91,14 +91,14 @@ internal static class SamusEaterPlmDrawDefinitions
         }
         draw = list switch
         {
-            SamusEaterDraw.FloorIdle => new(list, false, 0),
-            SamusEaterDraw.FloorChew1 => new(list, false, 1),
-            SamusEaterDraw.FloorChew2 => new(list, false, 2),
-            SamusEaterDraw.FloorChew3 => new(list, false, 3),
-            SamusEaterDraw.CeilingIdle => new(list, true, 0),
-            SamusEaterDraw.CeilingChew1 => new(list, true, 1),
-            SamusEaterDraw.CeilingChew2 => new(list, true, 2),
-            SamusEaterDraw.CeilingChew3 => new(list, true, 3),
+            SamusEaterDraw.FloorIdle => new(false, 0),
+            SamusEaterDraw.FloorChew1 => new(false, 1),
+            SamusEaterDraw.FloorChew2 => new(false, 2),
+            SamusEaterDraw.FloorChew3 => new(false, 3),
+            SamusEaterDraw.CeilingIdle => new(true, 0),
+            SamusEaterDraw.CeilingChew1 => new(true, 1),
+            SamusEaterDraw.CeilingChew2 => new(true, 2),
+            SamusEaterDraw.CeilingChew3 => new(true, 3),
             _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {list}."),
         };
         return true;

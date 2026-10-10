@@ -14,10 +14,6 @@ internal enum KraidLintPart
 /// <summary>Per-part initialization policy for Kraid's post-growth lint attacks.</summary>
 internal static class KraidLintInitializationDefinitions
 {
-    /// <summary>The initial delay of the lint in an enemy slot; only the three lint slots have one.</summary>
-    internal static ushort InitialDelayForSlot(int slot) =>
-        Enum.IsDefined((KraidLintPart)slot) ? InitialDelay((KraidLintPart)slot) : throw new IndexOutOfRangeException();
-
     /// <summary>
     /// KraidLint_InitialFunctionTimers at $A7:A916/A918/A91A supply the top,
     /// middle and bottom delays. $A7:AE32-AE47 enables each named part separately;

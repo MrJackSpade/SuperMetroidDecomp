@@ -157,7 +157,8 @@ internal static partial class Program
         {
             int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
             ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
-                DraygonCollisionDefinitions.HitboxesAt(pointer);
+                DraygonCollisionDefinitions.HitboxesAt(
+                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
             AssertEqual((int)ReadWord(list), hitboxes.Length,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Length; index++)

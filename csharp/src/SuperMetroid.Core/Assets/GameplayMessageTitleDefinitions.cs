@@ -2,65 +2,13 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The native tile character indexes of the gameplay-message title glyph set.</summary>
+/// <summary>Native tile character indexes of the title punctuation; letters are the contiguous range at <see cref="GameplayMessageTitleDefinitions.FirstLetterTile"/>.</summary>
 public enum GameplayMessageTitleGlyph : ushort
 {
     /// <summary>Native tile character index for a space.</summary>
     Space = 0x04e,
     /// <summary>Native tile character index for a hyphen.</summary>
     Hyphen = 0x0cf,
-    /// <summary>Native tile character index for A.</summary>
-    A = 0x0e0,
-    /// <summary>Native tile character index for B.</summary>
-    B = 0x0e1,
-    /// <summary>Native tile character index for C.</summary>
-    C = 0x0e2,
-    /// <summary>Native tile character index for D.</summary>
-    D = 0x0e3,
-    /// <summary>Native tile character index for E.</summary>
-    E = 0x0e4,
-    /// <summary>Native tile character index for F.</summary>
-    F = 0x0e5,
-    /// <summary>Native tile character index for G.</summary>
-    G = 0x0e6,
-    /// <summary>Native tile character index for H.</summary>
-    H = 0x0e7,
-    /// <summary>Native tile character index for I.</summary>
-    I = 0x0e8,
-    /// <summary>Native tile character index for J.</summary>
-    J = 0x0e9,
-    /// <summary>Native tile character index for K.</summary>
-    K = 0x0ea,
-    /// <summary>Native tile character index for L.</summary>
-    L = 0x0eb,
-    /// <summary>Native tile character index for M.</summary>
-    M = 0x0ec,
-    /// <summary>Native tile character index for N.</summary>
-    N = 0x0ed,
-    /// <summary>Native tile character index for O.</summary>
-    O = 0x0ee,
-    /// <summary>Native tile character index for P.</summary>
-    P = 0x0ef,
-    /// <summary>Native tile character index for Q.</summary>
-    Q = 0x0f0,
-    /// <summary>Native tile character index for R.</summary>
-    R = 0x0f1,
-    /// <summary>Native tile character index for S.</summary>
-    S = 0x0f2,
-    /// <summary>Native tile character index for T.</summary>
-    T = 0x0f3,
-    /// <summary>Native tile character index for U.</summary>
-    U = 0x0f4,
-    /// <summary>Native tile character index for V.</summary>
-    V = 0x0f5,
-    /// <summary>Native tile character index for W.</summary>
-    W = 0x0f6,
-    /// <summary>Native tile character index for X.</summary>
-    X = 0x0f7,
-    /// <summary>Native tile character index for Y.</summary>
-    Y = 0x0f8,
-    /// <summary>Native tile character index for Z.</summary>
-    Z = 0x0f9,
     /// <summary>Native tile character index for a period.</summary>
     Period = 0x0fa,
     /// <summary>Native tile character index for a question mark.</summary>
@@ -72,6 +20,13 @@ public static class GameplayMessageTitleDefinitions
 {
     /// <summary>Supported gameplay-message title document schema revision.</summary>
     public const int Version = 1;
+    /// <summary>Native tile character index of A; B through Z follow contiguously.</summary>
+    public const ushort FirstLetterTile = 0x0e0;
+    /// <summary>Letters in the contiguous A-Z tile range.</summary>
+    public const int LetterCount = 26;
+
+    /// <summary>True when <paramref name="tile"/> is one of the A-Z letter tiles.</summary>
+    public static bool IsLetterTile(ushort tile) => (uint)(tile - FirstLetterTile) < LetterCount;
     /// <summary>JSON filename containing the editable one-row item and status titles.</summary>
     public const string FileName = "gameplay-message-titles.json";
     /// <summary>Number of transparent tilemap columns preceding the visible title.</summary>

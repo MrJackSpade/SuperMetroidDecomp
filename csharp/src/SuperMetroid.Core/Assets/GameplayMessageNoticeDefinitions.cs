@@ -89,10 +89,10 @@ public static class GameplayMessageNoticeDefinitions
             }
         }
 
-        static bool IsText(ushort word) => (GameplayMessageTitleGlyph)(word & 0x03ff) is
-            >= GameplayMessageTitleGlyph.A and <= GameplayMessageTitleGlyph.Z or
-            GameplayMessageTitleGlyph.Hyphen or GameplayMessageTitleGlyph.Period or
-            GameplayMessageTitleGlyph.QuestionMark;
+        static bool IsText(ushort word) =>
+            GameplayMessageTitleDefinitions.IsLetterTile((ushort)(word & 0x03ff)) ||
+            (GameplayMessageTitleGlyph)(word & 0x03ff) is GameplayMessageTitleGlyph.Hyphen or
+                GameplayMessageTitleGlyph.Period or GameplayMessageTitleGlyph.QuestionMark;
     }
 }
 

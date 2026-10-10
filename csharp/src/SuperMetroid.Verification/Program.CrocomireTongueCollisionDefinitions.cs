@@ -75,7 +75,7 @@ internal static partial class Program
                 CrocomireTongueCollisionDefinitions.HasFrame((ushort)frame), "tongue exact frame domain");
         foreach (ushort frame in new ushort[] { 0, 0xc65d, 0xc65f, 0xc686, 0xcacd, 0xcacf, 0xcb00, 0xffff })
             AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.ComponentAt(frame), "tongue rejects non-frame identity");
-        AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(0x8000), "tongue rejects unknown hitbox list");
+        AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
     }
     private static void VerifyCrocomireTongueCollisionDefinitions()
     {
@@ -139,14 +139,14 @@ internal static partial class Program
         {
             AssertEqual((ushort)0, ReadWord(0xa40000 | list),
                 $"Crocomire tongue $A4:{list:X4} native hitbox list is empty");
-            AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(list),
+            AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(list, "compiled Crocomire tongue hitbox list")),
                 "Crocomire tongue compiled hitbox list is empty");
         }
         AssertThrows<InvalidDataException>(
             () => CrocomireTongueCollisionDefinitions.ComponentAt(0x8000),
             "unknown Crocomire tongue frame fails loudly");
         AssertThrows<InvalidDataException>(
-            () => CrocomireTongueCollisionDefinitions.HitboxCountAt(0x8000),
+            () => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")),
             "unknown Crocomire tongue hitbox list fails loudly");
         AssertEqual(0, denied.ReadAttempts,
             "installed Crocomire tongue collision never reads ROM bytes");

@@ -77,10 +77,6 @@ public static class KraidPlmDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static KraidPlmRequest? ForSinkCallback(ushort callback) =>
-        ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(callback, "Kraid sinking callback"));
-
-    /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
     public static KraidPlmRequest? ForSinkCallback(KraidSinkCallback callback)
     {
         byte column;

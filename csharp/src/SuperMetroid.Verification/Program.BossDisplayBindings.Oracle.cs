@@ -87,7 +87,8 @@ internal static partial class Program
             .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer).ToArray()
             .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
-        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.HitboxesAt(pointer).ToArray()
+        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.HitboxesAt(
+                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list")).ToArray()
             .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle bank."),
     };

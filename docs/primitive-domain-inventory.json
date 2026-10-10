@@ -7,559 +7,13 @@
   "SME6273": "enum interpolated with a numeric format specifier"
  },
  "open": {
-  "Apu": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioCommand.cs",
-    "line": 44,
-    "column": 35,
-    "rule": "SME6270",
-    "message": "'port' is a int switched over named constants of Apu; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BabyAnimation": [
-   {
-    "file": "csharp/test-support/VerificationAccess/CoreFrontendAccess.cs",
-    "line": 160,
-    "column": 68,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of BabyAnimation; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidFinalHealthPaintDefinitions.cs",
-    "line": 37,
-    "column": 48,
-    "rule": "SME6270",
-    "message": "'color' is a int switched over named constants of BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPalette.cs",
-    "line": 27,
-    "column": 51,
-    "rule": "SME6270",
-    "message": "'color' is a int switched over named constants of BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BabyMetroidRouteDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs",
-    "line": 71,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'movementFunction' is a ushort switched over named constants of BabyMetroidRouteDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BeaconPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/BeaconPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 98,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of BeaconPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BeamTileAtlasDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
-    "line": 57,
-    "column": 82,
-    "rule": "SME6270",
-    "message": "'sourceAddress' is a int switched over named constants of BeamTileAtlasDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BombTorizoDormantInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Tooling/Core/Game/BombTorizoDormantInstructionProgramDefinitions.cs",
-    "line": 39,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of BombTorizoDormantInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BombTorizoDroolInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoDroolInstructionProgramDefinitions.cs",
-    "line": 59,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of BombTorizoDroolInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.BombTorizoDroolInstructionProgramDefinitions.cs",
-    "line": 152,
-    "column": 25,
-    "rule": "SME6270",
-    "message": "'expectedPrograms[selection]' is a ushort switched over named constants of BombTorizoDroolInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BombTorizoGreyDoorPlmProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/BombTorizoGreyDoorPlmProgramDefinitions.cs",
-    "line": 93,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'start' is a int switched over named constants of BombTorizoGreyDoorPlmProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BombTorizoHandPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlmDrawDefinitions.cs",
-    "line": 102,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of BombTorizoHandPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BotwoonCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Botwoon.cs",
-    "line": 1000,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of BotwoonCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BotwoonInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/BotwoonInstructionProgramDefinitions.cs",
-    "line": 75,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'movement' is a ushort switched over named constants of BotwoonInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BotwoonProjectileCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BotwoonProjectiles.cs",
-    "line": 66,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'XVelocity' is a ushort switched over named constants of BotwoonProjectileCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BotwoonWallPlmProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmProgramDefinitions.cs",
-    "line": 39,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of BotwoonWallPlmProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CeresCinematicLightPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 127,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of CeresCinematicLightPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CeresEnemyCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
-    "line": 723,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'BabyFunction' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
-    "line": 543,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CeresEnemyCodePointers, RoomEnemySystem": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresDoor.cs",
-    "line": 85,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'VariableA' is a ushort switched over named constants of CeresEnemyCodePointers, RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CeresMode7TransferDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
-    "line": 57,
-    "column": 59,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of CeresMode7TransferDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ChargeFlarePlacementDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs",
-    "line": 47,
-    "column": 40,
-    "rule": "SME6270",
-    "message": "'direction' is a int switched over named constants of ChargeFlarePlacementDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ChootFallingPathDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs",
-    "line": 143,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ChootFallingPathDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ChozoStatueInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ChozoStatue.cs",
-    "line": 294,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of ChozoStatueInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ChozoStatuePlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/ChozoStatuePlmDrawDefinitions.cs",
-    "line": 113,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ChozoStatuePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "CommonEnemyInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
-    "line": 2722,
+    "line": 2733,
     "column": 13,
     "rule": "SME6270",
     "message": "'word' is a ushort switched over named constants of CommonEnemyInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Connections": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.Connection.cs",
-    "line": 270,
-    "column": 45,
-    "rule": "SME6270",
-    "message": "'handler' is a ushort switched over named constants of Connections; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs",
-    "line": 813,
-    "column": 34,
-    "rule": "SME6270",
-    "message": "'function' is a ushort switched over named constants of Connections; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ControllerInputRecordingFormat": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/ControllerInputRecording.cs",
-    "line": 136,
-    "column": 31,
-    "rule": "SME6270",
-    "message": "'version' is a uint switched over named constants of ControllerInputRecordingFormat; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireArenaPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs",
-    "line": 45,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of CrocomireArenaPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmDrawDefinitions.cs",
-    "line": 93,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of CrocomireArenaPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireArenaPlmProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmProgramDefinitions.cs",
-    "line": 37,
-    "column": 18,
-    "rule": "SME6270",
-    "message": "'address - 2' is a int switched over named constants of CrocomireArenaPlmProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireBg2ScrollDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireBg2ScrollDefinitions.cs",
-    "line": 47,
-    "column": 52,
-    "rule": "SME6270",
-    "message": "'frame' is a ushort switched over named constants of CrocomireBg2ScrollDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireInstructions.cs",
-    "line": 34,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CrocomireCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireInstructions.cs",
-    "line": 131,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CrocomireCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireDeathPhases": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireDeath.cs",
-    "line": 11,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'DeathSequenceIndex' is a ushort switched over named constants of CrocomireDeathPhases; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireMeltingArtworkAddresses": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
-    "line": 71,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'sourceAddress' is a int switched over named constants of CrocomireMeltingArtworkAddresses; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireMeltingTransferDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingTransferDefinitions.cs",
-    "line": 49,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'offset' is a ushort switched over named constants of CrocomireMeltingTransferDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CrocomireTongueCollisionDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireTongueCollisionDefinitions.cs",
-    "line": 61,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'frame' is a ushort switched over named constants of CrocomireTongueCollisionDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CrocomireTongueCollisionDefinitions.cs",
-    "line": 73,
-    "column": 55,
-    "rule": "SME6270",
-    "message": "'list' is a ushort switched over named constants of CrocomireTongueCollisionDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DeadMonsterRottingDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
-    "line": 74,
-    "column": 34,
-    "rule": "SME6270",
-    "message": "'table' is a ushort switched over named constants of DeadMonsterRottingDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DoorCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs",
-    "line": 22,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.DoorSetup.cs",
-    "line": 31,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'SetupCodePointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.DoorSetup.cs",
-    "line": 137,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'setupCodePointer' is a ushort switched over named constants of DoorCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DownwardGatePreInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Gates.cs",
-    "line": 152,
-    "column": 21,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of DownwardGatePreInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DraygonCannonPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlmDrawDefinitions.cs",
-    "line": 133,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of DraygonCannonPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DraygonCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
-    "line": 217,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'VariableA' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Draygon.cs",
-    "line": 846,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of DraygonCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DraygonCollisionDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
-    "line": 86,
-    "column": 28,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of DraygonCollisionDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ElevatorPlatformPlmDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs",
-    "line": 74,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ElevatorPlatformPlmDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingLogoWrapAtlas": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
-    "line": 109,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'tile' is a int switched over named constants of EndingLogoWrapAtlas; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingRewardActorDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
-    "line": 50,
-    "column": 84,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of EndingRewardActorDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingRewardActorDefinitions, EndingRewardJumpDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
-    "line": 29,
-    "column": 73,
-    "rule": "SME6270",
-    "message": "'definition' is a ushort switched over named constants of EndingRewardActorDefinitions, EndingRewardJumpDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EnemyAiCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
-    "line": 1279,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'address' is a int switched over named constants of EnemyAiCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
-    "line": 1738,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'address' is a int switched over named constants of EnemyAiCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EnemyExtendedFrameDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs",
-    "line": 115,
-    "column": 29,
-    "rule": "SME6270",
-    "message": "'Version' is a int switched over named constants of EnemyExtendedFrameDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EnemyProjectileCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NoobTubeProjectiles.cs",
-    "line": 112,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WalkingSpacePirate.cs",
-    "line": 439,
-    "column": 32,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of EnemyProjectileCodePointers; model the domain as a type",
     "status": "open"
    }
   ],
@@ -583,546 +37,6 @@
     "status": "open"
    }
   ],
-  "EnemyProjectileInstructionMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
-    "line": 319,
-    "column": 71,
-    "rule": "SME6270",
-    "message": "'program' is a ushort switched over named constants of EnemyProjectileInstructionMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EnemyProjectileSpritemapDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
-    "line": 101,
-    "column": 72,
-    "rule": "SME6270",
-    "message": "'Version' is a int switched over named constants of EnemyProjectileSpritemapDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.EnemyProjectileLegacyOverrides.cs",
-    "line": 93,
-    "column": 100,
-    "rule": "SME6270",
-    "message": "'version' is a int switched over named constants of EnemyProjectileSpritemapDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EnemySpritemapDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs",
-    "line": 85,
-    "column": 29,
-    "rule": "SME6270",
-    "message": "'Version' is a int switched over named constants of EnemySpritemapDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EscapeAnimalInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
-    "line": 228,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EscapeAnimals.cs",
-    "line": 256,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of EscapeAnimalInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EscapeAnimalPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/EscapeAnimalPlmDrawDefinitions.cs",
-    "line": 17,
-    "column": 23,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of EscapeAnimalPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ExplodingZebesFadePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 66,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ExplodingZebesFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EyeDoorEnemyProjectileRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EyeDoorProjectiles.cs",
-    "line": 24,
-    "column": 40,
-    "rule": "SME6270",
-    "message": "'DefinitionPointer' is a ushort switched over named constants of EyeDoorEnemyProjectileRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EyeDoorPlmRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
-    "line": 75,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of EyeDoorPlmRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "FakeKraidProjectileInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileInstructionProgramDefinitions.cs",
-    "line": 44,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of FakeKraidProjectileInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "GameplayMessageTitleDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
-    "line": 158,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'character' is a int switched over named constants of GameplayMessageTitleDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Global": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
-    "line": 164,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'address' is a byte switched over named constants of Global; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "GrappleBeamTilePatterns": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs",
-    "line": 41,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'frame' is a int switched over named constants of GrappleBeamTilePatterns; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "GunshipCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
-    "line": 2218,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'VariableF' is a ushort switched over named constants of GunshipCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "GunshipVisualDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GunshipVisualDefinitions.cs",
-    "line": 34,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of GunshipVisualDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "HibashiInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/HibashiInstructionProgramDefinitions.cs",
-    "line": 39,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'address' is a int switched over named constants of HibashiInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "HostKeyboardInputState": [
-   {
-    "file": "csharp/src/SuperMetroid.Desktop/HostKeyboardInputState.cs",
-    "line": 33,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'message' is a int switched over named constants of HostKeyboardInputState; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "HyperBeamPaletteFxProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/HyperBeamPaletteFxProgramDefinitions.cs",
-    "line": 38,
-    "column": 31,
-    "rule": "SME6270",
-    "message": "'instructionPointer' is a ushort switched over named constants of HyperBeamPaletteFxProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Instructions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs",
-    "line": 1118,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'durationOrOpcode' is a ushort switched over named constants of Instructions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Input/DemoInputState.cs",
-    "line": 251,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of Instructions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "IntroBabyDiscoveryRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
-    "line": 166,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of IntroBabyDiscoveryRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "IntroNarrationDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs",
-    "line": 130,
-    "column": 52,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of IntroNarrationDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidInstructions.cs",
-    "line": 29,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of KraidInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidLintInitializationDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/KraidLintInitializationDefinitions.cs",
-    "line": 19,
-    "column": 61,
-    "rule": "SME6270",
-    "message": "'slot' is a int switched over named constants of KraidLintInitializationDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidMouthHitboxes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/KraidMouthHitboxes.cs",
-    "line": 39,
-    "column": 97,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of KraidMouthHitboxes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidRoomPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
-    "line": 66,
-    "column": 52,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
-    "line": 84,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
-    "line": 133,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmKraidVisualCatalog.cs",
-    "line": 47,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of KraidRoomPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidRoomPlmProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmProgramDefinitions.cs",
-    "line": 64,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of KraidRoomPlmProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidSinkCallbacks": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/KraidPlmDefinitions.cs",
-    "line": 83,
-    "column": 23,
-    "rule": "SME6270",
-    "message": "'callback' is a ushort switched over named constants of KraidSinkCallbacks; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "LoadingSuitColorPointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
-    "line": 65,
-    "column": 48,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of LoadingSuitColorPointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
-    "line": 96,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of LoadingSuitColorPointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "LowerNorfairRioInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.LowerNorfairRio.cs",
-    "line": 244,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of LowerNorfairRioInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "LowerNorfairRioInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
-    "line": 45,
-    "column": 54,
-    "rule": "SME6270",
-    "message": "'program' is a ushort switched over named constants of LowerNorfairRioInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
-    "line": 92,
-    "column": 66,
-    "rule": "SME6270",
-    "message": "'program' is a ushort switched over named constants of LowerNorfairRioInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MagdolliteInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Magdollite.cs",
-    "line": 684,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of MagdolliteInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MaridiaLargeSnailInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MaridiaLargeSnail.cs",
-    "line": 561,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of MaridiaLargeSnailInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainEscapeGatePlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs",
-    "line": 64,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of MotherBrainEscapeGatePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainFakeDeathPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs",
-    "line": 56,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of MotherBrainFakeDeathPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs",
-    "line": 133,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of MotherBrainFakeDeathPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainGlassPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs",
-    "line": 43,
-    "column": 34,
-    "rule": "SME6270",
-    "message": "'Pointer' is a ushort switched over named constants of MotherBrainGlassPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmDrawDefinitions.cs",
-    "line": 175,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of MotherBrainGlassPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainRoomColorRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-    "line": 209,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'color' is a int switched over named constants of MotherBrainRoomColorRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-    "line": 282,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'color' is a int switched over named constants of MotherBrainRoomColorRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Music": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/SpcMusicDefinitionCodec.cs",
-    "line": 381,
-    "column": 60,
-    "rule": "SME6270",
-    "message": "'opcode' is a byte switched over named constants of Music; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Native": [
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/CreditsPresentationExtractor.cs",
-    "line": 78,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of Native; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "NintendoLogoFadePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 73,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of NintendoLogoFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "NoobTubePlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
-    "line": 34,
-    "column": 34,
-    "rule": "SME6270",
-    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
-    "line": 53,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
-    "line": 70,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'Pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmDrawDefinitions.cs",
-    "line": 138,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of NoobTubePlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "NoobTubePlmRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NoobTubeProjectiles.cs",
-    "line": 22,
-    "column": 40,
-    "rule": "SME6270",
-    "message": "'DefinitionPointer' is a ushort switched over named constants of NoobTubePlmRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.NoobTube.cs",
-    "line": 42,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of NoobTubePlmRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "NorfairRioInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NorfairRio.cs",
-    "line": 242,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of NorfairRioInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 55,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "Palette": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rendering/GameplayMessageBoxRenderer.cs",
@@ -1130,804 +44,6 @@
     "column": 39,
     "rule": "SME6270",
     "message": "'paletteIndex' is a int switched over named constants of Palette; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PaletteFxInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 355,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 469,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'command' is a ushort switched over named constants of PaletteFxInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PaletteFxPreInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 241,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of PaletteFxPreInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PaletteFxSetupCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs",
-    "line": 201,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'setup' is a ushort switched over named constants of PaletteFxSetupCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PauseReserveTankRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs",
-    "line": 43,
-    "column": 55,
-    "rule": "SME6270",
-    "message": "'identity' is a ushort switched over named constants of PauseReserveTankRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs",
-    "line": 32,
-    "column": 21,
-    "rule": "SME6270",
-    "message": "'nativeIdentity' is a ushort switched over named constants of PauseReserveTankRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PhantoonBg2FrameDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
-    "line": 66,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of PhantoonBg2FrameDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PhantoonCollisionDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
-    "line": 77,
-    "column": 66,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of PhantoonCollisionDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PhantoonInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PhantoonInstructions.cs",
-    "line": 16,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'function' is a ushort switched over named constants of PhantoonInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 69,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "PrePhantoonRoomProjectileInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/PrePhantoonRoomProjectileInstructionProgramDefinitions.cs",
-    "line": 18,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of PrePhantoonRoomProjectileInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ProjectileTrailCoordinateDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 381,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'family' is a int switched over named constants of ProjectileTrailCoordinateDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ProjectileTrailDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs",
-    "line": 63,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'selection' is a int switched over named constants of ProjectileTrailDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RidleyExplosionParts": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
-    "line": 98,
-    "column": 36,
-    "rule": "SME6270",
-    "message": "'parameter' is a ushort switched over named constants of RidleyExplosionParts; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RidleyMovementTargets": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
-    "line": 24,
-    "column": 55,
-    "rule": "SME6270",
-    "message": "'facing' is a int switched over named constants of RidleyMovementTargets; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
-    "line": 33,
-    "column": 54,
-    "rule": "SME6270",
-    "message": "'facing' is a int switched over named constants of RidleyMovementTargets; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RinkaInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
-    "line": 378,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of RinkaInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomEnemySystem": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireCombat.cs",
-    "line": 17,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'callback' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomHeaderPointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Desktop/PlayableGameControl.cs",
-    "line": 891,
-    "column": 67,
-    "rule": "SME6270",
-    "message": "'roomPointer' is a ushort switched over named constants of RoomHeaderPointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomMainCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomCallbackDefinitions.cs",
-    "line": 122,
-    "column": 67,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomMainCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmBombBlockRestoreDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombBlockRestoreDrawDefinitions.cs",
-    "line": 36,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombBlockRestoreDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmBombBlockRestoreDrawDefinitions, RoomPlmContactCrumbleRestoreDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreDrawDefinitions.cs",
-    "line": 14,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombBlockRestoreDrawDefinitions, RoomPlmContactCrumbleRestoreDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmBombedRevealDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombedRevealDrawDefinitions.cs",
-    "line": 17,
-    "column": 27,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmBombedRevealDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmContactCrumbleRestoreDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs",
-    "line": 36,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmContactCrumbleRestoreDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmShotBlockDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-    "line": 73,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmShotBlockDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmStationDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 118,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 193,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomSetup": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.AttractDemo.cs",
-    "line": 122,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomSetup; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomSetupCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomCallbackDefinitions.cs",
-    "line": 148,
-    "column": 69,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of RoomSetupCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomSpriteObjectInstructionProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.SpriteObjects.cs",
-    "line": 186,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'InstructionTimer' is a ushort switched over named constants of RoomSpriteObjectInstructionProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomStateSelectorCodes": [
-   {
-    "file": "csharp/test-support/Importers/CartridgeRoomHeaderImporter.cs",
-    "line": 24,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'code' is a ushort switched over named constants of RoomStateSelectorCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Routines, Attract": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/AttractDemoInput.cs",
-    "line": 31,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of Routines, Attract; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.AttractInputFixture.cs",
-    "line": 26,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of Routines, Attract; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Rows": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/GameOptionsMenuState.cs",
-    "line": 312,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'SelectedItem' is a int switched over named constants of Rows; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusArmCannonArtworkFormat": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
-    "line": 722,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of SamusArmCannonArtworkFormat; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusAtmosphericEffectDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
-    "line": 79,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'roomIndex' is a byte switched over named constants of SamusAtmosphericEffectDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusDeathTileAtlasAddresses": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs",
-    "line": 93,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'tile' is a int switched over named constants of SamusDeathTileAtlasAddresses; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusEaterPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs",
-    "line": 80,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SamusEaterPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs",
-    "line": 111,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SamusEaterPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusEaterPlmRomData, QuicksandRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusInsideBlockReactions.cs",
-    "line": 55,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'setup' is a ushort switched over named constants of SamusEaterPlmRomData, QuicksandRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusPoseInputDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
-    "line": 9,
-    "column": 100,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SamusPoseInputDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
-    "line": 9,
-    "column": 100,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SamusPoseInputDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusProjectileCooldownDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileCooldownDefinitions.cs",
-    "line": 48,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'address - NonBeamCooldowns' is a int switched over named constants of SamusProjectileCooldownDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusProjectileDamageDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs",
-    "line": 52,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'address' is a int switched over named constants of SamusProjectileDamageDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
-    "line": 127,
-    "column": 20,
-    "rule": "SME6270",
-    "message": "'address - 2' is a int switched over named constants of SamusProjectileDamageDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusSetup": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
-    "line": 530,
-    "column": 28,
-    "rule": "SME6270",
-    "message": "'SamusSetupFor(demonstration)' is a ushort switched over named constants of SamusSetup; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.AttractDemo.cs",
-    "line": 89,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SamusSetup; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusTerrainHazardRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusTerrainHazardCollision.cs",
-    "line": 50,
-    "column": 25,
-    "rule": "SME6270",
-    "message": "'Behavior' is a byte switched over named constants of SamusTerrainHazardRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ScrollingSky": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs",
-    "line": 33,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'pointerTable' is a int switched over named constants of ScrollingSky; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ShaktoolInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Shaktool.cs",
-    "line": 497,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of ShaktoolInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SkreeMetareeParticleVisualDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs",
-    "line": 21,
-    "column": 62,
-    "rule": "SME6270",
-    "message": "'operandAddress' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.ResourceAudit/EnemyVisualProgramAudit.cs",
-    "line": 193,
-    "column": 30,
-    "rule": "SME6270",
-    "message": "'operand' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.ResourceAudit/ProjectileDefinitionAudit.cs",
-    "line": 18,
-    "column": 26,
-    "rule": "SME6270",
-    "message": "'operand' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SpacePirateInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.NinjaSpacePirate.cs",
-    "line": 671,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WallSpacePirate.cs",
-    "line": 388,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of SpacePirateInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SpcSoundEffectOpcodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectProgramCodec.cs",
-    "line": 44,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'opcode' is a byte switched over named constants of SpcSoundEffectOpcodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SpeedBoosterEscapePlmRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.SpeedBoosterEscape.cs",
-    "line": 49,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of SpeedBoosterEscapePlmRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SpeedBoosterEscapeStageDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterEscapeStageDefinitions.cs",
-    "line": 45,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'tableByteOffset' is a ushort switched over named constants of SpeedBoosterEscapeStageDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SporeSpawnCeilingPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs",
-    "line": 55,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SporeSpawnCeilingPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SporeSpawnCeilingPlmProgramDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmProgramDefinitions.cs",
-    "line": 36,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'address' is a ushort switched over named constants of SporeSpawnCeilingPlmProgramDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SporeSpawnCollisionDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs",
-    "line": 143,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of SporeSpawnCollisionDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SporeSpawnInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.SporeSpawnInstructions.cs",
-    "line": 22,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of SporeSpawnInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "TitleLogoFadePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/TitleLogoFadePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 64,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of TitleLogoFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "TorizoInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizoInstructions.cs",
-    "line": 50,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of TorizoInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "TourianAccessPlmDrawDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs",
-    "line": 59,
-    "column": 56,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of TourianAccessPlmDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "TourianGlowPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/TourianGlowPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 80,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of TourianGlowPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "TourianStatueRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
-    "line": 48,
-    "column": 40,
-    "rule": "SME6270",
-    "message": "'definition' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
-    "line": 70,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstruction' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.TourianUnlockEffects.cs",
-    "line": 103,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'code' is a ushort switched over named constants of TourianStatueRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Trails": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
-    "line": 361,
-    "column": 21,
-    "rule": "SME6270",
-    "message": "'instructionOrTimer' is a ushort switched over named constants of Trails; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "UnusedCinematicFadePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 69,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of UnusedCinematicFadePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 60,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "VerticalMotion": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
-    "line": 96,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'address' is a int switched over named constants of VerticalMotion; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "WorkRobotInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobot.cs",
-    "line": 194,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of WorkRobotInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "WorkRobotLaserDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobotLasers.cs",
-    "line": 33,
-    "column": 32,
-    "rule": "SME6270",
-    "message": "'definition' is a ushort switched over named constants of WorkRobotLaserDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "XrayRevealCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/XrayRevealVisualFiles.cs",
-    "line": 230,
-    "column": 53,
-    "rule": "SME6270",
-    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/XrayRevealVisualFiles.cs",
-    "line": 256,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Verification/Program.XrayReveal.cs",
-    "line": 49,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs",
-    "line": 85,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 86,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 70,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
-    "line": 74,
-    "column": 17,
-    "rule": "SME6270",
-    "message": "'pointer' is a ushort switched over named constants of ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "ZoaSpeedDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ZoaSpeedDefinitions.cs",
-    "line": 32,
-    "column": 22,
-    "rule": "SME6270",
-    "message": "'offset / 4' is a int switched over named constants of ZoaSpeedDefinitions; model the domain as a type",
     "status": "open"
    }
   ]
@@ -2196,13 +312,1244 @@
    "consumers": "RoomEnemySystem Mother Brain, Baby Metroid cutscene and fake-death tubes; head/body/baby/hand-beam program definitions; EnemyVisualProgramSpecializations",
    "tests": "Mother Brain replay and the enemy visual static audit exercise every head/body opcode",
    "status": "resolved"
+  },
+  "Apu": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "BabyAnimation": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "BabyMetroidInitialPaintDefinitions, BabyMetroidCutsceneColorRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "BabyMetroidRouteDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "BeaconPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "BeamTileAtlasDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "BombTorizoDormantInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "BombTorizoDroolInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "BombTorizoGreyDoorPlmProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "BombTorizoHandPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "BotwoonCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "BotwoonInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "BotwoonProjectileCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "BotwoonWallPlmProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "CeresCinematicLightPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "CeresEnemyCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "CeresEnemyCodePointers, RoomEnemySystem": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "CeresMode7TransferDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "ChargeFlarePlacementDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "ChootFallingPathDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ChozoStatueInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "ChozoStatuePlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Connections": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ControllerInputRecordingFormat": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "CrocomireArenaPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "CrocomireArenaPlmProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "CrocomireBg2ScrollDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "CrocomireCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "CrocomireDeathPhases": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "CrocomireMeltingArtworkAddresses": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "CrocomireMeltingTransferDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "CrocomireTongueCollisionDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "DeadMonsterRottingDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "DoorCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "DownwardGatePreInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "DraygonCannonPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "DraygonCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "DraygonCollisionDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ElevatorPlatformPlmDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "EndingLogoWrapAtlas": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EndingRewardActorDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EndingRewardActorDefinitions, EndingRewardJumpDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EnemyAiCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "EnemyExtendedFrameDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "EnemyProjectileCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "EnemyProjectileInstructionMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "EnemyProjectileSpritemapDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "EnemySpritemapDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EscapeAnimalInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EscapeAnimalPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ExplodingZebesFadePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "EyeDoorEnemyProjectileRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "EyeDoorPlmRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "FakeKraidProjectileInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "GameplayMessageTitleDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Global": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "GrappleBeamTilePatterns": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "GunshipCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "GunshipVisualDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "HibashiInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "HostKeyboardInputState": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "HyperBeamPaletteFxProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Instructions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "IntroBabyDiscoveryRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "IntroNarrationDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "KraidInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "KraidLintInitializationDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "KraidMouthHitboxes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "KraidRoomPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "KraidRoomPlmProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "KraidSinkCallbacks": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "LoadingSuitColorPointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "LowerNorfairRioInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "LowerNorfairRioInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "MagdolliteInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "MaridiaLargeSnailInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "MotherBrainEscapeGatePlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "MotherBrainFakeDeathPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "MotherBrainGlassPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "MotherBrainRoomColorRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Music": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Native": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "NintendoLogoFadePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "NoobTubePlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "NoobTubePlmRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "NorfairRioInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "PaletteFxInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "PaletteFxPreInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "PaletteFxSetupCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "PauseReserveTankRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "PhantoonBg2FrameDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "PhantoonCollisionDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "PhantoonInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "PrePhantoonRoomProjectileInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "ProjectileTrailCoordinateDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "ProjectileTrailDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RidleyExplosionParts": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "RidleyMovementTargets": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "RinkaInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "RoomEnemySystem": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomHeaderPointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "RoomMainCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomPlmBombBlockRestoreDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "RoomPlmBombBlockRestoreDrawDefinitions, RoomPlmContactCrumbleRestoreDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomPlmBombedRevealDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "RoomPlmContactCrumbleRestoreDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "RoomPlmShotBlockDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomPlmStationDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "RoomSetup": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomSetupCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "RoomSpriteObjectInstructionProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "RoomStateSelectorCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Routines, Attract": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Rows": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SamusArmCannonArtworkFormat": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SamusAtmosphericEffectDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "SamusDeathTileAtlasAddresses": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SamusEaterPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SamusEaterPlmRomData, QuicksandRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SamusPoseInputDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SamusProjectileCooldownDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "SamusProjectileDamageDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SamusSetup": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SamusTerrainHazardRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ScrollingSky": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "ShaktoolInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "SkreeMetareeParticleVisualDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SpacePirateInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SpcSoundEffectOpcodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SpeedBoosterEscapePlmRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SpeedBoosterEscapeStageDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "SporeSpawnCeilingPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "SporeSpawnCeilingPlmProgramDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "SporeSpawnCollisionDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "SporeSpawnInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "TitleLogoFadePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "TorizoInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "TourianAccessPlmDrawDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "TourianGlowPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "TourianStatueRomData": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "Trails": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "UnusedCinematicFadePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "VerticalMotion": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "WorkRobotInstructionCodes": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "WorkRobotLaserDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "XrayRevealCodePointers": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "4f6b7ba20"
+   ]
+  },
+  "ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "dfdaf5813"
+   ]
+  },
+  "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
+  },
+  "ZoaSpeedDefinitions": {
+   "previous": "primitive switched over named constants (see git history of the listed commits)",
+   "status": "resolved",
+   "commits": [
+    "c33fb2d4b",
+    "36fb9f09e",
+    "7df81e65b",
+    "b2ae390fa"
+   ]
   }
  },
  "summary": {
-  "openFindings": 201,
-  "openDomains": 158,
+  "openFindings": 4,
+  "openDomains": 4,
   "byRule": {
-   "SME6270": 201
+   "SME6270": 4
   }
  }
 }

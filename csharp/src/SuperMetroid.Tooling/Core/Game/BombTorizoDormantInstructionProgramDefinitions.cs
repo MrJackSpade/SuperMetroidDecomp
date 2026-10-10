@@ -13,8 +13,6 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
     /// <summary>The first extended-spritemap operand at $AA:B87F.</summary>
     internal const ushort DormantFrameOperand = 0xb87f;
 
-    /// <summary>The bank-$AA common sleep instruction at $AA:B885.</summary>
-    internal const ushort Sleep = 0xb885;
 
     /// <summary><c>WakeBT_WhenChozoIsCrumbled</c> at $AA:C6C6.</summary>
     internal const ushort WakeWhenHandCrumbles = 0xc6c6;

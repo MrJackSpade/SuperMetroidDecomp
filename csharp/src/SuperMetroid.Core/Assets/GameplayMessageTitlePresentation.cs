@@ -138,32 +138,33 @@ public sealed class GameplayMessageTitlePresentation
 
     internal static ushort CompileGlyph(char character, int palette)
     {
-        GameplayMessageTitleGlyph glyph = character switch
+        ushort tile = character switch
         {
-            ' ' => GameplayMessageTitleGlyph.Space,
-            '-' => GameplayMessageTitleGlyph.Hyphen,
-            '.' => GameplayMessageTitleGlyph.Period,
-            '?' => GameplayMessageTitleGlyph.QuestionMark,
-            >= 'A' and <= 'Z' => (GameplayMessageTitleGlyph)((int)GameplayMessageTitleGlyph.A + character - 'A'),
+            ' ' => (ushort)GameplayMessageTitleGlyph.Space,
+            '-' => (ushort)GameplayMessageTitleGlyph.Hyphen,
+            '.' => (ushort)GameplayMessageTitleGlyph.Period,
+            '?' => (ushort)GameplayMessageTitleGlyph.QuestionMark,
+            >= 'A' and <= 'Z' => (ushort)(GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A'),
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
         };
-        return unchecked((ushort)((ushort)glyph |
+        return unchecked((ushort)(tile |
             GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
     }
 
     internal static char DecodeGlyph(ushort word)
     {
+        ushort tile = (ushort)(word & 0x03ff);
+        if (GameplayMessageTitleDefinitions.IsLetterTile(tile))
+            return (char)('A' + tile - GameplayMessageTitleDefinitions.FirstLetterTile);
         GameplayMessageTitleGlyph glyph = ClosedNativeWords.Decode<GameplayMessageTitleGlyph>(
-            (ushort)(word & 0x03ff), "gameplay-message title glyph");
+            tile, "gameplay-message title glyph");
         return glyph switch
         {
             GameplayMessageTitleGlyph.Space => ' ',
             GameplayMessageTitleGlyph.Hyphen => '-',
             GameplayMessageTitleGlyph.Period => '.',
             GameplayMessageTitleGlyph.QuestionMark => '?',
-            >= GameplayMessageTitleGlyph.A and <= GameplayMessageTitleGlyph.Z =>
-                (char)('A' + (glyph - GameplayMessageTitleGlyph.A)),
             _ => throw new InvalidOperationException($"Undefined {nameof(GameplayMessageTitleGlyph)} {(int)glyph:X3}."),
         };
     }

@@ -17,20 +17,20 @@ public sealed class RoomPlmKraidVisualCatalog
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmKraidVisualCatalog), content =>
     {
-        Append((ushort)KraidRoomDraw.CrumbleFirst, crumbleFirst);
-        Append((ushort)KraidRoomDraw.CrumbleSecond, crumbleSecond);
-        Append((ushort)KraidRoomDraw.CrumbleThird, crumbleThird);
-        Append((ushort)KraidRoomDraw.CeilingBackground1, ceilingBackground1);
-        Append((ushort)KraidRoomDraw.CeilingBackground2, ceilingBackground2);
-        Append((ushort)KraidRoomDraw.CeilingBackground3, ceilingBackground3);
-        Append((ushort)KraidRoomDraw.SpikeFirst, spikeFirst);
-        Append((ushort)KraidRoomDraw.SpikeSecond, spikeSecond);
-        Append((ushort)KraidRoomDraw.ClearCeiling, clearCeiling);
-        Append((ushort)KraidRoomDraw.ClearSpikes, clearSpikes);
+        Append(KraidRoomDraw.CrumbleFirst, crumbleFirst);
+        Append(KraidRoomDraw.CrumbleSecond, crumbleSecond);
+        Append(KraidRoomDraw.CrumbleThird, crumbleThird);
+        Append(KraidRoomDraw.CeilingBackground1, ceilingBackground1);
+        Append(KraidRoomDraw.CeilingBackground2, ceilingBackground2);
+        Append(KraidRoomDraw.CeilingBackground3, ceilingBackground3);
+        Append(KraidRoomDraw.SpikeFirst, spikeFirst);
+        Append(KraidRoomDraw.SpikeSecond, spikeSecond);
+        Append(KraidRoomDraw.ClearCeiling, clearCeiling);
+        Append(KraidRoomDraw.ClearSpikes, clearSpikes);
 
-        void Append(ushort pointer, ushort[] words)
+        void Append(KraidRoomDraw draw, ushort[] words)
         {
-            content.Append("frame", pointer);
+            content.Append("frame", (ushort)draw);
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }

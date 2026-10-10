@@ -76,9 +76,6 @@ internal static class CrocomireTongueCollisionDefinitions
         _ => throw new InvalidOperationException($"Undefined CrocomireTongueFrame {frame}."),
     };
 
-    internal static int HitboxCountAt(ushort list) =>
-        HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(list, "compiled Crocomire tongue hitbox list"));
-
     internal static int HitboxCountAt(CrocomireTongueHitboxList list) => list switch
     {
         CrocomireTongueHitboxList.Fight or CrocomireTongueHitboxList.Melting => 0,

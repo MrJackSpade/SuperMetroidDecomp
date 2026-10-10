@@ -5,8 +5,8 @@ internal static class MessageClosedContractDefinitions
 {
     private static readonly ReviewedSource[] SharedGlyphSources =
     [
-        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "BB4EBD6707C9F4D2F4FB3BAE490E8E812507CB4F128BE340F10AE53C4A4E016A"),
-        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "1588AA333E2557791EFECFFDFD2B4783B3BFE9E407BD36DBF004FCD7260F69F4"),
+        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "C4D5242F643029DF925CD91D38134E906C0D0B902FB628449B652A93D99F998E"),
+        new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "CA230B34E2213C0A98F40F133D506D902BBD79871331F4EA9F7117016A00092D"),
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "34111FB80D5A53785C6CA5F323802F469B15FD7D5BB5BE3DB10EBD67BACCB3BC"),
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "76347AB16D00426201E22A6C8B2918D272F5407B559A06D6702CDBFE6A2E0895"),
     ];
@@ -24,6 +24,6 @@ internal static class MessageClosedContractDefinitions
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "9A8E0A349EC9EA87322034B1E34D6CB2ACB2C5130B5B16A805918C98B5D3A8E3"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "1CC0612B378B670E693FEB10CBB259CA0125FF963C733A0C2536AEEBEB363286")]),
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "CE3332ECB454642DC02D228F0580D836372FC189E056043551DA753D0DC711B6")]),
     ];
 }

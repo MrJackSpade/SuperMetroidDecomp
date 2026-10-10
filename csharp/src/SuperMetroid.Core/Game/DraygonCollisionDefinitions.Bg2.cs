@@ -88,8 +88,6 @@ internal static partial class DraygonCollisionDefinitions
             ? right ? DraygonHitboxList.SecondBody : DraygonHitboxList.FirstBody : DraygonHitboxList.Empty;
         return new(true, hitboxes);
     }
-    internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(ushort pointer) =>
-        HitboxesAt(ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
 
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
         DraygonHitboxList pointer) => pointer switch

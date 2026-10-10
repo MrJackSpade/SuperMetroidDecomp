@@ -29,7 +29,7 @@ internal static partial class Program
         foreach (ushort callback in callbacks.Distinct())
         {
             int code = 0xa70000 | callback;
-            var request = KraidPlmDefinitions.ForSinkCallback(callback);
+            var request = KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(callback, "Kraid sinking callback"));
             if (rom.ReadByte(code) == 0x60)
             {
                 AssertEqual<KraidPlmRequest?>(null, request, "Native empty RTS emits no request");
@@ -43,7 +43,7 @@ internal static partial class Program
         }
         AssertEqual(6, count, "Six distinct platform mutations");
         foreach (ushort invalid in new ushort[] { 0, 0xc690, 0xc692, 0xc6a5, 0xc715, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(invalid), "Unknown sink callback rejected");
+            AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(invalid, "Kraid sinking callback")), "Unknown sink callback rejected");
     }
 
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,

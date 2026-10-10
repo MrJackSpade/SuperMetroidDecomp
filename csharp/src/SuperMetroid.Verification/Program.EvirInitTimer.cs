@@ -6,6 +6,7 @@ internal static partial class Program
     // #1269: InitAI_Evir loads its first bobbing half-cycle from Enemy.init1+1 indexed by Y,
     // the speed-table offset, reading absolute enemy RAM. In room $D4C2 a speed-8 body reads
     // slot 1's zero init1 high byte, while speed-12 bodies read slot 2's palette high byte (2).
+    /// <summary>Verifies Evir's initial bobbing timer follows the native Y-indexed enemy-RAM read and cross-slot aliases in room <c>$D4C2</c>.</summary>
     private static void VerifyEvirInitTimer()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the left-turn control words and confirms both visual selectors reuse the existing facing-screen frame.</summary>
+    /// <param name="rom">Address space containing Golden Torizo's native bank-$AA instruction data.</param>
     private static void VerifyGoldenTorizoLeftTurnDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the nine helmet spritemap IDs and verifies native animation timing, terminal clamping, and selector bounds.</summary>
+    /// <param name="rom">The cartridge address space supplying the original animation operands.</param>
     private static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
         AssertEqual(9, FileSelectHelmetAnimation.NativeEntryCount, "complete native helmet mapping");

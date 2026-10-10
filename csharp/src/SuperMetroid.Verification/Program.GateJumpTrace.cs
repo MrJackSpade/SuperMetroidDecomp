@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Replays ordinary and spin-jump timing variants against native gate traces, comparing per-frame inputs, Samus motion, gate state, crossing, and switch activation.</summary>
     private static void VerifyGateJumpTraces()
     {
         foreach ((int shootFrame, int aimFrame, bool releaseLeft) in new[]

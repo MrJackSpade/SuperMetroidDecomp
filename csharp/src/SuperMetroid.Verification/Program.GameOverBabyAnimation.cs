@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all Baby animation records and cry handoffs with the serialized cartridge stream and rejects unsupported frame pointers.</summary>
+    /// <param name="rom">Cartridge address space containing the native animation records and sound routines.</param>
     private static void VerifyGameOverBabyAnimation(ISnesAddressSpace rom)
     {
         // Walk the original serialized stream; neither record count nor group lengths

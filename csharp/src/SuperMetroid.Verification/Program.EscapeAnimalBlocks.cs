@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the rescue wall rejects zero-strength grapple hits, opens to a beam shot, and publishes escape after its animation.</summary>
+    /// <param name="romPath">Retail ROM path used to load the native room population and rescue animation data.</param>
     private static void VerifyEscapeAnimalBlocks(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

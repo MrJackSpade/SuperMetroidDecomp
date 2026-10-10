@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks falling entry preserves run-speed components and selects the proper mode, then verifies the CPU-observed air/water speed recurrence.</summary>
     private static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

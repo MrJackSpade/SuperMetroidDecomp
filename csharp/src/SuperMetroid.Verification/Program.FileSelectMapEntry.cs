@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies file-select entry timing for the palette fade, graphics transfers, window setup, and expanding reveal.</summary>
     private static void VerifyFileSelectMapEntry()
     {
         var white = Enumerable.Repeat(new PaletteRgb5 { Red = 31, Green = 31, Blue = 31 },

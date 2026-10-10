@@ -8,6 +8,8 @@ internal static partial class Program
 {
     // #1207: freezing during the shell's intentionally empty frame must select
     // the frozen shell immediately, including its actual emitted sprite parts.
+    /// <summary>Verifies that freezing an empty-frame Metroid shell immediately selects its visible frozen artwork and preserves its native animation timer.</summary>
+    /// <returns>Zero when the frozen-shell OAM and timer checks pass.</returns>
     private static int VerifyFrozenMetroidShell()
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;

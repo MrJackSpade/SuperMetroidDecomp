@@ -168,6 +168,9 @@ internal static partial class Program
             "  JSON saves: named schema, all slot domains, canonical SRAM, strict errors, atomic writes, and legacy migration agree.");
     }
 
+    /// <summary>Asserts that the save codec rejects invalid JSON and includes the relevant field or value in its error message.</summary>
+    /// <param name="json">Invalid save document passed to the codec.</param>
+    /// <param name="expectedMessagePart">Case-insensitive text that must appear in the resulting validation error.</param>
     private static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
         try

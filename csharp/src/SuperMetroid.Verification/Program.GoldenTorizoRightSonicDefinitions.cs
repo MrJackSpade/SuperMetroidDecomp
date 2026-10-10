@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Golden Torizo's paired right-sonic mechanics, visual selectors, shared-frame ownership, and compiled collision components and hitbox lists against bank-$AA.</summary>
+    /// <param name="rom">Retail address space used to read the attack's native instruction and collision data.</param>
     private static void VerifyGoldenTorizoRightSonicDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

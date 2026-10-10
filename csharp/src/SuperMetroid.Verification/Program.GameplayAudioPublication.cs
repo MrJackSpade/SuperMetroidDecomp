@@ -6,6 +6,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies gameplay sound requests retain order across repeated publications and Power Bomb suppression preserves the native accumulator.</summary>
+    /// <param name="audioBus">Address space used by the cartridge audio state to process published commands.</param>
     private static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

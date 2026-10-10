@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all four Baby palettes against cartridge colors, CGRAM application, independent RGB5 edits, and catalog bounds handling.</summary>
+    /// <param name="rom">Cartridge address space containing the native Baby palette words and source presentation assets.</param>
     private static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<string, ushort[]>();

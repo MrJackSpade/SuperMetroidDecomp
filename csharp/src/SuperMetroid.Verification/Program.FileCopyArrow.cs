@@ -10,6 +10,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the copy arrow's native OAM and pixels for every slot pair, its confirmation-only visibility and palette timing, and compatibility with older debugger states.</summary>
     private static void VerifyFileCopyArrow()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

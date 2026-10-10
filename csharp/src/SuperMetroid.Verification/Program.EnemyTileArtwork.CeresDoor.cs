@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares installed Ceres-door tiles, palettes, and Mode-7 frames with cartridge data, then checks that visual overrides affect loaded resources.</summary>
+    /// <param name="bus">Cartridge address space supplying the native tile, palette, and Mode-7 transfer data.</param>
+    /// <param name="directory">Installed asset directory containing the Ceres-door tile and color documents.</param>
+    /// <param name="stock">Installed enemy artwork catalog whose Ceres-door visual is checked and compared with edited assets.</param>
     private static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, EnemyTileArtworkCatalog stock)
     {

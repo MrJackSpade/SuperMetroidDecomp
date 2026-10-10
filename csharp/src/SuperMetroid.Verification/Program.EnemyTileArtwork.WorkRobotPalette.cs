@@ -7,6 +7,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks the installed Work Robot palette cycle against ROM words, then verifies a persisted single-color override and rejection of malformed stock or override data.</summary>
+    /// <param name="rom">Retail address space containing the palette-animation words.</param>
+    /// <param name="stockDirectory">Directory holding the installed enemy artwork and stock Work Robot cycle.</param>
+    /// <param name="stock">Loaded catalog whose cycle supplies the unedited palette values.</param>
     private static void VerifyInstalledWorkRobotPaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

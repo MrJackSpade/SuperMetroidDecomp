@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the escape-timer handoff restores normal left/right running and footstep cadence in acid for both drained get-up branches.</summary>
     private static void VerifyEscapeRunningFootsteps()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

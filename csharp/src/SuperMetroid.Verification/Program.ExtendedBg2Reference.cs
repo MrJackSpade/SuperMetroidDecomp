@@ -5,6 +5,12 @@ internal static partial class Program
     // Native $A0:96CA copies each $FFFE stream into the $7E:2000 tilemap,
     // later transferred to VRAM word $4800. This test reference reads raw
     // cartridge streams independently of installed catalogs and runtime writers.
+    /// <summary>Reconstructs the 64 KiB VRAM image written by the native extended-BG2 stream for an instruction frame.</summary>
+    /// <param name="rom">Cartridge address space containing the room record and its command streams.</param>
+    /// <param name="bank">Bank used to read the record and stream operands.</param>
+    /// <param name="pointer">Address of the extended-BG2 room record.</param>
+    /// <param name="newInstructionFrame">Whether this frame executes the streams; false returns a zero-filled VRAM image.</param>
+    /// <returns>The VRAM bytes after applying each recognized native stream.</returns>
     private static byte[] ReadReferenceExtendedBg2Vram(
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {

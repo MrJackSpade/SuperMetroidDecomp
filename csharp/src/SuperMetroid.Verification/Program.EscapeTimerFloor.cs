@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the optional escape-time floor stops both Ceres and Mother Brain countdowns at one second without changing prior timer behavior, and that disabling it restores expiration.</summary>
     private static void VerifyEscapeTimerFloor()
     {
         AssertTrue(SuperMetroidGameOptionsIni.Parse("").EndingTimeOverrideMinutes is null, "ending override defaults off");

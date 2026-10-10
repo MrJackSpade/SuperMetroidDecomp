@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Evir contact death preserves already-scheduled arm and spit calls against the cleared body slot, counts only the body, and removes companions on the next frame.</summary>
     private static void VerifyEvirDeathFrame()
     {
         var samus = CreateDropTestSamus();

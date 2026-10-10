@@ -7,6 +7,8 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks extraction of retail CGRAM colors, runtime startup and room-entry palette restoration, plus valid override, removal, and invalid RGB5 handling.</summary>
+    /// <param name="sourceRom">Path to the supported retail ROM used as the palette extraction reference.</param>
     private static void VerifyGameplayBasePalettes(string sourceRom)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",

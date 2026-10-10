@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled linear-speed table windows against cartridge data and, unless limited to definitions, verifies four enemy-family initializers.</summary>
+    /// <param name="rom">The cartridge address space providing the native linear-speed words.</param>
+    /// <param name="definitionsOnly">When true, checks catalog and shared-reader data without exercising enemy initializers.</param>
     private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -8,6 +8,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the five gunship liftoff transfers against cartridge art and native VRAM, including edited PNG rebinding and strict handling of invalid assets.</summary>
+    /// <param name="bus">Retail address space containing the source art and transfer tables.</param>
+    /// <param name="directory">Installed enemy-art directory containing the stock liftoff PNG.</param>
+    /// <param name="stock">Installed catalog expected to contain the gunship liftoff frame data.</param>
     private static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {

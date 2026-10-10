@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Checks grapple firing and pose-change refiring use the native palette and flare color, then restore the equipped beam palette on cancellation.</summary>
     private static void VerifyGameplayGrapplePalette()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

@@ -7,6 +7,14 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares extracted options presentation data and ROM-free menu behavior with the cartridge,
+    /// then checks visible overrides, state-preserving rebinding, and invalid-document rejection.
+    /// </summary>
+    /// <param name="bus">Retail address space used to extract stock data and provide the cartridge-backed reference menu.</param>
+    /// <param name="stock">Installed directory containing the extracted game-options presentation.</param>
+    /// <param name="overrides">Directory where the edited presentation override is written and loaded.</param>
+    /// <param name="original">Area-map presentation catalog supplied to both menu instances during comparison.</param>
     private static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Spore Spawn frame and hitbox data against cartridge bytes and compares installed touch/shot callback results with an independent native walk.</summary>
+    /// <param name="rom">Cartridge address space used by the independent oracle for native frame, rectangle, and callback data.</param>
     private static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
     {

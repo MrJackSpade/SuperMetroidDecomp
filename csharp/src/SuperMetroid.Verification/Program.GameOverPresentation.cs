@@ -7,6 +7,11 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Compares native and installed game-over animation, rendering, and audio, then verifies editable assets and timing-preserving rebinds.</summary>
+    /// <param name="bus">Cartridge address space used as the native reference and for audio progression.</param>
+    /// <param name="stock">Directory containing the extracted stock presentation assets.</param>
+    /// <param name="overrides">Directory receiving the test's edited game-over presentation.</param>
+    /// <param name="original">Installed presentation catalog used for the stock comparison.</param>
     private static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

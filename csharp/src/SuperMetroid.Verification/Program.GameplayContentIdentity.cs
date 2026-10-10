@@ -54,6 +54,10 @@ internal static partial class Program
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
+    /// <summary>Builds synthetic palette, sprite, and X-ray presentation identities, with optional component edits or reversed enumeration for canonical-order checks.</summary>
+    /// <param name="edit">Optional named fixture mutation used to change one selected presentation component.</param>
+    /// <param name="reverse">Reverses room-overlay and X-ray-rule input order before computing identities.</param>
+    /// <returns>Component names mapped to their selected-content digests.</returns>
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {

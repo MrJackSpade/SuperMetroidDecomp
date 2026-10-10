@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Golden Torizo eye-beam control words and separate VRAM-transfer descriptors against their pinned bank-$AA bytes.</summary>
+    /// <param name="rom">Retail address space used to read the eye-beam instruction and transfer records.</param>
     private static void VerifyGoldenTorizoEyeBeamAttackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;

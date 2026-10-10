@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the 588-entry extended-frame roster's captured identity, order, legacy schema ranges, and bounds behavior.</summary>
     private static void VerifyExtendedFrameSequence()
     {
         var frames = EnemyExtendedFrameDefinitions.Frames.ToArray();

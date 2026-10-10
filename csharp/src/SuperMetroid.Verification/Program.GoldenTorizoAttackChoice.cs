@@ -7,6 +7,7 @@ internal static partial class Program
     // #1269: Instruction_GoldenTorizo_CallY_OrY2_ForAttack ($AA:D53B) adds NMI_FrameCounter
     // ($05B6), not the 8-bit counter at $05B5. In the 100% movie the two disagree in bit 3
     // when the Torizo lands from a backward jump: native throws sonic booms, not chozo orbs.
+    /// <summary>Verifies that Golden Torizo's landing attack selection uses the 16-bit NMI frame counter when choosing its projectile instruction list.</summary>
     private static void VerifyGoldenTorizoAttackChoice()
     {
         const ushort landedFacingLeft = 0xcdaf;

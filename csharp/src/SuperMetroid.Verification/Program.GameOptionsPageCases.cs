@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks all five installed game-options pages against their original retail resources and confirms unsupported page selectors are rejected.</summary>
     private static void VerifyGameOptionsPageCases()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

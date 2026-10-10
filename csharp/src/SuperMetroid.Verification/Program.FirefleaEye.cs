@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the retail Fireflea eye remains visible and unaffected by seven room-darkness levels under the native OBJ color-math mask.</summary>
     private static void VerifyFirefleaEye()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

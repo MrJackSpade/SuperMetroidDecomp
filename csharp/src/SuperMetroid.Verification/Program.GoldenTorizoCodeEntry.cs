@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that Golden Torizo code entry grants its native equipment and preserves the entering Wave artwork through room initialization and NMI continuation.</summary>
     private static void VerifyGoldenTorizoCodeEntry()
     {
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.

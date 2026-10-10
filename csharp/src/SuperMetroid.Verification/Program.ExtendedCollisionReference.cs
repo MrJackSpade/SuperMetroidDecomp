@@ -7,6 +7,10 @@ internal static partial class Program
     // compiled geometry and production overlap helper after removal of the
     // runtime ROM fallback in a15b3aea0. Arguments mirror the reflected subject,
     // including its output callback, so existing boundary assertions stay intact.
+    /// <summary>Walks native extended-spritemap and hitbox records to independently evaluate overlap and select the first matching collision callback.</summary>
+    /// <param name="source">Cartridge import address space containing the native component and hitbox records.</param>
+    /// <param name="arguments">Reflected collision inputs in slots 0–5; slot 6 receives the matched rectangle's shot or contact callback value, or zero when there is no hit.</param>
+    /// <returns><see langword="true"/> when a native hitbox overlaps the target; otherwise, <see langword="false"/>.</returns>
     private static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
     {
         var enemy = (RoomEnemySlot)arguments[0]!;

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native empty hitbox lists for selected Draygon OAM frames without assigning Spore Spawn frames to Draygon.</summary>
+    /// <param name="rom">Retail address space used to inspect each selected frame's native components and hitbox lists.</param>
     private static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {

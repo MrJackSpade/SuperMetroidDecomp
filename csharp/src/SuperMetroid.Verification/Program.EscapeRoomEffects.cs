@@ -6,6 +6,8 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Checks escape-room explosions and terrain shake across six rooms, plus the rescue wall, exit door, and transition.</summary>
+    /// <param name="romPath">Path to the supported retail ROM used to load the room fixtures.</param>
     private static void VerifyEscapeRoomEffects(string romPath)
     {
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })

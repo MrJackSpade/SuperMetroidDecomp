@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the orb program's bank-$AA mechanics words and ownership, separates its visual selectors, and verifies selected collision frames and hitboxes against cartridge data.</summary>
+    /// <param name="rom">Cartridge address space containing the Golden Torizo orb program and collision tables.</param>
     private static void VerifyGoldenTorizoLeftFootOrbDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

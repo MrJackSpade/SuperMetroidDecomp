@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that installed EVIR selectors resolve to the native frames, render matching editable OAM, and avoid cartridge reads for presentation words.</summary>
+    /// <param name="rom">Cartridge address space used to compare native selectors and OAM output.</param>
+    /// <param name="stock">Imported artwork catalog supplying the editable EVIR spritemap parts.</param>
     private static void VerifyInstalledEvirVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

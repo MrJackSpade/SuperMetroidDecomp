@@ -20,6 +20,10 @@ internal static partial class Program
         VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 1500, (ushort)(SnesButton.Right | SnesButton.X));
     }
 
+    /// <summary>Compares a cartridge-backed direct-room run with an installed run using an address space with no ROM allocation, for one fixed held input.</summary>
+    /// <param name="roomPointer">Retail room-header pointer used to initialize both game instances.</param>
+    /// <param name="frameCount">Number of gameplay frames to compare.</param>
+    /// <param name="heldInput">SNES button mask held throughout the compared room sequence.</param>
     private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;

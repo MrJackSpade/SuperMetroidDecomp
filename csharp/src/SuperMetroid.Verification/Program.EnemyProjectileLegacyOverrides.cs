@@ -90,6 +90,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Selects the program-frame identities present in a historical projectile schema, retaining its named frame set and pre-Alcoon exclusions.</summary>
+    /// <param name="version">Projectile artwork schema version whose program-frame coverage is being reconstructed.</param>
+    /// <returns>The ordered program-frame definitions for that schema, or an empty array before program frames were introduced.</returns>
+    /// <exception cref="InvalidOperationException">No historical frame set is defined for <paramref name="version"/>.</exception>
     private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(int version) => version switch
     {
         < EnemyProjectileSpritemapDefinitions.FirstProgramFrameVersion => [],

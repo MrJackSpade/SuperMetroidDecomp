@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the Etecoon trio preserves its dormant timers during the door transition, then emits one native fanfare request that advances through audible notes.</summary>
     private static void VerifyEtecoonFanfareAfterDoor()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

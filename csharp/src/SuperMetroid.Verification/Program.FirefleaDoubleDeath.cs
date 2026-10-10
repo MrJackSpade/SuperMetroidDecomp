@@ -10,6 +10,7 @@ internal static partial class Program
     // EnemyDeath runs on the cleared slot: a small explosion spawns at (0,0) with header zero
     // and a second kill is counted. The 100% movie's screw attack through Lower Norfair's
     // Fireflea room shows that explosion in the next lower projectile slot.
+    /// <summary>Verifies lethal Screw Attack contact also produces the Fireflea's second death explosion from its cleared slot.</summary>
     private static void VerifyFirefleaDoubleDeath()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

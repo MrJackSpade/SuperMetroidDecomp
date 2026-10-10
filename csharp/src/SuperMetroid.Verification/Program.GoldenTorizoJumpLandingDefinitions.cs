@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the four Golden Torizo landing lists' control words match bank-$AA data and that their compiled byte range excludes the following opcode.</summary>
+    /// <param name="rom">Address space supplying the native bank-$AA instruction words.</param>
     private static void VerifyGoldenTorizoJumpLandingDefinitions(ISnesAddressSpace rom)
     {
         const int bank = 0xaa0000;

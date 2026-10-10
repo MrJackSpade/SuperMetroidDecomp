@@ -75,7 +75,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.AssetExtraction/RoomFxAnimatedTileAtlasExtractor.cs", "E96C535DB461D58D2805A03CA2CEB2106052517C3BEB2442FF2CF1867C89DFD1"),
         new("csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs", "0B75E09D8348F6E50FC26057BD32B889C978C5F6151B031C65AAA3091AB3A19C"),
         new("csharp/src/SuperMetroid.AssetExtraction/RoomSkyTilemapArtworkFiles.cs", "7B3F2B5BD6F5FD4A672AC472DFB463EAC7A30600F5C1E23298BD0F45BB19FB1D"),
-        new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.cs", "C18C2C1DE9A86CF1EDEB27F0F3FC67D416D64D2255ABA41213CDB8FECF05D2AE"),
+        new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.cs", "4C17CD805728C12FFDAAAAA932D0631A903E28433457A488C78DC8D26903DEA9"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Validation.cs", "D603B571267F754664C1A001B1F8A2D1ABF9454A38C1C430FCCA8CCF0EB9E492"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Components.cs", "8B7456A523E142C690DEE4BA9791AC95B9EC9994012B9A446928128673D10556"),
         // Format 85 requires both bounded invalid-selection beam sheets.

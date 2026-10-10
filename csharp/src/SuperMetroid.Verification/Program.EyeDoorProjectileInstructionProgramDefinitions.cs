@@ -51,7 +51,7 @@ internal static partial class Program
         };
         var system = new Bank80SystemState();
         var request = new EyeDoorProjectileRequest(
-            EyeDoorEnemyProjectileRomData.ProjectileDefinition,
+            EyeDoorProjectileDefinition.Projectile,
             Parameter: 0,
             PlmBlockIndex: 4 * 16 + 7,
             DoorBit: 5);

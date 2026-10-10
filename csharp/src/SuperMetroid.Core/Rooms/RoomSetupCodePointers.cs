@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Native bank-$8F room-setup callback offsets present in retail room states.</summary>
 /// <remarks>
 /// Setup callbacks run after PLM creation and door ASM but before elevator finalization.
-/// Keeping this catalog separate from <see cref="DoorCodes"/> preserves that ordering and
+/// Keeping this catalog separate from <see cref="DoorSetupCode"/> preserves that ordering and
 /// prevents two unrelated bank-$8F callback domains from being compared interchangeably.
 /// </remarks>
 public static class RoomSetupCodePointers

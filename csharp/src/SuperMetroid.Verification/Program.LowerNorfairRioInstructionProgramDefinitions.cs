@@ -35,39 +35,39 @@ internal static partial class Program
         (ushort Entry, int Calls, ushort Final, bool Visible, bool Signal, string Name)[]
             programs =
         [
-            (LowerNorfairRioInstructionProgramDefinitions.Idle,
+            ((ushort)LowerNorfairRioProgram.Idle,
                 5,
-                unchecked((ushort)(LowerNorfairRioInstructionProgramDefinitions.Idle + 6)),
+                unchecked((ushort)((ushort)LowerNorfairRioProgram.Idle + 6)),
                 false, false, "idle"),
-            (LowerNorfairRioInstructionProgramDefinitions.PrepareToSwoop,
+            ((ushort)LowerNorfairRioProgram.PrepareToSwoop,
                 10,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.PrepareToSwoop + 40)),
+                    (ushort)LowerNorfairRioProgram.PrepareToSwoop + 40)),
                 false, true, "prepare to swoop"),
-            (LowerNorfairRioInstructionProgramDefinitions.Descending,
+            ((ushort)LowerNorfairRioProgram.Descending,
                 2,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.Descending + 6)),
+                    (ushort)LowerNorfairRioProgram.Descending + 6)),
                 false, false, "descending"),
-            (LowerNorfairRioInstructionProgramDefinitions.AscendingPart1,
+            ((ushort)LowerNorfairRioProgram.AscendingPart1,
                 4,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.AscendingPart1 + 16)),
+                    (ushort)LowerNorfairRioProgram.AscendingPart1 + 16)),
                 false, true, "ascending part one"),
-            (LowerNorfairRioInstructionProgramDefinitions.AscendingPart2,
+            ((ushort)LowerNorfairRioProgram.AscendingPart2,
                 4,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.AscendingPart2 + 6)),
+                    (ushort)LowerNorfairRioProgram.AscendingPart2 + 6)),
                 true, false, "ascending part two"),
-            (LowerNorfairRioInstructionProgramDefinitions.Cooldown,
+            ((ushort)LowerNorfairRioProgram.Cooldown,
                 10,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.Cooldown + 40)),
+                    (ushort)LowerNorfairRioProgram.Cooldown + 40)),
                 true, true, "cooldown"),
-            (LowerNorfairRioInstructionProgramDefinitions.Flames,
+            ((ushort)LowerNorfairRioProgram.Flames,
                 4,
                 unchecked((ushort)(
-                    LowerNorfairRioInstructionProgramDefinitions.Flames + 4)),
+                    (ushort)LowerNorfairRioProgram.Flames + 4)),
                 false, false, "flames"),
         ];
         foreach ((ushort entry, int calls, ushort final, bool visible, bool signal,
@@ -144,7 +144,7 @@ internal static partial class Program
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize.Invoke(enemies, [parent]);
-        AssertEqual(LowerNorfairRioInstructionProgramDefinitions.Idle,
+        AssertEqual((ushort)LowerNorfairRioProgram.Idle,
             parent.CurrentInstruction,
             "Lower Norfair Rio parent initializer selects idle");
 
@@ -153,7 +153,7 @@ internal static partial class Program
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
         initialize.Invoke(enemies, [follower]);
-        AssertEqual(LowerNorfairRioInstructionProgramDefinitions.Flames,
+        AssertEqual((ushort)LowerNorfairRioProgram.Flames,
             follower.CurrentInstruction,
             "Lower Norfair Rio follower initializer selects flames");
     }
@@ -203,8 +203,8 @@ internal static partial class Program
         {
             checksum += LowerNorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
                 (index & 1) == 0
-                    ? LowerNorfairRioInstructionProgramDefinitions.Idle
-                    : LowerNorfairRioInstructionProgramDefinitions.Cooldown);
+                    ? (ushort)LowerNorfairRioProgram.Idle
+                    : (ushort)LowerNorfairRioProgram.Cooldown);
         }
         return checksum;
     }

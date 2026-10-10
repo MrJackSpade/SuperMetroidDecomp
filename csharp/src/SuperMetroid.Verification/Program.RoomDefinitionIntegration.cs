@@ -109,10 +109,10 @@ internal static partial class Program
             if (doorPointer == DoorHeaderRomData.ElevatorPseudoDoorPointer)
                 continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
-            if (door.SetupCodePointer != 0)
+            if (door.SetupCodePointer != DoorSetupCode.None)
             {
                 forbidden.Add(RoomHeaderRomData.BankAddress |
-                    door.SetupCodePointer);
+                    (ushort)door.SetupCodePointer);
             }
         }
 

@@ -592,13 +592,13 @@ internal static partial class Program
             "ProcessInstructions", flags)!;
         foreach ((ushort entry, int calls) in new (ushort, int)[]
                  {
-                     (LowerNorfairRioInstructionProgramDefinitions.Idle, 5),
-                     (LowerNorfairRioInstructionProgramDefinitions.PrepareToSwoop, 10),
-                     (LowerNorfairRioInstructionProgramDefinitions.Descending, 2),
-                     (LowerNorfairRioInstructionProgramDefinitions.AscendingPart1, 4),
-                     (LowerNorfairRioInstructionProgramDefinitions.AscendingPart2, 4),
-                     (LowerNorfairRioInstructionProgramDefinitions.Cooldown, 10),
-                     (LowerNorfairRioInstructionProgramDefinitions.Flames, 4),
+                     ((ushort)LowerNorfairRioProgram.Idle, 5),
+                     ((ushort)LowerNorfairRioProgram.PrepareToSwoop, 10),
+                     ((ushort)LowerNorfairRioProgram.Descending, 2),
+                     ((ushort)LowerNorfairRioProgram.AscendingPart1, 4),
+                     ((ushort)LowerNorfairRioProgram.AscendingPart2, 4),
+                     ((ushort)LowerNorfairRioProgram.Cooldown, 10),
+                     ((ushort)LowerNorfairRioProgram.Flames, 4),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =

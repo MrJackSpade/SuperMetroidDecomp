@@ -47,7 +47,7 @@ internal static partial class Program
 
         enemies.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
-                EyeDoorEnemyProjectileRomData.ProjectileDefinition,
+                EyeDoorProjectileDefinition.Projectile,
                 Parameter: 0,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
@@ -75,7 +75,7 @@ internal static partial class Program
 
         enemies.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
-                EyeDoorEnemyProjectileRomData.SweatDefinition,
+                EyeDoorProjectileDefinition.Sweat,
                 Parameter: 4,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
@@ -90,7 +90,7 @@ internal static partial class Program
 
         enemies.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
-                EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                EyeDoorProjectileDefinition.Smoke,
                 Parameter: 0x030a,
                 PlmBlockIndex: plmBlock,
                 DoorBit: 5),
@@ -169,12 +169,12 @@ internal static partial class Program
         StepEyeDoorPlms(plms, bus, level, streamer);
         AssertEqual(5, effects.Count,
             $"{orientation} active eye emits attack, sweat, and three smoke requests");
-        AssertEqual(EyeDoorEnemyProjectileRomData.ProjectileDefinition,
+        AssertEqual(EyeDoorProjectileDefinition.Projectile,
             effects[0].DefinitionPointer, $"{orientation} attack definition");
-        AssertEqual(EyeDoorEnemyProjectileRomData.SweatDefinition,
+        AssertEqual(EyeDoorProjectileDefinition.Sweat,
             effects[1].DefinitionPointer, $"{orientation} sweat definition");
         AssertEqual(3, effects.Count(effect =>
-                effect.DefinitionPointer == EyeDoorEnemyProjectileRomData.SmokeDefinition),
+                effect.DefinitionPointer == EyeDoorProjectileDefinition.Smoke),
             $"{orientation} smoke request count");
 
         AssertTrue(plms.TryNotifyColoredDoorHit(

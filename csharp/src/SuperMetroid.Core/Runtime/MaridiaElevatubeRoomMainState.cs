@@ -33,7 +33,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies door callback $8F:E26C for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
-        EnsureActive(DoorCodes.DoorASM_SetupElevatubeFromSouth);
+        EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
         ArgumentNullException.ThrowIfNull(samus);
         // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.SouthStartingPosition;
@@ -45,7 +45,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies door callback $8F:E291 for entry from Plasma Spark to the north.</summary>
     public void SetUpFromNorth(SamusState samus)
     {
-        EnsureActive(DoorCodes.DoorASM_SetupElevatubeFromNorth);
+        EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
         ArgumentNullException.ThrowIfNull(samus);
         // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.NorthStartingPosition;
@@ -117,12 +117,12 @@ public sealed class MaridiaElevatubeRoomMainState
         return movement;
     }
 
-    private void EnsureActive(ushort setupPointer)
+    private void EnsureActive(DoorSetupCode setupCode)
     {
         if (IsActive)
             return;
         throw new InvalidDataException(
-            $"Elevatube setup callback $8F:{setupPointer:X4} selected a room without main $8F:E2B6.");
+            $"Elevatube setup callback $8F:{(int)setupCode:X4} selected a room without main $8F:E2B6.");
     }
 }
 

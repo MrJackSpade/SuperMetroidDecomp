@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Named bank-$84 state-machine identities shared by both eye-door orientations.</summary>
@@ -60,7 +61,7 @@ public enum EyeDoorOrientation : byte
 /// <param name="PlmBlockIndex">Zero-based row-major room-cell index of the spawning PLM, in 16-pixel blocks rather than the native level-word byte offset; the consumer supplies the room row stride.</param>
 /// <param name="DoorBit">Raw spawning PLM room-argument word; attack initialization retains it for the persistent opened-door-bit check, while sweat and smoke do not consume it.</param>
 public readonly record struct EyeDoorProjectileRequest(
-    ushort DefinitionPointer,
+    EyeDoorProjectileDefinition DefinitionPointer,
     ushort Parameter,
     int PlmBlockIndex,
     ushort DoorBit);

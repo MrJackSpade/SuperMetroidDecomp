@@ -174,7 +174,7 @@ internal static partial class Program
         RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
         smokeEnemies.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
-                EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                EyeDoorProjectileDefinition.Smoke,
                 Parameter: 3,
                 PlmBlockIndex: 4 * 16 + 7,
                 DoorBit: 0),

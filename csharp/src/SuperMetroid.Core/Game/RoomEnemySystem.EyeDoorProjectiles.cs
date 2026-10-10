@@ -23,15 +23,14 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemyProjectileKind kind = request.DefinitionPointer switch
         {
-            EyeDoorEnemyProjectileRomData.ProjectileDefinition =>
+            EyeDoorProjectileDefinition.Projectile =>
                 RoomEnemyProjectileKind.EyeDoorProjectile,
-            EyeDoorEnemyProjectileRomData.SweatDefinition =>
+            EyeDoorProjectileDefinition.Sweat =>
                 RoomEnemyProjectileKind.EyeDoorSweat,
-            EyeDoorEnemyProjectileRomData.SmokeDefinition =>
+            EyeDoorProjectileDefinition.Smoke =>
                 RoomEnemyProjectileKind.EyeDoorSmoke,
-            _ => throw new InvalidDataException(
-                $"Eye-door PLM requested unknown bank-$86 definition " +
-                $"$86:{request.DefinitionPointer:X4}."),
+            _ => throw new InvalidOperationException(
+                $"Undefined {nameof(EyeDoorProjectileDefinition)} {(int)request.DefinitionPointer:X4}."),
         };
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();

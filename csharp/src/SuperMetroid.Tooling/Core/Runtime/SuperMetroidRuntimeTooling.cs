@@ -37,7 +37,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 DestinationScreenX: unchecked((byte)(cameraX >> 8)),
                 DestinationScreenY: unchecked((byte)(cameraY >> 8)),
                 SamusDistance: 0,
-                SetupCodePointer: 0);
+                SetupCodePointer: DoorSetupCode.None);
 
             self.ActiveLoadStation = null;
             self.CeresElevatorArrival = null;

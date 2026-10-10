@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -121,11 +122,11 @@ internal static partial class Program
     /// <summary>The ten reward gesture and jump actors, in native spawn order.</summary>
     private static readonly ushort[] RewardActorPointers =
     [
-        EndingRewardActorDefinitions.SuitlessUpper, EndingRewardActorDefinitions.SuitlessLower,
-        EndingRewardActorDefinitions.SuitedBody, EndingRewardActorDefinitions.SuitedArm,
-        EndingRewardActorDefinitions.HelmetedHead, EndingRewardActorDefinitions.HelmetlessHead,
-        EndingRewardJumpDefinitions.SuitlessBody, EndingRewardJumpDefinitions.SuitedBody,
-        EndingRewardJumpDefinitions.HelmetedHead, EndingRewardJumpDefinitions.HelmetlessHead,
+        (ushort)EndingRewardActor.SuitlessUpper, (ushort)EndingRewardActor.SuitlessLower,
+        (ushort)EndingRewardActor.SuitedBody, (ushort)EndingRewardActor.SuitedArm,
+        (ushort)EndingRewardActor.HelmetedHead, (ushort)EndingRewardActor.HelmetlessHead,
+        (ushort)EndingRewardActor.JumpSuitlessBody, (ushort)EndingRewardActor.JumpSuitedBody,
+        (ushort)EndingRewardActor.JumpHelmetedHead, (ushort)EndingRewardActor.JumpHelmetlessHead,
     ];
 
     /// <summary>The original LDY operand addresses that independently identify each actor record.</summary>
@@ -145,30 +146,29 @@ internal static partial class Program
             AssertEqual((byte)0xa0, bus.ReadByte(spawn.Load), "reward native spawn uses LDY immediate");
             ushort pointer = ReadWord(bus, spawn.Load + 1);
             AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
-            EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(pointer);
+            EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(
+                ClosedNativeWords.Decode<EndingRewardActor>(pointer, "reward actor definition"));
             int address = 0x8b0000 | pointer;
             ushort initializer = ReadWord(bus, address);
-            AssertEqual(initializer, actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
+            AssertEqual(initializer, (ushort)actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
             AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
             AssertEqual(ReadWord(bus, address + 4), actual.InstructionList, $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
                 AssertEqual((byte)0xa9, bus.ReadByte(code + offset), "reward initializer uses LDA immediate");
-            var origin = EndingRewardActorDefinitions.GetInitialization(initializer);
+            var origin = EndingRewardActorDefinitions.GetInitialization(
+                ClosedNativeWords.Decode<EndingRewardInitialization>(initializer, "reward initialization"));
             AssertEqual((int)ReadWord(bus, code + 1), origin.X, "reward native initial X");
             AssertEqual((int)ReadWord(bus, code + 7), origin.Y, "reward native initial Y");
             AssertEqual((int)ReadWord(bus, code + 13), origin.Palette, "reward native initial palette");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
+        AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");
         foreach (ushort invalid in new ushort[] { 0, 0xef32, 0xef34, 0xef45, 0xffff })
-            AssertThrows<InvalidDataException>(() => EndingRewardActorDefinitions.Get(invalid), "reward record membership");
+            AssertThrows<InvalidOperationException>(() => EndingRewardActorDefinitions.Get((EndingRewardActor)invalid), "reward record membership");
         foreach (ushort invalid in new ushort[] { 0, 0xf142, 0xf144, 0xffff })
-            AssertThrows<InvalidDataException>(() => EndingRewardActorDefinitions.GetInitialization(invalid), "reward initializer membership");
-
-        AssertThrows<InvalidDataException>(
-            () => EndingRewardActorDefinitions.Get(0),
-            "unknown reward actor definition");
+            AssertThrows<InvalidOperationException>(() => EndingRewardActorDefinitions.GetInitialization((EndingRewardInitialization)invalid), "reward initializer membership");
         Console.WriteLine(
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }

@@ -16,16 +16,16 @@ internal sealed class EndingRewardGesture
         this.bus = bus;
         if (reward == EndingReward.Suitless)
         {
-            Spawn(EndingRewardActorDefinitions.SuitlessUpper);
-            Spawn(EndingRewardActorDefinitions.SuitlessLower);
+            Spawn(EndingRewardActor.SuitlessUpper);
+            Spawn(EndingRewardActor.SuitlessLower);
         }
         else
         {
             // Keep E342's allocation order: head first, then body, then arm.
-            Spawn(reward == EndingReward.Helmetless ? EndingRewardActorDefinitions.HelmetlessHead
-                : EndingRewardActorDefinitions.HelmetedHead);
-            Spawn(EndingRewardActorDefinitions.SuitedBody);
-            Spawn(EndingRewardActorDefinitions.SuitedArm);
+            Spawn(reward == EndingReward.Helmetless ? EndingRewardActor.HelmetlessHead
+                : EndingRewardActor.HelmetedHead);
+            Spawn(EndingRewardActor.SuitedBody);
+            Spawn(EndingRewardActor.SuitedArm);
         }
     }
 
@@ -63,7 +63,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
-    private void Spawn(ushort definition)
+    private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
         var (x, y, palette) =

@@ -78,17 +78,17 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             if (local < RunFrames * 2)
                 return new((ushort)(start + local / 2 * 6 + local % 2 * 4), local % 2 == 0
                     ? high ? HighTideHold : LowTideHold
-                    : right ? EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6
-                        : EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6);
+                    : right ? (ushort)EscapeDachoraInstruction.MoveRight
+                        : (ushort)EscapeDachoraInstruction.MoveLeft);
             int branchWord = local - RunFrames * 2;
             int address = start + RunFrames * 6 + branchWord * 2;
             if (!high && branchWord < 2)
-                return new((ushort)address, branchWord == 0 ? EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE
+                return new((ushort)address, branchWord == 0 ? (ushort)EscapeDachoraInstruction.GotoIfAcidYLessThanCE
                     : right ? RunningAroundHighTideRightLoop : RunningAroundHighTideLeftLoop);
             int common = branchWord - (high ? 0 : 2);
             ushort value = common switch
             {
-                0 => EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped,
+                0 => (ushort)EscapeDachoraInstruction.GotoIfCrittersEscaped,
                 1 => right ? RunningForEscapeAccelerating : RunningForEscape,
                 2 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
                 3 => start,
@@ -106,7 +106,7 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             ushort hold = frame == 0 ? DeparturePauseHold : (ushort)Math.Max(MaximumSpeedHold,
                 AccelerationInitialHold - frame / AccelerationFramesPerStep * AccelerationHoldReduction);
             return new((ushort)(RunningForEscapeAccelerating + frame * 6 + slot * 4), slot == 0 ? hold
-                : EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6);
+                : (ushort)EscapeDachoraInstruction.MoveRight);
         }
         int tail = departure - 1 - 2 * DepartureFrames;
         return new((ushort)(RunningForEscapeAccelerating + DepartureFrames * 6 + tail * 2),

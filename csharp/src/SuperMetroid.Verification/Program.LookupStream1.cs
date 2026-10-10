@@ -1609,10 +1609,10 @@ internal static partial class Program
             ushort value = Word(cursor); controls.Add((ushort)cursor); cursor += 2;
             if ((value & 0x8000) == 0) { visuals.Add((ushort)cursor); cursor += 2; }
             else if (value is CommonEnemyInstructionCodes.Goto or CommonEnemyInstructionCodes.SetTimer or CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate
-                or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped)
+                or (ushort)EscapeDachoraInstruction.GotoIfAcidYLessThanCE or (ushort)EscapeDachoraInstruction.GotoIfCrittersEscaped)
             { controls.Add((ushort)cursor); cursor += 2; }
-            else AssertTrue(value is EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6
-                or EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6, "Dachora native operand-free movement callback");
+            else AssertTrue(value is (ushort)EscapeDachoraInstruction.MoveLeft
+                or (ushort)EscapeDachoraInstruction.MoveRight, "Dachora native operand-free movement callback");
         }
         AssertEqual(controls.Count, EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount, "Dachora native control count");
         AssertEqual(visuals.Count, EscapeDachoraInstructionProgramDefinitions.PresentationWordCount, "Dachora native visual count");

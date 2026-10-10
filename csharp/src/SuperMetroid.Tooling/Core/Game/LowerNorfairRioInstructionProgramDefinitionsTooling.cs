@@ -12,7 +12,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
     {
         if ((uint)index >= MechanicsWordCount)
             throw new IndexOutOfRangeException();
-        for (int address = LowerNorfairRioInstructionProgramDefinitions.Idle; address < LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions; address += 2)
+        for (int address = (ushort)LowerNorfairRioProgram.Idle; address < LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions; address += 2)
         {
             if (!LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord((ushort)address) && index-- == 0)
                 return new((ushort)address, LowerNorfairRioInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
@@ -23,7 +23,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
-        for (int address = LowerNorfairRioInstructionProgramDefinitions.Idle; address < LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions; address += 2)
+        for (int address = (ushort)LowerNorfairRioProgram.Idle; address < LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions; address += 2)
         {
             if (LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord((ushort)address) && index-- == 0)
                 return (ushort)address;
@@ -35,6 +35,6 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         if ((address & 0xff0000) != 0xa20000)
             return false;
         ushort word = (ushort)(address & ~1);
-        return LowerNorfairRioInstructionProgramDefinitions.ProgramAt(word) != 0 && !LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord(word);
+        return LowerNorfairRioInstructionProgramDefinitions.ProgramAt(word) is not null && !LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord(word);
     }
 }

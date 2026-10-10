@@ -15,8 +15,9 @@ internal static partial class Program
             typeof(EnemyInstructionCodePointers),
             typeof(ChozoStatueInstructionCodes),
             typeof(CommonEnemyInstructionCodes),
-            typeof(EscapeAnimalInstructionCodes),
-            typeof(KraidInstructionCodes),
+            typeof(EscapeEtecoonInstruction),
+            typeof(EscapeDachoraInstruction),
+            typeof(KraidFootInstruction),
             typeof(MagdolliteInstructionCodes),
             typeof(MotherBrainInstructionCodes),
             typeof(NorfairRioInstructionCodes),
@@ -85,6 +86,7 @@ internal static partial class Program
     }
 
     private static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
-        .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
+        .Where(field => field.IsLiteral && (field.FieldType == typeof(ushort) ||
+            field.FieldType.IsEnum && Enum.GetUnderlyingType(field.FieldType) == typeof(ushort)))
         .ToArray();
 }

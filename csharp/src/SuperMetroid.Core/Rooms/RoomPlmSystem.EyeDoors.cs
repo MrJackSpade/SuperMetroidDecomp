@@ -211,7 +211,7 @@ public sealed partial class RoomPlmSystem
                 SpawnEyeDoorProjectile(
                     bus,
                     slot,
-                    EyeDoorEnemyProjectileRomData.ProjectileDefinition,
+                    EyeDoorProjectileDefinition.Projectile,
                     hasParameter: true);
                 _soundRequests.Add(CreateSoundRequest(
                     SoundEffectId.FromCartridge(
@@ -224,18 +224,18 @@ public sealed partial class RoomPlmSystem
                 SpawnEyeDoorProjectile(
                     bus,
                     slot,
-                    EyeDoorEnemyProjectileRomData.SweatDefinition,
+                    EyeDoorProjectileDefinition.Sweat,
                     hasParameter: true);
                 return true;
 
             case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
                 SpawnEyeDoorProjectile(
                     slot,
-                    EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                    EyeDoorProjectileDefinition.Smoke,
                     EyeDoorPlmRomData.RandomizedSmokeParameter);
                 SpawnEyeDoorProjectile(
                     slot,
-                    EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                    EyeDoorProjectileDefinition.Smoke,
                     EyeDoorPlmRomData.RandomizedSmokeParameter);
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                 return true;
@@ -243,7 +243,7 @@ public sealed partial class RoomPlmSystem
             case RoomPlmInstruction.SpawnEyeDoorSmoke:
                 SpawnEyeDoorProjectile(
                     slot,
-                    EyeDoorEnemyProjectileRomData.SmokeDefinition,
+                    EyeDoorProjectileDefinition.Smoke,
                     EyeDoorPlmRomData.CenteredSmokeParameter);
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                 return true;
@@ -264,7 +264,7 @@ public sealed partial class RoomPlmSystem
     private void SpawnEyeDoorProjectile(
         ISnesAddressSpace bus,
         PlmSlot slot,
-        ushort definitionPointer,
+        EyeDoorProjectileDefinition definitionPointer,
         bool hasParameter)
     {
         ushort parameter = hasParameter
@@ -277,7 +277,7 @@ public sealed partial class RoomPlmSystem
 
     private void SpawnEyeDoorProjectile(
         PlmSlot slot,
-        ushort definitionPointer,
+        EyeDoorProjectileDefinition definitionPointer,
         ushort parameter)
     {
         Action<EyeDoorProjectileRequest> spawn = _spawnEyeDoorProjectile ??

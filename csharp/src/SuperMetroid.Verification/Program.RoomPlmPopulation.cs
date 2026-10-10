@@ -82,7 +82,7 @@ internal static partial class Program
                 DestinationScreenX: 0,
                 DestinationScreenY: 0,
                 SamusDistance: 0,
-                SetupCodePointer: 0);
+                SetupCodePointer: DoorSetupCode.None);
             bool spawned = plms.TrySpawnDoorClosingPlm(
                 new TestAddressSpace(), level, door, new Bank80SystemState());
             AssertEqual(expectedHeader != 0, spawned,
@@ -191,7 +191,7 @@ internal static partial class Program
                 DestinationScreenX: 0,
                 DestinationScreenY: 0,
                 SamusDistance: 0,
-                SetupCodePointer: 0);
+                SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
                 $"resident door $84:{(int)definition.Header:X4} accepts transition redirect");
             AssertEqual(expected, plms.PopulationSlots.Single().InstructionPointer,
@@ -397,7 +397,7 @@ internal static partial class Program
             DestinationScreenX: 0,
             DestinationScreenY: 0,
             SamusDistance: 0x8000,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, plms.GreyDoors.Single().Phase,
@@ -531,7 +531,7 @@ internal static partial class Program
             DestinationScreenX: 0,
             DestinationScreenY: 0,
             SamusDistance: 0x8000,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
@@ -1016,7 +1016,7 @@ internal static partial class Program
             DestinationScreenX: 0,
             DestinationScreenY: 0,
             SamusDistance: 0x8000,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         AssertTrue(escape.TrySpawnDoorClosingPlm(guarded, escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.ActiveCount,

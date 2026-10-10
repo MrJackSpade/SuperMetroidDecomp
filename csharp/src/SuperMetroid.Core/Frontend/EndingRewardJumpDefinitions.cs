@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$8B jump, falling and landing actor definitions used after the reward gesture.</summary>
 internal static class EndingRewardJumpDefinitions
 {
-    /// <summary>$8B:EF3F, suitless jumping actor spawned by F51D.</summary>
-    public const ushort SuitlessBody = 0xef3f;
-    /// <summary>$8B:EF6F/EF75/EF7B, suited jump body and helmeted/helmetless heads spawned by F554.</summary>
-    public const ushort SuitedBody = 0xef6f, HelmetedHead = 0xef75, HelmetlessHead = 0xef7b;
     /// <summary>$8B:F528, body flight pre-instruction, switches to the falling sheet above Y=-80.</summary>
     public const ushort BodyFlight = 0xf528;
     /// <summary>$8B:F57F, head flight pre-instruction, deletes the old head above Y=-80.</summary>

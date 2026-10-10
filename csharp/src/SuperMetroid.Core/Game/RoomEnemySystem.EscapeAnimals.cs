@@ -224,60 +224,70 @@ public sealed partial class RoomEnemySystem
     {
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
         {
+            if (!Enum.IsDefined((EscapeEtecoonInstruction)opcode))
+                return false;
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
-            switch (opcode)
+            switch ((EscapeEtecoonInstruction)opcode)
             {
-                case EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY:
+                case EscapeEtecoonInstruction.SetPreInstruction:
                     state.PreInstruction = (EscapeEtecoonPreInstruction)
                         ReadEscapeAnimalOperand(slot, cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
 
-                case EscapeAnimalInstructionCodes.Instruction_CommonB3_SetEnemy0FB2ToRTS:
+                case EscapeEtecoonInstruction.ClearPreInstruction:
                     state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
-                case EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE:
+                case EscapeEtecoonInstruction.GotoIfAcidYLessThanCE:
                     cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
                         ? unchecked((ushort)(cursor + 4))
                         : ReadEscapeAnimalOperand(slot, cursor);
                     return true;
 
-                case EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY:
+                case EscapeEtecoonInstruction.AddXPosition:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition + ReadEscapeAnimalOperand(slot, cursor)));
                     cursor = unchecked((ushort)(cursor + 4));
                     return true;
+
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonInstruction)} {opcode:X4}.");
             }
         }
         else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape)
         {
-            switch (opcode)
+            if (!Enum.IsDefined((EscapeDachoraInstruction)opcode))
+                return false;
+            switch ((EscapeDachoraInstruction)opcode)
             {
-                case EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE:
+                case EscapeDachoraInstruction.GotoIfAcidYLessThanCE:
                     cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
                         ? unchecked((ushort)(cursor + 4))
                         : ReadEscapeAnimalOperand(slot, cursor);
                     return true;
 
-                case EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped:
+                case EscapeDachoraInstruction.GotoIfCrittersEscaped:
                     cursor = HasCrittersEscaped()
                         ? ReadEscapeAnimalOperand(slot, cursor)
                         : unchecked((ushort)(cursor + 4));
                     return true;
 
-                case EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6:
+                case EscapeDachoraInstruction.MoveLeft:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition - EscapeDachoraPixelsPerCallback));
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
 
-                case EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6:
+                case EscapeDachoraInstruction.MoveRight:
                     slot.XPosition = unchecked((ushort)(
                         slot.XPosition + EscapeDachoraPixelsPerCallback));
                     cursor = unchecked((ushort)(cursor + 2));
                     return true;
+
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraInstruction)} {opcode:X4}.");
             }
         }
 

@@ -32,19 +32,19 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 remainingBits >>= 1;
                 if (dead)
                 {
-                    Draw(FileSelectMapIconRomData.DefeatedBoss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
-                    Draw(FileSelectMapIconRomData.Boss, (ushort)point.X, (ushort)point.Y, FileSelectMapIconRomData.DefeatedBossPalette);
+                    Draw(MapSpriteId.MarkerDefeatedBoss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerBoss, (ushort)point.X, (ushort)point.Y, FileSelectMapIconRomData.DefeatedBossPalette);
                     continue;
                 }
                 if (system.HasAreaMap(area))
                 {
-                    Draw(FileSelectMapIconRomData.Boss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
+                    Draw(MapSpriteId.MarkerBoss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
                     continue;
                 }
             }
             remainingBits >>= 1;
         }
-        void Draw(ushort id, ushort x, ushort y, ushort palette) =>
+        void Draw(MapSpriteId id, ushort x, ushort y, ushort palette) =>
             Add(oam, id, x, y, scrollX, scrollY, palette);
     }
 
@@ -52,11 +52,11 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
     public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
     {
         DrawBossMarkers(oam, scrollX, scrollY);
-        Simple(MapStationKind.Missile, FileSelectMapIconRomData.Missile);
-        Simple(MapStationKind.Energy, FileSelectMapIconRomData.Energy);
-        Simple(MapStationKind.Map, FileSelectMapIconRomData.MapStation);
+        Simple(MapStationKind.Missile, MapSpriteId.StationMissile);
+        Simple(MapStationKind.Energy, MapSpriteId.StationEnergy);
+        Simple(MapStationKind.Map, MapSpriteId.StationMap);
 
-        void Simple(MapStationKind kind, ushort id)
+        void Simple(MapStationKind kind, MapSpriteId id)
         {
             var layout = stations ?? throw new InvalidOperationException(
                 "Map station icons require installed station layout.");
@@ -67,7 +67,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                     Draw(id, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
                 }
         }
-        void Draw(ushort id, ushort x, ushort y, ushort palette) =>
+        void Draw(MapSpriteId id, ushort x, ushort y, ushort palette) =>
             Add(oam, id, x, y, scrollX, scrollY, palette);
     }
 
@@ -78,7 +78,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(oam, FileSelectMapIconRomData.Gunship, (ushort)point.X, (ushort)point.Y,
+            Add(oam, MapSpriteId.MarkerGunship, (ushort)point.X, (ushort)point.Y,
                 scrollX, scrollY, FileSelectMapRomData.StationMarkerPalette);
         }
         drawArrows?.Invoke();
@@ -98,7 +98,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 (ushort)point.X, (ushort)point.Y, scrollX, scrollY, 0);
         }
     }
-    private void Add(OamBuffer oam, ushort id, ushort x, ushort y, ushort scrollX, ushort scrollY, ushort palette)
+    private void Add(OamBuffer oam, MapSpriteId id, ushort x, ushort y, ushort scrollX, ushort scrollY, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(
             "Map icons require installed sprite artwork."))

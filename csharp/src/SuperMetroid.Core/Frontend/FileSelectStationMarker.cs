@@ -41,7 +41,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Station's area-map Y drawing anchor in whole pixels before vertical scroll subtraction, independent of its compiled load coordinates.</summary>
     public ushort MapY { get; private set; }
     /// <summary>Current native $82:C569 spritemap-table identity, following $82:BA2D's $5F/$60/$61/$60 pulse; querying does not advance the timer.</summary>
-    public ushort SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
+    public MapSpriteId SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
     /// <summary>Whether $82:B73C-$B747's backing spritemap $12 is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
     public bool ShowBacking => (loops & 1) == 0;
 
@@ -66,10 +66,11 @@ public sealed class FileSelectStationMarker
     {
         ushort x = unchecked((ushort)(MapX - horizontalScroll));
         ushort y = unchecked((ushort)(MapY - verticalScroll));
-        if (ShowBacking) Add(FileSelectMapRomData.StationMarkerBacking);
+        // $82:B6DD draws the backing behind the station marker on even animation loops.
+        if (ShowBacking) Add(MapSpriteId.IndicatorBacking);
         Add(SpritemapId);
 
-        void Add(ushort id)
+        void Add(MapSpriteId id)
         {
             (sprites ?? throw new InvalidOperationException(
                 "Save marker requires installed sprite artwork."))

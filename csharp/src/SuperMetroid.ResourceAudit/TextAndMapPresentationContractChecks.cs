@@ -40,7 +40,7 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows - 1);
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
-                    sprites.Draw(MapSpriteDefinitions.WorldTitle, oam, 0, 0, 0);
+                    sprites.Draw(MapSpriteId.WorldTitle, oam, 0, 0, 0);
                     sprites.Draw(1, oam, 0, 0, 0);
                     sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
                     arrows.Get(MapScrollDirection.Left);

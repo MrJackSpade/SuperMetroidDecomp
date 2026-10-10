@@ -43,7 +43,6 @@ public sealed class FileSelectMapAnimations
                 replacement.Frame = previous.Frame % phaseCount;
                 replacement.Timer = previous.Timer;
                 replacement.Visible = previous.Visible;
-                replacement.Spritemap = replacement.Base;
             }
             arrows[index] = replacement;
         }
@@ -83,7 +82,6 @@ public sealed class FileSelectMapAnimations
                 }
                 arrow.Timer = delay;
             }
-            arrow.Spritemap = arrow.Base;
         }
     }
 
@@ -99,15 +97,15 @@ public sealed class FileSelectMapAnimations
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Spritemap, oam, arrow.X, unchecked((ushort)(arrow.Y + verticalOffset)), SnesObjPalettes.Index3.PaletteBits);
+            installed.Draw(arrow.Base, oam, arrow.X, unchecked((ushort)(arrow.Y + verticalOffset)), SnesObjPalettes.Index3.PaletteBits);
         }
     }
 
-    private sealed class Arrow(ushort x, ushort y, ushort spriteBase)
+    private sealed class Arrow(ushort x, ushort y, MapSpriteId spriteBase)
     {
-        public readonly ushort X = x, Y = y, Base = spriteBase;
+        public readonly ushort X = x, Y = y;
+        public readonly MapSpriteId Base = spriteBase;
         public int Timer, Frame;
-        public ushort Spritemap;
         public bool Visible;
     }
 }

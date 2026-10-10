@@ -25,7 +25,7 @@ public static class MapArrowExtractor
             if (animation is < 1 or > 9) throw new InvalidDataException("Invalid cartridge map arrow animation.");
             int program = Read(MapAnimationRomData.SpritePrograms + (animation - 1) * 2);
             int variants = Read(MapAnimationRomData.SpriteBases + (animation - 1) * 2);
-            if (Read(FileSelectMapRomData.MenuObjectBank | variants) != MapArrowDefinitions.SpriteBase(direction))
+            if (Read(FileSelectMapRomData.MenuObjectBank | variants) != (ushort)MapArrowDefinitions.SpriteBase(direction))
                 throw new InvalidDataException($"Cartridge arrow shape differs for {direction}.");
             var durations = new List<int>();
             for (int phase = 0; ; phase++)

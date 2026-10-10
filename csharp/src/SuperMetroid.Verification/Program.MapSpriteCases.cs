@@ -16,13 +16,13 @@ internal static partial class Program
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(rom, stock));
         foreach (var role in MapSpriteRoleOracle())
         {
-            AssertTrue(!stock.StoresComposition(role.NativeId), "regular stock map composition has no stored parts");
+            AssertTrue(!stock.StoresComposition((MapSpriteId)role.NativeId), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];
             bool worldLabel = role.NativeId is >= 0x39 and <= 0x3e;
             if (worldLabel)
                 AssertEqual(role.NativeId switch { 0x39 => 3, 0x3a => 4, 0x3b => 2, 0x3c => 3, 0x3d => 3, 0x3e => 5, _ => 0 },
-                    stock.StoredLabelHorizontalCount(role.NativeId), "only line origins and nonstandard advances remain stored");
-            else AssertEqual(original.Length, MapMarkerGeometry.PartCount(role.NativeId), "original marker part count");
+                    stock.StoredLabelHorizontalCount((MapSpriteId)role.NativeId), "only line origins and nonstandard advances remain stored");
+            else AssertEqual(original.Length, MapMarkerGeometry.PartCount((MapSpriteId)role.NativeId), "original marker part count");
             for (int index = 0; index < original.Length; index++)
             {
                 var part = original[index];
@@ -35,11 +35,11 @@ internal static partial class Program
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[role.Name] = parts;
                     var edited = Load(frames);
                     bool horizontalOnly = (change with { OffsetX = part.OffsetX }) == part;
-                    AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition(role.NativeId),
+                    AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition((MapSpriteId)role.NativeId),
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, 100, 100, 0x600);
-                    edited.Draw(role.NativeId, actual, 100, 100, 0x600);
+                    edited.Draw((MapSpriteId)role.NativeId, actual, 100, 100, 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                         "every marker part field preserves independently authored edits");
@@ -58,7 +58,7 @@ internal static partial class Program
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, 100, 100, 0x600);
                 }
-                edited.Draw(frame.NativeId, actual, 100, 100, 0x600);
+                edited.Draw((MapSpriteId)frame.NativeId, actual, 100, 100, 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                     "independently edited map sprite role and all unchanged roles");
@@ -67,8 +67,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
-            AssertThrows<KeyNotFoundException>(() => stock.Draw(invalid, new OamBuffer(), 0, 0, 0), "unknown map sprite preserves dictionary exception");
-        AssertThrows<KeyNotFoundException>(() => stock.Draw(0, new OamBuffer(), 0, 0, 0xffff), "unknown identity precedes invalid palette");
+            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, new OamBuffer(), 0, 0, 0), "undefined map sprite identity fails");
+        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, new OamBuffer(), 0, 0, 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, MapPresentationFormat.JsonOptions);
@@ -95,7 +95,7 @@ internal static partial class Program
                     installed.AddRawSmallSprite(12, 34, 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, x, y, (ushort)(palette << 9));
-                catalog.Draw(frame.NativeId, installed, x, y, (ushort)(palette << 9));
+                catalog.Draw((MapSpriteId)frame.NativeId, installed, x, y, (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),

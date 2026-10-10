@@ -20,92 +20,106 @@ internal static class MapMarkerGeometry
     /// <summary>The authored map title at82:CBFB; its wording is text content, not a numerical mapping.</summary>
     private const string WorldTitleText = "PLANET ZEBES";
 
-    internal static int PartCount(ushort id) => id switch
+    internal static int PartCount(MapSpriteId id) => id switch
     {
-        MapSpriteDefinitions.ArrowRight or MapSpriteDefinitions.ArrowLeft or
-        MapSpriteDefinitions.ArrowUp or MapSpriteDefinitions.ArrowDown or MapSpriteDefinitions.MarkerGunship => 2,
-        MapSpriteDefinitions.MarkerDefeatedBoss or MapSpriteDefinitions.IndicatorFrame0 or
-        MapSpriteDefinitions.IndicatorFrame1 or MapSpriteDefinitions.IndicatorFrame2 => 4,
-        MapSpriteDefinitions.MarkerBoss or MapSpriteDefinitions.StationEnergy or MapSpriteDefinitions.StationMissile or
-        MapSpriteDefinitions.StationMap or MapSpriteDefinitions.IndicatorBacking => 1,
-        MapSpriteDefinitions.ElevatorCrateria or MapSpriteDefinitions.ElevatorBrinstar or
-        MapSpriteDefinitions.ElevatorNorfair or MapSpriteDefinitions.ElevatorMaridia => 4,
-        MapSpriteDefinitions.ElevatorWreckedShip => 6,
-        MapSpriteDefinitions.WorldTitle => (WorldTitleText.Length - 1) * 2,
-        _ => 0,
+        MapSpriteId.ArrowRight or MapSpriteId.ArrowLeft or
+        MapSpriteId.ArrowUp or MapSpriteId.ArrowDown or MapSpriteId.MarkerGunship => 2,
+        MapSpriteId.MarkerDefeatedBoss or MapSpriteId.IndicatorFrame0 or
+        MapSpriteId.IndicatorFrame1 or MapSpriteId.IndicatorFrame2 => 4,
+        MapSpriteId.MarkerBoss or MapSpriteId.StationEnergy or MapSpriteId.StationMissile or
+        MapSpriteId.StationMap or MapSpriteId.IndicatorBacking => 1,
+        MapSpriteId.ElevatorCrateria or MapSpriteId.ElevatorBrinstar or
+        MapSpriteId.ElevatorNorfair or MapSpriteId.ElevatorMaridia => 4,
+        MapSpriteId.ElevatorWreckedShip => 6,
+        MapSpriteId.WorldTitle => (WorldTitleText.Length - 1) * 2,
+        MapSpriteId.WorldCrateria or MapSpriteId.WorldBrinstar or MapSpriteId.WorldNorfair or
+            MapSpriteId.WorldWreckedShip or MapSpriteId.WorldMaridia or MapSpriteId.WorldTourian => 0,
+        _ => throw new InvalidOperationException($"Undefined MapSpriteId {id}."),
     };
 
-    internal static CompiledSpritePart Part(ushort id, int index)
+    internal static CompiledSpritePart Part(MapSpriteId id, int index)
     {
         if ((uint)index >= (uint)PartCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
         int x, y, tile, priority = 2;
         bool flipX = false, flipY = false;
         switch (id)
         {
-            case MapSpriteDefinitions.WorldTitle:
+            case MapSpriteId.WorldTitle:
                 int letter = WorldTitleText.Length - 2 - index / 2;
                 int textColumn = letter < 6 ? letter : letter + 1;
                 bool top = letter == 0 ? (index & 1) == 0 : (index & 1) != 0;
                 x = 8 * (textColumn - 6); y = top ? -8 : 0; priority = 3;
                 tile = TitleGlyphTile(WorldTitleText[textColumn], top);
                 break;
-            case MapSpriteDefinitions.ElevatorCrateria:
-            case MapSpriteDefinitions.ElevatorBrinstar:
-            case MapSpriteDefinitions.ElevatorNorfair:
-            case MapSpriteDefinitions.ElevatorMaridia:
+            case MapSpriteId.ElevatorCrateria:
+            case MapSpriteId.ElevatorBrinstar:
+            case MapSpriteId.ElevatorNorfair:
+            case MapSpriteId.ElevatorMaridia:
                 int column = 3 - index;
                 x = -8 + 8 * column; y = -8;
                 tile = id switch
                 {
-                    MapSpriteDefinitions.ElevatorCrateria => column,
-                    MapSpriteDefinitions.ElevatorBrinstar => 4 + column,
-                    MapSpriteDefinitions.ElevatorNorfair => 0x10 + column + (column >= 1 ? 1 : 0),
-                    MapSpriteDefinitions.ElevatorMaridia => 0x15 + column + (column >= 2 ? 1 : 0),
+                    MapSpriteId.ElevatorCrateria => column,
+                    MapSpriteId.ElevatorBrinstar => 4 + column,
+                    MapSpriteId.ElevatorNorfair => 0x10 + column + (column >= 1 ? 1 : 0),
+                    MapSpriteId.ElevatorMaridia => 0x15 + column + (column >= 2 ? 1 : 0),
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
                 };
                 break;
-            case MapSpriteDefinitions.ElevatorWreckedShip:
+            case MapSpriteId.ElevatorWreckedShip:
                 bool bottom = index < 2;
                 int rowColumn = bottom ? 1 - index : 5 - index;
                 x = (bottom ? -4 : -12) + 8 * rowColumn; y = bottom ? 0 : -8;
                 tile = (bottom ? 0x44 : 0x53) + rowColumn;
                 break;
-            case MapSpriteDefinitions.ArrowRight:
-            case MapSpriteDefinitions.ArrowLeft:
+            case MapSpriteId.ArrowRight:
+            case MapSpriteId.ArrowLeft:
                 x = -4; y = -7 * index; tile = 0x9e; priority = 3;
-                flipX = id == MapSpriteDefinitions.ArrowLeft; flipY = index == 0;
+                flipX = id == MapSpriteId.ArrowLeft; flipY = index == 0;
                 break;
-            case MapSpriteDefinitions.ArrowUp:
-            case MapSpriteDefinitions.ArrowDown:
+            case MapSpriteId.ArrowUp:
+            case MapSpriteId.ArrowDown:
                 x = -1 - 7 * index; y = -4; tile = 0x9d; priority = 3;
-                flipX = index == 0; flipY = id == MapSpriteDefinitions.ArrowUp;
+                flipX = index == 0; flipY = id == MapSpriteId.ArrowUp;
                 break;
-            case MapSpriteDefinitions.MarkerGunship:
+            case MapSpriteId.MarkerGunship:
                 x = 4 - 8 * index; y = -2; tile = 0x8f; flipX = index == 0;
                 break;
-            case MapSpriteDefinitions.MarkerDefeatedBoss:
+            case MapSpriteId.MarkerDefeatedBoss:
                 flipX = index < 2; flipY = (index & 1) == 0;
                 x = flipX ? 3 : -4; y = flipY ? 4 : -4; tile = 0x9f;
                 break;
-            case MapSpriteDefinitions.IndicatorFrame0:
-            case MapSpriteDefinitions.IndicatorFrame1:
-            case MapSpriteDefinitions.IndicatorFrame2:
-                int radius = 4 + id - MapSpriteDefinitions.IndicatorFrame0;
+            case MapSpriteId.IndicatorFrame0:
+            case MapSpriteId.IndicatorFrame1:
+            case MapSpriteId.IndicatorFrame2:
+                int radius = 4 + (id - MapSpriteId.IndicatorFrame0);
                 flipX = (index & 1) == 0; flipY = index < 2;
                 x = flipX ? radius : -radius; y = flipY ? radius : -radius; tile = 0xaf;
                 break;
-            default:
+            case MapSpriteId.MarkerBoss:
+            case MapSpriteId.StationEnergy:
+            case MapSpriteId.StationMissile:
+            case MapSpriteId.StationMap:
+            case MapSpriteId.IndicatorBacking:
+            case MapSpriteId.WorldCrateria:
+            case MapSpriteId.WorldBrinstar:
+            case MapSpriteId.WorldNorfair:
+            case MapSpriteId.WorldWreckedShip:
+            case MapSpriteId.WorldMaridia:
+            case MapSpriteId.WorldTourian:
                 x = 1; y = 0;
                 tile = id switch
                 {
-                    MapSpriteDefinitions.MarkerBoss => 0x8a,
-                    MapSpriteDefinitions.StationEnergy => 0x8c,
-                    MapSpriteDefinitions.StationMissile => 0x8b,
-                    MapSpriteDefinitions.StationMap => 0x8e,
-                    MapSpriteDefinitions.IndicatorBacking => 0x89,
+                    MapSpriteId.MarkerBoss => 0x8a,
+                    MapSpriteId.StationEnergy => 0x8c,
+                    MapSpriteId.StationMissile => 0x8b,
+                    MapSpriteId.StationMap => 0x8e,
+                    MapSpriteId.IndicatorBacking => 0x89,
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
                 };
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined MapSpriteId {id}.");
         }
         var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
         return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
@@ -137,7 +151,7 @@ internal static class MapMarkerGeometry
         return upper + (top ? 0 : 16);
     }
 
-    internal static bool Matches(ushort id, SpriteVisualPart[] parts)
+    internal static bool Matches(MapSpriteId id, SpriteVisualPart[] parts)
     {
         int count = PartCount(id);
         if (count == 0 || parts.Length != count) return false;

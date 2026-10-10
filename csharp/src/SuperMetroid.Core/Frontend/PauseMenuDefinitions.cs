@@ -64,11 +64,14 @@ internal static class PauseMapIndicatorAnimation
     /// <remarks>Independently reviewed for #1165: start at5F, rise twice, then fall.
     /// The bounded triangle is2-abs(2-phase). Invalid indices preserve the former
     /// array's IndexOutOfRangeException; timer advancement remains caller-owned.</remarks>
-    public static ushort SpritemapId(int frame)
+    public static MapSpriteId SpritemapId(int frame) => frame switch
     {
-        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
-        return (ushort)(0x5f + 2 - Math.Abs(2 - frame));
-    }
+        0 => MapSpriteId.IndicatorFrame0,
+        1 => MapSpriteId.IndicatorFrame1,
+        2 => MapSpriteId.IndicatorFrame2,
+        3 => MapSpriteId.IndicatorFrame1,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     /// <summary>Calculates the alternating endpoint/midpoint dwell at $82:BA25.</summary>
     /// <remarks>Independently reviewed for #1165: phases0/2 hold an endpoint for8

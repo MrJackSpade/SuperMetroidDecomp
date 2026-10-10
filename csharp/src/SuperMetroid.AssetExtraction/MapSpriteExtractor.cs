@@ -17,11 +17,11 @@ public static class MapSpriteExtractor
     /// <exception cref="InvalidDataException">The world-title binding or generated composition/artwork pair is incompatible with the installed sprite format.</exception>
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) != MapSpriteDefinitions.WorldTitle)
+        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.LabelSpritemapBase) != (ushort)MapSpriteId.WorldTitle)
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteDefinitions.Frames)
-            frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, definition.NativeId));
+            frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.NativeId));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out int width, out int height);
         using var png = new MemoryStream();

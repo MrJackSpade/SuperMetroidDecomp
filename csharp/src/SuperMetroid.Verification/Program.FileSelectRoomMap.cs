@@ -158,7 +158,7 @@ internal static partial class Program
         var spriteDocument = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            ushort id = MapArrowDefinitions.SpriteBase(direction);
+            MapSpriteId id = MapArrowDefinitions.SpriteBase(direction);
             string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
@@ -231,7 +231,7 @@ internal static partial class Program
         var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
@@ -472,7 +472,7 @@ internal static partial class Program
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];
@@ -486,7 +486,7 @@ internal static partial class Program
         for (int tick = 0; tick < durations[phase]; tick++)
         {
             marker.Step();
-            AssertEqual(expectedFrames[phase], marker.SpritemapId, "station marker exact animation cadence");
+            AssertEqual(expectedFrames[phase], (int)marker.SpritemapId, "station marker exact animation cadence");
             bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = new OamBuffer();

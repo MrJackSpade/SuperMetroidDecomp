@@ -647,9 +647,10 @@ internal sealed partial class PauseMenuState
             8 * (roomMapY + (samus.YPosition >> 8) + 1) - mapVerticalScroll));
         lastIndicatorOriginX = x;
         lastIndicatorOriginY = y;
-        lastIndicatorSpritemapId = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
+        MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
+        lastIndicatorSpritemapId = (ushort)indicator;
         DrawMenuSpritemap(
-            lastIndicatorSpritemapId,
+            indicator,
             x,
             y,
             ReadPauseSpritePaletteBits());
@@ -775,12 +776,10 @@ internal sealed partial class PauseMenuState
                 PauseMenuLayout.ButtonRowsByteCount));
     }
 
-    private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
+    private void DrawMenuSpritemap(MapSpriteId id, ushort x, ushort y, ushort paletteBits)
     {
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        if (!MapSpriteDefinitions.Contains(id))
-            throw new InvalidDataException($"Menu spritemap ${id:X4} is not installed.");
         (mapPresentation ?? throw new InvalidOperationException(
             "Menu spritemap requires installed presentation assets."))
             .Sprites.Draw(id, oam, x, y, paletteBits);

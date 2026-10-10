@@ -15,33 +15,33 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class WorldMapLabelComposition
 {
-    private readonly ushort identity;
+    private readonly MapSpriteId identity;
     private readonly int upperOrigin;
     private readonly int lowerOrigin;
     private readonly Dictionary<int, int>? letterAdvances;
     private readonly SpriteComposition? authored;
 
-    private WorldMapLabelComposition(ushort identity, int upperOrigin, int lowerOrigin,
+    private WorldMapLabelComposition(MapSpriteId identity, int upperOrigin, int lowerOrigin,
         Dictionary<int, int>? letterAdvances, SpriteComposition? authored)
     { this.identity = identity; this.upperOrigin = upperOrigin; this.lowerOrigin = lowerOrigin;
         this.letterAdvances = letterAdvances; this.authored = authored; }
 
     /// <summary>Area names are semantic text content; named cases select the map-label wording.</summary>
-    private static string Text(ushort id) => id switch
+    private static string Text(MapSpriteId id) => id switch
     {
-        MapSpriteDefinitions.WorldCrateria => "CRATERIA",
-        MapSpriteDefinitions.WorldBrinstar => "BRINSTAR",
-        MapSpriteDefinitions.WorldNorfair => "NORFAIR",
-        MapSpriteDefinitions.WorldWreckedShip => "WRECKEDSHIP",
-        MapSpriteDefinitions.WorldMaridia => "MARIDIA",
-        MapSpriteDefinitions.WorldTourian => "TOURIAN",
+        MapSpriteId.WorldCrateria => "CRATERIA",
+        MapSpriteId.WorldBrinstar => "BRINSTAR",
+        MapSpriteId.WorldNorfair => "NORFAIR",
+        MapSpriteId.WorldWreckedShip => "WRECKEDSHIP",
+        MapSpriteId.WorldMaridia => "MARIDIA",
+        MapSpriteId.WorldTourian => "TOURIAN",
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
-    private static int VerticalOffset(ushort id, int index) =>
-        id == MapSpriteDefinitions.WorldWreckedShip ? (index < 4 ? 0 : -8) : -4;
+    private static int VerticalOffset(MapSpriteId id, int index) =>
+        id == MapSpriteId.WorldWreckedShip ? (index < 4 ? 0 : -8) : -4;
 
-    internal static WorldMapLabelComposition Compile(ushort id, SpriteVisualPart[] parts, string name)
+    internal static WorldMapLabelComposition Compile(MapSpriteId id, SpriteVisualPart[] parts, string name)
     {
         string text = Text(id);
         bool regular = parts.Length == text.Length;
@@ -55,7 +55,7 @@ internal sealed class WorldMapLabelComposition
         }
         if (!regular) return new(id, 0, 0, null, MenuSpriteCompiler.Compile(parts, name));
         Dictionary<int, int>? advances = null;
-        bool twoLines = id == MapSpriteDefinitions.WorldWreckedShip;
+        bool twoLines = id == MapSpriteId.WorldWreckedShip;
         for (int index = 0; index < parts.Length - 1; index++)
         {
             if (twoLines && index == 3) continue;
@@ -81,7 +81,7 @@ internal sealed class WorldMapLabelComposition
 
     private int HorizontalOffset(int index, int count)
     {
-        bool bottom = identity == MapSpriteDefinitions.WorldWreckedShip && index < 4;
+        bool bottom = identity == MapSpriteId.WorldWreckedShip && index < 4;
         int leftmostIndex = bottom ? 3 : count - 1;
         int x = bottom ? lowerOrigin : upperOrigin;
         for (int next = leftmostIndex - 1; next >= index; next--)

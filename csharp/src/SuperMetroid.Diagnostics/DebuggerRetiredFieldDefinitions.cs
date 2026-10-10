@@ -112,6 +112,8 @@ internal static class DebuggerRetiredFieldDefinitions
 
         // Removed because nothing read them (#1273): the saved value is discarded.
         [("SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow", "Program")] = Discard,
+        // #627: always equal to Base once visible; arrows draw Base directly.
+        [("SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow", "Spritemap")] = Discard,
         [("SuperMetroid.Core.Frontend.FileSelectMapScroll", "customButtons")] = Discard,
         [("SuperMetroid.Core.Frontend.GameOverMenuState", "tilemap")] = Discard,
         [("SuperMetroid.Core.Game.AerialMovementResult", "<Horizontal>k__BackingField")] = Discard,

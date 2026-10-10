@@ -345,21 +345,21 @@ internal static class MapSaveMarkerLayoutAccess
 /// <summary>Verification access to <see cref="MapSpriteCatalog"/> members production does not use.</summary>
 internal static class MapSpriteCatalogAccess
 {
-    private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, ushort id) =>
+    private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, MapSpriteId id) =>
         (WorldMapLabelComposition?)PrivateState.Invoke(catalog, "GetWorldLabel", id);
 
     extension(MapSpriteCatalog self)
     {
-        internal bool StoresComposition(ushort id) => WorldLabel(self, id) is { } label
+        internal bool StoresComposition(MapSpriteId id) => WorldLabel(self, id) is { } label
             ? PrivateState.Field<SpriteComposition?>(label, "authored") is not null
             : PrivateState.Invoke(self, "GetFrame", id) is not null;
 
         /// <summary>Stored horizontal advances: the label origin(s) plus each authored letter advance.</summary>
-        internal int StoredLabelHorizontalCount(ushort id)
+        internal int StoredLabelHorizontalCount(MapSpriteId id)
         {
             if (WorldLabel(self, id) is not { } label || PrivateState.Field<SpriteComposition?>(label, "authored") is not null)
                 return 0;
-            int origins = PrivateState.Field<ushort>(label, "identity") == MapSpriteDefinitions.WorldWreckedShip ? 2 : 1;
+            int origins = PrivateState.Field<MapSpriteId>(label, "identity") == MapSpriteId.WorldWreckedShip ? 2 : 1;
             return origins + (PrivateState.Field<Dictionary<int, int>?>(label, "letterAdvances")?.Count ?? 0);
         }
 

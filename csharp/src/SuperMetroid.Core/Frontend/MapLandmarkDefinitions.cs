@@ -112,10 +112,11 @@ public static class MapLandmarkDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$82:C759..C7CA use menu spritemaps $59..$5D for Crateria through Maridia labels.</summary>
-    public static ushort ElevatorSpritemap(AreaId destination) => destination switch
+    public static MapSpriteId ElevatorSpritemap(AreaId destination) => destination switch
     {
-        AreaId.Crateria => 0x59, AreaId.Brinstar => 0x5a, AreaId.Norfair => 0x5b,
-        AreaId.WreckedShip => 0x5c, AreaId.Maridia => 0x5d,
+        AreaId.Crateria => MapSpriteId.ElevatorCrateria, AreaId.Brinstar => MapSpriteId.ElevatorBrinstar,
+        AreaId.Norfair => MapSpriteId.ElevatorNorfair, AreaId.WreckedShip => MapSpriteId.ElevatorWreckedShip,
+        AreaId.Maridia => MapSpriteId.ElevatorMaridia,
         _ => throw new ArgumentOutOfRangeException(nameof(destination))
     };
 

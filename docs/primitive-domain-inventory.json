@@ -1041,72 +1041,6 @@
     "status": "open"
    }
   ],
-  "MapSpriteDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
-    "line": 23,
-    "column": 49,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
-    "line": 43,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
-    "line": 58,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapMarkerGeometry.cs",
-    "line": 99,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs",
-    "line": 30,
-    "column": 55,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs",
-    "line": 55,
-    "column": 67,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapLabelComposition.cs",
-    "line": 30,
-    "column": 46,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/MapSpriteDefinitions.cs",
-    "line": 105,
-    "column": 53,
-    "rule": "SME6270",
-    "message": "'id' is a ushort switched over named constants of MapSpriteDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "MaridiaLargeSnailInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MaridiaLargeSnail.cs",
@@ -1384,7 +1318,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs",
-    "line": 117,
+    "line": 120,
     "column": 73,
     "rule": "SME6270",
     "message": "'category' is a int switched over named constants of PauseEquipmentCategories; model the domain as a type",
@@ -2695,13 +2629,24 @@
    "consumers": "Ceres destruction, intro egg/baby/scientist/Rinka actors, intro object system, title sequence, ending explosion/logo/reward actors, oracle verification of the native lists",
    "tests": "VerifyIntroCinematicRomData (catalog coverage), cinematic instruction-list oracle suites, title/intro/ending replays",
    "status": "resolved"
+  },
+  "MapSpriteId": {
+   "previous": "ushort map-sprite ids switched over MapSpriteDefinitions constants; FileSelectMapIconRomData aliases; ushort-returning ElevatorSpritemap, MapArrowDefinitions.SpriteBase and PauseMapIndicatorAnimation.SpritemapId; world labels computed as title + area + 1",
+   "type": "enum MapSpriteId : ushort (the 26 $82:C569 menu-spritemap ordinals map presentation draws)",
+   "closedProof": "The installed map-sprite document has exactly these 26 named roles; every map draw site selects one of them",
+   "transitions": "none; MapSpriteDefinitions.WorldLabel(AreaId) maps an area to its label",
+   "boundary": "asset extraction compares cartridge words against the members' values; debugger state decodes older ushort payloads, and the redundant Arrow.Spritemap field is retired",
+   "invalidValues": "exhaustive switches throw on undefined members; Name throws ArgumentOutOfRangeException",
+   "consumers": "MapSpriteCatalog, MapMarkerGeometry, WorldMapLabelComposition, file-select and pause map icons, arrows, station marker and indicator",
+   "tests": "VerifyMapSpriteNameCases, map sprite case/pixel suites, map indicator animation",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 277,
-  "openDomains": 175,
+  "openFindings": 269,
+  "openDomains": 174,
   "byRule": {
-   "SME6270": 277
+   "SME6270": 269
   }
  }
 }

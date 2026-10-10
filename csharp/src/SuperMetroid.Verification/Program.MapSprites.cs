@@ -47,7 +47,7 @@ internal static partial class Program
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
         {
-            installed.BeginFrame(); edited.Sprites.Draw(9, installed, 100, 100, (ushort)(palette << 9));
+            installed.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, installed, 100, 100, (ushort)(palette << 9));
             AssertEqual((byte)112, installed.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, installed.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord((ushort)(installed.LowTable[2] | installed.LowTable[3] << 8));
@@ -59,7 +59,7 @@ internal static partial class Program
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        installed.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(9, installed, 0, 0, 0);
+        installed.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, installed, 0, 0, 0);
         AssertEqual(0, installed.NextByteOffset, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
@@ -138,7 +138,7 @@ internal static partial class Program
             Add(FileSelectMapRomData.LabelSpritemapBase, 2);
             foreach (var frame in MapSpriteDefinitions.Frames)
             {
-                int entry = MenuPpuState.SpritemapPointerTableAddress + frame.NativeId * 2;
+                int entry = MenuPpuState.SpritemapPointerTableAddress + (int)frame.NativeId * 2;
                 int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), entry);
                 Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer));
             }

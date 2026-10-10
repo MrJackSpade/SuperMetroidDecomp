@@ -26,6 +26,8 @@ internal static class SamusEaterPlmDefinitions
 }
 
 /// <summary>One Samus Eater PLM header paired with its initial list and mounting direction.</summary>
+/// <param name="InstructionListPointer">Bank-$84 address of the animation program installed for this plant header.</param>
+/// <param name="Ceiling"><see langword="true"/> when the plant is ceiling-mounted, selecting its ceiling alignment and held-Y adjustment.</param>
 internal readonly record struct SamusEaterPlmDefinition(
     ushort InstructionListPointer,
     bool Ceiling);

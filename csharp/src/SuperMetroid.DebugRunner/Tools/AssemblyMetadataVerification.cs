@@ -8,6 +8,11 @@ using System.Reflection.PortableExecutable;
 /// </summary>
 internal static class AssemblyMetadataVerification
 {
+    /// <summary>Compares declaration inventories to detect members removed by the linker.</summary>
+    /// <param name="original">Path to the unlinked assembly whose declarations form the expected inventory.</param>
+    /// <param name="linked">Path to the linker output being checked.</param>
+    /// <returns>Zero when every inventoried declaration remains in the linked assembly.</returns>
+    /// <exception cref="InvalidDataException">The linked assembly omits one or more declarations present in the original.</exception>
     public static int Run(string original, string linked)
     {
         var before = Read(original);
@@ -20,6 +25,9 @@ internal static class AssemblyMetadataVerification
         return 0;
     }
 
+    /// <summary>Reads declaration identities from PE metadata without loading or executing the assembly.</summary>
+    /// <param name="path">Path to the managed PE file to inspect.</param>
+    /// <returns>Stable textual identities for its types, methods, fields, properties, and events.</returns>
     private static HashSet<string> Read(string path)
     {
         using var stream = File.OpenRead(path);

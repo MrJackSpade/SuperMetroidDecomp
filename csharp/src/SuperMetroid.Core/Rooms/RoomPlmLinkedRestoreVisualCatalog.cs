@@ -30,6 +30,7 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
         }
     });
 
+    /// <summary>Sparse visual overrides keyed by draw pointer; absent entries use the compiled stock word for every run cell.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
@@ -79,6 +80,11 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
 
     // Every cell in a linked restoration uses the same visual tile; only its
     // collision link changes. Keep domain identity and geometry in the draw owners.
+    /// <summary>Gets the native run shape and shared stock visual word for a supported linked-restoration draw.</summary>
+    /// <param name="pointer">Bank-$84 draw identity to resolve as a bomb or contact-crumble restoration.</param>
+    /// <param name="runs">Receives the number of native block runs when the pointer is supported, or zero otherwise.</param>
+    /// <param name="stockWord">Receives the common metatile/flip word for the layout, or zero when unsupported.</param>
+    /// <returns><see langword="true"/> when the pointer identifies a compiled linked-restoration draw.</returns>
     private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
     {
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))

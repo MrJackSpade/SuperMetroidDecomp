@@ -6,8 +6,12 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class AudioFrameRecovery
 {
+    /// <summary>Fingerprints already reported audio failures to avoid repeating the same diagnostic.</summary>
     private readonly HashSet<string> logged = [];
 
+    /// <summary>Runs frame audio work while keeping recoverable audio failures from aborting gameplay.</summary>
+    /// <param name="renderAndSubmit">Renders and submits the current frame's audio.</param>
+    /// <param name="report">Optional callback for queuing a recoverable failure for external reporting.</param>
     internal void Run(Action renderAndSubmit, Action<Exception>? report)
     {
         try

@@ -11,8 +11,13 @@ internal static class SpeedBoosterEscapePlmProgramDefinitions
     /// <summary><c>$84:B88A</c>: first instruction of the controller list.</summary>
     internal const ushort Start = RoomPlmInstructionLists.SpeedBoosterEscape;
 
+    /// <summary>Number of aligned words occupied by the controller's three handoff phases.</summary>
     internal const int WordCount = 9;
 
+    /// <summary>Resolves an address in the compiled controller list to its instruction or callback word.</summary>
+    /// <param name="address">Bank-$84 address where the requested 16-bit word begins.</param>
+    /// <param name="value">Receives the resolved word when the address is owned, or zero otherwise.</param>
+    /// <returns><see langword="true"/> for an aligned address within the nine-word list; otherwise, <see langword="false"/>.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

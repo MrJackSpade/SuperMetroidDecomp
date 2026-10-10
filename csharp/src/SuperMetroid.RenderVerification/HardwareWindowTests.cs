@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares Direct3D window masking and clipping with software-rendered ordinary gameplay frames.</summary>
 internal static class HardwareWindowTests
 {
+    /// <summary>Renders the deterministic window-operation, layer-mask, and empty-window cases through both backends.</summary>
+    /// <param name="device">Hardware device whose backend is named in the comparison diagnostics.</param>
+    /// <param name="renderer">Direct3D renderer used to produce readback pixels for comparison with software output.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(396);

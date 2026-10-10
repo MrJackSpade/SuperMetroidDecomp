@@ -7,6 +7,8 @@ using SuperMetroid.Desktop;
 
 internal static partial class InstalledSporesTests
 {
+    /// <summary>Verifies spore color math, layer exclusions, OBJ priority, and HUD preservation against an independent pixel oracle.</summary>
+    /// <param name="packets">Receives render snapshots for the constructed cases after their expected pixels have been checked.</param>
     private static void CheckPixels(List<RenderFrameSnapshot> packets)
     {
         int cases = 0;
@@ -69,6 +71,9 @@ internal static partial class InstalledSporesTests
         Console.WriteLine($"{cases} independent spore pixel cases cover BG1 exclusion, BG2/backdrop addition, all OBJ palettes/priorities and HUD preservation.");
     }
 
+    /// <summary>Confirms an older serialized X-ray layer identity restores as the current layer without changing rendered pixels.</summary>
+    /// <param name="layer">Current source-aware gameplay color-math layer serialized into the compatibility fixture.</param>
+    /// <param name="scene">Scene whose source memory and layer graph are used for before-and-after pixel comparison.</param>
     private static void CheckLegacyLayerGraph(GameplayColorMathRenderLayer layer, LayeredRenderSnapshot scene)
     {
         const string oldName = "SuperMetroid.Core.Rendering.XrayGameplayRenderLayer, SuperMetroid.Core";

@@ -5,6 +5,8 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Dispatches HUD and ordinary gameplay layers in the SNES Mode-1 priority order.</summary>
+    /// <param name="layer">Captured layer registers and optional per-scanline layer selections for this frame.</param>
     private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
     {
         OrdinaryGameplayRegisters r = layer.Registers;
@@ -50,6 +52,11 @@ public sealed partial class D3D11FrameRenderer
         }
     }
 
+    /// <summary>Uploads BG2 constants and scanline scrolls, then dispatches the clipped gameplay tile pass.</summary>
+    /// <param name="layer">BG2 register state and optional per-scanline scroll data.</param>
+    /// <param name="high">Whether this pass uses BG2's high-priority rank in the layer ladder.</param>
+    /// <param name="first">First scanline in the current visibility group.</param>
+    /// <param name="end">Exclusive end scanline of the current visibility group.</param>
     private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
     {
         var r = layer.Registers;

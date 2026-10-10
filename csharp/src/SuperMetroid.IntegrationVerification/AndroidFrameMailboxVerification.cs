@@ -1,8 +1,10 @@
 using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Checks frame-mailbox ownership, replacement, concurrency, allocation, and handoff-trace behavior.</summary>
 internal static class AndroidFrameMailboxVerification
 {
+    /// <summary>Runs the mailbox and trace invariants, throwing when any expected transition or property fails.</summary>
     public static void Run()
     {
         var mailbox = new AndroidFrameMailbox(2);

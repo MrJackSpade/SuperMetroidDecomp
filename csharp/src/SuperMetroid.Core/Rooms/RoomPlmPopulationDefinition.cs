@@ -30,6 +30,7 @@ public sealed record RoomPlmPlacement(
 /// </summary>
 public sealed class RoomPlmPopulationDefinition
 {
+    /// <summary>Owned placement snapshots in allocation order, including copied scroll and collectible payloads.</summary>
     private readonly RoomPlmPlacement[] placements;
 
     /// <summary>Bank-$8F native population-list pointer retained as identity and diagnostic context, not as a runtime bus-read capability.</summary>
@@ -68,6 +69,11 @@ public sealed class RoomPlmPopulationDefinition
         return new RoomPlmPopulationDefinition(pointer, records);
     }
 
+    /// <summary>Validates a decoded placement and takes ownership of its variable-length payload data.</summary>
+    /// <param name="placement">The decoded placement whose header and optional payloads are checked.</param>
+    /// <returns>A placement copy with independent scroll-program and collectible-graphic storage.</returns>
+    /// <exception cref="ArgumentNullException">The placement is null.</exception>
+    /// <exception cref="InvalidDataException">The header or a setup-specific scroll or collectible payload is invalid.</exception>
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
     {
         ArgumentNullException.ThrowIfNull(placement);

@@ -22,8 +22,13 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
 
     /// <summary>$84:B927-$B92F: Samus must be strictly right of X $F0 and below Y $820.</summary>
     internal const ushort WakeTargetX = 0x00f0;
+    /// <summary>$84:B927-$B92F: Samus must be below this Y coordinate to wake the escape-shaft wall.</summary>
     internal const ushort WakeTargetY = 0x0820;
 
+    /// <summary>Resolves the mechanics operands in the fake-wall explosion instruction list.</summary>
+    /// <param name="address">Bank-$84 instruction-word offset to look up.</param>
+    /// <param name="value">Receives the compiled operand when the address is recognized, or zero otherwise.</param>
+    /// <returns><see langword="true"/> when <paramref name="address"/> is a modeled mechanics word.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch

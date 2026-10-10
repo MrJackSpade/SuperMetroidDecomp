@@ -30,6 +30,8 @@ internal static class TourianAccessPlmDefinitions
 }
 
 /// <summary>One Tourian access-floor PLM header and its initial instruction list.</summary>
+/// <param name="HeaderPointer">Bank-$84 identity used to allocate the clearing or crumbling floor PLM.</param>
+/// <param name="InstructionListPointer">Bank-$84 address of the first instruction executed by that PLM.</param>
 internal readonly record struct TourianAccessPlmDefinition(
     ushort HeaderPointer,
     ushort InstructionListPointer);

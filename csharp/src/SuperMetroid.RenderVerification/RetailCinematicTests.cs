@@ -4,8 +4,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies retail intro rendering remains stable as the cinematic advances through its required phases.</summary>
 internal static class RetailCinematicTests
 {
+    /// <summary>Compares legacy and snapshot rendering while checking display-owned state and retained packets.</summary>
+    /// <param name="device">Graphics device used to identify the renderer in verification output.</param>
+    /// <param name="renderer">Renderer used to read back sampled and retained cinematic frame packets.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

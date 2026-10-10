@@ -24,6 +24,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             content.AppendWords("blocks", selected);
         });
 
+    /// <summary>Owned clear-frame overrides, or <see langword="null"/> when every selected word matches compiled stock visuals.</summary>
     private readonly ushort[]? blocks;
 
     /// <summary>Validates the single nine-block wall-clear appearance and retains an owned copy only when it differs from compiled stock visuals.</summary>
@@ -48,6 +49,9 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
         if (!stock) blocks = selected[0].Blocks.ToArray();
     }
 
+    /// <summary>Gets a clear-frame word from compiled level data with physical collision bits removed.</summary>
+    /// <param name="index">Zero-based position within the nine-block wall-clear run.</param>
+    /// <returns>The stock visual metatile and flip bits for that position.</returns>
     private static ushort StockWord(int index) =>
         new RoomLevelWord(BotwoonWallPlmDrawDefinitions.LevelWordAt(index)).VisualWord;
 

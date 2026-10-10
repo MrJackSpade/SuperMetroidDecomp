@@ -74,6 +74,12 @@ internal static class KraidRoomPlmProgramDefinitions
         return selected >= 0;
     }
 
+    /// <summary>Resolves one word in a four-stage crumble sequence and its terminal draw or command.</summary>
+    /// <param name="word">Zero-based word position from the first duration through the instruction after the final draw.</param>
+    /// <param name="finalDraw">Draw selector used for the fourth and final crumble appearance.</param>
+    /// <param name="afterDraw">Instruction word executed after that final appearance.</param>
+    /// <returns>The duration, draw selector, or trailing command at the requested word position.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The word position is outside the nine-word sequence.</exception>
     private static ushort CrumbleWord(int word, ushort finalDraw, ushort afterDraw) => word switch
     {
         0 or 2 or 4 or 6 => CrumbleFrameDuration,
@@ -85,6 +91,10 @@ internal static class KraidRoomPlmProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Looks up the byte-sized spike-loop pass count stored separately from instruction words.</summary>
+    /// <param name="address">Address of the candidate mechanics byte.</param>
+    /// <param name="value">Receives the native pass count when present, or zero when the address is not compiled data.</param>
+    /// <returns><see langword="true"/> only for the byte operand that sets the spike loop's pass count.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == CrumbleSpikes + 2)

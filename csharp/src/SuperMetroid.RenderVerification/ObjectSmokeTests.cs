@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Direct3D11 smoke checks for synthetic OBJ rendering, including tile selection, layering, and overlap priority.</summary>
 internal static class ObjectSmokeTests
 {
+    /// <summary>Compares seeded synthetic OBJ scenes against software rendering across sprite sizes, OAM counts, and layer arrangements.</summary>
+    /// <param name="device">Direct3D device whose backend and adapter identify the verification run.</param>
+    /// <param name="renderer">Renderer whose readback is compared with the software-rendered reference.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32112);

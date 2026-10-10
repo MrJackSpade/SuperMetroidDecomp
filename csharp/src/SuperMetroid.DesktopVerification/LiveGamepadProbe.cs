@@ -6,6 +6,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Read-only live WinMM observations, not an injected controller test.</summary>
 internal static class LiveGamepadProbe
 {
+    /// <summary>Checks that absent WinMM axes produce neutral input while advertised zero-valued axes remain active.</summary>
     public static void VerifyMissingAxes()
     {
         const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.NonPublic;
@@ -28,6 +29,9 @@ internal static class LiveGamepadProbe
         Console.WriteLine("Missing-axis controls pass: absent axes neutral, present axes preserved.");
     }
 
+    /// <summary>Logs changes from live WinMM polling without injecting controller input into gameplay.</summary>
+    /// <param name="seconds">Duration of the observation, from one through thirty seconds.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="seconds"/> is outside the supported interval.</exception>
     public static void Run(int seconds)
     {
         if (seconds is < 1 or > 30) throw new ArgumentOutOfRangeException(nameof(seconds));

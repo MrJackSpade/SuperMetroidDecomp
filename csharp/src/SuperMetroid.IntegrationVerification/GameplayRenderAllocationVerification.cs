@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Checks gameplay and cinematic software-renderer pixel parity and output-buffer allocation reuse.</summary>
 internal static class GameplayRenderAllocationVerification
 {
+    /// <summary>Runs renderer parity and allocation-budget checks using representative layered, X-ray, and Mode 7 frames.</summary>
+    /// <returns>Zero when all pixel, buffer-ownership, dirty-buffer, and allocation checks pass; failed checks throw.</returns>
     public static int Run()
     {
         var vram = new SnesVram();

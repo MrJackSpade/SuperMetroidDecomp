@@ -16,6 +16,10 @@ using SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class AndroidBundleReplay
 {
+    /// <summary>Replays a selected Android recording against the local matching ROM and reports frame-stream hashes.</summary>
+    /// <param name="bundlePath">Path to the Android export ZIP containing the recording, metadata, and optional seed.</param>
+    /// <param name="recordingName">Path-free <c>.smrec</c> basename identifying the journal and its sibling metadata.</param>
+    /// <returns>Zero after the replay completes and its video and audio hashes are printed.</returns>
     public static int Run(string bundlePath, string recordingName)
     {
         if (Path.GetFileName(recordingName) != recordingName || !recordingName.EndsWith(".smrec", StringComparison.Ordinal))
@@ -87,6 +91,11 @@ internal static class AndroidBundleReplay
         }
     }
 
+    /// <summary>Finds the single archive entry with the requested exact name.</summary>
+    /// <param name="bundle">Android export archive to search.</param>
+    /// <param name="name">Exact entry name, including any archive-internal directory prefix.</param>
+    /// <returns>The unique matching entry.</returns>
+    /// <exception cref="InvalidDataException">The archive contains no matching entry or contains more than one.</exception>
     private static ZipArchiveEntry Required(ZipArchive bundle, string name)
     {
         var entries = bundle.Entries.Where(entry => entry.FullName == name).ToArray();

@@ -18,6 +18,10 @@ internal static class TourianAccessPlmProgramDefinitions
     /// <summary>Each of the four crumble frames holds for four PLM passes.</summary>
     internal const ushort CrumbleFrameDuration = 4;
 
+    /// <summary>Looks up an instruction or draw word compiled for the Tourian access-floor crumble and clear PLMs.</summary>
+    /// <param name="address">The bank-local address of the candidate mechanics word.</param>
+    /// <param name="value">Receives the compiled word, or zero when the address is not owned by either program.</param>
+    /// <returns><see langword="true"/> when the address identifies a compiled instruction word.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Crumble)
@@ -54,6 +58,10 @@ internal static class TourianAccessPlmProgramDefinitions
             Crumble + 25 or Clear or Clear + 2 or Clear + 4;
     }
 
+    /// <summary>Looks up the crumble program's eight-bit row-count operand.</summary>
+    /// <param name="address">The bank-local address of the candidate byte operand.</param>
+    /// <param name="value">Receives the row count, or zero when the address is not the compiled byte operand.</param>
+    /// <returns><see langword="true"/> only for the crumble timer's byte-sized count.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

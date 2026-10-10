@@ -11,6 +11,10 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
     /// <summary>$84:AAE4, high byte of the same sole opcode.</summary>
     internal const ushort End = Start + 1;
 
+    /// <summary>Resolves the shared delete opcode when queried at its starting word address.</summary>
+    /// <param name="address">Bank-$84 offset to query.</param>
+    /// <param name="value">Receives the delete opcode on success, or zero when the address is not the opcode start.</param>
+    /// <returns><see langword="true"/> only for the first byte of the shared delete instruction.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Start)
@@ -22,6 +26,10 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves either stored byte of the shared delete opcode.</summary>
+    /// <param name="address">Bank-$84 offset to query.</param>
+    /// <param name="value">Receives the selected low or high opcode byte, or zero when the address is outside the word.</param>
+    /// <returns><see langword="true"/> for the opcode's start or end byte.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address is Start or End)

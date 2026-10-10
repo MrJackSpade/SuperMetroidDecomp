@@ -3,6 +3,8 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Result of the headless host-key routing regression.</summary>
+/// <param name="EnterControllerWord">Controller input produced while Enter is held, expected to contain only Start.</param>
+/// <param name="ReleasedControllerWord">Controller input immediately after Enter is released, expected to be neutral.</param>
 public readonly record struct HostKeyboardInputSmokeTestResult(
     ushort EnterControllerWord,
     ushort ReleasedControllerWord);

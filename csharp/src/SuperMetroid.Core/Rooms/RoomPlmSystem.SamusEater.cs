@@ -32,9 +32,14 @@ public sealed partial class RoomPlmSystem
         // Native descending allocation simply returns when all slots are occupied.
     }
 
+    /// <summary>Gets the live Samus instance used by an active plant PLM.</summary>
+    /// <returns>The Samus owner supplied by the room runtime.</returns>
+    /// <exception cref="InvalidOperationException">No live Samus owner is available.</exception>
     private SamusState RequirePlantSamus() => _collectibleSamus?.Invoke()
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
+    /// <summary>Applies the Samus-holding pre-instruction while the PLM's hold callback is active.</summary>
+    /// <param name="slot">Active plant slot containing the captured Samus position and callback state.</param>
     private void RunSamusEaterPreInstruction(PlmSlot slot)
     {
         if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;

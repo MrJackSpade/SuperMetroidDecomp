@@ -7,8 +7,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies the 180-frame post-credits wave's native scroll, additive artwork, and snapshot rendering.</summary>
 internal static class EndingWavySamusTests
 {
+    /// <summary>Checks the wave lifecycle and compares its CPU composition with serialized GPU readback.</summary>
+    /// <param name="device">Graphics device whose kind is reported with the verification result.</param>
+    /// <param name="renderer">Renderer used to compare captured frame packets with the native composition.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;

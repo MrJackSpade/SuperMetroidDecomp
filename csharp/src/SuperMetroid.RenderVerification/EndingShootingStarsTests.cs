@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Desktop;
 
+/// <summary>Verifies shooting-star data, motion, save/restore behavior, and post-credits rendering.</summary>
 internal static class EndingShootingStarsTests
 {
+    /// <summary>Checks the native star definitions and their simulation, OAM output, and ending-scene visibility on the supplied renderer.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

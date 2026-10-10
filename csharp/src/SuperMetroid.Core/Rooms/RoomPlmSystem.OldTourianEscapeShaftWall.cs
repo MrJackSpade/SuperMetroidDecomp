@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge translation of PLM $84:B964, the old Tourian escape shaft fake wall.</summary>
 public sealed partial class RoomPlmSystem
 {
+    /// <summary>Room-owned callback used when the shaft-wall PLM's wait pre-instruction triggers its explosion.</summary>
     private Action? _spawnOldTourianEscapeShaftWallExplosion;
 
+    /// <summary>Clears the explosion callback when discarding the room population that supplied it.</summary>
     private void ResetOldTourianEscapeShaftWallState() =>
         _spawnOldTourianEscapeShaftWallExplosion = null;
 

@@ -16,6 +16,10 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     /// <summary>Native duration of each ceiling appearance.</summary>
     internal const ushort FrameDuration = 4;
 
+    /// <summary>Resolves a word from either compiled ceiling instruction list, including timed draw operands.</summary>
+    /// <param name="address">Bank-$84 address of the instruction word or timed-frame operand.</param>
+    /// <param name="value">Compiled word value when recognized, or zero when the address is outside these lists.</param>
+    /// <returns><see langword="true"/> when the address belongs to a supported word in the crumble or clear list.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address >= Crumble + 3 && address < Clear)
@@ -44,6 +48,10 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         return address is Crumble or Clear or Clear + 2 or Clear + 4;
     }
 
+    /// <summary>Resolves the crumble list's packed library-two sound operand.</summary>
+    /// <param name="address">Bank-$84 byte address to check; the sound operand is at <c>$84:AB14</c>.</param>
+    /// <param name="value">Crumble sound ID on success, or zero when the address is not the packed operand.</param>
+    /// <returns><see langword="true"/> only for the sound byte embedded between the crumble instruction words.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

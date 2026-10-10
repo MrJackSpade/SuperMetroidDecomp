@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks Direct3D ordinary-gameplay output against the software renderer across representative geometry, layer-mask, and HDMA-scroll combinations.</summary>
 internal static class OrdinarySmokeTests
 {
+    /// <summary>Runs the ordinary-render comparisons, then checks steady-state submission allocations and GPU timing.</summary>
+    /// <param name="device">Active Direct3D device used to label and execute the GPU checks.</param>
+    /// <param name="renderer">Renderer under verification and source of GPU readback pixels.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         HardwareWindowTests.Run(device, renderer);

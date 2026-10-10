@@ -27,6 +27,7 @@ public sealed class RoomScrollDefinition
 /// <summary>Compiled explicit scroll allocations selected by retail room states.</summary>
 public static class RoomScrollDefinitions
 {
+    /// <summary>Sorted explicit retail scroll allocations used for exact-pointer lookup and compiled grid creation.</summary>
     private static readonly RoomScrollDefinition[] Definitions =
     [
         new(0x9283, Convert.FromHexString("0000020202020202020000020202020202020100020202020202020000020202020202020101010101010101011301800100")),
@@ -193,6 +194,7 @@ public static class RoomScrollDefinitions
     /// <summary>Number of distinct explicit allocations referenced by retail room states.</summary>
     public const int ExplicitDefinitionCount = 159;
 
+    /// <summary>Rejects an incomplete, malformed, or unsorted explicit scroll catalog during type initialization.</summary>
     static RoomScrollDefinitions()
     {
         if (Definitions.Length != ExplicitDefinitionCount)

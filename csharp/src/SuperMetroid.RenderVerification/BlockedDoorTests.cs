@@ -6,8 +6,17 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Helpers for verifying Direct3D11 swap-chain rendering and frame-mailbox behavior.</summary>
 internal static partial class SwapchainTests
 {
+    /// <summary>Verifies a retail door transition remains bounded while rendering is blocked, then resumes on the latest frame.</summary>
+    /// <param name="device">Direct3D device whose backend labels the capture and comparison.</param>
+    /// <param name="renderer">Frame renderer used to compare the resumed mailbox frame.</param>
+    /// <param name="runtime">Live runtime advanced through the retail door transition.</param>
+    /// <param name="bus">Cartridge address space used by the door-transition fixture.</param>
+    /// <param name="door">Native door pointer opened to begin the transition.</param>
+    /// <param name="destination">Room pointer expected at the end of the transition.</param>
+    /// <param name="context">Direction label included in diagnostics for the blocked transition.</param>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
         SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
     {

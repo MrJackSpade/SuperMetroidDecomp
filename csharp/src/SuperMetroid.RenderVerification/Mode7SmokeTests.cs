@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares Direct3D Mode 7 output with software rendering across deterministic register and layer cases.</summary>
 internal static class Mode7SmokeTests
 {
+    /// <summary>Runs the Mode 7 comparison matrix and reports a failure if any rendered pixel differs.</summary>
+    /// <param name="device">Direct3D device used to execute the GPU renderer.</param>
+    /// <param name="renderer">Renderer whose Mode 7 output is compared with the software reference.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32113);

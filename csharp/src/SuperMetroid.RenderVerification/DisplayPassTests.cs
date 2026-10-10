@@ -4,8 +4,12 @@ using SuperMetroid.Rendering.Direct3D11;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 
+/// <summary>Verifies scaled GPU display output, timing boundaries, and compute use after display rendering.</summary>
 internal static class DisplayPassTests
 {
+    /// <summary>Renders a fixture at varied target sizes and compares displayed pixels with the software-rendered frame.</summary>
+    /// <param name="device">Direct3D device and context used to create, copy, and read display targets.</param>
+    /// <param name="renderer">Frame renderer whose display pass and subsequent compute path are verified.</param>
     internal static unsafe void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(

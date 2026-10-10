@@ -11,6 +11,9 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Runs bounded paused and active production-timer scenes, collecting frame, memory, audio, and renderer telemetry.</summary>
+    /// <param name="seconds">Requested duration for each scene, from five seconds through five minutes.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The requested duration is outside the supported soak interval.</exception>
     private static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
@@ -120,6 +123,10 @@ internal static partial class Program
         Console.WriteLine($"Desktop timer soak report: {report}");
     }
 
+    /// <summary>Creates and saves a warmed-up gameplay debugger state for the active or paused desktop timer scene.</summary>
+    /// <param name="installation">The private installation copy used for runtime data, audio, and the save-state slot.</param>
+    /// <param name="options">The game options used to construct the soak session.</param>
+    /// <param name="paused">When true, loads the Maridia tube room and pauses it; otherwise seeds the active gameplay room.</param>
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {

@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Deterministic render checks for SNES BG2 mosaic sampling across ordinary and color-math layer configurations.</summary>
 internal static class BackgroundMosaicTests
 {
+    /// <summary>Compares mosaic output to an independent pixel oracle and checks serialized packets and GPU readback.</summary>
+    /// <param name="device">The Direct3D device whose renderer output is checked.</param>
+    /// <param name="renderer">The frame renderer used to read back each serialized render snapshot.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new SnesVram();

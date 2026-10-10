@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Rooms;
 /// One bank-$84 collision PLM selected by the special-block tables at
 /// <c>$94:9139-$92F7</c> when Samus touches Speed Booster terrain.
 /// </summary>
+/// <param name="HeaderPointer">Room-PLM header that identifies the block's collision and setup behavior.</param>
+/// <param name="InstructionPointer">Instruction list that drives the block's crumble or persistence behavior.</param>
 public readonly record struct SpeedBoosterBlockPlmDefinition(
     ushort HeaderPointer,
     ushort InstructionPointer);

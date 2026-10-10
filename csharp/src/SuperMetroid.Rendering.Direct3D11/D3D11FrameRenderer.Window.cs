@@ -5,8 +5,12 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
+    /// <summary>Reusable renderer with independent scene resources for compositing windowed child scenes.</summary>
     private D3D11FrameRenderer? childRenderer;
 
+    /// <summary>Renders a child scene and copies its pixels into the window's half-open rectangle in the parent output.</summary>
+    /// <param name="packet">Parent frame identity used to create the child frame snapshot.</param>
+    /// <param name="window">Child scene and destination bounds; empty rectangles produce no output.</param>
     private void DrawWindow(RenderFrameSnapshot packet, WindowedSceneRenderLayer window)
     {
         if (window.Left == window.Right || window.Top == window.Bottom) return;

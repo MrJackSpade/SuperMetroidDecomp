@@ -25,6 +25,10 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
     private const ushort TriggerEnd = 0xbcdf;
 
+    /// <summary>Resolves a packed movement-sound byte owned by the downward-gate PLM lists.</summary>
+    /// <param name="address">Bank-$84 address of the byte to inspect.</param>
+    /// <param name="value">Receives the sound byte when owned, or zero when the address is not a mechanics byte.</param>
+    /// <returns><see langword="true"/> only for the closing or opening movement-sound byte.</returns>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         bool owned = address is ClosingSoundAddress or OpeningSoundAddress;
@@ -32,6 +36,10 @@ internal static class DownwardGatePlmProgramDefinitions
         return owned;
     }
 
+    /// <summary>Decodes an instruction or mechanics word in the downward-gate and shot-trigger programs.</summary>
+    /// <param name="address">Bank-$84 address of the word to inspect.</param>
+    /// <param name="value">Receives the decoded word when owned, or zero when the address is outside the decoded words.</param>
+    /// <returns><see langword="true"/> when the address identifies a compiled instruction or mechanics operand.</returns>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;

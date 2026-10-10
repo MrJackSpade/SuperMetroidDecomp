@@ -2,8 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares Direct3D 11 color-window, color-math, and message-box output with the software renderer.</summary>
 internal static class ColorWindowSmokeTests
 {
+    /// <summary>Exercises deterministic scanline windows and representative color-effect geometries for pixel parity.</summary>
+    /// <param name="device">Device whose adapter identity is included in comparison diagnostics.</param>
+    /// <param name="renderer">GPU frame renderer used to produce readback pixels for comparison.</param>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32114);

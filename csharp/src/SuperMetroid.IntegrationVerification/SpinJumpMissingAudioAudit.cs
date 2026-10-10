@@ -4,8 +4,11 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using System.Reflection;
 
+/// <summary>Checks that a Screw Attack spin jump in the saved-room fixture publishes its start sound and stops it after cancellation.</summary>
 internal static class SpinJumpMissingAudioAudit
 {
+    /// <summary>Runs the spin-jump audio audit against the captured gameplay fixture.</summary>
+    /// <returns>Zero when the expected sound start, cancellation, and repeated-start behavior are observed.</returns>
     public static int Run()
     {
         var loaded = DebuggerFixtureLoader.Load("spin-jump-missing-audio", 0);

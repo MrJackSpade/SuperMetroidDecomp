@@ -9,6 +9,10 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmProgramDefinitions
 {
+    /// <summary>Looks up a word operand in the compiled bank-$84 room-PLM programs.</summary>
+    /// <param name="address">Bank-$84 address to resolve against the supported PLM program definitions.</param>
+    /// <param name="value">Translated operand when a definition owns the address.</param>
+    /// <returns><see langword="true"/> when one of the compiled program definitions contains the address.</returns>
     internal static bool TryReadWord(ushort address, out ushort value) =>
         RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
@@ -50,6 +54,10 @@ internal static class RoomPlmProgramDefinitions
         EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value);
 
+    /// <summary>Looks up a byte operand in the compiled bank-$84 room-PLM programs.</summary>
+    /// <param name="address">Bank-$84 address to resolve against the supported PLM byte operands.</param>
+    /// <param name="value">Translated byte operand when a definition owns the address.</param>
+    /// <returns><see langword="true"/> when one of the compiled program definitions contains the byte address.</returns>
     internal static bool TryReadByte(ushort address, out byte value) =>
         EscapeAnimalPlmProgramDefinitions.TryReadByte(address, out value) ||
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

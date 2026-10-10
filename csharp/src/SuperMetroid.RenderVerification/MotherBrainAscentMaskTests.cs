@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Verifies Mother Brain's ascent scanline masks and floor occlusion in layered rendering.</summary>
 internal static class MotherBrainAscentMaskTests
 {
+    /// <summary>Checks the active and inactive ascent masks against expected pixels and CPU/GPU rendering results.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new SnesVram();

@@ -3,6 +3,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares each dynamic collectible's native graphics pointer across three PLM headers,
+    /// its exported records, and the 256 source bytes associated with that pointer.
+    /// </summary>
+    /// <param name="rom">Address space containing the retail PLM programs and graphics data.</param>
     private static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
@@ -29,6 +34,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Confirms the 17 supported collectible kinds retain their direct identities and ascending
+    /// enumeration, while byte values outside the supported range are rejected.
+    /// </summary>
     private static void VerifyDynamicCollectibleKindIdentity()
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();

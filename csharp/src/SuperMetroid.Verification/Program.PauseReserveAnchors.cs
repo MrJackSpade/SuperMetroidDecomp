@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Validates six ROM-derived reserve-tank anchors and exercises editable horizontal and vertical coordinates.</summary>
+    /// <param name="rom">Retail address space supplying the native reserve-tank coordinate tables and sprite data.</param>
     private static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
@@ -17,6 +19,11 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
     }
 
+    /// <summary>Checks one anchor coordinate against ROM data, verifies edits preserve other fields, and compares the resulting OAM with a native draw.</summary>
+    /// <param name="rom">Retail address space used to resolve the native anchor and spritemap.</param>
+    /// <param name="document">Extracted editable anchor document whose selected component is varied.</param>
+    /// <param name="stock">Loaded presentation used to inspect default anchors and render the edited sprite.</param>
+    /// <param name="horizontal">Selects X when true and Y when false, including that axis's valid coordinate bounds.</param>
     private static void VerifyPauseReserveAnchorField(ISnesAddressSpace rom, PauseReserveTankDocument document,
         PauseReserveTankPresentation stock, bool horizontal)
     {

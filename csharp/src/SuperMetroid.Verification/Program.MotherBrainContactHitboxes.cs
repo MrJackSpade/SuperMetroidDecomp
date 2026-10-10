@@ -92,6 +92,13 @@ internal static partial class Program
             $"{collisionCases} production collision probes pass without a ROM bus.");
     }
 
+    /// <summary>Computes contact and the minimum horizontal separation expected from a component's compiled hitboxes.</summary>
+    /// <param name="part">Mother Brain component whose contact rectangles are evaluated.</param>
+    /// <param name="xDelta">Samus's horizontal offset from the component origin.</param>
+    /// <param name="yDelta">Samus's vertical offset from the component origin.</param>
+    /// <param name="xRadius">Samus's horizontal collision radius.</param>
+    /// <param name="yRadius">Samus's vertical collision radius.</param>
+    /// <returns>Whether any rectangle overlaps and the resulting horizontal displacement, or zero when none overlaps.</returns>
     private static (bool Collides, ushort XDisplacement) ExpectedMotherBrainContact(
         MotherBrainContactPart part,
         int xDelta,
@@ -114,6 +121,9 @@ internal static partial class Program
         return (false, 0);
     }
 
+    /// <summary>Reads one little-endian 16-bit word from the cartridge hitbox table.</summary>
+    /// <param name="bus">Cartridge address space containing the table bytes.</param>
+    /// <param name="address">Address of the low byte of the word.</param>
     private static ushort ReadMotherBrainHitboxWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Runs the Phantoon starting-flame producer through legacy audio collection and verifies its library-three sound ID and queue limit.</summary>
     private static void VerifyPhantoonIntroFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -41,6 +42,7 @@ internal static partial class Program
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
 
+    /// <summary>Checks that the first death-wave pass replaces retained intro scroll data with aligned BG2 scrolls before normal wave animation resumes.</summary>
     private static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonInstructionSystem(new SlopeHeightNoReadBus());

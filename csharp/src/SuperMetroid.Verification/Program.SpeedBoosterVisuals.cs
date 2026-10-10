@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the stock Speed Booster visual word matches the native draw operand and that catalog identity and bounds are stable.</summary>
+    /// <param name="rom">Address space containing the retail bomb-reveal draw instruction.</param>
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
@@ -39,6 +41,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
+    /// <summary>Verifies stock extraction and overrides through production bomb-reveal PLM population, drawing, and validation.</summary>
     private static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

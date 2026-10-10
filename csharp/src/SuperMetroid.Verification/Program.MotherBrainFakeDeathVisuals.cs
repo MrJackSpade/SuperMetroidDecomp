@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock Mother Brain fake-death mappings, editable row and tube tiles, collision isolation, and strict asset validation.</summary>
     private static void VerifyMotherBrainFakeDeathVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -98,6 +99,14 @@ internal static partial class Program
             "Mother Brain fake-death visuals: 22 stock draws, live row/tube edits, collision isolation, override persistence and strict failures pass.");
     }
 
+    /// <summary>Verifies a fake-death PLM redraw uses the selected visual tile while preserving the underlying collision word.</summary>
+    /// <param name="header">PLM header selecting the fake-death background or tube mutation.</param>
+    /// <param name="xOffset">Horizontal block offset from the spawned PLM origin.</param>
+    /// <param name="yOffset">Vertical block offset from the spawned PLM origin.</param>
+    /// <param name="physicalWord">Expected level word retained by the collision map.</param>
+    /// <param name="visualWord">Expected tile word submitted to the streamed background map.</param>
+    /// <param name="visuals">Optional replacement catalog; <see langword="null"/> exercises the stock visual mapping.</param>
+    /// <param name="cameraX">Camera position used while the room PLM updates its streamed tilemap destination.</param>
     private static void VerifyMotherBrainVisualDraw(ushort header,
         int xOffset, int yOffset, ushort physicalWord, ushort visualWord,
         RoomPlmMotherBrainFakeDeathVisualCatalog? visuals, ushort cameraX)

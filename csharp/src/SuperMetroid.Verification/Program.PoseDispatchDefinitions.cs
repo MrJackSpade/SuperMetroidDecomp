@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all pose dispatch bytes with retail data while forbidding runtime ROM reads, and checks history and allocation behavior.</summary>
+    /// <param name="rom">Retail address space supplying the original pose-definition bytes.</param>
     private static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = new SlopeHeightNoReadBus();
@@ -47,6 +49,11 @@ internal static partial class Program
 
         Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
     }
+
+    /// <summary>Measures current-thread allocations across warmed lookups of the facing, movement, and no-input pose tables.</summary>
+    /// <param name="forbidden">Address space used by lookups that must not read authored ROM data.</param>
+    /// <param name="checksum">Receives the accumulated lookup values so the measured table accesses remain observable.</param>
+    /// <returns>The number of managed bytes allocated by the lookup loop on the current thread.</returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     private static long MeasurePoseDispatchAllocation(ISnesAddressSpace forbidden, out int checksum)
     {

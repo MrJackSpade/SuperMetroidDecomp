@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Validates the five Kraid palette source addresses against the indexed loads in the retail AI code.</summary>
+    /// <param name="rom">Address space containing Kraid's native bank-$A7 instructions and palette operands.</param>
     private static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
     {
         (KraidPaletteSource Source, int Instruction)[] nativeLoads =
@@ -25,6 +27,7 @@ internal static partial class Program
                 "Unknown palette address source rejected");
     }
 
+    /// <summary>Checks that each compiled Kraid palette length matches its complete native bank-$A7 data extent.</summary>
     private static void VerifyKraidPaletteSourceLengths()
     {
         // Independent bank_A7 symbol extents: next definition starts immediately

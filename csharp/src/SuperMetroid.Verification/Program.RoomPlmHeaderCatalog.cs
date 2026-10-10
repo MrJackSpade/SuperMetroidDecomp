@@ -75,6 +75,9 @@ internal static partial class Program
             "  PLM headers: unique catalog and all 70 retail-population headers agree.");
     }
 
+    /// <summary>Parses the hexadecimal SNES address at the start of a room-PLM symbol-table line.</summary>
+    /// <param name="line">Symbol entry beginning with a hexadecimal address followed by its name.</param>
+    /// <returns>The address's low 16-bit offset within bank $8F.</returns>
     private static ushort ParseRoomPlmPopulationPointer(string line)
     {
         int separator = line.IndexOf(' ');
@@ -89,6 +92,10 @@ internal static partial class Program
         return unchecked((ushort)address);
     }
 
+    /// <summary>Reads one little-endian PLM word from the room-population data bank.</summary>
+    /// <param name="bus">Cartridge address space containing the bank-$8F population records.</param>
+    /// <param name="pointer">Bank-$8F offset where the two-byte word begins.</param>
+    /// <returns>The unsigned word formed from the low byte followed by the high byte.</returns>
     private static ushort ReadRoomPlmWord(SuperMetroidAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(
             bus.ReadByte((int)new SnesAddress(0x8f, pointer)) |

@@ -8,6 +8,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    /// <summary>Verifies manual reserve selection, one-energy-per-call transfer ordering, suspension across other categories, resumed progress, and mode restoration on exhaustion.</summary>
     private static void VerifyPauseReserveManual()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -56,6 +57,7 @@ internal static partial class Program
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 
+    /// <summary>Verifies the manual refill sound cadence, serialized pending delay, health cap, and reserve exhaustion both below and near maximum health.</summary>
     private static void VerifyManualReserveSoundAndClamp(SuperMetroidAddressSpace bus)
     {
         foreach (ushort startingHealth in new ushort[] { 20, 98 })

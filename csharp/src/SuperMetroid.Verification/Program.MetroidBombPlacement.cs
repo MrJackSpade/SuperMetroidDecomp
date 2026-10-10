@@ -7,6 +7,9 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that a naturally exploding placed bomb detaches an attached Metroid and preserves its four-update escape motion.
+    /// </summary>
     private static void VerifyMetroidBombPlacement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -64,6 +67,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Verifies the production runtime's placed-bomb detach trajectory against the captured native frame sequence.
+    /// </summary>
+    /// <param name="bus">The cartridge address space used to initialize the retail runtime and enemy data.</param>
+    /// <param name="room">The retail room header whose enemy population supplies the Metroid encounter.</param>
     private static void VerifyMetroidBombRuntime(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         // Use the dry-floor setup from the full-alpha native capture, not the

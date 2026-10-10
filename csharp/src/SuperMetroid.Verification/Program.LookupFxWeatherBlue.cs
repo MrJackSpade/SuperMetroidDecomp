@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that rain and fog third-color green matches bank-$89 data through the calculated, installed, and CGRAM paths while liquid overrides stay independent.</summary>
     private static void VerifyFxWeatherThirdGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
@@ -29,6 +30,7 @@ internal static partial class Program
                 AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(id) is null, "Liquid override green remains independent");
         }
     }
+    /// <summary>Checks rain and fog third-color blue calculations, RGB5 edit round-trips, selector validation, and installed CGRAM output against bank-$89 data.</summary>
     private static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })

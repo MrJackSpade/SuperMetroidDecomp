@@ -360,6 +360,13 @@ static void VerifyBreakableGrapplePlms()
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 
+/// <summary>
+/// Stores one little-endian tile word in a block's eight-byte definition record.
+/// </summary>
+/// <param name="definitions">The packed tile-definition table, with eight bytes reserved per block.</param>
+/// <param name="block">The block index whose tile record receives the word.</param>
+/// <param name="tile">The tile slot within that block's record.</param>
+/// <param name="value">The 16-bit level word to encode.</param>
 static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort value)
 {
     int offset = block * 8 + tile * 2;
@@ -367,6 +374,9 @@ static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort 
     definitions[offset + 1] = unchecked((byte)(value >> 8));
 }
 
+/// <summary>
+/// Verifies posture transitions, collision-driven radius changes, grounded movement, and crouch-jump behavior.
+/// </summary>
 static void VerifySamusPostureMovement()
 {
     var bus = new TestAddressSpace();

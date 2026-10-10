@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the rendered planet bottom edge moves only upward during the Ceres departure and that Zebes fully exits before handoff.</summary>
     private static void VerifyZebesDoesNotWrapDuringDescent()
     {
         Suite(nameof(VerifyOffScreenCinematicOam), () => VerifyOffScreenCinematicOam());
@@ -40,6 +41,7 @@ internal static partial class Program
         Console.WriteLine($"  Zebes descent: {slideFrames} frames, {visibleFrames} with planet, no lower-screen reappearance.");
     }
 
+    /// <summary>Checks off-screen cinematic OAM parking against the native branch logic for every byte-sized origin and component offset pair.</summary>
     private static void VerifyOffScreenCinematicOam()
     {
         var bus = new TestAddressSpace();

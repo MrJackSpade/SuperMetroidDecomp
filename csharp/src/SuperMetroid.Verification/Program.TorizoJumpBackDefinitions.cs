@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the right-facing paired jump-back program's control words, visual selectors, frames, and hitboxes against ROM.
+    /// </summary>
+    /// <param name="rom">The address space containing the pinned cartridge's bank-$AA definitions.</param>
     private static void VerifyTorizoJumpBackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -124,6 +128,10 @@ internal static partial class Program
                     unchecked((ushort)(address + 1))) << 8);
     }
 
+    /// <summary>
+    /// Verifies the left-facing paired jump-back program's control words, visual selectors, frames, and hitboxes against ROM.
+    /// </summary>
+    /// <param name="rom">The address space containing the pinned cartridge's bank-$AA definitions.</param>
     private static void VerifyTorizoJumpBackLeftDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

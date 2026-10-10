@@ -5,6 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Builds a probe for the production body-overlap predicate with its bottom coordinate set
+    /// to the contour branch's exact vertical threshold.
+    /// </summary>
     private static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
     {
         Type scratchType = typeof(RoomEnemySystem).GetNestedType(
@@ -33,6 +37,11 @@ internal static partial class Program
                 Expression.Call(scratch, scratchType.GetMethod("OverlapsBody")!, body, nativeShot)),
             body, shot).Compile();
     }
+    /// <summary>
+    /// Compares the production Kraid body-contour collision edge with the native calculation
+    /// across every signed vertical coordinate and representative positions, radii, and edge cases.
+    /// </summary>
+    /// <param name="rom">Address space used to calculate the native contour boundary.</param>
     private static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the eight compiled palette-FX area-list pointers with retail data and checks indexed bounds.</summary>
+    /// <param name="rom">Address space containing the native area-list pointer table.</param>
     private static void VerifyPaletteFxAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
@@ -13,6 +15,8 @@ internal static partial class Program
                 "Area-list identity preserves indexed-span bounds");
     }
 
+    /// <summary>Checks palette-FX area/bit dispatch against retail definitions and verifies invalid-index rejection precedence.</summary>
+    /// <param name="rom">Address space containing native area lists and their selected definitions.</param>
     private static void VerifyPaletteFxAreaSelections(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)

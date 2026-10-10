@@ -10,6 +10,10 @@ internal static partial class Program
     // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
     // #1269: $A0:A184 also does not reject a projectile an earlier enemy marked for removal
     // this pass; the movie's Super Missile hits a respawning Rinka and then the Metroid.
+    /// <summary>
+    /// Runs the Metroid death-drop scenario with and without an earlier same-pass projectile
+    /// removal mark to verify the explosion is allocated before all five special drops.
+    /// </summary>
     private static void VerifyMetroidDeathDrops()
     {
         VerifyMetroidDeathDrops(alreadyMarked: false);
@@ -17,6 +21,11 @@ internal static partial class Program
         Console.WriteLine("Metroid death drops: the explosion precedes the five special drops, even for an already-marked missile.");
     }
 
+    /// <summary>
+    /// Reproduces a Super Missile kill on a frozen Metroid and checks the resulting explosion
+    /// allocation and five-drop request ordering in a retail-room runtime fixture.
+    /// </summary>
+    /// <param name="alreadyMarked">Whether the missile was marked for removal earlier in the same projectile pass.</param>
     private static void VerifyMetroidDeathDrops(bool alreadyMarked)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

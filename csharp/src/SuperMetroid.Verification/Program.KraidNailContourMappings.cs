@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the six native left-offset words and verifies signed-wrap record selection for every relative Y value.
+    /// </summary>
+    /// <param name="rom">The address space containing Kraid's original nail-contour table.</param>
     private static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -26,6 +30,10 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks all six native top-boundary words and rejects record indices outside the contour table.
+    /// </summary>
+    /// <param name="rom">The address space containing Kraid's original nail-contour table.</param>
     private static void VerifyKraidNailTopBoundaries(SuperMetroidAddressSpace rom)
     {
         for (int record = 0; record < 6; record++)

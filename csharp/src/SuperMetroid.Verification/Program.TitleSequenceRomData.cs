@@ -103,6 +103,8 @@ internal static partial class Program
             "animation, confirmation fade, and skip route agree.");
     }
 
+    /// <summary>Builds a synthetic cartridge image containing the title data needed by the complete cinematic fixture.</summary>
+    /// <returns>Retail-sized ROM bytes with constructed gradient, compressed-art, text-list, and logo-pointer data.</returns>
     private static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -167,6 +169,10 @@ internal static partial class Program
         return rom;
     }
 
+    /// <summary>Copies a compiled timed title-text list into the synthetic ROM and appends its expected scene command.</summary>
+    /// <param name="rom">Constructed cartridge image receiving the instruction words.</param>
+    /// <param name="definition">Compiled address and entry layout of the title text sequence.</param>
+    /// <param name="sceneCommand">Scene-transition command expected at the end of the copied list.</param>
     private static void WriteConstructedTitleTextList(
         byte[] rom,
         TitleTextSequenceDefinition definition,

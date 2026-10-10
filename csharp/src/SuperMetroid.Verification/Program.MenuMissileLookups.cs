@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the four missile spritemap IDs and native frame-wrap instruction with bank-$82 data, including invalid-index behavior.</summary>
+    /// <param name="rom">Cartridge address space containing the native menu-missile program.</param>
     private static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
     {
         AssertEqual(4, MenuMissileAnimationDefinitions.FrameCount, "menu missile frame count");
@@ -17,6 +19,8 @@ internal static partial class Program
                 $"menu missile invalid frame {frame}");
     }
 
+    /// <summary>Checks that all four native missile-frame timer reloads match the shared eight-call duration.</summary>
+    /// <param name="rom">Cartridge address space containing the native frame timer operands.</param>
     private static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)

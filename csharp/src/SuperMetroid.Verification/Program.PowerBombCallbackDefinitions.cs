@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Finds the shared disassembly source directory by walking upward from the current directory for its bank A0 listing.</summary>
     private static string FindCallbackDisassemblySource()
     {
         // Linked worktrees share the separately checked-out diagnostic reference.
@@ -18,6 +19,7 @@ internal static partial class Program
             "Callback verification requires upstream-disassembly/src/bank_A0.asm " +
             "in this checkout or an ancestor containing the shared reference checkout.");
     }
+    /// <summary>Compares native enemy-header Power Bomb callbacks with the ten bank-qualified literal-RTL identities and checks every bank/pointer pair.</summary>
     private static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         int headers = 0;

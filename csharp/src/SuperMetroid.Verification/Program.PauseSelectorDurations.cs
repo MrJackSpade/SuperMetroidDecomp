@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks editable pause-selector timing, cyclic phase lookup, initial-delay independence, and invalid-duration rejection.</summary>
+    /// <param name="rom">Address space used to extract and compare the stock selector program and timing data.</param>
     private static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -47,6 +49,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares stock selector phase durations, the native terminator, and the separate initial delay with cartridge bytes.</summary>
+    /// <param name="rom">Address space containing the native pause-selector program and initial-delay byte.</param>
+    /// <param name="selector">Stock selector presentation whose timing values are checked against the cartridge.</param>
     private static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);

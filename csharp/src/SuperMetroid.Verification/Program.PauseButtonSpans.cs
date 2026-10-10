@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks each button-label tilemap offset against its native load instruction and named row lookup.
+    /// </summary>
+    /// <param name="rom">The address space containing the pause-menu button drawing routines.</param>
     private static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
         // Independent native LDA long,X sites, in the original six-span order.
@@ -27,6 +31,10 @@ internal static partial class Program
                 "unsupported button row");
     }
 
+    /// <summary>
+    /// Checks each button-label recolor width against the byte count encoded by its native drawing routine.
+    /// </summary>
+    /// <param name="rom">The address space containing the pause-menu button drawing routines.</param>
     private static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {
         int[] sites = [0x82a62d, 0x82a64b, 0x82a669, 0x82a687, 0x82a6a5, 0x82a6c3];

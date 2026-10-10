@@ -382,8 +382,12 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Reports installer progress to the console and optionally forwards each message to a callback.</summary>
+    /// <param name="onReport">Optional callback invoked after each progress message is written.</param>
     private sealed class ImmediateInstallProgress(Action<string>? onReport = null) : IProgress<string>
     {
+        /// <summary>Writes one installer progress message and forwards it to the configured callback when present.</summary>
+        /// <param name="message">Progress text supplied by the installation operation.</param>
         public void Report(string message) { Console.WriteLine(message); onReport?.Invoke(message); }
     }
 }

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock trail-atlas VRAM parity, edited-pixel destinations, and rejection of malformed or out-of-range indexed PNGs.</summary>
+    /// <param name="bus">Retail address space used to extract the stock projectile trail atlas and definitions.</param>
     private static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
@@ -47,6 +49,9 @@ internal static partial class Program
         Console.WriteLine("Trail PNG: native room/NMI parity and twelve edited pixels preserve every other VRAM byte, including the interleaved graphics gap.");
     }
 
+    /// <summary>Verifies that rebinding trail artwork installs its tiles on accepted NMIs and survives room setup and debugger restoration.</summary>
+    /// <param name="bus">Retail address space used to create projectile trail definitions and runtime fixtures.</param>
+    /// <param name="png">Atlas image whose edited ice/wave and missile tiles are checked after installation.</param>
     private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
     {
         var image = IndexedPng.Read(new MemoryStream(png), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);

@@ -67,6 +67,9 @@ internal static partial class Program
             $"all {retailMainPointers.Count} nonzero callback kinds are catalogued.");
     }
 
+    /// <summary>Parses a bank-$8F room-header symbol from one upstream names-file line, excluding door-outs and the debug room.</summary>
+    /// <param name="line">Line expected to contain an address and a <c>kRoom_</c> symbol name.</param>
+    /// <returns>The room-header offset for a supported room symbol, or <see langword="null"/> when the line is not one.</returns>
     private static ushort? TryParseRoomHeaderPointer(string line)
     {
         string[] fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -92,6 +95,8 @@ internal static partial class Program
         return pointer == 0xe82c ? null : pointer;
     }
 
+    /// <summary>Creates room-state audit inputs for default state, inventory variants, each boss flag, and each event bit.</summary>
+    /// <returns>The selection contexts used to discover reachable retail room states.</returns>
     private static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
     {
         var contexts = new List<RoomStateSelectionContext>

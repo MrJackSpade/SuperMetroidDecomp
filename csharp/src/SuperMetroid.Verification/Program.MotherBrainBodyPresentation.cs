@@ -116,6 +116,10 @@ internal static partial class Program
         };
     }
 
+    /// <summary>Checks that the body's emitted OAM entries match each authored component's position, tile, palette, flip, order, and size.</summary>
+    /// <param name="actual">OAM buffer produced by drawing the body.</param>
+    /// <param name="authored">Visual components whose offsets and sprite properties define the expected entries.</param>
+    /// <param name="body">Enemy slot supplying the body's world position.</param>
     private static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
         var expected = new byte[authored.Length * 4];
@@ -138,6 +142,10 @@ internal static partial class Program
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 
+    /// <summary>Checks that the body's BG2 tilemap contains exactly the ordered tile writes for the selected frame.</summary>
+    /// <param name="actual">VRAM after the body's draw operation.</param>
+    /// <param name="authored">Catalog document containing the expected BG2 writes.</param>
+    /// <param name="oamName">OAM frame name used to locate its corresponding BG2 frame entry.</param>
     private static void AssertBodyBg2(SnesVram actual, EnemyBg2FrameDocument authored, string oamName)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

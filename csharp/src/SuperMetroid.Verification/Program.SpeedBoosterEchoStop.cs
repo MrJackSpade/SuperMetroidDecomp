@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the production audio queue starts the Speed Booster echo once, stops it on wall cancellation, and reaches SPC and PCM silence without premature cancellation.</summary>
     private static void VerifySpeedBoosterEchoStop()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +69,8 @@ internal static partial class Program
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
     }
 
+    /// <summary>Checks persistent echo-stop ownership across deferred requests, post-draw ordering, save restoration, and quicksand cancellation.</summary>
+    /// <param name="bus">Retail address space used by the speed-booster and post-draw audio routines under verification.</param>
     private static void VerifyEchoFlagOwnership(ISnesAddressSpace bus)
     {
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };

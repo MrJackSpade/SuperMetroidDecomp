@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks each area's animated-object list pointer against the bank-$83 table and verifies area-index bounds.</summary>
+    /// <param name="rom">Retail address space containing the native area-pointer table.</param>
     private static void VerifyAnimatedAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
@@ -13,6 +15,8 @@ internal static partial class Program
                 () => AreaAnimatedTileObjectDefinitions.NativeListPointer(invalid), "Native area bounds");
     }
 
+    /// <summary>Checks every supported area/bit object selection against ROM data and verifies invalid-index rejection and validation order.</summary>
+    /// <param name="rom">Retail address space containing the native area lists and object-header pointers.</param>
     private static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)

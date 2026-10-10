@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies schema-two named save state, schema-one migration precedence, padding removal, and backed-up file upgrade.</summary>
     private static void VerifySaveSchemaTranslation()
     {
         // Isolated arrays only; no player save file is read or changed.
@@ -88,6 +89,9 @@ internal static partial class Program
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
     }
+    /// <summary>Checks that translated completion and item-count state drives frontend behavior and persists through runtime save paths.</summary>
+    /// <param name="bus">Cartridge-free address space containing the save RAM under test.</param>
+    /// <param name="ram">Save-RAM facade used to change and inspect the selected slot.</param>
     private static void VerifyNamedSaveRuntime(SuperMetroidAddressSpace bus, SuperMetroidSaveRam ram)
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.

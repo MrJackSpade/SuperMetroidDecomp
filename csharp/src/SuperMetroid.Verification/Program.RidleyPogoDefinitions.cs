@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares compiled Ridley pogo tables with cartridge records and checks initialization preserves RNG and caller state.
+    /// </summary>
+    /// <param name="rom">The address space containing Ridley's native table pointers and reference records.</param>
     private static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads(rom));
@@ -59,6 +63,10 @@ internal static partial class Program
         Console.WriteLine("Ridley pogo: all indirect native records and 1572864 actual initializations preserve RNG, signed speed and asymmetric acceleration without ROM reads.");
     }
 
+    /// <summary>
+    /// Verifies pogo and fireball setup timers for every RNG word without advancing the RNG stream.
+    /// </summary>
+    /// <param name="rom">The address space supplied to the Ridley function dispatcher.</param>
     private static void VerifyRidleyAttackTimerRandomReads(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();

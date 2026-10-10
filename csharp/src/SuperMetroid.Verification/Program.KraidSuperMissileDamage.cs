@@ -10,6 +10,9 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Runs the close-range Kraid Super Missile scenario, checking damage and deferred cleanup of linked projectiles.</summary>
+    /// <param name="collisionReport">When <see langword="true"/>, runs the collision traversal report path instead of the damage sequence.</param>
+    /// <returns>The collision-report result when requested; otherwise zero after the assertions pass.</returns>
     private static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -134,6 +137,11 @@ internal static partial class Program
         return 0;
     }
 
+    /// <summary>Checks Kraid's counter-bounded projectile-slot traversal, including its inclusive slot and adjacent bomb behavior.</summary>
+    /// <param name="bus">Address space used by the Kraid collision routine.</param>
+    /// <param name="runtime">Runtime whose enemy and projectile systems execute the collision pass.</param>
+    /// <param name="body">Kraid body slot whose health and contact state are checked.</param>
+    /// <param name="state">Kraid encounter state used to configure the mouth hitboxes.</param>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four pause-map marker sprite phases against their cartridge pointers and validates bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the native save-marker spritemap table.</param>
     private static void VerifyMapIndicatorSprites(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)
@@ -16,6 +18,8 @@ internal static partial class Program
                 "unsupported marker sprite phase");
     }
 
+    /// <summary>Checks native marker timing data and compares phase and backing alternation over repeated animation ticks.</summary>
+    /// <param name="rom">Cartridge address space containing the native marker timing and spritemap tables.</param>
     private static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadByte(0x82ba06), "native marker frame CPX");

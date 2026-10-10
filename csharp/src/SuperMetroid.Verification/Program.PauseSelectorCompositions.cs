@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks pause-selector artwork edits and authored phase changes while preserving native OAM and timing.</summary>
+    /// <param name="rom">Cartridge address space used to extract selector presentation and native sprite compositions.</param>
     private static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -72,6 +74,10 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, 0, -1), "negative composition phase");
     }
 
+    /// <summary>Compares one selector category's installed draws with native spritemaps across phases and OAM occupancy.</summary>
+    /// <param name="rom">Cartridge address space supplying the native selector program, anchors, and spritemaps.</param>
+    /// <param name="selector">Loaded presentation whose draw output is compared with cartridge rendering.</param>
+    /// <param name="group">Category group whose selector anchors and compositions are verified.</param>
     private static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);

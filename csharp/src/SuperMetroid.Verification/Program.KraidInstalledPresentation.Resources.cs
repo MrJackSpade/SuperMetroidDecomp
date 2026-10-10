@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Checks that Kraid's live head-tilemap alias uploads the expected words without changing the body map or source WRAM.</summary>
     private static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
     {
         var fixture = new KraidHeadClockFixture(art);
@@ -26,6 +27,7 @@ internal static partial class Program
         Console.WriteLine("PASS Kraid live head alias: exact WRAM-to-VRAM words, no body-map or source-RAM mutation.");
     }
 
+    /// <summary>Checks that stock validation and loading reject each required Kraid body, head, and backdrop file when it is missing.</summary>
     private static void VerifyKraidRequiredFiles(string directory)
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,

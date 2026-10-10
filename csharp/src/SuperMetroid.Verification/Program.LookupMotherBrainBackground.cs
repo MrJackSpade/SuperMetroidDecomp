@@ -3,6 +3,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks exhaustive ownership and exported geometry for the twelve Mother Brain background rows against their native PLM records.</summary>
+    /// <param name="rom">Retail address space supplying each row's native count, direction, and continuation offsets.</param>
     private static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
@@ -35,6 +37,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies that every compiled Mother Brain background cell preserves the complete native level word, including collision and visual bits.</summary>
+    /// <param name="rom">Retail address space containing the twelve thirteen-cell background rows.</param>
     private static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];

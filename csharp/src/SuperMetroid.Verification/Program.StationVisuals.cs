@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks station-art edits reach immediate and streamed PLM tilemaps without changing physical collision data.</summary>
+    /// <param name="rom">Retail address space used by the stock station-visual installation checks.</param>
     private static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
@@ -78,6 +80,8 @@ internal static partial class Program
         Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 
+    /// <summary>Verifies stock station-visual extraction, override persistence, and rejection of collision or manifest corruption.</summary>
+    /// <param name="rom">Retail address space supplying the stock station visuals.</param>
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
     {
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",

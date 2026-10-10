@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Runs Yard movement, landing, distance-publication, kick-word, and airborne trajectory verification scenarios.</summary>
     private static void VerifyYardTrajectories()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -45,6 +46,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Checks that airborne Yard actors land into the correct crawling velocity for every direction and facing.</summary>
+    /// <param name="bus">Cartridge address space supplying Yard movement tables and room enemy data.</param>
+    /// <param name="room">Room header supplying the native Yard population and tileset pointers.</param>
     private static void VerifyYardLanding(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var words = new ushort[32 * 32];

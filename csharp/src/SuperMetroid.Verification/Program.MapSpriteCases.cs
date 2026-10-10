@@ -7,6 +7,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted map-sprite roles survive independent field edits and preserve native rendering behavior.</summary>
+    /// <param name="rom">Cartridge address space supplying map-sprite graphics and the native composition reference.</param>
     private static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -76,6 +78,9 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Compares installed map-sprite compositions with native spritemaps across screen positions and OAM occupancy.</summary>
+    /// <param name="bus">Cartridge address space used to read and draw the native spritemaps.</param>
+    /// <param name="catalog">Installed catalog whose output is checked against the native OAM entries.</param>
     private static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
         var native = new OamBuffer(); var installed = new OamBuffer();

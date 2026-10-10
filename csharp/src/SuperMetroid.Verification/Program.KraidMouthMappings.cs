@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all eight native Kraid mouth-shape records, their collision fields, and valid pointer alignment.</summary>
+    /// <param name="rom">Cartridge address space containing the bank-$A7 mouth-shape table.</param>
     private static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
@@ -26,6 +28,8 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Verifies the seven-byte low-half compatibility window and reads that cross the $7FFF pointer boundary.</summary>
+    /// <param name="rom">Cartridge address space supplying bytes on the banked side of the Kraid data boundary.</param>
     private static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
     {
         AssertEqual(7, KraidMouthHitboxes.LowHalfBoundaryLength, "Native compatibility window length");

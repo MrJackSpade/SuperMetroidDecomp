@@ -6,6 +6,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Serializes a JSON palette contract to a read-only stream and passes it to the requested loader.</summary>
+    /// <typeparam name="T">Value type returned by the palette loader.</typeparam>
+    /// <param name="document">JSON object representing the contract under test.</param>
+    /// <param name="load">Loader that parses the serialized contract and produces the value.</param>
+    /// <returns>The value returned by <paramref name="load"/>.</returns>
     private static T ReadPaletteContract<T>(JsonObject document, Func<Stream, T> load)
     {
         using var json = new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()), writable: false);
@@ -88,6 +93,9 @@ internal static partial class Program
             legacyCgram.Colors[MotherBrainRainbowPaletteRomData.BodyColor], "legacy retains edited normal colors");
     }
 
+    /// <summary>Packs the JSON color's five-bit red, green, and blue channels into a SNES RGB15 word.</summary>
+    /// <param name="color">Color object containing integer <c>red</c>, <c>green</c>, and <c>blue</c> channel values.</param>
+    /// <returns>The channel values packed into bits 0–4, 5–9, and 10–14 respectively.</returns>
     private static ushort PackPaletteContractColor(JsonObject color) => (ushort)(color["red"]!.GetValue<int>() |
         color["green"]!.GetValue<int>() << 5 | color["blue"]!.GetValue<int>() << 10);
 }

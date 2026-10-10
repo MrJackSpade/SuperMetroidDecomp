@@ -314,6 +314,12 @@ internal static partial class Program
             "  Pause menu: constructed assets, map reveal modes, native centering, OAM indicators, equipment toggles, unpause transfers, and Start agree.");
     }
 
+    /// <summary>
+    /// Writes the low three bytes of a value to a synthetic ROM image using a SNES bus address.
+    /// </summary>
+    /// <param name="rom">Backing ROM image to modify.</param>
+    /// <param name="snesAddress">Bus address translated to the image's linear ROM offset.</param>
+    /// <param name="value">Value whose low three bytes are stored in little-endian order.</param>
     private static void WriteRomLong(byte[] rom, int snesAddress, int value)
     {
         int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
@@ -322,6 +328,10 @@ internal static partial class Program
         rom[offset + 2] = unchecked((byte)(value >> 16));
     }
 
+    /// <summary>Writes one byte to a synthetic ROM image at a translated SNES bus address.</summary>
+    /// <param name="rom">Backing ROM image to modify.</param>
+    /// <param name="snesAddress">Bus address translated to the image's linear ROM offset.</param>
+    /// <param name="value">Byte stored at the translated offset.</param>
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 }

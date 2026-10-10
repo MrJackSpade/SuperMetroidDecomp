@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Confirms the runtime publishes Yard's full fixed-point horizontal displacement, including
+    /// the stationary-frame checkpoint and subpixel changes below one pixel.
+    /// </summary>
     private static void VerifyYardRuntimeDistancePublication()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -25,6 +29,12 @@ internal static partial class Program
             "native integer-only direction test allows biased distance below one pixel");
     }
 
+    /// <summary>
+    /// Compares 24-frame Yard airborne position and velocity trajectories with an independent
+    /// word-store oracle across signed fractional boundaries and drop, kick, and shot behaviors.
+    /// </summary>
+    /// <param name="bus">Address space used to load the room's enemy definitions.</param>
+    /// <param name="room">Cartridge room whose enemy population and tileset are loaded into each fixture.</param>
     private static void VerifyYardAirborneTrajectories(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var empty = new ushort[64 * 64];

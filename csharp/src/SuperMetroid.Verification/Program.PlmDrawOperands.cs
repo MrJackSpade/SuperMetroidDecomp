@@ -4,8 +4,16 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Looks up a PLM program word by address in a compiled definition catalog.</summary>
+    /// <param name="address">Program-bank address of the word to retrieve.</param>
+    /// <param name="value">Receives the compiled word when the catalog contains the address.</param>
+    /// <returns><see langword="true"/> when a compiled word is available at <paramref name="address"/>.</returns>
     private delegate bool TryCompiledPlmWord(ushort address, out ushort value);
 
+    /// <summary>Reads a little-endian word from the retail PLM program bank at the requested offset.</summary>
+    /// <param name="source">Imported cartridge address space containing the original PLM program bytes.</param>
+    /// <param name="offset">Offset within the PLM program bank where the word begins.</param>
+    /// <returns>The two bytes at the offset combined as an unsigned word.</returns>
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
     {
         int bank = RoomPlmMemoryLayout.ProgramBank << 16;

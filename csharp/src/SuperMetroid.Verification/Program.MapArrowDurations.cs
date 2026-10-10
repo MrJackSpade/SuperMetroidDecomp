@@ -7,6 +7,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies extracted arrow timings, sparse duration overrides, and custom cycle lengths against the cartridge programs.
+    /// </summary>
+    /// <param name="rom">The address space containing the native map-arrow animation programs.</param>
     private static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -65,6 +69,11 @@ internal static partial class Program
         }
     }
 
+    /// <summary>
+    /// Checks that arrow frame advancement and timer pauses follow native duration ticks while the map is hidden.
+    /// </summary>
+    /// <param name="rom">The address space containing the native left-arrow duration program.</param>
+    /// <param name="presentation">The installed timing data consumed by the map animation controller.</param>
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         var actual = new FileSelectMapAnimations(new ForbiddenMapBus(), presentation);

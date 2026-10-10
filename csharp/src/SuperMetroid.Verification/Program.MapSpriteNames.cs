@@ -2,6 +2,8 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>Provides the independent native-ID-to-role-name table used to verify the compiled map sprite catalog.</summary>
+    /// <returns>Reference pairs in the original map sprite document order.</returns>
     private static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
         [
             (0x4, "Arrow.Right"),
@@ -32,6 +34,7 @@ internal static partial class Program
             (0x3e, "World.Tourian")
         ];
 
+    /// <summary>Checks map sprite role ordering, every supported native identity, name lookup, and rejection of unsupported IDs.</summary>
     private static void VerifyMapSpriteNameCases()
     {
         // Independent original table from9b54e512, retained only for verification.

@@ -12,6 +12,7 @@ internal static partial class Program
     // it reaches them with layer 1 at X $38C, where only the $3E7 points are on screen, so
     // the third Rinka falls back to the first free point. The port chose against the
     // finished camera ($300), where every point is on screen.
+    /// <summary>Replays the shaft-to-Mother-Brain door transition with the loader camera held at the reported scroll position and checks all three Rinka spawn points.</summary>
     private static void VerifyMotherBrainRinkaDoorSpawn()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -69,6 +70,8 @@ internal static partial class Program
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
     private sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
+        /// <summary>Signals that enemy initialization may proceed after the runtime camera reaches the configured X coordinate.</summary>
+        /// <param name="slot">Enemy slot being checked; this fixture applies the same camera threshold to each slot.</param>
         public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.XPosition <= cameraX;
     }
 }

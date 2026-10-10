@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four native bank-$A7 initial-scroll operands against the compiled per-screen mapping and its index bounds.</summary>
+    /// <param name="rom">Retail address space containing the initial camera-scroll instruction operands.</param>
     private static void VerifyKraidInitialScrollMapping(SuperMetroidAddressSpace rom)
     {
         // Read the two LDA immediate operands stored to Scrolls and Scrolls+2.
@@ -16,6 +18,8 @@ internal static partial class Program
                 "Initial scroll preserves span index bounds");
     }
 
+    /// <summary>Checks the four native bank-$A7 grown-Kraid scroll operands against the compiled per-screen mapping and its index bounds.</summary>
+    /// <param name="rom">Retail address space containing the grown-Kraid camera-scroll instruction operands.</param>
     private static void VerifyKraidGrownScrollMapping(SuperMetroidAddressSpace rom)
     {
         int[] operandAddresses = [0xa7c0a8, 0xa7c0a9, 0xa7c0af, 0xa7c0b0];

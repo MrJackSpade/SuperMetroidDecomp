@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Power Bomb fuse boundary arithmetic, collision-flag handling, fast-list switching, and the 60-frame expiry.</summary>
     private static void VerifyPowerBombFuse()
     {
         // Expected boundary cases follow the literal C157 branches, including a
@@ -37,6 +38,7 @@ internal static partial class Program
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
     }
 
+    /// <summary>Verifies the native explosion cleanup and next allocation retain the prior radius-speed word until setup changes it.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

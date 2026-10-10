@@ -116,6 +116,7 @@ internal static partial class Program
             "records, liquid tables, effects, and 32 slope profiles are in range.");
     }
 
+    /// <summary>Checks that a cataloged byte range is nonempty, remains within one native bank, and has readable endpoints.</summary>
     private static void TouchRange(
         SuperMetroidAddressSpace bus,
         int address,
@@ -130,6 +131,7 @@ internal static partial class Program
         bus.ReadByte(finalAddress);
     }
 
+    /// <summary>Reads a native little-endian 16-bit movement-table value from two adjacent ROM bytes.</summary>
     private static ushort ReadMovementWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

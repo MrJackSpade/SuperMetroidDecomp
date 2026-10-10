@@ -2,6 +2,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Totals timed records in a native bank-$93 projectile program until its terminator, following any list jumps.</summary>
+    /// <param name="rom">Retail address space supplying the pointer table and native instruction records.</param>
+    /// <param name="selector">Address of the word that selects the projectile instruction list.</param>
+    /// <returns>The total number of timed frames before the program terminates.</returns>
     private static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
@@ -22,6 +26,9 @@ internal static partial class Program
 
     // Keep synthetic artwork and terrain, but use the cartridge-selected programs.
     // Only sprite-reference fields are replaced; timing/damage/collision stay native.
+    /// <summary>Seeds a synthetic projectile bus with retail bank-$93 programs while replacing their sprite references with fixture artwork.</summary>
+    /// <param name="bus">Mutable test address space receiving native program data and synthetic presentation pointers.</param>
+    /// <returns>The retail cartridge import used as the source for native program bytes and reference lookups.</returns>
     private static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

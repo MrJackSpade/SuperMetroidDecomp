@@ -35,17 +35,6 @@ internal abstract class KiHunterInstructionProgramDefinitions
     /// <summary><c>InstList_Kihunter_AcidSpitAttack_FacingRight</c> at $A8:EB10.</summary>
     internal const ushort SpitRight = 0xeb10;
 
-    /// <summary><c>Instruction_Kihunter_SetIdlingInstListsFacingForwards</c> at $A8:F526.</summary>
-    private const ushort KihunterSetIdlingInstListsFacingForwards = 0xf526;
-    /// <summary><c>Instruction_Kihunter_SetFunctionToHop</c> at $A8:F5E4.</summary>
-    private const ushort KihunterSetFunctionToHop = 0xf5e4;
-    /// <summary><c>Instruction_Kihunter_SetFunctionTo_Wingless_Thinking</c> at $A8:F67F.</summary>
-    private const ushort KihunterSetFunctionToWinglessThinking = 0xf67f;
-    /// <summary><c>Instruction_Kihunter_FireAcidSpitLeft</c> at $A8:F6D2.</summary>
-    private const ushort KihunterFireAcidSpitLeft = 0xf6d2;
-    /// <summary><c>Instruction_Kihunter_FireAcidSpitRight</c> at $A8:F6D8.</summary>
-    private const ushort KihunterFireAcidSpitRight = 0xf6d8;
-
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
@@ -55,7 +44,7 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Frame(2),
         Frame(2),
         Frame(1),
-        Op(KihunterSetIdlingInstListsFacingForwards),
+        Op((ushort)KiHunterInstruction.SetIdlingInstListsFacingForwards),
         Entry(SwoopLeft),
         Frame(2),
         Frame(6),
@@ -63,12 +52,12 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Frame(2),
         Frame(2),
         Frame(32),
-        Op(CommonEnemyInstructionCodes.Goto, FlyingLeft),
+        Op((ushort)CommonEnemyInstruction.Goto, FlyingLeft),
         Entry(FlyingRight),
         Frame(2),
         Frame(2),
         Frame(1),
-        Op(KihunterSetIdlingInstListsFacingForwards),
+        Op((ushort)KiHunterInstruction.SetIdlingInstListsFacingForwards),
         Entry(SwoopRight),
         Frame(2),
         Frame(6),
@@ -76,21 +65,21 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Frame(2),
         Frame(2),
         Frame(32),
-        Op(CommonEnemyInstructionCodes.Goto, FlyingRight),
+        Op((ushort)CommonEnemyInstruction.Goto, FlyingRight),
         Entry(WingsLeft),
         Frame(2),
         Frame(2),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Goto, WingsLeft),
+        Op((ushort)CommonEnemyInstruction.Goto, WingsLeft),
         Entry(WingsRight),
         Frame(2),
         Frame(2),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Goto, WingsRight),
+        Op((ushort)CommonEnemyInstruction.Goto, WingsRight),
         Origin(0xea7e),
         Entry(DetachedWings),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Skip(6),
         Entry(JumpLeft),
         Frame(8),
@@ -98,54 +87,54 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Frame(11),
         Frame(2),
         Frame(2),
-        Op(KihunterSetFunctionToHop),
+        Op((ushort)KiHunterInstruction.SetFunctionToHop),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(JumpRight),
         Frame(8),
         Frame(8),
         Frame(11),
         Frame(2),
         Frame(2),
-        Op(KihunterSetFunctionToHop),
+        Op((ushort)KiHunterInstruction.SetFunctionToHop),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(LandLeft),
         Frame(8),
         Frame(8),
         Frame(11),
         Frame(8),
-        Op(KihunterSetFunctionToWinglessThinking),
+        Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(LandRight),
         Frame(8),
         Frame(8),
         Frame(11),
         Frame(8),
-        Op(KihunterSetFunctionToWinglessThinking),
+        Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(SpitLeft),
         Frame(32),
         Frame(6),
         Frame(16),
         Frame(2),
-        Op(KihunterFireAcidSpitLeft),
+        Op((ushort)KiHunterInstruction.FireAcidSpitLeft),
         Frame(24),
-        Op(KihunterSetFunctionToWinglessThinking),
+        Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep),
+        Op((ushort)CommonEnemyInstruction.Sleep),
         Entry(SpitRight),
         Frame(32),
         Frame(6),
         Frame(16),
         Frame(2),
-        Op(KihunterFireAcidSpitRight),
+        Op((ushort)KiHunterInstruction.FireAcidSpitRight),
         Frame(24),
-        Op(KihunterSetFunctionToWinglessThinking),
+        Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
-        Op(CommonEnemyInstructionCodes.Sleep));
+        Op((ushort)CommonEnemyInstruction.Sleep));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 

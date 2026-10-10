@@ -37,12 +37,12 @@ internal abstract class CrocomireTongueInstructionProgramDefinitions
     /// selectors, odd addresses, and adjacent lists remain outside this contract.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        if (address == Sleep) return CommonEnemyInstructionCodes.Sleep;
+        if (address == Sleep) return (ushort)CommonEnemyInstruction.Sleep;
         int start = address < Melting ? Fight : Melting;
         int frameCount = address < Melting ? 4 : 5;
         int offset = address - start;
         if (offset >= 0 && offset < frameCount * 4 && offset % 4 == 0) return 5;
-        if (offset == frameCount * 4) return CommonEnemyInstructionCodes.Goto;
+        if (offset == frameCount * 4) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == frameCount * 4 + 2) return (ushort)start;
         throw new InvalidDataException(
             $"Crocomire tongue instruction mechanics pointer $A4:{address:X4} is not compiled.");

@@ -67,6 +67,25 @@ public sealed class SkreeEnemyState
 /// <summary>Literal translation of enemy $DB7F at $A3:C6A4-$C7D4.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Skree's private animation instruction.</summary>
+    private bool TryProcessSkreeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Skree ||
+            !Enum.IsDefined((SkreeInstruction)word))
+            return false;
+
+        switch ((SkreeInstruction)word)
+        {
+            case SkreeInstruction.SetAttackReadyFlag:
+                RequireSkreeState(slot).AttackReady = true;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Skree does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private readonly SkreeEnemyState?[] _skreeStates =
         new SkreeEnemyState?[MaximumEnemyCount];

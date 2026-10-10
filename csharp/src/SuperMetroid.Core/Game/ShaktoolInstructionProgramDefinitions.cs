@@ -172,8 +172,8 @@ internal abstract class ShaktoolInstructionProgramDefinitions
             ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : field; private set; } = int.MinValue;
         public void Command(ushort command) => Emit(command);
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
-        public void Wait(ushort duration) { Emit(CommonEnemyInstructionCodes.WaitFrames); Emit(duration); }
-        public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
+        public void Wait(ushort duration) { Emit((ushort)CommonEnemyInstruction.WaitFrames); Emit(duration); }
+        public void Goto(ushort target) { Emit((ushort)CommonEnemyInstruction.Goto); Emit(target); }
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

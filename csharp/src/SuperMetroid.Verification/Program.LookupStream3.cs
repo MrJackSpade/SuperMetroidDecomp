@@ -602,7 +602,7 @@ internal static partial class Program
         {
             int cursor = 0xa30000 | Word(0xa3aac2 + selector * 2);
             cursor += 2; // Each native program first changes off-screen processing.
-            if (Word(cursor) == EnemyInstructionCodePointers.Instruction_Sidehopper_QueueSoundInY_Lib2_Max3)
+            if (Word(cursor) == (ushort)HopperInstruction.SidehopperQueueSoundInY)
                 cursor += 4;
             while (Word(cursor) < 0x8000)
             {

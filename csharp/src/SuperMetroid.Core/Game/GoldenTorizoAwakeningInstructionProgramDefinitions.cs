@@ -55,10 +55,10 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
             layout.Upload();
             layout.Pose((ushort)(upload < 3 ? UploadInitialHold >> upload : UploadInitialHold));
         }
-        layout.Word(CommonEnemyInstructionCodes.SetTimer); layout.Word(UploadLoopCount);
+        layout.Word((ushort)CommonEnemyInstruction.SetTimer); layout.Word(UploadLoopCount);
         ushort uploadLoop = layout.Cursor;
         for (int upload = 0; upload < 4; upload++) { layout.Pose(UploadLoopHold); layout.Upload(); }
-        layout.Word(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate); layout.Word(uploadLoop);
+        layout.Word((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate); layout.Word(uploadLoop);
         for (int pose = 0; pose < 6; pose++)
         {
             layout.Pose(pose == 0 ? StandFirstHold : pose == 1 ? StandSecondHold : StandRemainingHold);
@@ -66,16 +66,16 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
             layout.Word((ushort)(sizeof(ushort) * pose));
         }
         layout.Word((ushort)TorizoInstruction.Instruction_Torizo_LoadGoldenTorizoPalettes);
-        layout.Word(CommonEnemyInstructionCodes.SetTimer); layout.Word(ColorIterations);
+        layout.Word((ushort)CommonEnemyInstruction.SetTimer); layout.Word(ColorIterations);
         ushort colorLoop = layout.Cursor;
         layout.Pose(ColorHold);
         layout.Word((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
-        layout.Word(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate); layout.Word(colorLoop);
+        layout.Word((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate); layout.Word(colorLoop);
         layout.Word((ushort)TorizoInstruction.RTL_AAC2C8);
         layout.Word((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock);
         layout.Word((ushort)TorizoInstruction.Inst_Torizo_StartFightMusic_GoldenTorizoBellyPaletteFX);
         layout.Pose(HandoffHold);
-        layout.Word(CommonEnemyInstructionCodes.Goto);
+        layout.Word((ushort)CommonEnemyInstruction.Goto);
         layout.Word(GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg);
         return layout.Result;
     }
@@ -102,7 +102,7 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         }
         internal void Upload()
         {
-            Word(CommonEnemyInstructionCodes.CopyToVram);
+            Word((ushort)CommonEnemyInstruction.CopyToVram);
             Cursor += sizeof(ushort) + 3 + sizeof(ushort);
         }
     }

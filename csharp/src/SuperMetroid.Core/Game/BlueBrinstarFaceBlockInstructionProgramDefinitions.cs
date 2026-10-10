@@ -27,10 +27,10 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitions
         {
             int local = offset % 14;
             // Wait facing forward, show the intermediate and final turn poses, then sleep.
-            return local == 12 ? CommonEnemyInstructionCodes.Sleep : (ushort)(local == 0 ? 48 : 16);
+            return local == 12 ? (ushort)CommonEnemyInstruction.Sleep : (ushort)(local == 0 ? 48 : 16);
         }
         if (address == Initial) return 1;
-        if (address == Initial + 4) return CommonEnemyInstructionCodes.Sleep;
+        if (address == Initial + 4) return (ushort)CommonEnemyInstruction.Sleep;
         throw new InvalidDataException($"Blue Brinstar face-block instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 }

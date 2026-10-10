@@ -14,5 +14,5 @@ internal abstract class RidleyExplosionInstructionProgramDefinitionsTooling : II
     public static int MechanicsWordCount => RidleyExplosionInstructionProgramDefinitions.ProgramCount * 2;
     public static InstructionMechanicsWord MechanicsWord(int index) => new(
         checked((ushort)(RidleyExplosionInstructionProgramDefinitions.First + index / 2 * 6 + (index % 2 == 0 ? 0 : 4))),
-        index % 2 == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+        index % 2 == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
 }

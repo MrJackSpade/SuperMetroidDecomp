@@ -58,18 +58,18 @@ internal abstract class FakeKraidInstructionProgramDefinitions
         // opens the mouth, emits spit, closes it, then chooses the next action.
         int word = offset switch
         {
-            0 or 0x18 => EnemyInstructionCodePointers.Instruction_MiniKraid_ChooseAction,
+            0 or 0x18 => (ushort)FakeKraidInstruction.ChooseAction,
             2 or 0x1a or 0x30 or 0x3c => 16,
             6 or 0xe or 0x20 or 0x28 => 12,
             0xa or 0x24 or 0x36 or 0x40 => 8,
-            0x12 or 0x1e => EnemyInstructionCodePointers.Instruction_MiniKraid_Move,
-            0x14 or 0x2c or 0x44 => CommonEnemyInstructionCodes.Goto,
+            0x12 or 0x1e => (ushort)FakeKraidInstruction.Move,
+            0x14 or 0x2c or 0x44 => (ushort)CommonEnemyInstruction.Goto,
             0x16 or 0x46 => choose,
             0x2e => right ? ChooseAlternateActionFacingRight : ChooseAlternateActionFacingLeft,
-            0x34 => EnemyInstructionCodePointers.Instruction_MiniKraid_PlayCrySFX,
+            0x34 => (ushort)FakeKraidInstruction.PlayCrySFX,
             0x3a => right
-                ? EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitRight
-                : EnemyInstructionCodePointers.Instruction_MiniKraid_FireSpitLeft,
+                ? (ushort)FakeKraidInstruction.FireSpitRight
+                : (ushort)FakeKraidInstruction.FireSpitLeft,
             _ => -1,
         };
         value = unchecked((ushort)word);

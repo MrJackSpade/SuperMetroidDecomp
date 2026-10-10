@@ -18,7 +18,7 @@ internal abstract class FlyInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < FrameCount) return new((ushort)(Flight + 4 * index), 2);
         return new((ushort)(Flight + 4 * FrameCount + 2 * (index - FrameCount)),
-            index == FrameCount ? CommonEnemyInstructionCodes.Goto : Flight);
+            index == FrameCount ? (ushort)CommonEnemyInstruction.Goto : Flight);
     }
 
     /// <summary>True only for the visual operand in each of the four drawing records.</summary>

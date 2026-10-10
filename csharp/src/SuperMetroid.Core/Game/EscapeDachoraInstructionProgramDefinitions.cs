@@ -69,7 +69,7 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             bool high = index >= LowTideControls;
             int within = high ? index - LowTideControls : index;
             ushort root = high ? RunningAroundHighTide : RunningAroundLowTide;
-            if (within < 2) return new((ushort)(root + within * 2), within == 0 ? CommonEnemyInstructionCodes.SetTimer : PacingRepeats);
+            if (within < 2) return new((ushort)(root + within * 2), within == 0 ? (ushort)CommonEnemyInstruction.SetTimer : PacingRepeats);
             int directionControls = high ? HighDirectionControls : LowDirectionControls;
             bool right = (within - 2) / directionControls != 0;
             int local = (within - 2) % directionControls;
@@ -90,9 +90,9 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             {
                 0 => (ushort)EscapeDachoraInstruction.GotoIfCrittersEscaped,
                 1 => right ? RunningForEscapeAccelerating : RunningForEscape,
-                2 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+                2 => (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate,
                 3 => start,
-                4 => right ? CommonEnemyInstructionCodes.Goto : CommonEnemyInstructionCodes.SetTimer,
+                4 => right ? (ushort)CommonEnemyInstruction.Goto : (ushort)CommonEnemyInstruction.SetTimer,
                 5 => right ? root : PacingRepeats,
                 _ => throw new InvalidOperationException("Dachora pacing control lies outside its native branch suffix."),
             };
@@ -110,7 +110,7 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
         }
         int tail = departure - 1 - 2 * DepartureFrames;
         return new((ushort)(RunningForEscapeAccelerating + DepartureFrames * 6 + tail * 2),
-            tail == 0 ? CommonEnemyInstructionCodes.Goto : RunningForEscapeMaximumSpeed);
+            tail == 0 ? (ushort)CommonEnemyInstruction.Goto : RunningForEscapeMaximumSpeed);
     }
 
     public static ushort PresentationWordAddress(int index)

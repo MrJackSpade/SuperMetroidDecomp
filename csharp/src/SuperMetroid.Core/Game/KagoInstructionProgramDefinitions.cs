@@ -18,7 +18,7 @@ internal abstract class KagoInstructionProgramDefinitions
         ushort start = index < 6 ? Slow : Fast;
         int local = index % 6;
         if (local < 4) return new((ushort)(start + 4 * local), index < 6 ? (ushort)10 : (ushort)3);
-        return local == 4 ? new((ushort)(start + 16), CommonEnemyInstructionCodes.Goto)
+        return local == 4 ? new((ushort)(start + 16), (ushort)CommonEnemyInstruction.Goto)
             : new((ushort)(start + 18), start);
     }
 

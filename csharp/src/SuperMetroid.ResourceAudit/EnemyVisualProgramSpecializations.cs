@@ -16,18 +16,20 @@ internal static class EnemyVisualProgramSpecializations
         // #142 rewrites the Delete-word test as a constant pattern; the same two words.
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "0BEAE0450DFCAAEA1A5B383DD7034B29721059D8F10FA22A73DA886808BE5F7A",
         // #627 re-pin: Golden Torizo owners emit TorizoInstruction members of equal value; words unchanged.
-        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D8BF07BFB960582C4B11E9E6AD23030DAF63DC3C7E70BB6FE8D3C28F40B5FF0C",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "DF060E33E8E2C9785BD6A04051B72D6D76F1984CB8B3E9E5F8525724FBD51CC7",
-        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "7AA77596D9F22D13D25F856F1FF7FD912A354B44BD11146AADC49375127B0941",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "75F94F33315595FA75DCDFEE8D1E35E4AF705F36C81C6A26BCFD5CFF4A39E079",
+        // #627 re-pin: common opcodes are emitted as (ushort)CommonEnemyInstruction members of equal value; words unchanged.
+        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "09CC617E1D7503989BBBE69736B8D67EC0E9DBD703633F9CCA0D531802A910B6",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "047628377E4B42B1130410B176E6DA39F98EBE04C38D0D18BE188033303C45EB",
+        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "6A6EA4599B4049E3A200879093AE6D5911B582F264B1163C0DE6F6444353E899",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "EDC6EE69695972971FF33F2CBE3A471B9E91831F18CBACB523EA09CB80E21CA5",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
     {
-        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "D6E201819A9FDB2ABB84878356DCC7020E5FA4290E5679069077BDE476DE9078",
-        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "1CFDB6A7788FB00091F20352EBC63796BC48FF14C18F1F582C2CE5FA1983D66F",
+        // #627 re-pin: common opcodes are emitted as (ushort)CommonEnemyInstruction members of equal value; words unchanged.
+        [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "0B4D0B59C40F6A30EF5AB8A21EDF527FEF8D31239A50362F9C305F41C144E66A",
+        [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "DDA3B5742FB84FDB39E08F92CC4966866EB0D31614A53BB46C204070FD188AA1",
         [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "74CAB20C6A34312FFA3EF285E79625B93F93474D7C523F11A239CBC825D4C565",
-        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "83D279758A5E1FEAF7FC600BCF7749A4E81AB60BAF5F71CA0EAEBF4D28296EA7",
+        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "2C92DEDF7DAD2832B1005A74429FDE15BDC5A58BC4B464152462A49DAF0BA0DE",
     };
 
     internal static void GuardCustomLayouts(string root)

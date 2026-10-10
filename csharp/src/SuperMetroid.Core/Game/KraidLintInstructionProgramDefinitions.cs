@@ -22,7 +22,7 @@ internal abstract class KraidLintInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         bool sleep = (index & 1) != 0;
         return new((ushort)(Initial + 6 * (index / 2) + (sleep ? 4 : 0)),
-            sleep ? CommonEnemyInstructionCodes.Sleep : (ushort)0x7fff);
+            sleep ? (ushort)CommonEnemyInstruction.Sleep : (ushort)0x7fff);
     }
 
     /// <summary>The visual operand lies two bytes into each six-byte pose.</summary>

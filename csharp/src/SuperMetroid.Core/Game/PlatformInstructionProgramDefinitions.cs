@@ -66,15 +66,15 @@ internal abstract class PlatformInstructionProgramDefinitions
                 bool moving = (program & 2) == 0;
                 return (moving, right) switch
                 {
-                    (true, false) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement_duplicate,
-                    (true, true) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement_duplicate,
-                    (false, false) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingLeftXMovement,
-                    (false, true) => EnemyInstructionCodePointers.Instruction_Tripper_Kamer2_SetMovingRightXMovement,
+                    (true, false) => (ushort)PlatformInstruction.SetMovingLeftXMovementDuplicate,
+                    (true, true) => (ushort)PlatformInstruction.SetMovingRightXMovementDuplicate,
+                    (false, false) => (ushort)PlatformInstruction.SetMovingLeftXMovement,
+                    (false, true) => (ushort)PlatformInstruction.SetMovingRightXMovement,
                 };
             }
             if (local >= 2 && local <= 14 && local % 4 == 2)
                 return (ushort)(program < 4 ? 10 : 7 + ((local - 2) / 4) % 2);
-            if (local == 18) return CommonEnemyInstructionCodes.Goto;
+            if (local == 18) return (ushort)CommonEnemyInstruction.Goto;
             if (local == 20) return (ushort)(address - 18);
         }
         throw new InvalidDataException(

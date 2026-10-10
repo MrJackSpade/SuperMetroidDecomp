@@ -59,7 +59,7 @@ internal abstract class PowampInstructionProgramDefinitions
         ushort value = local < FramesPerProgram
             ? body ? group == 0 ? FastBodyHold : SlowBodyHold
                 : local == 0 ? TransitionStartHold : local == 1 ? TransitionMiddleHold : BalloonHeldDuration
-            : body ? local == FramesPerProgram ? CommonEnemyInstructionCodes.Goto : start : CommonEnemyInstructionCodes.Sleep;
+            : body ? local == FramesPerProgram ? (ushort)CommonEnemyInstruction.Goto : start : (ushort)CommonEnemyInstruction.Sleep;
         return new((ushort)(start + offset), value);
     }
 

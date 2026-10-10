@@ -30,37 +30,45 @@ internal enum CeresBabyInstruction : ushort
     Goto = 0xbff8,
 }
 
-/// <summary>Named bank-$A6 code pointers consumed by translated Ceres enemy dispatchers.</summary>
-internal static class CeresEnemyCodePointers
+/// <summary>The Ceres steam's private bank-$A6 animation instructions.</summary>
+internal enum CeresSteamInstruction : ushort
 {
-
-    /// <summary><c>UNUSED_Instruction_RidleyCeres_GotoYIfNotHoldingBaby_A6E4EE</c> at $A6:E4EE.</summary>
-    public const ushort RidleyGotoIfNotHoldingBaby = 0xe4ee;
-    /// <summary><c>UNUSED_Instruction_RidleyCeres_GotoYIfHoldingBaby_A6E4F8</c> at $A6:E4F8.</summary>
-    public const ushort RidleyGotoIfHoldingBaby = 0xe4f8;
-    /// <summary><c>Instruction_Ridley_GotoYIfNotFacingLeft</c> at $A6:E517.</summary>
-    public const ushort RidleyGotoIfNotFacingLeft = 0xe517;
-    /// <summary><c>Instruction_Ridley_MoveRidleyWithArgsInY</c> at $A6:E51F.</summary>
-    public const ushort MoveRidley = 0xe51f;
-    /// <summary><c>Instruction_Ridley_SetDirectionToLeft_UpdateTailParts</c> at $A6:E71C.</summary>
-    public const ushort FaceRidleyLeft = 0xe71c;
-    /// <summary><c>Instruction_Ridley_SetDirectionToForwardTurning</c> at $A6:E727.</summary>
-    public const ushort FaceRidleyForward = 0xe727;
-    /// <summary><c>Instruction_Ridley_SetDirectionToRight_UpdateTailParts</c> at $A6:E72F.</summary>
-    public const ushort FaceRidleyRight = 0xe72f;
-    /// <summary><c>FireLeadsFireball</c> at $A6:E904.</summary>
-    public const ushort FireLeadingRidleyFireball = 0xe904;
     /// <summary><c>Instruction_CeresSteam_SetToIntangibleAndInvisible</c> at $A6:F11D.</summary>
-    public const ushort HideCeresSteam = 0xf11d;
+    SetToIntangibleAndInvisible = 0xf11d,
     /// <summary><c>Instruction_CeresSteam_DecActivationTimer_Decide_GotoYOrY2</c> at $A6:F127.</summary>
-    public const ushort StepCeresSteamActivationTimer = 0xf127;
-    /// <summary><c>Inst_CeresDoor_GotoYIfSamusIsNotWithing30Pixels</c> at $A6:F63E.</summary>
-    public const ushort CeresDoorGotoIfSamusIsDistant = 0xf63e;
-    /// <summary><c>Instruction_CeresDoor_SetAsIntangible</c> at $A6:F68B.</summary>
-    public const ushort MakeCeresDoorIntangible = 0xf68b;
-    /// <summary><c>Instruction_CeresDoor_SetAsTangible</c> at $A6:F695.</summary>
-    public const ushort MakeCeresDoorTangible = 0xf695;
-    /// <summary><c>Instruction_CeresDoor_SetAsVisible</c> at $A6:F6B3.</summary>
-    public const ushort ShowCeresDoor = 0xf6b3;
+    DecrementActivationTimerGotoYOrY2 = 0xf127,
+    /// <summary><c>Instruction_CeresSteam_SetToTangibleAndVisible</c> at $A6:F135.</summary>
+    SetToTangibleAndVisible = 0xf135,
+}
 
+/// <summary>The Ceres door's private bank-$A6 animation instructions.</summary>
+internal enum CeresDoorInstruction : ushort
+{
+    /// <summary><c>Inst_CeresDoor_GotoYIfSamusIsNotWithing30Pixels</c> at $A6:F63E.</summary>
+    GotoYIfSamusIsDistant = 0xf63e,
+    /// <summary><c>Instruction_CeresDoor_GotoYIfAreaBossIsAlive</c> at $A6:F66A.</summary>
+    GotoYIfAreaBossIsAlive = 0xf66a,
+    /// <summary><c>Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped</c> at $A6:F678.</summary>
+    GotoYIfCeresRidleyHasNotEscaped = 0xf678,
+    /// <summary><c>Instruction_CeresDoor_SetAsIntangible</c> at $A6:F68B.</summary>
+    SetAsIntangible = 0xf68b,
+    /// <summary><c>Instruction_CeresDoor_SetAsTangible</c> at $A6:F695.</summary>
+    SetAsTangible = 0xf695,
+    /// <summary><c>Instruction_CeresDoor_SetDrawnByRidleyFlag</c> at $A6:F69F.</summary>
+    SetDrawnByRidleyFlag = 0xf69f,
+    /// <summary><c>Instruction_CeresDoor_SetAsInvisible</c> at $A6:F6A6.</summary>
+    SetAsInvisible = 0xf6a6,
+    /// <summary><c>Instruction_CeresDoor_SetAsVisible_ClearDrawnByRidleyFlag</c> at $A6:F6B0.</summary>
+    SetAsVisibleClearDrawnByRidleyFlag = 0xf6b0,
+    /// <summary><c>Instruction_CeresDoor_SetAsVisible</c> at $A6:F6B3.</summary>
+    SetAsVisible = 0xf6b3,
+    /// <summary><c>Instruction_CeresDoor_QueueOpeningSFX</c> at $A6:F6BD.</summary>
+    QueueOpeningSFX = 0xf6bd,
+}
+
+/// <summary>Sound identifiers queued by <see cref="CeresDoorInstruction"/> routines.</summary>
+internal static class CeresDoorInstructionSounds
+{
+    /// <summary>Library-three door-opening sound $2C queued by <see cref="CeresDoorInstruction.QueueOpeningSFX"/>.</summary>
+    internal const ushort Opening = 0x002c;
 }

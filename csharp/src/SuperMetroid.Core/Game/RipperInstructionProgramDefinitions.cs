@@ -68,7 +68,7 @@ internal abstract class RipperInstructionProgramDefinitions
             }
             if (offset is 16 or 18)
             {
-                value = offset == 16 ? CommonEnemyInstructionCodes.Goto : start;
+                value = offset == 16 ? (ushort)CommonEnemyInstruction.Goto : start;
                 return true;
             }
         }

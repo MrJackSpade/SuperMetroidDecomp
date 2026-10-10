@@ -28,7 +28,7 @@ internal static class EnemyVisualProgramAuditChecks
         var missingDeclarations = new Dictionary<ushort, ushort>
         {
             [KzanInstructionProgramDefinitions.Idle] = 1,
-            [unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4))] = CommonEnemyInstructionCodes.Sleep,
+            [unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4))] = (ushort)CommonEnemyInstruction.Sleep,
         };
         Require(EnemyVisualProgramAudit.InterleavedOperands(missingDeclarations)
                 .SequenceEqual([KzanInstructionProgramDefinitionsTooling.PresentationWord]),

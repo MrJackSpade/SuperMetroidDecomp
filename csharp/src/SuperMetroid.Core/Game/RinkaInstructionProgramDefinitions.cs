@@ -53,7 +53,7 @@ internal abstract class RinkaInstructionProgramDefinitions
                 int pose = (offset - SetupBytes) / 4;
                 return pose == 0 ? SeedHold : (ushort)(MinimumPulseHold + Math.Abs(pose - PoseCount / 2));
             }
-            if (offset == ListBytes - 4) return CommonEnemyInstructionCodes.Goto;
+            if (offset == ListBytes - 4) return (ushort)CommonEnemyInstruction.Goto;
             return (ushort)(OrdinaryInitial + relative / ListBytes * ListBytes + SetupBytes);
         }
         throw new InvalidDataException($"Rinka instruction mechanics pointer $A2:{address:X4} is not compiled.");

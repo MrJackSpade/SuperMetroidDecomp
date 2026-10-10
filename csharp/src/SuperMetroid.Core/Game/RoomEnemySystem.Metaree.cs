@@ -75,6 +75,28 @@ public sealed class MetareeEnemyState
 /// <summary>Literal translation of Metaree enemy <c>$D67F</c> at <c>$A3:88F0-$8B64</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Metaree's private animation instruction.</summary>
+    private bool TryProcessMetareeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Metaree ||
+            !Enum.IsDefined((MetareeInstruction)word))
+            return false;
+
+        switch ((MetareeInstruction)word)
+        {
+            case MetareeInstruction.SetAttackReadyFlag:
+                // The preparation list sleeps immediately after publishing this flag.
+                // Main AI consumes it on the following enemy frame and installs the
+                // launched list, exactly matching the native instruction/AI hand-off.
+                RequireMetareeState(slot).AttackReady = true;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Metaree does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort MetareeHorizontalActivationDistance = 0x48;
     private const ushort MetareeDiveDivisorNtsc = 24;

@@ -43,7 +43,7 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
             4 => 1,
             8 => (ushort)TorizoInstruction.Instruction_Torizo_FunctionInY,
             10 => WakeWhenHandCrumbles,
-            12 => CommonEnemyInstructionCodes.Sleep,
+            12 => (ushort)CommonEnemyInstruction.Sleep,
             _ => 0,
         };
         return value != 0;

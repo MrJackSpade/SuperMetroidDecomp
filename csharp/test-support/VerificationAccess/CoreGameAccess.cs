@@ -365,7 +365,7 @@ internal static class DachoraInstructionProgramDefinitionsAccess
         {
             ushort entry = ProgramEntries[index];
             (int frames, ushort terminator) = PrivateState.StaticField<InstructionProgramLayout>(typeof(DachoraInstructionProgramDefinitions), "Layout").FramesFrom(entry);
-            return new(entry, frames, terminator == CommonEnemyInstructionCodes.Goto);
+            return new(entry, frames, terminator == (ushort)CommonEnemyInstruction.Goto);
         }
     }
 }

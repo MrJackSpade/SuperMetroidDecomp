@@ -17,7 +17,7 @@ internal abstract class DeadTourianCorpseInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         ushort start = Program(index/2);
-        return (index&1) == 0 ? new(start,1) : new((ushort)(start+4),CommonEnemyInstructionCodes.Sleep);
+        return (index&1) == 0 ? new(start,1) : new((ushort)(start+4),(ushort)CommonEnemyInstruction.Sleep);
     }
     internal static ushort ReadMechanicsWord(ushort address)
     {

@@ -50,9 +50,9 @@ internal abstract class MetroidInstructionProgramDefinitions
         int offset = address - start;
         int frames = chasing ? 20 : 5;
         if ((uint)offset < frames * 4 && offset % 4 == 0) return FrameDuration(offset / 4 % 5);
-        if (offset == frames * 4) return chasing ? EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX :
-            EnemyInstructionCodePointers.Instruction_Metroid_PlayDrainingSamusSFX;
-        if (offset == frames * 4 + 2) return CommonEnemyInstructionCodes.Goto;
+        if (offset == frames * 4) return chasing ? (ushort)MetroidInstruction.PlayRandomMetroidSFX :
+            (ushort)MetroidInstruction.PlayDrainingSamusSFX;
+        if (offset == frames * 4 + 2) return (ushort)CommonEnemyInstruction.Goto;
         if (offset == frames * 4 + 4) return (ushort)start;
         throw new InvalidDataException($"Metroid instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }

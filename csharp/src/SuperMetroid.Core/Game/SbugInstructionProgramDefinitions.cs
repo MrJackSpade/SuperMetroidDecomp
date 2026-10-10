@@ -21,7 +21,7 @@ internal abstract class SbugInstructionProgramDefinitions
         ushort start = (ushort)(Right + 20 * (index / 6));
         int word = index % 6;
         return word < 4 ? new((ushort)(start + 4 * word), 5)
-            : new((ushort)(start + 16 + 2 * (word - 4)), word == 4 ? CommonEnemyInstructionCodes.Goto : start);
+            : new((ushort)(start + 16 + 2 * (word - 4)), word == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
     }
 
     public static ushort PresentationWordAddress(int index)

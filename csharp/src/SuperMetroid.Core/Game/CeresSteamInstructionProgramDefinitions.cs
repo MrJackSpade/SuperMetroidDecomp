@@ -77,15 +77,15 @@ internal abstract class CeresSteamInstructionProgramDefinitions
             return new((ushort)(start + 20 + 4 * (word - 8)), 3);
         return word switch
         {
-            0 => new(start, CeresEnemyCodePointers.HideCeresSteam),
+            0 => new(start, (ushort)CeresSteamInstruction.SetToIntangibleAndInvisible),
             1 => new((ushort)(start + 2), 1),
-            2 => new((ushort)(start + 6), CeresEnemyCodePointers.StepCeresSteamActivationTimer),
+            2 => new((ushort)(start + 6), (ushort)CeresSteamInstruction.DecrementActivationTimerGotoYOrY2),
             3 => new((ushort)(start + 8), start),
             4 => new((ushort)(start + 10), (ushort)(start + 20)),
-            5 => new((ushort)(start + 12), CeresEnemyCodePointers.HideCeresSteam),
+            5 => new((ushort)(start + 12), (ushort)CeresSteamInstruction.SetToIntangibleAndInvisible),
             6 => new((ushort)(start + 14), 64),
-            7 => new((ushort)(start + 18), EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
-            15 => new((ushort)(start + 48), CommonEnemyInstructionCodes.Goto),
+            7 => new((ushort)(start + 18), (ushort)CeresSteamInstruction.SetToTangibleAndVisible),
+            15 => new((ushort)(start + 48), (ushort)CommonEnemyInstruction.Goto),
             _ => new((ushort)(start + 50), (ushort)(start + 12)),
         };
     }

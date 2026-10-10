@@ -25,7 +25,7 @@ public static class MotherBrainFallingTubeInstructionDefinitions
         return field switch
         {
             0 => 1,
-            4 => CommonEnemyInstructionCodes.Sleep,
+            4 => (ushort)CommonEnemyInstruction.Sleep,
             _ => throw new InvalidDataException(
                 $"Falling-tube visual selector $A9:{address:X4} is not mechanics."),
         };

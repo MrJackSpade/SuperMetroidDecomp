@@ -65,9 +65,9 @@ internal abstract class CacatacInstructionProgramDefinitions
         ushort idle = inverted ? UpsideDownIdle : UpsideUpIdle;
         if (offset < 38)
         {
-            if (offset == 0) value = EnemyInstructionCodePointers.Instruction_Cacatac_SetFunction_MovingLeftRight;
+            if (offset == 0) value = (ushort)CacatacInstruction.SetFunctionMovingLeftRight;
             else if (offset < 34 && offset % 4 == 2) value = 8;
-            else if (offset == 34) value = CommonEnemyInstructionCodes.Goto;
+            else if (offset == 34) value = (ushort)CommonEnemyInstruction.Goto;
             else if (offset == 36) value = inverted ? UpsideDownIdleLoop : UpsideUpIdle;
             else return false;
             return true;
@@ -78,11 +78,11 @@ internal abstract class CacatacInstructionProgramDefinitions
             if (offset % 4 != 0) return false;
             value = (ushort)(((offset / 4) & 1) == 0 ? 21 : 5);
         }
-        else if (offset == 16) value = EnemyInstructionCodePointers.Instruction_Cacatac_PlaySpikesSFX;
+        else if (offset == 16) value = (ushort)CacatacInstruction.PlaySpikesSFX;
         else if (offset < 38)
         {
             if ((offset - 18) % 4 == 0)
-                value = EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY;
+                value = (ushort)CacatacInstruction.SpawnSpikeProjectileWithParameterInY;
             else
             {
                 int shot = (offset - 20) / 4;
@@ -91,7 +91,7 @@ internal abstract class CacatacInstructionProgramDefinitions
                     : (int)(inverted ? CacatacSpikeDirection.DownLeft : CacatacSpikeDirection.UpLeft) + shot - 1);
             }
         }
-        else value = offset == 38 ? CommonEnemyInstructionCodes.Goto : idle;
+        else value = offset == 38 ? (ushort)CommonEnemyInstruction.Goto : idle;
         return true;
     }
 }

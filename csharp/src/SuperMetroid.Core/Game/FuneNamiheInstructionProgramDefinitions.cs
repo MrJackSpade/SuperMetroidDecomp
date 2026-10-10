@@ -61,21 +61,21 @@ internal abstract class FuneNamiheInstructionProgramDefinitions
         {
             int fire = 6 + 4 * (namihe ? 5 : 4);
             if (local == 0) return 1;
-            if (local == 4) return CommonEnemyInstructionCodes.Sleep;
+            if (local == 4) return (ushort)CommonEnemyInstruction.Sleep;
             if ((local >= 6 && local < fire && local % 4 == 2) ||
                 (local >= fire + 4 && local < fire + 20 && local % 4 == 2))
                 return (ushort)(!namihe && (local == 6 || local == fire + 4) ? 16 : 8);
             if (local == fire)
                 return namihe
-                    ? right ? EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingRight
-                        : EnemyInstructionCodePointers.Instruction_Namihe_SpawnFireball_FacingLeft
-                    : right ? EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingRight
-                        : EnemyInstructionCodePointers.Instruction_Fune_SpawnFireball_FacingLeft;
-            if (local == fire + 2) return EnemyInstructionCodePointers.Instruction_FuneNamihe_QueueSpitSFX;
+                    ? right ? (ushort)FuneNamiheInstruction.NamiheSpawnFireballFacingRight
+                        : (ushort)FuneNamiheInstruction.NamiheSpawnFireballFacingLeft
+                    : right ? (ushort)FuneNamiheInstruction.FuneSpawnFireballFacingRight
+                        : (ushort)FuneNamiheInstruction.FuneSpawnFireballFacingLeft;
+            if (local == fire + 2) return (ushort)FuneNamiheInstruction.QueueSpitSFX;
             if (local == fire + 20) return right
-                ? EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity_duplicate
-                : EnemyInstructionCodePointers.Instruction_FuneNamihe_FinishActivity;
-            if (local == fire + 22) return CommonEnemyInstructionCodes.Goto;
+                ? (ushort)FuneNamiheInstruction.FinishActivityDuplicate
+                : (ushort)FuneNamiheInstruction.FinishActivity;
+            if (local == fire + 22) return (ushort)CommonEnemyInstruction.Goto;
             if (local == fire + 24) return (ushort)(address - local);
         }
         throw new InvalidDataException(

@@ -32,7 +32,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitions
         if (word < frames)
             return new((ushort)(start + 4 * word), (ushort)(flying ? 1 : 2));
         return new((ushort)(start + 4 * frames + 2 * (word - frames)),
-            word == frames ? CommonEnemyInstructionCodes.Goto : start);
+            word == frames ? (ushort)CommonEnemyInstruction.Goto : start);
     }
     internal static ushort ReadMechanicsWord(ushort address)
     {

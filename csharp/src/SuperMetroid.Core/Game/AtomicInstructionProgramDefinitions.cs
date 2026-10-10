@@ -35,7 +35,7 @@ internal abstract class AtomicInstructionProgramDefinitions
         {
             int stage = offset % 28;
             if (stage < 24 && stage % 4 == 0) return 8;
-            if (stage == 24) return CommonEnemyInstructionCodes.Goto;
+            if (stage == 24) return (ushort)CommonEnemyInstruction.Goto;
             if (stage == 26) return (ushort)(address - 26);
         }
         throw new InvalidDataException(

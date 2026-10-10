@@ -32,9 +32,9 @@ internal abstract class OwtchInstructionProgramDefinitions
             bool right = offset >= ProgramBytes;
             switch (offset % ProgramBytes)
             {
-                case 0: return right ? EnemyInstructionCodePointers.Instruction_Owtch_1 : EnemyInstructionCodePointers.Instruction_Owtch_0;
+                case 0: return right ? (ushort)OwtchInstruction.SetMovingRight : (ushort)OwtchInstruction.SetMovingLeft;
                 case 2: case 6: case 10: return CyclicVisualHold;
-                case 14: return CommonEnemyInstructionCodes.Goto;
+                case 14: return (ushort)CommonEnemyInstruction.Goto;
                 case 16: return (ushort)((right ? MovingRight : MovingLeft) + 2);
             }
         }

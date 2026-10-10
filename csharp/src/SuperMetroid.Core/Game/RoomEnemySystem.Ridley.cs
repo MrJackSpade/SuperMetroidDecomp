@@ -10,6 +10,155 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the private animation instructions shared by Ceres and Lower Norfair Ridley.</summary>
+    private bool TryProcessRidleyInstruction(RoomEnemySlot slot, SamusState? samus, ushort word, ref ushort cursor)
+    {
+        if (!IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((RidleyInstruction)word))
+            return false;
+
+        switch ((RidleyInstruction)word)
+        {
+            case RidleyInstruction.Roar:
+                RequireRidley(slot).Roaring = true;
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleyInstructionSounds.Roar), maximumQueued: 6);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.ClearRoaringFlag:
+                RequireRidley(slot).Roaring = false;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.GotoYIfNotNorfairAndSamusHasLowEnergy:
+                if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley)
+                {
+                    cursor = unchecked((ushort)(cursor + 4));
+                    return true;
+                }
+                if (samus is null)
+                {
+                    throw new InvalidOperationException(
+                        "Ceres Ridley fireball branch requires the active Samus actor.");
+                }
+                if (unchecked((short)(samus.Health - 30)) < 0)
+                {
+                    // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
+                    // cutting the fireball hover short.
+                    RequireRidley(slot).FunctionTimer = 8;
+                    cursor = ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                }
+                else
+                {
+                    cursor = unchecked((ushort)(cursor + 4));
+                }
+                return true;
+            case RidleyInstruction.GotoYIfNotHoldingBaby:
+            {
+                RidleyEnemyState grabbedBranch = RequireRidley(slot);
+                ushort branchOperand = grabbedBranch.GrabState != 0
+                    ? (ushort)2
+                    : (ushort)4;
+                cursor = ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + branchOperand)));
+                return true;
+            }
+            case RidleyInstruction.GotoYIfHoldingBaby:
+            {
+                RidleyEnemyState carryBranch = RequireRidley(slot);
+                cursor = carryBranch.GrabState != 0
+                    ? unchecked((ushort)(cursor + 4))
+                    : ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                return true;
+            }
+            case RidleyInstruction.CeresFeetDistanceIndexInY:
+                RequireRidley(slot).FeetDistanceIndex =
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case RidleyInstruction.GotoYIfNotFacingLeft:
+            {
+                RidleyEnemyState ridley = RequireRidley(slot);
+                cursor = ridley.FacingDirection != 0
+                    ? ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)))
+                    : unchecked((ushort)(cursor + 4));
+                return true;
+            }
+            case RidleyInstruction.MoveWithArgsInY:
+                slot.XPosition = unchecked((ushort)(
+                    slot.XPosition +
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)))));
+                slot.YPosition = unchecked((ushort)(
+                    slot.YPosition +
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 4)))));
+                cursor = unchecked((ushort)(cursor + 6));
+                return true;
+            case RidleyInstruction.FlipLeft:
+                MirrorRidleyTail(RequireRidley(slot));
+                RequireRidley(slot).FacingDirection = 0;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.FaceForward:
+                RequireRidley(slot).FacingDirection = 1;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.FlipRight:
+                MirrorRidleyTail(RequireRidley(slot));
+                RequireRidley(slot).FacingDirection = 2;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.CalculateFireballXYVelocities:
+                if (samus is null)
+                {
+                    throw new InvalidOperationException(
+                        "Ceres Ridley fireball aim requires the active Samus actor.");
+                }
+                CalculateRidleyFireballVelocity(slot, samus);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.SpawnFireballWithAfterburn:
+                SpawnRidleyFireball(slot, spawnAfterburn: true);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.SpawnFireballWithoutAfterburn:
+                SpawnRidleyFireball(slot, spawnAfterburn: false);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case RidleyInstruction.CeresStartLiftoff:
+            {
+                RidleyEnemyState liftoff = RequireCeresRidley(slot);
+                liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
+                liftoff.VerticalVelocity = unchecked((ushort)-352);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            case RidleyInstruction.StartLiftoff:
+            {
+                // The shared roar/liftoff list hands control to the real fight at
+                // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
+                RidleyEnemyState norfairLiftoff = RequireNorfairRidley(slot);
+                norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
+                norfairLiftoff.VerticalVelocity = unchecked((ushort)-352);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            }
+            default:
+                throw new InvalidOperationException(
+                    $"Ridley does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private static bool IsRidleyDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;

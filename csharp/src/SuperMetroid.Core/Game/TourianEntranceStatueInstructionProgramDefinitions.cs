@@ -23,7 +23,7 @@ internal abstract class TourianEntranceStatueInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return new((ushort)(Ridley + index * (2 + 4 + 4)), CommonEnemyInstructionCodes.StopScript);
+        return new((ushort)(Ridley + index * (2 + 4 + 4)), (ushort)CommonEnemyInstruction.StopScript);
     }
     /// <summary>Returns the list selected by native even parameter zero, two, or four.</summary>
     internal static ushort GetInitialInstruction(ushort parameter)

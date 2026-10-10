@@ -17,7 +17,7 @@ internal abstract class HorizontalShutterInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Stationary) return 1;
-        if (address == Stationary + 4) return CommonEnemyInstructionCodes.Sleep;
+        if (address == Stationary + 4) return (ushort)CommonEnemyInstruction.Sleep;
         throw new InvalidDataException(
             $"Horizontal-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }

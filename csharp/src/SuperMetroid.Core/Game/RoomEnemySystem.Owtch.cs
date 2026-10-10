@@ -87,6 +87,29 @@ public sealed class OwtchEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Owtch's private animation instructions.</summary>
+    private bool TryProcessOwtchInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Owtch ||
+            !Enum.IsDefined((OwtchInstruction)word))
+            return false;
+
+        switch ((OwtchInstruction)word)
+        {
+            case OwtchInstruction.SetMovingLeft:
+                SetOwtchMovingLeft(RequireOwtchState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case OwtchInstruction.SetMovingRight:
+                SetOwtchMovingRight(RequireOwtchState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Owtch does not own instruction ${word:X4}.");
+        }
+    }
+
     internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
     private const ushort OwtchMaximumBurialDepth = 16;

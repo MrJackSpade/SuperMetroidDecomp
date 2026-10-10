@@ -888,7 +888,7 @@ internal static partial class Program
             "every installed Dragon body and wing frame is selected");
         AssertThrows<InvalidDataException>(
             () => DragonVisualDefinitions.FrameAt(
-                DragonInstructionProgramDefinitions.AttackFinishedCallback),
+                (ushort)DragonInstruction.AttackFinishedCallback),
             "Dragon visual selector rejects neighboring attack callback");
         HashSet<ushort> multiviolaFrames = MultiviolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();

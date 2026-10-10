@@ -30,7 +30,7 @@ internal abstract class GrowingShutterInstructionProgramDefinitions
         if ((uint)offset < 24)
         {
             if (offset % 6 == 0) return 1;
-            if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;
+            if (offset % 6 == 4) return (ushort)CommonEnemyInstruction.Sleep;
         }
         throw new InvalidDataException(
             $"Growing-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");

@@ -38,17 +38,17 @@ internal abstract class RioInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < IdleFrameCount + 2)
-            return BlockWord(Idle, IdleFrameCount, index, IdleFrameDuration, CommonEnemyInstructionCodes.Goto, Idle);
+            return BlockWord(Idle, IdleFrameCount, index, IdleFrameDuration, (ushort)CommonEnemyInstruction.Goto, Idle);
         index -= IdleFrameCount + 2;
         if (index < TransitionFrameCount + 2)
             return BlockWord(SwoopingPart1, TransitionFrameCount, index, SwoopFrameDuration,
-                RioInstructionCodes.SetAnimationFinished, CommonEnemyInstructionCodes.Sleep);
+                RioInstructionCodes.SetAnimationFinished, (ushort)CommonEnemyInstruction.Sleep);
         index -= TransitionFrameCount + 2;
         if (index < SwoopLoopFrameCount + 2)
             return BlockWord(SwoopingPart2, SwoopLoopFrameCount, index, SwoopFrameDuration,
-                CommonEnemyInstructionCodes.Goto, SwoopingPart2);
+                (ushort)CommonEnemyInstruction.Goto, SwoopingPart2);
         return BlockWord(SwoopCooldown, TransitionFrameCount, index - SwoopLoopFrameCount - 2, SwoopFrameDuration,
-            RioInstructionCodes.SetAnimationFinished, CommonEnemyInstructionCodes.Sleep);
+            RioInstructionCodes.SetAnimationFinished, (ushort)CommonEnemyInstruction.Sleep);
     }
 
     private static InstructionMechanicsWord BlockWord(ushort start, int frames, int index,

@@ -23,13 +23,13 @@ internal abstract class BullInstructionProgramDefinitions
         if (index is >= 8 and < 12) return new((ushort)(ShotLoop + 4 * (index - 8)), 3);
         return index switch
         {
-            4 => new(Normal + 16, CommonEnemyInstructionCodes.Goto),
+            4 => new(Normal + 16, (ushort)CommonEnemyInstruction.Goto),
             5 => new(Normal + 18, Normal),
-            6 => new(Shot, CommonEnemyInstructionCodes.SetTimer),
+            6 => new(Shot, (ushort)CommonEnemyInstruction.SetTimer),
             7 => new(Shot + 2, 5),
-            12 => new(ShotLoop + 16, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
+            12 => new(ShotLoop + 16, (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate),
             13 => new(ShotLoop + 18, ShotLoop),
-            14 => new(ShotLoop + 20, CommonEnemyInstructionCodes.Goto),
+            14 => new(ShotLoop + 20, (ushort)CommonEnemyInstruction.Goto),
             _ => new(ShotLoop + 22, Normal),
         };
     }

@@ -80,9 +80,9 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         value = 0;
         int offset = address - start;
         if ((uint)offset > 80) return false;
-        if (offset == 80) { value = MamaTurtleInstructionCodes.LoopOrTurnAroundIfMovedTooFar; return true; }
+        if (offset == 80) { value = (ushort)MamaTurtleInstruction.LoopOrTurnAroundIfMovedTooFar; return true; }
         int field = offset % 10;
-        if (field == 0) value = MamaTurtleInstructionCodes.Crawl;
+        if (field == 0) value = (ushort)MamaTurtleInstruction.Crawl;
         else if (field is 2 or 6) value = 10;
         else return false;
         return true;
@@ -93,11 +93,11 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         value = 0;
         int offset = address - start;
         if (offset == 0) value = SpinDurations[0];
-        else if (offset == 4) value = MamaTurtleInstructionCodes.PlaySpinningSound;
+        else if (offset == 4) value = (ushort)MamaTurtleInstruction.PlaySpinningSound;
         else if (offset == 6) value = SpinDurations[1];
         else if (offset is 10 or 14 or 18) value = SpinDurations[1 + (offset - 6) / 4];
-        else if (baby && offset == 22) value = MamaTurtleInstructionCodes.SetSpinningStoppable;
-        else if (offset == (baby ? 24 : 22)) value = CommonEnemyInstructionCodes.Goto;
+        else if (baby && offset == 22) value = (ushort)MamaTurtleInstruction.SetSpinningStoppable;
+        else if (offset == (baby ? 24 : 22)) value = (ushort)CommonEnemyInstruction.Goto;
         else if (offset == (baby ? 26 : 24)) value = start;
         else return false;
         return true;
@@ -126,15 +126,15 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         else if (offset == 4 * frames)
             value = program switch
             {
-                ShellProgram.MamaEnterLeft => MamaTurtleInstructionCodes.RiseToHoverRightwards,
-                ShellProgram.MamaEnterRight => MamaTurtleInstructionCodes.RiseToHoverLeftwards,
-                ShellProgram.BabyHide => MamaTurtleInstructionCodes.LeaveShell,
-                ShellProgram.MamaLeave => MamaTurtleInstructionCodes.EnterShell,
-                ShellProgram.BabyLeave => MamaTurtleInstructionCodes.LeftShell,
+                ShellProgram.MamaEnterLeft => (ushort)MamaTurtleInstruction.RiseToHoverRightwards,
+                ShellProgram.MamaEnterRight => (ushort)MamaTurtleInstruction.RiseToHoverLeftwards,
+                ShellProgram.BabyHide => (ushort)MamaTurtleInstruction.LeaveShell,
+                ShellProgram.MamaLeave => (ushort)MamaTurtleInstruction.EnterShell,
+                ShellProgram.BabyLeave => (ushort)MamaTurtleInstruction.LeftShell,
                 _ => throw new InvalidOperationException($"Undefined ShellProgram {program}."),
             };
         else if (offset == 4 * frames + 2) value = program == ShellProgram.BabyLeave ? (ushort)47 : (ushort)0x7fff;
-        else if (offset == 4 * frames + 6) value = CommonEnemyInstructionCodes.Sleep;
+        else if (offset == 4 * frames + 6) value = (ushort)CommonEnemyInstruction.Sleep;
         else return false;
         return true;
     }
@@ -143,7 +143,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
     {
         value = 0;
         if (address == MamaAsleep) value = 0x7fff;
-        else if (address == MamaAsleep + 4) value = CommonEnemyInstructionCodes.Sleep;
+        else if (address == MamaAsleep + 4) value = (ushort)CommonEnemyInstruction.Sleep;
         else return false;
         return true;
     }

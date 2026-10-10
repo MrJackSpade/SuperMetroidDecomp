@@ -66,6 +66,56 @@ public sealed class HibashiEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Hibashi's private animation instructions.</summary>
+    private bool TryProcessHibashiInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Hibashi ||
+            !Enum.IsDefined((HibashiInstruction)word))
+            return false;
+
+        switch ((HibashiInstruction)word)
+        {
+            case HibashiInstruction.PlaySFX:
+                PlayHibashiEruptionSound();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case HibashiInstruction.ActivityFrame0:
+            case HibashiInstruction.ActivityFrame1:
+            case HibashiInstruction.ActivityFrame2:
+            case HibashiInstruction.ActivityFrame3:
+            case HibashiInstruction.ActivityFrame4:
+            case HibashiInstruction.ActivityFrame5:
+            case HibashiInstruction.ActivityFrame6:
+            case HibashiInstruction.ActivityFrame7:
+            case HibashiInstruction.ActivityFrame8:
+            case HibashiInstruction.ActivityFrame9:
+            case HibashiInstruction.ActivityFrameA:
+            case HibashiInstruction.ActivityFrameB:
+            case HibashiInstruction.ActivityFrameC:
+            case HibashiInstruction.ActivityFrameD:
+            case HibashiInstruction.ActivityFrameE:
+            case HibashiInstruction.ActivityFrameF:
+            case HibashiInstruction.ActivityFrame10:
+            case HibashiInstruction.ActivityFrame11:
+            case HibashiInstruction.ActivityFrame12:
+            case HibashiInstruction.ActivityFrame13:
+            case HibashiInstruction.ActivityFrame14:
+            case HibashiInstruction.ActivityFrame15:
+                // These 22 bank-$A6 routines each select the correspondingly indexed
+                // Y-offset/radius pair, derived from the executed routine address.
+                ApplyHibashiActivityFrame(slot, HibashiInstructionLayout.ActivityFrameIndex((HibashiInstruction)word));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case HibashiInstruction.FinishActivity:
+                FinishHibashiActivity(slot);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Hibashi does not own instruction ${word:X4}.");
+        }
+    }
+
     private readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[MaximumEnemyCount];
 

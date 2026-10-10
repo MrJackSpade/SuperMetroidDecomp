@@ -21,7 +21,7 @@ internal abstract class WreckedShipGhostInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < PresentationWordCount) return new((ushort)(Floating + 4 * index), 16);
         return index == PresentationWordCount
-            ? new(LoopOpcode, CommonEnemyInstructionCodes.Goto)
+            ? new(LoopOpcode, (ushort)CommonEnemyInstruction.Goto)
             : new((ushort)(LoopOpcode + 2), Floating);
     }
 

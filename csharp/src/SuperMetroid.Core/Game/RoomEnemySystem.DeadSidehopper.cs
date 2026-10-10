@@ -9,6 +9,27 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the dead Sidehopper's private animation instruction.</summary>
+    private bool TryProcessDeadSidehopperInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.CorpseSidehopper ||
+            !Enum.IsDefined((DeadSidehopperInstruction)word))
+            return false;
+
+        switch ((DeadSidehopperInstruction)word)
+        {
+            case DeadSidehopperInstruction.EndHop:
+                // `$A9:ECD0` is embedded at the end of the landing animation. It
+                // hands ownership back to main AI without consuming an operand.
+                SelectDeadSidehopperPostAnimationState(slot);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Dead Sidehopper does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const ushort DeadMonsterSolidProperty = 0x8000;

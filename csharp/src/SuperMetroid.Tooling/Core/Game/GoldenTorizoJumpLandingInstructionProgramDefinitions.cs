@@ -36,7 +36,7 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
                 : (rightFootForward
                     ? TorizoInstructionProgramDefinitions.InstList_GoldenTorizo_SonicBooms_FacingLeft_RightFootFwd_0
                     : TorizoInstructionProgramDefinitions.InstList_GoldenTorizo_SonicBooms_FacingLeft_LeftFootFwd_0),
-            3 => CommonEnemyInstructionCodes.Goto,
+            3 => (ushort)CommonEnemyInstruction.Goto,
             _ => facingRight
                 ? (rightFootForward ? GoldenTorizoCombatInstructionPointers.WalkingRightLeftLeg
                     : GoldenTorizoCombatInstructionPointers.WalkingRightRightLeg)

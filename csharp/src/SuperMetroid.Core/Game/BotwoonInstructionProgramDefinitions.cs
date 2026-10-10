@@ -52,14 +52,14 @@ internal abstract class BotwoonInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Hidden) return 1;
-        if (address == Hidden + 4) return CommonEnemyInstructionCodes.Sleep;
+        if (address == Hidden + 4) return (ushort)CommonEnemyInstruction.Sleep;
         if (TryDecodeDirectional(address, out bool spitting, out BotwoonMovementProgram movement, out int offset))
         {
             if (!spitting)
             {
                 if (offset == 0) return RadiusInstruction(movement);
                 if (offset == 2) return 1;
-                if (offset == 6) return CommonEnemyInstructionCodes.Sleep;
+                if (offset == 6) return (ushort)CommonEnemyInstruction.Sleep;
             }
             else
             {
@@ -70,7 +70,7 @@ internal abstract class BotwoonInstructionProgramDefinitions
                     case 6: return (ushort)BotwoonInstruction.QueueSpitSFX;
                     case 8: return (ushort)BotwoonInstruction.SetSpittingFlag;
                     case 10: return (ushort)(movement == BotwoonMovementProgram.Left ? 25 : 16);
-                    case 14: return CommonEnemyInstructionCodes.Sleep;
+                    case 14: return (ushort)CommonEnemyInstruction.Sleep;
                 }
             }
         }

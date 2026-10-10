@@ -36,11 +36,11 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_Torizo_LinkInstructionInY, Landing),
         Entry(FallingLoop),
         Frame(5),
-        Op(CommonEnemyInstructionCodes.Goto, FallingLoop),
+        Op((ushort)CommonEnemyInstruction.Goto, FallingLoop),
         Entry(Landing),
         Op((ushort)TorizoInstruction.Instruction_Torizo_PlayTorizoFootstepsSFX),
         Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
-        Op(CommonEnemyInstructionCodes.Goto, BombTorizoWalkingLeftLeg));
+        Op((ushort)CommonEnemyInstruction.Goto, BombTorizoWalkingLeftLeg));
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

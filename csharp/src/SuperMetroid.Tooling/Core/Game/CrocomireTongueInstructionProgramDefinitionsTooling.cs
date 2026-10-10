@@ -13,7 +13,7 @@ internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : II
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        if (index == 6) return new(CrocomireTongueInstructionProgramDefinitions.Sleep, CommonEnemyInstructionCodes.Sleep);
+        if (index == 6) return new(CrocomireTongueInstructionProgramDefinitions.Sleep, (ushort)CommonEnemyInstruction.Sleep);
         int start = index < 6 ? CrocomireTongueInstructionProgramDefinitions.Fight : CrocomireTongueInstructionProgramDefinitions.Melting;
         int frameCount = index < 6 ? 4 : 5;
         int field = index < 6 ? index : index - 7;

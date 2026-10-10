@@ -66,7 +66,7 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY,
             wreckedShip ? WreckedShipActivation : LowerNorfairActivation);
         layout.Pose(1);
-        layout.Word(CommonEnemyInstructionCodes.Sleep);
+        layout.Word((ushort)CommonEnemyInstruction.Sleep);
         layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
         int movementBase = wreckedShip ? 0 : 32;
         for (int pose = 0; pose < 3; pose++)
@@ -80,18 +80,18 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         for (int pose = 0; pose < 4; pose++) layout.Pose((ushort)(6 + pose * 2));
         layout.Pose(wreckedShip ? (ushort)128 : (ushort)96);
         if (!wreckedShip) layout.Word((ushort)ChozoStatueInstruction.Chozo_StartLoweringAcid);
-        layout.Command(CommonEnemyInstructionCodes.SetTimer, wreckedShip ? (ushort)4 : (ushort)5);
+        layout.Command((ushort)CommonEnemyInstruction.SetTimer, wreckedShip ? (ushort)4 : (ushort)5);
         ushort breathing = layout.Address;
         for (int pose = 0; pose < 6; pose++)
             layout.Pose(pose == 0 ? StrideHolds[1] : pose % 2 == 0 ? StrideHolds[3] : StrideHolds[0]);
-        layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, breathing);
+        layout.Command((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, breathing);
         if (wreckedShip)
         {
             layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY, WreckedShipWalking);
-            layout.Command(CommonEnemyInstructionCodes.SetTimer, 16);
+            layout.Command((ushort)CommonEnemyInstruction.SetTimer, 16);
             ushort walking = layout.Address;
             for (int pose = 0; pose < 8; pose++) BuildStridePose(ref layout, pose, true);
-            layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, walking);
+            layout.Command((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, walking);
             for (int pose = 0; pose < 4; pose++) BuildStridePose(ref layout, pose, false);
         }
         layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
@@ -106,7 +106,7 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
             layout.Word((ushort)ChozoStatueInstruction.Chozo_UnlockSamus);
             layout.Word((ushort)ChozoStatueInstruction.Chozo_SetLoweredAcidPosition);
         }
-        layout.Word(CommonEnemyInstructionCodes.Sleep);
+        layout.Word((ushort)CommonEnemyInstruction.Sleep);
     }
 
     private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)

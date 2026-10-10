@@ -44,13 +44,13 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions
         if (index < 18)
             return index < ActiveFrameCount ? new((ushort)(Active + index * 4), 10)
                 : new((ushort)(Active + 64 + (index - 16) * 2),
-                    index == 16 ? CommonEnemyInstructionCodes.Goto : Active);
+                    index == 16 ? (ushort)CommonEnemyInstruction.Goto : Active);
         if (index < 28)
         {
             int local = (index - 18) % 5;
             ushort start = (ushort)(FacingRightDeactivating + (index - 18) / 5 * 18);
             return new((ushort)(start + local * 4),
-                local == 4 ? CommonEnemyInstructionCodes.Sleep : EyelidDurations[local == 3 ? 1 : local]);
+                local == 4 ? (ushort)CommonEnemyInstruction.Sleep : EyelidDurations[local == 3 ? 1 : local]);
         }
         if (index < 38)
         {
@@ -59,13 +59,13 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions
             return new((ushort)(start + local * 4), local switch
             {
                 0 => 32,
-                4 => CommonEnemyInstructionCodes.Sleep,
+                4 => (ushort)CommonEnemyInstruction.Sleep,
                 _ => EyelidDurations[3 - local],
             });
         }
         int mountWord = index - 38;
         return new((ushort)(MountFacingRight + mountWord / 2 * 6 + (mountWord % 2) * 4),
-            (mountWord & 1) == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+            (mountWord & 1) == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
     /// <summary>

@@ -43,7 +43,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions
                 continue;
             if (offset >= frames * 4)
             {
-                value = offset == frames * 4 ? CommonEnemyInstructionCodes.Goto : Start(program);
+                value = offset == frames * 4 ? (ushort)CommonEnemyInstruction.Goto : Start(program);
                 return true;
             }
             if (offset % 4 == 0)

@@ -45,14 +45,14 @@ internal abstract class PuyoInstructionProgramDefinitions
             ushort start = (ushort)(GroundedFast + offset / 20 * 20);
             if (local < 16 && local % 4 == 0)
                 return start == GroundedFast ? (ushort)5 : start == GroundedMedium ? (ushort)8 : (ushort)10;
-            if (local == 16) return CommonEnemyInstructionCodes.Goto;
+            if (local == 16) return (ushort)CommonEnemyInstruction.Goto;
             if (local == 18) return start;
         }
         offset = address - RightFrame0LeftFrame4;
         if ((uint)offset < 30)
         {
             if (offset % 6 == 0) return 1;
-            if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;
+            if (offset % 6 == 4) return (ushort)CommonEnemyInstruction.Sleep;
         }
         throw new InvalidDataException($"Puyo instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }

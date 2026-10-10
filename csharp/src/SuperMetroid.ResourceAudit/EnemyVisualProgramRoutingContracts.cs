@@ -17,7 +17,11 @@ internal static class EnemyVisualProgramRoutingContracts
         // #1275 re-pin: $A6:E4D2's low-energy branch also stores the Ridley timer; routing unchanged.
         // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
         // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.
-        ["ProcessInstructions"] = "B083A4CB336D37A17403340EAC76B3DA6B7FBDBD06C298F7A3E57DC7113BCAA9",
+        // #627 split the opcode switch: common commands first (ProcessCommonEnemyInstruction), then
+        // closed per-owner handlers (TryProcessOwnedEnemyInstruction); frame words and the selector path unchanged.
+        ["ProcessInstructions"] = "E9A74D03DF7BDE95A523C3C264DB852BF00A045AB28EA63A3068E39CA5278CE2",
+        ["ProcessCommonEnemyInstruction"] = "916EF0E5A274D53A3BEF0DB168B3B2D693C51201F8EC560EC372D0EE7F0B2982",
+        ["TryProcessOwnedEnemyInstruction"] = "D875D535D3C7F7BC6F6224D7A25C5EAC580C8CC96649A587C53C7B5D0FD75B03",
         ["ProcessEnemyProjectileInstructions"] = "EA2AAC7D3F5C12022D214A1468AD77C4BF53AC49EBA228AE80B1F34D047463B6",
     };
 

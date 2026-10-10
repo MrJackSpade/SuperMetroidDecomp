@@ -47,24 +47,24 @@ internal abstract class EvirInstructionProgramDefinitions
             if (word < frames)
                 return new((ushort)(start + 4 * word), (ushort)(arms && word == frames - 1 ? 48 : 10));
             return new((ushort)(start + 4 * frames + 2 * (word - frames)),
-                word == frames ? CommonEnemyInstructionCodes.Goto : start);
+                word == frames ? (ushort)CommonEnemyInstruction.Goto : start);
         }
         int control = index - 54;
         return control switch
         {
             0 => new(ProjectileNormal, 1),
-            1 => new((ushort)(ProjectileNormal + 4), CommonEnemyInstructionCodes.Sleep),
-            2 => new(ProjectileRegenerating, EnemyInstructionCodePointers.Instruction_Evir_SetInitialRegenerationXOffset),
-            3 => new((ushort)(ProjectileRegenerating + 2), CommonEnemyInstructionCodes.SetTimer),
+            1 => new((ushort)(ProjectileNormal + 4), (ushort)CommonEnemyInstruction.Sleep),
+            2 => new(ProjectileRegenerating, (ushort)EvirInstruction.SetInitialRegenerationXOffset),
+            3 => new((ushort)(ProjectileRegenerating + 2), (ushort)CommonEnemyInstruction.SetTimer),
             4 => new((ushort)(ProjectileRegenerating + 4), 8),
-            5 => new((ushort)(ProjectileRegenerating + 6), EnemyInstructionCodePointers.Instruction_Evir_PlaySpitSFX),
+            5 => new((ushort)(ProjectileRegenerating + 6), (ushort)EvirInstruction.PlaySpitSFX),
             6 => new(ProjectileRegenerationLoop, 8),
-            7 => new((ushort)(ProjectileRegenerationLoop + 4), EnemyInstructionCodePointers.Instruction_Evir_AdvanceRegenerationXOffset),
-            8 => new((ushort)(ProjectileRegenerationLoop + 6), CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
+            7 => new((ushort)(ProjectileRegenerationLoop + 4), (ushort)EvirInstruction.AdvanceRegenerationXOffset),
+            8 => new((ushort)(ProjectileRegenerationLoop + 6), (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate),
             9 => new((ushort)(ProjectileRegenerationLoop + 8), ProjectileRegenerationLoop),
             10 => new((ushort)(ProjectileRegenerationLoop + 10), 16),
-            11 => new((ushort)(ProjectileRegenerationLoop + 14), EnemyInstructionCodePointers.Instruction_Evir_FinishRegeneration),
-            _ => new((ushort)(ProjectileRegenerationLoop + 16), CommonEnemyInstructionCodes.Sleep),
+            11 => new((ushort)(ProjectileRegenerationLoop + 14), (ushort)EvirInstruction.FinishRegeneration),
+            _ => new((ushort)(ProjectileRegenerationLoop + 16), (ushort)CommonEnemyInstruction.Sleep),
         };
     }
 

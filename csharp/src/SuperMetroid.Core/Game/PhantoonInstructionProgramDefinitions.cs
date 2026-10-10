@@ -69,10 +69,10 @@ internal abstract class PhantoonInstructionProgramDefinitions
             if (word < 3) return Frame(EyeOpen, word, word < 2 ? EyeTransitionFrames : (ushort)1);
             return new((ushort)(EyeOpen + 12 + (word - 3) * 2), word switch
             {
-                3 or 5 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
+                3 or 5 => (ushort)PhantoonPartInstruction.CallFunctionInY,
                 4 => (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX,
                 6 => (ushort)PhantoonInstruction.SetupEyeOpenPhantoonState,
-                _ => CommonEnemyInstructionCodes.Sleep,
+                _ => (ushort)CommonEnemyInstruction.Sleep,
             });
         }
         if (index < 16) return SleepWord(EyeClosed, index - 14);
@@ -84,9 +84,9 @@ internal abstract class PhantoonInstructionProgramDefinitions
             return word == 0 ? Frame(EyeballCentered, 0, 1)
                 : new((ushort)(EyeballCentered + 4 + (word - 1) * 2), word switch
                 {
-                    1 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
+                    1 => (ushort)PhantoonPartInstruction.CallFunctionInY,
                     2 => (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX,
-                    _ => CommonEnemyInstructionCodes.Sleep,
+                    _ => (ushort)CommonEnemyInstruction.Sleep,
                 });
         }
         if (index < 46) return SleepWord((ushort)(EyeLookingUp + (index - 30) / 2 * 6), index % 2);
@@ -95,14 +95,14 @@ internal abstract class PhantoonInstructionProgramDefinitions
             int word = index - 46;
             return word < 4 ? Frame(InitialTentacles, word, TentaclePoseFrames)
                 : new((ushort)(InitialTentacles + 16 + (word - 4) * 2),
-                    word == 4 ? CommonEnemyInstructionCodes.Goto : InitialTentacles);
+                    word == 4 ? (ushort)CommonEnemyInstruction.Goto : InitialTentacles);
         }
         if (index < 56)
         {
             int word = index - 52;
             return word < 2 ? Frame(MouthFollowUp, word, MouthPreparationFrames)
                 : new((ushort)(MouthFollowUp + 8 + (word - 2) * 2),
-                    word == 2 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
+                    word == 2 ? (ushort)PhantoonPartInstruction.CallFunctionInY
                         : (ushort)PhantoonInstruction.SpawnCasualFlame);
         }
         return SleepWord(InitialMouth, index - 56);
@@ -112,7 +112,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
         new((ushort)(start + frame * 4), duration);
 
     private static InstructionMechanicsWord SleepWord(ushort start, int word) =>
-        new((ushort)(start + word * 4), word == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+        new((ushort)(start + word * 4), word == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
 
     private static InstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
     {
@@ -120,10 +120,10 @@ internal abstract class PhantoonInstructionProgramDefinitions
         int command = word - 2;
         ushort value;
         if (pickPattern && command < 2)
-            value = command == 0 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
+            value = command == 0 ? (ushort)PhantoonPartInstruction.CallFunctionInY
                 : (ushort)PhantoonInstruction.PickNewPhantoonPattern;
         else
-            value = command == (pickPattern ? 2 : 0) ? CommonEnemyInstructionCodes.Goto : EyeClosed;
+            value = command == (pickPattern ? 2 : 0) ? (ushort)CommonEnemyInstruction.Goto : EyeClosed;
         return new((ushort)(start + 8 + command * 2), value);
     }
 

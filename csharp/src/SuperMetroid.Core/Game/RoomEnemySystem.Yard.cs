@@ -112,6 +112,72 @@ public sealed class YardEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Yard's private animation instructions.</summary>
+    private bool TryProcessYardInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Yard ||
+            !Enum.IsDefined((YardInstruction)word))
+            return false;
+
+        switch ((YardInstruction)word)
+        {
+            case YardInstruction.MovementFunctionInY:
+                // Yard animation bytecode owns movement dispatch. The word after the
+                // opcode is a same-bank function pointer, not a branch destination.
+                RequireYardState(slot).MovementFunction = (YardMovementFunction)
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case YardInstruction.HidingInstListInY:
+                RequireYardState(slot).HidingInstructionList =
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case YardInstruction.DirectionInY:
+            {
+                YardEnemyState yard = RequireYardState(slot);
+                yard.Direction = ReadEnemyInstructionMechanicsWord(
+                    slot,
+                    unchecked((ushort)(cursor + 2)));
+                if (yard.Direction >= 8)
+                {
+                    throw new InvalidDataException(
+                        $"Yard instruction selected invalid direction {yard.Direction}.");
+                }
+                yard.AirborneFacingDirection =
+                    YardDirectionDefinitions.ForDirection(yard.Direction)
+                        .AirborneFacingDirection;
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            }
+            case YardInstruction.MoveByPixelsInY:
+                slot.XPosition = unchecked((ushort)(slot.XPosition +
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)))));
+                slot.YPosition = unchecked((ushort)(slot.YPosition +
+                    ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 4)))));
+                cursor = unchecked((ushort)(cursor + 6));
+                return true;
+            case YardInstruction.GoBack4BytesIfHidingOr50PercentChance:
+                // The native instruction receives Y already advanced past the opcode.
+                // Subtracting six therefore resumes four bytes before the opcode.
+                cursor = RequireYardState(slot).Behavior == 2 || (_nextRandom!() & 1) != 0
+                    ? unchecked((ushort)(cursor - 4))
+                    : unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Yard does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort YardNothingSpritemap = 0x804d;
 

@@ -33,9 +33,9 @@ internal abstract class ChootInstructionProgramDefinitions
         {
             value = address switch
             {
-                Idle => CommonEnemyInstructionCodes.DisableOffScreenProcessing,
+                Idle => (ushort)CommonEnemyInstruction.DisableOffScreenProcessing,
                 Idle + 2 => 1,
-                Idle + 6 => CommonEnemyInstructionCodes.Sleep,
+                Idle + 6 => (ushort)CommonEnemyInstruction.Sleep,
                 _ => 0,
             };
             return value != 0;
@@ -48,10 +48,10 @@ internal abstract class ChootInstructionProgramDefinitions
         }
         value = (offset % (Falling - Jumping)) switch
         {
-            0 => CommonEnemyInstructionCodes.EnableOffScreenProcessing,
+            0 => (ushort)CommonEnemyInstruction.EnableOffScreenProcessing,
             2 => 8,
             6 => 1,
-            10 => CommonEnemyInstructionCodes.Sleep,
+            10 => (ushort)CommonEnemyInstruction.Sleep,
             _ => 0,
         };
         return value != 0;

@@ -38,8 +38,8 @@ internal abstract class KraidArmInstructionProgramDefinitions
                 return new((ushort)(entry + 4 * word), (ushort)(word == 17 ? (slow ? 0x30 : 0x20) : (slow ? 8 : 6)));
             ushort value = word switch
             {
-                18 => EnemyInstructionCodePointers.Instruction_KraidArm_SlowArmIfLessThanHalfHealth,
-                19 => CommonEnemyInstructionCodes.Goto,
+                18 => (ushort)KraidArmInstruction.SlowArmIfLessThanHalfHealth,
+                19 => (ushort)CommonEnemyInstruction.Goto,
                 _ => entry,
             };
             return new((ushort)(entry + 18 * 4 + 2 * (word - 18)), value);
@@ -50,14 +50,14 @@ internal abstract class KraidArmInstructionProgramDefinitions
             return word < 18
                 ? new((ushort)(RisingOrSinking + 4 * word), (ushort)(word == 17 ? 0x20 : 6))
                 : new((ushort)(RisingOrSinking + 18 * 4 + 2 * (word - 18)),
-                    word == 18 ? CommonEnemyInstructionCodes.Goto : RisingOrSinking);
+                    word == 18 ? (ushort)CommonEnemyInstruction.Goto : RisingOrSinking);
         }
         int frame = index - 62;
         return new((ushort)(DyingOrPreparingToLunge + 4 * frame), frame switch
         {
             < 2 => 6,
             2 => 0x7fff,
-            _ => CommonEnemyInstructionCodes.Sleep,
+            _ => (ushort)CommonEnemyInstruction.Sleep,
         });
     }
 

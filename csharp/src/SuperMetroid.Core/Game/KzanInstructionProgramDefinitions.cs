@@ -12,7 +12,7 @@ internal abstract class KzanInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
         Idle => 1,
-        Idle + 4 => CommonEnemyInstructionCodes.Sleep,
+        Idle + 4 => (ushort)CommonEnemyInstruction.Sleep,
         _ => throw new InvalidDataException(
             $"Kzan instruction mechanics pointer $A6:{address:X4} is not compiled."),
     };

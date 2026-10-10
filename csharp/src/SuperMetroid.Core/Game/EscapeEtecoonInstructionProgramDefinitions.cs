@@ -61,7 +61,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
             return new((ushort)(ExpressGratitudeThenEscape + 2 * gratitude), gratitude switch
             {
                 0 => (ushort)EscapeEtecoonInstruction.ClearPreInstruction,
-                1 => CommonEnemyInstructionCodes.SetTimer,
+                1 => (ushort)CommonEnemyInstruction.SetTimer,
                 _ => 8,
             });
         if (gratitude < 15)
@@ -80,11 +80,11 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         int offset = finish < 3 ? 38 + 2 * finish : finish == 3 ? 46 : 42 + 2 * finish;
         ushort value = finish switch
         {
-            0 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+            0 => (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate,
             1 => (ushort)(ExpressGratitudeThenEscape + 6),
             2 => 64,
             3 => 8,
-            4 => CommonEnemyInstructionCodes.Goto,
+            4 => (ushort)CommonEnemyInstruction.Goto,
             _ => RunningForEscape,
         };
         return new((ushort)(ExpressGratitudeThenEscape + offset), value);
@@ -92,7 +92,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
 
     private static InstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
         new((ushort)(start + (word < 5 ? 4 * word : 18)),
-            word < 4 ? duration : word == 4 ? CommonEnemyInstructionCodes.Goto : start);
+            word < 4 ? duration : word == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
     public static ushort PresentationWordAddress(int index)
     {

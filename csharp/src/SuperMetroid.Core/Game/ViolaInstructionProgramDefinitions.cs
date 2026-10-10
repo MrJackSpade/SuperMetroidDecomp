@@ -30,16 +30,16 @@ internal abstract class ViolaInstructionProgramDefinitions
             ushort address = (ushort)(UpsideDown + 2 * index);
             ushort value = (index % 4) switch
             {
-                0 => EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY,
+                0 => (ushort)CrawlerInstruction.FunctionInY,
                 1 => (ushort)(index / 4 < 2 ? CrawlerEnemyFunction.CrawlingHorizontally : CrawlerEnemyFunction.CrawlingVertically),
-                2 => CommonEnemyInstructionCodes.Goto,
+                2 => (ushort)CommonEnemyInstruction.Goto,
                 _ => NormalLoop,
             };
             return new(address, value);
         }
         int word = index - 14;
         return word < 14 ? new((ushort)(NormalLoop + 4 * word), 10)
-            : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? CommonEnemyInstructionCodes.Goto : NormalLoop);
+            : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? (ushort)CommonEnemyInstruction.Goto : NormalLoop);
     }
 
     public static ushort PresentationWordAddress(int index)

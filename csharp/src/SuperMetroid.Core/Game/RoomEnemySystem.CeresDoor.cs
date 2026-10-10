@@ -12,6 +12,92 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the Ceres door's private animation instructions.</summary>
+    private bool TryProcessCeresDoorInstruction(RoomEnemySlot slot, SamusState? samus, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.CeresDoor ||
+            !Enum.IsDefined((CeresDoorInstruction)word))
+            return false;
+
+        switch ((CeresDoorInstruction)word)
+        {
+            case CeresDoorInstruction.GotoYIfSamusIsDistant:
+            {
+                if (samus is null)
+                {
+                    throw new InvalidOperationException(
+                        "Ceres door proximity instruction requires the active Samus actor.");
+                }
+
+                // `$A6:F63E` subtracts the two unsigned position words, interprets the
+                // wrapped result as signed, then takes its absolute value independently
+                // on each axis. If either distance is at least $30, the operand is a
+                // same-bank loop target; otherwise execution skips that operand.
+                int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
+                int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
+                cursor = xDistance >= 0x30 || yDistance >= 0x30
+                    ? ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)))
+                    : unchecked((ushort)(cursor + 4));
+                return true;
+            }
+            case CeresDoorInstruction.GotoYIfAreaBossIsAlive:
+                // `$A6:F66A-$F676` samples bit zero of the current area's SRAM-mirror
+                // boss byte. Ceres begins with that bit clear, so the facing-right door
+                // loops as a tangible actor during Ridley's fight. `$A6:C117` publishes
+                // the boss bit together with status two; the next instruction pass must
+                // then skip the branch operand and reach `$F68B`'s intangible setup.
+                // Hardcoding the early-game branch stranded the invisible 8x32 actor at
+                // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
+                cursor = RequireAreaBossDefeated()
+                    ? unchecked((ushort)(cursor + 4))
+                    : ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                return true;
+            case CeresDoorInstruction.GotoYIfCeresRidleyHasNotEscaped:
+                cursor = CeresStatus != 0
+                    ? unchecked((ushort)(cursor + 4))
+                    : ReadEnemyInstructionMechanicsWord(
+                        slot,
+                        unchecked((ushort)(cursor + 2)));
+                return true;
+            case CeresDoorInstruction.SetAsIntangible:
+                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.SetAsTangible:
+                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.SetDrawnByRidleyFlag:
+                slot.VariableB = 1;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.SetAsInvisible:
+                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.SetAsVisibleClearDrawnByRidleyFlag:
+                slot.VariableB = 0;
+                slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.SetAsVisible:
+                slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case CeresDoorInstruction.QueueOpeningSFX:
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, CeresDoorInstructionSounds.Opening), maximumQueued: 6);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Ceres door does not own instruction ${word:X4}.");
+        }
+    }
+
     private const ushort CeresDoorRumbleDuration = 0x0030;
     private const ushort CeresDoorRumbleInterval = 4;
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;

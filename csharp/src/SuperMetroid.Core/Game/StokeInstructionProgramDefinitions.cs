@@ -31,21 +31,21 @@ internal abstract class StokeInstructionProgramDefinitions
         int local = index % 13;
         ushort move = side == 0 ? MovingLeft : MovingRight;
         if (local == 0)
-            return new(move, side == 0 ? EnemyInstructionCodePointers.Instruction_Stoke_SetMovingLeft
-                : EnemyInstructionCodePointers.Instruction_Stoke_SetMovingRight);
+            return new(move, side == 0 ? (ushort)StokeInstruction.SetMovingLeft
+                : (ushort)StokeInstruction.SetMovingRight);
         if (local < 5)
             return new((ushort)(move + 2 + 4 * (local - 1)), WalkingFrameDurations[local - 1]);
         if (local < 7)
-            return new((ushort)(move + 18 + 2 * (local - 5)), local == 5 ? CommonEnemyInstructionCodes.Goto : (ushort)(move + 2));
+            return new((ushort)(move + 18 + 2 * (local - 5)), local == 5 ? (ushort)CommonEnemyInstruction.Goto : (ushort)(move + 2));
         ushort attack = side == 0 ? AttackingLeft : AttackingRight;
         int word = local - 7;
         int offset = word == 0 ? 0 : word < 4 ? 2 + 2 * word : 4 + 2 * word;
         ushort value = word switch
         {
             0 or 3 => 16,
-            1 => EnemyInstructionCodePointers.Instruction_Stoke_SpawnFireball,
+            1 => (ushort)StokeInstruction.SpawnFireball,
             2 => (ushort)side,
-            4 => CommonEnemyInstructionCodes.Goto,
+            4 => (ushort)CommonEnemyInstruction.Goto,
             _ => move,
         };
         return new((ushort)(attack + offset), value);

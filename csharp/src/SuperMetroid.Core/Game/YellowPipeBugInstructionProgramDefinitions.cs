@@ -22,7 +22,7 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions
             if (local < 16 && (local & 3) == 0)
                 return (ushort)((program & 1) == 0 ? 4 : 1);
             if (local == 16)
-                return CommonEnemyInstructionCodes.Goto;
+                return (ushort)CommonEnemyInstruction.Goto;
             if (local == 18)
                 return (ushort)(FlyingLeft + 20 * program);
         }

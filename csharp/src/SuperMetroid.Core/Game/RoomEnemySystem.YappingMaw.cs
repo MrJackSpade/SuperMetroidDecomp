@@ -129,6 +129,49 @@ public sealed class YappingMawEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes Yapping Maw's private animation instructions.</summary>
+    private bool TryProcessYappingMawInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.YappingMaw ||
+            !Enum.IsDefined((YappingMawInstruction)word))
+            return false;
+
+        switch ((YappingMawInstruction)word)
+        {
+            case YappingMawInstruction.OffsetSamusUpRight:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 1);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.OffsetSamusUpLeft:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 7);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.OffsetSamusDownRight:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 3);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.OffsetSamusDownLeft:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 5);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.OffsetSamusUp:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 0);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.OffsetSamusDown:
+                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 4);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            case YappingMawInstruction.QueueSFXIfOnScreen:
+                PlayYappingMawAttackSound(RequireYappingMawState(slot));
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Yapping Maw does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort YappingMawGrabSafetyDistance = 32;
     private const ushort YappingMawMaximumCurl = 128;

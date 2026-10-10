@@ -30,7 +30,7 @@ internal abstract class WaverInstructionProgramDefinitions
         {
             int local = index % 2;
             return new((ushort)(SteadyFacingLeft + 6 * (index / 2) + 4 * local),
-                local == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+                local == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
         }
         int spin = (index - 4) / 6;
         int word = (index - 4) % 6;
@@ -38,8 +38,8 @@ internal abstract class WaverInstructionProgramDefinitions
         return word switch
         {
             < 4 => new((ushort)(start + 4 * word), 8),
-            4 => new((ushort)(start + 16), EnemyInstructionCodePointers.Instruction_Waver_SetSpinFinishedFlag),
-            _ => new((ushort)(start + 18), CommonEnemyInstructionCodes.Sleep),
+            4 => new((ushort)(start + 16), (ushort)WaverInstruction.SetSpinFinishedFlag),
+            _ => new((ushort)(start + 18), (ushort)CommonEnemyInstruction.Sleep),
         };
     }
     /// <summary>Returns fixed Waver control or rejects pointers outside all four programs.</summary>

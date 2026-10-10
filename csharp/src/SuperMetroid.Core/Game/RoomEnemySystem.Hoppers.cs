@@ -109,6 +109,32 @@ public sealed class HopperEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Executes the hopper family's private animation instructions.</summary>
+    private bool TryProcessHopperInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsHopperDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((HopperInstruction)word))
+            return false;
+
+        switch ((HopperInstruction)word)
+        {
+            case HopperInstruction.SidehopperQueueSoundInY:
+                // Sidehopper's list passes a library-two sound operand, then the native
+                // instruction returns the cursor after that operand. Audio playback is
+                // an outer concern; publishing the exact word keeps the event observable.
+                LastHopperSoundEffect = ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            case HopperInstruction.ReadyToHop:
+                RequireHopperState(slot).ReadyToHop = true;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Hopper does not own instruction ${word:X4}.");
+        }
+    }
+
 
     private const ushort HopperRandomSeed = 0x0025;
     private const ushort MaximumHopperYSpeedTableIndex = 0x0040;

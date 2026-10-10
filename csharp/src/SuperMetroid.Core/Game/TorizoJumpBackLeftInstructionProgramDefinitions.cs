@@ -66,12 +66,12 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardLandLeftFootFwd4),
         Frame(5),
-        Op(CommonEnemyInstructionCodes.Goto, FacingLeftJumpingBackwardLandLeftFootFwd3),
+        Op((ushort)CommonEnemyInstruction.Goto, FacingLeftJumpingBackwardLandLeftFootFwd3),
         Op((ushort)TorizoInstruction.Instruction_Torizo_PlayTorizoFootstepsSFX),
         Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingRightLegMoving, GTLandedFromBackwardsJumpFacingLeftLeftFootFwd),
         Op((ushort)TorizoInstruction.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsLeftFootFwd0, FacingLeftSonicBoomsLeftFootForward0),
-        Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingRightLegMoving),
+        Op((ushort)CommonEnemyInstruction.Goto, FacingLeftWalkingRightLegMoving),
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardRightFootFwd2),
         Frame(5),
@@ -81,12 +81,12 @@ internal abstract class TorizoJumpBackLeftInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardRightFootFwd4),
         Frame(5),
-        Op(CommonEnemyInstructionCodes.Goto, FacingLeftJumpingBackwardRightFootFwd3),
+        Op((ushort)CommonEnemyInstruction.Goto, FacingLeftJumpingBackwardRightFootFwd3),
         Op((ushort)TorizoInstruction.Instruction_Torizo_PlayTorizoFootstepsSFX),
         Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingLeftLegMoving, GTLandedFromBackwardsJumpFacingLeftRightFootFwd),
         Op((ushort)TorizoInstruction.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsRightFootFwd0, FacingLeftSonicBoomsRightFootForward0),
-        Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingLeftLegMoving));
+        Op((ushort)CommonEnemyInstruction.Goto, FacingLeftWalkingLeftLegMoving));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

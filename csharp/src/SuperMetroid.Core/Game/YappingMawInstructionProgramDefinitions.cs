@@ -55,9 +55,9 @@ internal abstract class YappingMawInstructionProgramDefinitions
             {
                 0 => OpenHold,
                 1 or 4 => ClosingHold,
-                2 => EnemyInstructionCodePointers.Instruction_YappingMaw_QueueSFXIfOnScreen,
+                2 => (ushort)YappingMawInstruction.QueueSFXIfOnScreen,
                 3 => ExtendedHold,
-                5 => CommonEnemyInstructionCodes.Goto,
+                5 => (ushort)CommonEnemyInstruction.Goto,
                 _ => start,
             };
             return new((ushort)(start + offset), value);
@@ -71,10 +71,10 @@ internal abstract class YappingMawInstructionProgramDefinitions
         {
             ushort value = local switch
             {
-                0 when down => left ? EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDownLeft : EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDownRight,
-                0 => left ? EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUpLeft : EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUpRight,
+                0 when down => left ? (ushort)YappingMawInstruction.OffsetSamusDownLeft : (ushort)YappingMawInstruction.OffsetSamusDownRight,
+                0 => left ? (ushort)YappingMawInstruction.OffsetSamusUpLeft : (ushort)YappingMawInstruction.OffsetSamusUpRight,
                 1 => DiagonalAdjustmentHold,
-                _ => down ? EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusDown : EnemyInstructionCodePointers.Instruction_YappingMaw_OffsetSamusUp,
+                _ => down ? (ushort)YappingMawInstruction.OffsetSamusDown : (ushort)YappingMawInstruction.OffsetSamusUp,
             };
             return new((ushort)(entry + (local == 0 ? 0 : local == 1 ? 2 : 6)), value);
         }
@@ -89,8 +89,8 @@ internal abstract class YappingMawInstructionProgramDefinitions
             0 => ExtendedHold,
             1 or 3 => ClosingHold,
             2 => OpenHold,
-            4 => EnemyInstructionCodePointers.Instruction_YappingMaw_QueueSFXIfOnScreen,
-            5 => CommonEnemyInstructionCodes.Goto,
+            4 => (ushort)YappingMawInstruction.QueueSFXIfOnScreen,
+            5 => (ushort)CommonEnemyInstruction.Goto,
             _ => entry,
         };
         return new((ushort)(entry + offset), value);

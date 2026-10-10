@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies escape typewriter glyph, delay, and click behavior, along with the four-block
+    /// Mother Brain escape-door setup preserving each block's visual bits.
+    /// </summary>
     static void VerifyMotherBrainDeathHandoff()
     {
         var bus = new TestAddressSpace();

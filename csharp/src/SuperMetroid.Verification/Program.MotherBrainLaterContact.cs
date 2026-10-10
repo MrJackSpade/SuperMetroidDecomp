@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Mother Brain's later-phase body and neck contact damage, knockback, and no-damage-side behavior, including post-dispatch positions and dud beam or missile collisions.</summary>
     private static int VerifyMotherBrainLaterContact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

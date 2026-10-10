@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies stock shoulder-button pixels and atlas uploads against native planar data,
+    /// and checks that edited pixels regenerate without changing neighboring artwork.
+    /// </summary>
+    /// <param name="rom">SNES address space containing the menu artwork source data.</param>
     private static void VerifyMenuShoulderButtonPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x28, 0x29, 0x2a, 0x2e];

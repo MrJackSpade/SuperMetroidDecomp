@@ -9,6 +9,7 @@ internal static partial class Program
     // HDMA objects 0-3, deleting the room's acid scroll objects. Their pre-instruction
     // ($88:B44A) byte-swaps the RNG every pass; the port kept running it, so in the 100%
     // movie its seed was the swapped $ADB9 stepped once instead of $B9AD.
+    /// <summary>Verifies the main tube landing deletes the acid HDMA objects and stops their shared-state RNG byte swap.</summary>
     private static void VerifyMotherBrainTubeHdmaDeletion()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

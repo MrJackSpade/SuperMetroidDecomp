@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that moving Morph Ball and Spring Ball states republish Speed Booster contact damage
+    /// across consecutive enemy-contact passes, while sub-threshold and stopped movement do not.
+    /// </summary>
     private static void VerifyMockballBoostContact()
     {
         // The report concerns the retained boost after a mockball has landed. Exercise

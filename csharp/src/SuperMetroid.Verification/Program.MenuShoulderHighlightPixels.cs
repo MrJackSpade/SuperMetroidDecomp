@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks calculated shoulder-button highlight pixels against native tile data and verifies atlas uploads, independent pixel edits, and bounds handling.</summary>
+    /// <param name="rom">Retail address space containing the map sprite atlas and planar tile bytes.</param>
     private static void VerifyMenuShoulderHighlightPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x3c, 0x3d, 0x43, 0x51];

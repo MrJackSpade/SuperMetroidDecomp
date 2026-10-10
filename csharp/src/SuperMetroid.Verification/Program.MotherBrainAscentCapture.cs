@@ -5,6 +5,12 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Captures Mother Brain's production ascent layer and verifies its native scanline mask
+    /// before and after ascent completion.
+    /// </summary>
+    /// <param name="runtime">Initialized runtime containing the active Mother Brain encounter.</param>
+    /// <returns>Zero after the ascent mask and captured-frame lifetime checks pass.</returns>
     private static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

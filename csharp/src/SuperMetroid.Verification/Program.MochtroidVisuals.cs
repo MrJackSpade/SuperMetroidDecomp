@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks eight native Mochtroid selectors against six installed editable OAM frames and rejects the adjacent mechanics operand as visual data.</summary>
     private static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

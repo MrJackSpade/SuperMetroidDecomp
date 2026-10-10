@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks accepted-NMI BG2 layout and scrolling-sky row transfers against ocean ROM data using the native vertically stacked page arrangement.</summary>
     private static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

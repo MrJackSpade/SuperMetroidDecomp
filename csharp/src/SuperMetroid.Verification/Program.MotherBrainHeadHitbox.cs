@@ -10,6 +10,7 @@ internal static partial class Program
     // +$10,+$17). The visible brain runs a separate list in the draw hook. The port ran the
     // brain list on the head enemy, testing the drawn frame's shape instead: in the 100%
     // movie a charged beam that native lands on the head missed it.
+    /// <summary>Verifies that Mother Brain's head retains its native dummy-list hitbox frame and accepts a beam independently of the brain's draw list.</summary>
     private static void VerifyMotherBrainHeadHitbox()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

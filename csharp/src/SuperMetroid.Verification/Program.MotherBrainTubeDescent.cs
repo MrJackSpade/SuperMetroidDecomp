@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the falling tube's frame-by-frame acceleration and fractional position, Mother Brain's independent descent through the tube hide threshold, and the landing transition that deletes the tube and starts the room rebuild.</summary>
     private static int VerifyMotherBrainTubeDescent()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

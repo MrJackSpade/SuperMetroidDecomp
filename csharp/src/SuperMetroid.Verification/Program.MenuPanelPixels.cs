@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the calculated four-tile menu-panel pattern against native pixels and verifies atlas uploads, isolated edits, re-encoding, and lookup bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the original menu atlas.</param>
     private static void VerifyMenuPanelPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x57, 0x58, 0x59, 0x5a];

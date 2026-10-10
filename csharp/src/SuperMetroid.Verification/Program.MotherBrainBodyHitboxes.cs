@@ -8,6 +8,7 @@ internal static partial class Program
     // ($A0:9B7F), and each body rectangle's shot callback $A9:B503 turns the projectile into
     // a dud. The port tested a header radius instead, so in the 100% movie a Hyper Beam that
     // native stopped on the body's arm (frame $A174, list $A504) flew on and hit the head.
+    /// <summary>Verifies Mother Brain projectile hits use the body's extended-frame rectangles, stopping arm hits without damaging the head while clear shots pass.</summary>
     private static void VerifyMotherBrainBodyHitboxes()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

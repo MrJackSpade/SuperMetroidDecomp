@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated thin-border pixels against native planar tiles and checks edited pixels encode without changing neighboring artwork.</summary>
     private static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0xad, 0xae];

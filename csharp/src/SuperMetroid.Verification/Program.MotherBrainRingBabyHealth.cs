@@ -9,6 +9,7 @@ internal static partial class Program
     // Enemy.health inside the projectile pass. The port charged only its Baby actor and
     // published the health on the Baby's next AI turn, so in the 100% movie the slot still
     // read $0C80 at the end of the frame where native read $0C30.
+    /// <summary>Verifies that a Mother Brain onion-ring hit updates both the Baby actor's health and its enemy slot during the same projectile pass.</summary>
     private static void VerifyMotherBrainRingBabyHealth()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies all four Mother Brain health bands against the native palette-copy tables and confirms transparent and neighboring CGRAM entries remain untouched.</summary>
+    /// <param name="romPath">Path to the retail ROM used as the palette-data oracle.</param>
     private static void VerifyMotherBrainHealthPalette(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

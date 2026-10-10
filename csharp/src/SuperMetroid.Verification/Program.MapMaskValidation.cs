@@ -4,6 +4,8 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Checks that bundled station-reveal masks reject missing, corrupt, incomplete, duplicate, or out-of-range data and still load after restoration.</summary>
+    /// <param name="directory">Directory containing the area-map mask and manifest files to validate.</param>
     private static void VerifyBundledMapMaskValidation(string directory)
     {
         string maskPath = Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile);

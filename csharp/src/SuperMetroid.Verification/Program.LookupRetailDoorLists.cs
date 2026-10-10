@@ -3,6 +3,14 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that materialized retail door lists preserve their native identities and targets,
+    /// and that BTS resolution handles every byte value and rejects invalid list pointers.
+    /// </summary>
+    /// <remarks>
+    /// Derives native list lengths from physical door pointers independently of production counts.
+    /// </remarks>
+    /// <param name="rom">ROM address space containing room headers and native door lists.</param>
     private static void VerifyRetailDoorListMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))

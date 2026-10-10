@@ -8,6 +8,7 @@ internal static partial class Program
     // has preserved since boot's DetermineNumberOfDemoSets ($80:8261). Without it, every
     // rumble in the 100% movie's rising-lava room came a frame early and the door's
     // sound-queue wait ended six updates before native.
+    /// <summary>Verifies that boot SRAM state determines the preserved main-loop carry and that the carry contributes to the earthquake sound timer reload.</summary>
     private static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();

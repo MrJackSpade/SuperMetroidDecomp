@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the six retail Maridia Puyo spawn positions and cooldowns, their grounded waiting behavior, and hop start on timer underflow.</summary>
     private static void VerifyMaridiaPuyoPile()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the 20 station visual IDs and their order, exact reverse lookup behavior, and rejection of unsupported IDs and pointers.</summary>
     private static void VerifyStationVisualIds()
     {
         // Original exported identity contract, independent of the replacement naming code.

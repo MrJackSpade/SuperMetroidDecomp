@@ -10,6 +10,7 @@ internal static partial class Program
     // index ($A9:B355). The ascent dust leaves it at 2, so the first death burst decrements it
     // to row 1. The port's sequence kept its own index starting at 0, wrapped to row 6, and in
     // the 100% movie spawned both death explosions at the wrong offsets.
+    /// <summary>Verifies the rainbow-beam sequence inherits shared word $0FF2 and that its first death burst decrements to row 1's two offsets.</summary>
     private static void VerifyMotherBrainInheritedExplosionIndex()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

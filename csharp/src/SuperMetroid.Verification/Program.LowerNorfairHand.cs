@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the Lower Norfair hand trigger, eligibility rules, live acid-lowering sequence,
+    /// control release, and persistence of the completed event after room re-entry.
+    /// </summary>
     private static void VerifyLowerNorfairHand()
     {
         var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

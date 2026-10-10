@@ -4,6 +4,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that compact-lettering pixels match the native planar tiles and that artwork
+    /// edits rebuild the expected VRAM data without changing neighboring glyph pixels.
+    /// </summary>
+    /// <remarks>
+    /// Also checks preserved atlas uploads and rejects unsupported tiles or pixel coordinates.
+    /// </remarks>
+    /// <param name="rom">ROM address space supplying the original map-sprite tile data.</param>
     private static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56,0x5f,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb7];

@@ -8,6 +8,12 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native and imported map-palette animation parity, then exercises edited cycles through pause and file-select rendering, persistence, rebinding, extraction, and strict document validation.</summary>
+    /// <param name="bus">SNES address space used to read native animation data and construct cartridge-backed comparison states.</param>
+    /// <param name="stock">Directory containing the stock map-presentation documents.</param>
+    /// <param name="overrides">Directory used to write and reload replacement palette-cycle documents.</param>
+    /// <param name="original">Stock area-map presentation whose imported highlight cycle is compared with native animation.</param>
+    /// <param name="rules">Cartridge map-area rules used to guard reads during the integration checks.</param>
     private static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {

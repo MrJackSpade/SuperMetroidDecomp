@@ -4,6 +4,8 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Compares missile impact and lifetime state against a native trace for centered-camera and camera-edge cases.</summary>
+    /// <param name="nativeTrace">CSV trace containing the expected projectile state for each camera case and frame.</param>
     private static void VerifyMissileImpactCameraEdge(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).Select(line => line.Split(','))

@@ -10,6 +10,7 @@ internal static partial class Program
     // body turn, but the port's missile branch wrote only the encounter projection. In the
     // 100% movie the phase-three counter stayed $40 after a missile where native reset it,
     // and Mother Brain later inched forward instead of retreating.
+    /// <summary>Verifies a missile hit resets the rainbow sequence's phase-three walk counter and publishes the reset through the encounter state.</summary>
     private static void VerifyMotherBrainMissileWalkReset()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

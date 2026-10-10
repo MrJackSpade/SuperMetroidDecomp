@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that extracted menu small-font artwork preserves the native glyph pixels and that edited indexed pixels encode back to the expected VRAM tile data without disturbing neighboring artwork.</summary>
+    /// <param name="rom">SNES address space containing the native menu sprite atlas used as the pixel and upload reference.</param>
     private static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

@@ -10,6 +10,10 @@ internal static partial class Program
     // of ($F0,$820), then spawns explosion $86:B4B1 at the wall's middle ($110,$888) and
     // clears the two wall columns. The port never ran that setup, so in the 100% movie the
     // explosion native spawns into slot 15 never appeared.
+    /// <summary>
+    /// Verifies the escape-room setup spawns the shaft-wall PLM, which waits for Samus to pass
+    /// its position trigger before spawning the centered explosion and opening the wall blocks.
+    /// </summary>
     private static void VerifyOldTourianEscapeShaftWall()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -8,6 +8,10 @@ internal static partial class Program
     // Mother Brain only when NMI_FrameCounter ($05B6) & 3 is zero. The port gated on the
     // separate 8-bit $05B5, which is not aligned with it: in the 100% movie the ascent began
     // one update early, at $05B5=$68 rather than $05B6=$200.
+    /// <summary>
+    /// Verifies that Mother Brain's fake-death ascent is gated by the low two bits of the 16-bit
+    /// NMI frame counter, independent of the separate 8-bit counter.
+    /// </summary>
     private static void VerifyMotherBrainRaiseCounter()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

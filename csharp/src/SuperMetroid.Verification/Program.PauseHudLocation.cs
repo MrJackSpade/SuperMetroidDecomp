@@ -9,6 +9,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that the Crateria minimap uses the native blink palette phases and that the pause HUD
+    /// retains its native pixel position through repeated paused updates and snapshot rendering.
+    /// </summary>
     private static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

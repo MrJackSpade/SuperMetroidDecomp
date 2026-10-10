@@ -7,6 +7,10 @@ internal static partial class Program
     // reaches the $30 arena limit. The port tested the limit regardless of pose, so in the
     // 100% movie a mid-step body at X $29 finished the painful backward walk two frames
     // before native and the neck sped up early.
+    /// <summary>
+    /// Verifies that the painful backward walk accepts the arena boundary only while Mother Brain
+    /// is standing, while reaching the target ends the walk in any pose.
+    /// </summary>
     private static void VerifyMotherBrainWalkBackwardsPose()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

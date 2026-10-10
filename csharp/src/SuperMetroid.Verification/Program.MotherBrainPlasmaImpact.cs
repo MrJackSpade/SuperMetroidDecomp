@@ -4,6 +4,11 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Mother Brain head projectile impacts, including charged Plasma damage,
+    /// recoil and invincibility bookkeeping, the first-form restriction, and later-form Hyper Beam damage.
+    /// </summary>
+    /// <returns>Zero after all projectile-impact checks pass.</returns>
     private static int VerifyMotherBrainPlasmaImpact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

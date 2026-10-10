@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Verifies horizontal shinespark door contact preserves transition ordering during pause fades, including terminal exits and source-room movement.</summary>
     private static void VerifyPauseDoorShinespark()
     {
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })

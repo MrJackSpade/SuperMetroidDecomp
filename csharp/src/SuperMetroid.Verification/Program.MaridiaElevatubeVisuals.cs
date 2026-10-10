@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Maridia elevatube stock extraction and that visual overrides survive streaming and stock refresh without changing collision, sound timing, or PLM lifecycle.</summary>
     private static void VerifyMaridiaElevatubeVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native normal-suit palette pointers for all Varia and Gravity combinations and checks that installed palette restoration matches cartridge colors without runtime bus reads.</summary>
     private static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

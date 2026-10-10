@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the four named treadmill frame sources against ROM and verifies that directional instruction views accept only their own frame operands.</summary>
+    /// <param name="rom">Retail address space containing treadmill source operands and frame data.</param>
     private static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);

@@ -12,6 +12,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the Mother Brain room's BG2 pipe background, native phase-two staging, and crouched-body upload.
+    /// When requested, runs the ascent capture checks against the same initialized encounter instead.
+    /// </summary>
+    /// <param name="ascentMaskOnly">Selects ascent-mask capture checks instead of the tank-background transfer checks.</param>
+    /// <returns>Zero when the selected verification path completes successfully.</returns>
     private static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

@@ -3,6 +3,9 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Reconstructs native station PLM graphics runs and checks stock, imported, and installed catalogs for identity, indexing, copy isolation, and validation.</summary>
+    /// <param name="rom">Cartridge address space containing the native station PLM lists.</param>
+    /// <param name="installed">Installed visual catalog compared with the native and generated catalog views.</param>
     private static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmStationVisualCatalog installed)
     {

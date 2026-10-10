@@ -7,6 +7,15 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies cartridge palette parity, visible static-palette overrides across map views,
+    /// state-preserving rebinding, stock-rebuild persistence, and invalid-document rejection.
+    /// </summary>
+    /// <param name="bus">Retail address space used to read the native palettes and map data.</param>
+    /// <param name="stock">Installed stock directory containing the static-palette document.</param>
+    /// <param name="overrides">Directory where the edited palette document is written and loaded.</param>
+    /// <param name="original">Original presentation catalog used as the unedited comparison.</param>
+    /// <param name="rules">Area-map cartridge access rules applied while exercising the views.</param>
     private static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {

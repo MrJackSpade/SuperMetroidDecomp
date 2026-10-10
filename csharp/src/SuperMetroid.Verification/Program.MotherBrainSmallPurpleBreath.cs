@@ -10,6 +10,10 @@ internal static partial class Program
     // initializer marks it active; its last instruction ($86:CAEE) clears the flag before it
     // deletes itself. The port never spawned it, so in the 100% movie a projectile slot native
     // filled stayed empty.
+    /// <summary>
+    /// Verifies RNG-gated, single-instance small-breath spawning, self-deletion and active-flag
+    /// clearing, and that rainbow-beam setup does not re-enable disabled breath generation.
+    /// </summary>
     private static void VerifyMotherBrainSmallPurpleBreath()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

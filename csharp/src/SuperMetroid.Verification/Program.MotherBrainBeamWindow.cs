@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks Mother Brain's rainbow-beam HDMA window geometry, installed color-cycle cursor and reset behavior, and render capture ownership across native angle and attack-state cases.</summary>
     static void VerifyMotherBrainBeamWindow()
     {
         var bus = new TestAddressSpace();

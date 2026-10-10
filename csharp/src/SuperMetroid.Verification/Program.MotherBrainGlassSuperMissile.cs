@@ -10,6 +10,7 @@ internal static partial class Program
     // runs the normal damage. The next projectile pass removes the marked Super Missile and
     // its pair. The port converted the missile on the spot, leaving the pair live to hit the
     // glass again: in the 100% movie Mother Brain dropped to 2400 instead of 2700.
+    /// <summary>Verifies a Super Missile and its linked projectile produce one Mother Brain glass hit, queue one PLM/sound response, and are removed before they can hit again.</summary>
     private static void VerifyMotherBrainGlassSuperMissile()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

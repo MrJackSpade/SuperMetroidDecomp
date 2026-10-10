@@ -9,6 +9,7 @@ internal static partial class Program
     // with DEC timer : BPL return, so it waits out the $20 its clear step set. The port spawned
     // three of them at once: in the 100% movie the second tube fell 32 frames early, while the
     // first still occupied its enemy slot.
+    /// <summary>Verifies tube collapse waits for four free projectile slots and preserves the 102-frame interval before the next falling tube spawns.</summary>
     private static void VerifyMotherBrainTubeTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

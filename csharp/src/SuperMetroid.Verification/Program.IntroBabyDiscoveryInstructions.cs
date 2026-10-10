@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled Baby discovery instruction regions with ROM bytes and verifies that word reads respect each region's bounds.</summary>
+    /// <param name="rom">Retail address space containing the native discovery instruction sequences.</param>
     private static void VerifyIntroBabyDiscoveryInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb33, 0xcb9f), (0xcc2b, 0xcc47), (0xce53, 0xce55) })

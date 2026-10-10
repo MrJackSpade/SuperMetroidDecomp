@@ -6,6 +6,8 @@ internal static partial class Program
 {
     // #411: a controlled camera is an independent input to the real projectile
     // owner. This isolates lifetime/collision, not Samus camera-tracking parity.
+    /// <summary>Checks horizontal and vertical Hero-shot lifetime and collision under stationary, following, and boundary camera positions.</summary>
+    /// <param name="nativeTrace">Optional CSV trace whose per-frame projectile state is compared with the controlled-camera runs.</param>
     private static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
     {
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)

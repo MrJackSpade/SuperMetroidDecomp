@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Checks that Golden Torizo walking control words, selected frames, and their collision data match the pinned cartridge and compiled catalogs.</summary>
     private static void VerifyGoldenTorizoWalkingDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks calculated intro egg-effect parts, preserves custom visual edits and part counts, and compares visible and wrapped output with native OAM.</summary>
+    /// <param name="rom">Retail address space used to extract egg-effect frames and build the native OAM reference.</param>
     private static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);

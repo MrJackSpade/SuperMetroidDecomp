@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Golden Torizo's rightward control words, visual selectors, and referenced collision data against the cartridge.</summary>
+    /// <param name="rom">The cartridge address space supplying bank-$AA instruction and collision words.</param>
     private static void VerifyGoldenTorizoRightwardDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

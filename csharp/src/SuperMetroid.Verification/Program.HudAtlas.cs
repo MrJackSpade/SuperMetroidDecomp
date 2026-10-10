@@ -8,6 +8,14 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that installed HUD artwork matches the native transfer, respects NMI publication, and stays current across catalog rebinding, save-state restoration, and minimap rendering.</summary>
+    /// <param name="bus">Address space used to compare the compiled HUD transfer bytes with the cartridge.</param>
+    /// <param name="stock">Directory containing the stock installed artwork files.</param>
+    /// <param name="overrides">Directory used to load and exercise replacement HUD artwork.</param>
+    /// <param name="original">Initial presentation catalog whose HUD atlas is compared with the native transfer.</param>
+    /// <param name="rules">Room map rules used to guard runtime minimap updates.</param>
+    /// <param name="initialPalettes">Palette catalog used when constructing the comparison runtimes.</param>
+    /// <param name="fixtureAssets">Room assets bound into each runtime used by the integration checks.</param>
     private static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes,

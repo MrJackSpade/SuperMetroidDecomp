@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed file-select map navigation against the cartridge path through scrolling, debugger restoration, and ROM-free handoffs.</summary>
     private static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {

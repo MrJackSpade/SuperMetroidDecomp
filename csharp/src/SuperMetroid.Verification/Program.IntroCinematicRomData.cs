@@ -103,6 +103,9 @@ internal static partial class Program
             _ = bus.ReadByte((int)new SnesAddress(0x8c, pointer));
     }
 
+    /// <summary>Checks that every intro palette region is nonempty, word-aligned, and contained within CGRAM.</summary>
+    /// <param name="spans">Palette regions for one intro presentation phase.</param>
+    /// <param name="context">Phase label used to identify a failing region.</param>
     private static void AssertIntroPaletteSpans(
         IntroCinematicRomData.Palette.Regions spans,
         string context)

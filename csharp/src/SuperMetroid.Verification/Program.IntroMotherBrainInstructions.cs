@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the compiled Mother Brain instruction bytes and aligned or overlapping words with bank-$8B, including rejection at source-region boundaries.</summary>
+    /// <param name="rom">Retail address space containing the Mother Brain instruction region.</param>
     private static void VerifyIntroMotherBrainInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb05, 0xcb33) })

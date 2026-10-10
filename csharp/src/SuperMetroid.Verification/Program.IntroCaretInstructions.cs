@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the intro caret's compiled instruction bytes, overlapping word views, and range-boundary behavior against bank-$8B data.</summary>
+    /// <param name="rom">The cartridge address space supplying the original caret instruction bytes.</param>
     private static void VerifyIntroCaretInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcbfb; pointer < 0xcc0f; pointer++)

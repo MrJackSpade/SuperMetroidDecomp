@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks all orientations and cap/extension hit positions for grapple-opened blue doors, including allocation, native sound timing, and collision removal after animation.</summary>
     private static void VerifyGrappleBlueDoors()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

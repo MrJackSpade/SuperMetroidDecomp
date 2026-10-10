@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated intro Rinka parts preserve native composition identity, reject unrelated edits, and reproduce OAM at visible and wrapped origins.</summary>
     private static void VerifyIntroRinkaParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Rinka", value.AppendIdentity);

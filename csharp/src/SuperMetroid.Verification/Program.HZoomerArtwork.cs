@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that every compiled HZoomer instruction visual operand selects the retail spritemap, rejects adjacent callback code as a selector, and runs artwork coverage checks.</summary>
+    /// <param name="rom">Address space used to compare each visual operand with its retail instruction word.</param>
+    /// <param name="stock">Installed enemy artwork catalog passed to the HZoomer artwork verification suite.</param>
     private static void VerifyInstalledHZoomerInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

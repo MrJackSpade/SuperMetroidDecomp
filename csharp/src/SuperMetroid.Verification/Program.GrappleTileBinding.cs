@@ -7,6 +7,13 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies legacy and typed pending Grapple transfers resolve through the currently bound artwork,
+    /// including after state serialization and runtime restoration.
+    /// </summary>
+    /// <param name="bus">Retail address space used to initialize the actor and its runtime fixture.</param>
+    /// <param name="stock">Original Grapple endpoint and rope tile resources.</param>
+    /// <param name="edited">Alternate Grapple resources used to confirm restored writes use the current binding.</param>
     private static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

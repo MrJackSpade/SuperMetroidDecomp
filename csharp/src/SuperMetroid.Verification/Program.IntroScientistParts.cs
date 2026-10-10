@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks scientist sprite compositions against native OAM, confirms edited parts bypass generated compositions, and verifies caret loading for both resource schemas.</summary>
+    /// <param name="rom">Address space supplying the native scientist spritemaps and frame data.</param>
     private static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);

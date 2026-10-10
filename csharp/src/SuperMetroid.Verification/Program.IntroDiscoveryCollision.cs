@@ -4,6 +4,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks the discovery-room collision allocation against native bytes and verifies its zero tail and per-room mutability.</summary>
+    /// <param name="rom">Cartridge source containing the original fixed-bank collision words.</param>
+    /// <returns>The native collision bytes used by related intro actor verification.</returns>
     private static byte[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cc083, 0x300);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies grapple endpoint animation timing, tile-source pointer wrap and restored frame/timer boundaries, including uploads for a zero-length rope.</summary>
+    /// <param name="bus">Address space used to read the native endpoint tile-pointer table.</param>
     private static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));

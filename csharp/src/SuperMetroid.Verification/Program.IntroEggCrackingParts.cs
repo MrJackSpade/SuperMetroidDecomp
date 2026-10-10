@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks calculated EggCracking sprite parts across the six native frames, including field edits, part bounds, and visible or wrapped OAM output.</summary>
+    /// <param name="rom">Cartridge address space containing the original EggCracking spritemaps used for extraction and OAM comparison.</param>
     private static void VerifyIntroEggCrackingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggCracking", value.AppendIdentity);

@@ -8,6 +8,16 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that imported discovery-actor sprites preserve native OAM and that artwork
+    /// overrides affect production rendering without rereading native spritemaps.
+    /// </summary>
+    /// <remarks>
+    /// Also checks malformed artwork with a missing named frame is rejected.
+    /// </remarks>
+    /// <param name="bus">Address space used to draw the native spritemap reference.</param>
+    /// <param name="stock">Unmodified artwork catalog used as the comparison baseline.</param>
+    /// <param name="installation">Installation providing discovery artwork and its override location.</param>
     private static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

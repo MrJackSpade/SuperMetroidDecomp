@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks grapple fire, attachment, cancellation, release, and drop sound requests, including silent extension and delivery of native commands to the APU sound port.</summary>
     private static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

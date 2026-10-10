@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that the callable Golden Torizo stun program matches bank $AA, including its 28 control words and four separate VRAM transfer descriptors.</summary>
     private static void VerifyGoldenTorizoStunnedDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;

@@ -6,6 +6,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies pose-change refiring during the native ten-frame grapple window, including direction, endpoint reset, expiration, and saved timer state.</summary>
     private static void VerifyGrapplePoseRefire()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

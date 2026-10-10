@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies cartridge address-boundary failures and checks installed Chainsaw beam graphics and palettes against native DMA behavior.</summary>
     private static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

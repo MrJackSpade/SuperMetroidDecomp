@@ -5,6 +5,14 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that firing from either spin-jump pose transitions through the ROM pose table
+    /// and that the Fire input edge starts grapple on the following frame.
+    /// </summary>
+    /// <remarks>
+    /// Covers left and right poses with both a one-frame Fire tap and a held Fire input,
+    /// including the expected cancellation of the tap and continued firing while held.
+    /// </remarks>
     private static void VerifyGrappleSpinInput()
     {
         foreach (bool left in new[] { false, true })

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the three native egg frames against generated intact and rocking compositions, preserving edited data and matching native OAM at visible and wrapped offscreen origins.</summary>
+    /// <param name="rom">Address space supplying the native egg spritemaps and frame data.</param>
     private static void VerifyIntroEggRockingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRocking", value.AppendIdentity);

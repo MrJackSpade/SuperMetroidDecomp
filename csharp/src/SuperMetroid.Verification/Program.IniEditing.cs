@@ -2,6 +2,14 @@ using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that game-options INI edits preserve unrelated text, update or insert settings,
+    /// and reject invalid values and multiline injection.
+    /// </summary>
+    /// <remarks>
+    /// Also round-trips every Android menu setting through the shared parser and checks that
+    /// unrelated audio settings and comments remain intact.
+    /// </remarks>
     private static void VerifyIniEditing()
     {
         string original = "; preserved comment\r\n[Audio]\r\nMasterVolumePercent=37\r\n[Game]\r\nInvincibility=false\r\n";

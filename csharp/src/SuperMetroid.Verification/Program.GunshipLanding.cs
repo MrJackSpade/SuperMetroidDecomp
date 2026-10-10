@@ -281,6 +281,13 @@ internal static partial class Program
             "Samus lift, event-$0E takeoff, and state-$26 handoff agree.");
     }
 
+    /// <summary>Writes a synthetic 16-byte room-enemy population record for the gunship landing fixture.</summary>
+    /// <param name="bus">Address space receiving the record's little-endian words.</param>
+    /// <param name="address">Address of the first word in the population table.</param>
+    /// <param name="definition">Enemy header pointer stored in the record.</param>
+    /// <param name="x">Initial enemy X position.</param>
+    /// <param name="y">Initial enemy Y position.</param>
+    /// <param name="parameter2">Second actor-specific spawn parameter stored at record offset +$0E.</param>
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
         int address,

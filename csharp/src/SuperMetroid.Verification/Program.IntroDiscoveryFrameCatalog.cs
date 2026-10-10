@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the discovery-scene frame catalog against cartridge record pointers, part counts, asset keys, chain boundaries, and index bounds.</summary>
     private static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["egg-intact", "egg-crack-1", "egg-crack-2", "egg-crack-3",

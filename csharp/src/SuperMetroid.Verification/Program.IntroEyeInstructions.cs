@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled intro-eye instruction bytes and words against the cartridge and rejects pointers outside the eye program.</summary>
+    /// <param name="rom">Cartridge address space containing the native intro-eye instruction stream.</param>
     private static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xd5df; pointer < 0xd629; pointer++)

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the compiled Baby-discovery input bytes and words against the cartridge and verifies their region boundaries are enforced.</summary>
+    /// <param name="rom">Cartridge address space containing the native discovery-input instruction bytes.</param>
     private static void VerifyIntroBabyDiscoveryInput(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0x860d, 0x864f), (0x877e, 0x8784) })

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks grounded spread-charge retention, release and timeout spawning, and all five native free-flight trajectories and fuses.</summary>
     private static void VerifyGroundedBombSpread()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

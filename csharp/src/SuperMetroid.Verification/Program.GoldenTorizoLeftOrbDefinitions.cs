@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks the left-orb control words and visual selectors against the pinned cartridge,
+    /// then validates the selected collision frames and their physical hitbox lists.
+    /// </summary>
+    /// <param name="rom">Pinned retail ROM address space supplying the bank-$AA words.</param>
     private static void VerifyGoldenTorizoLeftOrbDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

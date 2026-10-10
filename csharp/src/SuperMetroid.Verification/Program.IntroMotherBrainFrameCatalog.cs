@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the three Mother Brain frame pointers, part counts, identities, aliases, bounds, and enumeration consistency.</summary>
+    /// <param name="rom">The cartridge address space supplying the native frame operands and sprite counts.</param>
     private static void VerifyIntroMotherBrainFrameCatalog(ISnesAddressSpace rom)
     {
         var frames = IntroMotherBrainSpriteDefinitions.Frames;

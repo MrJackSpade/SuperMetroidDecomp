@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks native OAM parity for egg-effect frames, then verifies installed palette overrides affect discovery rendering without changing particle placement or rereading spritemaps.</summary>
+    /// <param name="bus">Retail address space used for native spritemap comparison and guarded production execution.</param>
+    /// <param name="stock">Unmodified intro artwork catalog used as the baseline composition.</param>
+    /// <param name="installation">Installation paths and loaders used to apply the temporary artwork override.</param>
     private static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

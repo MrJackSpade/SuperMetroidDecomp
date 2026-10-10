@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks highlight-pixel extraction from native map tiles, edited atlas round trips, input bounds, and that invalid VRAM transfers make no partial writes.</summary>
+    /// <param name="rom">Retail address space supplying the map sprite atlas and its planar tile data.</param>
     private static void VerifyHighlightTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

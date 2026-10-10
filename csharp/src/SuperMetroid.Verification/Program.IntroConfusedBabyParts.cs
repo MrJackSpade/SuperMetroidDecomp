@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the three original confused-Baby intro frames use their compiled single-part poses, while edited compositions and native OAM output remain faithful.</summary>
+    /// <param name="rom">Cartridge address space used to draw the native spritemaps for comparison.</param>
     private static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);

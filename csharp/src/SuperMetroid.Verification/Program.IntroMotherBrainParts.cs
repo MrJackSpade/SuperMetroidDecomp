@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the packed nine-part layouts for all three intro Mother Brain frames, including preservation of custom compositions and parity with native OAM drawing.</summary>
+    /// <param name="rom">Cartridge address space used to extract and draw the native spritemaps.</param>
     private static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);

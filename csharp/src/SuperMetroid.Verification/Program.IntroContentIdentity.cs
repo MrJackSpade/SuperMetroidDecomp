@@ -68,6 +68,10 @@ internal static partial class Program
             [KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, digest)]);
     }
 
+    /// <summary>Creates an in-memory intro and Ceres artwork catalog for content-identity checks, with an optional resource variation or reversed sprite-frame insertion order.</summary>
+    /// <param name="edit">Optional fixture variation name that changes one resource or selects an equivalent encoding variant.</param>
+    /// <param name="reverse">When <see langword="true"/>, inserts sprite frames in reverse order to verify canonical identity.</param>
+    /// <returns>The assembled catalog loaded from the generated in-memory artwork resources.</returns>
     private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,

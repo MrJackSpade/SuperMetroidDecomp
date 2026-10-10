@@ -6,6 +6,12 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that compiled Mother Brain demo playback matches the retail input stream and
+    /// that the intro cinematic uses installed instructions without rereading the ROM.
+    /// </summary>
+    /// <param name="bus">Retail address space for the reference stream and instruction data.</param>
+    /// <param name="stock">Character artwork installed in the intro cinematic fixture.</param>
     private static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {

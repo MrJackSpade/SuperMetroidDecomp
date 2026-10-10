@@ -5,6 +5,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies low-health warning threshold transitions, sound-queue rejection and suppression behavior, and persistence of the active latch.</summary>
     private static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();

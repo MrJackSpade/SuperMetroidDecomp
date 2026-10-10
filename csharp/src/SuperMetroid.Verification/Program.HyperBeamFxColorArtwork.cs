@@ -8,6 +8,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks extracted Hyper Beam artwork against all ten timed native frames and CGRAM output, including derived colors, isolated edits, and document validation.</summary>
+    /// <param name="bus">Address space containing the cartridge palette table used for extraction and comparison.</param>
     private static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);

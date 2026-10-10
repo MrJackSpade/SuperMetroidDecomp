@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Replays the retail basic grapple demo and checks its scripted aim, six ordered ceiling attachments, release, and landing trajectory.</summary>
     private static void VerifyGrappleDemoTrajectory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

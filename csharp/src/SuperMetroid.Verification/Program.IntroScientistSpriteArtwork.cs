@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks native OAM parity for intro scientist frames, then verifies an installed position override affects delivery rendering without native spritemap reads.</summary>
+    /// <param name="bus">Retail address space used for native spritemap comparison and guarded scene execution.</param>
+    /// <param name="stock">Unmodified intro artwork catalog used as the baseline composition.</param>
+    /// <param name="installation">Installation paths and loaders used to apply the temporary artwork override.</param>
     private static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the ten intro-scientist frame records against their cartridge chain, including the final shared-caret alias and catalog bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the native scientist frame record chain.</param>
     private static void VerifyIntroScientistFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["examined-loop-1", "examined-loop-2", "examined-loop-3",

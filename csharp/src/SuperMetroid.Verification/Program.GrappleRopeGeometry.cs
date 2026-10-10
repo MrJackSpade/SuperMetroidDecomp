@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks grapple endpoint geometry and connected-rope drawing positions, culling, and animation-timer updates across native length and viewport cases.</summary>
+    /// <param name="bus">Address space providing the native direction samples used by the independent rope-position reference.</param>
     private static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleEndpointGeometry), () => VerifyGrappleEndpointGeometry(bus));

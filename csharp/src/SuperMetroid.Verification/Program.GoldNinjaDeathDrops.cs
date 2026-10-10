@@ -8,6 +8,7 @@ internal static partial class Program
     // death explosion, and only then MetalNinjaPirateDeathItemDropRoutine ($B2:87B8). Enemy
     // projectiles allocate from the top slot down, so the explosion takes the highest free
     // slot and the five drops follow below it, as in the 100% movie's Metal Pirates fight.
+    /// <summary>Verifies a Gold Ninja death allocates its explosion before the five pickup projectiles in descending projectile-slot order.</summary>
     private static void VerifyGoldNinjaDeathDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

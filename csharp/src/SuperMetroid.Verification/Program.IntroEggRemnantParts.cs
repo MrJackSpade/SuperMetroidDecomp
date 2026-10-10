@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated intro egg-remnant parts preserve native composition identity, reject unrelated edits, and draw matching OAM at visible and wrapped origins.</summary>
     private static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRemnant", value.AppendIdentity);

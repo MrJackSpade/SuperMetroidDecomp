@@ -12,6 +12,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    /// <summary>Verifies that boarding suspends escape-timer updates and removes its sprites while preserving active status through liftoff tile reuse.</summary>
+    /// <returns>Zero after the boarding and liftoff timer checks pass.</returns>
     private static int VerifyGunshipEscapeTimer()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that the extracted Mother Brain input regions match the ROM and that reads
+    /// reject pointers or words outside each region's bounds.
+    /// </summary>
+    /// <param name="rom">ROM address space containing the native bank-$91 input data.</param>
     private static void VerifyIntroMotherBrainInputSource(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0x8694, 0x86fe), (0x8784, 0x878a) })

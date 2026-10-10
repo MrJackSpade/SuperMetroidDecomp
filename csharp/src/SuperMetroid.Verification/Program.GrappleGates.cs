@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that rejected grapple impacts on either green-gate side leave the closed gate's OAM and actor intact while emitting the dud sound.</summary>
     private static void VerifyGrappleGreenGateVisibility()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

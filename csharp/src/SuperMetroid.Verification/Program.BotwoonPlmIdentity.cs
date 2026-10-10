@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks both Botwoon wall PLM identities across slot allocation, placement, delay, program selection, pool exhaustion, and room reset.</summary>
     private static void VerifyBotwoonPlmIdentity()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

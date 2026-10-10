@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated Ceres asteroid compositions preserve source identity, translation, and native OAM output for both animations.</summary>
+    /// <param name="rom">Address space containing the retail sprite lists and tile data used as the comparison source.</param>
     private static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);

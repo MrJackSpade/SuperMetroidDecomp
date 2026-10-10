@@ -6,6 +6,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Botwoon's compiled selectors and visible artwork against the cartridge and verifies that legacy version-59 overrides inherit the extracted frames.</summary>
+    /// <param name="rom">Cartridge address space used as the native selector and OAM reference.</param>
+    /// <param name="stock">Installed artwork catalog whose Botwoon frames are checked and used to load legacy overrides.</param>
     private static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

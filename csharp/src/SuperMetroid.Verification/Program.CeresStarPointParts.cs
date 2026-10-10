@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks reflected and forward Ceres star-part point attributes while preserving explicit priority edits, authored composition, and result bounds.</summary>
+    /// <param name="rom">ROM address space used to extract the two native star sprite lists.</param>
     private static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
     {
         foreach (bool reflected in new[] { false, true })

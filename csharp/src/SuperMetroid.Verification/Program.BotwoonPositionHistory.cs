@@ -9,6 +9,7 @@ internal static partial class Program
     // history ($7E:9000-$93FF) lies in the range Initialise_Enemies zeroes, so the body
     // segments' first placements read (0,0); the port seeded it with the head position.
     // Its hidden/dying head sets property $0400, which the port had mistranslated as $8000.
+    /// <summary>Checks Botwoon's zeroed position ring, seeded head history, and non-solid hidden or dying head state.</summary>
     private static void VerifyBotwoonPositionHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

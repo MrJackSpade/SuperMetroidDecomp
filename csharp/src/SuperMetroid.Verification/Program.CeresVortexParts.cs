@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated Ceres vortex compositions preserve source identity, shared-part edits, loader shape, and native OAM output.</summary>
+    /// <param name="rom">Address space containing the retail vortex spritemaps and tile data used as the comparison source.</param>
     private static void VerifyCeresVortexParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

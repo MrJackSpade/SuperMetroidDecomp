@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    /// <summary>Checks stock sound-program bytes and routing, an audible manifest note edit, and rejection of malformed program definitions.</summary>
     private static void VerifyEditableSoundEffectPrograms()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");

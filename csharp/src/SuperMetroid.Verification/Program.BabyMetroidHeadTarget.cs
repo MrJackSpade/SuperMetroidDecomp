@@ -9,6 +9,7 @@ internal static partial class Program
     // earlier this frame. The port read the rainbow sequence's own brain copy, one frame
     // stale, so in the 100% movie the Baby latched onto the head's previous position
     // ($7E,$5B-$18 instead of $7D,$5D-$18).
+    /// <summary>Verifies the Baby latches to Mother Brain's current head position instead of stale rainbow-sequence coordinates.</summary>
     private static void VerifyBabyMetroidHeadTarget()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

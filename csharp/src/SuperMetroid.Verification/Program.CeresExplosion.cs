@@ -7,6 +7,8 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Compares the Ceres station blast's captured scanline color windows and phase timing with the cartridge-derived Power Bomb timeline through cleanup.</summary>
+    /// <param name="colors">Optional installed fixed-color catalog; when supplied, the check also rejects native Power Bomb color-table reads.</param>
     private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

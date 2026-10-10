@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the Baby Metroid cutscene's native music commands, frame-72 theme boundary, queue delays, and request uniqueness.</summary>
     private static int VerifyBabyMetroidTheme()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

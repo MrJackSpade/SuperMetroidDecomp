@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Audits boosted traversal across Norfair's half-height floor, the real wall endpoint, and terrain support-latch retention and clearing.</summary>
     private static void AuditBoostFloor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

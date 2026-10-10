@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies calculated small-asteroid parts preserve edited visual identity and match native OAM at visible and wrapped origins.</summary>
+    /// <param name="rom">Address space containing the imported Ceres spritemap used as the native rendering reference.</param>
     private static void VerifyCeresSmallAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

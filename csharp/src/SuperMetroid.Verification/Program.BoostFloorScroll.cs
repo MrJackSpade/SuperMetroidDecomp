@@ -8,6 +8,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that a live Speed Booster descent through Brinstar Room 08 keeps the shaft open, follows Samus without viewport wrap, and reaches the retail bottom-floor alignment.</summary>
     private static void VerifyBoostFloorScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

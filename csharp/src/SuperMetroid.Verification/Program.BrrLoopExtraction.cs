@@ -3,6 +3,10 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that BRR loop extraction retains predictor history through its transient,
+    /// leaves history-independent and one-shot lengths unchanged, and rejects unaligned loop addresses.
+    /// </summary>
     private static void VerifyBrrLoopExtractionRetainsPredictorHistory()
     {
         var ram = new byte[65536];

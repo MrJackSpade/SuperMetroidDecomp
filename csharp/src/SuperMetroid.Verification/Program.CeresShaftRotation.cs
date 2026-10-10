@@ -3,6 +3,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies frame-by-frame Ceres shaft rotation timing and phase progression, matching every published transform against retail coefficients across four sweeps.</summary>
     private static void VerifyCeresShaftCompiledRotation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

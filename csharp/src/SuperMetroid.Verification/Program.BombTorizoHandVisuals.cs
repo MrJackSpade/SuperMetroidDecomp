@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Bomb Torizo hand visuals install from stock, accept presentation overrides, and reject invalid or tampered data.</summary>
     private static void VerifyBombTorizoHandVisualInstallation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ceres destruction frame identities, part counts, order, and index bounds against native ROM data.</summary>
+    /// <param name="rom">Address space containing the supported cartridge's backdrop and sprite-list pointers.</param>
     private static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {
         int[] backdropOperands = [0xcc41, 0xccad, 0xccc3, 0xcd85, 0xcd8d, 0xcd95, 0xcd9d];

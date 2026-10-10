@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the Ceres explosion-spawner model with retail execution across countdown reseeds, departure cutoffs, and the end of its finite lifetime.</summary>
+    /// <param name="rom">Address space containing the retail spawner instructions and timing operands.</param>
     private static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

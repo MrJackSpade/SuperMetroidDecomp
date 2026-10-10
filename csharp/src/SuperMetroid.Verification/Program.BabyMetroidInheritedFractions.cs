@@ -9,6 +9,7 @@ internal static partial class Program
     // X/Y words but never the fractions, so the Baby keeps those its slot's previous occupant
     // left. The port's actor zeroed them: in the 100% movie native's Baby carried Y fraction
     // $2800 into slot 3 and the port's carried $0000.
+    /// <summary>Verifies that Baby Metroid initialization preserves the first free enemy slot's inherited X/Y subpositions while setting its integer coordinates.</summary>
     private static void VerifyBabyMetroidInheritedFractions()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

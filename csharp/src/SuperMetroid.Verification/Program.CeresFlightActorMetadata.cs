@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Ceres flight-actor identities, initializer branches, motion data, star aliases, and actor-index bounds against cartridge metadata.</summary>
+    /// <param name="retail">Retail ROM address space used as the oracle for native bank-$8B actor operands and callbacks.</param>
     private static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;

@@ -5,6 +5,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Verifies debugger-state compatibility for all 39 catalog layouts across historical and current identity schemas.</summary>
     private static void VerifyCatalogIdentityStateCompatibility()
     {
         var room = CreateRoomIdentityFixture();

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the boss-reset setting, its load-time progression scope, preservation of unrelated save data, and lack of continuous enforcement.</summary>
     private static void VerifyBossResetOnLoad()
     {
         Suite(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni());

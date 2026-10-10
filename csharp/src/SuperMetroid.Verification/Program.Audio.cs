@@ -287,6 +287,10 @@ internal static partial class Program
         Console.WriteLine("  Audio: typed/lossless music commands and delays, 25 compiled upload routes, invalid-route rejection, inherited Ceres track, post-Ceres bank/track restart, item fanfare, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }
 
+    /// <summary>Writes one fixture byte at the ROM offset mapped from a SNES address.</summary>
+    /// <param name="rom">Backing ROM image to populate.</param>
+    /// <param name="snesAddress">SNES address translated by the cartridge's LoROM mapper.</param>
+    /// <param name="value">Byte stored at the mapped ROM offset.</param>
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 }

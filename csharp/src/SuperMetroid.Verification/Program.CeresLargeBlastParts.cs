@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the Ceres large-blast optimization preserves imported sprite identity and native OAM output while retaining caller edits and custom part counts.</summary>
+    /// <param name="rom">Address space used to extract the retail Ceres sprite frames and reference spritemaps.</param>
     private static void VerifyCeresLargeBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeBlast", value.AppendIdentity);

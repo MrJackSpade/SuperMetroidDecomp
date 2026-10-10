@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies attract and selected-play runtimes receive installed assets while keeping demo options isolated.</summary>
     private static void VerifyAttractRuntimeBindings()
     {
         var palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(

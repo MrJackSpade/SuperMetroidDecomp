@@ -3,6 +3,12 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks that required boss BG2 bindings fail before VRAM writes, invalid or cross-boss OAM bindings are rejected,
+    /// and schema-26 documents inherit newly declared frame roots.
+    /// </summary>
+    /// <param name="stock">Baseline OAM and BG2 documents used to build the stock resource catalog.</param>
+    /// <param name="edits">Edited fixture documents used to test remapping and missing-resource failures.</param>
     private static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
         foreach ((ushort definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())

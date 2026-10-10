@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies a Ceres Ridley lunge collision produces the native room shake for exactly twelve displayed frames.</summary>
     private static void VerifyCeresRidleyWallImpact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

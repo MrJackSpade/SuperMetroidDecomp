@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Compares cached background sampling with an independent scalar formula across tile depths, map sizes, flips, address wrapping, transparency, colors, and priority.</summary>
     private static void VerifyBackgroundSampler()
     {
         var random = new Random(355);

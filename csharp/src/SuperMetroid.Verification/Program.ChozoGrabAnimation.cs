@@ -10,6 +10,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Verifies the Chozo hand carries morph-ball Samus with animation frozen until release, while movement and optional Power Bomb state continue.</summary>
+    /// <param name="powerBomb">Starts a Power Bomb before capture and verifies its independent progression through the statue ride.</param>
     private static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

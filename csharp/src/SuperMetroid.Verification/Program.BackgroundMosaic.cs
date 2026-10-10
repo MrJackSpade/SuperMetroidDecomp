@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies BG2 mosaic source-coordinate grouping, scroll ordering, enable selection, and legacy register-layout compatibility.</summary>
     private static void VerifyBackgroundMosaicSampling()
     {
         // Explicit boundaries catch quantizing world coordinates or starting the

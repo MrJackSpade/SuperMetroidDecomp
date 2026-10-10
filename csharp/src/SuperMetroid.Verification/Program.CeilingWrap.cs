@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Replays the real beam-collision path at the room's ceiling wrap and compares PLM allocation and block mutations with the 135-record native trace.</summary>
+    /// <param name="tracePath">Path to the captured native allocation trace, including its header row.</param>
     private static void VerifyCeilingWrapPlmTrace(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();

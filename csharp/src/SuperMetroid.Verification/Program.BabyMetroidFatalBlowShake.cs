@@ -7,6 +7,7 @@ internal static partial class Program
     // to the Baby's Y velocity and places it at the saved origin plus the undoubled shaking
     // offsets. The port doubled the offsets and left the velocity at zero, so in the 100%
     // movie the Baby's Y fraction stayed $C700 where native drifted to $C600.
+    /// <summary>Checks that fatal-blow shake calls decrement Y velocity and apply the native undoubled offsets.</summary>
     private static void VerifyBabyMetroidFatalBlowShake()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -55,6 +55,8 @@ internal static partial class Program
                 rom.ReadByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+    /// <summary>Checks the six dormant mechanics words and byte ownership against ROM, keeps the visual operand separate, and rejects unsupported addresses and ordinals.</summary>
+    /// <param name="rom">Pinned cartridge address space supplying the expected bank-$AA words.</param>
     private static void VerifyBombTorizoDormantControlMapping(ISnesAddressSpace rom)
     {
         ushort[] expected = [0xb879,0xb87b,0xb87d,0xb881,0xb883,0xb885];

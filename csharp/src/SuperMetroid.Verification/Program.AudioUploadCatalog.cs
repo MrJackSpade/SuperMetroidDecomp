@@ -2,6 +2,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
+    /// <summary>Checks every compiled audio-upload pointer and name against the retail table, then verifies catalog views and index rejection.</summary>
+    /// <param name="rom">Retail ROM address space used to read the native upload-pointer table at <c>$8F:E7E1</c>.</param>
     private static void VerifyAudioUploadCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["SPCEngine", "Music_TitleSequence", "Music_EmptyCrateria", "Music_LowerCrateria", "Music_UpperCrateria", "Music_GreenBrinstar", "Music_RedBrinstar", "Music_UpperNorfair", "Music_LowerNorfair", "Music_Maridia", "Music_Tourian", "Music_MotherBrain", "Music_BossFight1", "Music_BossFight2", "Music_MiniBossFight", "Music_Ceres", "Music_WreckedShip", "Music_ZebesExplosion", "Music_Intro", "Music_Death", "Music_Credits", "Music_TheLastMetroidIsInCaptivity", "Music_TheGalaxyIsAtPeace", "Music_BabyMetroid_BossFight2", "Music_SamusTheme_UpperCrateria"];

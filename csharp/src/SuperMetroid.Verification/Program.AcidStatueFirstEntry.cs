@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the lowered-acid event remains visible through the Acid Statue room's first-entry fade and gameplay.</summary>
     private static void VerifyAcidStatueFirstEntry()
     {
         const ushort sourceRoom = 0xb236;

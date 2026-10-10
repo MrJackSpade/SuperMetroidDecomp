@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled boulder bounce speeds against the cartridge table and verifies rebound, counter underflow, and rolling handoff through the real falling routine.</summary>
+    /// <param name="rom">Retail address space used to read the native bank-$A6 bounce-speed words.</param>
     private static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();

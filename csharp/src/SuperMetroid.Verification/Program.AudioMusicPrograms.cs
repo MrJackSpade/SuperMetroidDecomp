@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    /// <summary>Checks exact SPC byte compilation for extracted music and verifies that a valid title-note edit changes audible PCM while malformed manifests are rejected.</summary>
     private static void VerifyEditableMusicPrograms()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");

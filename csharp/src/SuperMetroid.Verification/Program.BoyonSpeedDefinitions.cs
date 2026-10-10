@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Boyon initializer tables, saturated curve samples, and byte-width speed multiplication against native ROM data.</summary>
+    /// <param name="rom">The supported cartridge address space supplying the original Boyon table words and curve bytes.</param>
     private static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks calculated station-blast parts against native OAM output and verifies that custom part counts and independently edited visual fields remain caller-supplied.</summary>
+    /// <param name="rom">Retail address space used to extract the authored spritemaps and draw their native OAM reference.</param>
     private static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStationBlast", value.AppendIdentity);

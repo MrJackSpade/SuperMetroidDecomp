@@ -8,6 +8,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks installed Ceres destruction and Zebes reveal assets against the cartridge and verifies visual edits preserve cinematic progression.</summary>
+    /// <param name="installation">Installation providing the stock artwork and user-override locations.</param>
+    /// <param name="bus">Retail cartridge address space used to compare native maps, characters, sprites, and actor placements.</param>
     private static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {

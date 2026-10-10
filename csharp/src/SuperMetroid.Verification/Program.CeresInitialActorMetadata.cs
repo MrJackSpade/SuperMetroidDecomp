@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares the three compiled Ceres destruction actors with their retail spawn definitions, wrapper metadata, callback behavior, and supported actor-index range.</summary>
+    /// <param name="retail">Retail ROM address space containing the Ceres destruction spawn and wrapper data.</param>
     private static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)

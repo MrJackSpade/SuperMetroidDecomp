@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the Baby Metroid fatal-blow blackout, palette recovery, and one-shot death-cry publication.</summary>
     private static int VerifyBabyMetroidDeathCry()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies published Ceres flight frames against native pointer-table operands, OAM counts, keys, order, and bounds.</summary>
+    /// <param name="rom">Address space for the cartridge table entries and frame records used as the independent reference.</param>
     private static void VerifyCeresFlightFrameCatalog(ISnesAddressSpace rom)
     {
         // Independent native instruction operands in the published catalog order.

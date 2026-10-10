@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the reflected Ceres star parts, their independent edit behavior, and serialized draw output against the native even-vortex parts.</summary>
+    /// <param name="rom">Address space containing the native Ceres star and even-vortex sprite frames used as reference data.</param>
     private static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");

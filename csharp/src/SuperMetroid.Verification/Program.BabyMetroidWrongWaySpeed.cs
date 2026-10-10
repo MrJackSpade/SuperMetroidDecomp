@@ -7,6 +7,7 @@ internal static partial class Program
     // $A9:F466, which stores a $10 wrong-way off-screen X extra before the accelerator.
     // The port passed zero, so in the 100% movie the off-screen Baby reversing toward X
     // $131 slowed by $0A instead of $1A ($015F -> $0145 natively).
+    /// <summary>Verifies wrong-way acceleration applies the native off-screen speed extra during final-charge staging.</summary>
     private static void VerifyBabyMetroidWrongWaySpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

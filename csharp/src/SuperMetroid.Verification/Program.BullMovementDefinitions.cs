@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all 104 Bull initializer selector pairs against the compiled movement tables and confirms native timer, function, and instruction setup.</summary>
+    /// <param name="rom">Cartridge address space used to compare each initializer result with its authored acceleration, deceleration, and speed words.</param>
     private static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

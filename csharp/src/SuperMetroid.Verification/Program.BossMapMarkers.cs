@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies area-boss markers update on defeat and survive pause reopening, save restoration, and room reloads.</summary>
     private static void VerifyPauseBossMarkers()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

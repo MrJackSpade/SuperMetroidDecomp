@@ -8,6 +8,14 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native OAM parity for Ceres flight frames and checks that sprite overrides
+    /// change composition, rebind correctly, validate strictly, and survive stock repair.
+    /// </summary>
+    /// <param name="installation">The installed asset root used to load and override Ceres flight sprites.</param>
+    /// <param name="bus">The cartridge address space used to compare imported spritemaps with native OAM.</param>
+    /// <param name="stock">The installed Ceres flight artwork used as the unmodified comparison catalog.</param>
+    /// <param name="guardedBus">The address space supplied to flight simulation while checking installed artwork use.</param>
     private static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)

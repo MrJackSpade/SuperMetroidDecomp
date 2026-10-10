@@ -171,6 +171,18 @@ internal static partial class Program
         AssertEqual(0, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
         AssertEqual(100, samus.Kinematics.YPosition,
             "bottom alignment against the previous hurt pose leaves Y unchanged");
+
+        // #1275: InitializeSamusPose_1 does not publish the hurt pose's radius, so a shove
+        // that interrupts a radius-$13 airborne body raises it by 21-19 = 2 pixels and keeps
+        // the live radius until the following frame's pose epilogue.
+        SamusState airborne = CreateSamus(SamusPoseIds.FallingRightPose, xPosition: 100, yPosition: 100);
+        airborne.RefreshCollisionRadii(bus);
+        airborne.InitializeAnimation(bus);
+        airborne.PoseHistory.PreviousPose = SamusPoseIds.FallingRightPose;
+        airborne.CeresRidleyEjection.Request(airborne);
+        airborne.CeresRidleyEjection.Step(bus, emptyRoom, airborne, layer1X: 0, nmiFrameCounter: 0);
+        AssertEqual(98, airborne.Kinematics.YPosition, "ejection alignment uses the interrupted pose's live radius");
+        AssertEqual(0x13, airborne.Kinematics.YRadius, "ejection initialization leaves the live radius for the pose epilogue");
     }
 
     private static void VerifyCeresElevatorShaftRoomMain()

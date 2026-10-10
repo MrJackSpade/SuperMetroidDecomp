@@ -64,6 +64,26 @@ internal sealed partial class CeresDestructionCinematicState
         }
     }
 
+    /// <summary>
+    /// `$8B:C345` queues these two Mode-7 transfers on the same dispatcher call that creates
+    /// the final explosion. In state $22 the upper 24 rows become the gunship viewed from the
+    /// front; state $25 has no gunship and clears them too. The lower 24 rows are always
+    /// cleared. Leaving the original Ceres screens in either half makes the station itself
+    /// flee the explosion and later attaches those stale tiles to the Zebes approach.
+    /// </summary>
+    private void LoadFinalExplosionMaps()
+    {
+        int upperSource = withSamus ? CeresDestructionRomData.Vram.ClearMapSourceOffset : 0;
+        vram.LoadMode7MapBytes(
+            ceresTilemaps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes),
+            destinationWord: 0);
+        vram.LoadMode7MapBytes(
+            ceresTilemaps.AsSpan(
+                CeresDestructionRomData.Vram.ClearMapSourceOffset,
+                CeresDestructionRomData.Vram.MapHalfBytes),
+            destinationWord: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+    }
+
     private void SpawnFinalCeresExplosion()
     {
         ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - backgroundX));
@@ -82,19 +102,7 @@ internal sealed partial class CeresDestructionCinematicState
             CeresExplosionDefinitions.StationBlastActor.PreInstruction);
         _ = TryAddCeresActor(cinematicExplosion);
 
-        // `$8B:C345` queues these two Mode-7 transfers on the same dispatcher call that
-        // creates the final explosion. The upper 24 rows become the gunship viewed from
-        // the front; the lower 24 rows are explicitly cleared. Leaving the original Ceres
-        // screens in either half makes the station itself flee the explosion and later
-        // attaches those stale tiles to the rear view used on the Zebes approach.
-        vram.LoadMode7MapBytes(
-            ceresTilemaps.AsSpan(0, CeresDestructionRomData.Vram.MapHalfBytes),
-            destinationWord: 0);
-        vram.LoadMode7MapBytes(
-            ceresTilemaps.AsSpan(
-                CeresDestructionRomData.Vram.ClearMapSourceOffset,
-                CeresDestructionRomData.Vram.MapHalfBytes),
-            destinationWord: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+        LoadFinalExplosionMaps();
     }
 
     private void SpawnCeresExplosion(

@@ -104,6 +104,20 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Host testing option: both escape countdowns stop at one second, without changing their earlier timing.</summary>
     public bool PreventEscapeTimeout { get; private set; }
 
+    /// <summary>
+    /// Set when the escape countdown expired during this runtime's frame: <c>$90:E0EC</c>
+    /// writes game state $23 from inside gameplay. The frontend dispatcher consumes it.
+    /// </summary>
+    public bool TimeUpRequested { get; private set; }
+
+    /// <summary>Takes the pending time-up publication; the dispatcher may still override it.</summary>
+    public bool ConsumeTimeUpRequest()
+    {
+        bool requested = TimeUpRequested;
+        TimeUpRequested = false;
+        return requested;
+    }
+
     /// <summary>Nonpersistent host map visibility used by gameplay HUD updates.</summary>
     public MapRevealMode MapRevealMode { get; private set; }
 
@@ -974,6 +988,22 @@ public sealed partial class SuperMetroidRuntime
         PublishDoorScrollingIrqNmiRequest();
     }
 
+    /// <summary>
+    /// Layer-one fraction words <c>$090F</c>/<c>$0913</c> left in WRAM by an earlier gameplay
+    /// owner. No load path writes them, so this runtime's first camera starts from them.
+    /// </summary>
+    internal ushort InheritedLayer1XSubposition { get; private set; }
+
+    /// <inheritdoc cref="InheritedLayer1XSubposition"/>
+    internal ushort InheritedLayer1YSubposition { get; private set; }
+
+    /// <summary>Adopts the layer-one fraction words that survived the previous runtime.</summary>
+    internal void AdoptLayer1Subpositions(ushort xSubposition, ushort ySubposition)
+    {
+        InheritedLayer1XSubposition = xSubposition;
+        InheritedLayer1YSubposition = ySubposition;
+    }
+
     /// <summary>Low-byte NMI frame counter at WRAM <c>$05B5</c>.</summary>
     public byte NmiFrameCounter8 { get; private set; }
 
@@ -1212,7 +1242,8 @@ public sealed partial class SuperMetroidRuntime
         // Door destination drawing borrows this frame path, but native state $0B
         // ($82:E737) does not call the palette-FX handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (!Enemies.ElevatorDoorTransitionActive && Samus?.Xray.ArePaletteFxSuspended != true)
+        if (RoomPaletteFx.HandlerEnabled && !Enemies.ElevatorDoorTransitionActive &&
+            Samus?.Xray.ArePaletteFxSuspended != true)
         {
             RoomPaletteFx.Step(
                 _addressSpace,
@@ -1228,10 +1259,13 @@ public sealed partial class SuperMetroidRuntime
                 nmiFrameCounter: NmiFrameCounter,
                 powerBomb: BombProjectiles.PowerBombExplosion);
         }
-        LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
-            _addressSpace,
-            Cgram,
-            BeamArtwork?.HyperBeamFxColors);
+        // Hyper Beam's palette object lives in the same native pool and handler.
+        LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled
+            ? Samus?.Drained.HyperBeamPaletteFx.Step(
+                _addressSpace,
+                Cgram,
+                BeamArtwork?.HyperBeamFxColors)
+            : null;
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the
@@ -1644,13 +1678,26 @@ public sealed partial class SuperMetroidRuntime
                 // `$53/$54` is shared while ownership, duration, and termination are not.
                 else if (Samus.CeresRidleyEjection.IsActive)
                 {
-                    // `$90:E1C8` suppresses only the damage-boost result `$4F/$50` selected
-                    // from pose `$53/$54`; it does not replace the complete input handler.
-                    // Those are the only records in the two retail transition tables, so
-                    // clearing the sampled prospective value is the literal gamma-handler
-                    // side effect without abusing Samus.InputLocked.
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
+                    // `$90:E12E` installs the hurt pose and clears every prospective pose and
+                    // command (`$90:E1A5-$E1B7`). Afterwards `$90:E1C8` suppresses only a
+                    // damage-boost result `$4F/$50` selected from pose `$53/$54`; it does not
+                    // replace the complete input handler. A lookup failure there keeps the
+                    // knockback pose and its Stop command, which clears the X acceleration
+                    // mode when the pose is committed.
+                    if (Samus.CeresRidleyEjection.InitializationPending)
+                    {
+                        ProspectiveSamusPose = null;
+                        ProspectiveSamusFallbackPose = null;
+                    }
+                    else
+                    {
+                        if (ProspectiveSamusPose?.ProspectivePose is
+                            (ushort)SamusPoseId.DamageBoostLeftPose or (ushort)SamusPoseId.DamageBoostRightPose)
+                            ProspectiveSamusPose = null;
+                        if (ProspectiveSamusFallbackPose is
+                            (ushort)SamusPoseId.DamageBoostLeftPose or (ushort)SamusPoseId.DamageBoostRightPose)
+                            ProspectiveSamusFallbackPose = null;
+                    }
                     LastCeresRidleyEjection = Samus.CeresRidleyEjection.Step(
                         _addressSpace,
                         LevelData,
@@ -2556,6 +2603,20 @@ Landed: true, HitCeiling: false);
                     // here also covers the no-input “running speed was killed” branch.
                     Samus.ApplyRanIntoWallPoseChange(_addressSpace, wallCollisionPose);
                     animationTransitionApplied = true;
+                    // `$91:EADE` replaces only ProspectivePose. When alpha's table lookup
+                    // failed, UpdateSamusPose ($91:EBF0) still runs the command `$91:8304`
+                    // selected for the pre-wall movement type.
+                    if (ProspectiveSamusPose is null && ProspectiveSamusFallbackPose is not null)
+                    {
+                        SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(
+                            SamusState.ReadMovementType(_addressSpace, poseAtFrameStart));
+                        if (command is not (SamusProspectivePoseChangeCommand.Decelerate or SamusProspectivePoseChangeCommand.Stop))
+                            throw new InvalidDataException(
+                                $"Ran-into-wall source ${poseAtFrameStart:X2} selected unexpected lookup-failure command {command}.");
+                        Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                            command == SamusProspectivePoseChangeCommand.Decelerate && deceleratingFallbackHasMomentum,
+                            Samus.ReadFacingDirection(_addressSpace));
+                    }
                 }
 
                 // Morph landing has its own prospective-pose and collision tables. A hard
@@ -3693,8 +3754,13 @@ Landed: true, HitCeiling: false);
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
         bool runEscapeTimerHandler = !Enemies.HasGunshipHealthHandler;
-        bool escapeTimerExpired = runEscapeTimerHandler &&
-            EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
+        if (runEscapeTimerHandler && EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout))
+        {
+            // `$90:E0E6`: the expired countdown publishes game state $23 for the
+            // dispatcher, whites the target palettes and disables palette FX.
+            TimeUpRequested = true;
+            RoomPaletteFx.DisableHandler();
+        }
         if (runEscapeTimerHandler && EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam,
                 (MapPresentation ?? throw new InvalidOperationException(

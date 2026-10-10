@@ -43,6 +43,13 @@ public sealed class EscapeTimer
     /// <summary>Raw unsigned 8.8 Y position at WRAM <c>$094A</c>.</summary>
     public ushort YPositionFixed { get; private set; }
 
+    /// <summary>
+    /// Whether the countdown has expired and Samus's timer hack handler only draws it:
+    /// <c>$90:E0E6</c> installs <c>SamusTimerHackHandler_DrawTimer</c> on expiry, so the
+    /// timer is never processed again until an escape restarts it.
+    /// </summary>
+    public bool CountdownExpired { get; private set; }
+
     /// <summary>Integer X coordinate consumed by <c>$80:9FB3</c>'s spritemap drawing.</summary>
     public byte XPixel => (byte)(XPositionFixed >> 8);
 
@@ -71,6 +78,8 @@ public sealed class EscapeTimer
     /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
     public bool Process(ushort nmiFrameCounter, bool preventEscapeTimeout = false)
     {
+        if (CountdownExpired)
+            return false;
         // $80:9DEC masks status to eight bits before indexing a table of function pointers.
         // A switch expresses the same dispatch while leaving useful named frames in a C#
         // call stack. An invalid state throws where the original would jump through data.
@@ -94,8 +103,12 @@ public sealed class EscapeTimer
             SetTime(0, 1, 0);
             return false;
         }
+        CountdownExpired |= expired;
         return expired;
     }
+
+    /// <summary><c>$82:8476</c>: the time-up black-out clears only the timer's status word.</summary>
+    public void ClearStatus() => RawStatus = 0;
 
     /// <summary>
     /// Directly sets valid packed-BCD time for save-state loading and focused debugging.
@@ -130,6 +143,7 @@ public sealed class EscapeTimer
         SecondsBcd = 0;
         MinutesBcd = 0;
         RawStatus = 0;
+        CountdownExpired = false;
     }
 
     /// <summary>

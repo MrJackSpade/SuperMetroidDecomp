@@ -149,6 +149,7 @@ public sealed partial class IntroCinematicState
     private byte[] japaneseBlankCharacter = [];
     private readonly ushort[] introPalette = new ushort[SnesCgram.ColorCount];
     private IntroCinematicObjectSystem? objects;
+    private readonly IntroJapaneseSubtitles subtitles;
     private CinematicPaletteFader? paletteFader;
     private SamusState? flashbackSamus;
     /// <summary>$1A57 during the Mother Brain flashback: $8B:AF65 sets it, $8B:B842 clears it.</summary>
@@ -176,16 +177,19 @@ public sealed partial class IntroCinematicState
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
     /// <param name="beamArtwork">Optional installed beam graphics used by gameplay flashbacks.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
+    /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null,
-        SamusBodyArtworkCatalog? samusBodyArtwork = null)
+        SamusBodyArtworkCatalog? samusBodyArtwork = null,
+        bool japaneseText = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         this.bus = bus;
+        subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;
         this.introFont = introFont ?? throw new InvalidOperationException(
             "Opening cinematic requires the installed font atlas.");
@@ -389,7 +393,7 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.PageOneAwaitingInput:
-                if (controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
                     SetupMotherBrainFlashback();
                 break;
 
@@ -410,7 +414,7 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.PageTwoAwaitingInput:
-                if (controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
                     SetupBabyDiscoveryCrossfade();
                 break;
 
@@ -431,7 +435,7 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.PageThreeAwaitingInput:
-                if (controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
                     SetupBabyMetroidDelivery();
                 break;
 
@@ -452,7 +456,7 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.PageFourAwaitingInput:
-                if (controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
                     SetupBabyMetroidExamination();
                 break;
 
@@ -473,8 +477,12 @@ public sealed partial class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.PageFiveAwaitingInput:
-                if (controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
                     SetupPageSix();
+                break;
+
+            case IntroCinematicPhase.StartPageSix:
+                StartPageSix();
                 break;
 
             case IntroCinematicPhase.PageSixText:
@@ -493,7 +501,7 @@ public sealed partial class IntroCinematicState
                     // the fourteen-frame delayed music command has completed.
                     ceresFlight = new IntroCeresFlightState(bus, audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
-                        characterArtwork?.CeresFlight);
+                        characterArtwork?.CeresFlight, subtitles.Enabled);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -505,7 +513,7 @@ public sealed partial class IntroCinematicState
 
         if (objects is not null)
         {
-            objects.Step();
+            objects.Step(controller.NewlyPressed);
             if (objects.PageOneAwaitingInput)
             {
                 if (Phase == IntroCinematicPhase.PageOneText)
@@ -932,9 +940,19 @@ public sealed partial class IntroCinematicState
 
     private void SetupPageSix()
     {
-        // English takes B1F4's direct fall-through into B207: no palette transition. Only
-        // the English text region, caret, eye stream, and final page object are replaced.
+        // $8B:B1EB seeds IntroCrossFadeTimer. English takes B1F4's direct fall-through into
+        // B207; Japanese text selects B207 as the next dispatch's cinematic function.
         introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        if (subtitles.Enabled)
+            Phase = IntroCinematicPhase.StartPageSix;
+        else
+            StartPageSix();
+    }
+
+    private void StartPageSix()
+    {
+        // $8B:B207 has no palette transition. Only the English text region, caret, eye
+        // stream, and final page object are replaced.
         objects!.StartEnglishPageSix();
         scientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;
@@ -1486,6 +1504,7 @@ public sealed partial class IntroCinematicState
             bus,
             vram,
             textTilemap,
+            subtitles,
             audio,
             NarrationPresentation,
             characterArtwork?.EyeFrames);
@@ -1638,4 +1657,6 @@ public enum IntroCinematicPhase
     Initial,
     /// <summary>$8B:A66F: the dispatch after the first narration's fade-out that sets up page one.</summary>
     SetupPageOne,
+    /// <summary>$8B:B207: with Japanese text, the dispatch after page five's input that starts page six.</summary>
+    StartPageSix,
 }

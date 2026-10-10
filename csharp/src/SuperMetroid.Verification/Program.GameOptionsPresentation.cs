@@ -90,7 +90,8 @@ internal static partial class Program
             mapPresentation: original);
         var editedMenu = new GameOptionsMenuState(new ForbiddenMapBus(),
             mapPresentation: edited);
-        for (int frame = 0; frame < 16; frame++)
+        // Native indexes zero and one, fifteen fade-in levels, then the interactive index.
+        for (int frame = 0; frame < 18; frame++)
         {
             stockMenu.Step(0);
             editedMenu.Step(0);

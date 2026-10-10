@@ -24,8 +24,25 @@ internal static partial class Program
         var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
         const System.Reflection.BindingFlags flags =
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", flags)!.GetValue(audio)!;
-        var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", flags)!.GetValue(audio)!;
+        // The Baby stream advances only in indexes one and three onward. A separate menu walks
+        // index zero and its NMI continuation, takes index one's first Baby tick, and then
+        // enters the fade so every later update ticks the Baby; the music wait and index
+        // one's continuation never touch it, so skipping them leaves the stream intact.
+        var babyAudio = new CartridgeAudioState();
+        var babyMenu = new GameOverMenuState(bus, babyAudio, RetailPresentationFixture());
+        babyMenu.Step(0);
+        babyMenu.Step(0);
+        void StepBaby()
+        {
+            babyMenu.Step(0);
+            if (babyMenu.ResumesAfterNmiWait)
+            {
+                PrivateState.SetProperty(babyMenu, nameof(GameOverMenuState.ResumesAfterNmiWait), false);
+                PrivateState.SetProperty(babyMenu, nameof(GameOverMenuState.Phase), GameOverMenuPhase.FadeIn);
+            }
+        }
+        var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", flags)!.GetValue(babyAudio)!;
+        var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", flags)!.GetValue(babyAudio)!;
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
         int timer = Word(pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;
@@ -46,29 +63,30 @@ internal static partial class Program
                     // Native cry callbacks load their effect as an immediate word.
                     AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x820000 | command),
                         "game-over reference cry starts with LDA immediate");
-                    menu.Step(0);
-                    AssertEqual((byte)Word(command + 1), queues[2, cries],
+                    StepBaby();
+                    // Library-three slot zero holds index zero's CancelAll request.
+                    AssertEqual((byte)Word(command + 1), queues[2, cries + 1],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;
                 }
-                else menu.Step(0);
-                if (looped) menu.Step(0);
+                else StepBaby();
+                if (looped) StepBaby();
                 pointer = (ushort)next;
                 timer = Word(pointer);
             }
-            else menu.Step(0);
+            else StepBaby();
             ticks++;
-            AssertEqual(pointer, menu.BabyInstructionPointer,
+            AssertEqual(pointer, babyMenu.BabyInstructionPointer,
                 "game-over live pointer matches independent ROM stream each tick");
-            AssertEqual(Word(pointer + 2), menu.BabySpritemap,
+            AssertEqual(Word(pointer + 2), babyMenu.BabySpritemap,
                 "game-over live spritemap matches independent ROM stream each tick");
-            AssertEqual((byte)cries, writes[2], "game-over cry queue changes only at native handoffs");
+            AssertEqual((byte)(cries + 1), writes[2], "game-over cry queue changes only at native handoffs");
         }
         AssertTrue(looped, "game-over Baby reaches the native end marker and loops");
         AssertEqual(60, records, "game-over loop visits all sixty native frame records");
         AssertEqual(3, cries, "game-over loop dispatches all three cries");
-        AssertTrue(audio.HasQueuedSounds, "game-over Baby cries remain in the typed queue");
+        AssertTrue(babyAudio.HasQueuedSounds, "game-over Baby cries remain in the typed queue");
         int framesToMenu = StepUntil(
             () => menu.Phase == GameOverMenuPhase.Main,
             frame =>

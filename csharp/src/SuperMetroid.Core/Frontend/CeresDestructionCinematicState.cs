@@ -53,15 +53,28 @@ internal sealed partial class CeresDestructionCinematicState
     private ushort explosionRepeatCountdown;
     private bool usesMode7 = true;
     private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
+    // State $25: the escape timer expired with Samus still aboard Ceres.
+    private readonly bool withSamus;
 
+    /// <param name="bus">Cartridge address space read by the scene's actors and transfers.</param>
+    /// <param name="audio">The shared music and sound queue.</param>
+    /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
+    /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
+    /// <param name="paletteFxColors">Installed palette-FX colors for the engine-flicker program.</param>
+    /// <param name="withSamus">
+    /// Game state $25 rather than $22: the escape timer expired before Samus left, so the
+    /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
+    /// </param>
     public CeresDestructionCinematicState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
-        IPaletteFxColorSource? paletteFxColors = null)
+        IPaletteFxColorSource? paletteFxColors = null,
+        bool withSamus = false)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.withSamus = withSamus;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;
         this.artwork = artwork ?? throw new InvalidOperationException(
@@ -120,10 +133,7 @@ internal sealed partial class CeresDestructionCinematicState
             vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(offset,
                 CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
             if (Phase >= CeresDestructionPhase.FlyingAwayFromExplosion)
-                vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
-                    CeresDestructionRomData.Vram.ClearMapSourceOffset,
-                    CeresDestructionRomData.Vram.MapHalfBytes),
-                    CeresDestructionRomData.Vram.ClearMapDestinationWord);
+                LoadFinalExplosionMaps();
         }
         else
         {
@@ -168,12 +178,14 @@ internal sealed partial class CeresDestructionCinematicState
         {
             initialNmiWaits++;
             SetupCeresDestruction();
-            // $8B:C2B8-$C2DF queue the cinematic bank and state $22's track last.
+            // $8B:C2B8-$C2DF queue the cinematic bank and the state's own track last.
             audio?.QueueMusicDelayed8(MusicCommand.Stop);
             audio?.QueueMusicDelayed8(
                 MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
             audio?.QueueMusicDelayed(
-                MusicCommand.SelectTrack(CeresDestructionRomData.Music.CeresTrack),
+                MusicCommand.SelectTrack(withSamus
+                    ? CeresDestructionRomData.Music.CeresWithSamusTrack
+                    : CeresDestructionRomData.Music.CeresTrack),
                 MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
         }
         else
@@ -253,8 +265,19 @@ internal sealed partial class CeresDestructionCinematicState
 
             case CeresDestructionPhase.FadeOutCeres:
                 // $8B:C627 installs $C699 once forced blank is reached; it runs next dispatch.
+                // State $25 instead stops the music and ends at the death black-out ($C64E).
                 if (StepSlowFadeOut())
-                    Phase = CeresDestructionPhase.FlyToZebesInitial;
+                {
+                    if (withSamus)
+                    {
+                        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                        Phase = CeresDestructionPhase.Finished;
+                    }
+                    else
+                    {
+                        Phase = CeresDestructionPhase.FlyToZebesInitial;
+                    }
+                }
                 break;
 
             case CeresDestructionPhase.FadeInZebes:

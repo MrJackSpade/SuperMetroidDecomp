@@ -433,8 +433,6 @@ public static partial class SamusBlockCollision
         bool collided = false;
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
-        RoomCollisionBlock? collisionBlock = null;
-        RoomCollisionBlock? brokenBombBlock = null;
 
         // Most bank-$90 callers enter through MoveSamus_Up/Down and therefore probe the
         // native solid-enemy list before dispatching bank-$94 terrain. A few callers use
@@ -481,270 +479,11 @@ public static partial class SamusBlockCollision
             // Only the nonzero terrain entry $94:9763 clears this latch. A solid-enemy
             // stop bypasses that entry, and a zero movement does not clear it either.
             state.PositionAdjustedBySlope = false;
-            ushort targetCenter = unchecked((ushort)(
-                unchecked(state.YFixed + (uint)acceptedDisplacement) >> 16));
-            ushort leadingBoundary = acceptedDisplacement >= 0
-                ? unchecked((ushort)(state.YRadius + targetCenter - 1))
-                : unchecked((ushort)(targetCenter - state.YRadius));
-            int blockY = leadingBoundary >> 4;
-            int horizontalSpan = GetHorizontalBlockSpan(state);
-            int firstBlockX = scanLeftToRight
-                ? unchecked((ushort)(state.XPosition - state.XRadius)) >> 4
-                : unchecked((ushort)(state.XPosition + state.XRadius - 1)) >> 4;
-
-            for (int offset = 0; offset <= horizontalSpan; offset++)
-            {
-                int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-                RoomCollisionBlock block = GetRequiredBlock(level, blockX, blockY);
-                if (!TryResolveExtension(level, ref block))
-                    continue;
-                switch (block.CollisionType)
-                {
-                    case RoomCollisionType.Air:
-                        break;
-
-                    case RoomCollisionType.Slope:
-                        if (!block.Bts.IsNonSquareSlope)
-                        {
-                            bool squareCollision = ReactVerticalSquareSlope(
-                                state,
-                                block,
-                                acceptedDisplacement,
-                                leadingBoundary,
-                                // $94:959E initializes $1A to the span and decrements it
-                                // while scanning left-to-right. $94:95F5 initializes it to
-                                // zero and increments while scanning right-to-left. Passing
-                                // the traversal offset directly made the physical left/right
-                                // edge tests alternate every NMI beside a square-slope wall.
-                                blocksLeftToCheck: scanLeftToRight
-                                    ? horizontalSpan - offset
-                                    : offset,
-                                totalColumns: horizontalSpan,
-                                out int clippedDisplacement);
-                            if (squareCollision)
-                            {
-                                acceptedDisplacement = clippedDisplacement;
-                                collided = true;
-                                collisionBlock = block;
-                            }
-                            break;
-                        }
-
-                        // $94:86FE selects its floor or ceiling test from bit 0 of
-                        // CollisionMovementDirection, not the distance's sign. The changed-
-                        // pose probe's direction $F therefore tests both ways as a floor.
-                        (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
-                            bus,
-                            state,
-                            block,
-                            blockX,
-                            acceptedDisplacement,
-                            targetCenter,
-                            reactsDownward: blockReactionDirection is { } reactionDirection
-                                ? ((ushort)reactionDirection & 1) != 0
-                                : acceptedDisplacement >= 0);
-                        if (collided)
-                            collisionBlock = block;
-                        break;
-
-                    case RoomCollisionType.SolidBlock:
-                    case RoomCollisionType.ShootableBlock:
-                    case RoomCollisionType.GrappleBlock:
-                        acceptedDisplacement = ClipVerticalToSolid(
-                            state,
-                            acceptedDisplacement,
-                            leadingBoundary);
-                        collided = true;
-                        collisionBlock = block;
-                        break;
-
-                    case RoomCollisionType.DoorBlock:
-                        // `$94:93CE` is the vertical twin of the handler above. Preserve
-                        // its carry result here; the room-level owner publishes the same
-                        // native door pointer for the frontend dispatcher to consume.
-                        CartridgeDoorHeader verticalDoor = level.ResolveDoorCollision(
-                            bus,
-                            block.Behavior,
-                            state.CollisionPose,
-                            publishDoorSideEffects);
-                        if ((verticalDoor.DestinationRoomPointer & 0x8000) == 0)
-                        {
-                            acceptedDisplacement = ClipVerticalToSolid(
-                                state,
-                                acceptedDisplacement,
-                                leadingBoundary);
-                            collided = true;
-                            collisionBlock = block;
-                        }
-                        break;
-
-                    case RoomCollisionType.SpikeAir:
-                    case RoomCollisionType.SpecialAir:
-                        if (block.CollisionType == RoomCollisionType.SpecialAir)
-                        {
-                            collided = SamusInsideBlockReactions.ReactCollision(state, block, true,
-                                ref acceptedDisplacement, out bool touchedSand, blockReactionDirection, plms);
-                            sandContact |= touchedSand;
-                            if (collided) collisionBlock = block;
-                        }
-                        if (block.CollisionType == RoomCollisionType.SpecialAir &&
-                            block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
-                            (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
-                        {
-                            throw new InvalidOperationException(
-                                $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
-                                $"live=[{string.Join(',', plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
-                        }
-                        // Scroll wake-up itself remains carry-clear; sand has a separate
-                        // carry/contact contract handled above.
-                        break;
-                    case RoomCollisionType.ShootableAir:
-                    case RoomCollisionType.UnusedAir:
-                        // These air entries return clear carry without PLM setup.
-                        break;
-                    case RoomCollisionType.BombableAir:
-                        ActivateCollisionBombableAir(level, block, state, canBreakBombBlocks, plms);
-                        break;
-
-                    case RoomCollisionType.SpikeBlock:
-                        if (state.SamusOwner is { } verticalSamus)
-                        {
-                            SamusTerrainHazardCollision.ApplySolidSpikeCollision(
-                                bus,
-                                verticalSamus,
-                                block);
-                        }
-                        acceptedDisplacement = ClipVerticalToSolid(
-                            state,
-                            acceptedDisplacement,
-                            leadingBoundary);
-                        collided = true;
-                        collisionBlock = block;
-                        break;
-
-                    case RoomCollisionType.SpecialBlock when
-                        block.Bts == RoomBlockBehaviorValues.CollectibleTrigger:
-                        if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
-                        {
-                            throw new InvalidOperationException(
-                                $"Collectible block {block.Index} has no active item PLM owner.");
-                        }
-                        break;
-
-                    case RoomCollisionType.SpecialBlock:
-                        // Spawn_PLM preserves bank $94's clear carry when all forty slots
-                        // are occupied. No setup runs, so the unchanged special block is
-                        // treated as air for this collision probe.
-                        if (plms?.IsAllocationFull == true)
-                            break;
-                        // Hand reactions change state but return unconditional collision:
-                        // even an admitted morph contact is clipped by this same scan.
-                        if (state.SamusOwner is { } chozoSamus)
-                            plms?.NotifyChozoStatueHandCollision(level, block, chozoSamus,
-                                state.CollisionPose, movingDown: acceptedDisplacement > 0 &&
-                                    (blockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
-                        // The vertical special-solid dispatcher shares setup `$84:CDEA`
-                        // with horizontal collision. Accepted boost contact becomes air
-                        // before clipping; rejected/non-speed special blocks remain solid.
-                        if (state.SamusOwner is { } speedBoostingSamus &&
-                            plms is not null &&
-                            plms.TrySpawnSamusSpeedBoosterBlock(
-                                level,
-                                block.Index,
-                                block.Bts,
-                                speedBoostingSamus))
-                        {
-                            break;
-                        }
-                        if (!block.Bts.UsesAreaReactionTable &&
-                            block.Bts.IsNormalReactionIndex(8) &&
-                            acceptedDisplacement > 0 &&
-                            // CE37 checks the native direction nibble, not the sign of
-                            // the tested clearance. Pose probes use F and delete the PLM.
-                            (blockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
-                        {
-                            if (plms is null)
-                            {
-                                throw new InvalidOperationException(
-                                    $"Contact crumble block {block.Index} BTS " +
-                                    $"${block.Behavior:X2} requires an active room PLM owner.");
-                            }
-
-                            // `$94:9102` always returns carry set for CE37. Setup removes
-                            // the special collision nibble immediately (leaving the block
-                            // type-eight solid), and this downward scan remains clipped.
-                            if (!plms.TrySpawnSamusContactCrumbleBlock(
-                                    level,
-                                    block.Index,
-                                    block.Bts))
-                                break;
-                        }
-                        // Pose expansion carries native direction $F, not a downward
-                        // landing. Keep solidity without waking the save-station owner.
-                        if (blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
-                            block.Bts.TryGetStationAccess(out _) &&
-                            (plms is null ||
-                             !plms.TryNotifyStationCollision(
-                                 block.Index,
-                                 block.Bts,
-                                 state.CollisionPose,
-                                 horizontal: false,
-                                 movingPositive: acceptedDisplacement > 0,
-                                 roomWidthInBlocks: level.WidthInBlocks)))
-                        {
-                            throw new InvalidOperationException(
-                                $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
-                                "has no active map/resource/save-station PLM owner.");
-                        }
-                        acceptedDisplacement = ClipVerticalToSolid(
-                            state,
-                            acceptedDisplacement,
-                            leadingBoundary);
-                        collided = true;
-                        collisionBlock = block;
-                        break;
-
-                    case RoomCollisionType.BombableBlock:
-                        // Vertical dispatch is `$94:934C` and shares the exact bank-$84
-                        // setup/carry contract documented in the horizontal branch above.
-                        if (plms?.IsAllocationFull == true)
-                        {
-                            // The full native pool prevents rejection setup from setting
-                            // carry. Bank $94 therefore keeps its pre-call clear carry and
-                            // treats an untouched bomb block as air.
-                            break;
-                        }
-                        if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
-                        {
-                            acceptedDisplacement = ClipVerticalToSolid(
-                                state,
-                                acceptedDisplacement,
-                                leadingBoundary);
-                            collided = true;
-                            collisionBlock = block;
-                            break;
-                        }
-                        if (!block.Bts.IsNormalReactionIndex(8))
-                        {
-                            throw new InvalidDataException(
-                                $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
-                        }
-                        bool spawned = plms is null
-                            ? ClearCollisionTypeWithoutLifecycle(level, block.Index)
-                            : plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
-                        if (spawned)
-                            brokenBombBlock ??= block;
-                        break;
-
-                    default:
-                        throw new InvalidDataException(
-                            $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
-                            "complete vertical collision dispatcher.");
-                }
-
-                if (collided)
-                    break;
-            }
+            VerticalTerrainScan scan = ScanVerticalTerrain(bus, level, state, acceptedDisplacement,
+                scanLeftToRight, canBreakBombBlocks, plms, publishDoorSideEffects, blockReactionDirection);
+            acceptedDisplacement = scan.AcceptedDisplacement;
+            collided = scan.Collided;
+            sandContact = scan.SandContact;
         }
 
         state.SetYFixed(unchecked(state.YFixed + (uint)acceptedDisplacement));
@@ -761,6 +500,313 @@ public static partial class SamusBlockCollision
             acceptedDisplacement,
             collided,
             EnemyCollision: enemyCollision);
+    }
+
+    private readonly record struct VerticalTerrainScan(int AcceptedDisplacement, bool Collided, bool SandContact);
+
+    /// <summary>
+    /// The vertical block scans at <c>$94:959E</c> (left to right) and <c>$94:95F5</c>
+    /// (right to left): every block under the leading boundary, dispatched by collision type.
+    /// A zero displacement scans downward from the current bottom boundary.
+    /// </summary>
+    private static VerticalTerrainScan ScanVerticalTerrain(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusKinematicsState state,
+        int displacement,
+        bool scanLeftToRight,
+        bool canBreakBombBlocks,
+        RoomPlmSystem? plms,
+        bool publishDoorSideEffects,
+        SamusCollisionDirection? blockReactionDirection)
+    {
+        int acceptedDisplacement = displacement;
+        bool collided = false;
+        bool sandContact = false;
+        ushort targetCenter = unchecked((ushort)(
+            unchecked(state.YFixed + (uint)acceptedDisplacement) >> 16));
+        ushort leadingBoundary = acceptedDisplacement >= 0
+            ? unchecked((ushort)(state.YRadius + targetCenter - 1))
+            : unchecked((ushort)(targetCenter - state.YRadius));
+        int blockY = leadingBoundary >> 4;
+        int horizontalSpan = GetHorizontalBlockSpan(state);
+        int firstBlockX = scanLeftToRight
+            ? unchecked((ushort)(state.XPosition - state.XRadius)) >> 4
+            : unchecked((ushort)(state.XPosition + state.XRadius - 1)) >> 4;
+
+        for (int offset = 0; offset <= horizontalSpan; offset++)
+        {
+            int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
+            RoomCollisionBlock block = GetRequiredBlock(level, blockX, blockY);
+            if (!TryResolveExtension(level, ref block))
+                continue;
+            switch (block.CollisionType)
+            {
+                case RoomCollisionType.Air:
+                    break;
+
+                case RoomCollisionType.Slope:
+                    if (!block.Bts.IsNonSquareSlope)
+                    {
+                        bool squareCollision = ReactVerticalSquareSlope(
+                            state,
+                            block,
+                            acceptedDisplacement,
+                            leadingBoundary,
+                            // $94:959E initializes $1A to the span and decrements it
+                            // while scanning left-to-right. $94:95F5 initializes it to
+                            // zero and increments while scanning right-to-left. Passing
+                            // the traversal offset directly made the physical left/right
+                            // edge tests alternate every NMI beside a square-slope wall.
+                            blocksLeftToCheck: scanLeftToRight
+                                ? horizontalSpan - offset
+                                : offset,
+                            totalColumns: horizontalSpan,
+                            out int clippedDisplacement);
+                        if (squareCollision)
+                        {
+                            acceptedDisplacement = clippedDisplacement;
+                            collided = true;
+                        }
+                        break;
+                    }
+
+                    // $94:86FE selects its floor or ceiling test from bit 0 of
+                    // CollisionMovementDirection, not the distance's sign. The changed-
+                    // pose probe's direction $F therefore tests both ways as a floor.
+                    (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
+                        bus,
+                        state,
+                        block,
+                        blockX,
+                        acceptedDisplacement,
+                        targetCenter,
+                        reactsDownward: blockReactionDirection is { } reactionDirection
+                            ? ((ushort)reactionDirection & 1) != 0
+                            : acceptedDisplacement >= 0);
+                    break;
+
+                case RoomCollisionType.SolidBlock:
+                case RoomCollisionType.ShootableBlock:
+                case RoomCollisionType.GrappleBlock:
+                    acceptedDisplacement = ClipVerticalToSolid(
+                        state,
+                        acceptedDisplacement,
+                        leadingBoundary);
+                    collided = true;
+                    break;
+
+                case RoomCollisionType.DoorBlock:
+                    // `$94:93CE` is the vertical twin of the handler above. Preserve
+                    // its carry result here; the room-level owner publishes the same
+                    // native door pointer for the frontend dispatcher to consume.
+                    CartridgeDoorHeader verticalDoor = level.ResolveDoorCollision(
+                        bus,
+                        block.Behavior,
+                        state.CollisionPose,
+                        publishDoorSideEffects);
+                    if ((verticalDoor.DestinationRoomPointer & 0x8000) == 0)
+                    {
+                        acceptedDisplacement = ClipVerticalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                    }
+                    break;
+
+                case RoomCollisionType.SpikeAir:
+                case RoomCollisionType.SpecialAir:
+                    if (block.CollisionType == RoomCollisionType.SpecialAir)
+                    {
+                        collided = SamusInsideBlockReactions.ReactCollision(state, block, true,
+                            ref acceptedDisplacement, out bool touchedSand, blockReactionDirection, plms);
+                        sandContact |= touchedSand;
+                    }
+                    if (block.CollisionType == RoomCollisionType.SpecialAir &&
+                        block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
+                        (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
+                    {
+                        throw new InvalidOperationException(
+                            $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
+                            $"live=[{string.Join(',', plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                    }
+                    // Scroll wake-up itself remains carry-clear; sand has a separate
+                    // carry/contact contract handled above.
+                    break;
+                case RoomCollisionType.ShootableAir:
+                case RoomCollisionType.UnusedAir:
+                    // These air entries return clear carry without PLM setup.
+                    break;
+                case RoomCollisionType.BombableAir:
+                    ActivateCollisionBombableAir(level, block, state, canBreakBombBlocks, plms);
+                    break;
+
+                case RoomCollisionType.SpikeBlock:
+                    if (state.SamusOwner is { } verticalSamus)
+                    {
+                        SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                            bus,
+                            verticalSamus,
+                            block);
+                    }
+                    acceptedDisplacement = ClipVerticalToSolid(
+                        state,
+                        acceptedDisplacement,
+                        leadingBoundary);
+                    collided = true;
+                    break;
+
+                case RoomCollisionType.SpecialBlock when
+                    block.Bts == RoomBlockBehaviorValues.CollectibleTrigger:
+                    if (plms is null || !plms.TryNotifyCollectibleTouch(block.Index))
+                    {
+                        throw new InvalidOperationException(
+                            $"Collectible block {block.Index} has no active item PLM owner.");
+                    }
+                    break;
+
+                case RoomCollisionType.SpecialBlock:
+                    // Spawn_PLM preserves bank $94's clear carry when all forty slots
+                    // are occupied. No setup runs, so the unchanged special block is
+                    // treated as air for this collision probe.
+                    if (plms?.IsAllocationFull == true)
+                        break;
+                    // Hand reactions change state but return unconditional collision:
+                    // even an admitted morph contact is clipped by this same scan.
+                    if (state.SamusOwner is { } chozoSamus)
+                        plms?.NotifyChozoStatueHandCollision(level, block, chozoSamus,
+                            state.CollisionPose, movingDown: acceptedDisplacement > 0 &&
+                                (blockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
+                    // The vertical special-solid dispatcher shares setup `$84:CDEA`
+                    // with horizontal collision. Accepted boost contact becomes air
+                    // before clipping; rejected/non-speed special blocks remain solid.
+                    if (state.SamusOwner is { } speedBoostingSamus &&
+                        plms is not null &&
+                        plms.TrySpawnSamusSpeedBoosterBlock(
+                            level,
+                            block.Index,
+                            block.Bts,
+                            speedBoostingSamus))
+                    {
+                        break;
+                    }
+                    if (!block.Bts.UsesAreaReactionTable &&
+                        block.Bts.IsNormalReactionIndex(8) &&
+                        acceptedDisplacement > 0 &&
+                        // CE37 checks the native direction nibble, not the sign of
+                        // the tested clearance. Pose probes use F and delete the PLM.
+                        (blockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
+                    {
+                        if (plms is null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Contact crumble block {block.Index} BTS " +
+                                $"${block.Behavior:X2} requires an active room PLM owner.");
+                        }
+
+                        // `$94:9102` always returns carry set for CE37. Setup removes
+                        // the special collision nibble immediately (leaving the block
+                        // type-eight solid), and this downward scan remains clipped.
+                        if (!plms.TrySpawnSamusContactCrumbleBlock(
+                                level,
+                                block.Index,
+                                block.Bts))
+                            break;
+                    }
+                    // Pose expansion carries native direction $F, not a downward
+                    // landing. Keep solidity without waking the save-station owner.
+                    if (blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
+                        block.Bts.TryGetStationAccess(out _) &&
+                        (plms is null ||
+                         !plms.TryNotifyStationCollision(
+                             block.Index,
+                             block.Bts,
+                             state.CollisionPose,
+                             horizontal: false,
+                             movingPositive: acceptedDisplacement > 0,
+                             roomWidthInBlocks: level.WidthInBlocks)))
+                    {
+                        throw new InvalidOperationException(
+                            $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                            "has no active map/resource/save-station PLM owner.");
+                    }
+                    acceptedDisplacement = ClipVerticalToSolid(
+                        state,
+                        acceptedDisplacement,
+                        leadingBoundary);
+                    collided = true;
+                    break;
+
+                case RoomCollisionType.BombableBlock:
+                    // Vertical dispatch is `$94:934C` and shares the exact bank-$84
+                    // setup/carry contract documented in the horizontal branch above.
+                    if (plms?.IsAllocationFull == true)
+                    {
+                        // The full native pool prevents rejection setup from setting
+                        // carry. Bank $94 therefore keeps its pre-call clear carry and
+                        // treats an untouched bomb block as air.
+                        break;
+                    }
+                    if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
+                    {
+                        acceptedDisplacement = ClipVerticalToSolid(
+                            state,
+                            acceptedDisplacement,
+                            leadingBoundary);
+                        collided = true;
+                        break;
+                    }
+                    if (!block.Bts.IsNormalReactionIndex(8))
+                    {
+                        throw new InvalidDataException(
+                            $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                    }
+                    if (plms is null)
+                        ClearCollisionTypeWithoutLifecycle(level, block.Index);
+                    else
+                        plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
+                    break;
+
+                default:
+                    throw new InvalidDataException(
+                        $"Block {block.Index} type ${block.CollisionType:X1} escaped the " +
+                        "complete vertical collision dispatcher.");
+            }
+
+            if (collided)
+                break;
+        }
+        return new VerticalTerrainScan(acceptedDisplacement, collided, sandContact);
+    }
+
+    /// <summary>
+    /// Ports <c>BlockCollisionDetectionDueToChangeOfPose_SingleBlock</c> at <c>$94:96E3</c>:
+    /// the terrain scan alone, with native direction $F, then the probe's position addition.
+    /// Unlike <c>$94:9763</c> it has no zero-distance exit, so a zero probe still tests the
+    /// blocks under the current bottom boundary. It checks no solid enemies.
+    /// </summary>
+    /// <param name="bus">Cartridge address space read by slope and block reactions.</param>
+    /// <param name="level">The room's collision blocks.</param>
+    /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
+    /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
+    /// <param name="scanLeftToRight">Scan order chosen by the NMI frame counter's parity.</param>
+    /// <param name="plms">The room's PLM owner for special and bombable blocks.</param>
+    public static BlockMoveResult ProbeChangedPoseVertical(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusKinematicsState state,
+        int displacement,
+        bool scanLeftToRight,
+        RoomPlmSystem? plms)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(state);
+        VerticalTerrainScan scan = ScanVerticalTerrain(bus, level, state, displacement, scanLeftToRight,
+            canBreakBombBlocks: false, plms, publishDoorSideEffects: true, SamusCollisionDirection.NonDirectionalProbe);
+        state.SetYFixed(unchecked(state.YFixed + (uint)scan.AcceptedDisplacement));
+        return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
 
     /// <summary>

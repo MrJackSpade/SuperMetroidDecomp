@@ -27,6 +27,18 @@ public sealed class RoomPaletteFxSystem
     private ushort samusInHeatPaletteIndex;
     private ushort previousSamusInHeatPaletteIndex;
 
+    /// <summary>
+    /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
+    /// data loading sets it; the escape timer's expiry (<c>$90:E106</c>) clears it.
+    /// </summary>
+    public bool HandlerEnabled { get; private set; } = true;
+
+    /// <summary><c>Enable_PaletteFXObjects</c> ($8D:C4C2).</summary>
+    public void EnableHandler() => HandlerEnabled = true;
+
+    /// <summary><c>Disable_PaletteFXObjects</c> ($8D:C4CD).</summary>
+    public void DisableHandler() => HandlerEnabled = false;
+
     /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
     public IReadOnlyList<PaletteFxSoundRequest> SoundRequests => soundRequests;
 

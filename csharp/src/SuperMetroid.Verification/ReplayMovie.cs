@@ -5,23 +5,30 @@ using System.Text;
 using SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// A power-on recording a converted replay was produced from: its exact bytes, the
-/// cartridge SRAM it starts with, and the controller word of every source frame.
+/// A recording a converted replay was produced from: its exact bytes, the cartridge SRAM it
+/// starts with, the controller word of every source frame and, for a snapshot-start movie,
+/// the emulator snapshot it begins from.
 /// </summary>
 internal sealed class ReplayMovie
 {
-    private ReplayMovie(string name, byte[] bytes, byte[] powerOnSaveRam, ushort[] frameInputs)
+    private ReplayMovie(string name, byte[] bytes, byte[] initialSaveRam, ushort[] frameInputs, ReplaySnapshot? snapshot)
     {
         Name = name;
         Bytes = bytes;
-        PowerOnSaveRam = powerOnSaveRam;
+        InitialSaveRam = initialSaveRam;
         FrameInputs = frameInputs;
+        Snapshot = snapshot;
     }
 
     /// <summary>Short label used in replay messages.</summary>
     public string Name { get; }
     public byte[] Bytes { get; }
-    public byte[] PowerOnSaveRam { get; }
+
+    /// <summary>The 8 KiB cartridge SRAM the recording starts with.</summary>
+    public byte[] InitialSaveRam { get; }
+
+    /// <summary>The emulator snapshot a snapshot-start movie begins from; null for a power-on movie.</summary>
+    public ReplaySnapshot? Snapshot { get; }
 
     /// <summary>
     /// The controller word of every source frame plus the trailing word the game reads
@@ -51,30 +58,40 @@ internal sealed class ReplayMovie
         var inputs = new ushort[frames + 1];
         for (int frame = 0; frame <= frames; frame++)
             inputs[frame] = BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(offset + 2 * frame));
-        return new ReplayMovie(name, movie, ReadSmvResetSaveRam(movie), inputs);
-    }
-
-    /// <summary>
-    /// Extracts the 8 KiB cartridge SRAM that a reset-start Snes9x v4/v5 movie embeds in
-    /// place of a snapshot. Snapshot-start movies are rejected: they need state import.
-    /// </summary>
-    private static byte[] ReadSmvResetSaveRam(byte[] movie)
-    {
-        const int MovieOptionsOffset = 0x15, StateOffsetField = 0x18, ControllerOffsetField = 0x1c;
+        const int MovieOptionsOffset = 0x15, StateOffsetField = 0x18;
         const byte StartFromReset = 0x01;
         uint version = BinaryPrimitives.ReadUInt32LittleEndian(movie.AsSpan(4));
         if (version is not (4 or 5))
-            throw new InvalidDataException($"SMV version {version} SRAM layout is not supported.");
-        if ((movie[MovieOptionsOffset] & StartFromReset) == 0)
-            throw new InvalidDataException("Movie starts from a snapshot, not from power-on reset.");
-        int start = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(StateOffsetField));
-        int end = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(ControllerOffsetField));
+            throw new InvalidDataException($"SMV version {version} start-state layout is not supported.");
+        byte[] start = ReadSmvStartState(movie,
+            BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(StateOffsetField)), offset);
+        if ((movie[MovieOptionsOffset] & StartFromReset) != 0)
+            return new ReplayMovie(name, movie, CartridgeSaveRam(start, "Embedded reset-start SRAM"), inputs, snapshot: null);
+        var snapshot = ReplaySnapshot.Parse(start);
+        return new ReplayMovie(name, movie, CartridgeSaveRam(snapshot.SaveRam, "Snapshot SRA block"), inputs, snapshot);
+    }
+
+    /// <summary>
+    /// Reads the start state a Snes9x v4/v5 movie embeds before its controller data: the
+    /// reset-start SRAM or the snapshot. Snes9x opens it with zlib's <c>gzdopen</c>, whose
+    /// reads decompress a gzip member and pass any other bytes through unchanged, so an
+    /// uncompressed start state is equally valid. Snes9x appends bytes after a gzip member.
+    /// </summary>
+    private static byte[] ReadSmvStartState(byte[] movie, int start, int end)
+    {
+        if (movie[start] != 0x1f || movie[start + 1] != 0x8b)
+            return movie.AsSpan(start, end - start).ToArray();
         using var gzip = new GZipStream(new MemoryStream(movie, start, end - start), CompressionMode.Decompress);
-        using var sram = new MemoryStream();
-        gzip.CopyTo(sram);
-        if (sram.Length < SuperMetroidAddressSpace.SaveRamByteCount)
-            throw new InvalidDataException("Embedded movie SRAM is shorter than the cartridge's 8 KiB.");
-        return sram.GetBuffer().AsSpan(0, SuperMetroidAddressSpace.SaveRamByteCount).ToArray();
+        using var state = new MemoryStream();
+        gzip.CopyTo(state);
+        return state.ToArray();
+    }
+
+    private static byte[] CartridgeSaveRam(byte[] image, string source)
+    {
+        if (image.Length < SuperMetroidAddressSpace.SaveRamByteCount)
+            throw new InvalidDataException($"{source} is shorter than the cartridge's 8 KiB.");
+        return image.AsSpan(0, SuperMetroidAddressSpace.SaveRamByteCount).ToArray();
     }
 
     /// <summary>
@@ -125,6 +142,6 @@ internal sealed class ReplayMovie
             throw new InvalidDataException("lsnes movie has no source frames.");
         byte[] saveRam = new byte[SuperMetroidAddressSpace.SaveRamByteCount];
         Array.Fill(saveRam, (byte)0xff);
-        return new ReplayMovie(name, movie, saveRam, inputs.ToArray());
+        return new ReplayMovie(name, movie, saveRam, inputs.ToArray(), snapshot: null);
     }
 }

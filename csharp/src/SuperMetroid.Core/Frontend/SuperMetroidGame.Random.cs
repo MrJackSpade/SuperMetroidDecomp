@@ -28,8 +28,10 @@ public sealed partial class SuperMetroidGame
     {
         SuperMetroidGameState.FileSelectMenus => fileSelect?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData => ResumesGameLoadingWait,
-        SuperMetroidGameState.CeresGoesBoom => ceresDestruction?.ResumesAfterNmiWait == true,
+        SuperMetroidGameState.CeresGoesBoom or SuperMetroidGameState.CeresGoesBoomWithSamus =>
+            ceresDestruction?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.EndingAndCredits => endingCredits?.ResumesAfterNmiWait == true,
+        SuperMetroidGameState.GameOverMenu => gameOver?.ResumesAfterNmiWait == true,
         _ => false,
     };
 
@@ -53,6 +55,8 @@ public sealed partial class SuperMetroidGame
                 runtime?.System.SetRandomNumber(menuRandom.RandomNumber);
                 break;
             case SuperMetroidGameState.Pausing:
+            // $24 fades without a gameplay call; its HDMA objects still run until it clears them.
+            case SuperMetroidGameState.WhitingOutFromTimeUp:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
                 runtime!.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 break;
@@ -61,9 +65,12 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.LoadingGameData:
             // $82:8B0E shares the intro's state-$1E/$22/$25 handler and its prologue call.
             case SuperMetroidGameState.CeresGoesBoom:
+            case SuperMetroidGameState.CeresGoesBoomWithSamus:
             // State $27 is dispatched by MainGameLoop after its RNG call, except while the
             // ending setup resumes inside its own NMI waits.
             case SuperMetroidGameState.EndingAndCredits:
+            // Game-over indexes zero and one resume inside their own NMI waits.
+            case SuperMetroidGameState.GameOverMenu:
                 if (!NextUpdateResumesNmiWait)
                     FrontendRandomOwner.NextRandom();
                 break;
@@ -71,7 +78,8 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.GameOptionsMenu:
             case SuperMetroidGameState.FileSelectMap:
             case SuperMetroidGameState.IntroCinematic:
-            case SuperMetroidGameState.GameOverMenu:
+            // State $19 only fades; MainGameLoop's RNG call precedes it as any dispatch.
+            case SuperMetroidGameState.DeathFinalBlackOut:
             // $82:894F runs once before each pause-only dispatcher as well.
             // Fade states $0C/$12 run StepFrame and retain its own RNG call.
             case SuperMetroidGameState.PausedA:

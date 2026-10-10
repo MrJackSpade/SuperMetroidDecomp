@@ -12,6 +12,10 @@ internal static partial class Program
     private const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
     private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
     private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
+    private const string DrunkPlaythroughMoviePath = "csharp/test-fixtures/issue-1275-movies/Samus drunk.smv";
+    private const string DrunkPlaythroughMovieSha256 = "6822B5D0F2D5CD81F7DB3E48E05E8EFE7F0EC2395669E0DDF80B7F5E8FC4DF17";
+    private const string MotherBrainGlitchMoviePath = "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv";
+    private const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
 
     private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
@@ -24,12 +28,25 @@ internal static partial class Program
             ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
+    /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
+    private static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        VerifyPlaythroughMovie(
+            ReplayMovie.Load("Samus drunk", DrunkPlaythroughMoviePath, DrunkPlaythroughMovieSha256),
+            traceDirectory, traceFromUpdate);
+
+    /// <summary>The #1275 Mother Brain glitch movie, which starts from a snapshot paused in her room.</summary>
+    private static void VerifyMotherBrainGlitchMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        VerifyPlaythroughMovie(
+            ReplayMovie.Load("Mother Brain glitch", MotherBrainGlitchMoviePath, MotherBrainGlitchMovieSha256),
+            traceDirectory, traceFromUpdate);
+
     /// <summary>
-    /// Replays a supplied power-on movie through production frontend and gameplay
-    /// code. The only imported state is the movie's own power-on SRAM; every later update
-    /// receives only its converted controller word, and native WRAM is read-only evidence.
+    /// Replays a supplied movie through production frontend and gameplay code. The only
+    /// imported state is the movie's start: its power-on SRAM, or for a snapshot-start movie
+    /// its snapshot. Every later update receives only its converted controller word, and
+    /// native WRAM is read-only evidence.
     /// </summary>
-    /// <param name="movie">The recorded movie whose power-on SRAM and controller timeline are replayed.</param>
+    /// <param name="movie">The recorded movie whose starting state and controller timeline are replayed.</param>
     /// <param name="traceDirectory">Directory containing the native input-consumption timeline and read-only WRAM checkpoints for the supplied movie.</param>
     /// <param name="traceFromUpdate">
     /// Diagnostic only: from this update on, print port and native Samus kinematics so a
@@ -38,14 +55,39 @@ internal static partial class Program
     private static void VerifyPlaythroughMovie(ReplayMovie movie, string traceDirectory, int? traceFromUpdate)
     {
         using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
+        int uncheckpointedUpdates = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate, checkpoints.Updates.Count).UncheckpointedUpdates;
+        checkpoints.AssertExhausted();
+        Console.WriteLine($"{movie.Name} movie replay: {checkpoints.Updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match" +
+            (uncheckpointedUpdates == 0 ? "." : $"; {uncheckpointedUpdates} boot-entering dispatches have no native checkpoint of their own."));
+    }
+
+    /// <summary>
+    /// Runs the converted updates 1 through <paramref name="lastUpdate"/>, comparing each with
+    /// its native checkpoint and failing at the first divergence.
+    /// </summary>
+    /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
+    private static (SuperMetroidGame Game, byte[] Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
+        ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate)
+    {
         var updates = checkpoints.Updates;
 
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        movie.PowerOnSaveRam.CopyTo(bus.SaveRam);
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        byte[] memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
+            "The converted replay has no native checkpoint before its first update.");
+        SuperMetroidGame game;
+        if (movie.Snapshot is not null)
+        {
+            // The first input boundary completes the snapshot's frame. Its WRAM is the movie's
+            // one initial-state import, alongside the snapshot's own cartridge SRAM.
+            game = ImportNativeSnapshot(memory, movie.InitialSaveRam).Game;
+        }
+        else
+        {
+            var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            movie.InitialSaveRam.CopyTo(bus.SaveRam);
+            game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        }
         var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
 
-        byte[] memory = checkpoints.ReadAfter(0);
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
         ushort[] frameInputs = movie.FrameInputs;
@@ -54,10 +96,10 @@ internal static partial class Program
         game.DoorMusicUploadNmis = uploadNmis;
         var loaderProgress = new EvidencedDoorLoaderProgress();
         game.DoorLoaderProgress = loaderProgress;
-        var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
+        EvidencedSoundAcknowledgements? soundAcknowledgements = new(memory);
         CartridgeAudioAcknowledgements spcAcknowledgements = audio.ReadAcknowledgements();
-        int excludedBefore = 0;
-        for (int update = 1; update <= updates.Count; update++)
+        int excludedBefore = 0, uncheckpointedUpdates = 0;
+        for (int update = 1; update <= lastUpdate; update++)
         {
             ConvertedMovieUpdate step = updates[update - 1];
             // Upload-wait NMIs that follow this update's input are accepted inside its dispatch.
@@ -72,8 +114,12 @@ internal static partial class Program
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
                 game.AcceptDoorMusicWaitControllerRead(latched);
-            memory = checkpoints.ReadAfter(update);
-            game.SetAudioAcknowledgements(soundAcknowledgements.ForUpdate(spcAcknowledgements, memory));
+            byte[]? nativeAfter = checkpoints.ReadAfter(update);
+            // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
+            // the clear erases the sound handler's waiting states before the next one. Both
+            // updates therefore read the port's SPC model, as a message box's frames do.
+            game.SetAudioAcknowledgements(nativeAfter is not null && soundAcknowledgements is not null
+                ? soundAcknowledgements.ForUpdate(spcAcknowledgements, nativeAfter) : spcAcknowledgements);
             // A confirmation box can continue from the previous dispatch into this
             // NMI continuation; its MessageBox_Routine entry belongs to that dispatch.
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
@@ -138,12 +184,20 @@ internal static partial class Program
                 throw new InvalidDataException(
                     $"Native dispatch {update} returned from a message box at source frame {nativeBoxReturn}; the port had none open.");
             }
+            recentInputs.Enqueue($"{update}@{step.SourceFrame}:{step.Input:X4}/{step.Kind}");
+            if (recentInputs.Count > 12) recentInputs.Dequeue();
+            if (nativeAfter is null)
+            {
+                soundAcknowledgements = null;
+                uncheckpointedUpdates++;
+                continue;
+            }
+            memory = nativeAfter;
+            soundAcknowledgements ??= new EvidencedSoundAcknowledgements(memory);
             soundAcknowledgements.Capture(memory);
 
             if (update >= traceFromUpdate)
                 TraceMovieSamus(game, memory, update, step);
-            recentInputs.Enqueue($"{update}@{step.SourceFrame}:{step.Input:X4}/{step.Kind}");
-            if (recentInputs.Count > 12) recentInputs.Dequeue();
             List<string> mismatches = CompareMovieDesyncState(game, memory);
             if (mismatches.Count != 0)
             {
@@ -156,8 +210,9 @@ internal static partial class Program
             if (update % 10000 == 0)
                 Console.WriteLine($"Update {update}/{updates.Count} (source frame {step.SourceFrame}) matches; state {(ushort)game.GameState:X2}.");
         }
-        checkpoints.AssertExhausted();
-        Console.WriteLine($"{movie.Name} movie replay: {updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match.");
+        if (lastUpdate != 0 && updates[lastUpdate - 1].ExpectedRecord is null)
+            throw new InvalidOperationException($"Update {lastUpdate} has no native checkpoint to stop at.");
+        return (game, memory, uncheckpointedUpdates);
     }
 
     private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
@@ -166,6 +221,8 @@ internal static partial class Program
         string Native(int address) => Word(memory, address).ToString("X4");
         Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
+        if (PrivateState.Field<IntroCinematicState?>(game, "intro") is { } intro)
+            Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4}");
@@ -174,6 +231,9 @@ internal static partial class Program
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
+        if (game.RuntimeForVerification?.EscapeTimer is { } escape)
+            Console.WriteLine($"  escape port={escape.RawStatus:X4} {escape.MinutesBcd:X2}:{escape.SecondsBcd:X2}.{escape.CentisecondsBcd:X2} " +
+                $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
         Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LastAerialSamusMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {

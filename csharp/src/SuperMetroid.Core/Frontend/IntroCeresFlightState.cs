@@ -39,15 +39,19 @@ internal sealed class IntroCeresFlightState
     private int spaceColonyLetterIndex;
     private int spaceColonyTimer;
     private bool spaceColonyHoldStarted;
+    private bool spaceColonyJapaneseCaptionDrawn;
+    private readonly bool japaneseText;
     private int fadeDelay;
 
     /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
+    /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
     public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
-        CeresFlightArtworkCatalog? artwork = null)
+        CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.japaneseText = japaneseText;
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
@@ -349,6 +353,7 @@ internal sealed class IntroCeresFlightState
         Array.Clear(spaceColonyTilemap);
         spaceColonyLetterIndex = 0;
         spaceColonyHoldStarted = false;
+        spaceColonyJapaneseCaptionDrawn = false;
         WriteNextSpaceColonyLetter();
         spaceColonyTimer = 0x10;
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
@@ -366,8 +371,18 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // The final instruction in the English list holds the completed caption for $80
-        // frames before `$8B:C0A2` installs the ordinary fade owner.
+        // $8B:C096 skips the Japanese caption record for English text. Japanese text draws
+        // it on a one-frame record before the hold.
+        if (japaneseText && !spaceColonyJapaneseCaptionDrawn)
+        {
+            spaceColonyJapaneseCaptionDrawn = true;
+            WriteSpaceColonyJapaneseCaption();
+            spaceColonyTimer = 1;
+            return;
+        }
+
+        // The list's final record holds the completed caption for $80 frames before
+        // `$8B:C0A2` installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
@@ -384,6 +399,16 @@ internal sealed class IntroCeresFlightState
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 0x18;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
+        vram.ExecuteWordTransfer(spaceColonyTilemap,
+            CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
+    }
+
+    private void WriteSpaceColonyJapaneseCaption()
+    {
+        ReadOnlySpan<ushort> tiles = SpaceColonyCaptionDefinitions.JapaneseTiles;
+        for (int index = 0; index < tiles.Length; index++)
+            spaceColonyTilemap[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * 32 +
+                SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = tiles[index];
         vram.ExecuteWordTransfer(spaceColonyTilemap,
             CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
     }

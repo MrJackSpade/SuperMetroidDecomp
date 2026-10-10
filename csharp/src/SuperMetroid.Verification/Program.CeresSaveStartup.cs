@@ -39,7 +39,7 @@ internal static partial class Program
         game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
         var options = new GameOptionsMenuState(bus, mapPresentation: maps);
         typeof(GameOptionsMenuState).GetProperty(nameof(options.Phase))!
-            .SetValue(options, GameOptionsPhase.FadeOutToIntro);
+            .SetValue(options, GameOptionsPhase.StartGame);
         SetField(game, "options", options);
         SetField(game, "loadingExistingSave", true);
         SetState(game, SuperMetroidGameState.GameOptionsMenu);
@@ -66,7 +66,9 @@ internal static partial class Program
             .SetValue(resumedScene, CeresDestructionPhase.Finished);
         game.Step(0);
         game.Step(0);
-        for (int wait = 0; wait < 15; wait++) game.Step(0);
+        // Loading spans its native NMI waits; the property here is reaching the fade.
+        for (int wait = 0; wait < 256 && game.GameState != SuperMetroidGameState.MainGameplayFadeIn; wait++)
+            game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
             "#1153 normal mode-$22 load reaches the first Landing Site fade");
         game.Step(0);
@@ -97,7 +99,7 @@ internal static partial class Program
         reload.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
         var reloadOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
         typeof(GameOptionsMenuState).GetProperty(nameof(reloadOptions.Phase))!
-            .SetValue(reloadOptions, GameOptionsPhase.FadeOutToIntro);
+            .SetValue(reloadOptions, GameOptionsPhase.StartGame);
         SetField(reload, "options", reloadOptions);
         SetField(reload, "loadingExistingSave", true);
         SetState(reload, SuperMetroidGameState.GameOptionsMenu);
@@ -114,6 +116,51 @@ internal static partial class Program
             "#1153 initial reload leaves station activation inactive");
         AssertTrue(loaded.CeresElevatorArrival is not null,
             "#1153 initial reload uses the arrival, not ordinary save appearance");
+
+        // #1275: the game-over menu runs no gameplay owner, so its updates keep counting
+        // accepted NMIs in the frontend, and Yes on a $1F save reloads Ceres directly
+        // ($81:9171) instead of fading into the area map.
+        var gameOverProbe = new SuperMetroidGame(reloadBus);
+        bind(gameOverProbe, true);
+        gameOverProbe.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
+        gameOverProbe.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
+        var probeOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
+        typeof(GameOptionsMenuState).GetProperty(nameof(probeOptions.Phase))!
+            .SetValue(probeOptions, GameOptionsPhase.StartGame);
+        SetField(gameOverProbe, "options", probeOptions);
+        SetField(gameOverProbe, "loadingExistingSave", true);
+        SetState(gameOverProbe, SuperMetroidGameState.GameOptionsMenu);
+        gameOverProbe.Step(0);
+        for (int wait = 0; wait < 256 && gameOverProbe.GameState == SuperMetroidGameState.SetUpNewGame; wait++)
+            gameOverProbe.Step(0);
+        ushort nmiBeforeDeath = gameOverProbe.RuntimeForVerification!.NmiFrameCounter;
+        // Layer-one fractions $090F/$0913 are written only by camera movement, so they
+        // survive game over into the reloaded room.
+        var deathCamera = gameOverProbe.RuntimeForVerification.Camera!;
+        PrivateState.SetProperty(deathCamera, nameof(deathCamera.XSubposition), (ushort)0xbfff);
+        PrivateState.SetProperty(deathCamera, nameof(deathCamera.YSubposition), (ushort)0x9c00);
+        SetField(gameOverProbe, "deathFadeBrightness", (byte)1);
+        SetField(gameOverProbe, "deathFadeCounter", 0);
+        SetState(gameOverProbe, SuperMetroidGameState.DeathFinalBlackOut);
+        gameOverProbe.Step(0);
+        AssertEqual(SuperMetroidGameState.GameOverMenu, gameOverProbe.GameState, "#1275 state $19 reaches the game-over menu");
+        AssertTrue(gameOverProbe.RuntimeForVerification is null, "#1275 game over releases the gameplay owners");
+        for (int update = 0; update < 3; update++)
+            gameOverProbe.Step(0);
+        AssertEqual(unchecked((ushort)(nmiBeforeDeath + 4)),
+            PrivateState.Field<ushort>(gameOverProbe, "menuNmiFrameCounter"),
+            "#1275 accepted NMIs keep counting through the game-over menu");
+        var probeMenu = PrivateState.Field<GameOverMenuState>(gameOverProbe, "gameOver");
+        PrivateState.SetProperty(probeMenu, nameof(GameOverMenuState.Phase), GameOverMenuPhase.Main);
+        PrivateState.SetProperty(probeMenu, nameof(GameOverMenuState.ResumesAfterNmiWait), false);
+        gameOverProbe.Step(0);
+        gameOverProbe.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+        AssertEqual(SuperMetroidGameState.SetUpNewGame, gameOverProbe.GameState,
+            "#1275 Yes on a $1F save dispatches the Ceres loader directly");
+        gameOverProbe.Step(0);
+        var reloadedCamera = gameOverProbe.RuntimeForVerification!.Camera!;
+        AssertEqual((ushort)0xbfff, reloadedCamera.XSubposition, "#1275 layer-one X fraction survives the game-over reload");
+        AssertEqual((ushort)0x9c00, reloadedCamera.YSubposition, "#1275 layer-one Y fraction survives the game-over reload");
 
         // Exercise the same atomic saver used at the escape blackout. A boss flag
         // must be captured alongside $22, not erased to manufacture a fresh station.
@@ -147,7 +194,7 @@ internal static partial class Program
         unmodified.BindMapPresentation(maps);
         var oldOptions = new GameOptionsMenuState(bus, mapPresentation: maps);
         typeof(GameOptionsMenuState).GetProperty(nameof(oldOptions.Phase))!
-            .SetValue(oldOptions, GameOptionsPhase.FadeOutToIntro);
+            .SetValue(oldOptions, GameOptionsPhase.StartGame);
         SetField(unmodified, "options", oldOptions);
         SetField(unmodified, "loadingExistingSave", true);
         SetState(unmodified, SuperMetroidGameState.GameOptionsMenu);

@@ -39,16 +39,19 @@ internal sealed class IntroCinematicObjectSystem
     private bool typewriterSoundToggle;
     // Nullable for older debugger snapshots that predate text-glow state.
     private CinematicTextGlowSystem? textGlow;
+    private readonly IntroJapaneseSubtitles subtitles;
 
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
         SnesVram vram,
         ushort[] textTilemap,
+        IntroJapaneseSubtitles subtitles,
         CartridgeAudioState? audio = null,
         IntroNarrationPresentation? narrationPresentation = null,
         IntroEyeTilemapPresentation? eyeArtwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.subtitles = subtitles ?? throw new ArgumentNullException(nameof(subtitles));
         this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
         this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
         this.audio = audio;
@@ -180,7 +183,8 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
-    public void Step()
+    /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
+    public void Step(ushort newlyPressed)
     {
         if (narrationPage is not null && narrationProgram is null)
         {
@@ -188,6 +192,7 @@ internal sealed class IntroCinematicObjectSystem
                 "Opening narration host content must be rebound after state restoration.");
         }
         StepSpriteObject();
+        subtitles.Step(newlyPressed, MarkAwaitingInput);
         StepBgObject(ref eyeInstructionPointer, ref eyeInstructionTimer);
         if (narrationProgram is not null)
             StepInstalledNarration();
@@ -238,6 +243,9 @@ internal sealed class IntroCinematicObjectSystem
             return;
         if (narrationInitialMarkerPending)
         {
+            // Each page list opens with Instruction_HandleCreatingSubtitle_PageN.
+            subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
+                "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
             textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
             return;
@@ -296,33 +304,29 @@ internal sealed class IntroCinematicObjectSystem
 
     private void FinishInstalledNarration(IntroNarrationPageId page)
     {
+        if (page == IntroNarrationPageId.Page6)
+        {
+            IntroFinishRequested = true;
+            return;
+        }
+        // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN ($8B:AE5B and siblings) first
+        // sets the caret blinking. Japanese pages two to five then wait for the press that
+        // shows their second subtitle, whose object selects the page's input wait.
+        SetCaretBlinking();
+        if (subtitles.FinishPage(page))
+            MarkAwaitingInput(page);
+    }
+
+    private void MarkAwaitingInput(IntroNarrationPageId page)
+    {
         switch (page)
         {
-            case IntroNarrationPageId.Page1:
-                PageOneAwaitingInput = true;
-                SetCaretBlinking();
-                break;
-            case IntroNarrationPageId.Page2:
-                PageTwoAwaitingInput = true;
-                SetCaretBlinking();
-                break;
-            case IntroNarrationPageId.Page3:
-                PageThreeAwaitingInput = true;
-                SetCaretBlinking();
-                break;
-            case IntroNarrationPageId.Page4:
-                PageFourAwaitingInput = true;
-                SetCaretBlinking();
-                break;
-            case IntroNarrationPageId.Page5:
-                PageFiveAwaitingInput = true;
-                SetCaretBlinking();
-                break;
-            case IntroNarrationPageId.Page6:
-                IntroFinishRequested = true;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(page), page, null);
+            case IntroNarrationPageId.Page1: PageOneAwaitingInput = true; break;
+            case IntroNarrationPageId.Page2: PageTwoAwaitingInput = true; break;
+            case IntroNarrationPageId.Page3: PageThreeAwaitingInput = true; break;
+            case IntroNarrationPageId.Page4: PageFourAwaitingInput = true; break;
+            case IntroNarrationPageId.Page5: PageFiveAwaitingInput = true; break;
+            default: throw new ArgumentOutOfRangeException(nameof(page), page, null);
         }
     }
 

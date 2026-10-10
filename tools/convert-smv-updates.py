@@ -70,10 +70,10 @@ def boot_prelude_length(updates):
 def normalize_upload_intervals(updates, initial_input, prelude=0):
     """Collapse the boot prelude and proven post-scroll upload waits, retaining their input audit trail."""
     normalized, excluded = [], []
-    for record, original in enumerate(updates):
+    for index, original in enumerate(updates):
         update = dict(original)
         evidence = update["timingEvidence"]
-        if record < prelude:
+        if index < prelude:
             continue
         if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
             if update["messageBoxStartFrame"] is not None or update["messageBoxEndFrame"] is not None:
@@ -95,17 +95,17 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
             # controller and replaces the held/new latch. The replay therefore keeps
             # the last such read (`hardwareWaitLatch`) without dispatching an update.
             excluded.append({"sourceFrame": update["sourceFrame"], "input": update["input"],
-                             "pressed": update["pressed"], "record": record})
+                             "pressed": update["pressed"], "record": update["inputRecord"], "update": index})
             continue
         if evidence["apuUploadActiveAtInput"]:
             raise ValueError("APU upload overlaps another owner; automatic normalization is unsupported")
-        update["inputRecord"] = record
         update["excludedNmiBefore"] = len(excluded)
-        waited = excluded and excluded[-1]["record"] == record - 1
+        waited = excluded and excluded[-1]["update"] == index - 1
         update["hardwareWaitLatch"] = excluded[-1]["input"] if waited else None
         normalized.append(update)
-    if not normalized or normalized[-1]["inputRecord"] != len(updates) - 1:
+    if not normalized or normalized[-1]["update"] != len(updates):
         raise ValueError("Movie ends during hardware upload; completed gameplay boundary is unavailable")
+    terminal_record = updates[-1]["expectedRecord"]
     # A power-on port starts with an empty controller latch, as the cleared native
     # bank $7E did; any held prelude input must therefore not hide a new press.
     previous = 0 if prelude else initial_input
@@ -117,10 +117,114 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
         previous = update["input"]
         following = normalized[index + 1] if index + 1 < len(normalized) else None
         update["update"] = index + 1
-        update["expectedRecord"] = following["inputRecord"] if following else len(updates)
+        update["expectedRecord"] = following["inputRecord"] if following else terminal_record
         update["endSourceFrame"] = following["sourceFrame"] if following else update["endSourceFrame"]
         update["excludedNmiAfter"] = following["excludedNmiBefore"] if following else len(excluded)
     return normalized, excluded
+
+
+# Native addresses are capture-format identities, not guessed timing rules.
+READ_ENTER, READ_COMPLETE = 0x809459, 0x809496
+MAIN_BEGIN, MAIN_END, NMI_WAIT = 0x828948, 0x82897A, 0x808338
+# MessageBox_Routine entry. Its frame, relative to the dispatch's input read, is how
+# many lag frames the dispatch spent before the box's own controller polling began.
+MESSAGE_BOX = 0x858080
+# MessageBox_Routine's common return. The box's own controller reads start new
+# updates, so it can close in a later update than it opened; the dispatch may then
+# run on (a save writes SRAM), and those frames are the dispatch's, not the box's.
+MESSAGE_BOX_RETURN = 0x8580BA
+
+
+def collect_input_updates(events, inputs, frames, from_reset):
+    """Group the native event stream into port updates, validating every input edge.
+
+    An update normally begins at an accepted NMI's controller read and owns the checkpoint
+    record captured there (`inputRecord`). A main-loop dispatch entered straight out of
+    CommonBootSection, without an intervening read, starts its own update (`bootCleared`)
+    with the cleared latch and no checkpoint of its own.
+    """
+    read_enter, read_complete = READ_ENTER, READ_COMPLETE
+    main_begin, main_end, wait = MAIN_BEGIN, MAIN_END, NMI_WAIT
+    message_box, message_box_return = MESSAGE_BOX, MESSAGE_BOX_RETURN
+    known = {read_enter, read_complete, main_begin, main_end, wait, message_box, message_box_return}
+    updates = []
+    current = None
+    box_open = False
+    previous_input = inputs[0]
+    previous_frame = 0
+    booted = False
+    reads = 0
+    for ordinal, event in enumerate(events):
+        frame = int(event["source_frame"])
+        pc = int(event["pc"], 16)
+        if int(event["event"]) != ordinal or not previous_frame <= frame <= frames or pc not in known:
+            raise ValueError(f"Invalid native event {ordinal}")
+        previous_frame = frame
+        if pc == read_enter:
+            if current is not None:
+                if "input" not in current:
+                    raise ValueError("Controller read did not complete")
+                updates.append(current)
+            current = {"sourceFrame": frame, "mainLoopDispatches": 0, "inputRecord": reads,
+                       "bootCleared": False, "messageBoxStartFrame": None, "messageBoxEndFrame": None}
+            reads += 1
+        elif pc == read_complete:
+            if current is None or "input" in current or current["sourceFrame"] != frame:
+                raise ValueError("Ambiguous native controller-read boundary")
+            held, pressed = int(event["held"], 16), int(event["pressed"], 16)
+            if held != inputs[frame] or pressed != held & ~previous_input:
+                raise ValueError(f"Input/edge mismatch at SMV frame {frame}; cannot collapse this trace to controller masks")
+            current.update(input=held, pressed=pressed)
+            previous_input = held
+        elif pc == main_begin:
+            if current is None or "input" not in current:
+                raise ValueError("Main dispatch precedes its input event")
+            # CommonBootSection ($80:8482) clears all of bank $7E, including the NMI
+            # counter, game state and held/new/previous controller words, before entering
+            # MainGameLoop. Power-on runs it after the logo; quitting from game over and
+            # the soft reset run it again mid-movie. Such a dispatch, recognizable by its
+            # zero state and NMI counter, consumes an empty latch, whatever the last NMI
+            # read, and the next read's edge starts from zero.
+            boot_cleared = int(event["state"], 16) == 0 and int(event["nmi"], 16) == 0
+            if from_reset and not booted and not boot_cleared:
+                raise ValueError(f"First main-loop dispatch at SMV frame {frame} follows no CommonBootSection clear")
+            if boot_cleared:
+                if int(event["held"], 16) or int(event["pressed"], 16):
+                    raise ValueError(f"Main-loop dispatch at SMV frame {frame} did not see the boot-cleared controller latch")
+                if current["mainLoopDispatches"]:
+                    # The previous dispatch (quitting game over, a soft reset) jumped into
+                    # the boot without waiting for NMI: a second dispatch under one read.
+                    if box_open:
+                        raise ValueError(f"Boot clear at SMV frame {frame} interrupts a message box")
+                    updates.append(current)
+                    current = {"sourceFrame": frame, "mainLoopDispatches": 0, "inputRecord": None,
+                               "bootCleared": True, "messageBoxStartFrame": None, "messageBoxEndFrame": None}
+                current.update(input=0, pressed=0)
+                previous_input = 0
+            booted = True
+            current["mainLoopDispatches"] += 1
+        elif pc == message_box:
+            if current is None or "input" not in current or not current["mainLoopDispatches"]:
+                raise ValueError(f"Message box at SMV frame {frame} precedes its dispatch")
+            if current["messageBoxStartFrame"] is not None or box_open:
+                raise ValueError(f"Two message boxes in the dispatch at SMV frame {current['sourceFrame']}")
+            current["messageBoxStartFrame"] = frame
+            box_open = True
+        elif pc == message_box_return:
+            if current is None or not box_open:
+                raise ValueError(f"Message box return at SMV frame {frame} has no open box")
+            if current["messageBoxEndFrame"] is not None:
+                raise ValueError(f"Two message box returns in the update at SMV frame {current['sourceFrame']}")
+            current["messageBoxEndFrame"] = frame
+            box_open = False
+    if current is None or "input" not in current:
+        raise ValueError("No completed terminal input step")
+    if box_open:
+        raise ValueError("The movie ends inside a message box")
+    updates.append(current)
+    if updates[-1]["sourceFrame"] != frames:
+        raise ValueError("Native trace does not cover the original movie's final input")
+    return updates, reads
 
 
 def run():
@@ -179,76 +283,18 @@ def run():
     boundaries_path = args.trace_directory / "update-boundaries.wram.gz"
     if args.output.resolve() in (args.movie.resolve(), args.rom.resolve(), events_path.resolve(), boundaries_path.resolve()):
         raise ValueError("The output must not overwrite an input")
-    # Native addresses are capture-format identities, not guessed timing rules.
-    read_enter, read_complete = 0x809459, 0x809496
-    main_begin, main_end, wait = 0x828948, 0x82897A, 0x808338
-    # MessageBox_Routine entry. Its frame, relative to the dispatch's input read, is how
-    # many lag frames the dispatch spent before the box's own controller polling began.
-    message_box = 0x858080
-    # MessageBox_Routine's common return. The box's own controller reads start new
-    # updates, so it can close in a later update than it opened; the dispatch may then
-    # run on (a save writes SRAM), and those frames are the dispatch's, not the box's.
-    message_box_return = 0x8580BA
-    known = {read_enter, read_complete, main_begin, main_end, wait, message_box, message_box_return}
-    updates = []
-    current = None
-    box_open = False
-    previous_input = inputs[0]
-    previous_frame = 0
     with events_path.open(newline="", encoding="utf-8") as source:
-        for ordinal, event in enumerate(csv.DictReader(source)):
-            frame = int(event["source_frame"])
-            pc = int(event["pc"], 16)
-            if int(event["event"]) != ordinal or not previous_frame <= frame <= frames or pc not in known:
-                raise ValueError(f"Invalid native event {ordinal}")
-            previous_frame = frame
-            if pc == read_enter:
-                if current is not None:
-                    if "input" not in current:
-                        raise ValueError("Controller read did not complete")
-                    updates.append(current)
-                current = {"sourceFrame": frame, "mainLoopDispatches": 0,
-                           "messageBoxStartFrame": None, "messageBoxEndFrame": None}
-            elif pc == read_complete:
-                if current is None or "input" in current or current["sourceFrame"] != frame:
-                    raise ValueError("Ambiguous native controller-read boundary")
-                held, pressed = int(event["held"], 16), int(event["pressed"], 16)
-                if held != inputs[frame] or pressed != held & ~previous_input:
-                    raise ValueError(f"Input/edge mismatch at SMV frame {frame}; cannot collapse this trace to controller masks")
-                current.update(input=held, pressed=pressed)
-                previous_input = held
-            elif pc == main_begin:
-                if current is None or "input" not in current:
-                    raise ValueError("Main dispatch precedes its input event")
-                current["mainLoopDispatches"] += 1
-            elif pc == message_box:
-                if current is None or "input" not in current or not current["mainLoopDispatches"]:
-                    raise ValueError(f"Message box at SMV frame {frame} precedes its dispatch")
-                if current["messageBoxStartFrame"] is not None or box_open:
-                    raise ValueError(f"Two message boxes in the dispatch at SMV frame {current['sourceFrame']}")
-                current["messageBoxStartFrame"] = frame
-                box_open = True
-            elif pc == message_box_return:
-                if current is None or not box_open:
-                    raise ValueError(f"Message box return at SMV frame {frame} has no open box")
-                if current["messageBoxEndFrame"] is not None:
-                    raise ValueError(f"Two message box returns in the update at SMV frame {current['sourceFrame']}")
-                current["messageBoxEndFrame"] = frame
-                box_open = False
-    if current is None or "input" not in current:
-        raise ValueError("No completed terminal input step")
-    if box_open:
-        raise ValueError("The movie ends inside a message box")
-    updates.append(current)
-    if updates[-1]["sourceFrame"] != frames:
-        raise ValueError("Native trace does not cover the original movie's final input")
+        updates, reads = collect_input_updates(csv.DictReader(source), inputs, frames, from_reset)
     for index, update in enumerate(updates):
         if update["mainLoopDispatches"] not in (0, 1):
             raise ValueError("Multiple main-loop dispatches require a richer replay format")
         update["kind"] = "main-loop" if update.pop("mainLoopDispatches") else "nmi-continuation"
         update["update"] = index + 1
-        update["expectedRecord"] = index + 1
-        update["endSourceFrame"] = updates[index + 1]["sourceFrame"] if index + 1 < len(updates) else frames
+        following = updates[index + 1] if index + 1 < len(updates) else None
+        # The checkpoint completing this update is the one captured at the next read. A
+        # dispatch that jumped straight into the boot clear has none: no read followed it.
+        update["expectedRecord"] = following["inputRecord"] if following else reads
+        update["endSourceFrame"] = following["sourceFrame"] if following else frames
     # Validate every private checkpoint, not just the JSON count. The final record
     # is captured after the original movie ends; it is not an early checkpoint.
     # These are the pinned J/U WRAM owners, not inferred durations. IRQ scrolling
@@ -259,31 +305,40 @@ def run():
     enemy_id, enemy_slot_size, enemy_slots = 0x0F78, 0x40, 32
     # Initialise_Enemies zeroes $0E4E on entry and stores the enemy count on exit.
     initialised_enemy_count = 0x0E4E
-    boundary_timing = []
-    boundary_loading = []
-    boundary_enemy_ids = []
+    record_timing = []
+    record_loading = []
+    record_enemy_ids = []
+    read_frames = [u["sourceFrame"] for u in updates if u["inputRecord"] is not None]
     with gzip.open(boundaries_path, "rb") as source:
-        for index in range(len(updates) + 1):
+        for index in range(reads + 1):
             record = source.read(131080)
             if len(record) != 131080:
                 raise ValueError(f"Truncated native checkpoint {index}")
             frame, pc = struct.unpack_from("<II", record)
-            expected_frame = updates[index]["sourceFrame"] if index < len(updates) else frames
-            boundary_timing.append((
+            expected_frame = read_frames[index] if index < reads else frames
+            record_timing.append((
                 struct.unpack_from("<H", record, 8 + apu_uploading)[0],
                 struct.unpack_from("<H", record, 8 + door_scroll_counter)[0]))
-            boundary_loading.append((
+            record_loading.append((
                 struct.unpack_from("<H", record, 8 + 0x0998)[0],  # GameState
                 struct.unpack_from("<H", record, 8 + 0x099c)[0],  # DoorTransitionFunction
                 bool(struct.unpack_from("<H", record, 8 + 0x0931)[0] & 0x8000)))
-            boundary_enemy_ids.append((tuple(
+            record_enemy_ids.append((tuple(
                 struct.unpack_from("<H", record, 8 + enemy_id + enemy_slot_size * slot)[0]
                 for slot in range(enemy_slots)),
                 struct.unpack_from("<H", record, 8 + initialised_enemy_count)[0]))
-            if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
+            if frame != expected_frame or pc != (READ_ENTER if index < reads else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):
             raise ValueError("Unexpected trailing native checkpoints")
+    # Every update starts at a boundary: its read's checkpoint or, entering a dispatch
+    # straight out of CommonBootSection, the cleared bank $7E those owners then hold.
+    def boundary(values, cleared, record_index):
+        return cleared if record_index is None else values[record_index]
+    starts = [u["inputRecord"] for u in updates] + [reads]
+    boundary_timing = [boundary(record_timing, (0, 0), r) for r in starts]
+    boundary_loading = [boundary(record_loading, (0, 0, False), r) for r in starts]
+    boundary_enemy_ids = [boundary(record_enemy_ids, ((0,) * enemy_slots, 0), r) for r in starts]
     loader_progress = door_loader_enemy_progress(boundary_loading, boundary_enemy_ids)
     for index, update in enumerate(updates):
         upload, scroll = boundary_timing[index]
@@ -309,7 +364,7 @@ def run():
     prelude = boot_prelude_length(updates) if from_reset else 0
     updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
-        "format": "super-metroid-gameplay-updates-v6",
+        "format": "super-metroid-gameplay-updates-v7",
         "startsFromReset": from_reset,
         "initialRecord": prelude,
         "bootPreludeInputsExcluded": prelude,

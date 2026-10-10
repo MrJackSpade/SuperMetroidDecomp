@@ -74,7 +74,7 @@ public sealed class GameOptionsMenuState
         visibleTilemap = primaryTilemap;
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
-        Phase = GameOptionsPhase.FadeIn;
+        Phase = GameOptionsPhase.FinishFadingOut;
     }
 
     /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
@@ -132,10 +132,24 @@ public sealed class GameOptionsMenuState
     {
         controller.Latch(controllerInput);
         SnesButton pressed = controller.NewlyPressedButtons;
-        StepMissile();
+        // The selection missile is spawned by index one ($82:ECD3); the object handler
+        // then runs after every index's work, including that first one.
+        if (Phase != GameOptionsPhase.FinishFadingOut)
+            StepMissile();
 
         switch (Phase)
         {
+            case GameOptionsPhase.FinishFadingOut:
+                // $82:EBDB index zero: the previous menu already reached forced blank, so
+                // HandleFadingOut leaves it there and the index advances.
+                Phase = GameOptionsPhase.LoadingMenu;
+                break;
+
+            case GameOptionsPhase.LoadingMenu:
+                // $82:EC11 index one loads the menu under forced blank; fading starts next update.
+                Phase = GameOptionsPhase.FadeIn;
+                break;
+
             case GameOptionsPhase.FadeIn:
                 brightness = Math.Min(GameOptionsRomData.MaximumBrightness, brightness + 1);
                 if (brightness == GameOptionsRomData.MaximumBrightness)
@@ -568,6 +582,10 @@ public enum GameOptionsPhase
     // Appended to keep legacy debugger snapshot ordinals stable.
     /// <summary>Publish the opening-sequence request after the preceding fade completes.</summary>
     StartGame,
+    /// <summary>Native index zero: finish the previous menu's fade-out at forced blank.</summary>
+    FinishFadingOut,
+    /// <summary>Native index one: load the menu pages and spawn the selection missile.</summary>
+    LoadingMenu,
 }
 
 internal enum GameOptionsPage

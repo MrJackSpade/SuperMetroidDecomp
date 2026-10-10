@@ -269,7 +269,8 @@ internal static partial class Program
             frame = game.Step((ushort)SnesButton.A);
             Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu,
                 () => frame = game.Step(0), 200, "SpaceTime options menu");
-            for (int frameIndex = 0; frameIndex < 16; frameIndex++)
+            // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
+            for (int frameIndex = 0; frameIndex < 18; frameIndex++)
                 frame = game.Step(0);
             game.Step((ushort)SnesButton.A);
         }

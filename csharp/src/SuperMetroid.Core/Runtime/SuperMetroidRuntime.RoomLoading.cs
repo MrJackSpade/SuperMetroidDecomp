@@ -806,13 +806,16 @@ public sealed partial class SuperMetroidRuntime
         {
             if (previousCamera is not null) Camera.InheritTrackingState(previousCamera);
             Camera.SetDoorTransitionPosition(cameraX, cameraY,
-                previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
+                previousCamera?.XSubposition ?? InheritedLayer1XSubposition,
+                previousCamera?.YSubposition ?? InheritedLayer1YSubposition);
         }
         else
         {
             Camera.SetPosition(cameraX, cameraY);
             if (previousCamera is not null)
                 Camera.RetainSubpositions(previousCamera);
+            else
+                Camera.RetainSubpositions(InheritedLayer1XSubposition, InheritedLayer1YSubposition);
         }
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;

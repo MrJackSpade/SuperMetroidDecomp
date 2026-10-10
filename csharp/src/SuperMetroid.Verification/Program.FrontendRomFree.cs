@@ -326,6 +326,10 @@ internal static partial class Program
                         nativeRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
                         installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
                         installedRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
+                        // The attack choices are random. Pin the seed this scenario was authored
+                        // against so earlier frontend timing cannot change which attacks occur.
+                        nativeRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);
+                        installedRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);
                         var options = new SuperMetroidGameOptions { Invincibility = false };
                         nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
                         installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
@@ -808,7 +812,10 @@ internal static partial class Program
                        goldenEyeBeamAttackObserved &&
                        installed.GameState == SuperMetroidGameState.MainGameplay,
                 "Golden Torizo wake-up parity crosses walking-left and turning-right " +
-                "and both orb and eye-beam attacks while gameplay remains active");
+                "and both orb and eye-beam attacks while gameplay remains active: " +
+                $"walk={goldenWalkingObserved}, right={goldenRightwardObserved}, " +
+                $"jumpBack={goldenJumpBackObserved}, rightOrb={goldenRightOrbObserved}, " +
+                $"eyeBeam={goldenEyeBeamAttackObserved}, state={installed.GameState}");
         }
         Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }

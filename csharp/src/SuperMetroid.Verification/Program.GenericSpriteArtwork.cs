@@ -74,7 +74,7 @@ internal static partial class Program
         };
         Invoke(intro, "SetupFirstIllustratedPage");
         var caret = Field<IntroCinematicObjectSystem>(intro, "objects");
-        caret.Step();
+        caret.Step(0);
         var actual = (OamBuffer)Invoke(intro, "PrepareIllustratedPageOam")!;
         expected = new OamBuffer();
         expected.BeginFrame();

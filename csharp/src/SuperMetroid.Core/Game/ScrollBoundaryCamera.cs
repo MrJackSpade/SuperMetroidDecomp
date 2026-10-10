@@ -102,10 +102,14 @@ public sealed class ScrollBoundaryCamera
     /// Room and game loads write only the integer positions (e.g. <c>$80:C470</c>), so the
     /// previous room's fractions remain in RAM.
     /// </summary>
-    public void RetainSubpositions(ScrollBoundaryCamera previous)
+    public void RetainSubpositions(ScrollBoundaryCamera previous) =>
+        RetainSubpositions(previous.XSubposition, previous.YSubposition);
+
+    /// <summary>Keeps layer-one fraction words that survived a released gameplay owner.</summary>
+    public void RetainSubpositions(ushort xSubposition, ushort ySubposition)
     {
-        XSubposition = previous.XSubposition;
-        YSubposition = previous.YSubposition;
+        XSubposition = xSubposition;
+        YSubposition = ySubposition;
     }
 
     /// <summary>

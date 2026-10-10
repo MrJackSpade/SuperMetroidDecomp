@@ -295,6 +295,28 @@ internal static class DebuggerStateFieldMigrations
         // The parent intro's fade initializer attaches the shared queue once both are restored.
         new("SuperMetroid.Core.Frontend.IntroCeresFlightState", ["audio"],
             "Legacy Ceres flight never queued its music; a capture during the music wait resumes with an empty queue."),
+        // #1275 Japanese intro text. Older builds played only the English intro, so their
+        // captures restore it: no subtitle objects, a zero subtitle timer, no katakana caption.
+        new(typeof(IntroCinematicState).FullName!, ["subtitles"], null, RestoreLegacyEnglishIntroSubtitles),
+        new("SuperMetroid.Core.Frontend.IntroCinematicObjectSystem", ["subtitles"], null),
+        new("SuperMetroid.Core.Frontend.IntroCeresFlightState", ["japaneseText", "spaceColonyJapaneseCaptionDrawn"], null),
+        // #1275 time-up. Older builds never expired an escape countdown or disabled palette FX
+        // and only ran the successful Ceres destruction.
+        new(typeof(EscapeTimer).FullName!, ["<CountdownExpired>k__BackingField"], null),
+        new(typeof(RoomPaletteFxSystem).FullName!, ["<HandlerEnabled>k__BackingField"], null,
+            paletteFx => Set(paletteFx, "<HandlerEnabled>k__BackingField", true)),
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!, ["<TimeUpRequested>k__BackingField"], null),
+        new(typeof(SuperMetroidGame).FullName!, ["timeUpPaletteFade"], null),
+        new("SuperMetroid.Core.Frontend.CeresDestructionCinematicState", ["withSamus"], null),
+        // #1275: older builds ran game-over indexes zero and one without their NMI waits.
+        new("SuperMetroid.Core.Frontend.GameOverMenuState", ["<ResumesAfterNmiWait>k__BackingField"], null),
+        // #1275: older builds cleared the layer-one fractions whenever a runtime was released.
+        new(typeof(SuperMetroidGame).FullName!, ["retainedLayer1XSubposition", "retainedLayer1YSubposition"], null),
+        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!,
+            ["<InheritedLayer1XSubposition>k__BackingField", "<InheritedLayer1YSubposition>k__BackingField"], null),
+        // #1275: older builds always faded a Yes answer into the area map.
+        new("SuperMetroid.Core.Frontend.GameOverMenuState",
+            ["continueLoadsCeresArrival", "<CeresArrivalRequested>k__BackingField"], null),
 
         new(typeof(PhantoonBlendingState).FullName!, ["<DisplayedMosaic>k__BackingField"],
             "Legacy Phantoon display state lacks MOSAIC history; restores ungrouped until the next accepted NMI."),
@@ -653,6 +675,17 @@ internal static class DebuggerStateFieldMigrations
             if (Active(legacy[index]!))
                 slots.SetValue(legacy[index], scriptedSlots[index]);
         Set(system, "slots", slots);
+    }
+
+    /// <summary>Gives a legacy intro and its object system one shared English subtitle owner.</summary>
+    private static void RestoreLegacyEnglishIntroSubtitles(object intro)
+    {
+        Type subtitlesType = intro.GetType().Assembly.GetType("SuperMetroid.Core.Frontend.IntroJapaneseSubtitles", throwOnError: true)!;
+        object subtitles = Activator.CreateInstance(subtitlesType,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [false], culture: null)!;
+        Set(intro, "subtitles", subtitles);
+        if (Get(intro, "objects") is { } objects)
+            Set(objects, "subtitles", subtitles);
     }
 
     private static void Set(object instance, string field, object? value) =>

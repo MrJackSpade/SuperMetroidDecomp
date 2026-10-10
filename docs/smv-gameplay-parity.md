@@ -126,6 +126,23 @@ helmet turn's final-frame hold, the options start-game handoff (index 4), the
 `$05B6`, and the Ceres arrival as ordinary state eight. The first open divergence
 is Samus's Y subposition when she runs into a wall at source frame 1,845.
 
+## Samus drunk movie (#1275)
+
+`Samus drunk.smv` (SMV v5, 513,793 frames) starts from reset with a raw (not gzipped)
+SRAM block; Snes9x reads movie start state through `gzdopen`, which accepts both. It
+uses Japanese text, game over three times, a time-up at Ceres, soft resets, and
+continues from Ceres-elevator saves.
+
+Manifest v7 models `CommonBootSection`'s bank-$7E clear wherever it runs: a main-loop
+dispatch entered with game state and NMI counter both zero consumes the cleared
+latch. When the game-over menu jumps into that boot inside another dispatch's
+controller read, the post-boot dispatch is its own update without a checkpoint of
+its own (`expectedRecord` null on its predecessor).
+
+The complete input-only replay passes all 494,199 retained updates across all 513,793
+source frames with one initial SRAM import (`--drunk-playthrough-movie`). The Ridley,
+100% and 13% movies continue to pass.
+
 ## Historical investigation evidence
 
 Earlier remaining-coverage lists and statements withholding completion describe

@@ -39,14 +39,14 @@ internal static partial class Program
             // extraction copied its text from the cartridge.
             ushort[] installedTilemap = CreateBlankIntroTilemap();
             var installed = new IntroCinematicObjectSystem(
-                installedBus, new SnesVram(), installedTilemap,
+                installedBus, new SnesVram(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
                 narrationPresentation: presentation, eyeArtwork: eyeArtwork);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
             {
                 if (frame == 2048)
                     throw new InvalidOperationException($"Opening narration {page} did not terminate.");
-                installed.Step();
+                installed.Step(0);
                 comparedFrames++;
             }
             AssertTrue(installedTilemap.Any(word => word != IntroCinematicRomData.Text.Blank.Raw),
@@ -62,41 +62,41 @@ internal static partial class Program
             new MemoryStream(editedBytes, writable: false));
         ushort[] editedTilemap = CreateBlankIntroTilemap();
         var editedState = new IntroCinematicObjectSystem(
-            installedBus, new SnesVram(), editedTilemap,
+            installedBus, new SnesVram(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: edited, eyeArtwork: eyeArtwork);
         editedState.StartEnglishPageSix();
-        editedState.Step();
-        editedState.Step();
+        editedState.Step(0);
+        editedState.Step(0);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
             editedTilemap[4 * IntroCinematicRomData.Layers.TilemapWidth + 1],
             "edited UTF-8 opening narration reaches the live tilemap");
 
         ushort[] reboundTilemap = CreateBlankIntroTilemap();
         var rebound = new IntroCinematicObjectSystem(
-            installedBus, new SnesVram(), reboundTilemap,
+            installedBus, new SnesVram(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         rebound.StartEnglishPageSix();
-        rebound.Step();
+        rebound.Step(0);
         rebound.BindNarration(edited);
-        rebound.Step();
+        rebound.Step(0);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
             reboundTilemap[4 * IntroCinematicRomData.Layers.TilemapWidth + 1],
             "active opening narration accepts current replacement content");
 
         var saved = new IntroCinematicObjectSystem(
-            nativeBus, new SnesVram(), CreateBlankIntroTilemap(),
+            nativeBus, new SnesVram(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         saved.StartEnglishPageSix();
-        saved.Step();
+        saved.Step(0);
         using var snapshot = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
             .Deserialize<IntroCinematicObjectSystem>(snapshot);
-        AssertThrows<InvalidOperationException>(() => restored.Step(),
+        AssertThrows<InvalidOperationException>(() => restored.Step(0),
             "restored opening narration fails loudly until host content is rebound");
         restored.BindNarration(presentation);
-        restored.Step();
+        restored.Step(0);
         AssertEqual((ushort)16, restored.CaretX,
             "restored opening narration resumes at its saved character");
 

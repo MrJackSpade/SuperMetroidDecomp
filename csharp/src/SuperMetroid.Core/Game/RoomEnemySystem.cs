@@ -3378,11 +3378,19 @@ public sealed partial class RoomEnemySystem
                         throw new InvalidOperationException(
                             "Ceres Ridley fireball branch requires the active Samus actor.");
                     }
-                    cursor = unchecked((short)(samus.Health - 30)) < 0
-                        ? ReadEnemyInstructionMechanicsWord(
+                    if (unchecked((short)(samus.Health - 30)) < 0)
+                    {
+                        // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
+                        // cutting the fireball hover short.
+                        RequireRidley(slot).FunctionTimer = 8;
+                        cursor = ReadEnemyInstructionMechanicsWord(
                             slot,
-                            unchecked((ushort)(cursor + 2)))
-                        : unchecked((ushort)(cursor + 4));
+                            unchecked((ushort)(cursor + 2)));
+                    }
+                    else
+                    {
+                        cursor = unchecked((ushort)(cursor + 4));
+                    }
                     break;
                 case CeresEnemyCodePointers.RidleyGotoIfNotHoldingBaby:
                     RidleyEnemyState grabbedBranch = RequireRidley(slot);

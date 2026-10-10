@@ -70,13 +70,14 @@ public sealed class SamusCeresRidleyEjectionState
         {
             InitializationPending = false;
 
-            // `$90:E12E` selects the ordinary hurt pose from the PREVIOUS pose direction,
-            // refreshes radius/animation, and only then applies `21 - radius` alignment.
+            // `$90:E12E` selects the ordinary hurt pose from the PREVIOUS pose direction and
+            // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
+            // radius, so the `21 - radius` alignment uses the source pose's live radius; the
+            // ordinary pose epilogue publishes radius 21 on the following frame.
             bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
             samus.Pose = facingLeft
                 ? SamusPoseIds.KnockbackLeftPose
                 : SamusPoseIds.KnockbackRightPose;
-            samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.

@@ -591,11 +591,11 @@ internal static partial class Program
         var guarded = new IntroArtworkSourceReadGuard(bus);
         var nativeVram = new SnesVram();
         var installedVram = new SnesVram();
-        var native = new IntroCinematicObjectSystem(bus, nativeVram, new ushort[1024], narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var native = new IntroCinematicObjectSystem(bus, nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installed = new IntroCinematicObjectSystem(guarded, installedVram,
-            new ushort[1024], narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        native.Step();
-        installed.Step();
+            new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        native.Step(0);
+        installed.Step(0);
         AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
             "installed opening eye frame draws the exact native portrait rectangle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -641,8 +641,8 @@ internal static partial class Program
 
         for (int frame = 0; frame < 160; frame++)
         {
-            native.Step();
-            installed.Step();
+            native.Step(0);
+            installed.Step(0);
             AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
                 $"installed normal eye blink preserves native VRAM at frame {frame}");
         }
@@ -650,8 +650,8 @@ internal static partial class Program
         installed.StartEnglishPageSix();
         for (int frame = 0; frame < 64; frame++)
         {
-            native.Step();
-            installed.Step();
+            native.Step(0);
+            installed.Step(0);
             AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
                 $"installed page-six eye blink preserves native VRAM at frame {frame}");
         }
@@ -750,8 +750,8 @@ internal static partial class Program
         typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
             .Invoke(installedState, null);
         var objectField = typeof(IntroCinematicState).GetField("objects", flags)!;
-        ((IntroCinematicObjectSystem)objectField.GetValue(nativeState)!).Step();
-        ((IntroCinematicObjectSystem)objectField.GetValue(installedState)!).Step();
+        ((IntroCinematicObjectSystem)objectField.GetValue(nativeState)!).Step(0);
+        ((IntroCinematicObjectSystem)objectField.GetValue(installedState)!).Step(0);
         var prepare = typeof(IntroCinematicState).GetMethod("PrepareIllustratedPageOam", flags)!;
         var nativeOam = (OamBuffer)prepare.Invoke(nativeState, null)!;
         var installedOam = (OamBuffer)prepare.Invoke(installedState, null)!;
@@ -761,16 +761,16 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(bus, new SnesVram(), new ushort[1024], narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var nativeBlink = new IntroCinematicObjectSystem(bus, new SnesVram(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installedBlink = new IntroCinematicObjectSystem(guarded, new SnesVram(),
-            new ushort[1024], narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+            new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var setBlink = typeof(IntroCinematicObjectSystem).GetMethod("SetCaretBlinking", flags)!;
         setBlink.Invoke(nativeBlink, null);
         setBlink.Invoke(installedBlink, null);
         for (int frame = 0; frame < 20; frame++)
         {
-            nativeBlink.Step();
-            installedBlink.Step();
+            nativeBlink.Step(0);
+            installedBlink.Step(0);
             ushort expected = (frame / 5) % 2 == 0 ? IntroCaretSpriteDefinitions.Still : (ushort)0;
             AssertEqual(expected, nativeBlink.SpriteMapPointer,
                 $"native caret blink selects visible/blank frame at frame {frame}");

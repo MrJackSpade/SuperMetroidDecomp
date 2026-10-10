@@ -309,7 +309,8 @@ internal static partial class Program
         Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
         frame = game.Step(0x0080);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
-        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
+        for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(0x0080);
         if (savedArea == 6)
         {
@@ -331,7 +332,8 @@ internal static partial class Program
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
         frame = game.Step(0x8000);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
-        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
+        for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(0x0080);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
         for (int i = 0; i < 10; i++) frame = game.Step(0);

@@ -93,7 +93,7 @@ internal static partial class Program
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].AsSpan().SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
             var vram = new SnesVram();
-            var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], eyeArtwork: selected);
+            var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
             var draw = typeof(IntroCinematicObjectSystem).GetMethod("ProcessTileData",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             for (int frame = 0; frame < expected.Length; frame++)

@@ -3,10 +3,14 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-/// <summary>One converted gameplay update from <c>tools/convert-smv-updates.py</c>.</summary>
+/// <summary>
+/// One converted gameplay update from <c>tools/convert-smv-updates.py</c>. A null
+/// <see cref="ExpectedRecord"/> marks a dispatch that jumped into CommonBootSection: the
+/// next dispatch ran under the same controller read, so no native checkpoint completes it.
+/// </summary>
 internal readonly record struct ConvertedMovieUpdate(
     int Update, int SourceFrame, ushort Input, string Kind, string TimingClass,
-    int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots,
+    int? ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots,
     int? MessageBoxStartFrame, int? MessageBoxEndFrame);
 
 /// <summary>
@@ -51,8 +55,9 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         JsonElement root = manifest.RootElement;
         string format = root.GetProperty("format").GetString()!;
         // v6 records MessageBox_Routine's return frame, which separates a box's own
-        // frames from lag its dispatch runs afterward.
-        if (format != "super-metroid-gameplay-updates-v6")
+        // frames from lag its dispatch runs afterward. v7 splits a dispatch entered
+        // straight out of CommonBootSection into its own update.
+        if (format != "super-metroid-gameplay-updates-v7")
             throw new InvalidDataException($"Unsupported converted replay format {format}.");
         if (root.GetProperty("movieSha256").GetString() != Convert.ToHexString(SHA256.HashData(movie)))
             throw new InvalidDataException("Converted replay was produced from a different movie.");
@@ -62,7 +67,8 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             (ushort)update.GetProperty("input").GetInt32(),
             update.GetProperty("kind").GetString()!,
             update.GetProperty("timingClass").GetString()!,
-            update.GetProperty("expectedRecord").GetInt32(),
+            update.GetProperty("expectedRecord") is { ValueKind: not JsonValueKind.Null } expectedRecord
+                ? expectedRecord.GetInt32() : null,
             update.GetProperty("excludedNmiAfter").GetInt32(),
             update.GetProperty("hardwareWaitLatch").ValueKind == JsonValueKind.Null
                 ? null : (ushort)update.GetProperty("hardwareWaitLatch").GetInt32(),
@@ -79,12 +85,16 @@ internal sealed class NativeMovieCheckpoints : IDisposable
     }
 
     /// <summary>
-    /// Returns native WRAM expected after <paramref name="update"/> converted updates.
-    /// Calls must move forward; skipped records belong to normalized hardware waits.
+    /// Returns native WRAM expected after <paramref name="update"/> converted updates, or
+    /// null when that update ends without a native checkpoint (see
+    /// <see cref="ConvertedMovieUpdate.ExpectedRecord"/>). Calls must move forward; skipped
+    /// records belong to normalized hardware waits.
     /// </summary>
-    public byte[] ReadAfter(int update)
+    public byte[]? ReadAfter(int update)
     {
-        int wanted = update == 0 ? InitialRecord : Updates[update - 1].ExpectedRecord;
+        if (update != 0 && Updates[update - 1].ExpectedRecord is null)
+            return null;
+        int wanted = update == 0 ? InitialRecord : Updates[update - 1].ExpectedRecord!.Value;
         if (wanted <= lastRecord)
             throw new InvalidOperationException("Native checkpoints are forward-only.");
         while (lastRecord < wanted)

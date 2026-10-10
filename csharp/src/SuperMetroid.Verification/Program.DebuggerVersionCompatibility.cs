@@ -258,7 +258,9 @@ internal static partial class Program
         // Every published frontend layout predates the elevator door delay and the door-loader
         // progress policy.
         string[] postPublicationFields = ["waitingForDownwardsElevator", "downwardsElevatorDelayTimer",
-            "<DoorLoaderProgress>k__BackingField", "pauseFadeDelay", "bootMainLoopCarry"];
+            "<DoorLoaderProgress>k__BackingField", "pauseFadeDelay", "bootMainLoopCarry",
+            // #1275: time-up whiteout and the layer-one fractions that outlive a runtime.
+            "timeUpPaletteFade", "retainedLayer1XSubposition", "retainedLayer1YSubposition"];
         FieldInfo[] allGameFields = gameFields;
         gameFields = gameFields.Where(field => !postPublicationFields.Contains(field.Name)).ToArray();
         AssertEqual(allGameFields.Length - postPublicationFields.Length, gameFields.Length,

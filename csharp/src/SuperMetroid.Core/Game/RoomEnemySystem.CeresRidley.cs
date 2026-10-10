@@ -532,9 +532,9 @@ public sealed partial class RoomEnemySystem
         }
 
         // A6:A743 contains sixteen literal function pointers: six fireball routes, five
-        // lunges, and five swoops. The runtime's random provider is the same room-load seam
-        // already consumed by Ceres steam initialization.
-        int choice = _nextRandom!() & 0x0f;
+        // lunges, and five swoops. $A6:A72D only reads RandomNumberSeed; it does not
+        // generate another number.
+        int choice = _readRandomNumber!() & 0x0f;
         state.Function = choice switch
         {
             0 or 1 or 2 or 3 or 9 or 15 => RidleyAiFunction.CeresFireballMoveToPosition,
@@ -574,15 +574,20 @@ public sealed partial class RoomEnemySystem
 
     private void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        ushort random = _nextRandom!();
-        int jitter = random & 7;
+        // $A6:A7F9 reads RandomNumberSeed without generating a number.
+        ushort random = _readRandomNumber!();
+        ushort jitter = (ushort)(random & 7);
         if ((random & 0x8000) != 0)
-            jitter = -jitter;
+            jitter = unchecked((ushort)-jitter);
+        // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
+        // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
+        int xSum = state.FireballBaseXPosition + jitter;
+        int carry = xSum >> 16;
         AccelerateRidleyToward(
             slot,
             state,
-            unchecked((ushort)(state.FireballBaseXPosition + jitter)),
-            unchecked((ushort)(state.FireballBaseYPosition + jitter)),
+            unchecked((ushort)xSum),
+            unchecked((ushort)(state.FireballBaseYPosition + jitter + carry)),
             0);
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if ((short)state.FunctionTimer < 0)

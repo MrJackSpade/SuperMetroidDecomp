@@ -25,6 +25,7 @@ public sealed class GameOverMenuState
     private ushort babyInstructionPointer;
     private ushort babyInstructionTimer;
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    private readonly bool continueLoadsCeresArrival;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
@@ -33,11 +34,17 @@ public sealed class GameOverMenuState
     /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="audio"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No installed presentation bundle is supplied.</exception>
+    /// <param name="continueLoadsCeresArrival">
+    /// True when <c>SRAMMirror_LoadingGameState</c> is <c>$1F</c>: <c>$81:915D</c> then answers Yes by
+    /// publishing the Ceres loader immediately instead of fading into the area map.
+    /// </param>
     public GameOverMenuState(
         ISnesAddressSpace bus,
         CartridgeAudioState audio,
-        AreaMapPresentationCatalog? mapPresentation = null)
+        AreaMapPresentationCatalog? mapPresentation = null,
+        bool continueLoadsCeresArrival = false)
     {
+        this.continueLoadsCeresArrival = continueLoadsCeresArrival;
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
@@ -46,17 +53,29 @@ public sealed class GameOverMenuState
             mapPresentation.WorldArtwork, mapPresentation.Sprites,
             loadInitialBackground: false);
         mapPresentation.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
-        Phase = GameOverMenuPhase.Initialize;
+        Phase = GameOverMenuPhase.ConfigureGraphics;
     }
 
     /// <summary>Zero selects Yes; one selects No, matching <c>file_select_map_area_index</c>.</summary>
     public int SelectedItem { get; private set; }
 
-    /// <summary>Current host stage of initialization, music waiting, interaction, or fading; these enum ordinals are not native menu-index words.</summary>
+    /// <summary>Current native menu index; these enum ordinals are not native menu-index words.</summary>
     public GameOverMenuPhase Phase { get; private set; }
+
+    /// <summary>
+    /// True when the current menu index stopped at its own NMI wait (<c>$81:8D1D</c> or
+    /// <c>$81:9260</c>); the next update finishes that index instead of entering MainGameLoop.
+    /// </summary>
+    public bool ResumesAfterNmiWait { get; private set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
+
+    /// <summary>
+    /// Sticky request raised on the frame Yes is accepted while the save resumes at the Ceres
+    /// elevator: <c>$81:9171</c> stores game state <c>$1F</c> and reloads SRAM without fading.
+    /// </summary>
+    public bool CeresArrivalRequested { get; private set; }
 
     /// <summary>Sticky request raised when the accepted No answer has faded fully to black; the outer dispatcher enters its soft-reset path toward the title.</summary>
     public bool TitleRequested { get; private set; }
@@ -91,11 +110,37 @@ public sealed class GameOverMenuState
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
+        if (ResumesAfterNmiWait)
+        {
+            // Both waits are the last call of their index; the remainder only configures
+            // presentation and advances the index.
+            ResumesAfterNmiWait = false;
+            Phase = Phase switch
+            {
+                GameOverMenuPhase.ConfigureGraphics => GameOverMenuPhase.Initialize,
+                GameOverMenuPhase.Initialize => GameOverMenuPhase.WaitForInitialMusic,
+                _ => throw new InvalidOperationException($"Game-over phase {Phase} has no NMI wait."),
+            };
+            return;
+        }
+
         SnesButton pressed = controller.NewlyPressedButtons;
-        StepMissileAnimation();
+        // Only indexes three, four, five and seven draw the selection missile.
+        if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
+            GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
+            StepMissileAnimation();
 
         switch (Phase)
         {
+            case GameOverMenuPhase.ConfigureGraphics:
+                // State $19 hands over at brightness zero, so HandleFadingOut leaves the screen
+                // black and $81:8D1D blanks it and waits for NMI before configuring the menu.
+                if (brightness != 0)
+                    throw new InvalidOperationException("Game-over menu must begin from a black screen.");
+                audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: GameOverRomData.MaximumQueuedSounds);
+                ResumesAfterNmiWait = true;
+                break;
+
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
                 audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
@@ -104,11 +149,12 @@ public sealed class GameOverMenuState
                 StepBabyMetroid();
                 SelectedItem = 0;
                 brightness = 0;
-                Phase = GameOverMenuPhase.WaitForInitialMusic;
+                // $81:9260 unblanks and waits for NMI before advancing the index.
+                ResumesAfterNmiWait = true;
                 break;
 
             case GameOverMenuPhase.WaitForInitialMusic:
-                StepBabyMetroid();
+                // $81:93E8 only polls the music queue; it neither animates the Baby nor draws the missile.
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusicDelayed8(
@@ -139,9 +185,12 @@ public sealed class GameOverMenuState
                     // answer is accepted, while the selected fade owner continues drawing.
                     babyInstructionTimer =
                         GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration;
-                    Phase = SelectedItem == 0
-                        ? GameOverMenuPhase.FadeOutToContinue
-                        : GameOverMenuPhase.FadeOutToTitle;
+                    if (SelectedItem == 0 && continueLoadsCeresArrival)
+                        CeresArrivalRequested = true;
+                    else
+                        Phase = SelectedItem == 0
+                            ? GameOverMenuPhase.FadeOutToContinue
+                            : GameOverMenuPhase.FadeOutToTitle;
                 }
                 break;
 
@@ -264,9 +313,10 @@ public sealed class GameOverMenuState
     }
 }
 
-/// <summary>Host stages of the retail game-over prompt; they combine native dispatcher boundaries and do not reproduce native menu-index numeric values.</summary>
+/// <summary>Native game-over menu indexes; indexes five and six share <see cref="GameOverMenuPhase.FadeOutToContinue"/>, and ordinals are not native menu-index values.</summary>
 public enum GameOverMenuPhase
 {
+    // Ordinals are serialized; ConfigureGraphics is appended rather than placed first.
     /// <summary>Native menu-index-one setup: queues music stop and data load, starts the Baby animation, selects Yes, and begins with zero brightness.</summary>
     Initialize,
     /// <summary>Native menu-index-two music gate: continues Baby animation while waiting for the shared music queue to empty, then queues the game-over track.</summary>
@@ -279,4 +329,6 @@ public enum GameOverMenuPhase
     FadeOutToContinue,
     /// <summary>Native menu-index-seven path: fades the accepted No answer to black and publishes <see cref="GameOverMenuState.TitleRequested"/> for the outer soft reset.</summary>
     FadeOutToTitle,
+    /// <summary>Native menu-index-zero setup: fades out (already black after state $19), cancels library-three sounds, and waits for NMI before configuring the menu graphics.</summary>
+    ConfigureGraphics,
 }

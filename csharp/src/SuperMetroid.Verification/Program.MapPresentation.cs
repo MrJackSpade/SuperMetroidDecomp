@@ -258,6 +258,7 @@ internal static partial class Program
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
             Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes));
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));
+        Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(bus, original));
         Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original));
         Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original));
         Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original));

@@ -1175,8 +1175,11 @@ static void VerifyCeresRidleyRoomEntry()
          address++)
         bus.WriteByte(address, 0);
     bool ceresBossDefeated = false;
-    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234,
-        readRandomNumber: () => 0x1234,
+    ushort generatedRandom = 0x1234;
+    ushort currentRandom = 0x1234;
+    int generatedRandomCalls = 0;
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => { generatedRandomCalls++; return generatedRandom; },
+        readRandomNumber: () => currentRandom,
         isAreaBossDefeated: () => ceresBossDefeated,
         setAreaBossDefeated: () => ceresBossDefeated = true);
 
@@ -1303,6 +1306,49 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
     AssertTrue(observedRoarSound,
         "Ridley instruction $E4BE publishes QueueSfx2_Max6($59)");
+
+    // #1275: $A6:A72D selects the next attack from RandomNumberSeed as it stands; it does
+    // not generate a number. Fireballs (low nibble 9) and swoop (low nibble E) tell the two apart.
+    currentRandom = 0x4529;
+    generatedRandom = 0x5ade;
+    int hoverFrames = 0;
+    while (state.Function == RidleyAiFunction.CeresHovering && hoverFrames < 256)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        hoverFrames++;
+    }
+    AssertEqual((ushort)RidleyAiFunction.CeresFireballMoveToPosition, (ushort)state.Function,
+        "Ceres Ridley hover chooses its attack from the current random number");
+    // $A6:A7F9 jitters the fireball hover target from the same seed, again without generating.
+    int callsBeforeFireballs = generatedRandomCalls;
+    int fireballFrames = 0;
+    while (state.Function == RidleyAiFunction.CeresFireballMoveToPosition && fireballFrames < 256)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        fireballFrames++;
+    }
+    AssertEqual((ushort)RidleyAiFunction.CeresFireballShooting, (ushort)state.Function,
+        "Ceres Ridley reaches its fireball hover");
+    for (int frame = 0; frame < 8; frame++)
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+    AssertEqual(callsBeforeFireballs, generatedRandomCalls,
+        "Ceres Ridley fireball hover reads the random number without generating one");
+    // #1275: at low energy the fireballing instruction list's $A6:E4D2 stores 8 into the
+    // shared $7E:7800 timer when the list reaches it, ending the 224-frame fireball hover early.
+    ushort savedHealth = samus.Health;
+    samus.Health = 20;
+    int lowEnergyFrames = 0;
+    while (state.Function == RidleyAiFunction.CeresFireballShooting && lowEnergyFrames < 224)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
+        lowEnergyFrames++;
+    }
+    AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
+        "Ceres Ridley low-energy fireball branch returns to hovering");
+    AssertTrue(lowEnergyFrames < 120,
+        $"Ceres Ridley low-energy branch shortens the fireball hover (took {lowEnergyFrames} frames)");
+    samus.Health = savedHealth;
+    currentRandom = generatedRandom = 0x1234;
 
     // Ceres lunge retains neutral-tail AI. Once Ridley closes within 128 pixels,
     // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving

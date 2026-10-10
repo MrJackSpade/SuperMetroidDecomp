@@ -1,5 +1,5 @@
-/// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
-internal static class RidleyMovieMemory
+/// <summary>Native WRAM identities used to import a supplied movie's initial snapshot and compare its replay.</summary>
+internal static class NativeSnapshotMemory
 {
     /// <summary>$90:C3C9: equipped-beam palette pointer table used by $90:ACCD.</summary>
     public const int BeamPalettePointers = 0x90c3c9;

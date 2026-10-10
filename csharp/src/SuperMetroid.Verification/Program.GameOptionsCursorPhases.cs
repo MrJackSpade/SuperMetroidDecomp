@@ -19,6 +19,7 @@ internal static partial class Program
             (GameOptionsPhase.ScrollControllerDown, 9), (GameOptionsPhase.ScrollControllerUp, 10),
             (GameOptionsPhase.FadeOutToFileSelect, 11), (GameOptionsPhase.FadeOutToIntro, 12),
             (GameOptionsPhase.StartGame, 4),
+            (GameOptionsPhase.FinishFadingOut, 0), (GameOptionsPhase.LoadingMenu, 1),
         ];
         foreach (var phase in phases)
         {
@@ -33,10 +34,7 @@ internal static partial class Program
             AssertEqual(ReadVerificationWord(bus, 0x82f2ed + phase.Native * 2), pointer,
                 $"native options cursor selection {phase.Native}");
         }
-        foreach (int lifecycle in new[] { 0, 1 })
-            AssertEqual((ushort)0, ReadVerificationWord(bus, 0x82f2ed + lifecycle * 2),
-                "unrepresented native lifecycle phase has no cursor page");
-        foreach (int invalid in new[] { int.MinValue, -1, 11, 65536, int.MaxValue })
+        foreach (int invalid in new[] { int.MinValue, -1, 13, 65536, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsCursorPolicy.Select((GameOptionsPhase)invalid),
                 "unsupported options cursor phase");
         var installed = RetailPresentationFixture();

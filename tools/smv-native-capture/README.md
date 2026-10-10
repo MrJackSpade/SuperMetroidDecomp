@@ -69,3 +69,14 @@ before the first main-loop dispatch (`initialRecord`) and retains the last
 controller read of each door music wait as `hardwareWaitLatch`, so held buttons
 no longer require neutral input. The capture adapter itself is unchanged; Snes9x's
 own `S9xMovieOpen` performs the reset and SRAM restore.
+
+Manifest v7 models `CommonBootSection` ($80:8482), which clears bank $7E before
+`MainGameLoop` at power-on and again when quitting from game over or soft resetting.
+A main-loop dispatch entered with game state and NMI counter both zero consumes the
+cleared controller latch, so its update's input is zero and the next read's edge starts
+from zero. When the clear follows another dispatch under the same controller read (the
+game-over menu jumps into the boot without waiting for NMI), the post-boot dispatch
+becomes its own update with no checkpoint of its own: its predecessor's
+`expectedRecord` is null. A power-on movie's first dispatch must show the clear.
+Snes9x opens a movie's start state with `gzdopen`, so an uncompressed reset-start SRAM
+or snapshot is read as-is.

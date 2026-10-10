@@ -577,6 +577,7 @@ if (args is ["--pause-dispatch-rng"]) { VerifyPauseDispatcherRandom(); return 0;
 if (args is ["--spin-fallback-history"]) { VerifySpinFallbackHistory(); return 0; }
 if (args is ["--morph-camera-checkpoint"]) { VerifyMorphCameraCheckpoint(); return 0; }
 if (args is ["--aim-up-landing-animation"]) { VerifyAimUpLandingAnimation(); return 0; }
+if (args is ["--slope-landing-zero-probe"]) { VerifySlopeLandingZeroDistanceProbe(); return 0; }
 if (args is ["--ridley-fireball-square-slope"]) { VerifyRidleyFireballSquareSlope(); return 0; }
 if (args is ["--ridley-tail-impact"]) { VerifyRidleyTailImpact(); return 0; }
 if (args is ["--ridley-screen-gate"]) { VerifyRidleyScreenGate(); return 0; }
@@ -591,6 +592,11 @@ if (args is ["--lsmv-playthrough-movie", var lowTraceDirectory]) { VerifyLowPerc
 if (args is ["--lsmv-playthrough-movie", var lowTracedDirectory, "--trace-from", var lowTraceFrom]) { VerifyLowPercentPlaythroughMovie(lowTracedDirectory, int.Parse(lowTraceFrom)); return 0; }
 if (args is ["--full-playthrough-movie", var fullTraceDirectory]) { VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; }
 if (args is ["--full-playthrough-movie", var tracedDirectory, "--trace-from", var traceFrom]) { VerifyFullPlaythroughMovie(tracedDirectory, int.Parse(traceFrom)); return 0; }
+if (args is ["--drunk-playthrough-movie", var drunkTraceDirectory]) { VerifyDrunkPlaythroughMovie(drunkTraceDirectory); return 0; }
+if (args is ["--drunk-playthrough-movie", var drunkTracedDirectory, "--trace-from", var drunkTraceFrom]) { VerifyDrunkPlaythroughMovie(drunkTracedDirectory, int.Parse(drunkTraceFrom)); return 0; }
+if (args is ["--mother-brain-glitch-movie", var glitchTraceDirectory]) { VerifyMotherBrainGlitchMovie(glitchTraceDirectory); return 0; }
+if (args is ["--mother-brain-glitch-movie", var glitchTracedDirectory, "--trace-from", var glitchTraceFrom]) { VerifyMotherBrainGlitchMovie(glitchTracedDirectory, int.Parse(glitchTraceFrom)); return 0; }
+if (args is ["--snapshot-import-audit", var auditTraceDirectory, var auditUpdate]) { AuditSnapshotImport(auditTraceDirectory, int.Parse(auditUpdate)); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
 if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }

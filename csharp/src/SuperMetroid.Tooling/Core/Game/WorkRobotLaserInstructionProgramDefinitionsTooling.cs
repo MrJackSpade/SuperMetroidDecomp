@@ -15,7 +15,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitionsTooling : IIn
             throw new IndexOutOfRangeException();
         return index switch
         {
-            7 => new(WorkRobotLaserInstructionProgramDefinitions.LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            7 => new(WorkRobotLaserInstructionProgramDefinitions.LoopCommand, (ushort)EnemyProjectileInstruction.GotoY),
             8 => new(WorkRobotLaserInstructionProgramDefinitions.LoopCommand + 2, WorkRobotLaserInstructionProgramDefinitions.Loop),
             _ => new((ushort)(WorkRobotLaserInstructionProgramDefinitions.Initial + 4 * index), 4),
         };

@@ -55,11 +55,11 @@ internal static partial class Program
         Suite(nameof(VerifyIntroduction), () => VerifyIntroduction(
             left,
             KiHunterAcidSpitInstructionProgramDefinitions.Left,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left));
+            (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Left));
         Suite(nameof(VerifyIntroduction), () => VerifyIntroduction(
             right,
             KiHunterAcidSpitInstructionProgramDefinitions.Right,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right));
+            (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Right));
 
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);

@@ -4,17 +4,17 @@ namespace SuperMetroid.Core.Game;
 internal enum NoobTubeProjectilePreInstruction : ushort
 {
     /// <summary>$86:D7BF: flicker the n00b-tube crack actor.</summary>
-    CrackFlickering = EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering,
+    CrackFlickering = (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFlickering,
     /// <summary>$86:D7DE: move the detached n00b-tube crack downward.</summary>
-    CrackFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling,
+    CrackFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFalling,
     /// <summary>$86:D7FD: move a newly emitted n00b-tube shard.</summary>
-    ShardFlying = EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFlying,
+    ShardFlying = (ushort)EnemyProjectilePreInstruction.NoobTubeShardFlying,
     /// <summary>$86:D83D: rotate and fall after a shard's initial flight.</summary>
-    ShardFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling,
+    ShardFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeShardFalling,
     /// <summary>$86:D89F: rotate and fall a released-air bubble.</summary>
-    BubbleFalling = EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling,
+    BubbleFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFalling,
     /// <summary>$86:D8DF: move a released-air bubble vertically.</summary>
-    BubbleFlying = EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying,
+    BubbleFlying = (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFlying,
 }
 
 /// <summary>
@@ -50,17 +50,17 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         if (index < 186) return ShardWord((index-46)/14,(index-46)%14);
         int bubble = index-186;
         if (bubble < 2) return new((ushort)(ReleasedAirBubble+2*bubble),bubble == 0
-            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
-            : EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying);
+            ? (ushort)EnemyProjectileInstruction.PreInstructionInY
+            : (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFlying);
         if (bubble < 6) return new((ushort)(ReleasedAirBubble+4+4*(bubble-2)),2);
         if (bubble < 9) return new((ushort)(ReleasedAirBubble+20+2*(bubble-6)),bubble switch
         {
-            6 => EnemyProjectileCodePointers.Instruction_NoobTubeBubbleAssignFallingAngle,
-            7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
-            _ => EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling,
+            6 => (ushort)EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle,
+            7 => (ushort)EnemyProjectileInstruction.PreInstructionInY,
+            _ => (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFalling,
         });
         if (bubble < 20) return new((ushort)(ReleasedAirBubble+26+4*(bubble-9)),bubble < 15 ? (ushort)2 : (ushort)4);
-        return new((ushort)(ReleasedAirBubble+70),EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        return new((ushort)(ReleasedAirBubble+70),(ushort)EnemyProjectileInstruction.Delete);
     }
 
     public static ushort PresentationWordAddress(int index)
@@ -86,21 +86,21 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
     {
         if (index < 6) return new((ushort)(Crack+4*index),(ushort)Math.Max(6,12-2*index));
         if (index < 8) return new((ushort)(Crack+24+2*(index-6)),index == 6
-            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
-            : EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering);
+            ? (ushort)EnemyProjectileInstruction.PreInstructionInY
+            : (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFlickering);
         if (index < 18) return new((ushort)(CrackFlicker+4*(index-8)),index < 13 ? (ushort)1 : CrackFlickerTailDurations[index-13]);
         if (index < 20) return new((ushort)(Crack+68+2*(index-18)),index == 18
-            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
-            : EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling);
+            ? (ushort)EnemyProjectileInstruction.PreInstructionInY
+            : (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFalling);
         if (index < 39) return new((ushort)(CrackFalling+4*(index-20)),index == 38 ? (ushort)16 : (ushort)7);
         if (index < 41) return new((ushort)(CrackTail-4+2*(index-39)),index == 39
-            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY : (ushort)6);
+            ? (ushort)EnemyProjectileInstruction.TimerInY : (ushort)6);
         if (index < 43) return new((ushort)(CrackTail+4*(index-41)),16);
         return new((ushort)(CrackTail+8+2*(index-43)),index switch
         {
-            43 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            43 => (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero,
             44 => CrackTail,
-            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            _ => (ushort)EnemyProjectileInstruction.Delete,
         });
     }
 
@@ -114,24 +114,24 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         int secondTimer = assign+6;
         int secondFlicker = secondTimer+4;
         int secondBranch = secondFlicker+2+skipped;
-        ushort flicker = compact ? EnemyProjectileCodePointers.Instruction_NoobTubeShardFlicker
-            : EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker;
+        ushort flicker = compact ? (ushort)EnemyProjectileInstruction.NoobTubeShardFlicker
+            : (ushort)EnemyProjectileInstruction.NoobTubeShardReflectFlicker;
         (int offset,ushort value) = index switch
         {
-            0 => (0,EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
+            0 => (0,(ushort)EnemyProjectileInstruction.TimerInY),
             1 => (2,(ushort)32),
             2 => (4,flicker),
-            3 => (firstBranch,EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
+            3 => (firstBranch,(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
             4 => (firstBranch+2,(ushort)(start+4)),
-            5 => (assign,EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle),
-            6 => (assign+2,EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            7 => (assign+4,EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling),
-            8 => (secondTimer,EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
+            5 => (assign,(ushort)EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle),
+            6 => (assign+2,(ushort)EnemyProjectileInstruction.PreInstructionInY),
+            7 => (assign+4,(ushort)EnemyProjectilePreInstruction.NoobTubeShardFalling),
+            8 => (secondTimer,(ushort)EnemyProjectileInstruction.TimerInY),
             9 => (secondTimer+2,(ushort)272),
             10 => (secondFlicker,flicker),
-            11 => (secondBranch,EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
+            11 => (secondBranch,(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
             12 => (secondBranch+2,(ushort)(start+secondFlicker)),
-            _ => (secondBranch+4,EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            _ => (secondBranch+4,(ushort)EnemyProjectileInstruction.Delete),
         };
         return new((ushort)(start+offset),value);
     }

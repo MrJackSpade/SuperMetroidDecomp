@@ -69,7 +69,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
             if (index == 0)
             {
                 return new(program.Initial,
-                    EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY);
+                    (ushort)EnemyProjectileInstruction.TimerInY);
             }
             if (index == 1)
                 return new(unchecked((ushort)(program.Initial + 2)), 1);
@@ -83,11 +83,10 @@ internal abstract class GunshipDustInstructionProgramDefinitions
             return index switch
             {
                 0 => new(program.Terminal,
-                    EnemyProjectileCodePointers
-                        .Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
+                    (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
                 1 => new(unchecked((ushort)(program.Terminal + 2)), program.FirstFrame),
                 2 => new(unchecked((ushort)(program.Terminal + 4)),
-                    EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+                    (ushort)EnemyProjectileInstruction.Delete),
                 _ => throw new InvalidOperationException(
                     "Gunship dust mechanics index escaped its program bounds."),
             };

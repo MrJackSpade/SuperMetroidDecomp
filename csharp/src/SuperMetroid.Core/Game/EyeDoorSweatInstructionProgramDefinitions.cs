@@ -23,10 +23,10 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
         return index switch
         {
             0 => new(Initial, 6),
-            1 => new(Initial + 4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            1 => new(Initial + 4, (ushort)EnemyProjectileInstruction.GotoY),
             2 => new(Initial + 6, Initial),
-            3 => new(Impact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-            _ => new(Impact + 14, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            3 => new(Impact, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+            _ => new(Impact + 14, (ushort)EnemyProjectileInstruction.Delete),
         };
     }
 

@@ -18,7 +18,8 @@ internal static class EnemyVisualProgramRoutingContracts
         // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
         // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.
         ["ProcessInstructions"] = "B083A4CB336D37A17403340EAC76B3DA6B7FBDBD06C298F7A3E57DC7113BCAA9",
-        ["ProcessEnemyProjectileInstructions"] = "EA2AAC7D3F5C12022D214A1468AD77C4BF53AC49EBA228AE80B1F34D047463B6",
+        // #627 decodes the word into EnemyProjectileInstruction; same cases, guards and order.
+        ["ProcessEnemyProjectileInstructions"] = "5EDA20D0F4E41D11C6AF1C3DC2242A661B60A4F808E141DB45DF2703C14367CC",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)

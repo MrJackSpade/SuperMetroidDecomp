@@ -32,7 +32,7 @@ internal abstract class AlcoonFireballInstructionProgramDefinitions
     {
         int offset = address - Initial;
         if ((uint)offset < 16 && offset % 4 == 0) return 3;
-        if (address == Loop) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (address == Loop) return (ushort)EnemyProjectileInstruction.GotoY;
         if (address == Loop + 2) return Initial;
         throw new InvalidDataException(
             $"Alcoon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");

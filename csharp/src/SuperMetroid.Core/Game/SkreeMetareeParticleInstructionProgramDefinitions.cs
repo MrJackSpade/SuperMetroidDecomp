@@ -32,7 +32,7 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitions
             switch (offset % 8)
             {
                 case 0: return 16;
-                case 4: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+                case 4: return (ushort)EnemyProjectileInstruction.GotoY;
                 case 6: return start;
             }
         }

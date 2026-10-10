@@ -19,7 +19,7 @@ internal static class PrePhantoonRoomProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => (address - Initial) switch
     {
         0 => HoldFrames,
-        DeleteCommand - Initial => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        DeleteCommand - Initial => (ushort)EnemyProjectileInstruction.Delete,
         _ => throw new InvalidDataException(
             $"Pre-Phantoon room projectile mechanics pointer $86:{address:X4} is not compiled."),
     };

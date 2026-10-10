@@ -63,10 +63,10 @@ internal static partial class Program
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.Fireball,
             fireball.InstructionPointer, "real Ceres Ridley fireball producer");
         RunForcedTick(fireballSystem, fireball);
-        AssertEqual(EnemyProjectileCodePointers.RTS_868170, fireball.PreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, fireball.PreInstruction,
             "fireball first command clears its pre-instruction before the first pose");
         RunForcedTick(fireballSystem, fireball);
-        AssertEqual(EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.RidleyFireball,
             fireball.PreInstruction,
             "fireball program reinstalls its movement pre-instruction");
         RunForcedTicks(fireballSystem, fireball, 5);

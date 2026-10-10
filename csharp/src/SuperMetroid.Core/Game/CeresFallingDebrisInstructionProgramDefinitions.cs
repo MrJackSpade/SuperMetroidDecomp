@@ -35,7 +35,7 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
             throw new IndexOutOfRangeException();
         bool sleep = (index & 1) != 0;
         return new((ushort)(Light + 6 * (index / 2) + (sleep ? 4 : 0)),
-            sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+            sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
     }
 
     /// <summary>

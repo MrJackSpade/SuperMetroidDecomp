@@ -34,11 +34,11 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        if (address == TerminalDelete) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+        if (address == TerminalDelete) return (ushort)EnemyProjectileInstruction.Delete;
         if (address is >= Initial and < TerminalDelete)
         {
             int offset = (address - Initial) % StageBytes;
-            if (offset == FrameBytes) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY;
+            if (offset == FrameBytes) return (ushort)EnemyProjectileInstruction.CallExternalFunctionInY;
             if (offset == 0) return Durations[0];
             int frames = offset - CallbackBytes;
             if (frames >= FrameBytes && frames % FrameBytes == 0) return Durations[frames / FrameBytes];

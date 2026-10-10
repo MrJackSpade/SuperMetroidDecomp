@@ -41,7 +41,7 @@ internal abstract class DragonFireballInstructionProgramDefinitions
         value = step switch
         {
             0 or 4 => 5,
-            8 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            8 => (ushort)EnemyProjectileInstruction.GotoY,
             10 => (ushort)(RisingLeft + offset / 12 * 12),
             _ => 0,
         };

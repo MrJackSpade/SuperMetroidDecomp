@@ -13,7 +13,7 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitions
     {
         if (address == Delete)
         {
-            value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+            value = (ushort)EnemyProjectileInstruction.Delete;
             return true;
         }
 

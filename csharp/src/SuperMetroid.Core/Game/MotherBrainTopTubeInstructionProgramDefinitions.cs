@@ -27,16 +27,16 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
         Origin(0xcc43),
         Entry(TopRight),
         Frame(1),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Op((ushort)EnemyProjectileInstruction.Sleep),
         Entry(TopLeft),
         Frame(1),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Op((ushort)EnemyProjectileInstruction.Sleep),
         Entry(TopMiddleLeft),
         Frame(1),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Op((ushort)EnemyProjectileInstruction.Sleep),
         Entry(TopMiddleRight),
         Frame(1),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
+        Op((ushort)EnemyProjectileInstruction.Sleep));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 

@@ -8,7 +8,7 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitionsToolin
 {
     public static int MechanicsWordCount => 1;
     public static InstructionMechanicsWord MechanicsWord(int index) => index == 0
-        ? new(CommonEnemyProjectileInstructionProgramDefinitions.Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete)
+        ? new(CommonEnemyProjectileInstructionProgramDefinitions.Delete, (ushort)EnemyProjectileInstruction.Delete)
         : throw new IndexOutOfRangeException();
     public static bool IsCompiledMechanicsByte(int address)
     {

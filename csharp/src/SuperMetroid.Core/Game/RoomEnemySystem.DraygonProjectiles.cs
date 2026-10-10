@@ -40,7 +40,7 @@ public sealed partial class RoomEnemySystem
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
         // bloom reaches instruction $8CF6 and explicitly enables flight.
-        turret.PreInstruction = EnemyProjectileCodePointers.RTS_868D54;
+        turret.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868D54;
         state.WallTurretsSpawned++;
     }
 
@@ -161,7 +161,7 @@ public sealed partial class RoomEnemySystem
         goop.Variable1 = nextDivisor;
         goop.Variable0 = 0x0100;
         goop.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_DraygonGoop_StuckToSamus;
+            (ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;

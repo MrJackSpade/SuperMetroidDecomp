@@ -128,7 +128,7 @@ internal static partial class Program
                 $"Mother Brain turret bullet contact frame {frame} advance");
             AssertEqual(0, contact.GraphicsIndex,
                 $"Mother Brain turret bullet contact frame {frame} palette reset");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, contact.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, contact.PreInstruction,
                 $"Mother Brain turret bullet contact frame {frame} movement cleared");
         }
         RunForcedTick(contactSystem, contact);

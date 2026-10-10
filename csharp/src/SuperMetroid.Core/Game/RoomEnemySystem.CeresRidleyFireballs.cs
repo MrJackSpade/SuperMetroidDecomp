@@ -577,7 +577,7 @@ public sealed partial class RoomEnemySystem
                         EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind)
                             .ShotInstructionList;
                     enemyProjectile.InstructionTimer = 1;
-                    enemyProjectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
+                    enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -898,200 +898,200 @@ public sealed partial class RoomEnemySystem
         SamusBombProjectileSystem? samusBombs)
     {
         if (TryStepTourianUnlockEffect(projectile)) return;
-        switch (projectile.PreInstruction)
+        switch (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction"))
         {
-            case EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom:
+            case EnemyProjectilePreInstruction.PrePhantoonRoom:
                 RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
                 return;
-            case 0:
-            case EnemyProjectileCodePointers.RTS_868170:
-            case EnemyProjectileCodePointers.RTS_86A327:
-            case EnemyProjectileCodePointers.RTS_8684FB:
-            case EnemyProjectileCodePointers.RTS_86EC94:
-            case EnemyProjectileCodePointers.RTS_86D0EB:
-            case EnemyProjectileCodePointers.RTS_86CFF7:
-            case EnemyProjectileCodePointers.RTS_86B4B0:
-            case EnemyProjectileCodePointers.RTS_868D54:
-            case EnemyProjectileCodePointers.RTS_86950C:
-            case EnemyProjectileCodePointers.RTS_869A44:
-            case EnemyProjectileCodePointers.RTS_86BBC6:
-            case EnemyProjectileCodePointers.RTS_86A05B:
-            case EnemyProjectileCodePointers.RTS_86EFDF:
-            case EnemyProjectileCodePointers.RTS_86A919:
-            case EnemyProjectileCodePointers.PreInstruction_BombTorizoStatueFragment_Stopped:
-            case EnemyProjectileCodePointers.RTS_86DD44:
-            case EnemyProjectileCodePointers.RTS_86CAA3:
-            case EnemyProjectileCodePointers.RTS_86C76D:
-            case EnemyProjectileCodePointers.RTS_86E6D1:
-            case DownwardGateEnemyProjectileRomData.InertPreInstruction:
-            case EyeDoorEnemyProjectileRomData.SmokeInertPreInstruction:
+            case EnemyProjectilePreInstruction.None:
+            case EnemyProjectilePreInstruction.RTS_868170:
+            case EnemyProjectilePreInstruction.RTS_86A327:
+            case EnemyProjectilePreInstruction.RTS_8684FB:
+            case EnemyProjectilePreInstruction.RTS_86EC94:
+            case EnemyProjectilePreInstruction.RTS_86D0EB:
+            case EnemyProjectilePreInstruction.RTS_86CFF7:
+            case EnemyProjectilePreInstruction.RTS_86B4B0:
+            case EnemyProjectilePreInstruction.RTS_868D54:
+            case EnemyProjectilePreInstruction.RTS_86950C:
+            case EnemyProjectilePreInstruction.RTS_869A44:
+            case EnemyProjectilePreInstruction.RTS_86BBC6:
+            case EnemyProjectilePreInstruction.RTS_86A05B:
+            case EnemyProjectilePreInstruction.RTS_86EFDF:
+            case EnemyProjectilePreInstruction.RTS_86A919:
+            case EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped:
+            case EnemyProjectilePreInstruction.RTS_86DD44:
+            case EnemyProjectilePreInstruction.RTS_86CAA3:
+            case EnemyProjectilePreInstruction.RTS_86C76D:
+            case EnemyProjectilePreInstruction.RTS_86E6D1:
+            case EnemyProjectilePreInstruction.DownwardGateInertPreInstruction:
+            case EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction:
                 return;
 
-            case DownwardGateEnemyProjectileRomData.MovementPreInstruction:
+            case EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction:
                 RunDownwardGateProjectileMovement(projectile);
                 return;
 
-            case EyeDoorEnemyProjectileRomData.ProjectilePreInstruction:
+            case EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction:
                 RunEyeDoorProjectilePreInstruction(projectile, level);
                 return;
 
-            case EyeDoorEnemyProjectileRomData.SweatPreInstruction:
+            case EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction:
                 RunEyeDoorSweatPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling:
+            case EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling:
                 RunBombTorizoStatueBreakingPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup:
+            case EnemyProjectilePreInstruction.Pickup:
                 // Lifetime, grapple endpoint, then Samus body.
                 RunEnemyPickupPreInstruction(projectile, samus);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTurrets:
+            case EnemyProjectilePreInstruction.MotherBrainsTurrets:
                 RunMotherBrainTurretPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTurretBullets:
+            case EnemyProjectilePreInstruction.MotherBrainsTurretBullets:
                 RunMotherBrainTurretBulletPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_MotherBrainGlassShattering_Shard:
+            case EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard:
                 RunMotherBrainGlassShardPreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsTubeFalling:
+            case EnemyProjectilePreInstruction.MotherBrainsTubeFalling:
                 RunMotherBrainTopTubePreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool:
+            case EnemyProjectilePreInstruction.MotherBrainsDrool:
                 RunMotherBrainAttachedDroolPreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling:
+            case EnemyProjectilePreInstruction.MotherBrainsDrool_Falling:
                 RunMotherBrainFallingDroolPreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsOnionRings:
+            case EnemyProjectilePreInstruction.MotherBrainsOnionRings:
                 RunMotherBrainOnionRingPreInstruction(
                     projectile,
                     samus,
                     cameraX);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsBomb:
+            case EnemyProjectilePreInstruction.MotherBrainsBomb:
                 RunMotherBrainBombPreInstruction(projectile, samusBombs);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_MotherBrainRainbowBeam_Charging:
+            case EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging:
                 RunMotherBrainRainbowChargingPreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_MotherBrainsRainbowBeamExplosion:
+            case EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion:
                 RunMotherBrainRainbowExplosionPreInstruction(projectile, samus);
                 return;
-            case MotherBrainDeathRomData.ExplosionPreInstruction:
+            case EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction:
                 RunMotherBrainDeathExplosion(projectile);
                 return;
-            case MotherBrainDeathRomData.DoorFragmentPreInstruction:
+            case EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction:
                 RunMotherBrainDoorFragment(projectile);
                 return;
-            case MotherBrainDeathRomData.SubtitlePreInstruction:
+            case EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction:
                 PinMotherBrainEscapeSubtitle(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_DraygonGoop_StuckToSamus:
+            case EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus:
                 RunAttachedDraygonGoop(projectile, samus);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired:
+            case EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired:
                 // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
                 DeleteEnemyProjectileIfPowerBombed(projectile, samus);
                 RunDraygonProjectileFlight(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DraygonGoop:
+            case EnemyProjectilePreInstruction.DraygonGoop:
                 RunFlyingDraygonGoop(projectile, samus);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Spores:
+            case EnemyProjectilePreInstruction.Spores:
                 RunSporeSpawnSporePreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_SporeSpawner:
+            case EnemyProjectilePreInstruction.SporeSpawner:
                 RunSporeSpawnSpawnerPreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BotwoonsBody:
+            case EnemyProjectilePreInstruction.BotwoonsBody:
                 RunBotwoonBodyPreInstruction(projectile, nmiFrameCounter8);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BotwoonsSpit:
+            case EnemyProjectilePreInstruction.BotwoonsSpit:
                 RunBotwoonSpitPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_BombTorizosChozoOrbs:
+            case EnemyProjectilePreInstruction.BombTorizosChozoOrbs:
                 RunBombTorizoChozoOrbPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizosChozoOrbs:
+            case EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs:
                 RunGoldenTorizoChozoOrbPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom:
+            case EnemyProjectilePreInstruction.TorizoSonicBoom:
                 RunBombTorizoSonicBoomPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling:
+            case EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling:
                 RunBombTorizoDroolPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Bouncing:
+            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing:
                 RunGoldenTorizoEggPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched:
+            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched:
                 RunGoldenTorizoEggHorizontalCharge(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall:
+            case EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall:
                 RunGoldenTorizoEggFall(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoSuperMissile_Held:
+            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held:
                 RunGoldenTorizoSuperMissilePreInstruction(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown:
+            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown:
                 RunGoldenTorizoSuperMissileFlight(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam:
+            case EnemyProjectilePreInstruction.GoldenTorizoEyeBeam:
                 RunGoldenTorizoEyeBeamPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess:
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatue_Ridley_Phantoon_BaseDecor:
+            case EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess:
+            case EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor:
                 PositionTourianEntranceStatueProjectile(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_ShaktoolsAttack_Front:
+            case EnemyProjectilePreInstruction.ShaktoolsAttack_Front:
                 RunShaktoolFrontCirclePreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving:
+            case EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving:
                 RunShaktoolLinkedCirclePreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiscDust:
+            case EnemyProjectilePreInstruction.MiscDust:
                 CullMiscDustOutsideCamera(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_DragonFireball:
+            case EnemyProjectilePreInstruction.DragonFireball:
                 RunDragonFireballPreInstruction(projectile, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball:
+            case EnemyProjectilePreInstruction.RidleyFireball:
             {
                 bool horizontalCollision = MoveProjectileAxis(projectile, level, horizontal: true);
                 bool verticalCollision = !horizontalCollision &&
@@ -1116,16 +1116,16 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering:
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling:
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFlying:
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling:
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling:
-            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying:
+            case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
+            case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
+            case EnemyProjectilePreInstruction.NoobTubeShardFlying:
+            case EnemyProjectilePreInstruction.NoobTubeShardFalling:
+            case EnemyProjectilePreInstruction.NoobTubeBubbleFalling:
+            case EnemyProjectilePreInstruction.NoobTubeBubbleFlying:
                 RunNoobTubeProjectilePreInstruction(projectile, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_HorizontalAfterburn:
+            case EnemyProjectilePreInstruction.HorizontalAfterburn:
                 // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
                 // helper. Only the perpendicular vertical move may end this afterburn.
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
@@ -1136,7 +1136,7 @@ public sealed partial class RoomEnemySystem
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_VerticalAfterburn:
+            case EnemyProjectilePreInstruction.VerticalAfterburn:
                 // $86:9522 is the transposed path: unrestricted vertical travel followed
                 // by a horizontal room-collision test.
                 (projectile.YPosition, projectile.YSubposition) = AddEightBitVelocity(
@@ -1147,7 +1147,7 @@ public sealed partial class RoomEnemySystem
                     BeginAfterburnFinalAnimation(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MetalSkreeParticle:
+            case EnemyProjectilePreInstruction.MetalSkreeParticle:
                 (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
                     projectile.XPosition,
                     projectile.XSubposition,
@@ -1164,131 +1164,131 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Setup:
+            case EnemyProjectilePreInstruction.CrocomiresProjectile_Setup:
                 StartCrocomireProjectileFlight(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired:
+            case EnemyProjectilePreInstruction.CrocomiresProjectile_Fired:
                 RunCrocomireProjectileFlight(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomireSpikeWallPieces:
+            case EnemyProjectilePreInstruction.CrocomireSpikeWallPieces:
                 RunCrocomireSpikeWallPiece(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRocks:
+            case EnemyProjectilePreInstruction.KraidRocks:
                 RunKraidRockPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidCeilingRocks:
+            case EnemyProjectilePreInstruction.KraidCeilingRocks:
                 RunKraidCeilingRockPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0:
+            case EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0:
                 projectile.GraphicsIndex = 0;
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PhantoonStartingFlames:
+            case EnemyProjectilePreInstruction.PhantoonStartingFlames:
                 RunPhantoonStartingFlameWaiting(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated:
+            case EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated:
                 RunPhantoonStartingFlameOrbit(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling:
                 RunPhantoonCasualFlameFalling(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround:
                 RunPhantoonCasualFlameImpactPause(projectile, _currentEnemyProjectileFrame16);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing:
                 RunPhantoonCasualFlameBouncing(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Enraged:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged:
                 RunPhantoonEnragedFlame(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Rain:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain:
                 RunPhantoonRainFlame(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Spiral:
+            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral:
                 RunPhantoonSpiralFlame(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomireBridgeCrumbling:
+            case EnemyProjectilePreInstruction.CrocomireBridgeCrumbling:
                 RunCrocomireBridgeFragment(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_AlcoonFireball:
+            case EnemyProjectilePreInstruction.AlcoonFireball:
                 RunAlcoonFireballPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving:
+            case EnemyProjectilePreInstruction.KiHunterAcid_Moving:
                 RunKiHunterAcidMovement(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left:
+            case EnemyProjectilePreInstruction.KiHunterAcid_Left:
                 StartKiHunterAcidMovement(projectile, movingRight: false);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right:
+            case EnemyProjectilePreInstruction.KiHunterAcid_Right:
                 StartKiHunterAcidMovement(projectile, movingRight: true);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PowampSpike:
+            case EnemyProjectilePreInstruction.PowampSpike:
                 RunPowampSpikePreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_WreckedShipRobotLaser:
+            case EnemyProjectilePreInstruction.WreckedShipRobotLaser:
                 RunWorkRobotLaserPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_StokeFireball:
+            case EnemyProjectilePreInstruction.StokeFireball:
                 // Stoke shot: horizontal motion and viewport cull.
                 RunStokeProjectilePreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike:
+            case EnemyProjectilePreInstruction.CacatacSpike:
                 // Cacatac spike: ten direction-table movers.
                 RunCacatacSpikePreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock:
+            case EnemyProjectilePreInstruction.PolypRock:
                 // Polyp rock: quadratic rise/fall and viewport cull.
                 RunPolypRockPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball:
+            case EnemyProjectilePreInstruction.NamiFuneFireball:
                 // Fune/Namihe: directional 8.8 flight and cull.
                 RunFuneNamiheFireballPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava:
+            case EnemyProjectilePreInstruction.MagdolliteLava:
                 RunMagdolliteLavaPreInstruction(projectile, cameraX, cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle:
+            case EnemyProjectilePreInstruction.KagoBug_Idle:
                 RunKagoBugIdle(projectile);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping:
+            case EnemyProjectilePreInstruction.KagoBug_Jumping:
                 RunKagoBugJumping(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling:
+            case EnemyProjectilePreInstruction.KagoBug_Falling:
                 RunKagoBugFalling(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_FallingSpark:
+            case EnemyProjectilePreInstruction.FallingSpark:
                 RunFallingSparkPreInstruction(projectile, level, nmiFrameCounter8);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CeresFallingTile:
+            case EnemyProjectilePreInstruction.CeresFallingTile:
                 projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 0x0010));
                 if (MoveProjectileAxis(projectile, level, horizontal: false))
                 {
@@ -1300,24 +1300,24 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiniKraidSpit:
+            case EnemyProjectilePreInstruction.MiniKraidSpit:
                 RunFakeKraidSpitPreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MiniKraidSpikes:
+            case EnemyProjectilePreInstruction.MiniKraidSpikes:
                 RunFakeKraidSpikePreInstruction(projectile, level);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left:
-            case EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right:
+            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left:
+            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right:
                 RunPirateMotherBrainLaserPreInstruction(
                     projectile,
                     cameraX,
                     cameraY);
                 return;
 
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left:
-            case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right:
+            case EnemyProjectilePreInstruction.PirateClaw_Left:
+            case EnemyProjectilePreInstruction.PirateClaw_Right:
                 RunNinjaPirateClawPreInstruction(projectile, cameraX, cameraY);
                 return;
 
@@ -1614,12 +1614,12 @@ public sealed partial class RoomEnemySystem
             }
 
             if (TryExecuteTourianUnlockInstruction(projectile, word, ref cursor)) continue;
-            switch (word)
+            switch (ClosedNativeWords.Decode<EnemyProjectileInstruction>(word, "enemy-projectile instruction"))
             {
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete:
+                case EnemyProjectileInstruction.Delete:
                     projectile.Clear();
                     return;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY:
+                case EnemyProjectileInstruction.Properties_OrY:
                 {
                     ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
@@ -1636,7 +1636,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY:
+                case EnemyProjectileInstruction.Properties_AndY:
                 {
                     ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
@@ -1653,39 +1653,39 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
                     projectile.BlocksSamusProjectiles = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DisableCollisionWIthSamusProj:
+                case EnemyProjectileInstruction.DisableCollisionWIthSamusProj:
                     projectile.BlocksSamusProjectiles = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DisableCollisionWithSamus:
+                case EnemyProjectileInstruction.DisableCollisionWithSamus:
                     projectile.CanDamageSamus = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_EnableCollisionWithSamus_868266:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_EnableCollisionWithSamus_868266:
                     projectile.CanDamageSamus = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_SetToNotDieOnContact_868270:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_SetToNotDieOnContact_868270:
                     projectile.PersistsOnSamusContact = true;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A:
+                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A:
                     projectile.PersistsOnSamusContact = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SetHighPriority:
+                case EnemyProjectileInstruction.SetHighPriority:
                     projectile.DrawPriority = EnemyProjectileDrawPriority.High;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
+                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
                     projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY:
+                case EnemyProjectileInstruction.XYRadiusInY:
                 {
                     ushort radii = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
@@ -1695,12 +1695,12 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
+                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
                     projectile.XRadius = 0;
                     projectile.YRadius = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6
                     when projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking:
                 {
                     EnemySoundRequest sound = BombTorizoStatueInstructionProgramDefinitions.ReleaseSound(cursor);
@@ -1708,48 +1708,48 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
                 }
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6
                     when OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind):
                     QueueEnemySound(
                         OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSound,
                         OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSoundMaximum);
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib1_Max15:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max15_86832D:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max15_868336:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max3_86833F:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max3_868348:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max3_868351:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86835A:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max9_868363:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86836C:
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max1_868375:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max1:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max1:
+                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
+                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6:
+                case EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6:
+                case EnemyProjectileInstruction.QueueSoundInY_Lib1_Max15:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max15_86832D:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max15_868336:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max3_86833F:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max3_868348:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max3_868351:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86835A:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max9_868363:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86836C:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max1_868375:
+                case EnemyProjectileInstruction.QueueSoundInY_Lib2_Max1:
+                case EnemyProjectileInstruction.QueueSoundInY_Lib3_Max1:
                     // Audio is an outer-runtime seam, but these commands are byte-packed.
                     // Advancing by three (two-byte opcode plus one-byte ID) is essential:
                     // rounding to a word would desynchronize every following frame.
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep:
+                case EnemyProjectileInstruction.Sleep:
                     // The native command rewinds Y to its own opcode, stores that pointer,
                     // pops the instruction-handler return address, and leaves timer zero.
                     // Subsequent frames wrap zero to FFFF and therefore never parse again.
                     projectile.InstructionPointer = cursor;
                     projectile.InstructionTimer = 0;
                     return;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY:
+                case EnemyProjectileInstruction.PreInstructionInY:
                     projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus:
+                case EnemyProjectileInstruction.CalculateDirectionTowardsSamus:
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -1763,24 +1763,24 @@ public sealed partial class RoomEnemySystem
                     projectile.YVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
-                    projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;
+                case EnemyProjectileInstruction.ClearPreInstruction:
+                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainPurpleBreath_Inactive
+                case EnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive
                     when projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
                     (MotherBrain ?? throw new InvalidOperationException(
                         "Mother Brain's small purple breath ran without its encounter state."))
                         .SmallPurpleBreathActive = false;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case DownwardGateEnemyProjectileRomData.SetYVelocityInstruction:
+                case EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction:
                     projectile.YVelocity = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
+                case EnemyProjectileInstruction.CallExternalFunctionInY:
                 {
                     if (!MotherBrainHandBeamInstructionProgramDefinitions.Owns(projectile.Kind))
                     {
@@ -1805,24 +1805,24 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 5));
                     break;
                 }
-                case EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
+                case EnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
                     projectile.PreInstruction =
-                        EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired;
+                        (ushort)EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
+                case EnemyProjectileInstruction.DraygonGoop_SamusCollision when projectile.Kind == RoomEnemyProjectileKind.DraygonGoop:
                     AttachDraygonGoopToSamus(projectile, samus);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY:
+                case EnemyProjectileInstruction.GotoY:
                     cursor = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Y:
+                case EnemyProjectileInstruction.GotoY_Y:
                     throw new InvalidDataException(
                         $"Projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero:
+                case EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero:
                 {
                     ushort before = projectile.GeneralTimer;
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
@@ -1833,25 +1833,25 @@ public sealed partial class RoomEnemySystem
                             unchecked((ushort)(cursor + 2)));
                     break;
                 }
-                case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
+                case EnemyProjectileInstruction.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
                     throw new InvalidDataException(
                         $"Unused projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY:
+                case EnemyProjectileInstruction.TimerInY:
                     projectile.GeneralTimer = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle:
+                case EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle:
                     projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
                     projectile.YVelocity = NoobTubeProjectileRomData.ShardFallYVelocity;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_NoobTubeBubbleAssignFallingAngle:
+                case EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle:
                     projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker:
+                case EnemyProjectileInstruction.NoobTubeShardReflectFlicker:
                     projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
                         : unchecked((ushort)(0x0100 - projectile.Variable1));
@@ -1861,7 +1861,7 @@ public sealed partial class RoomEnemySystem
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 6));
                     projectile.InstructionTimer = 1;
                     return;
-                case EnemyProjectileCodePointers.Instruction_NoobTubeShardFlicker:
+                case EnemyProjectileInstruction.NoobTubeShardFlicker:
                     projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
                         ? projectile.Variable1
                         : NoobTubeProjectileRomData.HiddenXPosition;
@@ -1870,17 +1870,17 @@ public sealed partial class RoomEnemySystem
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
                     projectile.InstructionTimer = 1;
                     return;
-                case EnemyProjectileCodePointers.RTS_8681DE:
+                case EnemyProjectileInstruction.RTS_8681DE:
                     // Bomb Torizo's impact list uses this address as a compact no-op before
                     // its counted branch. It is a real callable ROM entry, not a typo for
                     // MoveRandomlyWithinRadius at the following byte.
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius:
+                case EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
                     MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY:
+                case EnemyProjectileInstruction.PreInstructionInY_ExecuteY:
                     projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
@@ -1898,12 +1898,12 @@ public sealed partial class RoomEnemySystem
                         return;
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition:
+                case EnemyProjectileInstruction.Torizo_ResetPosition:
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
+                case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
                     (projectile.XPosition, projectile.XSubposition) = AddEightBitVelocity(
                         projectile.XPosition,
                         projectile.XSubposition,
@@ -1912,13 +1912,13 @@ public sealed partial class RoomEnemySystem
                         unchecked((ushort)(cursor +
                             (unchecked((short)projectile.XVelocity) < 0 ? 2 : 4))));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched:
+                case EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched:
                     cursor = (projectile.Variable0 & 0x8000) != 0
                         ? GoldenTorizoEggInstructionProgramDefinitions.HatchedRight
                         : GoldenTorizoEggInstructionProgramDefinitions.HatchedLeft;
                     break;
-                case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards:
-                case EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards:
+                case EnemyProjectileInstruction.AimSuperMissile_Rightwards:
+                case EnemyProjectileInstruction.AimSuperMissile_Leftwards:
                     if (samus is null)
                     {
                         throw new InvalidOperationException(
@@ -1928,10 +1928,10 @@ public sealed partial class RoomEnemySystem
                         projectile,
                         samus,
                         awayFromSamus:
-                            word == EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards);
+                            word == (ushort)EnemyProjectileInstruction.AimSuperMissile_Leftwards);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled:
+                case EnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled:
                 {
                     TorizoEnemyState state = GoldenTorizo ??
                         throw new InvalidOperationException(
@@ -1943,12 +1943,12 @@ public sealed partial class RoomEnemySystem
                         : unchecked((ushort)(cursor + 4));
                     break;
                 }
-                case EnemyProjectileCodePointers.UNUSED_Instruction_ResetPosition_86B436:
+                case EnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
                     projectile.XPosition = projectile.Variable0;
                     projectile.YPosition = projectile.Variable1;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                case EnemyProjectileInstruction.MotherBrainsTurretBullets_GotoY when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                     // The bullet initializer stores direction * 2 in variable E. The ROM
                     // opcode adds that byte offset to the eight-pointer table immediately
                     // following the opcode, then jumps to the selected one-frame map.
@@ -1956,16 +1956,16 @@ public sealed partial class RoomEnemySystem
                         projectile,
                         unchecked((ushort)(cursor + 2 + projectile.Variable0)));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0
+                case EnemyProjectileInstruction.UsePalette0
                     when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0_Duplicate
+                case EnemyProjectileInstruction.UsePalette0_Duplicate
                     when projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing:
                     // Both native aliases clear the projectile's palette selection before
                     // their respective turret-smoke or onion-ring impact frames.
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels
+                case EnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels
                     when projectile.Kind is
                     RoomEnemyProjectileKind.MotherBrainDrool or
                     RoomEnemyProjectileKind.MotherBrainDyingDrool:
@@ -1974,74 +1974,74 @@ public sealed partial class RoomEnemySystem
                     projectile.YPosition = unchecked((ushort)(projectile.YPosition + 12));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4:
+                case EnemyProjectileInstruction.GotoY_Probability_1_4:
                     cursor = (_nextRandom!() & 0xc000) == 0xc000
                         ? ReadEnemyProjectileInstructionMechanicsWord(
                             projectile,
                             unchecked((ushort)(cursor + 2)))
                         : unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances:
+                case EnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances:
                     RequestTorizoChozoOrbDrop(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
                     break;
-                case EnemyProjectileCodePointers.Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles:
+                case EnemyProjectileInstruction.Spawn_HorizontalAfterburn_EnemyProjectiles:
                     SpawnAfterburnPair(projectile, horizontal: true);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_Spawn_VerticalAfterburn_EnemyProjectiles:
+                case EnemyProjectileInstruction.Spawn_VerticalAfterburn_EnemyProjectiles:
                     SpawnAfterburnPair(projectile, horizontal: false);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_SpawnNext_Afterburn_EnemyProjectile:
+                case EnemyProjectileInstruction.SpawnNext_Afterburn_EnemyProjectile:
                     SpawnNextAfterburn(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_SpawnPhantoonDrop:
+                case EnemyProjectileInstruction.SpawnPhantoonDrop:
                     RequestPhantoonFlameDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances:
+                case EnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances:
                     // The native callback allocates the pickup before its caller's goto/
                     // delete tail releases this projectile, preserving shared slot order.
                     SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.DraygonEye);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances:
+                case EnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances:
                     // Allocate before the following goto/delete frees the impact actor.
                     // There is no inline operand; the next word remains an instruction.
                     SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, EnemyDefinitionId.Crocomire);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugProjectileInstructionProgramDefinitions.StartJumpInstruction:
+                case EnemyProjectileInstruction.KagoBugStartJumpInstruction:
                     StartKagoBugJump(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugProjectileInstructionProgramDefinitions.StartIdleInstruction:
+                case EnemyProjectileInstruction.KagoBugStartIdleInstruction:
                     StartKagoBugIdle(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugProjectileInstructionProgramDefinitions.UsePaletteZeroInstruction:
+                case EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction:
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case KagoBugProjectileInstructionProgramDefinitions.SpawnDropInstruction:
+                case EnemyProjectileInstruction.KagoBugSpawnDropInstruction:
                     RequestKagoBugDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops:
+                case EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops:
                     RequestMagdolliteLavaDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20:
+                case EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20:
                     SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x003f, center: 32);
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10:
+                case EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10:
                     SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x001f, center: 16);
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX:
+                case EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX:
                     // The native dispatcher passes a pointer to the first byte after the
                     // opcode into EprojInstr_QueueSfx2_9, and that routine returns the same
                     // pointer unchanged. Therefore the timed duration begins immediately
@@ -2050,31 +2050,31 @@ public sealed partial class RoomEnemySystem
                     LastEnemyDeathSoundEffectLibrary2 = 9;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX:
+                case EnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX:
                     LastEnemyDeathSoundEffectLibrary2 = 0x0024;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX:
+                case EnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX:
                     LastEnemyDeathSoundEffectLibrary2 = 0x000b;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SetProperties3000:
+                case EnemyProjectileInstruction.Spores_SetProperties3000:
                     SetSporeSpawnImpactProperties(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SpawnEnemyDrops:
+                case EnemyProjectileInstruction.Spores_SpawnEnemyDrops:
                     RequestSporeSpawnSporeDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SporeSpawner_SpawnSpore:
+                case EnemyProjectileInstruction.SporeSpawner_SpawnSpore:
                     SpawnSporeSpawnSpore(projectile.XPosition, projectile.YPosition);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds:
+                case EnemyProjectileInstruction.TorizoLandingDustClouds:
                     projectile.YPosition = unchecked((ushort)(projectile.YPosition - 4));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup:
+                case EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup:
                     if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
                     {
                         throw new InvalidDataException(
@@ -2083,7 +2083,7 @@ public sealed partial class RoomEnemySystem
                     ConvertEnemyDeathExplosionToPickup(projectile);
                     cursor = projectile.InstructionPointer;
                     break;
-                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy:
+                case EnemyProjectileInstruction.Pickup_HandleRespawningEnemy:
                     if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
                     {
                         RespawnEnemyFromSnapshot(unchecked((ushort)(

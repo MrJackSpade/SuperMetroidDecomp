@@ -53,16 +53,16 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
         if (index < 5) return LoopWord(DestroyableIdle, index);
         if (index < 7)
             return new((ushort)(CasualHitGround + (index - 5) * 4),
-                index == 5 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+                index == 5 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);
         if (index < 12) return LoopWord(CasualBouncing, index - 7);
         if (index < 18) return Frame(CasualResting, index - 12, FlamePoseFrames);
         if (index < 23)
             return index < 22 ? Frame(Dying, index - 18, FlamePoseFrames)
-                : new((ushort)(Dying + 16), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+                : new((ushort)(Dying + 16), (ushort)EnemyProjectileInstruction.Delete);
         if (index < 26)
             return index == 23 ? Frame(RainImpact, 0, RainImpactFrames)
                 : new((ushort)(RainImpact + 4 + (index - 24) * 2),
-                    index == 24 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Dying);
+                    index == 24 ? (ushort)EnemyProjectileInstruction.GotoY : Dying);
         if (index < 44)
         {
             int phase = (index - 26) / 6;
@@ -71,22 +71,22 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
             int offset = word < 2 ? word * 2 : word < 4 ? 4 + (word - 2) * 4 : 12 + (word - 4) * 2;
             return new((ushort)(start + offset), word switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY,
+                0 => (ushort)EnemyProjectileInstruction.TimerInY,
                 1 => FallingRepeatCount,
                 2 or 3 => 1,
-                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+                4 => (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero,
                 _ => (ushort)(start + 4),
             });
         }
         if (index < 46)
             return new((ushort)(CasualFalling + 48 + (index - 44) * 2),
-                index == 44 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : CasualFalling);
+                index == 44 ? (ushort)EnemyProjectileInstruction.GotoY : CasualFalling);
         if (index < 51) return LoopWord(StartingFlame, index - 46);
-        if (index == 51) return new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (index == 51) return new(Delete, (ushort)EnemyProjectileInstruction.Delete);
         if (index < 56) return Frame(DestroyableShot, index - 52, FlamePoseFrames);
         return new((ushort)(DestroyableShot + 16 + (index - 56) * 2),
-            index == 56 ? EnemyProjectileCodePointers.Instruction_SpawnPhantoonDrop
-                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+            index == 56 ? (ushort)EnemyProjectileInstruction.SpawnPhantoonDrop
+                : (ushort)EnemyProjectileInstruction.Delete);
     }
 
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
@@ -95,7 +95,7 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
     private static InstructionMechanicsWord LoopWord(ushort start, int word) =>
         word < 3 ? Frame(start, word, FlamePoseFrames)
             : new((ushort)(start + 12 + (word - 3) * 2),
-                word == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : start);
+                word == 3 ? (ushort)EnemyProjectileInstruction.GotoY : start);
 
     public static ushort PresentationWordAddress(int index)
     {

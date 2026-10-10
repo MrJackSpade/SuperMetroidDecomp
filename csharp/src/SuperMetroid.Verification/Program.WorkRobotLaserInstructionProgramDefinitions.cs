@@ -125,7 +125,7 @@ internal static partial class Program
             {
                 ushort nativeCursor = projectile.InstructionPointer;
                 // The final native Goto operand returns to the fourth frame, after the prefix.
-                if (ReadWorkRobotLaserInstructionWord(rom, nativeCursor) == EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
+                if (ReadWorkRobotLaserInstructionWord(rom, nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
                     nativeCursor = ReadWorkRobotLaserInstructionWord(rom, (ushort)(nativeCursor + 2));
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);

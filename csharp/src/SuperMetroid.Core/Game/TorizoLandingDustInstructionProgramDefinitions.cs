@@ -20,22 +20,22 @@ internal abstract class TorizoLandingDustInstructionProgramDefinitions
         Origin(0xaf9d),
         Entry(RightFoot),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+        Op((ushort)EnemyProjectileInstruction.Delete),
         Entry(LeftFoot),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TorizoLandingDustClouds),
+        Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
-        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
+        Op((ushort)EnemyProjectileInstruction.Delete));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 

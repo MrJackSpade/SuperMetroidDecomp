@@ -58,7 +58,7 @@ internal static partial class Program
             AssertEqual((ushort)470, beam.YPosition,
                 $"Golden Torizo {facingRight} eye beam Y origin");
             AssertEqual(
-                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam,
+                (ushort)EnemyProjectilePreInstruction.GoldenTorizoEyeBeam,
                 beam.PreInstruction,
                 $"Golden Torizo {facingRight} eye beam movement callback");
 
@@ -112,7 +112,7 @@ internal static partial class Program
             Process(wallEnemies, wallBeam, null);
             AssertTrue(wallBeam.IsActive,
                 $"Golden Torizo eye beam wall impact frame {frame}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, wallBeam.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, wallBeam.PreInstruction,
                 $"Golden Torizo eye beam wall impact clears movement frame {frame}");
         }
         Process(wallEnemies, wallBeam, null);
@@ -173,7 +173,7 @@ internal static partial class Program
             Process(enabledEnemies, enabledBeam, null);
             AssertTrue(enabledBeam.IsActive,
                 $"enabled Golden Torizo eye-beam explosion frame {frame}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, enabledBeam.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, enabledBeam.PreInstruction,
                 $"enabled Golden Torizo eye-beam explosion clears movement frame {frame}");
             AssertEqual(frame >= 10, enabledBeam.CanDamageSamus,
                 $"enabled Golden Torizo eye-beam collision transition frame {frame}");

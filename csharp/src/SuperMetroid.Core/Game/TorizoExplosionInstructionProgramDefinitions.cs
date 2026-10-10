@@ -66,23 +66,23 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
         layout.Address = small ? LowHealthInitial : smoke ? DeathSmokeSetup : DeathInitial;
         if (!smoke)
         {
-            layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
-            layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY, ExplosionPropertyMask);
-            if (!small) layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY_Probability_1_4, DeathSmokeSetup);
+            layout.Word((ushort)EnemyProjectileInstruction.ClearPreInstruction);
+            layout.Command((ushort)EnemyProjectileInstruction.Properties_OrY, ExplosionPropertyMask);
+            if (!small) layout.Command((ushort)EnemyProjectileInstruction.GotoY_Probability_1_4, DeathSmokeSetup);
         }
-        layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY, small ? (ushort)3 : (ushort)2);
+        layout.Command((ushort)EnemyProjectileInstruction.TimerInY, small ? (ushort)3 : (ushort)2);
         ushort loop = layout.Address;
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Torizo_ResetPosition);
-        layout.Word(EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius);
+        layout.Word((ushort)EnemyProjectileInstruction.Torizo_ResetPosition);
+        layout.Word((ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius);
         layout.Word(small ? SmallSpreadMask : DeathHorizontalSpreadMask);
         layout.Word(small ? SmallSpreadMask : smoke ? SmokeVerticalSpread : LargeVerticalSpread);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6);
+        layout.Word((ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6);
         layout.Address++; // The sound argument is a byte, outside this word catalog.
         int poses = small ? SmallExplosionHolds.Length : smoke ? 4 : LargeExplosionHolds.Length;
         for (int pose = 0; pose < poses; pose++)
             layout.Pose(small ? SmallExplosionHolds[pose] : smoke ? (ushort)8 : LargeExplosionHolds[pose]);
-        layout.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero, loop);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        layout.Command((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, loop);
+        layout.Word((ushort)EnemyProjectileInstruction.Delete);
     }
 
     private struct Layout(int target, bool presentation)

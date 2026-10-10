@@ -99,7 +99,7 @@ public sealed partial class RoomEnemySystem
 
     private bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
     {
-        if (code == EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6 &&
+        if (code == (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6 &&
             projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow)
         {
             QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);

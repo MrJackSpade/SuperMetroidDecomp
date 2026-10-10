@@ -32,7 +32,7 @@ public enum EnemyPickupKind : ushort
 public sealed partial class RoomEnemySystem
 {
     private const ushort EnemyPickupPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup;
+        (ushort)EnemyProjectilePreInstruction.Pickup;
     private const ushort EnemyPickupLifetime = 400;
     private const ushort EnemyPickupGrappleDelay = 16;
 
@@ -296,7 +296,7 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer =
             EnemyDeathExplosionDefinitions.NoDropTailInstruction;
         projectile.InstructionTimer = 1;
-        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86EFDF;
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;

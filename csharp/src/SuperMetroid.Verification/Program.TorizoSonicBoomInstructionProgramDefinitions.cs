@@ -131,7 +131,7 @@ internal static partial class Program
             process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
             VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands);
             AssertTrue(impact.IsActive, $"Torizo sonic-boom impact frame {frame}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, impact.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, impact.PreInstruction,
                 $"Torizo sonic-boom impact clears movement on frame {frame}");
             AssertTrue(!impact.BlocksSamusProjectiles,
                 $"Torizo sonic-boom impact disables shot collision on frame {frame}");

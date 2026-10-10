@@ -17,7 +17,7 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitionsTooling
         return field switch
         {
             0 => new(start, 16),
-            1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.GotoY),
             _ => new((ushort)(start + 6), start),
         };
     }

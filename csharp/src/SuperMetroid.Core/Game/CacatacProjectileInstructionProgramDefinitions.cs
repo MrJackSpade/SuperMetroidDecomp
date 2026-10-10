@@ -42,7 +42,7 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions
         if ((uint)offset < 6 * ProgramCount)
         {
             if (offset % 6 == 0) return 1;
-            if (offset % 6 == 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep;
+            if (offset % 6 == 4) return (ushort)EnemyProjectileInstruction.Sleep;
         }
         throw new InvalidDataException(
             $"Cacatac spike instruction mechanics pointer $86:{address:X4} is not compiled.");

@@ -13,7 +13,7 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
     internal static InstructionMechanicsWord NativeWord(int index)
     {
         if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == NativeWordCount - 1) return new(MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (index == NativeWordCount - 1) return new(MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete, (ushort)EnemyProjectileInstruction.Delete);
         int record = index % WordsPerStage;
         ushort address = (ushort)(MotherBrainHandBeamInstructionProgramDefinitions.StageStart(index / WordsPerStage) +
             (record == 1 ? MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes : MotherBrainHandBeamInstructionProgramDefinitions.FrameOffset(record == 0 ? 0 : record - 1)));

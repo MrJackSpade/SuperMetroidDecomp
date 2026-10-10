@@ -50,14 +50,14 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
     {
         value = address switch
         {
-            GoopTouch => EnemyProjectileCodePointers.Instruction_DraygonGoop_SamusCollision,
-            Goop + 24 or GoopShot + 10 or WallTurretFlight + 12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            GoopTouch => (ushort)EnemyProjectileInstruction.DraygonGoop_SamusCollision,
+            Goop + 24 or GoopShot + 10 or WallTurretFlight + 12 => (ushort)EnemyProjectileInstruction.GotoY,
             Goop + 26 => Goop,
-            Goop + 28 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
-            GoopShot + 8 => EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances,
+            Goop + 28 => (ushort)EnemyProjectileInstruction.Sleep,
+            GoopShot + 8 => (ushort)EnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances,
             GoopShot + 12 => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
-            GoopShot + 14 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
-            WallTurretFlight - 2 => EnemyProjectileCodePointers.Instruction_SetPreInst_DraygonsWallTurretProjectile_Fired,
+            GoopShot + 14 => (ushort)EnemyProjectileInstruction.Delete,
+            WallTurretFlight - 2 => (ushort)EnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired,
             WallTurretFlight + 14 => WallTurretFlight,
             _ => 0,
         };

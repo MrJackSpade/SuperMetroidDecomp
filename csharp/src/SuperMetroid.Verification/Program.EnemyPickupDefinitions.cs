@@ -41,7 +41,7 @@ internal static partial class Program
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.Variable1,
                 $"production pickup lifetime {kind}");
-            AssertEqual(EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.Pickup,
                 projectile.PreInstruction,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,

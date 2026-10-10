@@ -69,7 +69,7 @@ internal static partial class Program
             EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 4,
             impact.InstructionPointer,
             "Eye Door initial program reaches its flying loop frame");
-        AssertEqual(EyeDoorEnemyProjectileRomData.ProjectilePreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction,
             impact.PreInstruction,
             "Eye Door setup installs the native flight pre-instruction operand");
         impact.InstructionTimer = 1;

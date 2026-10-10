@@ -49,7 +49,7 @@ internal static partial class Program
         RunForcedTicks(touchSystem, touch, 1, attachedSamus);
         AssertEqual((ushort)1, attachedSamus.XSpeedDivisor,
             "Draygon goop touch callback applies the first native speed divisor");
-        AssertEqual(EnemyProjectileCodePointers.PreInstruction_DraygonGoop_StuckToSamus,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus,
             touch.PreInstruction, "Draygon goop touch installs attached movement");
         AssertEqual((ushort)0x8c3e, touch.InstructionPointer,
             "Draygon goop touch falls through into its first animation frame");
@@ -92,7 +92,7 @@ internal static partial class Program
         AssertEqual((ushort)0x8cea, turret.InstructionPointer,
             "Draygon turret completes sixteen bloom frames and its three-frame flight loop");
         AssertEqual(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired,
+            (ushort)EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired,
             turret.PreInstruction, "Draygon turret callback enables projectile flight");
 
         ushort[] nativeOperands = [0x8c3c, 0x8c40, 0x8c44, 0x8c48, 0x8c4c, 0x8c50,

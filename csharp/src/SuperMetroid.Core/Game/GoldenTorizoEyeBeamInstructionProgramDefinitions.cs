@@ -41,27 +41,27 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
     private static InstructionMechanicsWord Select(int index, bool visual)
     {
         var layout = new Layout(index, visual);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        layout.Word((ushort)EnemyProjectileInstruction.ClearPreInstruction);
         for (int pose = 0; pose < 5; pose++) layout.Pose(WallHold);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        layout.Word((ushort)EnemyProjectileInstruction.Delete);
+        layout.Word((ushort)EnemyProjectileInstruction.ClearPreInstruction);
         layout.Pose(LandingHold);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled);
+        layout.Word((ushort)EnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled);
         layout.Word(FloorImpactLoop);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6);
+        layout.Word((ushort)EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6);
         layout.SkipByte();
         for (int phase = 0; phase < 6; phase++)
         {
             if (phase == 2)
             {
-                layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY);
+                layout.Word((ushort)EnemyProjectileInstruction.Properties_AndY);
                 layout.Word(EnableSamusDamageMask);
             }
             layout.Pose((ushort)(ExplosionInitialHold + phase));
         }
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        layout.Word((ushort)EnemyProjectileInstruction.Delete);
         for (int pose = 0; pose < 5; pose++) layout.Pose(FlightHold);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
+        layout.Word((ushort)EnemyProjectileInstruction.GotoY);
         layout.Word(Normal);
         return layout.Result;
     }

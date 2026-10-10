@@ -20,7 +20,7 @@ internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions
     {
         int offset = address - Initial;
         if ((uint)offset < FrameCount * 4 && offset % 4 == 0) return 3;
-        if (offset == FrameCount * 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (offset == FrameCount * 4) return (ushort)EnemyProjectileInstruction.GotoY;
         if (offset == FrameCount * 4 + 2) return Initial;
         throw new InvalidDataException($"Nuclear Waffle projectile mechanics pointer $86:{address:X4} is not compiled.");
     }

@@ -59,13 +59,13 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         else
         {
             writer.Timed(start == Middle ? MiddleLaunchTicks : BackLaunchTicks);
-            writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-            writer.Command(EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving);
+            writer.Command((ushort)EnemyProjectileInstruction.PreInstructionInY);
+            writer.Command((ushort)EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
             if (start == Middle) writer.Timed(GrowthTicks);
         }
         ushort heldPose = (ushort)(start + (start == Middle ? 12 : 8));
         writer.Timed(HeldPoseTicks);
-        writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
+        writer.Command((ushort)EnemyProjectileInstruction.GotoY);
         writer.Command(heldPose);
         return writer.Value;
     }

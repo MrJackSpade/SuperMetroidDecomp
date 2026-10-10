@@ -2921,14 +2921,14 @@ internal static class RoomEnemySystemConstants
 {
     public const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
     public const ushort BombTorizoInitialInstruction = 0xb879;
-    public const ushort CacatacSpikePreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CacatacSpike;
+    public const ushort CacatacSpikePreInstruction = (ushort)EnemyProjectilePreInstruction.CacatacSpike;
     public const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
-    public const ushort KiHunterAcidInitialLeftPreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left;
-    public const ushort KiHunterAcidInitialRightPreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right;
+    public const ushort KiHunterAcidInitialLeftPreInstruction = (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Left;
+    public const ushort KiHunterAcidInitialRightPreInstruction = (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Right;
     public const ushort NinjaPiratePaletteNormal = 0x0200;
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
     public const ushort PhantoonEyeHitboxBodyInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
-    public const ushort StokeProjectilePreInstruction = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_StokeFireball;
+    public const ushort StokeProjectilePreInstruction = (ushort)EnemyProjectilePreInstruction.StokeFireball;
 
     extension(RoomEnemySystem)
     {

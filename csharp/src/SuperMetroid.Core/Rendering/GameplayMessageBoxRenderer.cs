@@ -56,6 +56,16 @@ public static class GameplayMessageBoxRenderer
         ArgumentNullException.ThrowIfNull(cgram);
         if (frame.Length != ScreenWidth * ScreenHeight)
             throw new ArgumentException("A message overlay requires exactly 256x224 pixels.", nameof(frame));
+        // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A, then
+        // RestorePpuForMessageBox restores the gameplay palette: the box sees CGRAM
+        // with those two temporary colors applied.
+        Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
+        for (int index = 0; index < palette.Length; index++)
+            palette[index] = cgram.GetRgba(index);
+        palette[GameplayMessageRomData.Palette.TemporaryLightIndex] =
+            GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32();
+        palette[GameplayMessageRomData.Palette.TemporaryDarkIndex] =
+            GameplayMessageRomData.Palette.TemporaryDarkColor.ToRgba32();
         // The ROM builder accepts a variable number of content rows. In particular,
         // message $14 uses three content rows plus two small-border rows (five total),
         // so validating only the common 3-row and 6-row shapes rejects retail data.
@@ -119,16 +129,7 @@ public static class GameplayMessageBoxRenderer
                             continue;
 
                         int paletteIndex = entry.PaletteIndex * 4 + color;
-                        Rgba32 rgba = paletteIndex switch
-                        {
-                            // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A,
-                            // then RestorePpuForMessageBox restores the gameplay palette.
-                            GameplayMessageRomData.Palette.TemporaryLightIndex =>
-                                GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32(),
-                            GameplayMessageRomData.Palette.TemporaryDarkIndex =>
-                                GameplayMessageRomData.Palette.TemporaryDarkColor.ToRgba32(),
-                            _ => cgram.GetRgba(paletteIndex),
-                        };
+                        Rgba32 rgba = palette[paletteIndex];
                         int screenX =
                             tileX * GameplayMessageRomData.Layout.TilePixels + outputX;
                         frame[screenY * ScreenWidth + screenX] = rgba;

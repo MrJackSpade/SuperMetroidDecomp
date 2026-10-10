@@ -74,7 +74,7 @@ internal static partial class Program
                 if (frame == initialDuration + 1)
                 {
                     AssertEqual(
-                        EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling,
+                        (ushort)EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling,
                         fragment.PreInstruction,
                         $"Bomb Torizo statue fragment {index} installs falling callback");
                     AssertEqual((ushort)0x0070, fragment.InstructionTimer,

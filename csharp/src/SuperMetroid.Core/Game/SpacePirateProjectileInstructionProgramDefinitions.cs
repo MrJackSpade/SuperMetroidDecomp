@@ -53,12 +53,12 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
             if (word < 3) return new((ushort)(start + word * 4), LaserStartupFrames);
             if (word < 5)
                 return new((ushort)(start + 12 + (word - 3) * 2),
-                    word == 3 ? EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY
-                        : right ? EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right
-                            : EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left);
+                    word == 3 ? (ushort)EnemyProjectileInstruction.PreInstructionInY_ExecuteY
+                        : right ? (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right
+                            : (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left);
             if (word < 15) return new((ushort)(start + 16 + (word - 5) * 4), 1);
             return new((ushort)(loop + 8 + (word - 15) * 2),
-                word == 15 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : loop);
+                word == 15 ? (ushort)EnemyProjectileInstruction.GotoY : loop);
         }
         else
         {
@@ -68,12 +68,12 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
             ushort loop = right ? ClawRightLoop : ClawLeftLoop;
             if (word < 2)
                 return new((ushort)(start + word * 2),
-                    word == 0 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
-                        : right ? EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right
-                            : EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left);
+                    word == 0 ? (ushort)EnemyProjectileInstruction.PreInstructionInY
+                        : right ? (ushort)EnemyProjectilePreInstruction.PirateClaw_Right
+                            : (ushort)EnemyProjectilePreInstruction.PirateClaw_Left);
             if (word < 10) return new((ushort)(loop + (word - 2) * 4), 1);
             return new((ushort)(loop + 32 + (word - 10) * 2),
-                word == 10 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : loop);
+                word == 10 ? (ushort)EnemyProjectileInstruction.GotoY : loop);
         }
     }
 

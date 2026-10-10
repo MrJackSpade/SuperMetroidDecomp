@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort PhantoonStartingFlameWaitingPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PhantoonStartingFlames;
+        (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames;
     private const ushort PhantoonStartingFlameOrbitPreInstruction =
-        EnemyProjectileCodePointers.PreInst_EnemyProjectile_PhantoonStartingFlames_Activated;
+        (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
 
     private bool SpawnPhantoonStartingFlame(RoomEnemySlot body, byte directionIndex)
     {
@@ -60,7 +60,7 @@ public sealed partial class RoomEnemySystem
                 flame.InstructionPointer =
                     PhantoonProjectileInstructionProgramDefinitions.CasualFalling;
                 flame.PreInstruction =
-                    EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling;
+                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling;
 
                 // $86:985F changes the spawn definition's $8028 properties to $2028.
                 // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -76,7 +76,7 @@ public sealed partial class RoomEnemySystem
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 32));
                 flame.PreInstruction =
-                    EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Enraged;
+                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
                 break;
 
             case PhantoonFlameSpawnType.Rain:
@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
                 flame.XPosition = PhantoonFlameSpawnDefinitions.RainX(column);
                 flame.YPosition = 40;
                 flame.PreInstruction =
-                    EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Rain;
+                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
                 break;
 
             case PhantoonFlameSpawnType.Spiral:
@@ -100,7 +100,7 @@ public sealed partial class RoomEnemySystem
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 16));
                 flame.PreInstruction =
-                    EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Spiral;
+                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
                 break;
 
             default:
@@ -165,7 +165,7 @@ public sealed partial class RoomEnemySystem
         flame.CanDamageSamus = true;
         flame.BlocksSamusProjectiles = true;
         flame.PreInstruction =
-            EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround;
+            (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualHitGround;
         flame.InstructionTimer = 1;
@@ -183,7 +183,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         flame.PreInstruction =
-            EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing;
+            (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualBouncing;
         flame.InstructionTimer = 1;
@@ -220,7 +220,7 @@ public sealed partial class RoomEnemySystem
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualResting;
         flame.InstructionTimer = 1;
-        flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
+        flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
     }
 
     private void RunPhantoonEnragedFlame(RoomEnemyProjectileSlot flame)
@@ -261,7 +261,7 @@ public sealed partial class RoomEnemySystem
         flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.RainImpact;
         flame.InstructionTimer = 1;
         flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
-        flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
+        flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
         QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
 

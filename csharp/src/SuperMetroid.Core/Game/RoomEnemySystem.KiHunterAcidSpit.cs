@@ -7,7 +7,7 @@ public sealed partial class RoomEnemySystem
     // Definition records hold the idle RTS at $86:CFF7; the start-moving callbacks install
     // the mover at $86:CFF8, so the spit does not move on the frames before that.
     private const ushort KiHunterAcidMovingPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving;
+        (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Moving;
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
     private const ushort KiHunterAcidGravity = 0x0010;
     private const ushort KiHunterAcidTerminalYSpeed = 0x0200;

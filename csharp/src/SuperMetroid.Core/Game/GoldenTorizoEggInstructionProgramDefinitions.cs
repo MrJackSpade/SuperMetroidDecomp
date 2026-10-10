@@ -37,9 +37,9 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
             return local switch
             {
                 0 => new(start, 48),
-                1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-                2 => new((ushort)(start + 6), EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-                6 => new((ushort)(start + 20), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.Sleep),
+                2 => new((ushort)(start + 6), (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+                6 => new((ushort)(start + 20), (ushort)EnemyProjectileInstruction.GotoY),
                 _ => new((ushort)(start + 22), Hatch),
             };
         }
@@ -48,11 +48,11 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
             int local = index - 16;
             ushort value = local switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY,
+                0 => (ushort)EnemyProjectileInstruction.Properties_AndY,
                 1 => 0xdfff,
-                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY,
+                2 => (ushort)EnemyProjectileInstruction.Properties_OrY,
                 3 => 0x8000,
-                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched,
+                _ => (ushort)EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched,
             };
             return new((ushort)(Hatch + 2 * local), value);
         }
@@ -64,10 +64,10 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
             if (local is >= 3 and < 7) return new((ushort)(start + 7 + 4 * (local - 3)), 6);
             return local switch
             {
-                0 => new(start, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-                1 => new((ushort)(start + 3), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-                2 => new((ushort)(start + 5), EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched),
-                7 => new((ushort)(start + 23), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                0 => new(start, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
+                1 => new((ushort)(start + 3), (ushort)EnemyProjectileInstruction.PreInstructionInY),
+                2 => new((ushort)(start + 5), (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched),
+                7 => new((ushort)(start + 23), (ushort)EnemyProjectileInstruction.GotoY),
                 _ => new((ushort)(start + 25), (ushort)(start + 7)),
             };
         }
@@ -75,8 +75,8 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
         int facing = breakOffset / 7;
         ushort breakStart = (ushort)(BreakLeft + 24 * facing);
         int breakWord = breakOffset % 7;
-        if (breakWord == 0) return new(breakStart, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
-        if (breakWord == 6) return new((ushort)(breakStart + 22), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (breakWord == 0) return new(breakStart, (ushort)EnemyProjectileInstruction.ClearPreInstruction);
+        if (breakWord == 6) return new((ushort)(breakStart + 22), (ushort)EnemyProjectileInstruction.Delete);
         // Four four-tick shattering poses precede the facing-specific final hold.
         return new((ushort)(breakStart + 2 + 4 * (breakWord - 1)),
             breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);

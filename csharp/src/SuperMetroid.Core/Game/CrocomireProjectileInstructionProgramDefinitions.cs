@@ -73,10 +73,10 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions
         if (offset >= 0 && offset < trailer && offset % 4 == 0) return layout.Duration;
         bool shot = layout.Start == MouthProjectileShot;
         if (offset == trailer)
-            return shot ? EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances
-                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            return shot ? (ushort)EnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances
+                : (ushort)EnemyProjectileInstruction.GotoY;
         if (offset == trailer + 2)
-            return shot ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : layout.Start;
+            return shot ? (ushort)EnemyProjectileInstruction.GotoY : layout.Start;
         if (shot && offset == trailer + 4)
             return CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         throw new InvalidDataException(

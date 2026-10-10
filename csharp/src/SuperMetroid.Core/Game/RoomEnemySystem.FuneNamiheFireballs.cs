@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort NamiFuneFireballPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball;
+        (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort PolypRockPreInstruction =
-        EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PolypRock;
+        (ushort)EnemyProjectilePreInstruction.PolypRock;
     private const ushort PolypRockGravityStep = 2;
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 

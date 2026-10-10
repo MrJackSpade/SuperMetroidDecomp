@@ -53,11 +53,11 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         return offset switch
         {
             0 => InitialDuration(programIndex),
-            4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6,
-            7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
-            9 => EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling,
+            4 => (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6,
+            7 => (ushort)EnemyProjectileInstruction.PreInstructionInY,
+            9 => (ushort)EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling,
             11 => 0x0070,
-            15 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            15 => (ushort)EnemyProjectileInstruction.Delete,
             _ => throw new InvalidDataException(
                 $"Bomb Torizo statue mechanics pointer $86:{address:X4} is not compiled."),
         };

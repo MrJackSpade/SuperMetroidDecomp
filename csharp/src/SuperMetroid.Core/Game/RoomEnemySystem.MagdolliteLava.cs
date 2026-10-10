@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = MagdolliteLavaUpwardSpeed;
         projectile.XVelocity = MagdolliteLavaHorizontalSpeed;
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MagdolliteLava;
+            (ushort)EnemyProjectilePreInstruction.MagdolliteLava;
         projectile.InstructionPointer = directionParameter == 0
             ? MagdolliteLavaInstructionProgramDefinitions.Left
             : MagdolliteLavaInstructionProgramDefinitions.Right;

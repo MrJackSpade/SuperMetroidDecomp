@@ -66,6 +66,6 @@ public sealed partial class RoomEnemySystem
         }
 
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_BombTorizoStatueFragment_Stopped;
+            (ushort)EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
     }
 }

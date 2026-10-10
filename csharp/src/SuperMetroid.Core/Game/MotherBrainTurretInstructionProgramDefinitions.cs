@@ -51,14 +51,14 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
             poseOffset = address - BulletLeft;
         if (poseOffset >= 0 && poseOffset < 48 && poseOffset % 6 is 0 or 4)
         {
-            value = poseOffset % 6 == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep;
+            value = poseOffset % 6 == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep;
             return true;
         }
         int selectorOffset = address - BulletSelector;
         if (selectorOffset >= 0 && selectorOffset <= 16 && selectorOffset % 2 == 0)
         {
             value = selectorOffset == 0
-                ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_MotherBrainsTurretBullets_GotoY
+                ? (ushort)EnemyProjectileInstruction.MotherBrainsTurretBullets_GotoY
                 : (ushort)(BulletLeft + 6 * (selectorOffset / 2 - 1));
             return true;
         }
@@ -67,10 +67,10 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
         {
             value = smokeOffset switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0,
-                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+                0 => (ushort)EnemyProjectileInstruction.UsePalette0,
+                2 => (ushort)EnemyProjectileInstruction.ClearPreInstruction,
                 20 => 32,
-                24 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+                24 => (ushort)EnemyProjectileInstruction.Delete,
                 _ => 8,
             };
             return true;

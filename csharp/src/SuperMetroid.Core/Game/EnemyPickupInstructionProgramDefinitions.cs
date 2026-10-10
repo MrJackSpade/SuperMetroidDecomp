@@ -46,9 +46,9 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
             int command = index - Frames;
             return new((ushort)(Start + 4 * Frames + 2 * command), command switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+                0 => (ushort)EnemyProjectileInstruction.GotoY,
                 1 => Start,
-                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+                _ => (ushort)EnemyProjectileInstruction.Sleep,
             });
         }
     }

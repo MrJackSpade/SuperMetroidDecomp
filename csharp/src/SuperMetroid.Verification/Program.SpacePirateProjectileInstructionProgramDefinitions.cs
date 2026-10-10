@@ -44,14 +44,12 @@ internal static partial class Program
                      (false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeftLoop,
-                         EnemyProjectileCodePointers
-                             .PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left,
+                         (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
                          (ushort)124),
                      (true,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserRightLoop,
-                         EnemyProjectileCodePointers
-                             .PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right,
+                         (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
                          (ushort)132),
                  })
         {
@@ -65,7 +63,7 @@ internal static partial class Program
                 [source, (ushort)128, (ushort)96, movingRight])!;
             AssertEqual(program, laser.InstructionPointer,
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual(EnemyProjectileCodePointers.RTS_86A05B, laser.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.XPosition,
@@ -85,11 +83,11 @@ internal static partial class Program
                      ((ushort)0,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawLeftLoop,
-                         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left),
+                         (ushort)EnemyProjectilePreInstruction.PirateClaw_Left),
                      ((ushort)1,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawRightLoop,
-                         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right),
+                         (ushort)EnemyProjectilePreInstruction.PirateClaw_Right),
                  })
         {
             RoomEnemySystem enemies = NewSystem();

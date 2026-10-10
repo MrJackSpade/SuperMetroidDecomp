@@ -43,18 +43,18 @@ internal abstract class BotwoonProjectileInstructionProgramDefinitions
         if (TryBodyOffset(address, out int offset))
         {
             if (offset < 16 && offset % 4 == 0) return 8;
-            if (offset == 16) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            if (offset == 16) return (ushort)EnemyProjectileInstruction.GotoY;
             if (offset == 18) return (ushort)(address - offset);
         }
         int sleeping = address - TailUpFacingRight;
         if ((uint)sleeping < 54)
         {
             if (sleeping % 6 == 0) return 1;
-            if (sleeping % 6 == 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep;
+            if (sleeping % 6 == 4) return (ushort)EnemyProjectileInstruction.Sleep;
         }
         int spit = address - Spit;
         if ((uint)spit < 20 && spit % 4 == 0) return 3;
-        if (spit == 20) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (spit == 20) return (ushort)EnemyProjectileInstruction.GotoY;
         if (spit == 22) return Spit;
         throw new InvalidDataException(
             $"Botwoon projectile mechanics pointer $86:{address:X4} is not compiled.");

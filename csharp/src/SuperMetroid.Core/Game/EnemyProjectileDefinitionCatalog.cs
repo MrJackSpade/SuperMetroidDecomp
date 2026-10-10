@@ -39,7 +39,7 @@ internal static class EnemyProjectileDefinitionCatalog
     internal static EnemyProjectileDefinition Get(RoomEnemyProjectileKind kind) => kind switch
     {
         RoomEnemyProjectileKind.PrePhantoonRoom => new(
-            EnemyProjectileCodePointers.InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom,
+            (ushort)EnemyProjectilePreInstruction.PrePhantoonRoom,
             PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.YappingMawBody => new(
@@ -370,7 +370,7 @@ internal static class EnemyProjectileDefinitionCatalog
 0x84FB, TorizoExplosionInstructionProgramDefinitions.DeathInitial,
             0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(
-            EnemyProjectileCodePointers.RTS_8684FB,
+            (ushort)EnemyProjectilePreInstruction.RTS_8684FB,
             BombTorizoStatueInstructionProgramDefinitions.Program(8),
             0x0808, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
@@ -378,7 +378,7 @@ internal static class EnemyProjectileDefinitionCatalog
 0xACAD, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
             0x0707, 0x9008, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
         RoomEnemyProjectileKind.BombTorizoSonicBoom => new(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom,
+            (ushort)EnemyProjectilePreInstruction.TorizoSonicBoom,
             TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
             0x1403, 0x100A, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
@@ -386,7 +386,7 @@ internal static class EnemyProjectileDefinitionCatalog
 0xACFA, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
             0x0707, 0xB050, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
         RoomEnemyProjectileKind.GoldenTorizoSonicBoom => new(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_TorizoSonicBoom,
+            (ushort)EnemyProjectilePreInstruction.TorizoSonicBoom,
             TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
             0x1403, 0x1078, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
@@ -397,17 +397,17 @@ internal static class EnemyProjectileDefinitionCatalog
 0x84FB, TorizoLandingDustInstructionProgramDefinitions.LeftFoot,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GoldenTorizoEgg => new(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Bouncing,
+            (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing,
             GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
             0x0707, 0x6064, 0x0000,
             TorizoChozoOrbInstructionProgramDefinitions.WallImpact),
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile => new(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoSuperMissile_Held,
+            (ushort)EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held,
             GoldenTorizoSuperMissileInstructionProgramDefinitions.RightInitial,
             0x0404, 0xA0C8, 0x0000,
             GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact),
         RoomEnemyProjectileKind.GoldenTorizoEyeBeam => new(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam,
+            (ushort)EnemyProjectilePreInstruction.GoldenTorizoEyeBeam,
             GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
             0x0303, 0x700A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueSplash => new(0xB977, TourianStatueProjectileInstructionProgramDefinitions.Splash, 0x0000, 0x3000, 0x0000, 0x84FC),
@@ -435,14 +435,14 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.DownwardGateMoving => new(
-            DownwardGateEnemyProjectileRomData.InertPreInstruction,
+            (ushort)EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             DownwardGateProjectileInstructionProgramDefinitions.Moving,
             0x0000,
             0x2000,
             0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.DownwardGateClosed => new(
-            DownwardGateEnemyProjectileRomData.InertPreInstruction,
+            (ushort)EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             DownwardGateProjectileInstructionProgramDefinitions.Closed,
             0x0000,
             0x2000,

@@ -78,8 +78,8 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
             result = (address - RespawnTail) switch
             {
                 0 => RespawnBlankDuration,
-                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy,
-                6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+                4 => (ushort)EnemyProjectileInstruction.Pickup_HandleRespawningEnemy,
+                6 => (ushort)EnemyProjectileInstruction.Delete,
                 _ => null,
             };
         else if (address >= BigExplosion && address <= BigExplosion + 24 && ((address - BigExplosion) & 1) == 0)
@@ -101,21 +101,21 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
     private static ushort? RepeatedExplosionWord(int offset, bool miniKraid)
     {
         int firstFrameOffset = miniKraid ? 16 : 12;
-        if (offset == 0) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY;
+        if (offset == 0) return (ushort)EnemyProjectileInstruction.TimerInY;
         if (offset == 2) return miniKraid ? MiniKraidRepetitions : BigExplosionRepetitions;
         if (offset < firstFrameOffset)
             return offset % 4 == 0
-                ? miniKraid ? EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20
-                    : EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10
+                ? miniKraid ? (ushort)EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20
+                    : (ushort)EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10
                 : (ushort)(3 + 9 * ((offset - 6) / 4));
         return (offset - firstFrameOffset) switch
         {
             0 => miniKraid ? MiniKraidBlankDuration : BigExplosionBlankDuration,
-            4 => EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX,
-            6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            4 => (ushort)EnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX,
+            6 => (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero,
             8 => (ushort)((miniKraid ? MiniKraidExplosion : BigExplosion) + 4),
-            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup,
-            12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            10 => (ushort)EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup,
+            12 => (ushort)EnemyProjectileInstruction.Delete,
             _ => null,
         };
     }
@@ -127,10 +127,10 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         int sound = contact ? 28 : 12;
         int pickup = contact ? 66 : 26;
         if (offset == sound)
-            return contact ? EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX
-                : EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX;
-        if (offset == pickup) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup;
-        if (offset == pickup + 2) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+            return contact ? (ushort)EnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX
+                : (ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX;
+        if (offset == pickup) return (ushort)EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup;
+        if (offset == pickup + 2) return (ushort)EnemyProjectileInstruction.Delete;
         int normalized = offset - (offset > sound ? 2 : 0);
         if (normalized % 4 != 0) return null;
         if (contact) return ContactDeathPoseDuration;

@@ -46,7 +46,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
     {
         0 or SpikeLeft - Spit or SpikeRight - Spit => 0x7fff,
         SpitSleep - Spit or SpikeLeftSleep - Spit or SpikeRightSleep - Spit =>
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+            (ushort)EnemyProjectileInstruction.Sleep,
         _ => throw new InvalidDataException(
             $"Fake Kraid projectile instruction mechanics pointer $86:{address:X4} " +
             "is not compiled."),

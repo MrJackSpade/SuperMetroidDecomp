@@ -70,7 +70,7 @@ internal static partial class Program
         {
             process.Invoke(wallEnemies, [wall, null, (ushort)0, (ushort)0]);
             AssertTrue(wall.IsActive, $"Torizo orb wall impact frame {frame}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, wall.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, wall.PreInstruction,
                 $"Torizo orb wall impact clears callback on frame {frame}");
             AssertTrue(wall.PersistsOnSamusContact,
                 $"Torizo orb wall impact persists on Samus contact on frame {frame}");

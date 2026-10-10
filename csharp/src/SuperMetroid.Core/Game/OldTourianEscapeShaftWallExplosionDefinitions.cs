@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Game;
 internal static class OldTourianEscapeShaftWallExplosionDefinitions
 {
     /// <summary>$86:B4B0, the header's bare-RTS pre-instruction.</summary>
-    internal const ushort PreInstruction = EnemyProjectileCodePointers.RTS_86B4B0;
+    internal const ushort PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86B4B0;
 
     /// <summary>$86:B443, <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion_0</c>.</summary>
     internal const ushort InitialInstructionList = 0xb443;
@@ -40,17 +40,17 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
     {
         switch (address)
         {
-            case 0xb443: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction;
-            case 0xb445: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY;
+            case 0xb443: return (ushort)EnemyProjectileInstruction.ClearPreInstruction;
+            case 0xb445: return (ushort)EnemyProjectileInstruction.TimerInY;
             case 0xb447: return 0x0001;
-            case Loop: return EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius;
+            case Loop: return (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius;
             // $86:B44B: packed bytes $07,$00,$0F,$00 — X mask 7 and Y mask 15, both centred on zero.
             case 0xb44b: return 0x0007;
             case 0xb44d: return 0x000f;
-            case 0xb44f: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6;
-            case 0xb46a: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero;
+            case 0xb44f: return (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6;
+            case 0xb46a: return (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero;
             case 0xb46c: return Loop;
-            case 0xb46e: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+            case 0xb46e: return (ushort)EnemyProjectileInstruction.Delete;
         }
         int offset = address - FirstFrame;
         if (offset >= 0 && offset < FrameDurations.Length * 4 && offset % 4 == 0)

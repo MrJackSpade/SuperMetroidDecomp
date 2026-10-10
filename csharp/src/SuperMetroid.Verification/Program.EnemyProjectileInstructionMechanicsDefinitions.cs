@@ -332,7 +332,7 @@ internal static partial class Program
                 ushort word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
                 if (word >= 0x8000)
                 {
-                    AssertEqual(EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY,
+                    AssertEqual((ushort)EnemyProjectileInstruction.CallExternalFunctionInY,
                         word, "hand-beam native stage transition calls the child-spawn callback");
                     referenceCursor += 5;
                     word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
@@ -395,7 +395,7 @@ internal static partial class Program
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingTouch;
         ring.InstructionTimer = 1;
         ring.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsOnionRings;
+            (ushort)EnemyProjectilePreInstruction.MotherBrainsOnionRings;
         ring.GraphicsIndex = 0x0400;
         for (int frame = 0; frame < 30; frame++)
             Process(ringEnemies, ring, samus);
@@ -403,7 +403,7 @@ internal static partial class Program
             "onion-ring impact survives all six exact five-frame stages");
         AssertEqual(0, ring.GraphicsIndex,
             "onion-ring impact's duplicate native opcode selects palette zero");
-        AssertEqual(EnemyProjectileCodePointers.RTS_868170, ring.PreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, ring.PreInstruction,
             "onion-ring impact clears its movement pre-instruction");
         Process(ringEnemies, ring, samus);
         AssertTrue(!ring.IsActive,
@@ -497,12 +497,12 @@ internal static partial class Program
             for (int frame = 0; frame < 50; frame++)
                 Process(droolEnemies, drool, samus);
             AssertEqual(
-                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool,
+                (ushort)EnemyProjectilePreInstruction.MotherBrainsDrool,
                 drool.PreInstruction,
                 $"{expectedKind} remains attached for five exact ten-frame stages");
             Process(droolEnemies, drool, samus);
             AssertEqual(
-                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling,
+                (ushort)EnemyProjectilePreInstruction.MotherBrainsDrool_Falling,
                 drool.PreInstruction,
                 $"{expectedKind} switches to falling after its fifth attached stage");
             AssertEqual(unchecked((ushort)(attachedY + 12)), drool.YPosition,

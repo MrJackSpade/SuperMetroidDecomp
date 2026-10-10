@@ -31,12 +31,12 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
             ushort start = explosion ? SpikeClearingExplosions : Footsteps;
             int frames = explosion ? 6 : 4;
             if (local == 0)
-                return new(start, EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius);
+                return new(start, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius);
             if (local < 3)
                 return new((ushort)(start + 2 * local), local == 1 ? (ushort)15 : (ushort)0x030f);
             if (local < 3 + frames)
                 return new((ushort)(start + 6 + 4 * (local - 3)), explosion ? (ushort)5 : (ushort)2);
-            return new((ushort)(start + 6 + 4 * frames), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+            return new((ushort)(start + 6 + 4 * frames), (ushort)EnemyProjectileInstruction.Delete);
         }
 
         int dust = index - 18;
@@ -44,10 +44,10 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         {
             ushort value = dust switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY,
+                0 => (ushort)EnemyProjectileInstruction.TimerInY,
                 1 => 64,
                 2 => (ushort)TourianStatueInstruction.ResetDustPosition,
-                3 => EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius,
+                3 => (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius,
                 4 => 63,
                 _ => 3,
             };
@@ -57,9 +57,9 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
             return new((ushort)(TourianDescentDust + 12 + 4 * (dust - 6)), 2);
         ushort control = dust switch
         {
-            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            10 => (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero,
             11 => TourianLoop,
-            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            _ => (ushort)EnemyProjectileInstruction.Delete,
         };
         return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
     }

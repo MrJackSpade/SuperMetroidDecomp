@@ -10,15 +10,20 @@ internal static partial class Program
     /// </summary>
     static void VerifyEnemyProjectileCodePointerCatalog()
     {
-        FieldInfo[] callbacks = GetEnemyProjectilePointerConstants(
-            typeof(EnemyProjectileCodePointers));
+        (string Name, ushort Pointer)[] callbacks =
+        [
+            .. Enum.GetValues<EnemyProjectilePreInstruction>()
+                .Where(code => code != EnemyProjectilePreInstruction.None)
+                .Select(code => ($"pre-instruction {code}", (ushort)code)),
+            .. Enum.GetValues<EnemyProjectileInstruction>().Select(code => ($"instruction {code}", (ushort)code)),
+        ];
         FieldInfo[] lists = GetEnemyProjectilePointerConstants(
             typeof(EnemyProjectileInstructionLists));
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
         AssertTrue(lists.Length != 0, "enemy projectile instruction-list catalog is populated");
 
         AssertEqual(callbacks.Length, callbacks
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(callback => callback.Pointer)
             .Distinct()
             .Count(), "enemy projectile callback addresses are unique");
         AssertEqual(lists.Length, lists
@@ -30,11 +35,11 @@ internal static partial class Program
         SuperMetroidAddressSpace? bus = File.Exists(romPath)
             ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
             : null;
-        foreach (FieldInfo field in callbacks.Concat(lists))
+        foreach ((string name, ushort pointer) in callbacks.Concat(
+            lists.Select(field => (field.Name, (ushort)field.GetRawConstantValue()!))))
         {
-            ushort pointer = (ushort)field.GetRawConstantValue()!;
             AssertTrue(pointer >= 0x8000,
-                $"enemy projectile pointer {field.Name} is in mapped bank-$86 ROM");
+                $"enemy projectile pointer {name} is in mapped bank-$86 ROM");
             if (bus is not null)
                 _ = bus.ReadByte(0x860000 | pointer);
         }

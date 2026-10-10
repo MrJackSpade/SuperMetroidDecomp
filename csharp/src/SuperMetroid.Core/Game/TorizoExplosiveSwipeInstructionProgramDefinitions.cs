@@ -18,9 +18,9 @@ internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index == 0)
-            return new(Initial, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max1);
+            return new(Initial, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max1);
         return new((ushort)(Initial + 3 + 4 * (index - 1)), index == 6
-            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete : (ushort)5);
+            ? (ushort)EnemyProjectileInstruction.Delete : (ushort)5);
     }
 
     public static ushort PresentationWordAddress(int index)

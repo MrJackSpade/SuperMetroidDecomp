@@ -27,7 +27,7 @@ internal static partial class Program
         samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
         var projectile = runtime.Enemies.EnemyProjectiles[^1];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
-        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
         projectile.InstructionTimer = 2;
         projectile.XPosition = 128; projectile.YPosition = 235;
         projectile.XRadius = projectile.YRadius = 8;
@@ -73,7 +73,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             var projectile = runtime.Enemies.EnemyProjectiles[^1];
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
-            projectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
+            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
             projectile.InstructionTimer = 2;
             projectile.XPosition = projectile.YPosition = 120;
             projectile.XRadius = projectile.YRadius = 8;

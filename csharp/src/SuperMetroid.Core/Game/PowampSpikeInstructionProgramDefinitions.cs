@@ -34,10 +34,10 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
         if (address >= Initial && address < LoopCommand && (address - Initial) % 4 == 0)
         { value = 6; return true; }
         if (address == LoopCommand)
-        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY; return true; }
+        { value = (ushort)EnemyProjectileInstruction.GotoY; return true; }
         if (address == LoopCommand + 2) { value = Initial; return true; }
         if (address == Delete)
-        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete; return true; }
+        { value = (ushort)EnemyProjectileInstruction.Delete; return true; }
         return false;
     }
 }

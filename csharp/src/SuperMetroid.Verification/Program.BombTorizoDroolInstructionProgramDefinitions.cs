@@ -224,7 +224,7 @@ internal static partial class Program
             AssertEqual((ushort)(0xa492 + 4 * (frame / 8)), floor.PresentationOperandAddress, "drool impact pose follows native eight-tick sequence" );
             AssertTrue(floor.IsActive,
                 $"drool floor impact remains active through frame {frame + 1}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, floor.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, floor.PreInstruction,
                 $"drool floor impact callback is clear on frame {frame + 1}");
         }
         process.Invoke(floorEnemies, [floor, null, (ushort)0, (ushort)0]);

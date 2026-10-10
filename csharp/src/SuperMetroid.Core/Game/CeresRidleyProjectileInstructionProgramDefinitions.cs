@@ -116,9 +116,9 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         {
             value = offset switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
-                6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
-                8 => EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball,
+                0 => (ushort)EnemyProjectileInstruction.ClearPreInstruction,
+                6 => (ushort)EnemyProjectileInstruction.PreInstructionInY,
+                8 => (ushort)EnemyProjectilePreInstruction.RidleyFireball,
                 _ => 4,
             };
             return true;
@@ -131,7 +131,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         }
         if (offset is 16 or 18)
         {
-            value = offset == 16 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : FireballLoop;
+            value = offset == 16 ? (ushort)EnemyProjectileInstruction.GotoY : FireballLoop;
             return true;
         }
         if (TryAfterburn(address - AfterburnFinal, false, 0, out value))
@@ -140,9 +140,9 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         {
             ushort callback = kind switch
             {
-                0 => EnemyProjectileCodePointers.Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles,
-                1 => EnemyProjectileCodePointers.Instruction_Spawn_VerticalAfterburn_EnemyProjectiles,
-                _ => EnemyProjectileCodePointers.Instruction_SpawnNext_Afterburn_EnemyProjectile,
+                0 => (ushort)EnemyProjectileInstruction.Spawn_HorizontalAfterburn_EnemyProjectiles,
+                1 => (ushort)EnemyProjectileInstruction.Spawn_VerticalAfterburn_EnemyProjectiles,
+                _ => (ushort)EnemyProjectileInstruction.SpawnNext_Afterburn_EnemyProjectile,
             };
             if (TryAfterburn(address - SpawnProgram(kind), true, callback, out value))
                 return true;
@@ -155,7 +155,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
     {
         if (offset == 0)
         {
-            value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction;
+            value = (ushort)EnemyProjectileInstruction.ClearPreInstruction;
             return true;
         }
         if (spawns && offset == 6)
@@ -170,7 +170,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
             value = 5;
             return true;
         }
-        value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+        value = (ushort)EnemyProjectileInstruction.Delete;
         return offset == 22;
     }
 }

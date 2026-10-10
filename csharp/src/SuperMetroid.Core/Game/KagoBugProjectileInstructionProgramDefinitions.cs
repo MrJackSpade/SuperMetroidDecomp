@@ -23,26 +23,9 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_KagoBug</c> at $86:D064.</summary>
     internal const ushort Shot = 0xd064;
 
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_KagoBug_StartJumping</c> at $86:D15C.
-    /// </summary>
-    internal const ushort StartJumpInstruction = 0xd15c;
 
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_KagoBug_StartIdling</c> at $86:D1B6.
-    /// </summary>
-    internal const ushort StartIdleInstruction = 0xd1b6;
 
-    /// <summary>
-    /// <c>Instruction_EnemyProjectile_UsePalette0_duplicate_again</c> at $86:D1C7.
-    /// </summary>
-    internal const ushort UsePaletteZeroInstruction = 0xd1c7;
 
-    /// <summary>
-    /// <c>PreInstruction_EnemyProjectile_KagoBug_SpawnDrop</c> used as an instruction
-    /// callback at $86:D1CE.
-    /// </summary>
-    internal const ushort SpawnDropInstruction = 0xd1ce;
 
     public static int MechanicsWordCount => 23;
     public static int PresentationWordCount => 11;
@@ -55,16 +38,16 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         return index switch
         {
             0 => new(Landed, 5),
-            1 => new(Landed + 4, StartIdleInstruction),
+            1 => new(Landed + 4, (ushort)EnemyProjectileInstruction.KagoBugStartIdleInstruction),
             2 => new(Landed + 6, 0x7fff),
-            3 => new(Landed + 10, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            3 => new(Landed + 10, (ushort)EnemyProjectileInstruction.GotoY),
             4 => new(Landed + 12, Landed),
             8 => new(JumpStart, 16),
             9 => new(JumpStart + 4, 5),
-            10 => new(JumpStart + 8, StartJumpInstruction),
-            14 => new(Shot, UsePaletteZeroInstruction),
-            20 => new(Shot + 22, SpawnDropInstruction),
-            21 => new(Shot + 24, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            10 => new(JumpStart + 8, (ushort)EnemyProjectileInstruction.KagoBugStartJumpInstruction),
+            14 => new(Shot, (ushort)EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction),
+            20 => new(Shot + 22, (ushort)EnemyProjectileInstruction.KagoBugSpawnDropInstruction),
+            21 => new(Shot + 24, (ushort)EnemyProjectileInstruction.GotoY),
             _ => new(Shot + 26, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         };
     }
@@ -72,7 +55,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
     private static InstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
     {
         0 => new(start, 0x7fff),
-        1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+        1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.GotoY),
         _ => new((ushort)(start + 6), start),
     };
 

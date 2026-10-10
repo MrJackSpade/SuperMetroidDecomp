@@ -36,12 +36,12 @@ internal abstract class FallingSparkInstructionProgramDefinitions
         if (address >= Falling && address < HitFloor - 4 && (address - Falling) % 4 == 0)
         { value = 3; return true; }
         if (address == HitFloor - 4)
-        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY; return true; }
+        { value = (ushort)EnemyProjectileInstruction.GotoY; return true; }
         if (address == HitFloor - 2) { value = Falling; return true; }
         if (address >= HitFloor && address < HitFloorTerminalDelete && (address - HitFloor) % 4 == 0)
         { value = 1; return true; }
         if (address == HitFloorTerminalDelete)
-        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete; return true; }
+        { value = (ushort)EnemyProjectileInstruction.Delete; return true; }
         return false;
     }
 }

@@ -27,7 +27,7 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
             return (index % 3) switch
             {
                 0 => new(start, 85),
-                1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.GotoY),
                 _ => new((ushort)(start + 6), start),
             };
         }
@@ -39,13 +39,13 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
                 return new((ushort)(FloorImpact + 13 + 4 * (local - 6)), (ushort)(local - 2));
             (int offset, ushort value) = local switch
             {
-                0 => (0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-                1 => (2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
+                0 => (0, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+                1 => (2, (ushort)EnemyProjectileInstruction.Properties_AndY),
                 2 => (4, (ushort)0xdfff),
-                3 => (6, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
+                3 => (6, (ushort)EnemyProjectileInstruction.Properties_OrY),
                 4 => (8, (ushort)0x5000),
-                5 => (10, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6),
-                _ => (37, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+                5 => (10, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6),
+                _ => (37, (ushort)EnemyProjectileInstruction.Delete),
             };
             return new((ushort)(FloorImpact + offset), value);
         }
@@ -59,14 +59,14 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
             return new((ushort)(start + 6 + 4 * (index - 3)), 4);
         (int offset, ushort value) = index switch
         {
-            0 => (0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-            1 => (2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
+            0 => (0, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+            1 => (2, (ushort)EnemyProjectileInstruction.Properties_OrY),
             2 => (4, (ushort)0x5000),
-            8 => (26, shot ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_SpawnEnemyDropsWIthYDropChances
-                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            8 => (26, shot ? (ushort)EnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances
+                : (ushort)EnemyProjectileInstruction.Delete),
             9 => (28, (ushort)EnemyDefinitionId.BombTorizoOrb),
             10 => (30, (ushort)EnemyDefinitionId.GoldenTorizoOrb),
-            _ => (32, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            _ => (32, (ushort)EnemyProjectileInstruction.Delete),
         };
         return new((ushort)(start + offset), value);
     }

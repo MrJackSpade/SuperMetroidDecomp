@@ -94,13 +94,13 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions
                 int phase = local / 4 % 4;
                 return (ushort)(4 - Math.Min(phase, 4 - phase));
             }
-            if (local == 32) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            if (local == 32) return (ushort)EnemyProjectileInstruction.GotoY;
             if (local == 34) return ShardProgram(offset / 36);
         }
         int sparkleOffset = address - Sparkle;
         if (sparkleOffset >= 0 && sparkleOffset < 16 && sparkleOffset % 4 == 0)
             return (ushort)(6 + 2 * ((sparkleOffset / 4) & 1));
-        if (sparkleOffset == 16) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+        if (sparkleOffset == 16) return (ushort)EnemyProjectileInstruction.Delete;
         throw new InvalidDataException(
             $"Mother Brain glass-projectile mechanics pointer $86:{address:X4} is not compiled.");
     }

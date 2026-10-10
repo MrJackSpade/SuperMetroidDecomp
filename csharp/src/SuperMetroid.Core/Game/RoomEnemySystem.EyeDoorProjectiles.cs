@@ -191,7 +191,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         ushort instructionList)
     {
-        projectile.PreInstruction = EyeDoorEnemyProjectileRomData.SmokeInertPreInstruction;
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
         projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = 1;
     }

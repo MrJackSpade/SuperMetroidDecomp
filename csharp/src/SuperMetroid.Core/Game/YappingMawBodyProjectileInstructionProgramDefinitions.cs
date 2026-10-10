@@ -25,7 +25,7 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         int operation = index & 1;
         return new((ushort)(FacingDown + index / 2 * 6 + operation * 4),
-            operation == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+            operation == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);
     }
     public static ushort PresentationWordAddress(int index) => (uint)index < PresentationWordCount
         ? (ushort)(FacingDown + index * 6 + sizeof(ushort)) : throw new IndexOutOfRangeException();

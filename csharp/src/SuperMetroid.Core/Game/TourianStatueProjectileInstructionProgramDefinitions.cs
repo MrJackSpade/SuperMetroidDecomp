@@ -58,7 +58,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         for (int pose = 0; pose < 4; pose++) layout.Pose(SplashHold);
         layout.Delete();
         foreach (ushort hold in EyeHolds) layout.Pose(hold);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6);
+        layout.Word((ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6);
         layout.SkipByte(); // Sound ID is a byte, outside the mechanics-word API.
         layout.Word((ushort)TourianStatueInstruction.Earthquake);
         for (int particle = 0; particle < ParticleBurstCount; particle++) layout.Word((ushort)TourianStatueInstruction.SpawnParticle);
@@ -69,7 +69,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
             layout.Pose(ParticleHold); layout.Pose(ParticleHold);
             if (pair == 0) layout.Word((ushort)TourianStatueInstruction.SpawnTail);
         }
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
+        layout.Word((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero);
         layout.Word(Particle);
         layout.Start(Tail);
         for (int phase = 0; phase < 4; phase++)
@@ -85,8 +85,8 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         layout.Start(Soul);
         layout.Pose(SoulHold); layout.Pose(SoulHold); layout.Goto(Soul);
         layout.Pose(DecorationInitialHold);
-        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        layout.Word(EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess);
+        layout.Word((ushort)EnemyProjectileInstruction.PreInstructionInY);
+        layout.Word((ushort)EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess);
         for (int actor = 0; actor < 3; actor++)
         {
             ushort loop = layout.Cursor;
@@ -113,10 +113,10 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
-        internal void Delete() => Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        internal void Delete() => Word((ushort)EnemyProjectileInstruction.Delete);
         internal void Goto(ushort target)
         {
-            Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY); Word(target);
+            Word((ushort)EnemyProjectileInstruction.GotoY); Word(target);
         }
     }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is

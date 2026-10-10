@@ -50,7 +50,7 @@ internal static partial class Program
         Process(closingSystem, closing);
         AssertEqual((ushort)0x0100, closing.YVelocity,
             "downward-moving gate installs positive one-pixel velocity");
-        AssertEqual(DownwardGateEnemyProjectileRomData.MovementPreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction,
             closing.PreInstruction,
             "downward-moving gate installs its translated movement callback");
         RunMovementFrames(closingSystem, closing, 64);
@@ -61,7 +61,7 @@ internal static partial class Program
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
             closing.InstructionPointer,
             "downward-moving gate hands off to the closed sleep");
-        AssertEqual(EnemyProjectileCodePointers.RTS_868170, closing.PreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, closing.PreInstruction,
             "downward-moving gate clears movement when it parks");
 
         RoomEnemySystem openingSystem = NewSystem();
@@ -86,7 +86,7 @@ internal static partial class Program
         Process(openingSystem, opening);
         AssertEqual(unchecked((ushort)-0x0100), opening.YVelocity,
             "woken gate retains its authored upward velocity");
-        AssertEqual(DownwardGateEnemyProjectileRomData.MovementPreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction,
             opening.PreInstruction,
             "woken gate installs its translated movement callback");
         RunMovementFrames(openingSystem, opening, 63);

@@ -44,7 +44,7 @@ public sealed partial class RoomEnemySystem
         projectile.CollidedProjectileType = initialIdleTimer;
         projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
         projectile.InstructionPointer =
             KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug;
         return true;
@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer =
             KagoBugProjectileInstructionProgramDefinitions.JumpStart;
         projectile.InstructionTimer = 1;
-        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
     }
 
     /// <summary>Ports airborne rising pre-instruction <c>$86:D0EC</c>.</summary>
@@ -138,7 +138,7 @@ public sealed partial class RoomEnemySystem
 
         if (MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86D0EB;
+            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
             projectile.InstructionPointer =
                 KagoBugProjectileInstructionProgramDefinitions.Landed;
             projectile.InstructionTimer = 1;
@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Falling;
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Falling;
         projectile.InstructionPointer = KagoBugProjectileInstructionProgramDefinitions.Falling;
         projectile.InstructionTimer = 1;
     }
@@ -184,7 +184,7 @@ public sealed partial class RoomEnemySystem
             ? unchecked((ushort)-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed;
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping;
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Jumping;
     }
 
     /// <summary>Ports landed-list instruction <c>$86:D1B6</c>.</summary>
@@ -193,7 +193,7 @@ public sealed partial class RoomEnemySystem
         projectile.CollidedProjectileType = unchecked((ushort)(
             (ReadKagoRandomNumber() & 0x001f) + 1));
         projectile.PreInstruction =
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle;
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
     }
 
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>

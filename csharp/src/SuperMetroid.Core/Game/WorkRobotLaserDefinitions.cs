@@ -57,7 +57,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == LoopCommand)
-            return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+            return (ushort)EnemyProjectileInstruction.GotoY;
         if (address == LoopCommand + 2)
             return Loop;
         int frameOffset = address - Initial;

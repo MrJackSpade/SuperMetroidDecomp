@@ -76,7 +76,7 @@ internal static partial class Program
             EyeDoorSweatInstructionProgramDefinitions.Impact,
             sweat.InstructionPointer,
             "real floor collision selects the named Eye Door sweat impact program");
-        AssertEqual(EyeDoorEnemyProjectileRomData.SmokeInertPreInstruction,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction,
             sweat.PreInstruction,
             "Eye Door sweat impact disables movement with the native inert pre-instruction");
         AssertEqual((ushort)1, sweat.InstructionTimer,

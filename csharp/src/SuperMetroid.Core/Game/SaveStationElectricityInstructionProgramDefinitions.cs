@@ -22,15 +22,15 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         if (index < 2)
             return new((ushort)(Initial + 2 * index), index == 0
-                ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY : (ushort)20);
+                ? (ushort)EnemyProjectileInstruction.TimerInY : (ushort)20);
         if (index < FrameCount + 2)
             return new((ushort)(Loop + 4 * (index - 2)), 1);
         int terminal = index - FrameCount - 2;
         return new((ushort)(Loop + 4 * FrameCount + 2 * terminal), terminal switch
         {
-            0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            0 => (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero,
             1 => Loop,
-            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            _ => (ushort)EnemyProjectileInstruction.Delete,
         });
     }
 

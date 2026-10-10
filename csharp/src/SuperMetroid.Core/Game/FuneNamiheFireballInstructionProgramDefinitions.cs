@@ -34,7 +34,7 @@ internal abstract class FuneNamiheFireballInstructionProgramDefinitions
             if (stage < 12 && stage % 4 == 0)
                 return 5;
             if (stage == 12)
-                return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+                return (ushort)EnemyProjectileInstruction.GotoY;
             if (stage == 14)
                 return (ushort)(address - 14);
         }

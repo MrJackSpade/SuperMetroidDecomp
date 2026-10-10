@@ -14,7 +14,7 @@ internal static class EnemyVisualProgramSpecializations
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
         // #142 rewrites the Delete-word test as a constant pattern; the same two words.
-        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "0BEAE0450DFCAAEA1A5B383DD7034B29721059D8F10FA22A73DA886808BE5F7A",
+        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "46231D14F82703120F0AF9C5D67FFDB1CC48125E11A89B76DE4E703FD78D1333",
         // #627 re-pin: Golden Torizo owners emit TorizoInstruction members of equal value; words unchanged.
         [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D8BF07BFB960582C4B11E9E6AD23030DAF63DC3C7E70BB6FE8D3C28F40B5FF0C",
         [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "DF060E33E8E2C9785BD6A04051B72D6D76F1984CB8B3E9E5F8525724FBD51CC7",

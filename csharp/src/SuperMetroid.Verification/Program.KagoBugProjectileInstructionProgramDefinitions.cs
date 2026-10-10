@@ -63,7 +63,7 @@ internal static partial class Program
             projectile.InstructionPointer,
             "Kago landed program runs its callback and loops");
         AssertEqual(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Idle,
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Idle,
             projectile.PreInstruction,
             "Kago landed callback restores idle movement");
 
@@ -81,7 +81,7 @@ internal static partial class Program
             projectile.InstructionPointer,
             "Kago jump introduction reaches the looping airborne pose");
         AssertEqual(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KagoBug_Jumping,
+            (ushort)EnemyProjectilePreInstruction.KagoBug_Jumping,
             projectile.PreInstruction,
             "Kago jump callback installs airborne movement");
         RunForcedTicks(projectile, 1);

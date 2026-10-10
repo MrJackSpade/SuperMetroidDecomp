@@ -15,12 +15,6 @@ public enum EyeDoorProjectileDefinition : ushort
 public static class EyeDoorEnemyProjectileRomData
 {
 
-    /// <summary><c>$86:B6B9</c>, native <c>PreInstruction_EnemyProjectile_EyeDoorProjectile_Moving</c>: moves with block collision, accumulates angle-selected acceleration, and selects the explosion sequence on impact or an opened door bit.</summary>
-    public const ushort ProjectilePreInstruction = 0xb6b9;
-    /// <summary><c>$86:B714</c>, native <c>PreInstruction_EnemyProjectile_EyeDoorSweat</c>: moves the sweat drop, adds <c>$000C</c> to its 8.8 Y velocity per update, and selects its impact sequence on a downward floor collision.</summary>
-    public const ushort SweatPreInstruction = 0xb714;
-    /// <summary><c>$86:E508</c>, native <c>RTS_86E508</c>: no-op callback for PLM dust/smoke; also used by the translated eye-door attack and sweat actors to suspend motion while their impact instructions finish.</summary>
-    public const ushort SmokeInertPreInstruction = 0xe508;
 
     /// <summary>Sixteen whole pixels per room block, used to convert the spawning PLM's block coordinate into projectile, sweat, and smoke origins.</summary>
     public const int PixelsPerRoomBlock = 16;

@@ -69,7 +69,7 @@ internal static partial class Program
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(EnemyProjectileCodePointers.RTS_868170,
+        AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170,
             attack.PreInstruction,
             "opened door impact executes its native clear-pre-instruction command");
 

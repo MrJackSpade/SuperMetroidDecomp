@@ -25,7 +25,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainDrainedPaintDefinitions.cs", "C56644A66B8C5BC1DF28D7892DFB58CBFBEA4F87C7EDC729317D47414AD7E6AB"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs", "357528B9C81970F5B4391BC32CAC40B7B1917003D5B1AA8DEE52B5EA339CA219"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs", "E313E42DCD0CEF8F940E1DEB358B292BE3DBAA09244190E82CA18140B53C1CA4"),
-             new("csharp/src/SuperMetroid.Core/Game/MotherBrainDeathRomData.cs", "2F51242DC5ED4F25EF218F1B29745A0AD71E6350B145FC821AD8DFC2A6BDC7D9"),
+             new("csharp/src/SuperMetroid.Core/Game/MotherBrainDeathRomData.cs", "22D745F57290B6F56785F305F12535135BC77F3CCB8B5E1F79372B1A89940194"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainExplodedDoorPaintDefinitions.cs", "2ECEC273ABA4BC8147A1A9C73EA0C6718E95C9A739CC5325A23550136FB8C35B"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainFinalRoomPaintDefinitions.cs", "A821A07779A2C9C4065AE75DA484DBE17BEA8D560AE0FB18976177BD4AAB4815")]),
         new("SuperMetroid.Core.Assets.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",

@@ -75,19 +75,19 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
     {
         // Each blank frame adds two ticks before falling setup.
         0 or 4 => 2,
-        8 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
+        8 => (ushort)EnemyProjectileInstruction.PreInstructionInY,
         10 => FallingPreInstruction,
-        12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY,
+        12 => (ushort)EnemyProjectileInstruction.Properties_OrY,
         14 => 0x3000,
         16 => 5,
-        20 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY,
+        20 => (ushort)EnemyProjectileInstruction.Properties_AndY,
         22 => 0xefff,
         24 => 64,
-        28 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+        28 => (ushort)EnemyProjectileInstruction.GotoY,
         30 => (ushort)BombTorizoDroolProgram.FallingLoop,
         // Wall collision deletes immediately; floor collision shows three eight-tick poses.
-        32 or 36 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
-        34 or 50 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        32 or 36 => (ushort)EnemyProjectileInstruction.ClearPreInstruction,
+        34 or 50 => (ushort)EnemyProjectileInstruction.Delete,
         38 or 42 or 46 => 8,
         _ => throw new InvalidDataException($"Bomb Torizo drool mechanics pointer $86:{address:X4} is not compiled."),
     };

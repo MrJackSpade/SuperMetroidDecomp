@@ -478,7 +478,7 @@ public sealed partial class RoomEnemySystem
         if (MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.PreInstruction =
-                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall;
+                (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
             projectile.YVelocity = 0;
             return;
         }

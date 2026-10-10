@@ -34,7 +34,7 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        if (index < 2) return new((ushort)(SpawnerClosed + 4 * index), index == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+        if (index < 2) return new((ushort)(SpawnerClosed + 4 * index), index == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);
         if (index < 9)
         {
             int local = index - 2;
@@ -43,9 +43,9 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
             {
                 0 or 1 => ReleaseDurations[local],
                 4 or 5 => ReleaseDurations[local - 1],
-                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_SporeSpawner_SpawnSpore,
+                2 => (ushort)EnemyProjectileInstruction.SporeSpawner_SpawnSpore,
                 3 => ReleaseDurations[2],
-                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+                _ => (ushort)EnemyProjectileInstruction.Sleep,
             };
             return new((ushort)(SpawnerRelease + offset), value);
         }
@@ -53,19 +53,19 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         {
             int local = index - 9;
             return new((ushort)(Spore + (local < 4 ? 4 * local : 14)),
-                local < 3 ? (ushort)5 : local == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Spore);
+                local < 3 ? (ushort)5 : local == 3 ? (ushort)EnemyProjectileInstruction.GotoY : Spore);
         }
-        if (index < 16) return new((ushort)(Stalk + 4 * (index - 14)), index == 14 ? (ushort)5 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+        if (index < 16) return new((ushort)(Stalk + 4 * (index - 14)), index == 14 ? (ushort)5 : (ushort)EnemyProjectileInstruction.Sleep);
         int shot = index - 16;
         if (shot == 0) return new(SporeShot, ShotDurations[0]);
-        if (shot == 1) return new((ushort)(SporeShot + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SetProperties3000);
+        if (shot == 1) return new((ushort)(SporeShot + 4), (ushort)EnemyProjectileInstruction.Spores_SetProperties3000);
         if (shot < 5) return new((ushort)(SporeShot + 6 + 4 * (shot - 2)), ShotDurations[shot - 1]);
-        if (shot == 5) return new((ushort)(SporeShot + 18), EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX);
+        if (shot == 5) return new((ushort)(SporeShot + 18), (ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX);
         if (shot < 9) return new((ushort)(SporeShot + 20 + 4 * (shot - 6)), ShotDurations[shot - 2]);
         return new((ushort)(SporeShot + 32 + 2 * (shot - 9)), shot switch
         {
-            9 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SpawnEnemyDrops,
-            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            9 => (ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops,
+            10 => (ushort)EnemyProjectileInstruction.GotoY,
             _ => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
         });
     }

@@ -99,7 +99,7 @@ internal static partial class Program
             ushort hatchedLoop = movingRight
                 ? GoldenTorizoEggInstructionProgramDefinitions.HatchedRightLoop
                 : GoldenTorizoEggInstructionProgramDefinitions.HatchedLeftLoop;
-            AssertEqual(EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched,
                 egg.PreInstruction,
                 $"Golden Torizo {movingRight} egg installs horizontal-charge callback");
             AssertTrue(egg.CanDamageSamus,
@@ -119,7 +119,7 @@ internal static partial class Program
                 $"Golden Torizo {movingRight} egg stable hatched-loop cursor");
 
             egg.PreInstruction =
-                EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall;
+                (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
             egg.XPosition = 128;
             egg.YPosition = 153;
             egg.YSubposition = 0;
@@ -139,7 +139,7 @@ internal static partial class Program
                 process.Invoke(enemies, [egg, null, (ushort)0, (ushort)0]);
                 AssertTrue(egg.IsActive,
                     $"Golden Torizo {movingRight} egg break frame {frame}");
-                AssertEqual(EnemyProjectileCodePointers.RTS_868170, egg.PreInstruction,
+                AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, egg.PreInstruction,
                     $"Golden Torizo {movingRight} egg break clears callback");
             }
             process.Invoke(enemies, [egg, null, (ushort)0, (ushort)0]);

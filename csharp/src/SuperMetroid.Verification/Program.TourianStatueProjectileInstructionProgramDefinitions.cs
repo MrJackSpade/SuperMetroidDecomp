@@ -102,7 +102,7 @@ internal static partial class Program
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
         AssertEqual(
-            EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess,
+            (ushort)EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess,
             baseDecoration.PreInstruction,
             "base decoration installs its delayed position callback");
         AssertEqual((ushort)0xb866, baseDecoration.InstructionPointer,

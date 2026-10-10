@@ -111,7 +111,7 @@ internal static partial class Program
             KraidRockProjectileInstructionProgramDefinitions.SpitRockShot;
         RunForcedTick(spit);
         AssertEqual(
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0,
+            (ushort)EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0,
             spit.PreInstruction,
             "Kraid spit shot program installs the native palette-zero pre-instruction");
         AssertEqual((ushort)0x9c91, spit.InstructionPointer,

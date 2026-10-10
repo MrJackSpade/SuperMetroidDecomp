@@ -16,7 +16,7 @@ internal abstract class StokeProjectileInstructionProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return new((ushort)(Initial + (index < 3 ? 4 * index : 10)),
-            index < 2 ? (ushort)16 : index == 2 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Initial);
+            index < 2 ? (ushort)16 : index == 2 ? (ushort)EnemyProjectileInstruction.GotoY : Initial);
     }
     public static ushort PresentationWordAddress(int index)
     {

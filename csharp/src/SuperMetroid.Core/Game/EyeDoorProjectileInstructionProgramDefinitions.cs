@@ -28,21 +28,21 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
         if (index < 6)
             return new((ushort)(Initial + 12 + 2 * (index - 3)), index switch
             {
-                3 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus,
-                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
-                _ => EyeDoorEnemyProjectileRomData.ProjectilePreInstruction,
+                3 => (ushort)EnemyProjectileInstruction.CalculateDirectionTowardsSamus,
+                4 => (ushort)EnemyProjectileInstruction.PreInstructionInY,
+                _ => (ushort)EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction,
             });
         if (index < 9)
             return new((ushort)(FlyingLoop + (index == 6 ? 0 : 2 + 2 * (index - 6))), index switch
             {
                 6 => 16,
-                7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+                7 => (ushort)EnemyProjectileInstruction.GotoY,
                 _ => FlyingLoop,
             });
-        if (index == 9) return new(Impact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        if (index == 9) return new(Impact, (ushort)EnemyProjectileInstruction.ClearPreInstruction);
         if (index < 13) return new((ushort)(Impact + 2 + 4 * (index - 10)), (ushort)(index - 8));
-        if (index == 13) return new((ushort)(Shot - 2), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (index == 13) return new((ushort)(Shot - 2), (ushort)EnemyProjectileInstruction.Delete);
+        return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : (ushort)EnemyProjectileInstruction.Delete);
     }
 
     public static ushort PresentationWordAddress(int index)

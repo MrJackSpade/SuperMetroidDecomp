@@ -33,18 +33,18 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
             return MovementPoseWord((ushort)(Closed + 14), index - 19);
         return index switch
         {
-            0 => new(Moving, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
+            0 => new(Moving, (ushort)EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction),
             1 => new((ushort)(Moving + 2), 0x0100),
-            2 => new((ushort)(Moving + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            3 => new((ushort)(Moving + 6), DownwardGateEnemyProjectileRomData.MovementPreInstruction),
-            12 => new((ushort)(Closed - 2), EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-            13 => new(Closed, DownwardGateEnemyProjectileRomData.SetYVelocityInstruction),
+            2 => new((ushort)(Moving + 4), (ushort)EnemyProjectileInstruction.PreInstructionInY),
+            3 => new((ushort)(Moving + 6), (ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction),
+            12 => new((ushort)(Closed - 2), (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+            13 => new(Closed, (ushort)EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction),
             14 => new((ushort)(Closed + 2), 0xff00),
             15 => new((ushort)(Closed + 4), 1),
-            16 => new(ClosedSleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-            17 => new((ushort)(Closed + 10), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            18 => new((ushort)(Closed + 12), DownwardGateEnemyProjectileRomData.MovementPreInstruction),
-            _ => new((ushort)(Closed + 38), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            16 => new(ClosedSleep, (ushort)EnemyProjectileInstruction.Sleep),
+            17 => new((ushort)(Closed + 10), (ushort)EnemyProjectileInstruction.PreInstructionInY),
+            18 => new((ushort)(Closed + 12), (ushort)EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction),
+            _ => new((ushort)(Closed + 38), (ushort)EnemyProjectileInstruction.Delete),
         };
     }
 
@@ -52,7 +52,7 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
     {
         bool sleep = (word & 1) != 0;
         return new((ushort)(start + 6 * (word / 2) + (sleep ? 4 : 0)),
-            sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+            sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
     }
 
     public static ushort PresentationWordAddress(int index)

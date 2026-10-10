@@ -412,7 +412,7 @@ public sealed partial class RoomEnemySystem
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
-        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_86A05B;
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = source.Parameter1;
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -430,9 +430,9 @@ public sealed partial class RoomEnemySystem
     private enum PirateLaserPreInstruction : ushort
     {
         /// <summary>$86:A05C: move left, then camera cull.</summary>
-        Left = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left,
+        Left = (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
         /// <summary>$86:A07A: move right, then camera cull.</summary>
-        Right = EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right,
+        Right = (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
     }
 
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>

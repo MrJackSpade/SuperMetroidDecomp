@@ -31,8 +31,6 @@ public static class MotherBrainDeathRomData
     public const int Bg2WorkAddress = 0x7e2000;
     /// <summary>$86:CB13, body-relative smoky/mixed death explosions.</summary>
     public const ushort ExplosionDefinition = 0xcb13;
-    /// <summary>$86:C914, reattaches a death explosion to the current body position each frame.</summary>
-    public const ushort ExplosionPreInstruction = 0xc914;
     /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>
     public const byte EscapeMusicData = 0x24;
     /// <summary>$A9:B280 starts track seven through the eight-frame-delay music queue.</summary>
@@ -53,8 +51,6 @@ public static class MotherBrainDeathRomData
             : throw new ArgumentOutOfRangeException(nameof(frame));
     /// <summary>$86:CB21, eight fragments emitted when the escape door opens.</summary>
     public const ushort DoorFragmentDefinition = 0xcb21;
-    /// <summary>$86:C9D2, fragment drag, gravity, and thirty-three-call lifetime.</summary>
-    public const ushort DoorFragmentPreInstruction = 0xc9d2;
     /// <summary>$86:C98B seed for the signed-underflow fragment lifetime.</summary>
     public const ushort DoorFragmentLifetime = 32;
     /// <summary>$86:C9D7 drag magnitude subtracted from the 8.8 horizontal speed.</summary>
@@ -69,8 +65,6 @@ public static class MotherBrainDeathRomData
     public const ushort DoorDustParameter = 9;
     /// <summary>$86:CBBB optional Japanese time-bomb subtitle.</summary>
     public const ushort SubtitleDefinition = 0xcbbb;
-    /// <summary>$86:CAFA pins the subtitle to physical screen coordinates.</summary>
-    public const ushort SubtitlePreInstruction = 0xcafa;
     /// <summary>$86:CB03/$CB09 subtitle screen anchor.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;
     /// <summary>$84:B5FB: door collision type with door-list index one.</summary>

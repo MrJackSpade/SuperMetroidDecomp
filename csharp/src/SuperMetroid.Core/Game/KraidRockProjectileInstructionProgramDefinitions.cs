@@ -49,14 +49,14 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         {
             bool sleep = (index & 1) != 0;
             return new((ushort)(SharedRockAndKagoBug + 6 * (index / 2) + (sleep ? 4 : 0)),
-                sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)0x7fff);
+                sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)0x7fff);
         }
         return index switch
         {
-            4 => new(SpitRockShot, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-            5 => new(SpitRockShot + 2, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0),
+            4 => new(SpitRockShot, (ushort)EnemyProjectileInstruction.PreInstructionInY),
+            5 => new(SpitRockShot + 2, (ushort)EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0),
             < 11 => new((ushort)(SpitRockShot + 4 + 4 * (index - 6)), 4),
-            _ => new(SpitRockShotDelete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+            _ => new(SpitRockShotDelete, (ushort)EnemyProjectileInstruction.Delete),
         };
     }
 

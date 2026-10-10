@@ -74,7 +74,7 @@ internal static partial class Program
                     $"Golden Torizo {facingRight} Super Missile held frame {frame}");
             }
             AssertEqual(
-                EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown,
+                (ushort)EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown,
                 missile.PreInstruction,
                 $"Golden Torizo {facingRight} Super Missile installs flight callback");
             AssertEqual((ushort)2, missile.InstructionTimer,
@@ -139,7 +139,7 @@ internal static partial class Program
                 $"Golden Torizo Super Missile impact X radius frame {frame}");
             AssertEqual((ushort)16, impact.YRadius,
                 $"Golden Torizo Super Missile impact Y radius frame {frame}");
-            AssertEqual(EnemyProjectileCodePointers.RTS_868170, impact.PreInstruction,
+            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, impact.PreInstruction,
                 $"Golden Torizo Super Missile impact clears movement frame {frame}");
             AssertTrue(impact.CanDamageSamus,
                 $"Golden Torizo Super Missile impact enables Samus collision frame {frame}");

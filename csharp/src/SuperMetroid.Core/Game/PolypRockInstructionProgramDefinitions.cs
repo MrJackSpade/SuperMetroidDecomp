@@ -29,7 +29,7 @@ internal abstract class PolypRockInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index) => index switch
     {
         0 => new(Initial, 1),
-        1 => new(Sleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        1 => new(Sleep, (ushort)EnemyProjectileInstruction.Sleep),
         _ => throw new IndexOutOfRangeException(),
     };
 

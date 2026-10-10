@@ -37,8 +37,8 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
             int local = index - 10;
             return local switch
             {
-                0 => new(HitFloor, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-                6 => new(HitFloor + 2 + 5 * 4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+                0 => new(HitFloor, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+                6 => new(HitFloor + 2 + 5 * 4, (ushort)EnemyProjectileInstruction.Delete),
                 _ => new((ushort)(HitFloor + 2 + 4 * (local - 1)), (ushort)(12 - 2 * (local / 2))),
             };
         }
@@ -48,12 +48,12 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         if (part < 5) return new((ushort)(start + part * 4), IntroductionHolds[part]);
         return part switch
         {
-            5 => new((ushort)(start + 5 * 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+            5 => new((ushort)(start + 5 * 4), (ushort)EnemyProjectileInstruction.PreInstructionInY),
             6 => new((ushort)(start + 5 * 4 + 2), right
-                ? EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right
-                : EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left),
+                ? (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Right
+                : (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Left),
             7 or 8 => new((ushort)(start + 6 * 4 + (part - 7) * 4), 1),
-            _ => new((ushort)(start + 8 * 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+            _ => new((ushort)(start + 8 * 4), (ushort)EnemyProjectileInstruction.Sleep),
         };
     }
 

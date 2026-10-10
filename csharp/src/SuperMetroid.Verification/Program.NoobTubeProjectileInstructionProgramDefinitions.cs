@@ -189,7 +189,7 @@ internal static partial class Program
                 ushort commandAddress = unchecked((ushort)(projectile.InstructionPointer - 6));
                 ushort command = (ushort)(rom.ReadByte(0x860000 | commandAddress) |
                     rom.ReadByte(0x860000 | unchecked((ushort)(commandAddress + 1))) << 8);
-                if (command == EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker)
+                if (command == (ushort)EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     bool oddFrame = ((byte)projectileFrame.GetValue(system)! & 1) != 0;
                     expectedOperand = unchecked((ushort)(projectile.InstructionPointer - (oddFrame ? 4 : 2)));

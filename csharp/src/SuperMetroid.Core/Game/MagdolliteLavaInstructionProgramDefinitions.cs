@@ -28,12 +28,12 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
         {
             bool sleep = (index & 1) != 0;
             return new((ushort)(Left + 6 * (index / 2) + (sleep ? 4 : 0)),
-                sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+                sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
         }
         ushort command = index switch
         {
-            4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops,
-            5 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            4 => (ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops,
+            5 => (ushort)EnemyProjectileInstruction.GotoY,
             _ => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
         };
         return new((ushort)(Shot + 2 * (index - 4)), command);

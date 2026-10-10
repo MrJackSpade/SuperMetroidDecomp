@@ -35,7 +35,7 @@ internal static partial class Program
         EnemyExtendedFrameDefinition[] old = EnemyExtendedFrameDefinitions.Frames.ToArray()[..EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount];
         var legacy = edits.Oam with
         {
-            Version = EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreBg2BossBindings,
             Frames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.Frames[frame.Name]),
             DisplayFrames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.DisplayFrames![frame.Name]),
         };

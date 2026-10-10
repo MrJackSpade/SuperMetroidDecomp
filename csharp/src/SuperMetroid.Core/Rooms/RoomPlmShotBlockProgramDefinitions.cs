@@ -70,11 +70,11 @@ internal static class RoomPlmShotBlockProgramDefinitions
         (ushort first, int stride, ushort restore) = role switch
         {
             Role.RespawningShot2x1 or Role.PermanentShot2x1 =>
-                (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreHorizontal),
+                (RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, (ushort)ShotBlockRestoreDraw.Horizontal),
             Role.RespawningShot1x2 or Role.PermanentShot1x2 =>
-                (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, RoomPlmShotBlockDrawDefinitions.RestoreVertical),
+                (RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, (ushort)ShotBlockRestoreDraw.Vertical),
             Role.RespawningShot2x2 or Role.PermanentShot2x2 =>
-                (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, RoomPlmShotBlockDrawDefinitions.RestoreSquare),
+                (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, (ushort)ShotBlockRestoreDraw.Square),
             Role.RespawningShot1x1 or Role.PermanentShot1x1 or Role.RespawningSuperMissile or
                 Role.RespawningPowerBomb or Role.PermanentSuperMissile or Role.PermanentPowerBomb or
                 Role.EnemyBreakableTerrain =>

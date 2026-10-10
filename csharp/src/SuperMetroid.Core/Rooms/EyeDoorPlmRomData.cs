@@ -1,14 +1,18 @@
 namespace SuperMetroid.Core.Rooms;
 
+/// <summary>Bank-$84 pre-instructions installed by both eye-door orientations.</summary>
+internal enum EyeDoorPreInstruction : ushort
+{
+    /// <summary>Pre-instruction <c>$84:D753</c>, used by passive components awaiting the door bit.</summary>
+    WakeWhenDoorBitSet = 0xd753,
+
+    /// <summary>Pre-instruction <c>$84:BD50</c>, accepting missiles and Super Missiles.</summary>
+    MissileHit = 0xbd50,
+}
+
 /// <summary>Named bank-$84 state-machine identities shared by both eye-door orientations.</summary>
 internal static class EyeDoorPlmRomData
 {
-    /// <summary>Pre-instruction <c>$84:D753</c>, used by passive components awaiting the door bit.</summary>
-    public const ushort WakeWhenDoorBitSetPreInstruction = 0xd753;
-
-    /// <summary>Pre-instruction <c>$84:BD50</c>, accepting missiles and Super Missiles.</summary>
-    public const ushort MissileHitPreInstruction = 0xbd50;
-
     /// <summary>Library-two firing sound queued by <c>$84:D77A</c>.</summary>
     public const byte ProjectileSound = 0x4c;
 

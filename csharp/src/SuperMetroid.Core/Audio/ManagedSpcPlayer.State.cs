@@ -319,9 +319,9 @@ public sealed partial class ManagedSpcPlayer
     /// </summary>
     public void Upload(ReadOnlySpan<byte> stream)
     {
-        WriteDsp(SnesDspRegisterMap.Global.EchoVolumeLeft, 0);
-        WriteDsp(SnesDspRegisterMap.Global.EchoVolumeRight, 0);
-        WriteDsp(SnesDspRegisterMap.Global.KeyOff, byte.MaxValue);
+        WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, 0);
+        WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, 0);
+        WriteDsp((byte)DspGlobalRegister.KeyOff, byte.MaxValue);
 
         int offset = 0;
         for (;;)
@@ -404,9 +404,9 @@ public sealed partial class ManagedSpcPlayer
             channels[index].Index = unchecked((byte)index);
         SetupEchoDelay(SpcDriverData.Echo.InitialDelay);
         dspFlags |= SpcDriverData.Echo.WriteDisable;
-        WriteDsp(SnesDspRegisterMap.Global.MasterVolumeLeft, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        WriteDsp(SnesDspRegisterMap.Global.MasterVolumeRight, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        WriteDsp(SnesDspRegisterMap.Global.SourceDirectory, 0x6d); // allow(HardwareAddress): cartridge BRR directory page
+        WriteDsp((byte)DspGlobalRegister.MasterVolumeLeft, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
+        WriteDsp((byte)DspGlobalRegister.MasterVolumeRight, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
+        WriteDsp((byte)DspGlobalRegister.SourceDirectory, 0x6d); // allow(HardwareAddress): cartridge BRR directory page
         SetHighByte(ref tempo, SpcDriverData.Music.InitialTempo);
         timerCycles = 0;
         LoopPartOne();
@@ -420,20 +420,20 @@ public sealed partial class ManagedSpcPlayer
     /// for1165; the pending key masks clear only after publication.</summary>
     private void LoopPartOne()
     {
-        WriteDsp(SnesDspRegisterMap.Global.KeyOff, keyOff);
-        WriteDsp(SnesDspRegisterMap.Global.PitchModulation, 0);
-        WriteDsp(SnesDspRegisterMap.Global.NoiseEnable, noiseEnable);
-        WriteDsp(SnesDspRegisterMap.Global.KeyOff, 0);
-        WriteDsp(SnesDspRegisterMap.Global.KeyOn, keyOn);
+        WriteDsp((byte)DspGlobalRegister.KeyOff, keyOff);
+        WriteDsp((byte)DspGlobalRegister.PitchModulation, 0);
+        WriteDsp((byte)DspGlobalRegister.NoiseEnable, noiseEnable);
+        WriteDsp((byte)DspGlobalRegister.KeyOff, 0);
+        WriteDsp((byte)DspGlobalRegister.KeyOn, keyOn);
         if ((echoStoredTime & 0x80) == 0) // allow(BitMask): signed SPC countdown bit
         {
-            WriteDsp(SnesDspRegisterMap.Global.Flags, dspFlags);
+            WriteDsp((byte)DspGlobalRegister.Flags, dspFlags);
             if (echoStoredTime == echoDelay)
             {
-                WriteDsp(SnesDspRegisterMap.Global.EchoEnable, echoEnable);
-                WriteDsp(SnesDspRegisterMap.Global.EchoFeedback, echoFeedback);
-                WriteDsp(SnesDspRegisterMap.Global.EchoVolumeRight, HighByte(echoVolumeRight));
-                WriteDsp(SnesDspRegisterMap.Global.EchoVolumeLeft, HighByte(echoVolumeLeft));
+                WriteDsp((byte)DspGlobalRegister.EchoEnable, echoEnable);
+                WriteDsp((byte)DspGlobalRegister.EchoFeedback, echoFeedback);
+                WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, HighByte(echoVolumeRight));
+                WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, HighByte(echoVolumeLeft));
             }
         }
         keyOff = keyOn = 0;
@@ -488,19 +488,19 @@ public sealed partial class ManagedSpcPlayer
                 countdown = unchecked((byte)(countdown + echoStoredTime));
             echoStoredTime = countdown;
 
-            WriteDsp(SnesDspRegisterMap.Global.EchoEnable, 0);
-            WriteDsp(SnesDspRegisterMap.Global.EchoFeedback, 0);
-            WriteDsp(SnesDspRegisterMap.Global.EchoVolumeRight, 0);
-            WriteDsp(SnesDspRegisterMap.Global.EchoVolumeLeft, 0);
-            WriteDsp(SnesDspRegisterMap.Global.Flags, unchecked((byte)(dspFlags |
+            WriteDsp((byte)DspGlobalRegister.EchoEnable, 0);
+            WriteDsp((byte)DspGlobalRegister.EchoFeedback, 0);
+            WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, 0);
+            WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, 0);
+            WriteDsp((byte)DspGlobalRegister.Flags, unchecked((byte)(dspFlags |
                 SpcDriverData.Echo.WriteDisable)));
             lastWrittenEchoDelay = echoDelay;
-            WriteDsp(SnesDspRegisterMap.Global.EchoDelay, echoDelay);
+            WriteDsp((byte)DspGlobalRegister.EchoDelay, echoDelay);
         }
 
         byte echoPage = unchecked((byte)(((echoDelay * SpcDriverData.Echo.DelayToPages) ^
             byte.MaxValue) + SpcDriverData.Echo.BufferPageBias));
-        WriteDsp(SnesDspRegisterMap.Global.EchoBufferAddress, echoPage);
+        WriteDsp((byte)DspGlobalRegister.EchoBufferAddress, echoPage);
     }
 
     private void WriteDsp(byte register, int value)

@@ -90,15 +90,19 @@ public static class SamusDeathTileAtlasFormat
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;
         int address = pages[index / pageBytes].SourceAddress + index % pageBytes;
         int tile = address - address % tileBytes;
-        int source = tile switch
+        // Unnamed tiles keep their own bitmap; the named ones are padding or repeats.
+        var named = (SamusDeathTileAddress)tile;
+        int source = !Enum.IsDefined(named) ? tile : named switch
         {
-            SamusDeathTileAtlasAddresses.TransparentPadding0 or SamusDeathTileAtlasAddresses.TransparentPadding1 or
-                SamusDeathTileAtlasAddresses.TransparentPadding2 or SamusDeathTileAtlasAddresses.TransparentPadding3 or
-                SamusDeathTileAtlasAddresses.TransparentPadding4 or SamusDeathTileAtlasAddresses.TransparentPadding5 => -1,
-            SamusDeathTileAtlasAddresses.RepeatedHairTip => SamusDeathTileAtlasAddresses.HairTipSource,
-            SamusDeathTileAtlasAddresses.RepeatedArmEdge => SamusDeathTileAtlasAddresses.ArmEdgeSource,
-            SamusDeathTileAtlasAddresses.RepeatedTorso => SamusDeathTileAtlasAddresses.TorsoSource,
-            _ => tile,
+            SamusDeathTileAddress.TransparentPadding0 or SamusDeathTileAddress.TransparentPadding1 or
+                SamusDeathTileAddress.TransparentPadding2 or SamusDeathTileAddress.TransparentPadding3 or
+                SamusDeathTileAddress.TransparentPadding4 or SamusDeathTileAddress.TransparentPadding5 => -1,
+            SamusDeathTileAddress.RepeatedHairTip => (int)SamusDeathTileAddress.HairTipSource,
+            SamusDeathTileAddress.RepeatedArmEdge => (int)SamusDeathTileAddress.ArmEdgeSource,
+            SamusDeathTileAddress.RepeatedTorso => (int)SamusDeathTileAddress.TorsoSource,
+            SamusDeathTileAddress.HairTipSource or SamusDeathTileAddress.ArmEdgeSource or
+                SamusDeathTileAddress.TorsoSource => tile,
+            _ => throw new InvalidOperationException($"Undefined SamusDeathTileAddress {named}."),
         };
         if (source < 0) return -1;
         source += address % tileBytes;

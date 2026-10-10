@@ -2,6 +2,69 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
+/// <summary>Every supported schema of the editable extended-enemy-frame compositions, in schema order.</summary>
+internal enum EnemyExtendedFrameSchema
+{
+    /// <summary>Historical schema 1.</summary>
+    First = 1,
+    /// <summary>Historical schema 2.</summary>
+    Previous = 2,
+    /// <summary>Historical schema 3.</summary>
+    PreDisplayBindings = 3,
+    /// <summary>Historical schema 4.</summary>
+    PirateDisplayBindings = 4,
+    /// <summary>Historical schema 5.</summary>
+    PreDraygon = 5,
+    /// <summary>Historical schema 6.</summary>
+    PreSporeIdentity = 6,
+    /// <summary>Historical schema 7.</summary>
+    PreCeresSteam = 7,
+    /// <summary>Historical schema 8.</summary>
+    PreOum = 8,
+    /// <summary>Historical schema 9.</summary>
+    PreCrocomire = 9,
+    /// <summary>Historical schema 10.</summary>
+    PreCrocomireBody = 10,
+    /// <summary>Historical schema 11.</summary>
+    PreBombTorizo = 11,
+    /// <summary>Historical schema 12.</summary>
+    PreGoldenTorizo = 12,
+    /// <summary>Historical schema 13.</summary>
+    PreKraidArm = 13,
+    /// <summary>Historical schema 14.</summary>
+    PreGoldenTorizoAwakening = 14,
+    /// <summary>Historical schema 15.</summary>
+    PreGoldenTorizoWalking = 15,
+    /// <summary>Historical schema 16.</summary>
+    PreGoldenTorizoRightward = 16,
+    /// <summary>Historical schema 17.</summary>
+    PreTorizoJumpBack = 17,
+    /// <summary>Historical schema 18.</summary>
+    PreGoldenTorizoRightOrb = 18,
+    /// <summary>Historical schema 19.</summary>
+    PreGoldenTorizoRightSonic = 19,
+    /// <summary>Historical schema 20.</summary>
+    PreTorizoFallingLeft = 20,
+    /// <summary>Historical schema 21.</summary>
+    PreGoldenTorizoLeftFootOrb = 21,
+    /// <summary>Historical schema 22.</summary>
+    PreTorizoJumpBackLeft = 22,
+    /// <summary>Historical schema 23.</summary>
+    PreGoldenTorizoLeftOrb = 23,
+    /// <summary>Historical schema 24.</summary>
+    PreCompleteTorizo = 24,
+    /// <summary>Historical schema 25.</summary>
+    PreMotherBrainBody = 25,
+    /// <summary>Schema 26 predates shared display bindings for BG2-only boss roots.</summary>
+    PreBg2BossBindings = 26,
+    /// <summary>Schema 27 predates Crocomire's thirty-three corpse/skeleton OAM roots.</summary>
+    PreCrocomireSkeleton = 27,
+    /// <summary>Schema 28 predates Kraid's thirty-five extended foot roots.</summary>
+    PreKraidFoot = 28,
+    /// <summary>The current schema.</summary>
+    Current = 29,
+}
+
 /// <summary>One named, fixed extended-frame identity; collision data is not editable art.</summary>
 internal readonly record struct EnemyExtendedFrameDefinition(
     byte Bank, ushort Pointer, string Name);
@@ -17,62 +80,30 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
 {
-    internal const int FirstVersion = 1;
-    internal const int PreviousVersion = 2;
-    internal const int PreDisplayBindingsVersion = 3;
-    internal const int PirateDisplayBindingsVersion = 4;
-    internal const int PreDraygonVersion = 5;
     internal const int PreDraygonFrameCount = 142;
-    internal const int PreSporeIdentityVersion = 6;
-    internal const int PreCeresSteamVersion = 7;
     internal const int PreCeresSteamFrameCount = 202;
-    internal const int PreOumVersion = 8;
     internal const int PreOumFrameCount = 230;
-    internal const int PreCrocomireVersion = 9;
     internal const int PreCrocomireFrameCount = 260;
-    internal const int PreCrocomireBodyVersion = 10;
     internal const int PreCrocomireBodyFrameCount = 269;
-    internal const int PreBombTorizoVersion = 11;
     internal const int PreBombTorizoFrameCount = 319;
-    internal const int PreGoldenTorizoVersion = 12;
     internal const int PreGoldenTorizoFrameCount = 320;
-    internal const int PreKraidArmVersion = 13;
     internal const int PreKraidArmFrameCount = 321;
-    internal const int PreGoldenTorizoAwakeningVersion = 14;
     internal const int PreGoldenTorizoAwakeningFrameCount = 343;
-    internal const int PreGoldenTorizoWalkingVersion = 15;
     internal const int PreGoldenTorizoWalkingFrameCount = 349;
-    internal const int PreGoldenTorizoRightwardVersion = 16;
     internal const int PreGoldenTorizoRightwardFrameCount = 359;
-    internal const int PreTorizoJumpBackVersion = 17;
     internal const int PreTorizoJumpBackFrameCount = 370;
-    internal const int PreGoldenTorizoRightOrbVersion = 18;
     internal const int PreGoldenTorizoRightOrbFrameCount = 373;
-    internal const int PreGoldenTorizoRightSonicVersion = 19;
     internal const int PreGoldenTorizoRightSonicFrameCount = 379;
-    internal const int PreTorizoFallingLeftVersion = 20;
     internal const int PreTorizoFallingLeftFrameCount = 400;
-    internal const int PreGoldenTorizoLeftFootOrbVersion = 21;
     internal const int PreGoldenTorizoLeftFootOrbFrameCount = 401;
-    internal const int PreTorizoJumpBackLeftVersion = 22;
     internal const int PreTorizoJumpBackLeftFrameCount = 406;
-    internal const int PreGoldenTorizoLeftOrbVersion = 23;
     internal const int PreGoldenTorizoLeftOrbFrameCount = 408;
-    internal const int PreCompleteTorizoVersion = 24;
     internal const int PreCompleteTorizoFrameCount = 420;
     internal const int CompleteTorizoAdditionalFrameCount = 27;
-    internal const int PreMotherBrainBodyVersion = 25;
     internal const int PreMotherBrainBodyFrameCount = 447;
-    /// <summary>Schema 26 predates shared display bindings for BG2-only boss roots.</summary>
-    internal const int PreBg2BossBindingsVersion = 26;
     internal const int PreBg2BossBindingsFrameCount = 464;
-    /// <summary>Schema 27 predates Crocomire's thirty-three corpse/skeleton OAM roots.</summary>
-    internal const int PreCrocomireSkeletonVersion = 27;
     internal const int PreCrocomireSkeletonFrameCount = 520;
-    /// <summary>Schema 28 predates Kraid's thirty-five extended foot roots.</summary>
-    internal const int PreKraidFootVersion = 28;
     internal const int PreKraidFootFrameCount = 553;
-    internal const int Version = 29;
     internal const string FileName = "enemy-walking-pirate-compositions.json";
     internal const byte Bank = 0xb2;
     internal const int MaximumComponents = 8;

@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
         // retail population selects it, so expose corrupt/high parameters as invalid data.
         ushort patternIndex = unchecked((byte)(slot.Parameter1 >> 8));
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
-        state.FallingPatternPointer = pattern.FallingPatternPointer;
+        state.FallingPatternPointer = (ushort)pattern.FallingPatternPointer;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
         // The SNES multiplier consumes only the low bytes. Retail loop counts are nonzero,

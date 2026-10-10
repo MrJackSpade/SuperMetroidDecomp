@@ -17,7 +17,7 @@ internal static partial class Program
             runtime.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
             var enemy = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer != 0 &&
-                ((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) == EnemyAiCodePointers.InitAI_Ripper);
+                ((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) == (int)EnemyAiRoutine.InitAI_Ripper);
             foreach (var other in runtime.Enemies.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
             // Run the first real animation entry before freezing; a never-drawn

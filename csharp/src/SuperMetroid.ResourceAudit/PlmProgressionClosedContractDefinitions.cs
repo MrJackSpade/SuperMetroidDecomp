@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class PlmProgressionClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "9985A5C60C510351018F1DDBE431A8E39C599D61233AB8F678B7946BC1290782");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "1DA6DFC4917DCCCBD291864836978A1545C55A3D3C03A81B20D943885938BEAC");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs", "403B861950E7121C78491A40F6232910987F55BCB55F1253B84C63016A86AB4C");
 
@@ -13,7 +13,7 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmTourianAccessVisualCatalog.cs", "5E7B73B49ADFC3D356D24F18FC33B0264720CA362C3BCD6AB8BEFF872AFD4B94"),
-             new("csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs", "76AF3C76CC57D6208C7BD4C2FDFB724933F2CF8FADC78E4344C0703183EF22C2")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/TourianAccessPlmDrawDefinitions.cs", "53C71E5F3BBF6088BC73317F26BEB97769150A8B528CB6CFC8044AD6A27DA681")]),
         new("SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog", "plm-speed-booster-complete-reveal", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "ED6B308007D200997CA60EC4873A12CF2D53416EE6DF54729DC94078D4E0EA58"),
@@ -25,11 +25,11 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmSporeSpawnCeilingVisualCatalog", "plm-spore-ceiling-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSporeSpawnCeilingVisualCatalog.cs", "85312B4F68D04BC84ED0FDB3805AC6F9F2AA44E79DE1B099D278671C8CAA4460"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs", "8BD887000A3421C91233FAC3B50ACC60F31B13C0BE7DDF098D16251C0AB24FFE")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/SporeSpawnCeilingPlmDrawDefinitions.cs", "A11E2D9868B62BEFDFBAF77FE9361378333E9E1614D04489DFCCD1339E7B3615")]),
         new("SuperMetroid.Core.Rooms.RoomPlmSamusEaterVisualCatalog", "plm-samus-eater-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSamusEaterVisualCatalog.cs", "039CE83E19C7411BF7A157D40D1AC0E1DE8B0AE8BB89DCA62EA03297BA5E7DD5"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs", "ECE8D1600FED63C435BC0D875E191460A83B860AAC0DDB95B3D3F0ABC63EDC80")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmDrawDefinitions.cs", "4640631A444E228BB52A9DD31CE1D823A48895CFBD987911257AC880DEDE09A7")]),
         new("SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog", "plm-botwoon-wall-complete-clear", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBotwoonWallVisualCatalog.cs", "C64CCC3DC7A673F359377405A35255A54571BE8B7D536628FE1EE65BCAFCF4C3"),
@@ -45,6 +45,6 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "DB42318205C9759EE17ED771CCE62752ED4ECF810A9D785B8A5BD07616478CB3"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "BCD58AA65E6114169BB59C8BB6D4298A89F11DD29DF52D30C55B11E29D5A2A9E")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "3E220A5224E772FE0D1112BDB0871D0DB906F67EA532C8415F0975ABBE8E73A3")]),
     ];
 }

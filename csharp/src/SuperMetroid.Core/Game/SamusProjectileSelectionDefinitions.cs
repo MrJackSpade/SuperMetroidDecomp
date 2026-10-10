@@ -78,7 +78,7 @@ internal static class SamusProjectileSelectionDefinitions
 
     internal static ushort ReadWord(int address)
     {
-        if (address < BeamSelectors || address >= Projectile27 + 4 || (address & 1) == 0)
+        if (address < BeamSelectors || address >= (int)SamusProjectileHeader.Projectile27 + 4 || (address & 1) == 0)
             return Read(address);
         if (address < NonBeamSelectors)
         {
@@ -88,29 +88,29 @@ internal static class SamusProjectileSelectionDefinitions
         if (address < TrailSelectors)
             return (ushort)(((address - NonBeamSelectors) / 2) switch
             {
-                2 => SuperMissile, 3 => PowerBomb, 5 => Bomb,
-                7 => BeamExplosion, 8 => MissileExplosion, _ => Missile,
+                2 => (int)SamusProjectileHeader.SuperMissile, 3 => (int)SamusProjectileHeader.PowerBomb, 5 => (int)SamusProjectileHeader.Bomb,
+                7 => (int)SamusProjectileHeader.BeamExplosion, 8 => (int)SamusProjectileHeader.MissileExplosion, _ => (int)SamusProjectileHeader.Missile,
             });
         if (address < SpecialSelectors)
             return (ushort)(((address - TrailSelectors) / 2) switch
             {
-                2 or 4 => SpazerSBATrail, 3 => Projectile25,
-                5 => Projectile27, 7 => ShinesparkEcho, _ => 0,
+                2 or 4 => (int)SamusProjectileHeader.SpazerSBATrail, 3 => (int)SamusProjectileHeader.Projectile25,
+                5 => (int)SamusProjectileHeader.Projectile27, 7 => (int)SamusProjectileHeader.ShinesparkEcho, _ => 0,
             });
         if (address < LinkSelectors)
             return (ushort)(SamusBeamCombinations.FromTableIndex((address - SpecialSelectors) / 2) switch
             {
-                SamusBeamCombination.Wave => WaveSBA,
-                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave => SpazerSBA,
-                SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave => PlasmaSBA,
+                SamusBeamCombination.Wave => (int)SamusProjectileHeader.WaveSBA,
+                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave => (int)SamusProjectileHeader.SpazerSBA,
+                SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave => (int)SamusProjectileHeader.PlasmaSBA,
                 SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.IceWave or
                     SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
                     SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => 0,
                 var beams => throw new InvalidOperationException($"The special-attack selector table has no {beams} row."),
             });
         if (address < BeamHeaderStart)
-            return address == LinkSelectors + 4 ? unchecked((ushort)SuperMissileLink) : (ushort)0;
-        if (address < SuperMissileLink)
+            return address == LinkSelectors + 4 ? unchecked((ushort)(int)SamusProjectileHeader.SuperMissileLink) : (ushort)0;
+        if (address < (int)SamusProjectileHeader.SuperMissileLink)
         {
             int header = (address - BeamHeaderStart) / BeamHeaderStride;
             int field = (address - BeamHeaderStart) % BeamHeaderStride / 2;
@@ -121,30 +121,39 @@ internal static class SamusProjectileSelectionDefinitions
             var (charged, beam) = BeamIdentity(header);
             return BeamProgram(charged, beam, octant);
         }
-        if (address < Projectile25)
+        if (address < (int)SamusProjectileHeader.Projectile25)
         {
-            if ((address - SuperMissileLink) % 4 == 0) return Read(address);
-            return (address - 2) switch
+            if ((address - (int)SamusProjectileHeader.SuperMissileLink) % 4 == 0) return Read(address);
+            // The odd field of each four-byte header is its single program pointer.
+            var fourByteHeader = (SamusProjectileHeader)(address - 2);
+            if (!Enum.IsDefined(fourByteHeader))
+                throw new InvalidDataException($"Projectile selector ${address:X6} is not a four-byte header's program field.");
+            return fourByteHeader switch
             {
-                SuperMissileLink => LinkProgram,
-                PowerBomb => PowerBombProgram,
-                Bomb => BombProgram,
-                BeamExplosion => BeamExplosionProgram,
-                MissileExplosion => MissileExplosionProgram,
-                BombExplosion => BombExplosionProgram,
-                PlasmaSBA => PlasmaSpecialProgram,
-                WaveSBA => WaveSpecialProgram,
-                SpazerSBA => SpazerProgram,
-                _ => SuperMissileExplosionProgram,
+                SamusProjectileHeader.SuperMissileLink => LinkProgram,
+                SamusProjectileHeader.PowerBomb => PowerBombProgram,
+                SamusProjectileHeader.Bomb => BombProgram,
+                SamusProjectileHeader.BeamExplosion => BeamExplosionProgram,
+                SamusProjectileHeader.MissileExplosion => MissileExplosionProgram,
+                SamusProjectileHeader.BombExplosion => BombExplosionProgram,
+                SamusProjectileHeader.PlasmaSBA => PlasmaSpecialProgram,
+                SamusProjectileHeader.WaveSBA => WaveSpecialProgram,
+                SamusProjectileHeader.SpazerSBA => SpazerProgram,
+                SamusProjectileHeader.SuperMissileExplosion => SuperMissileExplosionProgram,
+                SamusProjectileHeader.Missile or SamusProjectileHeader.SuperMissile or
+                    SamusProjectileHeader.Projectile25 or SamusProjectileHeader.SpazerSBATrail or
+                    SamusProjectileHeader.ShinesparkEcho or SamusProjectileHeader.Projectile27 =>
+                    throw new InvalidOperationException($"{fourByteHeader} is not a four-byte header."),
+                _ => throw new InvalidOperationException($"Undefined SamusProjectileHeader {fourByteHeader}."),
             };
         }
-        if (address < Projectile27)
+        if (address < (int)SamusProjectileHeader.Projectile27)
         {
-            int header = (address - Projectile25) / BeamHeaderStride;
-            if ((address - Projectile25) % BeamHeaderStride == 0) return Read(address);
+            int header = (address - (int)SamusProjectileHeader.Projectile25) / BeamHeaderStride;
+            if ((address - (int)SamusProjectileHeader.Projectile25) % BeamHeaderStride == 0) return Read(address);
             return header switch { 0 => Projectile25Program, 1 => SpazerTrailProgram, _ => EchoProgram };
         }
-        return address == Projectile27 ? Read(address) : Projectile27Program;
+        return address == (int)SamusProjectileHeader.Projectile27 ? Read(address) : Projectile27Program;
     }
 
     private static ushort BeamHeader(bool charged, SamusBeamCombination beam)

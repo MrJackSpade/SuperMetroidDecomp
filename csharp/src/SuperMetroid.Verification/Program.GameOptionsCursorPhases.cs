@@ -39,7 +39,7 @@ internal static partial class Program
                 "unsupported options cursor phase");
         var installed = RetailPresentationFixture();
         var controllerPage = NewMenu();
-        for (int row = 0; row < GameOptionsRomData.Rows.PrimaryControllerSettings; row++)
+        for (int row = 0; row < (int)GameOptionsPrimaryRow.ControllerSettings; row++)
         {
             controllerPage.Step((ushort)SnesButton.Down);
             controllerPage.Step(0);

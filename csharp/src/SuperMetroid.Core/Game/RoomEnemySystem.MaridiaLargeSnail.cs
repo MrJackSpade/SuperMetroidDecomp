@@ -558,22 +558,25 @@ public sealed partial class RoomEnemySystem
             return false;
 
         MaridiaLargeSnailEnemyState state = RequireMaridiaLargeSnailState(slot);
-        switch (opcode)
+        if (!Enum.IsDefined((MaridiaLargeSnailInstruction)opcode))
+            return false;
+        MaridiaLargeSnailInstruction instruction = (MaridiaLargeSnailInstruction)opcode;
+        switch (instruction)
         {
-            case MaridiaLargeSnailInstructionCodes.PlaySplashedOutOfWaterSound:
+            case MaridiaLargeSnailInstruction.PlaySplashedOutOfWaterSound:
                 LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
                 break;
-            case MaridiaLargeSnailInstructionCodes.SetAnimationFinished:
+            case MaridiaLargeSnailInstruction.SetAnimationFinished:
                 state.AttackAnimationFinished = true;
                 break;
-            case MaridiaLargeSnailInstructionCodes.AllowAttackRotation:
+            case MaridiaLargeSnailInstruction.AllowAttackRotation:
                 state.AttackAllowsRotation = true;
                 break;
-            case MaridiaLargeSnailInstructionCodes.DisallowAttackRotation:
+            case MaridiaLargeSnailInstruction.DisallowAttackRotation:
                 state.AttackAllowsRotation = false;
                 break;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined MaridiaLargeSnailInstruction {instruction}.");
         }
 
         cursor = unchecked((ushort)(cursor + 2));

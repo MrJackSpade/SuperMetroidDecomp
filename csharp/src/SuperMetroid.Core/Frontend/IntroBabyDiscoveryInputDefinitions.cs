@@ -39,11 +39,11 @@ internal static class IntroBabyDiscoveryInputDefinitions
         }
         return word switch
         {
-            9 or 29 => DemoInputRomData.Instructions.Goto,
+            9 or 29 => (ushort)DemoInputInstruction.Goto,
             10 => ListStart + 2 * DemoInputRomData.Instructions.InputRecordBytes,
             30 => IntroBabyDiscoveryRomData.StopAndLookInputList + 5 * DemoInputRomData.Instructions.InputRecordBytes,
             31 => IntroBabyDiscoveryRomData.EndDemoInputInstruction,
-            32 => DemoInputRomData.Instructions.Delete,
+            32 => (ushort)DemoInputInstruction.Delete,
             _ => throw new ArgumentOutOfRangeException(nameof(word)),
         };
     }
@@ -51,7 +51,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
     private static ushort HeaderWord(int word) => word switch
     {
         0 => DemoInputRomData.Routines.NoOp,
-        1 => IntroBabyDiscoveryRomData.RunningLeftPreInstruction,
+        1 => (ushort)IntroBabyDiscoveryPreInstruction.RunningLeft,
         2 => ListStart,
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };

@@ -291,7 +291,7 @@ public sealed partial class ManagedSpcPlayer
                 // eight-tap group ends at or before offset255; no tap carries past X.
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
-                    WriteDsp(unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +
+                    WriteDsp(unchecked((byte)(SnesDspRegisterMap.FirstFirCoefficient +
                         tap * SnesDspRegisterMap.VoiceStride)),
                         ram[SpcDriverData.Echo.FirCoefficientTableAddress + firOffset + tap]);
                 }
@@ -435,7 +435,7 @@ public sealed partial class ManagedSpcPlayer
             (--channel.NoteKeyOffTicksLeft == 0 || channel.NoteTicksLeft == 2))
         {
             if (WantsKeyOff(channel) && (currentChannelBit & channelOnMask) == 0)
-                WriteDsp(SnesDspRegisterMap.Global.KeyOff, currentChannelBit);
+                WriteDsp((byte)DspGlobalRegister.KeyOff, currentChannelBit);
         }
 
         affectedVolumeOrPitch = 0;

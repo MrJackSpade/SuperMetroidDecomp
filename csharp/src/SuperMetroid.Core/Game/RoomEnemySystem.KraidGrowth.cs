@@ -154,10 +154,11 @@ public sealed partial class RoomEnemySystem
     {
         SetupKraidSecondPhaseThinking(body, state);
 
-        for (int slot = KraidLintInitializationDefinitions.TopSlot; slot <= KraidLintInitializationDefinitions.BottomSlot; slot++)
+        foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
+            int slot = (int)part;
             RoomEnemySlot lint = _slots[slot];
-            lint.VariableF = KraidLintInitializationDefinitions.InitialDelayForSlot(slot);
+            lint.VariableF = KraidLintInitializationDefinitions.InitialDelay(part);
             lint.VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
             state.Parts[slot].NextFunction = KraidAiFunction.LintProduce;
             lint.VariableB = 0;

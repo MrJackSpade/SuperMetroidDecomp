@@ -14,14 +14,14 @@ public sealed partial class RoomEnemySystem
             for (int i = 0; i < EnemyCount; i++)
             {
                 var slot = _slots[i];
-                if (((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) != EnemyAiCodePointers.InitAI_ShipTop) continue;
-                return slot.VariableF is GunshipCodePointers.WaitForEntranceToOpen or GunshipCodePointers.LowerSamus
-                    or GunshipCodePointers.WaitForEntranceToClose or GunshipCodePointers.BeginLiftoffOrRestoreSamus
-                    or GunshipCodePointers.HandleSaveConfirmation or GunshipCodePointers.WaitForExitPadToOpen
-                    or GunshipCodePointers.RaiseSamus or GunshipCodePointers.FinishSamusExit
-                    or GunshipCodePointers.LoadLiftoffDustTiles or GunshipCodePointers.FireUpEngines
-                    or GunshipCodePointers.SteadyLiftoff or GunshipCodePointers.AcceleratingLiftoff
-                    or GunshipCodePointers.MoveAccelerating;
+                if (((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) != (int)EnemyAiRoutine.InitAI_ShipTop) continue;
+                return (GunshipFunction)slot.VariableF is GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus
+                    or GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus
+                    or GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen
+                    or GunshipFunction.RaiseSamus or GunshipFunction.FinishSamusExit
+                    or GunshipFunction.LoadLiftoffDustTiles or GunshipFunction.FireUpEngines
+                    or GunshipFunction.SteadyLiftoff or GunshipFunction.AcceleratingLiftoff
+                    or GunshipFunction.MoveAccelerating;
             }
             return false;
         }

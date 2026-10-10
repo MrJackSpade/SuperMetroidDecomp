@@ -84,7 +84,7 @@ internal static class EyeDoorPlmProgramDefinitions
             0x10 or 0x32 => (ushort)(start + 4), // Resume proximity wait.
             0x12 => (ushort)RoomPlmInstruction.LinkInstruction,
             0x16 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-            0x18 => EyeDoorPlmRomData.WakeWhenDoorBitSetPreInstruction,
+            0x18 => (ushort)EyeDoorPreInstruction.WakeWhenDoorBitSet,
             0x2e => (ushort)(start + 0x1a), // Continue the four-pose cycle.
             0x34 => (ushort)RoomPlmInstruction.Delete,
             _ => throw new InvalidOperationException("Unclassified eye-door component word."),
@@ -125,7 +125,7 @@ internal static class EyeDoorPlmProgramDefinitions
             0xbf => (ushort)(start + 0xb5),
             0xc3 or 0xc9 => right ? BlueDoorPlmProgramDefinitions.ClosedRight : BlueDoorPlmProgramDefinitions.ClosedLeft,
 
-            0x18 => EyeDoorPlmRomData.MissileHitPreInstruction,
+            0x18 => (ushort)EyeDoorPreInstruction.MissileHit,
             0x0a or 0x52 => 0x0406,
             0x20 => 0x0401,
             0x2a or 0x32 or 0x3a => (ushort)(right ? 20 : 0),

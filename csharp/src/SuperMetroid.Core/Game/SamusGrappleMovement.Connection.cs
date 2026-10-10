@@ -261,45 +261,44 @@ public static partial class SamusGrappleMovement
                 : SamusGrappleRomData.Connections.DefaultTable;
         int recordAddress = connectionTable + grapple.FireDirection * 4;
         var connection = GrappleConnectionDefinitions.ResolveConnection(recordAddress);
-        ushort nextFunction = connection.Function;
-        ushort handler = connection.Handler;
+        GrappleConnectionFunction nextFunction = connection.Function;
+        GrappleConnectionHandler handler = connection.Handler;
 
         // Each tiny native handler installs one prospective type-$16 pose and then jumps
         // to either BA61 (swinging) or BA9B (stuck). Keep the handler addresses visible:
         // pose alone is insufficient to distinguish malformed fallback data from native data.
         (SamusPoseId pose, bool swinging) = handler switch
         {
-            SamusGrappleRomData.Connections.SwingClockwiseHandler =>
+            GrappleConnectionHandler.SwingClockwise =>
                 (SamusPoseId.GrappleSwingRightPose, true),
-            SamusGrappleRomData.Connections.SwingAnticlockwiseHandler =>
+            GrappleConnectionHandler.SwingAnticlockwise =>
                 (SamusPoseId.GrappleSwingLeftPose, true),
-            SamusGrappleRomData.Connections.StandingUpRightHandler =>
+            GrappleConnectionHandler.StandingUpRight =>
                 (SamusPoseId.GrappleStandingRightPose, false),
-            SamusGrappleRomData.Connections.StandingRightHandler =>
+            GrappleConnectionHandler.StandingRight =>
                 (SamusPoseId.GrappleStandingDownRightPose, false),
-            SamusGrappleRomData.Connections.StandingDownHandler =>
+            GrappleConnectionHandler.StandingDown =>
                 (SamusPoseId.GrappleStandingDownLeftPose, false),
-            SamusGrappleRomData.Connections.StandingUpLeftHandler =>
+            GrappleConnectionHandler.StandingUpLeft =>
                 (SamusPoseId.GrappleStandingLeftPose, false),
-            SamusGrappleRomData.Connections.CrouchingUpRightHandler =>
+            GrappleConnectionHandler.CrouchingUpRight =>
                 (SamusPoseId.GrappleCrouchingRightPose, false),
-            SamusGrappleRomData.Connections.CrouchingRightHandler =>
+            GrappleConnectionHandler.CrouchingRight =>
                 (SamusPoseId.GrappleCrouchingDownRightPose, false),
-            SamusGrappleRomData.Connections.CrouchingDownLeftHandler =>
+            GrappleConnectionHandler.CrouchingDownLeft =>
                 (SamusPoseId.GrappleCrouchingDownLeftPose, false),
-            SamusGrappleRomData.Connections.CrouchingUpLeftHandler =>
+            GrappleConnectionHandler.CrouchingUpLeft =>
                 (SamusPoseId.GrappleCrouchingLeftPose, false),
-            _ => throw new InvalidDataException(
-                $"Grapple connection direction {grapple.FireDirection} names unknown handler ${handler:X4}."),
+            _ => throw new InvalidOperationException($"Undefined GrappleConnectionHandler {handler}."),
         };
-        ushort expectedFunction = swinging
-            ? SamusGrappleRomData.Connections.SwingingHandler
-            : SamusGrappleRomData.Connections.LockedInPlaceHandler;
+        GrappleConnectionFunction expectedFunction = swinging
+            ? GrappleConnectionFunction.Swinging
+            : GrappleConnectionFunction.LockedInPlace;
         if (nextFunction != expectedFunction)
         {
             throw new InvalidDataException(
-                $"Grapple connection handler ${handler:X4} requires function ${expectedFunction:X4}, " +
-                $"but the ROM record names ${nextFunction:X4}.");
+                $"Grapple connection handler {handler} requires function {expectedFunction}, " +
+                $"but the record names {nextFunction}.");
         }
 
         // BA61 and BA9B both derive the angle from the body position that fired the beam,

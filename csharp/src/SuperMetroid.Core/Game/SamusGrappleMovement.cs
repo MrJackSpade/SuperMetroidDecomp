@@ -809,13 +809,14 @@ public static partial class SamusGrappleMovement
             if (special.Angle != grapple.Angle.RawValue)
                 continue;
 
-            ushort function = special.Function;
+            GrappleConnectionFunction function = special.Function;
             GrapplePhase phase = function switch
             {
-                SamusGrappleRomData.Connections.LockedInPlaceHandler => GrapplePhase.ConnectedLocked,
-                SamusGrappleRomData.Connections.WallGrabHandler => GrapplePhase.WallGrab,
-                _ => throw new InvalidDataException(
-                    $"Grapple special-angle record {record} names unknown function ${function:X4}."),
+                GrappleConnectionFunction.LockedInPlace => GrapplePhase.ConnectedLocked,
+                GrappleConnectionFunction.WallGrab => GrapplePhase.WallGrab,
+                GrappleConnectionFunction.Swinging => throw new InvalidDataException(
+                    $"Grapple special-angle record {record} names the swinging function."),
+                _ => throw new InvalidOperationException($"Undefined GrappleConnectionFunction {function}."),
             };
 
             samus.Pose = special.Pose;

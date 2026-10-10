@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>One Choot falling stream and its per-loop vertical advance.</summary>
 internal readonly record struct ChootPatternDefinition(
-    ushort FallingPatternPointer,
+    ChootFallingPath FallingPatternPointer,
     ushort FallingPatternYDistance);
 
 /// <summary>Named motion selection and loop-origin advance for Choot falling patterns.</summary>
@@ -25,11 +25,11 @@ internal static class ChootPatternDefinitions
     /// </summary>
     internal static ChootPatternDefinition ForIndex(ushort patternIndex) => patternIndex switch
     {
-        0 => new(ChootFallingPathDefinitions.NormalPointer, NormalLoopYDistance),
-        1 => new(ChootFallingPathDefinitions.WidePointer, WideLoopYDistance),
-        2 => new(ChootFallingPathDefinitions.VeryWidePointer, VeryWideLoopYDistance),
-        3 => new(ChootFallingPathDefinitions.SlowPointer, NormalLoopYDistance),
-        4 => new(ChootFallingPathDefinitions.VerySlowPointer, NormalLoopYDistance),
+        0 => new(ChootFallingPath.Normal, NormalLoopYDistance),
+        1 => new(ChootFallingPath.Wide, WideLoopYDistance),
+        2 => new(ChootFallingPath.VeryWide, VeryWideLoopYDistance),
+        3 => new(ChootFallingPath.Slow, NormalLoopYDistance),
+        4 => new(ChootFallingPath.VerySlow, NormalLoopYDistance),
         _ => throw new InvalidDataException(
             $"Choot falling-pattern index {patternIndex} exceeds its five real streams."),
     };

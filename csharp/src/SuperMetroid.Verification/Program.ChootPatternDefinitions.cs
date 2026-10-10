@@ -17,13 +17,13 @@ internal static partial class Program
             ChootPatternDefinition definition = ChootPatternDefinitions.ForIndex(patternIndex);
             ushort nativePointer = ReadChootPatternWord(rom, 0xa2df5e + patternIndex * 2);
             ushort distancePointer = ReadChootPatternWord(rom, 0xa2df6a + patternIndex * 2);
-            AssertEqual(nativePointer, definition.FallingPatternPointer,
+            AssertEqual(nativePointer, (ushort)definition.FallingPatternPointer,
                 $"Choot pattern pointer {patternIndex}");
             AssertEqual(ReadChootPatternWord(rom, 0xa20000 | distancePointer),
                 definition.FallingPatternYDistance,
                 $"Choot pattern distance {patternIndex}");
 
-            int pathAddress = 0xa20000 | definition.FallingPatternPointer;
+            int pathAddress = 0xa20000 | (ushort)definition.FallingPatternPointer;
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
@@ -58,7 +58,7 @@ internal static partial class Program
                 ChootEnemyState state = enemies.ChootStates[0]!;
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (definition.FallingPatternYDistance & 0x00ff)));
-                AssertEqual(definition.FallingPatternPointer, state.FallingPatternPointer,
+                AssertEqual((ushort)definition.FallingPatternPointer, state.FallingPatternPointer,
                     $"Choot production pattern pointer {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");

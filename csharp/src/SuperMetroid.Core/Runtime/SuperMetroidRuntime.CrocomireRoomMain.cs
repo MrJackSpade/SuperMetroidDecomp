@@ -11,7 +11,7 @@ public sealed partial class SuperMetroidRuntime
         if (ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
             Enemies.Crocomire is not { } boss ||
             boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
-            boss.DeathSequenceIndex != CrocomireDeathPhases.RumbleHiddenWall)
+            boss.DeathSequenceIndex != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
         var death = Enemies.CrocomireDeath ?? throw new InvalidOperationException(

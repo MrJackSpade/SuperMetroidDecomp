@@ -55,7 +55,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
         var expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
         return new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.Version,
+            Version = (int)EnemyExtendedFrameSchema.Current,
             Frames = expected.ToDictionary(frame => frame.Name, frame =>
                 EnemyExtendedFrameDefinitions.IsBg2Only(frame) ? [] : new[] { Component(frame.Pointer & 0x7f) }),
             DisplayFrames = expected.ToDictionary(frame => frame.Name, frame => frame.Name),

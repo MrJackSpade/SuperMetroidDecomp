@@ -75,18 +75,25 @@ public static class CreditsPresentationExtractor
                 continue;
             }
 
-            switch (instruction)
+            var command = (CreditsInstruction)instruction;
+            if (!Enum.IsDefined(command))
             {
-                case CreditsPresentationDefinitions.Native.SetTimer:
+                throw new InvalidDataException(
+                    $"Native credits instruction $8B:{instruction:X4} at " +
+                    $"$8C:{pointer:X4} is not catalogued.");
+            }
+            switch (command)
+            {
+                case CreditsInstruction.SetTimer:
                     timer = ReadWord(bus, Add(pointer, 2));
                     pointer = Add(pointer, 4);
                     break;
-                case CreditsPresentationDefinitions.Native.DecrementTimerAndGoto:
+                case CreditsInstruction.DecrementTimerAndGoto:
                     timer = unchecked((ushort)(timer - 1));
                     pointer = timer != 0 ? ReadWord(bus, Add(pointer, 2)) : Add(pointer, 4);
                     break;
-                case CreditsPresentationDefinitions.Native.EndCredits:
-                case CreditsPresentationDefinitions.Native.Delete:
+                case CreditsInstruction.EndCredits:
+                case CreditsInstruction.Delete:
                     if (rows.Count != CreditsPresentationDefinitions.ExpectedCompiledRows)
                     {
                         throw new InvalidDataException(
@@ -95,9 +102,7 @@ public static class CreditsPresentationExtractor
                     }
                     return rows.ToArray();
                 default:
-                    throw new InvalidDataException(
-                        $"Native credits instruction $8B:{instruction:X4} at " +
-                        $"$8C:{pointer:X4} is not catalogued.");
+                    throw new InvalidOperationException($"Undefined CreditsInstruction {command}.");
             }
         }
         throw new InvalidDataException("Native credits did not terminate within the bounded operation count.");

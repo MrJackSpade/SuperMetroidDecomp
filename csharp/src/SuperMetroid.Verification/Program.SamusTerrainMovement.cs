@@ -394,11 +394,11 @@ static void VerifySamusBlockCollision()
         (byte)SamusFacingDirection.Right);
     foreach ((byte spikeBehavior, ushort expectedDamage) in new (byte, ushort)[]
     {
-        (SamusTerrainHazardRomData.HeavySpikeBlockBehavior,
+        ((byte)SpikeBlockBehavior.Heavy,
             SamusTerrainHazardRomData.HeavySpikeDamage),
-        (SamusTerrainHazardRomData.LightSpikeBlockBehavior,
+        ((byte)SpikeBlockBehavior.Light,
             SamusTerrainHazardRomData.LightSpikeDamage),
-        (SamusTerrainHazardRomData.AlternateLightSpikeBlockBehavior,
+        ((byte)SpikeBlockBehavior.AlternateLight,
             SamusTerrainHazardRomData.LightSpikeDamage),
         (2, 0),
     })
@@ -454,7 +454,7 @@ static void VerifySamusBlockCollision()
         var spikeWords = new ushort[width * height];
         var spikeBehaviors = new byte[spikeWords.Length];
         spikeWords[2 * width + 1] = 0xa000;
-        spikeBehaviors[2 * width + 1] = SamusTerrainHazardRomData.HeavySpikeBlockBehavior;
+        spikeBehaviors[2 * width + 1] = (byte)SpikeBlockBehavior.Heavy;
         RoomLevelData wreckedShipSpikes = CreateRoom(width, height, spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState
         {

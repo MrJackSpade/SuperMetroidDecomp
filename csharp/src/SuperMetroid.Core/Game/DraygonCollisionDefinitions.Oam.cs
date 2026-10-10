@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed collision identity for Draygon's ordinary bank-$A5 OAM frames.</summary>
 internal static partial class DraygonCollisionDefinitions
 {
-    /// <summary>$A5:ABDD, the second empty hitbox list used by mirrored OAM frames.</summary>
-    internal const ushort OtherEmptyList = 0xabdd;
-
     /// <summary><c>ExtendedSpritemap_Draygon_4</c> at $A5:A2DF: first of six one-component frames.</summary>
     private const ushort LeftSingleFrames = 0xa2df;
     /// <summary><c>ExtendedSpritemap_Draygon_1B</c> at $A5:A3C5: first of four one-component frames.</summary>
@@ -57,14 +54,5 @@ internal static partial class DraygonCollisionDefinitions
             return [];
         throw new InvalidDataException(
             $"Draygon frame $A5:{pointer:X4} has no compiled collision identity.");
-    }
-
-    private static ReadOnlySpan<DraygonCollisionHitbox> OamHitboxesAt(
-        ushort pointer)
-    {
-        if (pointer == OtherEmptyList)
-            return [];
-        throw new InvalidDataException(
-            $"Draygon hitbox list $A5:{pointer:X4} is not compiled.");
     }
 }

@@ -197,7 +197,7 @@ internal static partial class Program
             if ((address >> 16) == 0x84 &&
                 ((pointer >= SporeSpawnCeilingPlmProgramDefinitions.Crumble &&
                   pointer < SporeSpawnCeilingPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= SporeSpawnCeilingPlmDrawDefinitions.ClearPointer &&
+                 (pointer >= (ushort)SporeSpawnCeilingDraw.Clear &&
                   pointer < SporeSpawnCeilingPlmDrawDefinitions.EndExclusive)))
             {
                 ForbiddenReadAttempts++;

@@ -74,9 +74,9 @@ internal static partial class Program
             for (int component = 0; component < componentCount; component++)
             {
                 ushort listPointer = ReadWord(root + 2 + component * 8 + 6);
-                AssertTrue(listPointer is
-                    DraygonCollisionDefinitions.EmptyList or
-                    DraygonCollisionDefinitions.OtherEmptyList,
+                AssertTrue((DraygonHitboxList)listPointer is
+                    DraygonHitboxList.Empty or
+                    DraygonHitboxList.OtherEmpty,
                     $"Draygon OAM frame {frame.Name} component {component} has a native empty list");
                 AssertEqual((ushort)0,
                     ReadWord((frame.Bank << 16) | listPointer),
@@ -104,7 +104,7 @@ internal static partial class Program
             draygonFrames, "compiled Draygon empty-frame set is exact");
         AssertEqual(0,
             DraygonCollisionDefinitions.HitboxesAt(
-                DraygonCollisionDefinitions.OtherEmptyList).Length,
+                DraygonHitboxList.OtherEmpty).Length,
             "mirrored Draygon OAM list has no compiled hitboxes");
         AssertThrows<InvalidDataException>(
             () => DraygonCollisionDefinitions.ComponentsAt(0xee65),

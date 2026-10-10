@@ -10,9 +10,9 @@ internal static partial class Program
     /// </summary>
     static void VerifyRoomSetupCodeCatalog()
     {
-        ushort[] catalog = CatalogFields.Of(typeof(RoomSetupCodePointers), BindingFlags.Public | BindingFlags.Static)
-            .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+        ushort[] catalog = Enum.GetValues<RoomSetupCallback>()
+            .Where(callback => callback != RoomSetupCallback.None)
+            .Select(callback => (ushort)callback)
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-setup callback catalog has no aliases");
@@ -58,11 +58,11 @@ internal static partial class Program
             AssertTrue(retailSetupPointers.Contains(pointer),
                 $"catalogued room-setup callback $8F:{pointer:X4} occurs in a retail state");
         }
-        AssertTrue(RoomSetupCodePointers.SpawnsCeresHaze(
-                RoomSetupCodePointers.TurnCeresDoorToSolidBlocksAndSpawnHaze),
+        AssertTrue(RoomCallbackDefinitions.SpawnsCeresHaze(
+                RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door setup declares haze side effect");
-        AssertTrue(!RoomSetupCodePointers.SpawnsCeresHaze(
-                RoomSetupCodePointers.SetMediumHorizontalRoomShaking),
+        AssertTrue(!RoomCallbackDefinitions.SpawnsCeresHaze(
+                RoomSetupCallback.SetMediumHorizontalRoomShaking),
             "unrelated setup does not acquire Ceres haze");
 
         Console.WriteLine(

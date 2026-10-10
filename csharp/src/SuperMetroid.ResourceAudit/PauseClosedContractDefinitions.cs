@@ -38,8 +38,8 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/PauseSelectorDefinitions.cs", "61D2E4392089E2E7CA91A9886B6B514FB4C4DA6E965C6BC743C65C275F7106B0"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "8DA0EB3ACAC6D10737322F7DF139EB50153CBF7B7804FE8EF93711661911FD01")]),
         new("SuperMetroid.Core.Assets.PauseReserveTankPresentation", "pause-reserve-complete-anchors-and-sprites", ["Anchor", "Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "E4E1A69CD63241C9C542EE7AB69BB88D2A9F16202BD297CE0C688E71BD5CB9EB"),
-             new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs", "551886AC446BBD0F48A12E373BF71C42CFBD60ABE8C673E4D6D2E269C7E57A78"),
-             new("csharp/src/SuperMetroid.Core/Frontend/PauseReserveTankRomData.cs", "F0BF08D4CF7499A161FFC46FD12639F4246B297B97A47CB646DDA83DB2F48DF4")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankPresentation.cs", "1BD7D5DF9A8D584BEB6FEB7B4299258529E240D5610326851A610F79775E7CAC"),
+             new("csharp/src/SuperMetroid.Core/Assets/PauseReserveTankDefinitions.cs", "A65792E8E83A012C5C67926E62DDC9B357E8CEEF6298E547EB46456DE74FB9E3"),
+             new("csharp/src/SuperMetroid.Core/Frontend/PauseReserveTankRomData.cs", "011A0581AA6A3B766B1DE09A6CE4675773A0A7858473E2010261DD9507A58EB1")]),
     ];
 }

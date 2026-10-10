@@ -137,9 +137,9 @@ internal static class PlmProgramContractChecks
         Word(EnemyBreakableTerrainDefinitions.InstructionList, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3);
         Word(RoomPlmInstructionLists.CrumbleReveal1x1 + 2, (ushort)RoomPlmBombedRevealDraw.CrumbleSingle);
         Word(RoomPlmInstructionLists.BombedPowerBombBlockUnused + 2, (ushort)RoomPlmBombedRevealDraw.PowerBomb);
-        Word(EscapeAnimalPlmRomData.ReactionList + 17, EscapeAnimalPlmDrawDefinitions.Blank);
+        Word(EscapeAnimalPlmRomData.ReactionList + 17, (ushort)EscapeAnimalDraw.Blank);
         Word(EscapeAnimalPlmRomData.ReactionList + 19, (ushort)RoomPlmInstruction.SetAnimalsEscapedEvent);
-        Require(EscapeAnimalPlmDrawDefinitions.TryGet(EscapeAnimalPlmDrawDefinitions.Blank, out var wall) &&
+        Require(EscapeAnimalPlmDrawDefinitions.TryGet((ushort)EscapeAnimalDraw.Blank, out var wall) &&
             wall.Runs.Span[0].DirectionAndCount == 0x8003 &&
             wall.Runs.Span[0].LevelWords.Span.SequenceEqual(new ushort[] { 0x80ff, 0x80ff, 0x80ff }),
             "Rescue-wall blank frame must mutate all three vertical terrain words, not just render one block.");

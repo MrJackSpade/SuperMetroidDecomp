@@ -19,6 +19,19 @@ internal abstract class HibashiInstructionProgramDefinitions
     private const ushort FirstActivityFrame = 0x8e13;
     /// <summary><c>Instruction_Hibashi_ActivityFrame1</c> at $A6:8E2D starts the twenty-byte activity callback stride.</summary>
     private const ushort FollowingActivityFrames = 0x8e2d;
+    /// <summary>The fixed control-word addresses of the two programs.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>The graphics program's opening sound instruction.</summary>
+        PlaySound = GraphicsProgram,
+        /// <summary>The sleep closing the graphics program, just before the hitbox program.</summary>
+        GraphicsSleep = HitboxProgram - 2,
+        /// <summary>The hitbox program's single two-frame duration.</summary>
+        HitboxDuration = HitboxProgram,
+        /// <summary>The sleep closing the hitbox program.</summary>
+        HitboxSleep = HitboxProgram + 4,
+    }
+
     public static int PresentationWordCount => 24;
 
     public static ushort PresentationWordAddress(int index)
@@ -36,14 +49,18 @@ internal abstract class HibashiInstructionProgramDefinitions
 
     internal static bool TryRead(int address, out ushort value)
     {
-        value = address switch
+        value = 0;
+        if ((uint)address <= ushort.MaxValue && Enum.IsDefined((ControlWord)address))
         {
-            GraphicsProgram => PlaySound,
-            HitboxProgram => 2,
-            HitboxProgram - 2 or HitboxProgram + 4 => CommonEnemyInstructionCodes.Sleep,
-            _ => 0,
-        };
-        if (value != 0) return true;
+            value = (ControlWord)address switch
+            {
+                ControlWord.PlaySound => PlaySound,
+                ControlWord.HitboxDuration => 2,
+                ControlWord.GraphicsSleep or ControlWord.HitboxSleep => CommonEnemyInstructionCodes.Sleep,
+                _ => throw new InvalidOperationException($"Undefined ControlWord {(ControlWord)address}."),
+            };
+            return true;
+        }
         int offset = address - GraphicsProgram - 2;
         if (offset is < 0 or >= (23 * 6)) return false;
         int frame = offset / 6;

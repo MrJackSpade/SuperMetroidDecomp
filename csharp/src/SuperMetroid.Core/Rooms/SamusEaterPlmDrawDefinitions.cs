@@ -1,4 +1,27 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The eight bank-$84 Samus Eater plant draw lists, valued by native address.</summary>
+internal enum SamusEaterDraw : ushort
+{
+    /// <summary>Native floor-idle draw list at $84:9E0D.</summary>
+    FloorIdle = 0x9e0d,
+    /// <summary>Native floor-chew-1 draw list at $84:9E45.</summary>
+    FloorChew1 = 0x9e45,
+    /// <summary>Native floor-chew-2 draw list at $84:9E61.</summary>
+    FloorChew2 = 0x9e61,
+    /// <summary>Native floor-chew-3 draw list at $84:9E7D.</summary>
+    FloorChew3 = 0x9e7d,
+    /// <summary>Native ceiling-idle draw list at $84:9E99.</summary>
+    CeilingIdle = 0x9e99,
+    /// <summary>Native ceiling-chew-1 draw list at $84:9ED1.</summary>
+    CeilingChew1 = 0x9ed1,
+    /// <summary>Native ceiling-chew-2 draw list at $84:9EED.</summary>
+    CeilingChew2 = 0x9eed,
+    /// <summary>Native ceiling-chew-3 draw list at $84:9F09.</summary>
+    CeilingChew3 = 0x9f09,
+}
 
 /// <summary>
 /// Eight native floor/ceiling plant block layouts at $84:9E0D..9F24. Their
@@ -10,24 +33,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class SamusEaterPlmDrawDefinitions
 {
-    /// <summary>Native floor-idle draw list at $84:9E0D.</summary>
-    internal const ushort FloorIdle = 0x9e0d;
-    /// <summary>Native floor-chew-1 draw list at $84:9E45.</summary>
-    internal const ushort FloorChew1 = 0x9e45;
-    /// <summary>Native floor-chew-2 draw list at $84:9E61.</summary>
-    internal const ushort FloorChew2 = 0x9e61;
-    /// <summary>Native floor-chew-3 draw list at $84:9E7D.</summary>
-    internal const ushort FloorChew3 = 0x9e7d;
-    /// <summary>Native ceiling-idle draw list at $84:9E99.</summary>
-    internal const ushort CeilingIdle = 0x9e99;
-    /// <summary>Native ceiling-chew-1 draw list at $84:9ED1.</summary>
-    internal const ushort CeilingChew1 = 0x9ed1;
-    /// <summary>Native ceiling-chew-2 draw list at $84:9EED.</summary>
-    internal const ushort CeilingChew2 = 0x9eed;
-    /// <summary>Native ceiling-chew-3 draw list at $84:9F09.</summary>
-    internal const ushort CeilingChew3 = 0x9f09;
-
-    internal readonly record struct Draw(ushort Pointer, bool Ceiling, int Phase)
+    internal readonly record struct Draw(SamusEaterDraw Pointer, bool Ceiling, int Phase)
     {
         internal static int Count(int run) => run switch
         {
@@ -77,19 +83,25 @@ internal static class SamusEaterPlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        draw = pointer switch
+        var list = (SamusEaterDraw)pointer;
+        if (!Enum.IsDefined(list))
         {
-            FloorIdle => new(pointer, false, 0),
-            FloorChew1 => new(pointer, false, 1),
-            FloorChew2 => new(pointer, false, 2),
-            FloorChew3 => new(pointer, false, 3),
-            CeilingIdle => new(pointer, true, 0),
-            CeilingChew1 => new(pointer, true, 1),
-            CeilingChew2 => new(pointer, true, 2),
-            CeilingChew3 => new(pointer, true, 3),
-            _ => default,
+            draw = default;
+            return false;
+        }
+        draw = list switch
+        {
+            SamusEaterDraw.FloorIdle => new(list, false, 0),
+            SamusEaterDraw.FloorChew1 => new(list, false, 1),
+            SamusEaterDraw.FloorChew2 => new(list, false, 2),
+            SamusEaterDraw.FloorChew3 => new(list, false, 3),
+            SamusEaterDraw.CeilingIdle => new(list, true, 0),
+            SamusEaterDraw.CeilingChew1 => new(list, true, 1),
+            SamusEaterDraw.CeilingChew2 => new(list, true, 2),
+            SamusEaterDraw.CeilingChew3 => new(list, true, 3),
+            _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {list}."),
         };
-        return draw.Pointer != 0;
+        return true;
     }
 
     // Materialize temporary DTOs only for the existing artwork import/export interface.
@@ -100,7 +112,7 @@ internal static class SamusEaterPlmDrawDefinitions
             for (int ceiling = 0; ceiling < 2; ceiling++)
             for (int phase = 0; phase < 4; phase++)
             {
-                ushort pointer = (ushort)((ceiling == 0 ? FloorIdle : CeilingIdle) +
+                ushort pointer = (ushort)((int)(ceiling == 0 ? SamusEaterDraw.FloorIdle : SamusEaterDraw.CeilingIdle) +
                     (phase == 0 ? 0 : (phase + 1) * 28));
                 TryGet(pointer, out var list);
                 yield return list;
@@ -108,17 +120,20 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer) =>
+        VisualId(ClosedNativeWords.Decode<SamusEaterDraw>(pointer, "Samus Eater draw with a visual ID"));
+
+    internal static string VisualId(SamusEaterDraw pointer) => pointer switch
     {
-        FloorIdle => "floor-idle",
-        FloorChew1 => "floor-chew-1",
-        FloorChew2 => "floor-chew-2",
-        FloorChew3 => "floor-chew-3",
-        CeilingIdle => "ceiling-idle",
-        CeilingChew1 => "ceiling-chew-1",
-        CeilingChew2 => "ceiling-chew-2",
-        CeilingChew3 => "ceiling-chew-3",
-        _ => throw new InvalidDataException($"Samus Eater draw ${pointer:X4} has no visual ID."),
+        SamusEaterDraw.FloorIdle => "floor-idle",
+        SamusEaterDraw.FloorChew1 => "floor-chew-1",
+        SamusEaterDraw.FloorChew2 => "floor-chew-2",
+        SamusEaterDraw.FloorChew3 => "floor-chew-3",
+        SamusEaterDraw.CeilingIdle => "ceiling-idle",
+        SamusEaterDraw.CeilingChew1 => "ceiling-chew-1",
+        SamusEaterDraw.CeilingChew2 => "ceiling-chew-2",
+        SamusEaterDraw.CeilingChew3 => "ceiling-chew-3",
+        _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {pointer}."),
     };
 
     internal static bool TryGetByVisualId(string id,

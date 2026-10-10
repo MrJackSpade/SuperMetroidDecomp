@@ -41,47 +41,54 @@ internal static class SpcSoundEffectProgramCodec
         for (int count = 0; count < SpcDriverData.ApuRamSize; count++)
         {
             byte opcode = ReadByte(ram, written, ref cursor, address);
-            switch (opcode)
+            var command = (SpcSoundEffectOpcode)opcode;
+            if (!Enum.IsDefined(command))
             {
-                case SpcSoundEffectOpcodes.SetAdsr:
+                // Every other byte begins a note packet whose first byte is the instrument.
+                byte[] arguments = new byte[5];
+                arguments[0] = opcode;
+                for (int index = 1; index < arguments.Length; index++)
+                    arguments[index] = ReadByte(ram, written, ref cursor, address);
+                instructions.Add(new(AudioSoundInstructionOperations.PlayNote, arguments));
+                continue;
+            }
+
+            switch (command)
+            {
+                case SpcSoundEffectOpcode.SetAdsr:
                     instructions.Add(Read(
                         AudioSoundInstructionOperations.SetAdsr, 4,
                         ram, written, ref cursor, address));
                     break;
-                case SpcSoundEffectOpcodes.PitchSlideLegato:
+                case SpcSoundEffectOpcode.PitchSlideLegato:
                     instructions.Add(Read(
                         AudioSoundInstructionOperations.PitchSlideLegato, 2,
                         ram, written, ref cursor, address));
                     break;
-                case SpcSoundEffectOpcodes.PitchSlide:
+                case SpcSoundEffectOpcode.PitchSlide:
                     instructions.Add(Read(
                         AudioSoundInstructionOperations.PitchSlide, 2,
                         ram, written, ref cursor, address));
                     break;
-                case SpcSoundEffectOpcodes.End:
+                case SpcSoundEffectOpcode.End:
                     instructions.Add(new(AudioSoundInstructionOperations.End, []));
                     return new(id, address, cursor - address, instructions);
-                case SpcSoundEffectOpcodes.BeginRepeat:
+                case SpcSoundEffectOpcode.BeginRepeat:
                     instructions.Add(Read(
                         AudioSoundInstructionOperations.BeginRepeat, 1,
                         ram, written, ref cursor, address));
                     break;
-                case SpcSoundEffectOpcodes.RepeatForever:
+                case SpcSoundEffectOpcode.RepeatForever:
                     instructions.Add(new(AudioSoundInstructionOperations.RepeatForever, []));
                     return new(id, address, cursor - address, instructions);
-                case SpcSoundEffectOpcodes.EndRepeat:
+                case SpcSoundEffectOpcode.EndRepeat:
                     instructions.Add(new(AudioSoundInstructionOperations.EndRepeat, []));
                     break;
-                case SpcSoundEffectOpcodes.EnableNoise:
+                case SpcSoundEffectOpcode.EnableNoise:
                     instructions.Add(new(AudioSoundInstructionOperations.EnableNoise, []));
                     break;
                 default:
-                    byte[] arguments = new byte[5];
-                    arguments[0] = opcode;
-                    for (int index = 1; index < arguments.Length; index++)
-                        arguments[index] = ReadByte(ram, written, ref cursor, address);
-                    instructions.Add(new(AudioSoundInstructionOperations.PlayNote, arguments));
-                    break;
+                    throw new InvalidOperationException($"Undefined SpcSoundEffectOpcode {command}.");
             }
         }
         throw new InvalidDataException(
@@ -102,14 +109,14 @@ internal static class SpcSoundEffectProgramCodec
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
             (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
             {
-                AudioSoundInstructionOperations.SetAdsr => (SpcSoundEffectOpcodes.SetAdsr, 4, false),
-                AudioSoundInstructionOperations.PitchSlideLegato => (SpcSoundEffectOpcodes.PitchSlideLegato, 2, false),
-                AudioSoundInstructionOperations.PitchSlide => (SpcSoundEffectOpcodes.PitchSlide, 2, false),
-                AudioSoundInstructionOperations.End => (SpcSoundEffectOpcodes.End, 0, true),
-                AudioSoundInstructionOperations.BeginRepeat => (SpcSoundEffectOpcodes.BeginRepeat, 1, false),
-                AudioSoundInstructionOperations.RepeatForever => (SpcSoundEffectOpcodes.RepeatForever, 0, true),
-                AudioSoundInstructionOperations.EndRepeat => (SpcSoundEffectOpcodes.EndRepeat, 0, false),
-                AudioSoundInstructionOperations.EnableNoise => (SpcSoundEffectOpcodes.EnableNoise, 0, false),
+                AudioSoundInstructionOperations.SetAdsr => ((int)SpcSoundEffectOpcode.SetAdsr, 4, false),
+                AudioSoundInstructionOperations.PitchSlideLegato => ((int)SpcSoundEffectOpcode.PitchSlideLegato, 2, false),
+                AudioSoundInstructionOperations.PitchSlide => ((int)SpcSoundEffectOpcode.PitchSlide, 2, false),
+                AudioSoundInstructionOperations.End => ((int)SpcSoundEffectOpcode.End, 0, true),
+                AudioSoundInstructionOperations.BeginRepeat => ((int)SpcSoundEffectOpcode.BeginRepeat, 1, false),
+                AudioSoundInstructionOperations.RepeatForever => ((int)SpcSoundEffectOpcode.RepeatForever, 0, true),
+                AudioSoundInstructionOperations.EndRepeat => ((int)SpcSoundEffectOpcode.EndRepeat, 0, false),
+                AudioSoundInstructionOperations.EnableNoise => ((int)SpcSoundEffectOpcode.EnableNoise, 0, false),
                 AudioSoundInstructionOperations.PlayNote => (0, 5, false),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
@@ -132,11 +139,7 @@ internal static class SpcSoundEffectProgramCodec
             }
             if (instruction.Operation == AudioSoundInstructionOperations.PlayNote)
             {
-                if (instruction.Arguments[0] is
-                    SpcSoundEffectOpcodes.PitchSlideLegato or
-                    SpcSoundEffectOpcodes.PitchSlide or
-                    SpcSoundEffectOpcodes.SetAdsr or
-                    >= SpcSoundEffectOpcodes.RepeatForever)
+                if (Enum.IsDefined((SpcSoundEffectOpcode)instruction.Arguments[0]))
                 {
                     throw new InvalidDataException(
                         $"SPC sound program '{program.Id}' playNote instrument ${instruction.Arguments[0]:X2} " +

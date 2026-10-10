@@ -41,7 +41,7 @@ public sealed partial class RoomEnemySystem
         segment.InstructionTimer = 1;
         segment.Variable0 = instruction;
         segment.DirectionParameter = orientation;
-        segment.XVelocity = BotwoonProjectileCodePointers.BodyMainFunction;
+        segment.XVelocity = (ushort)BotwoonBodyFunction.Main;
 
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
@@ -57,45 +57,46 @@ public sealed partial class RoomEnemySystem
     {
         BotwoonEnemyState state = _botwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
-        if (state.BodyDeathStarted &&
-            segment.XVelocity == BotwoonProjectileCodePointers.BodyMainFunction)
+        BotwoonBodyFunction function =
+            ClosedNativeWords.Decode<BotwoonBodyFunction>(segment.XVelocity, "Botwoon body function");
+        if (state.BodyDeathStarted && function == BotwoonBodyFunction.Main)
         {
-            segment.XVelocity = BotwoonProjectileCodePointers.BodyBeginDyingFunction;
+            function = BotwoonBodyFunction.BeginDying;
+            segment.XVelocity = (ushort)function;
         }
 
-        switch (segment.XVelocity)
+        switch (function)
         {
-            case BotwoonProjectileCodePointers.BodyMainFunction:
+            case BotwoonBodyFunction.Main:
                 AnimateBotwoonBodySegment(segment, randomEnemyCounter);
                 return;
 
-            case BotwoonProjectileCodePointers.BodyBeginDyingFunction:
+            case BotwoonBodyFunction.BeginDying:
                 // The delay is based on native projectile index, not body order. Botwoon
                 // normally owns indexes $0A..$22 because allocation descended from $22.
                 segment.DirectionParameter = unchecked((ushort)(
                     4 * (segment.SlotIndex * 2) + 96));
-                segment.XVelocity = BotwoonProjectileCodePointers.BodyDyingDelayFunction;
-                goto case BotwoonProjectileCodePointers.BodyDyingDelayFunction;
+                segment.XVelocity = (ushort)BotwoonBodyFunction.DyingDelay;
+                goto case BotwoonBodyFunction.DyingDelay;
 
-            case BotwoonProjectileCodePointers.BodyDyingDelayFunction:
+            case BotwoonBodyFunction.DyingDelay:
                 segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
-                    segment.XVelocity = BotwoonProjectileCodePointers.BodyFallingFunction;
+                    segment.XVelocity = (ushort)BotwoonBodyFunction.Falling;
                 segment.InstructionTimer = 0;
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
 
-            case BotwoonProjectileCodePointers.BodyFallingFunction:
+            case BotwoonBodyFunction.Falling:
                 RunBotwoonBodyFall(segment, state, randomEnemyCounter);
                 return;
 
-            case BotwoonProjectileCodePointers.BodyLandedFunction:
-            case BotwoonProjectileCodePointers.LegacyBodyLandedFunction:
+            case BotwoonBodyFunction.Landed:
+            case BotwoonBodyFunction.LegacyLanded:
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Botwoon body function $86:{segment.XVelocity:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined BotwoonBodyFunction {function}.");
         }
     }
 
@@ -147,7 +148,7 @@ public sealed partial class RoomEnemySystem
         }
 
         segment.YPosition = 200;
-        segment.XVelocity = BotwoonProjectileCodePointers.BodyLandedFunction;
+        segment.XVelocity = (ushort)BotwoonBodyFunction.Landed;
         segment.InstructionPointer = BotwoonProjectileCodePointers.BodyLandedInstruction;
         segment.InstructionTimer = 1;
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;

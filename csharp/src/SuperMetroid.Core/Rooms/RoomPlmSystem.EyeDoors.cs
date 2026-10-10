@@ -72,9 +72,11 @@ public sealed partial class RoomPlmSystem
 
         Bank80SystemState system = _eyeDoorSystem ??
             throw new InvalidOperationException("A live eye door has no persistence owner.");
-        switch (slot.PreInstruction)
+        EyeDoorPreInstruction preInstruction =
+            ClosedNativeWords.Decode<EyeDoorPreInstruction>(slot.PreInstruction, "eye-door PLM pre-instruction");
+        switch (preInstruction)
         {
-            case EyeDoorPlmRomData.WakeWhenDoorBitSetPreInstruction:
+            case EyeDoorPreInstruction.WakeWhenDoorBitSet:
                 if (unchecked((short)slot.RoomArgument) >= 0 &&
                     system.HasOpenedDoorBit(slot.RoomArgument))
                 {
@@ -84,7 +86,7 @@ public sealed partial class RoomPlmSystem
                 }
                 return;
 
-            case EyeDoorPlmRomData.MissileHitPreInstruction:
+            case EyeDoorPreInstruction.MissileHit:
                 if (!slot.EyeDoor.HasPendingHit)
                     return;
 
@@ -111,8 +113,7 @@ public sealed partial class RoomPlmSystem
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Eye-door PLM reached untranslated pre-instruction $84:{slot.PreInstruction:X4}.");
+                throw new InvalidOperationException($"Undefined EyeDoorPreInstruction {preInstruction}.");
         }
     }
 

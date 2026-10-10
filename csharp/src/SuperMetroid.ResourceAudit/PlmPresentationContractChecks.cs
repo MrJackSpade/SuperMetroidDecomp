@@ -41,8 +41,8 @@ internal static class PlmPresentationContractChecks
                     shot.GetWord(0, 0, 0);
                     station.GetWord(dynamicPointer, 0, 0);
                     station.GetWord(dynamicPointer, 0, int.MaxValue);
-                    hand.GetWord(BombTorizoHandPlmDrawDefinitions.Intact, 0, 0);
-                    hand.GetWord(BombTorizoHandPlmDrawDefinitions.Intact, 0, int.MaxValue);
+                    hand.GetWord((ushort)BombTorizoHandDraw.Intact, 0, 0);
+                    hand.GetWord((ushort)BombTorizoHandDraw.Intact, 0, int.MaxValue);
                     glass.GetWord(dynamicPointer, 0, 0);
                     glass.GetWord(dynamicPointer, int.MaxValue, 0);
                     tube.GetWord(dynamicPointer, 0, 0);
@@ -58,24 +58,24 @@ internal static class PlmPresentationContractChecks
                     chozo.GetWord(ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand, 0, 1);
                     restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 1);
                     restore.GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Square, 1, 2);
-                    tourian.GetWord(TourianAccessPlmDrawDefinitions.ClearPointer, 5, 3);
-                    tourian.GetWord(TourianAccessPlmDrawDefinitions.EmptyRowPointer, 1, 0);
+                    tourian.GetWord((ushort)TourianAccessDraw.Clear, 5, 3);
+                    tourian.GetWord((ushort)TourianAccessDraw.EmptyRow, 1, 0);
                     speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 0);
                     speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 1);
                     elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0);
                     elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 1, 0);
-                    spore.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer, 1, 1);
-                    spore.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer, 1, 2);
-                    eater.GetWord(SamusEaterPlmDrawDefinitions.FloorIdle, 2, 3);
-                    eater.GetWord(SamusEaterPlmDrawDefinitions.FloorIdle, 0, 2);
+                    spore.GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 1);
+                    spore.GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 2);
+                    eater.GetWord((ushort)SamusEaterDraw.FloorIdle, 2, 3);
+                    eater.GetWord((ushort)SamusEaterDraw.FloorIdle, 0, 2);
                     botwoon.GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 8);
                     botwoon.GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 9);
                     kraid.GetWord(KraidRoomPlmDrawDefinitions.ClearSpikes, 0, 21);
                     kraid.GetWord(KraidRoomPlmDrawDefinitions.CrumbleFirst, 0, 1);
                     crocomire.GetWord((ushort)CrocomireArenaDraw.ClearBridge, 0, 9);
                     crocomire.GetWord((ushort)CrocomireArenaDraw.CrumbleBridgeBlock, 0, 1);
-                    motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 0, 4);
-                    motherBrain.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube, 1, 1);
+                    motherBrain.GetWord((ushort)MotherBrainFakeDeathDraw.ClearBottomLeftTube, 0, 4);
+                    motherBrain.GetWord((ushort)MotherBrainFakeDeathDraw.ClearBottomLeftTube, 1, 1);
                 }
             }
             """;

@@ -31,7 +31,7 @@ internal static class EnemyDisplayArtworkContractChecks
             new EnemyExtendedVisualComponent { OffsetX = 0, OffsetY = 0, Parts = [] } });
         var extendedBindings = extendedFrames.Keys.ToDictionary(name => name, name => name);
         var extendedDocument = new EnemyExtendedFrameDocument {
-            Version = EnemyExtendedFrameDefinitions.Version, Frames = extendedFrames, DisplayFrames = extendedBindings };
+            Version = (int)EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameCatalog.Load(Json(extendedDocument));
         EnemyExtendedFrameDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Bank, extendedId.Pointer, out var components) && components.Length == 1 &&

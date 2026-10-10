@@ -80,18 +80,33 @@ public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
+    /// <summary>The program's header and terminal control-word addresses.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
+        ColorIndexOperand = ProgramStart + 2,
+        /// <summary>The terminal <c>Delete</c> opcode.</summary>
+        Delete = DeleteInstructionPointer,
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        value = 0;
+        var control = (ControlWord)pointer;
+        if (Enum.IsDefined(control))
         {
-            ProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
-            _ => 0,
-        };
-        if (value != 0)
+            value = control switch
+            {
+                ControlWord.SetColorIndex => (ushort)PaletteFxInstruction.SetColorIndex,
+                ControlWord.ColorIndexOperand => ColorByteIndex,
+                ControlWord.Delete => (ushort)PaletteFxInstruction.Delete,
+                _ => throw new InvalidOperationException($"Undefined ControlWord {control}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < FrameCount; frame++)
         {

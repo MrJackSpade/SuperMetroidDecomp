@@ -2,9 +2,22 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The four bank-$A5 hitbox lists Draygon's BG2 and OAM frames refer to.</summary>
+internal enum DraygonHitboxList : ushort
+{
+    /// <summary>$A5:AA95, Draygon's first four-rectangle body hitbox list.</summary>
+    FirstBody = 0xaa95,
+    /// <summary>$A5:AAC7, the empty hitbox list used while the body cannot be hit.</summary>
+    Empty = 0xaac7,
+    /// <summary>$A5:ABAB, Draygon's second four-rectangle body hitbox list.</summary>
+    SecondBody = 0xabab,
+    /// <summary>$A5:ABDD, the second empty hitbox list used by mirrored OAM frames.</summary>
+    OtherEmpty = 0xabdd,
+}
+
 /// <summary>A fixed bank-$A5 component offset and hitbox-list identity, not editable art.</summary>
 internal readonly record struct DraygonCollisionComponent(
-    short X, short Y, ushort HitboxPointer);
+    short X, short Y, DraygonHitboxList HitboxPointer);
 
 /// <summary>One native Draygon rectangle with its touch and shot callbacks.</summary>
 internal readonly record struct DraygonCollisionHitbox(
@@ -17,13 +30,6 @@ internal readonly record struct DraygonCollisionHitbox(
 /// </summary>
 internal static partial class DraygonCollisionDefinitions
 {
-    /// <summary>$A5:AA95, Draygon's first four-rectangle body hitbox list.</summary>
-    internal const ushort FirstBodyList = 0xaa95;
-    /// <summary>$A5:AAC7, the empty hitbox list used while the body cannot be hit.</summary>
-    internal const ushort EmptyList = 0xaac7;
-    /// <summary>$A5:ABAB, Draygon's second four-rectangle body hitbox list.</summary>
-    internal const ushort SecondBodyList = 0xabab;
-
     /// <summary>$A5:A31B, ExtendedSpritemap_Draygon_A: first left-facing BG2 body frame.</summary>
     private const ushort FirstLeftBodyFrame = 0xa31b;
     /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
@@ -52,7 +58,7 @@ internal static partial class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
-    internal readonly record struct ComponentSequence(bool HasComponent, ushort HitboxPointer)
+    internal readonly record struct ComponentSequence(bool HasComponent, DraygonHitboxList HitboxPointer)
         : IEnumerable<DraygonCollisionComponent>
     {
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
@@ -72,22 +78,25 @@ internal static partial class DraygonCollisionDefinitions
         if (!DraygonBg2FrameDefinitions.IsFrame(pointer))
         {
             _ = OamComponentsAt(pointer);
-            return new(false, 0);
+            return new(false, default);
         }
 
 
         bool right = pointer >= FirstRightBodyFrame;
         int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;
-        ushort hitboxes = phase is < 8 or 16
-            ? right ? SecondBodyList : FirstBodyList : EmptyList;
+        DraygonHitboxList hitboxes = phase is < 8 or 16
+            ? right ? DraygonHitboxList.SecondBody : DraygonHitboxList.FirstBody : DraygonHitboxList.Empty;
         return new(true, hitboxes);
     }
+    internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(ushort pointer) =>
+        HitboxesAt(ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
+
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
-        ushort pointer) => pointer switch
+        DraygonHitboxList pointer) => pointer switch
     {
-        FirstBodyList => FirstBodyHitboxes,
-        EmptyList => [],
-        SecondBodyList => SecondBodyHitboxes,
-        _ => OamHitboxesAt(pointer),
+        DraygonHitboxList.FirstBody => FirstBodyHitboxes,
+        DraygonHitboxList.Empty or DraygonHitboxList.OtherEmpty => [],
+        DraygonHitboxList.SecondBody => SecondBodyHitboxes,
+        _ => throw new InvalidOperationException($"Undefined DraygonHitboxList {pointer}."),
     };
 }

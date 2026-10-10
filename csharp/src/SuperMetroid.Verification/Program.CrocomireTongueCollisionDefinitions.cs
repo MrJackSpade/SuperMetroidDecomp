@@ -65,9 +65,9 @@ internal static partial class Program
             var component = CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             AssertEqual((ushort)1, ReadWord(0xa40000 | frame),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            AssertEqual(ReadWord(0xa40000 | frame + 8), component.HitboxPointer,
+            AssertEqual(ReadWord(0xa40000 | frame + 8), (ushort)component.HitboxPointer,
                 "Crocomire tongue native hitbox-list pointer");
-            AssertEqual((ushort)0, ReadWord(0xa40000 | component.HitboxPointer), "tongue native empty hitboxes");
+            AssertEqual((ushort)0, ReadWord(0xa40000 | (ushort)component.HitboxPointer), "tongue native empty hitboxes");
             AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(component.HitboxPointer), "tongue empty hitbox case");
         }
         for (int frame = 0; frame <= ushort.MaxValue; frame++)
@@ -106,7 +106,7 @@ internal static partial class Program
             ushort frame = CrocomireTongueCollisionDefinitions.FramePointer(frameIndex);
             CrocomireTongueCollisionComponent component =
                 CrocomireTongueCollisionDefinitions.ComponentAt(frame);
-            seenLists.Add(component.HitboxPointer);
+            seenLists.Add((ushort)component.HitboxPointer);
             nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
             foreach ((ushort x, ushort y) in new (ushort, ushort)[]
                      {

@@ -1,4 +1,15 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The two bank-$84 draw lists of Bomb Torizo's hand PLM, valued by native address.</summary>
+internal enum BombTorizoHandDraw : ushort
+{
+    /// <summary>Intact Chozo hand and surrounding stone at $84:9877.</summary>
+    Intact = 0x9877,
+    /// <summary>Final five-run cleared-hand area at $84:989D.</summary>
+    Cleared = 0x989d,
+}
 
 /// <summary>
 /// Physical block draws selected by Bomb Torizo's resident hand PLM. These
@@ -6,20 +17,15 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class BombTorizoHandPlmDrawDefinitions
 {
-    /// <summary>Intact Chozo hand and surrounding stone at $84:9877.</summary>
-    internal const ushort Intact = 0x9877;
-    /// <summary>Final five-run cleared-hand area at $84:989D.</summary>
-    internal const ushort Cleared = 0x989d;
-
     /// <summary>
     /// Intact is four horizontal strips: origin pair, left singleton, upper pair,
     /// lower triple. Cleared splits the origin row into two halves then clears the
     /// lower, top and upper rows of a four-by-four area. Original run order and
     /// origin-relative continuations are preserved; all cleared words are air FF.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer)
+    internal readonly record struct Draw(BombTorizoHandDraw Pointer)
     {
-        internal bool IsCleared => Pointer == Cleared;
+        internal bool IsCleared => Pointer == BombTorizoHandDraw.Cleared;
         internal int RunCount => IsCleared ? 5 : 4;
         internal int WordCount(int run)
         {
@@ -67,8 +73,8 @@ internal static class BombTorizoHandPlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        bool owned = pointer is Intact or Cleared;
-        draw = owned ? new(pointer) : default;
+        bool owned = Enum.IsDefined((BombTorizoHandDraw)pointer);
+        draw = owned ? new((BombTorizoHandDraw)pointer) : default;
         return owned;
     }
 
@@ -76,9 +82,9 @@ internal static class BombTorizoHandPlmDrawDefinitions
     {
         get
         {
-            TryGet(Intact, out var intact);
+            TryGet((ushort)BombTorizoHandDraw.Intact, out var intact);
             yield return intact;
-            TryGet(Cleared, out var cleared);
+            TryGet((ushort)BombTorizoHandDraw.Cleared, out var cleared);
             yield return cleared;
         }
     }
@@ -99,12 +105,14 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return true;
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer) =>
+        VisualId(ClosedNativeWords.Decode<BombTorizoHandDraw>(pointer, "Bomb Torizo hand draw with a visual ID"));
+
+    internal static string VisualId(BombTorizoHandDraw pointer) => pointer switch
     {
-        Intact => "intact",
-        Cleared => "cleared",
-        _ => throw new InvalidDataException(
-            $"Bomb Torizo hand draw ${pointer:X4} has no visual ID."),
+        BombTorizoHandDraw.Intact => "intact",
+        BombTorizoHandDraw.Cleared => "cleared",
+        _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {pointer}."),
     };
 
     internal static bool TryGetByVisualId(string id,

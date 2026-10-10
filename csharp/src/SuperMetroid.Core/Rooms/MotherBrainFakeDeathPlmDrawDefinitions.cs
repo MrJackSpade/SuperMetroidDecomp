@@ -1,84 +1,93 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The 22 Mother Brain fake-death room draw lists at $84:94A3..9716, valued by native address.</summary>
+internal enum MotherBrainFakeDeathDraw : ushort
+{
+    /// <summary><c>$84:94A3</c>: fill wall.</summary>
+    FillWall = 0x94a3,
+    /// <summary><c>$84:94B1</c>: escape door.</summary>
+    EscapeDoor = 0x94b1,
+    /// <summary><c>$84:9505</c>: background row 2.</summary>
+    BackgroundRow2 = 0x9505,
+    /// <summary><c>$84:9523</c>: background row 3.</summary>
+    BackgroundRow3 = 0x9523,
+    /// <summary><c>$84:9541</c>: background row 4.</summary>
+    BackgroundRow4 = 0x9541,
+    /// <summary><c>$84:955F</c>: background row 5.</summary>
+    BackgroundRow5 = 0x955f,
+    /// <summary><c>$84:957D</c>: background row 6.</summary>
+    BackgroundRow6 = 0x957d,
+    /// <summary><c>$84:959B</c>: background row 7.</summary>
+    BackgroundRow7 = 0x959b,
+    /// <summary><c>$84:95B9</c>: background row 8.</summary>
+    BackgroundRow8 = 0x95b9,
+    /// <summary><c>$84:95D7</c>: background row 9.</summary>
+    BackgroundRow9 = 0x95d7,
+    /// <summary><c>$84:95F5</c>: background row a.</summary>
+    BackgroundRowA = 0x95f5,
+    /// <summary><c>$84:9613</c>: background row b.</summary>
+    BackgroundRowB = 0x9613,
+    /// <summary><c>$84:9631</c>: background row c.</summary>
+    BackgroundRowC = 0x9631,
+    /// <summary><c>$84:964F</c>: background row d.</summary>
+    BackgroundRowD = 0x964f,
+    /// <summary><c>$84:966D</c>: cartridge-unused background row E.</summary>
+    BackgroundRowEUnused = 0x966d,
+    /// <summary><c>$84:968B</c>: cartridge-unused background row F.</summary>
+    BackgroundRowFUnused = 0x968b,
+    /// <summary><c>$84:96A9</c>: clear ceiling block.</summary>
+    ClearCeilingBlock = 0x96a9,
+    /// <summary><c>$84:96B1</c>: clear ceiling tube.</summary>
+    ClearCeilingTube = 0x96b1,
+    /// <summary><c>$84:96BF</c>: clear bottom middle side tube.</summary>
+    ClearBottomMiddleSideTube = 0x96bf,
+    /// <summary><c>$84:96CB</c>: clear bottom middle tubes.</summary>
+    ClearBottomMiddleTubes = 0x96cb,
+    /// <summary><c>$84:96EF</c>: clear bottom left tube.</summary>
+    ClearBottomLeftTube = 0x96ef,
+    /// <summary><c>$84:9703</c>: clear bottom right tube.</summary>
+    ClearBottomRightTube = 0x9703,
+}
 
 /// <summary>Mother Brain fake-death room physical PLM draws at $84:94A3..9716.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitions
 {
-    /// <summary><c>$84:94A3</c>: fill wall.</summary>
-    internal const ushort FillWall = 0x94a3;
-    /// <summary><c>$84:94B1</c>: escape door.</summary>
-    internal const ushort EscapeDoor = 0x94b1;
-    /// <summary><c>$84:9505</c>: background row 2.</summary>
-    internal const ushort BackgroundRow2 = 0x9505;
-    /// <summary><c>$84:9523</c>: background row 3.</summary>
-    internal const ushort BackgroundRow3 = 0x9523;
-    /// <summary><c>$84:9541</c>: background row 4.</summary>
-    internal const ushort BackgroundRow4 = 0x9541;
-    /// <summary><c>$84:955F</c>: background row 5.</summary>
-    internal const ushort BackgroundRow5 = 0x955f;
-    /// <summary><c>$84:957D</c>: background row 6.</summary>
-    internal const ushort BackgroundRow6 = 0x957d;
-    /// <summary><c>$84:959B</c>: background row 7.</summary>
-    internal const ushort BackgroundRow7 = 0x959b;
-    /// <summary><c>$84:95B9</c>: background row 8.</summary>
-    internal const ushort BackgroundRow8 = 0x95b9;
-    /// <summary><c>$84:95D7</c>: background row 9.</summary>
-    internal const ushort BackgroundRow9 = 0x95d7;
-    /// <summary><c>$84:95F5</c>: background row a.</summary>
-    internal const ushort BackgroundRowA = 0x95f5;
-    /// <summary><c>$84:9613</c>: background row b.</summary>
-    internal const ushort BackgroundRowB = 0x9613;
-    /// <summary><c>$84:9631</c>: background row c.</summary>
-    internal const ushort BackgroundRowC = 0x9631;
-    /// <summary><c>$84:964F</c>: background row d.</summary>
-    internal const ushort BackgroundRowD = 0x964f;
-    /// <summary><c>$84:966D</c>: cartridge-unused background row E.</summary>
-    internal const ushort BackgroundRowEUnused = 0x966d;
-    /// <summary><c>$84:968B</c>: cartridge-unused background row F.</summary>
-    internal const ushort BackgroundRowFUnused = 0x968b;
-    /// <summary><c>$84:96A9</c>: clear ceiling block.</summary>
-    internal const ushort ClearCeilingBlock = 0x96a9;
-    /// <summary><c>$84:96B1</c>: clear ceiling tube.</summary>
-    internal const ushort ClearCeilingTube = 0x96b1;
-    /// <summary><c>$84:96BF</c>: clear bottom middle side tube.</summary>
-    internal const ushort ClearBottomMiddleSideTube = 0x96bf;
-    /// <summary><c>$84:96CB</c>: clear bottom middle tubes.</summary>
-    internal const ushort ClearBottomMiddleTubes = 0x96cb;
-    /// <summary><c>$84:96EF</c>: clear bottom left tube.</summary>
-    internal const ushort ClearBottomLeftTube = 0x96ef;
-    /// <summary><c>$84:9703</c>: clear bottom right tube.</summary>
-    internal const ushort ClearBottomRightTube = 0x9703;
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer) => VisualId(
+        ClosedNativeWords.Decode<MotherBrainFakeDeathDraw>(pointer, "Mother Brain fake-death draw with a visual ID"));
+
+    internal static string VisualId(MotherBrainFakeDeathDraw pointer) => pointer switch
     {
-        FillWall => "fill-wall",
-        EscapeDoor => "escape-door",
-        BackgroundRow2 => "background-row-2",
-        BackgroundRow3 => "background-row-3",
-        BackgroundRow4 => "background-row-4",
-        BackgroundRow5 => "background-row-5",
-        BackgroundRow6 => "background-row-6",
-        BackgroundRow7 => "background-row-7",
-        BackgroundRow8 => "background-row-8",
-        BackgroundRow9 => "background-row-9",
-        BackgroundRowA => "background-row-a",
-        BackgroundRowB => "background-row-b",
-        BackgroundRowC => "background-row-c",
-        BackgroundRowD => "background-row-d",
-        BackgroundRowEUnused => "background-row-e-unused",
-        BackgroundRowFUnused => "background-row-f-unused",
-        ClearCeilingBlock => "clear-ceiling-block",
-        ClearCeilingTube => "clear-ceiling-tube",
-        ClearBottomMiddleSideTube => "clear-bottom-middle-side-tube",
-        ClearBottomMiddleTubes => "clear-bottom-middle-tubes",
-        ClearBottomLeftTube => "clear-bottom-left-tube",
-        ClearBottomRightTube => "clear-bottom-right-tube",
-        _ => throw new InvalidDataException(
-            $"Mother Brain fake-death draw ${pointer:X4} has no visual ID."),
+        MotherBrainFakeDeathDraw.FillWall => "fill-wall",
+        MotherBrainFakeDeathDraw.EscapeDoor => "escape-door",
+        MotherBrainFakeDeathDraw.BackgroundRow2 => "background-row-2",
+        MotherBrainFakeDeathDraw.BackgroundRow3 => "background-row-3",
+        MotherBrainFakeDeathDraw.BackgroundRow4 => "background-row-4",
+        MotherBrainFakeDeathDraw.BackgroundRow5 => "background-row-5",
+        MotherBrainFakeDeathDraw.BackgroundRow6 => "background-row-6",
+        MotherBrainFakeDeathDraw.BackgroundRow7 => "background-row-7",
+        MotherBrainFakeDeathDraw.BackgroundRow8 => "background-row-8",
+        MotherBrainFakeDeathDraw.BackgroundRow9 => "background-row-9",
+        MotherBrainFakeDeathDraw.BackgroundRowA => "background-row-a",
+        MotherBrainFakeDeathDraw.BackgroundRowB => "background-row-b",
+        MotherBrainFakeDeathDraw.BackgroundRowC => "background-row-c",
+        MotherBrainFakeDeathDraw.BackgroundRowD => "background-row-d",
+        MotherBrainFakeDeathDraw.BackgroundRowEUnused => "background-row-e-unused",
+        MotherBrainFakeDeathDraw.BackgroundRowFUnused => "background-row-f-unused",
+        MotherBrainFakeDeathDraw.ClearCeilingBlock => "clear-ceiling-block",
+        MotherBrainFakeDeathDraw.ClearCeilingTube => "clear-ceiling-tube",
+        MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube => "clear-bottom-middle-side-tube",
+        MotherBrainFakeDeathDraw.ClearBottomMiddleTubes => "clear-bottom-middle-tubes",
+        MotherBrainFakeDeathDraw.ClearBottomLeftTube => "clear-bottom-left-tube",
+        MotherBrainFakeDeathDraw.ClearBottomRightTube => "clear-bottom-right-tube",
+        _ => throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {pointer}."),
     };
 
     internal static bool TryGetByVisualId(string id,
@@ -103,7 +112,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
     /// clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
-    internal readonly record struct RegularDraw(ushort Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
+    internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
     {
         internal int RunCount => Width;
         internal int Count(int run)
@@ -121,7 +130,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         {
             int count = Count(run);
             if ((uint)block >= count) throw new IndexOutOfRangeException();
-            if (Fill) return Pointer == BackgroundRowEUnused ? (ushort)0x8319 : (ushort)0x8044;
+            if (Fill) return Pointer == MotherBrainFakeDeathDraw.BackgroundRowEUnused ? (ushort)0x8319 : (ushort)0x8044;
             if (Side != 0 && run == 1) return 0x00ff;
             return Ceiling ? (block == 0 ? (ushort)0x12fc : (ushort)0x00ff) :
                 (block == count - 1 ? (ushort)0x1339 : (ushort)0x00ff);
@@ -130,18 +139,31 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
     {
-        draw = pointer switch
+        var list = (MotherBrainFakeDeathDraw)pointer;
+        draw = default;
+        if (!Enum.IsDefined(list)) return false;
+        switch (list)
         {
-            BackgroundRowEUnused or BackgroundRowFUnused => new(pointer, 13, 1, false, true, 0),
-            ClearCeilingBlock => new(pointer, 2, 1, true, false, 0),
-            ClearCeilingTube => new(pointer, 5, 1, true, false, 0),
-            ClearBottomMiddleSideTube => new(pointer, 4, 1, false, false, 0),
-            ClearBottomMiddleTubes => new(pointer, 7, 2, false, false, 0),
-            ClearBottomLeftTube => new(pointer, 5, 2, false, false, 1),
-            ClearBottomRightTube => new(pointer, 5, 2, false, false, -1),
-            _ => default,
-        };
-        return draw.Pointer != 0;
+            case MotherBrainFakeDeathDraw.BackgroundRowEUnused or MotherBrainFakeDeathDraw.BackgroundRowFUnused:
+                draw = new(list, 13, 1, false, true, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearCeilingBlock: draw = new(list, 2, 1, true, false, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearCeilingTube: draw = new(list, 5, 1, true, false, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube: draw = new(list, 4, 1, false, false, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomMiddleTubes: draw = new(list, 7, 2, false, false, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomLeftTube: draw = new(list, 5, 2, false, false, 1); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomRightTube: draw = new(list, 5, 2, false, false, -1); return true;
+            // The boundary and background families own these lists.
+            case MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor or
+                MotherBrainFakeDeathDraw.BackgroundRow2 or MotherBrainFakeDeathDraw.BackgroundRow3 or
+                MotherBrainFakeDeathDraw.BackgroundRow4 or MotherBrainFakeDeathDraw.BackgroundRow5 or
+                MotherBrainFakeDeathDraw.BackgroundRow6 or MotherBrainFakeDeathDraw.BackgroundRow7 or
+                MotherBrainFakeDeathDraw.BackgroundRow8 or MotherBrainFakeDeathDraw.BackgroundRow9 or
+                MotherBrainFakeDeathDraw.BackgroundRowA or MotherBrainFakeDeathDraw.BackgroundRowB or
+                MotherBrainFakeDeathDraw.BackgroundRowC or MotherBrainFakeDeathDraw.BackgroundRowD:
+                return false;
+            default:
+                throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {list}.");
+        }
     }
 
     private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
@@ -162,7 +184,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
     {
         // Each next record follows its counts, cells and two-byte continuation pairs.
-        for (int pointer = BackgroundRowEUnused; pointer < EndExclusive;)
+        for (int pointer = (int)MotherBrainFakeDeathDraw.BackgroundRowEUnused; pointer < EndExclusive;)
         {
             TryGetRegular((ushort)pointer, out var draw);
             yield return draw;
@@ -211,8 +233,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
     {
-        int offset = pointer - BackgroundRow2;
-        bool owned = offset >= 0 && pointer <= BackgroundRowD && offset % 30 == 0;
+        int offset = pointer - (int)MotherBrainFakeDeathDraw.BackgroundRow2;
+        bool owned = offset >= 0 && pointer <= (int)MotherBrainFakeDeathDraw.BackgroundRowD && offset % 30 == 0;
         draw = owned ? new(offset / 30) : default;
         return owned;
     }
@@ -229,7 +251,8 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
     {
-        for (int pointer = BackgroundRow2; pointer <= BackgroundRowD; pointer += 30)
+        for (int pointer = (int)MotherBrainFakeDeathDraw.BackgroundRow2;
+             pointer <= (int)MotherBrainFakeDeathDraw.BackgroundRowD; pointer += 30)
         {
             TryGetBackground((ushort)pointer, out var draw);
             yield return draw;
@@ -263,27 +286,27 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// center tile 340 and are solid. The door's first column has a door parent
     /// above three vertical extensions; its second column is air.
     /// </summary>
-    internal readonly record struct BoundaryDraw(ushort Pointer)
+    internal readonly record struct BoundaryDraw(MotherBrainFakeDeathDraw Pointer)
     {
         internal int Count(int run)
         {
             if ((uint)run >= 2) throw new IndexOutOfRangeException();
-            return Pointer == EscapeDoor ? 4 : 2 - run;
+            return Pointer == MotherBrainFakeDeathDraw.EscapeDoor ? 4 : 2 - run;
         }
         internal sbyte NextX(int run)
         {
             Count(run);
-            return Pointer == EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
+            return Pointer == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
         }
         internal sbyte NextY(int run)
         {
             Count(run);
-            return Pointer == FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
+            return Pointer == MotherBrainFakeDeathDraw.FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
-            if (Pointer == FillWall)
+            if (Pointer == MotherBrainFakeDeathDraw.FillWall)
                 return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
             RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :
                 block == 0 ? RoomCollisionType.DoorBlock : RoomCollisionType.VerticalExtension;
@@ -293,8 +316,9 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
     {
-        bool owned = pointer is FillWall or EscapeDoor;
-        draw = owned ? new(pointer) : default;
+        var list = (MotherBrainFakeDeathDraw)pointer;
+        bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;
+        draw = owned ? new(list) : default;
         return owned;
     }
 
@@ -315,9 +339,9 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
 
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
     {
-        TryGetBoundary(FillWall, out var wall);
+        TryGetBoundary((ushort)MotherBrainFakeDeathDraw.FillWall, out var wall);
         yield return wall;
-        TryGetBoundary(EscapeDoor, out var door);
+        TryGetBoundary((ushort)MotherBrainFakeDeathDraw.EscapeDoor, out var door);
         yield return door;
     }
 }

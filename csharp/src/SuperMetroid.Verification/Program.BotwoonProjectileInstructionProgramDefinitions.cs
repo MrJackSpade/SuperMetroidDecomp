@@ -57,13 +57,13 @@ internal static partial class Program
             body.InstructionPointer,
             "real Botwoon body producer starts a non-tail segment hidden");
         body.YPosition = 200;
-        body.XVelocity = BotwoonProjectileCodePointers.BodyFallingFunction;
+        body.XVelocity = (ushort)BotwoonBodyFunction.Falling;
         runBodyPreInstruction(body, 0);
-        AssertEqual(BotwoonProjectileCodePointers.BodyLandedFunction, body.XVelocity,
+        AssertEqual((ushort)BotwoonBodyFunction.Landed, body.XVelocity,
             "landed Botwoon body installs the cartridge RTS state");
-        body.XVelocity = BotwoonProjectileCodePointers.LegacyBodyLandedFunction;
+        body.XVelocity = (ushort)BotwoonBodyFunction.LegacyLanded;
         runBodyPreInstruction(body, 0);
-        AssertEqual(BotwoonProjectileCodePointers.LegacyBodyLandedFunction, body.XVelocity,
+        AssertEqual((ushort)BotwoonBodyFunction.LegacyLanded, body.XVelocity,
             "older debugger-state Botwoon landed sentinel remains restorable");
 
         for (int index = 0;

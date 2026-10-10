@@ -949,7 +949,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot pad = _slots[2];
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
-        top.VariableF = GunshipCodePointers.WaitForExitPadToOpen;
+        top.VariableF = (ushort)GunshipFunction.WaitForExitPadToOpen;
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
@@ -1276,370 +1276,374 @@ public sealed partial class RoomEnemySystem
         ushort cameraX = 0)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
-        switch (address)
+        var routine = (EnemyAiRoutine)address;
+        if (!Enum.IsDefined(routine))
+            throw new InvalidDataException(
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
+        switch (routine)
         {
-            case EnemyAiCodePointers.InitAI_Crocomire when slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire:
+            case EnemyAiRoutine.InitAI_Crocomire when slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire:
                 InitializeCrocomire(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_SporeSpawn when slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn:
+            case EnemyAiRoutine.InitAI_SporeSpawn when slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn:
                 InitializeSporeSpawn(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CrocomireTongue when slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue:
+            case EnemyAiRoutine.InitAI_CrocomireTongue when slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue:
                 InitializeCrocomireTongue(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Magdollite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite:
+            case EnemyAiRoutine.InitAI_Magdollite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite:
                 InitializeMagdollite(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_ShipTop:
+            case EnemyAiRoutine.InitAI_ShipTop:
                 InitializeGunshipTop(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Boyon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon:
+            case EnemyAiRoutine.InitAI_Boyon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon:
                 InitializeBoyon(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Stoke when slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke:
+            case EnemyAiRoutine.InitAI_Stoke when slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke:
                 InitializeStoke(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MamaTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle:
+            case EnemyAiRoutine.InitAI_MamaTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle:
                 InitializeMamaTurtle(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_BabyTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle:
+            case EnemyAiRoutine.InitAI_BabyTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle:
                 InitializeBabyTurtle(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Puyo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo:
+            case EnemyAiRoutine.InitAI_Puyo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo:
                 InitializePuyo(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Cacatac when slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac:
+            case EnemyAiRoutine.InitAI_Cacatac when slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac:
                 InitializeCacatac(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Owtch when slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch:
+            case EnemyAiRoutine.InitAI_Owtch when slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch:
                 InitializeOwtch(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Multiviola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola:
+            case EnemyAiRoutine.InitAI_Multiviola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola:
                 InitializeMultiviola(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Polyp when slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks:
+            case EnemyAiRoutine.InitAI_Polyp when slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks:
                 InitializePolyp(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Rinka when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka:
+            case EnemyAiRoutine.InitAI_Rinka when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka:
                 InitializeRinka(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Rio when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio:
+            case EnemyAiRoutine.InitAI_Rio when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio:
                 InitializeRio(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Squeept when slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept:
+            case EnemyAiRoutine.InitAI_Squeept when slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept:
                 InitializeNorfairLavaJumpingEnemy(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Geruta when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta:
+            case EnemyAiRoutine.InitAI_Geruta when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta:
                 InitializeNorfairRio(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Holtz when slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz:
+            case EnemyAiRoutine.InitAI_Holtz when slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz:
                 InitializeLowerNorfairRio(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Oum when slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum:
+            case EnemyAiRoutine.InitAI_Oum when slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum:
                 InitializeMaridiaLargeSnail(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_GRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper:
+            case EnemyAiRoutine.InitAI_GRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper:
                 InitializeGRipper(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Ripper2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2:
+            case EnemyAiRoutine.InitAI_Ripper2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2:
                 InitializeRipper2(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Dragon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon:
+            case EnemyAiRoutine.InitAI_Dragon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon:
                 InitializeDragon(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_ShutterGrowing when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing:
+            case EnemyAiRoutine.InitAI_ShutterGrowing when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing:
                 InitializeGrowingShutter(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_ShutterShootable_ShutterDestroyable
+            case EnemyAiRoutine.InitAI_ShutterShootable_ShutterDestroyable
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable:
-            case EnemyAiCodePointers.InitAI_Kamer when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer:
+            case EnemyAiRoutine.InitAI_Kamer when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer:
                 InitializeVerticalShutter(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable:
+            case EnemyAiRoutine.InitAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable:
                 InitializeHorizontalShutter(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_Elevator when slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator:
+            case EnemyAiRoutine.InitAI_Elevator when slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator:
                 InitializeElevator(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 InitializeFuneNamihe(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_ShipBottomEntrance:
+            case EnemyAiRoutine.InitAI_ShipBottomEntrance:
                 InitializeGunshipBottom(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CeresSteam:
+            case EnemyAiRoutine.InitAI_CeresSteam:
                 InitializeCeresSteam(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CeresDoor:
+            case EnemyAiRoutine.InitAI_CeresDoor:
                 InitializeCeresDoor(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres:
+            case EnemyAiRoutine.InitAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres:
                 InitializeCeresRidley(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley:
+            case EnemyAiRoutine.InitAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley:
                 InitializeNorfairRidley(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_RidleyExplosion when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion:
+            case EnemyAiRoutine.InitAI_RidleyExplosion when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion:
                 InitializeNorfairRidleyExplosion(
                     slot,
                     _slots[0],
                     Ridley ?? throw new InvalidOperationException(
                         "A Ridley breakup actor has no shared Ridley owner."));
                 return;
-            case EnemyAiCodePointers.InitAI_Boulder when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder:
+            case EnemyAiRoutine.InitAI_Boulder when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder:
                 InitializeBoulder(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Zebetite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite:
+            case EnemyAiRoutine.InitAI_Zebetite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite:
                 InitializeZebetite(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Etecoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon:
+            case EnemyAiRoutine.InitAI_Etecoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon:
                 InitializeEtecoon(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Dachora when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora:
+            case EnemyAiRoutine.InitAI_Dachora when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora:
                 InitializeDachora(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Evir when slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir:
+            case EnemyAiRoutine.InitAI_Evir when slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir:
                 InitializeEvir(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_EvirProjectile when slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile:
+            case EnemyAiRoutine.InitAI_EvirProjectile when slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile:
                 InitializeEvirProjectile(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Eye when slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye:
+            case EnemyAiRoutine.InitAI_Eye when slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye:
                 InitializeMorphBallEye(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Coven when slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven:
+            case EnemyAiRoutine.InitAI_Coven when slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven:
                 InitializeWreckedShipGhost(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_YappingMaw when slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw:
+            case EnemyAiRoutine.InitAI_YappingMaw when slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw:
                 InitializeYappingMaw(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Ripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper:
+            case EnemyAiRoutine.InitAI_Ripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper:
                 InitializeRipper(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Choot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot:
+            case EnemyAiRoutine.InitAI_Choot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot:
                 InitializeChoot(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Sciser when slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser:
+            case EnemyAiRoutine.InitAI_Sciser when slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser:
                 InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesInstructionOffset: 8);
                 return;
-            case EnemyAiCodePointers.InitAI_Zero when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero:
+            case EnemyAiRoutine.InitAI_Zero when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero:
                 InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesInstructionOffset: 10);
                 return;
-            case EnemyAiCodePointers.InitAI_Viola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Viola:
+            case EnemyAiRoutine.InitAI_Viola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Viola:
                 InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesInstructionOffset: 6);
                 return;
-            case EnemyAiCodePointers.InitAI_Zeela when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zeela:
-            case EnemyAiCodePointers.InitAI_Sova when slot.EnemyDefinitionPointer == EnemyDefinitionId.Sova:
-            case EnemyAiCodePointers.InitAI_Zoomer_MZoomer when slot.EnemyDefinitionPointer is EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer:
+            case EnemyAiRoutine.InitAI_Zeela when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zeela:
+            case EnemyAiRoutine.InitAI_Sova when slot.EnemyDefinitionPointer == EnemyDefinitionId.Sova:
+            case EnemyAiRoutine.InitAI_Zoomer_MZoomer when slot.EnemyDefinitionPointer is EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer:
                 InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
                 return;
-            case EnemyAiCodePointers.InitAI_HZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer:
+            case EnemyAiRoutine.InitAI_HZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer:
                 InitializeHZoomer(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Skree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree:
+            case EnemyAiRoutine.InitAI_Skree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree:
                 InitializeSkree(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Mellow_Mella_Menu
+            case EnemyAiRoutine.InitAI_Mellow_Mella_Menu
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu:
                 InitializeFly(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Sbug when slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2:
+            case EnemyAiRoutine.InitAI_Sbug when slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2:
                 InitializeSbug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid:
+            case EnemyAiRoutine.InitAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid:
                 InitializeMochtroid(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Metroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid:
+            case EnemyAiRoutine.InitAI_Metroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid:
                 InitializeMetroid(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 InitializeHopper(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Zoa when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa:
+            case EnemyAiRoutine.InitAI_Zoa when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa:
                 InitializeZoa(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Yard when slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard:
+            case EnemyAiRoutine.InitAI_Yard when slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard:
                 InitializeYard(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Waver when slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver:
+            case EnemyAiRoutine.InitAI_Waver when slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver:
                 InitializeWaver(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Metaree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree:
+            case EnemyAiRoutine.InitAI_Metaree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree:
                 InitializeMetaree(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Fireflea when slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea:
+            case EnemyAiRoutine.InitAI_Fireflea when slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea:
                 InitializeFireflea(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Skultera when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera:
+            case EnemyAiRoutine.InitAI_Skultera when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera:
                 InitializeSkultera(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Kamer2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2:
-            case EnemyAiCodePointers.InitAI_Tripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper:
+            case EnemyAiRoutine.InitAI_Kamer2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2:
+            case EnemyAiRoutine.InitAI_Tripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper:
                 InitializePlatform(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Alcoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon:
+            case EnemyAiRoutine.InitAI_Alcoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon:
                 InitializeAlcoon(slot, level);
                 return;
-            case EnemyAiCodePointers.InitAI_Kago when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago:
+            case EnemyAiRoutine.InitAI_Kago when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago:
                 InitializeKago(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Beetom when slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom:
+            case EnemyAiRoutine.InitAI_Beetom when slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom:
                 InitializeBeetom(slot, samus, controllerInput);
                 return;
-            case EnemyAiCodePointers.InitAI_Powamp when slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp:
+            case EnemyAiRoutine.InitAI_Powamp when slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp:
                 InitializePowamp(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Robot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot:
-            case EnemyAiCodePointers.InitAI_RobotNoPower when slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower:
+            case EnemyAiRoutine.InitAI_Robot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot:
+            case EnemyAiRoutine.InitAI_RobotNoPower when slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower:
                 InitializeWorkRobot(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Bull when slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull:
+            case EnemyAiRoutine.InitAI_Bull when slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull:
                 InitializeBull(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Atomic when slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic:
+            case EnemyAiRoutine.InitAI_Atomic when slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic:
                 InitializeAtomic(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Spark when slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark:
+            case EnemyAiRoutine.InitAI_Spark when slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark:
                 InitializeSpark(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_FaceBlock when
+            case EnemyAiRoutine.InitAI_FaceBlock when
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock:
                 InitializeBlueBrinstarFaceBlock(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
                 InitializeKiHunter(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 InitializeKiHunterWings(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
                 InitializeBrinstarPipeBug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Gamet when slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet:
+            case EnemyAiRoutine.InitAI_Gamet when slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet:
                 InitializeNorfairPipeBug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Geega when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega:
+            case EnemyAiRoutine.InitAI_Geega when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega:
                 InitializeYellowPipeBug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Botwoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon:
+            case EnemyAiRoutine.InitAI_Botwoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon:
                 InitializeBotwoon(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_EtecoonEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape:
+            case EnemyAiRoutine.InitAI_EtecoonEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape:
                 InitializeEscapeEtecoon(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_DachoraEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape:
+            case EnemyAiRoutine.InitAI_DachoraEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape:
                 InitializeEscapeDachora(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KzanTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop:
+            case EnemyAiRoutine.InitAI_KzanTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop:
                 InitializeKzanTop(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KzanBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom:
+            case EnemyAiRoutine.InitAI_KzanBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom:
                 InitializeKzanBottom(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Hibashi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi:
+            case EnemyAiRoutine.InitAI_Hibashi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi:
                 InitializeHibashi(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Puromi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi:
+            case EnemyAiRoutine.InitAI_Puromi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi:
                 InitializeNuclearWaffle(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MiniKraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid:
+            case EnemyAiRoutine.InitAI_MiniKraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid:
                 InitializeFakeKraid(slot, samus);
                 return;
-            case EnemyAiCodePointers.InitAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWalkingSpacePirate(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeWallSpacePirate(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.InitAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 InitializeNinjaSpacePirate(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Torizo
+            case EnemyAiRoutine.InitAI_Torizo
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo:
                 InitializeBombTorizo(slot, samus, controllerInput);
                 return;
-            case EnemyAiCodePointers.InitAI_Kraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid:
+            case EnemyAiRoutine.InitAI_Kraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid:
                 InitializeKraidBody(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidArm when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm:
+            case EnemyAiRoutine.InitAI_KraidArm when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm:
                 InitializeKraidArm(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidLintTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop:
+            case EnemyAiRoutine.InitAI_KraidLintTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop:
                 InitializeKraidLint(slot, expectedSlot: 2);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidLintMiddle when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle:
+            case EnemyAiRoutine.InitAI_KraidLintMiddle when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle:
                 InitializeKraidLint(slot, expectedSlot: 3);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidLintBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom:
+            case EnemyAiRoutine.InitAI_KraidLintBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom:
                 InitializeKraidLint(slot, expectedSlot: 4);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidFoot when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot:
+            case EnemyAiRoutine.InitAI_KraidFoot when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot:
                 InitializeKraidFoot(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidNail when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail:
+            case EnemyAiRoutine.InitAI_KraidNail when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail:
                 InitializeKraidNail(slot, expectedSlot: 6);
                 return;
-            case EnemyAiCodePointers.InitAI_KraidNailBad when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad:
+            case EnemyAiRoutine.InitAI_KraidNailBad when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad:
                 InitializeKraidNail(slot, expectedSlot: 7);
                 return;
-            case EnemyAiCodePointers.InitAI_PhantoonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody:
+            case EnemyAiRoutine.InitAI_PhantoonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody:
                 InitializePhantoonBody(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Phantoon_Eye_Tentacles_Mouth
+            case EnemyAiRoutine.InitAI_Phantoon_Eye_Tentacles_Mouth
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth:
                 InitializePhantoonPart(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_DraygonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody:
+            case EnemyAiRoutine.InitAI_DraygonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody:
                 InitializeDraygonBody(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_DraygonEye when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye:
-            case EnemyAiCodePointers.InitAI_DraygonTail when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail:
-            case EnemyAiCodePointers.InitAI_DraygonArms when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms:
+            case EnemyAiRoutine.InitAI_DraygonEye when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye:
+            case EnemyAiRoutine.InitAI_DraygonTail when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail:
+            case EnemyAiRoutine.InitAI_DraygonArms when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms:
                 InitializeDraygonPart(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MotherBrainBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody:
+            case EnemyAiRoutine.InitAI_MotherBrainBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody:
                 InitializeMotherBrainBody(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MotherBrainHead when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead:
+            case EnemyAiRoutine.InitAI_MotherBrainHead when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead:
                 InitializeMotherBrainHead(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MotherBrainTubes when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes:
+            case EnemyAiRoutine.InitAI_MotherBrainTubes when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes:
                 InitializeMotherBrainFallingTube(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
+            case EnemyAiRoutine.InitAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
                 InitializeMotherBrainBabyMetroid(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CorpseTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo:
+            case EnemyAiRoutine.InitAI_CorpseTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo:
                 InitializeDeadTorizo(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CorpseSidehopper when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper:
+            case EnemyAiRoutine.InitAI_CorpseSidehopper when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper:
                 InitializeDeadSidehopper(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_CorpseZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseZoomer:
-            case EnemyAiCodePointers.InitAI_CorpseRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseRipper:
-            case EnemyAiCodePointers.InitAI_CorpseSkree when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSkree:
+            case EnemyAiRoutine.InitAI_CorpseZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseZoomer:
+            case EnemyAiRoutine.InitAI_CorpseRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseRipper:
+            case EnemyAiRoutine.InitAI_CorpseSkree when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSkree:
                 InitializeDeadTourianCorpse(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_BabyMetroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid:
+            case EnemyAiRoutine.InitAI_BabyMetroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid:
                 InitializeShitroid(slot, cameraX);
                 return;
-            case EnemyAiCodePointers.InitAI_TourianStatue when slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue:
+            case EnemyAiRoutine.InitAI_TourianStatue when slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue:
                 InitializeTourianEntranceStatue(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Shaktool when slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool:
+            case EnemyAiRoutine.InitAI_Shaktool when slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool:
                 InitializeShaktool(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_NoobTubeCrack when slot.EnemyDefinitionPointer == EnemyDefinitionId.NoobTubeCrack:
+            case EnemyAiRoutine.InitAI_NoobTubeCrack when slot.EnemyDefinitionPointer == EnemyDefinitionId.NoobTubeCrack:
                 InitializeN00bTubeCracks();
                 return;
-            case EnemyAiCodePointers.InitAI_Chozo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo:
+            case EnemyAiRoutine.InitAI_Chozo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo:
                 InitializeChozoStatue(slot);
                 return;
-            case EnemyAiCodePointers.RTL_A2804C:
+            case EnemyAiRoutine.RTL_A2804C:
                 return;
             default:
                 throw new InvalidDataException(
@@ -1663,13 +1667,13 @@ public sealed partial class RoomEnemySystem
             // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
             slot.YPosition = unchecked((ushort)(samus.YPosition - 17));
-            slot.VariableF = GunshipCodePointers.DescendAfterCeres;
+            slot.VariableF = (ushort)GunshipFunction.DescendAfterCeres;
         }
         else
         {
             slot.YPosition = unchecked((ushort)(slot.YPosition - 25));
             slot.VariableE = slot.YPosition;
-            slot.VariableF = GunshipCodePointers.Idle;
+            slot.VariableF = (ushort)GunshipFunction.Idle;
         }
         slot.VariableD = 1;
         slot.VariableC = 0;
@@ -1717,7 +1721,7 @@ public sealed partial class RoomEnemySystem
                 slot.VariableD = 71;
             }
         }
-        slot.VariableF = GunshipCodePointers.NoOperation;
+        slot.VariableF = (ushort)GunshipFunction.NoOperation;
     }
 
     private void RunMainAi(
@@ -1735,73 +1739,77 @@ public sealed partial class RoomEnemySystem
         VramWriteQueue? vramWriteQueue = null)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
-        switch (address)
+        var routine = (EnemyAiRoutine)address;
+        if (!Enum.IsDefined(routine))
+            throw new InvalidDataException(
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
+        switch (routine)
         {
-            case EnemyAiCodePointers.RTL_A3804C:
+            case EnemyAiRoutine.RTL_A3804C:
                 return;
-            case EnemyAiCodePointers.MainAI_DraygonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody:
+            case EnemyAiRoutine.MainAI_DraygonBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody:
                 // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
                 // the separate 8-bit counter at $05B5; only its low bits are tested.
                 RunDraygonBodyMain(slot, samus, unchecked((byte)_enemyFrameNmiFrameCounter));
                 return;
-            case EnemyAiCodePointers.MainAI_DraygonEye when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye:
+            case EnemyAiRoutine.MainAI_DraygonEye when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye:
                 RunDraygonPartMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.RTL_A5C5AA when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail:
-            case EnemyAiCodePointers.RTL_A5C5C4 when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms:
+            case EnemyAiRoutine.RTL_A5C5AA when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail:
+            case EnemyAiRoutine.RTL_A5C5C4 when slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms:
                 RunDraygonPartMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody:
+            case EnemyAiRoutine.MainAI_HurtAI_MotherBrainBody when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody:
                 RunMotherBrainBodyMain(slot, samus, sharedProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_HurtAI_MotherBrainHead when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead:
+            case EnemyAiRoutine.MainAI_HurtAI_MotherBrainHead when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead:
                 RunMotherBrainHeadMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_MotherBrainTubes when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes:
+            case EnemyAiRoutine.MainAI_MotherBrainTubes when slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes:
                 RunMotherBrainFallingTubeMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
+            case EnemyAiRoutine.MainAI_BabyMetroidCutscene when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene:
                 RunMotherBrainBabyMetroidMain(slot, samus, cameraX, cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_CorpseTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo:
+            case EnemyAiRoutine.MainAI_CorpseTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo:
                 RunDeadTorizoMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_HurtAI_CorpseEnemies when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper:
+            case EnemyAiRoutine.MainAI_HurtAI_CorpseEnemies when slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper:
                 RunDeadSidehopperMain(slot, samus, level, cameraX);
                 return;
-            case EnemyAiCodePointers.MainAI_HurtAI_CorpseEnemies when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_HurtAI_CorpseEnemies when IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer):
                 RunDeadTourianCorpseMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_BabyMetroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid:
+            case EnemyAiRoutine.MainAI_BabyMetroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid:
                 RunShitroidMain(slot, samus, cameraX, cameraY, sharedProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_Crocomire when slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire:
+            case EnemyAiRoutine.MainAI_Crocomire when slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire:
                 RunCrocomireMain(slot, samus, cameraX);
                 return;
-            case EnemyAiCodePointers.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn:
+            case EnemyAiRoutine.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn:
                 RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_CrocomireTongue when slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue:
+            case EnemyAiRoutine.MainAI_CrocomireTongue when slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue:
                 // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
                 // extended map position the component relative to Crocomire's body.
                 return;
-            case EnemyAiCodePointers.MainAI_Magdollite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite:
+            case EnemyAiRoutine.MainAI_Magdollite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite:
                 RunMagdolliteMain(slot, RequireMagdolliteState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_ShipTop:
+            case EnemyAiRoutine.MainAI_ShipTop:
                 RunGunshipTopMain(
                     slot,
                     samus,
                     newlyPressedControllerInput,
                     vramWriteQueue);
                 return;
-            case EnemyAiCodePointers.MainAI_Boyon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon:
+            case EnemyAiRoutine.MainAI_Boyon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon:
                 RunBoyonMain(slot, RequireBoyonState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Stoke when slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke:
+            case EnemyAiRoutine.MainAI_Stoke when slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke:
                 RunStokeMain(slot, RequireStokeState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_MamaTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle:
+            case EnemyAiRoutine.MainAI_MamaTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle:
                 RunMamaTurtleMain(
                     slot,
                     RequireMamaTurtleState(slot),
@@ -1809,28 +1817,28 @@ public sealed partial class RoomEnemySystem
                     level,
                     nmiFrameCounter8);
                 return;
-            case EnemyAiCodePointers.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle:
+            case EnemyAiRoutine.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle:
                 RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Puyo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo:
+            case EnemyAiRoutine.MainAI_Puyo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo:
                 RunPuyoMain(slot, RequirePuyoState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Cacatac when slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac:
+            case EnemyAiRoutine.MainAI_Cacatac when slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac:
                 RunCacatacMain(slot, RequireCacatacState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Owtch when slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch:
+            case EnemyAiRoutine.MainAI_Owtch when slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch:
                 RunOwtchMain(slot, RequireOwtchState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Multiviola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola:
+            case EnemyAiRoutine.MainAI_Multiviola when slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola:
                 RunMultiviolaMain(slot, RequireMultiviolaState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Polyp when slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks:
+            case EnemyAiRoutine.MainAI_Polyp when slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks:
                 RunPolypMain(slot, RequirePolypState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Rinka when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka:
+            case EnemyAiRoutine.MainAI_Rinka when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka:
                 RunRinkaMain(slot, RequireRinkaState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Rio when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio:
+            case EnemyAiRoutine.MainAI_Rio when slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio:
                 RunRioMain(
                     slot,
                     RequireRioState(slot),
@@ -1839,26 +1847,26 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_Squeept when slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept:
+            case EnemyAiRoutine.MainAI_Squeept when slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept:
                 RunNorfairLavaJumpingEnemyMain(
                     slot,
                     RequireNorfairLavaJumpingEnemyState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Geruta when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta:
+            case EnemyAiRoutine.MainAI_Geruta when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta:
                 RunNorfairRioMain(
                     slot,
                     RequireNorfairRioState(slot),
                     samus,
                     level);
                 return;
-            case EnemyAiCodePointers.MainAI_Holtz when slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz:
+            case EnemyAiRoutine.MainAI_Holtz when slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz:
                 RunLowerNorfairRioMain(
                     slot,
                     RequireLowerNorfairRioState(slot),
                     samus,
                     level);
                 return;
-            case EnemyAiCodePointers.MainAI_Oum when slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum:
+            case EnemyAiRoutine.MainAI_Oum when slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum:
                 RunMaridiaLargeSnailMain(
                     slot,
                     RequireMaridiaLargeSnailState(slot),
@@ -1866,16 +1874,16 @@ public sealed partial class RoomEnemySystem
                     level,
                     controllerInput);
                 return;
-            case EnemyAiCodePointers.MainAI_GRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper:
+            case EnemyAiRoutine.MainAI_GRipper when slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper:
                 RunGRipperMain(slot, RequireRipperVariantState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Ripper2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2:
+            case EnemyAiRoutine.MainAI_Ripper2 when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2:
                 RunRipper2Main(slot, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Dragon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon:
+            case EnemyAiRoutine.MainAI_Dragon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon:
                 RunDragonMain(slot, RequireDragonState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_ShutterGrowing when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing:
+            case EnemyAiRoutine.MainAI_ShutterGrowing when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing:
                 RunGrowingShutterMain(
                     slot,
                     RequireGrowingShutterState(slot),
@@ -1883,7 +1891,7 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_ShutterShootable_ShutterDestroyable_Kamer when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_ShutterShootable_ShutterDestroyable_Kamer when IsVerticalShutterDefinition(slot.EnemyDefinitionPointer):
                 RunVerticalShutterMain(
                     slot,
                     RequireVerticalShutterState(slot),
@@ -1891,14 +1899,14 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable:
+            case EnemyAiRoutine.MainAI_ShutterHorizShootable when slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable:
                 RunHorizontalShutterMain(
                     slot,
                     RequireHorizontalShutterState(slot),
                     samus,
                     controllerInput);
                 return;
-            case EnemyAiCodePointers.MainAI_GrappleAI_FrozenAI_Elevator when slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator:
+            case EnemyAiRoutine.MainAI_GrappleAI_FrozenAI_Elevator when slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator:
                 RunElevatorMain(
                     slot,
                     RequireElevatorState(slot),
@@ -1906,29 +1914,29 @@ public sealed partial class RoomEnemySystem
                     newlyPressedControllerInput,
                     samusProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Fune_Namihe when IsFuneNamiheDefinition(slot.EnemyDefinitionPointer):
                 RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Kago when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago:
+            case EnemyAiRoutine.MainAI_Kago when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago:
                 RunKagoMain(RequireKagoState(slot));
                 return;
-            case EnemyAiCodePointers.RTL_A2804C:
+            case EnemyAiRoutine.RTL_A2804C:
                 return;
-            case EnemyAiCodePointers.RTL_A7804C when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonEye:
+            case EnemyAiRoutine.RTL_A7804C when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonEye:
                 // Phantoon's eye is positioned by the body and animated by its own list;
                 // the header main is the literal common RTL at the start of bank $A7.
                 return;
-            case EnemyAiCodePointers.MainAI_CeresSteam:
+            case EnemyAiRoutine.MainAI_CeresSteam:
                 RunCeresSteamMain(slot, mode7Transform);
                 return;
-            case EnemyAiCodePointers.MainAI_CeresDoor:
+            case EnemyAiRoutine.MainAI_CeresDoor:
                 RunCeresDoorMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_RidleyCeres
+            case EnemyAiRoutine.MainAI_RidleyCeres
                 when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres:
                 RunCeresRidleyMain(slot, samus, vramWriteQueue);
                 return;
-            case EnemyAiCodePointers.MainAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley:
+            case EnemyAiRoutine.MainAI_Ridley when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley:
                 RunNorfairRidleyMain(
                     slot,
                     samus,
@@ -1938,19 +1946,19 @@ public sealed partial class RoomEnemySystem
                     sharedProjectiles,
                     cameraX, cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion:
+            case EnemyAiRoutine.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion:
                 RunNorfairRidleyExplosionMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_Boulder when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder:
+            case EnemyAiRoutine.MainAI_Boulder when slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder:
                 RunBoulderMain(slot, RequireBoulderState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Zebetite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite:
+            case EnemyAiRoutine.MainAI_Zebetite when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite:
                 RunZebetiteMain(slot, RequireZebetiteState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Etecoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon:
+            case EnemyAiRoutine.MainAI_Etecoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon:
                 RunEtecoonMain(slot, RequireEtecoonState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Dachora when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora:
+            case EnemyAiRoutine.MainAI_Dachora when slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora:
                 RunDachoraMain(
                     slot,
                     RequireDachoraState(slot),
@@ -1958,10 +1966,10 @@ public sealed partial class RoomEnemySystem
                     level,
                     nmiFrameCounter8);
                 return;
-            case EnemyAiCodePointers.MainAI_Evir when slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir:
+            case EnemyAiRoutine.MainAI_Evir when slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir:
                 RunEvirMain(slot, RequireEvirState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_EvirProjectile when slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile:
+            case EnemyAiRoutine.MainAI_EvirProjectile when slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile:
                 RunEvirProjectileMain(
                     slot,
                     RequireEvirState(slot),
@@ -1969,13 +1977,13 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_Eye when slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye:
+            case EnemyAiRoutine.MainAI_Eye when slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye:
                 RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Coven when slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven:
+            case EnemyAiRoutine.MainAI_Coven when slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven:
                 RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_YappingMaw when slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw:
+            case EnemyAiRoutine.MainAI_YappingMaw when slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw:
                 RunYappingMawMain(
                     slot,
                     RequireYappingMawState(slot),
@@ -1983,96 +1991,96 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_Ripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper:
+            case EnemyAiRoutine.MainAI_Ripper when slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper:
                 RunRipperMain(slot, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Choot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot:
+            case EnemyAiRoutine.MainAI_Choot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot:
                 RunChootMain(slot, RequireChootState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Crawlers when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Crawlers when IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer):
                 RunCrawlerMain(slot, level);
                 return;
-            case EnemyAiCodePointers.MainAI_HZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer:
+            case EnemyAiRoutine.MainAI_HZoomer when slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer:
                 RunHZoomerMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Skree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree:
+            case EnemyAiRoutine.MainAI_Skree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree:
                 RunSkreeMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Mellow_Mella_Menu
+            case EnemyAiRoutine.MainAI_Mellow_Mella_Menu
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu:
                 RunFlyMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Sbug when slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2:
+            case EnemyAiRoutine.MainAI_Sbug when slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2:
                 RunSbugMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid:
+            case EnemyAiRoutine.MainAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid:
                 RunMochtroidMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Metroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid:
+            case EnemyAiRoutine.MainAI_Metroid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid:
                 RunMetroidMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Hopper when IsHopperDefinition(slot.EnemyDefinitionPointer):
                 RunHopperMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Zoa when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa:
+            case EnemyAiRoutine.MainAI_Zoa when slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa:
                 RunZoaMain(slot, RequireZoaState(slot), samus, cameraX, cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_Yard when slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard:
+            case EnemyAiRoutine.MainAI_Yard when slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard:
                 RunYardMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Waver when slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver:
+            case EnemyAiRoutine.MainAI_Waver when slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver:
                 RunWaverMain(slot, RequireWaverState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Metaree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree:
+            case EnemyAiRoutine.MainAI_Metaree when slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree:
                 RunMetareeMain(slot, RequireMetareeState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Fireflea when slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea:
+            case EnemyAiRoutine.MainAI_Fireflea when slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea:
                 RunFirefleaMain(slot, RequireFirefleaState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Skultera when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera:
+            case EnemyAiRoutine.MainAI_Skultera when slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera:
                 RunSkulteraMain(slot, RequireSkulteraState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Tripper_Kamer2 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Tripper_Kamer2 when IsPlatformDefinition(slot.EnemyDefinitionPointer):
                 RunPlatformMain(slot, RequirePlatformState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Alcoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon:
+            case EnemyAiRoutine.MainAI_Alcoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon:
                 RunAlcoonMain(slot, RequireAlcoonState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Beetom when slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom:
+            case EnemyAiRoutine.MainAI_Beetom when slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom:
                 RunBeetomMain(slot, RequireBeetomState(slot), samus, level, controllerInput);
                 return;
-            case EnemyAiCodePointers.MainAI_Powamp when slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp:
+            case EnemyAiRoutine.MainAI_Powamp when slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp:
                 RunPowampMain(slot, RequirePowampState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Robot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot:
+            case EnemyAiRoutine.MainAI_Robot when slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot:
                 RunWorkRobotMain(slot, RequireWorkRobotState(slot), level);
                 return;
-            case EnemyAiCodePointers.RTL_A8CC66 when slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower:
+            case EnemyAiRoutine.RTL_A8CC66 when slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower:
                 return;
-            case EnemyAiCodePointers.MainAI_Bull when slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull:
+            case EnemyAiRoutine.MainAI_Bull when slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull:
                 RunBullMain(slot, RequireBullState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Atomic when slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic:
+            case EnemyAiRoutine.MainAI_Atomic when slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic:
                 RunAtomicMain(slot, RequireAtomicState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Spark when slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark:
+            case EnemyAiRoutine.MainAI_Spark when slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark:
                 RunSparkMain(slot, RequireSparkState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_FaceBlock when
+            case EnemyAiRoutine.MainAI_FaceBlock when
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock:
                 RunBlueBrinstarFaceBlockMain(
                     slot,
                     RequireBlueBrinstarFaceBlockState(slot),
                     samus);
                 return;
-            case EnemyAiCodePointers.MainAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
-            case EnemyAiCodePointers.MainAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Kihunter when IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_KihunterWings when IsKiHunterWingDefinition(slot.EnemyDefinitionPointer):
                 RunKiHunterMain(slot, RequireKiHunterState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
-            case EnemyAiCodePointers.MainAI_Gamet when slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet:
-            case EnemyAiCodePointers.MainAI_Geega when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega:
+            case EnemyAiRoutine.MainAI_Zeb_Zebbo when IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_Gamet when slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet:
+            case EnemyAiRoutine.MainAI_Geega when slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega:
                 RunPipeBugMain(
                     slot,
                     RequirePipeBugState(slot),
@@ -2080,39 +2088,39 @@ public sealed partial class RoomEnemySystem
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_Botwoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon:
+            case EnemyAiRoutine.MainAI_Botwoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon:
                 RunBotwoonMain(slot, RequireBotwoonState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_EtecoonEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape:
+            case EnemyAiRoutine.MainAI_EtecoonEscape when slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape:
                 RunEscapeEtecoonMain(
                     slot,
                     RequireEscapeEtecoonState(slot),
                     level);
                 return;
-            case EnemyAiCodePointers.RTL_B3EB1A when slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape:
+            case EnemyAiRoutine.RTL_B3EB1A when slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape:
                 // $B3:EB1A is a literal RTL. Dachora's complete movement program lives in
                 // its ROM instruction lists and therefore runs later in this same frame.
                 return;
-            case EnemyAiCodePointers.MainAI_KzanTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop:
+            case EnemyAiRoutine.MainAI_KzanTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop:
                 RunKzanTopMain(slot, RequireKzanState(slot), samus);
                 return;
-            case EnemyAiCodePointers.MainAI_KzanBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom:
+            case EnemyAiRoutine.MainAI_KzanBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom:
                 RunKzanBottomMain(slot);
                 return;
-            case EnemyAiCodePointers.MainAI_Hibashi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi:
+            case EnemyAiRoutine.MainAI_Hibashi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi:
                 RunHibashiMain(slot, RequireHibashiState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_Puromi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi:
+            case EnemyAiRoutine.MainAI_Puromi when slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi:
                 RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
                 return;
-            case EnemyAiCodePointers.MainAI_MiniKraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid:
+            case EnemyAiRoutine.MainAI_MiniKraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid:
                 RunFakeKraidMain(
                     slot,
                     RequireFakeKraidState(slot),
                     cameraX,
                     cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_PirateWalking when IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunWalkingSpacePirateMain(
                     slot,
                     RequireWalkingSpacePirateState(slot),
@@ -2120,13 +2128,13 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_PirateWall when IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunWallSpacePirateMain(
                     slot,
                     RequireWallSpacePirateState(slot),
                     samus);
                 return;
-            case EnemyAiCodePointers.MainAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
+            case EnemyAiRoutine.MainAI_PirateNinja when IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer):
                 RunNinjaSpacePirateMain(
                     slot,
                     RequireNinjaSpacePirateState(slot),
@@ -2134,51 +2142,51 @@ public sealed partial class RoomEnemySystem
                     level,
                     samusProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_BombTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo:
+            case EnemyAiRoutine.MainAI_BombTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo:
                 RunBombTorizoMain(slot, RequireBombTorizoState(slot), samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_GoldenTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo:
+            case EnemyAiRoutine.MainAI_GoldenTorizo when slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo:
                 RunGoldenTorizoMain(
                     slot,
                     RequireBombTorizoState(slot),
                     samus,
                     level);
                 return;
-            case EnemyAiCodePointers.MainAI_Kraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid:
+            case EnemyAiRoutine.MainAI_Kraid when slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid:
                 RunKraidBodyMain(slot, samus, cameraX, cameraY, vramWriteQueue, samusProjectiles, sharedProjectiles);
                 return;
-            case EnemyAiCodePointers.MainAI_KraidArm when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm:
+            case EnemyAiRoutine.MainAI_KraidArm when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm:
                 RunKraidArmMain(slot, cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_KraidLintTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop:
-            case EnemyAiCodePointers.MainAI_KraidLintMiddle when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle:
-            case EnemyAiCodePointers.MainAI_KraidLintBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom:
+            case EnemyAiRoutine.MainAI_KraidLintTop when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop:
+            case EnemyAiRoutine.MainAI_KraidLintMiddle when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle:
+            case EnemyAiRoutine.MainAI_KraidLintBottom when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom:
                 RunKraidLintMain(slot, samus);
                 return;
-            case EnemyAiCodePointers.MainAI_KraidFoot when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot:
+            case EnemyAiRoutine.MainAI_KraidFoot when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot:
                 RunKraidFootMain(slot, cameraY);
                 return;
-            case EnemyAiCodePointers.MainAI_KraidNail when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail:
-            case EnemyAiCodePointers.MainAI_KraidNailBad when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad:
+            case EnemyAiRoutine.MainAI_KraidNail when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail:
+            case EnemyAiRoutine.MainAI_KraidNailBad when slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad:
                 RunKraidNailMain(slot, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Phantoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody:
+            case EnemyAiRoutine.MainAI_Phantoon when slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody:
                 RunPhantoonMain(slot, samus, cameraX, cameraY);
                 return;
-            case EnemyAiCodePointers.RTL_A7E011
+            case EnemyAiRoutine.RTL_A7E011
                 when slot.EnemyDefinitionPointer is
                 EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth:
                 // $A7:E011 is a literal RTL. These drawing parts animate entirely through
                 // their independent bank-$A7 instruction lists after the shared body main.
                 return;
-            case EnemyAiCodePointers.MainAI_TourianStatue when slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue:
+            case EnemyAiRoutine.MainAI_TourianStatue when slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue:
                 // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
                 // three enemy records animate exclusively through their ROM lists.
                 return;
-            case EnemyAiCodePointers.MainAI_HurtAI_Shaktool when slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool:
+            case EnemyAiRoutine.MainAI_HurtAI_Shaktool when slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool:
                 RunShaktoolMain(slot, RequireShaktoolState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_Chozo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo:
+            case EnemyAiRoutine.MainAI_Chozo when slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo:
                 RunChozoStatueMain(slot, RequireChozoStatueState(slot));
                 return;
             default:
@@ -2215,85 +2223,88 @@ public sealed partial class RoomEnemySystem
         if (!IsNegative16(top.VariableF + 0x56be) && IsNegative16(top.VariableF + 0x53e5))
             StepGunshipBob(top);
 
-        switch (top.VariableF)
+        GunshipFunction function = ClosedNativeWords.Decode<GunshipFunction>(top.VariableF, "gunship function");
+        switch (function)
         {
-            case GunshipCodePointers.DescendAfterCeres:
+            case GunshipFunction.DescendAfterCeres:
                 DescendPostCeresGunship(top, samus);
                 return;
-            case GunshipCodePointers.ApplyLandingBrakes:
+            case GunshipFunction.ApplyLandingBrakes:
                 BouncePostCeresGunship(top, samus);
                 return;
-            case GunshipCodePointers.WaitForLandingEntranceToOpen:
+            case GunshipFunction.WaitForLandingEntranceToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = GunshipCodePointers.EjectSamus;
+                    top.VariableF = (ushort)GunshipFunction.EjectSamus;
                 return;
-            case GunshipCodePointers.EjectSamus:
+            case GunshipFunction.EjectSamus:
                 RaisePostCeresSamus(top, samus);
                 return;
-            case GunshipCodePointers.FinishLanding:
+            case GunshipFunction.FinishLanding:
                 if (TickGunshipFunctionTimer(top))
                 {
-                    top.VariableF = GunshipCodePointers.Idle;
+                    top.VariableF = (ushort)GunshipFunction.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
                     LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
-            case GunshipCodePointers.Idle:
+            case GunshipFunction.Idle:
                 HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
                 return;
-            case GunshipCodePointers.WaitForEntranceToOpen:
+            case GunshipFunction.WaitForEntranceToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = GunshipCodePointers.LowerSamus;
+                    top.VariableF = (ushort)GunshipFunction.LowerSamus;
                 return;
-            case GunshipCodePointers.LowerSamus:
+            case GunshipFunction.LowerSamus:
                 LowerSamusIntoGunship(top, samus);
                 return;
-            case GunshipCodePointers.WaitForEntranceToClose:
+            case GunshipFunction.WaitForEntranceToClose:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = GunshipCodePointers.BeginLiftoffOrRestoreSamus;
+                    top.VariableF = (ushort)GunshipFunction.BeginLiftoffOrRestoreSamus;
                 return;
-            case GunshipCodePointers.BeginLiftoffOrRestoreSamus:
+            case GunshipFunction.BeginLiftoffOrRestoreSamus:
                 RestoreSamusInGunship(top, samus);
                 return;
-            case GunshipCodePointers.HandleSaveConfirmation:
+            case GunshipFunction.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
                 LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
                 return;
-            case GunshipCodePointers.WaitForExitPadToOpen:
+            case GunshipFunction.WaitForExitPadToOpen:
                 if (TickGunshipFunctionTimer(top))
-                    top.VariableF = GunshipCodePointers.RaiseSamus;
+                    top.VariableF = (ushort)GunshipFunction.RaiseSamus;
                 return;
-            case GunshipCodePointers.RaiseSamus:
+            case GunshipFunction.RaiseSamus:
                 RaiseSamusOutOfGunship(top, samus);
                 return;
-            case GunshipCodePointers.FinishSamusExit:
+            case GunshipFunction.FinishSamusExit:
                 if (TickGunshipFunctionTimer(top))
                 {
-                    top.VariableF = GunshipCodePointers.Idle;
+                    top.VariableF = (ushort)GunshipFunction.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
                     LastGunshipEvent = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
-            case GunshipCodePointers.LoadLiftoffDustTiles:
+            case GunshipFunction.LoadLiftoffDustTiles:
                 QueueGunshipTakeoffTiles(top, vramWriteQueue);
                 return;
-            case GunshipCodePointers.FireUpEngines:
+            case GunshipFunction.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
                 return;
-            case GunshipCodePointers.SteadyLiftoff:
+            case GunshipFunction.SteadyLiftoff:
                 LiftGunshipAtConstantSpeed(top, samus);
                 return;
-            case GunshipCodePointers.AcceleratingLiftoff:
+            case GunshipFunction.AcceleratingLiftoff:
                 AccelerateEscapingGunship(top, samus);
                 return;
-            case GunshipCodePointers.MoveAccelerating:
+            case GunshipFunction.MoveAccelerating:
                 MoveEscapingGunship(top, samus);
                 return;
-            default:
+            case GunshipFunction.NoOperation:
                 throw new InvalidDataException(
                     $"Gunship function $A2:{top.VariableF:X4} is not translated.");
+            default:
+                throw new InvalidOperationException($"Undefined GunshipFunction {function}.");
         }
     }
 
@@ -2316,7 +2327,7 @@ public sealed partial class RoomEnemySystem
         top.YPosition = 0x045f;
         bottom.YPosition = 0x0487;
         pad.YPosition = 0x045e;
-        top.VariableF = GunshipCodePointers.ApplyLandingBrakes;
+        top.VariableF = (ushort)GunshipFunction.ApplyLandingBrakes;
         top.VariableE = 0;
     }
 
@@ -2338,7 +2349,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = GunshipCodePointers.WaitForLandingEntranceToOpen;
+        top.VariableF = (ushort)GunshipFunction.WaitForLandingEntranceToOpen;
         top.VariableE = top.YPosition;
         top.VariableD = 1;
         top.VariableC = 0;
@@ -2362,7 +2373,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = GunshipCodePointers.FinishLanding;
+        top.VariableF = (ushort)GunshipFunction.FinishLanding;
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
@@ -2424,7 +2435,7 @@ public sealed partial class RoomEnemySystem
         if (insideEntrance && samus.ReadMovementKind(_bus!) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-            top.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
+            top.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
             // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
             // no horizontal motion from this alignment.
             if (samus.XPosition != 0x0480)
@@ -2460,7 +2471,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = GunshipCodePointers.WaitForEntranceToClose;
+        top.VariableF = (ushort)GunshipFunction.WaitForEntranceToClose;
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
@@ -2478,7 +2489,7 @@ public sealed partial class RoomEnemySystem
         if (RequireEvent(EventNumber.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
-            top.VariableF = GunshipCodePointers.LoadLiftoffDustTiles;
+            top.VariableF = (ushort)GunshipFunction.LoadLiftoffDustTiles;
             top.VariableB = 0;
             bottom.VariableF = 0;
             bottom.VariableE = 0;
@@ -2498,7 +2509,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         // The prompt itself opens when $AB1F executes on the following frame.
-        top.VariableF = GunshipCodePointers.HandleSaveConfirmation;
+        top.VariableF = (ushort)GunshipFunction.HandleSaveConfirmation;
     }
 
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
@@ -2510,7 +2521,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
-        top.VariableF = GunshipCodePointers.FinishSamusExit;
+        top.VariableF = (ushort)GunshipFunction.FinishSamusExit;
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
@@ -2541,7 +2552,7 @@ public sealed partial class RoomEnemySystem
         top.VariableB++;
         if (top.VariableB >= GunshipLiftoffTransferDefinitions.Frames.Length)
         {
-            top.VariableF = GunshipCodePointers.FireUpEngines;
+            top.VariableF = (ushort)GunshipFunction.FireUpEngines;
             top.VariableB = 0;
         }
     }
@@ -2573,7 +2584,7 @@ public sealed partial class RoomEnemySystem
         }
         if (bottom.VariableE >= 128)
         {
-            top.VariableF = GunshipCodePointers.SteadyLiftoff;
+            top.VariableF = (ushort)GunshipFunction.SteadyLiftoff;
             top.VariableA = 0;
         }
     }
@@ -2586,7 +2597,7 @@ public sealed partial class RoomEnemySystem
         MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.YPosition - 2)));
         if (IsNegative16(top.YPosition - 896))
         {
-            top.VariableF = GunshipCodePointers.AcceleratingLiftoff;
+            top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
             _slots[top.SlotIndex + 1].VariableF = 0x0200;
         }
     }
@@ -2597,7 +2608,7 @@ public sealed partial class RoomEnemySystem
         MoveEscapingGunship(top, samus);
         if (IsNegative16(top.YPosition - 256))
         {
-            top.VariableF = GunshipCodePointers.MoveAccelerating;
+            top.VariableF = (ushort)GunshipFunction.MoveAccelerating;
             LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffCompleted;
         }
     }

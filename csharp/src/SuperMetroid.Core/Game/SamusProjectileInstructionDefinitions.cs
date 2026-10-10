@@ -38,7 +38,7 @@ internal static class SamusProjectileInstructionDefinitions
                 // A single phase loops to itself; its trail phase is the zero-based phase index.
                 return true;
             case TimedRecordBytes:
-                value = SamusProjectileRomData.Instructions.GoTo;
+                value = (ushort)SamusProjectileInstruction.GoTo;
                 return true;
             case TimedRecordBytes + sizeof(ushort):
                 value = (ushort)(PowerProgramsStart + offset / PowerProgramBytes * PowerProgramBytes);
@@ -92,7 +92,7 @@ internal static class SamusProjectileInstructionDefinitions
             value = (ushort)(offset / TimedRecordBytes);
             return true;
         }
-        if (offset == recordsBytes) { value = SamusProjectileRomData.Instructions.GoTo; return true; }
+        if (offset == recordsBytes) { value = (ushort)SamusProjectileInstruction.GoTo; return true; }
         if (offset == recordsBytes + sizeof(ushort)) { value = (ushort)(start + loopPhase * TimedRecordBytes); return true; }
         return false;
     }
@@ -335,7 +335,7 @@ internal static class SamusProjectileInstructionDefinitions
         value = 0;
         if ((uint)offset >= recordsBytes + (delete ? sizeof(ushort) : 2 * sizeof(ushort))) return false;
         if (offset < recordsBytes && offset % TimedRecordBytes == TimedRecordBytes - sizeof(ushort)) return true;
-        if (delete && offset == recordsBytes) { value = SamusProjectileRomData.Instructions.Delete; return true; }
+        if (delete && offset == recordsBytes) { value = (ushort)SamusProjectileInstruction.Delete; return true; }
         return TryCycleWord(address, start, phases, hold, out value);
     }
     internal static ushort ReadWord(int address) =>

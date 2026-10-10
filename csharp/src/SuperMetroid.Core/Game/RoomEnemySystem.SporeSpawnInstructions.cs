@@ -19,20 +19,23 @@ public sealed partial class RoomEnemySystem
 
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         ushort next = unchecked((ushort)(cursor + 2));
-        switch (opcode)
+        if (!Enum.IsDefined((SporeSpawnInstruction)opcode))
+            return false;
+        SporeSpawnInstruction instruction = (SporeSpawnInstruction)opcode;
+        switch (instruction)
         {
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_IncreaseMaxXRadius:
+            case SporeSpawnInstruction.IncreaseMaxXRadius:
                 if (unchecked((short)(state.MaximumXRadius - 40)) < 0)
                     state.MaximumXRadius = unchecked((ushort)(state.MaximumXRadius + 8));
                 cursor = next;
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_ClearDamagedFlag:
+            case SporeSpawnInstruction.ClearDamagedFlag:
                 state.DamagedFlag = 0;
                 cursor = next;
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SetMaxXRadiusAndAngleDelta:
+            case SporeSpawnInstruction.SetMaxXRadiusAndAngleDelta:
                 state.MaximumXRadius = ReadEnemyInstructionMechanicsWord(body, next);
                 state.AngleDelta = ReadEnemyInstructionMechanicsWord(
                     body,
@@ -40,12 +43,12 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(next + 4));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SporeGenerationFlagInY:
+            case SporeSpawnInstruction.SporeGenerationFlagInY:
                 state.SporeGenerationFlag = ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_Harden:
+            case SporeSpawnInstruction.Harden:
                 body.XPosition = SporeSpawnDeathCenterX;
                 body.YPosition = SporeSpawnDeathCenterY;
                 body.Properties = body.Properties
@@ -54,48 +57,48 @@ public sealed partial class RoomEnemySystem
                 cursor = next;
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_QueueSFXInY_Lib2_Max6:
+            case SporeSpawnInstruction.QueueSFXInY_Lib2_Max6:
                 LastSporeSpawnSoundEffectLibrary2 =
                     ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_CallSporeSpawnDeathItemDropRoutine:
+            case SporeSpawnInstruction.CallSporeSpawnDeathItemDropRoutine:
                 RequestSporeSpawnDeathDrops(state);
                 cursor = next;
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_FunctionInY:
+            case SporeSpawnInstruction.FunctionInY:
                 state.Function = (SporeSpawnFunction)ReadEnemyInstructionMechanicsWord(body, next);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequencePalette:
+            case SporeSpawnInstruction.LoadDeathSequencePalette:
                 LoadSporeSpawnDeathPalette(
                     ReadEnemyInstructionMechanicsWord(body, next),
                     targetOnly: false);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_LoadDeathSequenceTargetPalette:
+            case SporeSpawnInstruction.LoadDeathSequenceTargetPalette:
                 LoadSporeSpawnDeathPalette(
                     ReadEnemyInstructionMechanicsWord(body, next),
                     targetOnly: true);
                 cursor = unchecked((ushort)(next + 2));
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SpawnHardeningDustCloud:
+            case SporeSpawnInstruction.SpawnHardeningDustCloud:
                 SpawnSporeSpawnHardeningDust(state);
                 cursor = next;
                 return true;
 
-            case SporeSpawnInstructionCodes.Instruction_SporeSpawn_SpawnDyingExplosion:
+            case SporeSpawnInstruction.SpawnDyingExplosion:
                 SpawnSporeSpawnDyingExplosion(state);
                 cursor = next;
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined SporeSpawnInstruction {instruction}.");
         }
     }
 

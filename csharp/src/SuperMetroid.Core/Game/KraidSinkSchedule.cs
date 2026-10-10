@@ -8,19 +8,19 @@ internal static class KraidSinkSchedule
     /// apart, terminated by FFFF. Six rows crumble platforms; the remaining rows
     /// invoke the distinct empty RTS. Tilemap offsets are presentation data.
     /// </summary>
-    public static ushort? CallbackAt(ushort y)
+    public static KraidSinkCallback? CallbackAt(ushort y)
     {
         if (y < 0x130 || y > 0x208 || (y & 7) != 0)
             return null;
         return y switch
         {
-            0x130 => KraidSinkCallbacks.CrumbleLeftPlatformLeft,
-            0x148 => KraidSinkCallbacks.CrumbleRightPlatformMiddle,
-            0x160 => KraidSinkCallbacks.CrumbleRightPlatformLeft,
-            0x180 => KraidSinkCallbacks.CrumbleLeftPlatformRight,
-            0x198 => KraidSinkCallbacks.CrumbleLeftPlatformMiddle,
-            0x1b0 => KraidSinkCallbacks.CrumbleRightPlatformRight,
-            _ => KraidSinkCallbacks.NoOperation,
+            0x130 => KraidSinkCallback.CrumbleLeftPlatformLeft,
+            0x148 => KraidSinkCallback.CrumbleRightPlatformMiddle,
+            0x160 => KraidSinkCallback.CrumbleRightPlatformLeft,
+            0x180 => KraidSinkCallback.CrumbleLeftPlatformRight,
+            0x198 => KraidSinkCallback.CrumbleLeftPlatformMiddle,
+            0x1b0 => KraidSinkCallback.CrumbleRightPlatformRight,
+            _ => KraidSinkCallback.NoOperation,
         };
     }
 }

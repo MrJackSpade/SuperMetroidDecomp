@@ -1674,7 +1674,7 @@ internal static partial class Program
         {
             var actual = CeresDoorInitializationDefinitions.For(variant);
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), actual.InstructionList, "Ceres door original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), actual.MainFunction, "Ceres door original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), (ushort)actual.MainFunction, "Ceres door original function dispatch");
         }
         for (ushort variant = 0; variant < 6; variant++)
         {

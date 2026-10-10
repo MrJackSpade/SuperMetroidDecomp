@@ -27,14 +27,4 @@ public static class BabyMetroidCutsceneColorRomData
         paletteIndex is >= 1 and <= FadeFrameCount
             ? FirstFadeSource + (paletteIndex - 1) * FadeColorCount * sizeof(ushort)
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex));
-    /// <summary>$A9:94E6, CGRAM slot10: initial fang light color, independently chosen paint.</summary>
-    public const int InitialFangLightColor = 9;
-    /// <summary>$A9:94E8, CGRAM slot11: per-channel floor midpoint of fang light/dark slots10/12.</summary>
-    public const int InitialFangMiddleColor = 10;
-    /// <summary>$A9:94EA, CGRAM slot12: initial fang dark color, independently chosen paint.</summary>
-    public const int InitialFangDarkColor = 11;
-    /// <summary>$A9:94EE, CGRAM slot14: full-intensity RGB5 white.</summary>
-    public const int InitialWhiteColor = 13;
-    /// <summary>$A9:94F0, CGRAM slot15: zero-intensity RGB5 black.</summary>
-    public const int InitialBlackColor = 14;
 }

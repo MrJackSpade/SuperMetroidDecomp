@@ -46,7 +46,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmBombTorizoHandVisuals().GetWord(
-                    BombTorizoHandPlmDrawDefinitions.Intact, 0, 0),
+                    (ushort)BombTorizoHandDraw.Intact, 0, 0),
                 "installed hand override selects its changed block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -55,7 +55,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmBombTorizoHandVisualFiles.Load(refreshed,
                     installation.RoomPlmBombTorizoHandVisualOverrideDirectory)
-                    .GetWord(BombTorizoHandPlmDrawDefinitions.Intact, 0, 0),
+                    .GetWord((ushort)BombTorizoHandDraw.Intact, 0, 0),
                 "hand override survives stock replacement");
 
             intact["blocks"]![0] = 0xf053;

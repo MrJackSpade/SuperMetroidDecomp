@@ -529,47 +529,50 @@ public static class StockAttractDemoScenes
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch
         {
-            AttractDemoRomData.SamusSetup.StandingRight => SamusPoseId.FacingRightNormalPose,
-            AttractDemoRomData.SamusSetup.StandingLeft or AttractDemoRomData.SamusSetup.LowHealthLeft => SamusPoseId.FacingLeftNormalPose,
-            AttractDemoRomData.SamusSetup.MorphLeft => SamusPoseId.MorphBallMovingLeftPose,
-            _ => throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
+            AttractDemoSamusSetup.StandingRight => SamusPoseId.FacingRightNormalPose,
+            AttractDemoSamusSetup.StandingLeft or AttractDemoSamusSetup.LowHealthLeft => SamusPoseId.FacingLeftNormalPose,
+            AttractDemoSamusSetup.MorphLeft => SamusPoseId.MorphBallMovingLeftPose,
+            AttractDemoSamusSetup.LandingSite or AttractDemoSamusSetup.FallingLeft or
+                AttractDemoSamusSetup.DiagonalShinespark or AttractDemoSamusSetup.HorizontalShinespark =>
+                throw new InvalidOperationException("This demonstration does not use a grounded staging pose."),
+            _ => throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {SamusSetupFor(demonstration)}."),
         };
         return (ushort)(floorRow * 16 - SamusPoseCollisionDefinitions.ReadVerticalRadius(pose));
     }
 
     /// <summary>$82:8774-8918: Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the native no-op callback.</summary>
-    private static ushort RoomSetupFor(Demonstration demonstration) => demonstration switch
+    private static AttractDemoRoomSetup RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
-        Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => AttractDemoRomData.RoomSetup.LandingSiteSky,
-        Demonstration.PseudoScrewAttack => AttractDemoRomData.RoomSetup.ChargeBeamScroll,
-        Demonstration.Kraid => AttractDemoRomData.RoomSetup.KraidTimer,
-        Demonstration.TourianEntrance => AttractDemoRomData.RoomSetup.DefeatedKraid,
+        Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => AttractDemoRoomSetup.LandingSiteSky,
+        Demonstration.PseudoScrewAttack => AttractDemoRoomSetup.ChargeBeamScroll,
+        Demonstration.Kraid => AttractDemoRoomSetup.KraidTimer,
+        Demonstration.TourianEntrance => AttractDemoRoomSetup.DefeatedKraid,
         Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.SpeedBooster or
         Demonstration.GrappleBeam or Demonstration.IceBeam or Demonstration.FirefleaRoom or
         Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.ScrewAttack or
         Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.EyeDoor or
         Demonstration.RedBrinstarElevator or Demonstration.AdvancedGrappleBeam or
-        Demonstration.SpecialBeamAttack => AttractDemoRomData.RoomSetup.NoOp,
+        Demonstration.SpecialBeamAttack => AttractDemoRoomSetup.NoOp,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
     /// <summary>$91:89FD-8A32: selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct native callbacks.</summary>
-    private static ushort SamusSetupFor(Demonstration demonstration) => demonstration switch
+    private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
     {
-        Demonstration.LandingSite => AttractDemoRomData.SamusSetup.LandingSite,
-        Demonstration.PseudoScrewAttack => AttractDemoRomData.SamusSetup.MorphLeft,
-        Demonstration.Dachora => AttractDemoRomData.SamusSetup.FallingLeft,
-        Demonstration.DiagonalShinespark => AttractDemoRomData.SamusSetup.DiagonalShinespark,
-        Demonstration.GauntletEntrance => AttractDemoRomData.SamusSetup.HorizontalShinespark,
-        Demonstration.CrystalFlash => AttractDemoRomData.SamusSetup.LowHealthLeft,
+        Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,
+        Demonstration.PseudoScrewAttack => AttractDemoSamusSetup.MorphLeft,
+        Demonstration.Dachora => AttractDemoSamusSetup.FallingLeft,
+        Demonstration.DiagonalShinespark => AttractDemoSamusSetup.DiagonalShinespark,
+        Demonstration.GauntletEntrance => AttractDemoSamusSetup.HorizontalShinespark,
+        Demonstration.CrystalFlash => AttractDemoSamusSetup.LowHealthLeft,
         Demonstration.SpeedBooster or Demonstration.IceBeam or Demonstration.FirefleaRoom or
         Demonstration.LowerNorfairEntrance or Demonstration.PrePhantoonHall or
-        Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => AttractDemoRomData.SamusSetup.StandingLeft,
+        Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => AttractDemoSamusSetup.StandingLeft,
         Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.GrappleBeam or
         Demonstration.BrinstarDiagonalRoom or Demonstration.ScrewAttack or Demonstration.EyeDoor or
         Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.TourianEntrance or
-        Demonstration.SpecialBeamAttack => AttractDemoRomData.SamusSetup.StandingRight,
+        Demonstration.SpecialBeamAttack => AttractDemoSamusSetup.StandingRight,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 

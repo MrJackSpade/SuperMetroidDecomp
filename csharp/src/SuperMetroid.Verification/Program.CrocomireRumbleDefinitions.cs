@@ -75,7 +75,7 @@ internal static partial class Program
         RoomEnemySlot body = enemies.Slots[0];
         var state = new CrocomireEnemyState(body)
         {
-            DeathSequenceIndex = CrocomireDeathPhases.RumbleHiddenWall,
+            DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             StepCounter = 4,
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
@@ -89,7 +89,7 @@ internal static partial class Program
         ushort referenceY = death.RumbleYOffset;
         ushort referenceCooldown = death.RumbleCooldown;
         ushort referenceDelta = death.RumbleDelta;
-        ushort referenceDeathIndex = state.DeathSequenceIndex;
+        ushort referenceDeathIndex = (ushort)state.DeathSequenceIndex;
         int frames = 0;
         while (referenceIndex != 0x0080 && frames < 2048)
         {
@@ -111,7 +111,7 @@ internal static partial class Program
                 $"Crocomire rumble frame {frames} cooldown");
             AssertEqual(referenceDelta, death.RumbleDelta,
                 $"Crocomire rumble frame {frames} delta");
-            AssertEqual(referenceDeathIndex, state.DeathSequenceIndex,
+            AssertEqual(referenceDeathIndex, (ushort)state.DeathSequenceIndex,
                 $"Crocomire rumble frame {frames} death index");
         }
 

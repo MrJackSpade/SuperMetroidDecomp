@@ -62,12 +62,6 @@ public static class GameOptionsRomData
     /// </remarks>
     public static class Rows
     {
-        /// <summary>Primary row zero: begins options fade-out and the following start-game transition.</summary>
-        public const int PrimaryStartGame = 0;
-        /// <summary>Primary row three: dissolves to the controller-assignment page after the two intervening language choices.</summary>
-        public const int PrimaryControllerSettings = 3;
-        /// <summary>Primary row four: dissolves to the Icon Cancel/Moonwalk special-settings page.</summary>
-        public const int PrimarySpecialSettings = 4;
         /// <summary>Five primary-page rows, bounding selection wrap and the five native cursor records at $82:F307.</summary>
         public const int PrimaryCount = 5;
         /// <summary>Seven assignable action rows, indices zero through six; Exit and Reset are navigation rows rather than controller bindings.</summary>
@@ -342,3 +336,18 @@ public readonly record struct GameOptionsToggleLayout(
     int EnabledBottom,
     int DisabledTop,
     int DisabledBottom);
+
+/// <summary>The five rows of the primary options page, valued by their cursor index.</summary>
+public enum GameOptionsPrimaryRow
+{
+    /// <summary>Primary row zero: begins options fade-out and the following start-game transition.</summary>
+    StartGame = 0,
+    /// <summary>Primary row one: selects English text, toggling the language.</summary>
+    EnglishText = 1,
+    /// <summary>Primary row two: selects Japanese text, toggling the language.</summary>
+    JapaneseText = 2,
+    /// <summary>Primary row three: dissolves to the controller-assignment page.</summary>
+    ControllerSettings = 3,
+    /// <summary>Primary row four: dissolves to the Icon Cancel/Moonwalk special-settings page.</summary>
+    SpecialSettings = 4,
+}

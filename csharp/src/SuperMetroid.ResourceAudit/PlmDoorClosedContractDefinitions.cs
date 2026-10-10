@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class PlmDoorClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "9985A5C60C510351018F1DDBE431A8E39C599D61233AB8F678B7946BC1290782");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "1DA6DFC4917DCCCBD291864836978A1545C55A3D3C03A81B20D943885938BEAC");
 
     internal static readonly ClosedPresentationContract[] All =
     [

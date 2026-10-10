@@ -34,23 +34,32 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>$AD:E87E, fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
     private const int ContourNumerator = 3, ContourDenominator = 4;
 
-    internal static Bgr555 Color(int color) => color switch
+    internal static Bgr555 Color(int color)
     {
-        InitialSlots.DomeHighlightColor => DomeHighlight,
-        InitialSlots.DomeSurfaceColor => DomeSurface,
-        InitialSlots.DomeShadowColor => DomeShadow,
-        InitialSlots.DomeRimColor => DomeRim,
-        InitialSlots.InnardGlint => Glint(),
-        InitialSlots.InnardLight => InnardLight,
-        InitialSlots.InnardLightShade or InitialSlots.InnardDarkShade => InnardShade(color - InitialSlots.InnardLight),
-        InitialSlots.InnardDark => DarkContour,
-        BabyMetroidCutsceneColorRomData.InitialFangLightColor => FangLight,
-        BabyMetroidCutsceneColorRomData.InitialFangMiddleColor => BabyMetroidInitialPalette.Midpoint(FangLight, FangDark),
-        BabyMetroidCutsceneColorRomData.InitialFangDarkColor => FangDark,
-        InitialSlots.FangOutlineColor => FangContour(),
-        BabyMetroidCutsceneColorRomData.InitialWhiteColor => FangHighlight,
-        _ => throw new ArgumentOutOfRangeException(nameof(color)),
-    };
+        var slot = (BabyMetroidInitialColorSlot)color;
+        if (!Enum.IsDefined(slot))
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return slot switch
+        {
+            BabyMetroidInitialColorSlot.DomeHighlight => DomeHighlight,
+            BabyMetroidInitialColorSlot.DomeSurface => DomeSurface,
+            BabyMetroidInitialColorSlot.DomeShadow => DomeShadow,
+            BabyMetroidInitialColorSlot.DomeRim => DomeRim,
+            BabyMetroidInitialColorSlot.InnardGlint => Glint(),
+            BabyMetroidInitialColorSlot.InnardLight => InnardLight,
+            BabyMetroidInitialColorSlot.InnardLightShade or BabyMetroidInitialColorSlot.InnardDarkShade =>
+                InnardShade(slot - BabyMetroidInitialColorSlot.InnardLight),
+            BabyMetroidInitialColorSlot.InnardDark => DarkContour,
+            BabyMetroidInitialColorSlot.FangLight => FangLight,
+            BabyMetroidInitialColorSlot.FangMiddle => BabyMetroidInitialPalette.Midpoint(FangLight, FangDark),
+            BabyMetroidInitialColorSlot.FangDark => FangDark,
+            BabyMetroidInitialColorSlot.FangOutline => FangContour(),
+            BabyMetroidInitialColorSlot.White => FangHighlight,
+            // The fade transfers fourteen colors; the initial black slot fifteen is never rewritten.
+            BabyMetroidInitialColorSlot.Black => throw new ArgumentOutOfRangeException(nameof(color)),
+            _ => throw new InvalidOperationException($"Undefined BabyMetroidInitialColorSlot {slot}."),
+        };
+    }
 
     private static Bgr555 Glint()
     {
@@ -61,7 +70,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
 
     private static Bgr555 InnardShade(int shade)
     {
-        int intervals = InitialSlots.InnardDark - InitialSlots.InnardLight;
+        int intervals = BabyMetroidInitialColorSlot.InnardDark - BabyMetroidInitialColorSlot.InnardLight;
         int denominator = intervals * intervals * intervals;
         int weight = shade * shade * (3 * intervals - 2 * shade);
         // Standard smoothstep red and linear green both round up for this selected composition.

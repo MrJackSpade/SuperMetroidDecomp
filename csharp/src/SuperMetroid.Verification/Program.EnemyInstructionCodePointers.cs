@@ -25,9 +25,9 @@ internal static partial class Program
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstructionCodes),
             typeof(SpacePirateInstruction),
-            typeof(SporeSpawnInstructionCodes),
+            typeof(SporeSpawnInstruction),
             typeof(TorizoInstructionCodes),
-            typeof(WorkRobotInstructionCodes),
+            typeof(WorkRobotInstruction),
         ];
         foreach (Type catalog in codeCatalogs)
             AssertUniqueMappedInstructionPointers(catalog);

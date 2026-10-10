@@ -11,7 +11,7 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
-            AssertEqual(expected, KraidSinkSchedule.CallbackAt((ushort)raw), "Native sinking Y/callback record");
+            AssertEqual(expected, (ushort?)KraidSinkSchedule.CallbackAt((ushort)raw), "Native sinking Y/callback record");
         }
     }
 
@@ -114,7 +114,7 @@ internal static partial class Program
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
             step(body, state);
             AssertEqual(expected.HasValue ? 1 : 0, state.SinkTableEventCount, "Only scheduled rows count, including empty RTS");
-            bool crumble = expected.HasValue && callback != KraidSinkCallbacks.NoOperation;
+            bool crumble = expected.HasValue && callback != (ushort)KraidSinkCallback.NoOperation;
             AssertEqual(crumble ? 1 : 0, requests.Count, "Only native crumble callbacks mutate platforms");
             AssertEqual(crumble ? 1 : 0, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;

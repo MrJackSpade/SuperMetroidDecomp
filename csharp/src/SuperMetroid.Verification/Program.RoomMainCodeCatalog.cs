@@ -12,9 +12,9 @@ internal static partial class Program
     /// </summary>
     static void VerifyRoomMainCodeCatalog()
     {
-        ushort[] catalog = CatalogFields.Of(typeof(RoomMainCodePointers), BindingFlags.Public | BindingFlags.Static)
-            .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+        ushort[] catalog = Enum.GetValues<RoomMainCallback>()
+            .Where(callback => callback != RoomMainCallback.None)
+            .Select(callback => (ushort)callback)
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-main callback catalog has no aliases");

@@ -112,100 +112,76 @@ public sealed class EnemyExtendedFrameCatalog
         {
             throw new InvalidDataException("Invalid extended enemy composition JSON.", error);
         }
-        int expectedCount = document.Version switch
+        var schema = (EnemyExtendedFrameSchema)document.Version;
+        if (!Enum.IsDefined(schema) ||
+            (schema != EnemyExtendedFrameSchema.Current && stockForLegacyOverride is null))
+            throw new InvalidDataException(
+                "Extended enemy compositions require the current version and every named frame.");
+        int expectedCount = schema switch
         {
-            EnemyExtendedFrameDefinitions.PreKraidFootVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreKraidFoot =>
                 EnemyExtendedFrameDefinitions.PreKraidFootFrameCount,
-            EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreCrocomireSkeleton =>
                 EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount,
-            EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreBg2BossBindings =>
                 EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount,
-            EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreMotherBrainBody =>
                 EnemyExtendedFrameDefinitions.PreMotherBrainBodyFrameCount,
-            EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreCompleteTorizo =>
                 EnemyExtendedFrameDefinitions.PreCompleteTorizoFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoLeftOrb =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount,
-            EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreTorizoJumpBackLeft =>
                 EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoLeftFootOrb =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount,
-            EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreTorizoFallingLeft =>
                 EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoRightSonic =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoRightOrb =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount,
-            EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreTorizoJumpBack =>
                 EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoRightward =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoWalking =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizoAwakening =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount,
-            EnemyExtendedFrameDefinitions.PreKraidArmVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreKraidArm =>
                 EnemyExtendedFrameDefinitions.PreKraidArmFrameCount,
-            EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreGoldenTorizo =>
                 EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount,
-            EnemyExtendedFrameDefinitions.PreBombTorizoVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreBombTorizo =>
                 EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount,
-            EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreCrocomireBody =>
                 EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount,
-            EnemyExtendedFrameDefinitions.PreCrocomireVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreCrocomire =>
                 EnemyExtendedFrameDefinitions.PreCrocomireFrameCount,
-            EnemyExtendedFrameDefinitions.PreOumVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreOum =>
                 EnemyExtendedFrameDefinitions.PreOumFrameCount,
-            EnemyExtendedFrameDefinitions.PreCeresSteamVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreCeresSteam =>
                 EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount,
-            EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreSporeIdentity =>
                 EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount,
-            EnemyExtendedFrameDefinitions.PreDraygonVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreDraygon =>
                 EnemyExtendedFrameDefinitions.PreDraygonFrameCount,
-            EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PreDisplayBindings =>
                 EnemyExtendedFrameDefinitions.PirateFrameCount,
-            EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.PirateDisplayBindings =>
                 EnemyExtendedFrameDefinitions.PirateFrameCount,
-            EnemyExtendedFrameDefinitions.FirstVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.First =>
                 EnemyExtendedFrameDefinitions.WalkingFrameCount,
-            EnemyExtendedFrameDefinitions.PreviousVersion
-                when stockForLegacyOverride is not null =>
+            EnemyExtendedFrameSchema.Previous =>
                 EnemyExtendedFrameDefinitions.WalkingFrameCount +
                 EnemyExtendedFrameDefinitions.WallFrameCount,
-            EnemyExtendedFrameDefinitions.Version =>
+            EnemyExtendedFrameSchema.Current =>
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount,
-            _ => -1,
+            _ => throw new InvalidOperationException($"Undefined EnemyExtendedFrameSchema {schema}."),
         };
-        bool legacyOverride = expectedCount >= 0 &&
-            document.Version != EnemyExtendedFrameDefinitions.Version;
-        if (expectedCount < 0 || document.Frames is null ||
+        bool legacyOverride = schema != EnemyExtendedFrameSchema.Current;
+        if (document.Frames is null ||
             document.Frames.Count != expectedCount ||
             (legacyOverride && stockForLegacyOverride!.frames.Count !=
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
@@ -218,8 +194,7 @@ public sealed class EnemyExtendedFrameCatalog
         var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemyExtendedFrameDefinition definition in expected)
         {
-            string authoredName = document.Version ==
-                EnemyExtendedFrameDefinitions.PreSporeIdentityVersion &&
+            string authoredName = schema == EnemyExtendedFrameSchema.PreSporeIdentity &&
                 definition.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
                     ? $"draygon_oam_{definition.Pointer:X4}"
                     : definition.Name;
@@ -282,31 +257,31 @@ public sealed class EnemyExtendedFrameCatalog
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
         var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
-        if (document.Version is EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion
-            or EnemyExtendedFrameDefinitions.PreDraygonVersion
-            or EnemyExtendedFrameDefinitions.PreSporeIdentityVersion
-            or EnemyExtendedFrameDefinitions.PreCeresSteamVersion
-            or EnemyExtendedFrameDefinitions.PreOumVersion
-            or EnemyExtendedFrameDefinitions.PreCrocomireVersion
-            or EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion
-            or EnemyExtendedFrameDefinitions.PreBombTorizoVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion
-            or EnemyExtendedFrameDefinitions.PreKraidArmVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion
-            or EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion
-            or EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbVersion
-            or EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion
-            or EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion
-            or EnemyExtendedFrameDefinitions.PreCompleteTorizoVersion
-            or EnemyExtendedFrameDefinitions.PreMotherBrainBodyVersion
-            or EnemyExtendedFrameDefinitions.PreBg2BossBindingsVersion
-            or EnemyExtendedFrameDefinitions.PreCrocomireSkeletonVersion
-            or EnemyExtendedFrameDefinitions.PreKraidFootVersion)
+        if (schema is EnemyExtendedFrameSchema.PirateDisplayBindings
+            or EnemyExtendedFrameSchema.PreDraygon
+            or EnemyExtendedFrameSchema.PreSporeIdentity
+            or EnemyExtendedFrameSchema.PreCeresSteam
+            or EnemyExtendedFrameSchema.PreOum
+            or EnemyExtendedFrameSchema.PreCrocomire
+            or EnemyExtendedFrameSchema.PreCrocomireBody
+            or EnemyExtendedFrameSchema.PreBombTorizo
+            or EnemyExtendedFrameSchema.PreGoldenTorizo
+            or EnemyExtendedFrameSchema.PreKraidArm
+            or EnemyExtendedFrameSchema.PreGoldenTorizoAwakening
+            or EnemyExtendedFrameSchema.PreGoldenTorizoWalking
+            or EnemyExtendedFrameSchema.PreGoldenTorizoRightward
+            or EnemyExtendedFrameSchema.PreTorizoJumpBack
+            or EnemyExtendedFrameSchema.PreGoldenTorizoRightOrb
+            or EnemyExtendedFrameSchema.PreGoldenTorizoRightSonic
+            or EnemyExtendedFrameSchema.PreTorizoFallingLeft
+            or EnemyExtendedFrameSchema.PreGoldenTorizoLeftFootOrb
+            or EnemyExtendedFrameSchema.PreTorizoJumpBackLeft
+            or EnemyExtendedFrameSchema.PreGoldenTorizoLeftOrb
+            or EnemyExtendedFrameSchema.PreCompleteTorizo
+            or EnemyExtendedFrameSchema.PreMotherBrainBody
+            or EnemyExtendedFrameSchema.PreBg2BossBindings
+            or EnemyExtendedFrameSchema.PreCrocomireSkeleton
+            or EnemyExtendedFrameSchema.PreKraidFoot)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)

@@ -88,19 +88,6 @@ internal static partial class Program
                 $"Grapple segment character set {segment}");
         }
 
-        var connectionHandlers = new HashSet<ushort>
-        {
-            SamusGrappleRomData.Connections.SwingClockwiseHandler,
-            SamusGrappleRomData.Connections.SwingAnticlockwiseHandler,
-            SamusGrappleRomData.Connections.StandingUpRightHandler,
-            SamusGrappleRomData.Connections.StandingRightHandler,
-            SamusGrappleRomData.Connections.StandingDownHandler,
-            SamusGrappleRomData.Connections.StandingUpLeftHandler,
-            SamusGrappleRomData.Connections.CrouchingUpRightHandler,
-            SamusGrappleRomData.Connections.CrouchingRightHandler,
-            SamusGrappleRomData.Connections.CrouchingDownLeftHandler,
-            SamusGrappleRomData.Connections.CrouchingUpLeftHandler,
-        };
         foreach (int connectionTable in new[]
         {
             SamusGrappleRomData.Connections.DefaultTable,
@@ -117,11 +104,11 @@ internal static partial class Program
             {
                 ushort function = ReadGrappleWord(bus, connectionTable + direction * 4);
                 ushort handler = ReadGrappleWord(bus, connectionTable + direction * 4 + 2);
-                AssertTrue(function is
-                    SamusGrappleRomData.Connections.SwingingHandler or
-                    SamusGrappleRomData.Connections.LockedInPlaceHandler,
+                AssertTrue((GrappleConnectionFunction)function is
+                    GrappleConnectionFunction.Swinging or
+                    GrappleConnectionFunction.LockedInPlace,
                     $"Grapple connection function ${function:X4} is catalogued");
-                AssertTrue(connectionHandlers.Contains(handler),
+                AssertTrue(Enum.IsDefined((GrappleConnectionHandler)handler),
                     $"Grapple connection handler ${handler:X4} is catalogued");
             }
         }

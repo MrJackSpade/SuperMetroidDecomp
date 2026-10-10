@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed record AttractDemoScene(
     ushort RoomPointer, ushort DoorPointer,     ushort CameraX, ushort CameraY, ushort SamusYFromTop, short SamusXFromCenter,
-    ushort Duration, ushort RoomSetupPointer, ushort SamusSetupPointer,
+    ushort Duration, AttractDemoRoomSetup RoomSetupPointer, AttractDemoSamusSetup SamusSetupPointer,
     ushort Items, ushort Missiles, ushort SuperMissiles, ushort PowerBombs,
     ushort Health, ushort CollectedBeams, ushort EquippedBeams, ushort InputObject)
 {

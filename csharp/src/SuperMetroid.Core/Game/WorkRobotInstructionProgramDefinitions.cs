@@ -141,14 +141,14 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Timed(EntryTicks);
         if (right)
         {
-            ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight);
-            writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+            ShootingOpportunity(ref writer, (ushort)WorkRobotInstruction.TryShootingLaserDownRight);
+            writer.Command((ushort)WorkRobotInstruction.DecrementLaserCooldown);
         }
         writer.Timed(WalkTicks);
-        ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight
-            : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft);
-        ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight
-            : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft);
+        ShootingOpportunity(ref writer, right ? (ushort)WorkRobotInstruction.TryShootingLaserRight
+            : (ushort)WorkRobotInstruction.TryShootingLaserLeft);
+        ShootingOpportunity(ref writer, right ? (ushort)WorkRobotInstruction.TryShootingLaserUpRight
+            : (ushort)WorkRobotInstruction.TryShootingLaserUpLeft);
         writer.Timed(WalkTicks);
         SoundThenMove(ref writer, move);
         writer.Timed(WalkTicks);
@@ -157,7 +157,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         MoveThenSound(ref writer, move);
         writer.Timed(WalkTicks);
         writer.Command(move);
-        if (!right) ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft);
+        if (!right) ShootingOpportunity(ref writer, (ushort)WorkRobotInstruction.TryShootingLaserDownLeft);
         writer.Goto((ushort)((right ? FacingRightWalkingForwards : FacingLeftWalkingForwards) + 4));
     }
     private static void ShootingOpportunity(ref WordSelector writer, ushort callback)
@@ -193,8 +193,8 @@ internal abstract class WorkRobotInstructionProgramDefinitions
             writer.Command(move);
             writer.Timed(cadence, 5);
         }
-        writer.Command(right ? WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards
-            : WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards);
+        writer.Command(right ? (ushort)WorkRobotInstruction.Goto_FacingLeft_WalkingForwards
+            : (ushort)WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards);
     }
     private static void AdvanceAfterShot(ref WordSelector writer, bool right)
     {
@@ -206,7 +206,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
             SoundThenMove(ref writer, move);
             writer.Timed(ShotResponseTicks);
             writer.Command(move);
-            if (right && stride == 0) writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+            if (right && stride == 0) writer.Command((ushort)WorkRobotInstruction.PlaySFXIfOnScreen);
             writer.Timed(ShotResponseTicks, 5);
             MoveThenSound(ref writer, move);
             writer.Timed(ShotResponseTicks);
@@ -214,8 +214,8 @@ internal abstract class WorkRobotInstructionProgramDefinitions
             if (stride == 0) writer.Timed(ShotResponseTicks, 5);
             else if (!right) writer.Timed(ShotResponseTicks);
         }
-        writer.Command(right ? WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards
-            : WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards);
+        writer.Command(right ? (ushort)WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards
+            : (ushort)WorkRobotInstruction.Goto_FacingLeft_WalkingForwards);
     }
     private static void Laser(ref WordSelector writer, bool right, LaserAim aim)
     {
@@ -241,35 +241,35 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Command(move);
         writer.Timed(WalkTicks, 2);
         writer.Timed(RecoilRecoveryTicks);
-        if (!right) writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+        if (!right) writer.Command((ushort)WorkRobotInstruction.DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }
     private static void Ledge(ref WordSelector writer, bool right)
     {
         writer.Timed(LedgeTicks);
         writer.Timed(WalkTicks, 2);
-        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
+        writer.Command((ushort)WorkRobotInstruction.DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }
     private static ushort MoveForward(bool right, bool hitWallOnly) => right
-        ? hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleHittingWall
-            : WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleWallOrFall
-        : hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleHittingWall
-            : WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleWallOrFall;
+        ? hitWallOnly ? (ushort)WorkRobotInstruction.FacingRight_MoveForward_HandleHittingWall
+            : (ushort)WorkRobotInstruction.FacingRight_MoveForward_HandleWallOrFall
+        : hitWallOnly ? (ushort)WorkRobotInstruction.FacingLeft_MoveForward_HandleHittingWall
+            : (ushort)WorkRobotInstruction.FacingLeft_MoveForward_HandleWallOrFall;
     private static ushort MoveBackward(bool right, bool hitWallOnly) => right
-        ? hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleHittingWall
-            : WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleWallOrFall
-        : hitWallOnly ? WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleHittingWall
-            : WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleWallOrFall;
+        ? hitWallOnly ? (ushort)WorkRobotInstruction.FacingRight_MoveBackward_HandleHittingWall
+            : (ushort)WorkRobotInstruction.FacingRight_MoveBackward_HandleWallOrFall
+        : hitWallOnly ? (ushort)WorkRobotInstruction.FacingLeft_MoveBackward_HandleHittingWall
+            : (ushort)WorkRobotInstruction.FacingLeft_MoveBackward_HandleWallOrFall;
     private static void SoundThenMove(ref WordSelector writer, ushort move)
     {
-        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+        writer.Command((ushort)WorkRobotInstruction.PlaySFXIfOnScreen);
         writer.Command(move);
     }
     private static void MoveThenSound(ref WordSelector writer, ushort move)
     {
         writer.Command(move);
-        writer.Command(WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen);
+        writer.Command((ushort)WorkRobotInstruction.PlaySFXIfOnScreen);
     }
     private struct WordSelector(ushort address, ushort start)
     {

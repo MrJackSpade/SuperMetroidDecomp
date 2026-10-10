@@ -191,9 +191,12 @@ public sealed partial class RoomEnemySystem
 
         WorkRobotEnemyState state = RequireWorkRobotState(slot);
         ushort next = unchecked((ushort)(cursor + 2));
-        switch (opcode)
+        if (!Enum.IsDefined((WorkRobotInstruction)opcode))
+            return false;
+        WorkRobotInstruction instruction = (WorkRobotInstruction)opcode;
+        switch (instruction)
         {
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleWallOrFall:
+            case WorkRobotInstruction.FacingLeft_MoveForward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity,
@@ -202,14 +205,14 @@ public sealed partial class RoomEnemySystem
                     WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
                     WorkRobotFacingRightVelocity);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveForward_HandleHittingWall:
+            case WorkRobotInstruction.FacingLeft_MoveForward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity,
                     WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleWallOrFall:
+            case WorkRobotInstruction.FacingLeft_MoveBackward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity,
@@ -218,17 +221,17 @@ public sealed partial class RoomEnemySystem
                     WorkRobotInstructionProgramDefinitions.ApproachingFallRight,
                     WorkRobotFacingLeftVelocity);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingLeft_MoveBackward_HandleHittingWall:
+            case WorkRobotInstruction.FacingLeft_MoveBackward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingLeftVelocity,
                     WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_SetInstListTo_FacingRight_WalkingForwards:
+            case WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards:
                 cursor = WorkRobotInstructionProgramDefinitions.FacingRightWalkingForwards;
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleWallOrFall:
+            case WorkRobotInstruction.FacingRight_MoveForward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity,
@@ -237,14 +240,14 @@ public sealed partial class RoomEnemySystem
                     WorkRobotInstructionProgramDefinitions.ApproachingFallRight,
                     WorkRobotFacingLeftVelocity);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveForward_HandleHittingWall:
+            case WorkRobotInstruction.FacingRight_MoveForward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity,
                     WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleWallOrFall:
+            case WorkRobotInstruction.FacingRight_MoveBackward_HandleWallOrFall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity,
@@ -253,63 +256,63 @@ public sealed partial class RoomEnemySystem
                     WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
                     WorkRobotFacingRightVelocity);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_FacingRight_MoveBackward_HandleHittingWall:
+            case WorkRobotInstruction.FacingRight_MoveBackward_HandleHittingWall:
                 cursor = MoveWorkRobot(
                     slot, state, samus, level, next, -WorkRobotStepPixels,
                     WorkRobotFacingRightVelocity,
                     WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
                     checkLedge: false, 0, 0, 0);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_PlaySFXIfOnScreen:
+            case WorkRobotInstruction.PlaySFXIfOnScreen:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, cameraX, cameraY))
                     LastWorkRobotSoundEffect = WorkRobotFootstepSound;
                 cursor = next;
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_Goto_FacingLeft_WalkingForwards:
+            case WorkRobotInstruction.Goto_FacingLeft_WalkingForwards:
                 cursor = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards;
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight:
+            case WorkRobotInstruction.TryShootingLaserUpRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.UpRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserUpRight,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft:
+            case WorkRobotInstruction.TryShootingLaserUpLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.UpLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserUpLeft,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight:
+            case WorkRobotInstruction.TryShootingLaserRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserRight,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft:
+            case WorkRobotInstruction.TryShootingLaserLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.Horizontal,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserLeft,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight:
+            case WorkRobotInstruction.TryShootingLaserDownRight:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.DownRight,
                     WorkRobotInstructionProgramDefinitions.FacingRightShotLaserDownRight,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft:
+            case WorkRobotInstruction.TryShootingLaserDownLeft:
                 cursor = TryFireWorkRobotLaser(
                     slot, state, next, WorkRobotLaser.DownLeft,
                     WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserDownLeft,
                     cameraX, cameraY);
                 return true;
-            case WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown:
+            case WorkRobotInstruction.DecrementLaserCooldown:
                 DecrementWorkRobotLaserCooldown(state);
                 cursor = next;
                 return true;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined WorkRobotInstruction {instruction}.");
         }
     }
 

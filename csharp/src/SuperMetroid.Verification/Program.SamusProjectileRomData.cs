@@ -163,9 +163,9 @@ internal static partial class Program
         bus.ReadByte(SamusProjectileRomData.Banks.Movement |
             SamusProjectileRomData.Trails.MoveLeftUp);
         bus.ReadByte(SamusProjectileRomData.Banks.Projectile |
-            SamusProjectileRomData.Instructions.Delete);
+            (ushort)SamusProjectileInstruction.Delete);
         bus.ReadByte(SamusProjectileRomData.Banks.Projectile |
-            SamusProjectileRomData.Instructions.GoTo);
+            (ushort)SamusProjectileInstruction.GoTo);
 
         Console.WriteLine(
             "  Samus projectile ROM data: origins, 12 beam combinations, 200 directional " +

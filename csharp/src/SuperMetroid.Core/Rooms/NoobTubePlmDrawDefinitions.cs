@@ -1,4 +1,25 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The seven bank-$84 n00b-tube draw lists, valued by their native address.</summary>
+internal enum NoobTubeDraw : ushort
+{
+    /// <summary>Intact projectile-trigger block at $84:98D1.</summary>
+    Intact = 0x98d1,
+    /// <summary>First damaged origin block at $84:98D7.</summary>
+    Damaged = 0x98d7,
+    /// <summary>Opened origin block at $84:98DD.</summary>
+    Opened = 0x98dd,
+    /// <summary>Four-row cleared tube at $84:98E3.</summary>
+    Cleared = 0x98e3,
+    /// <summary>Late broken-tube panel at $84:9953.</summary>
+    BrokenLate = 0x9953,
+    /// <summary>Three-row opened tube at $84:9991.</summary>
+    OpenedRows = 0x9991,
+    /// <summary>Full broken-tube panel at $84:99E5.</summary>
+    BrokenFull = 0x99e5,
+}
 
 /// <summary>
 /// Physical bank-$84 draw lists selected by the n00b-tube PLM. The native
@@ -8,34 +29,20 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class NoobTubePlmDrawDefinitions
 {
-    /// <summary>Intact projectile-trigger block at $84:98D1.</summary>
-    internal const ushort Intact = 0x98d1;
-    /// <summary>First damaged origin block at $84:98D7.</summary>
-    internal const ushort Damaged = 0x98d7;
-    /// <summary>Opened origin block at $84:98DD.</summary>
-    internal const ushort Opened = 0x98dd;
-    /// <summary>Four-row cleared tube at $84:98E3.</summary>
-    private const ushort Cleared = 0x98e3;
-    /// <summary>Late broken-tube panel at $84:9953.</summary>
-    private const ushort BrokenLate = 0x9953;
-    /// <summary>Three-row opened tube at $84:9991.</summary>
-    internal const ushort OpenedRows = 0x9991;
-    /// <summary>Full broken-tube panel at $84:99E5.</summary>
-    internal const ushort BrokenFull = 0x99e5;
-
     /// <summary>
     /// Seven named NTSC layouts at 84:98D1..9A3E. Wide runs are twelve cells:
     /// symmetric pipe edges surround air; the floor adds a second solid edge cell.
     /// Panel rows use adjacent tiles, vertically reflected below the centre.
     /// Continuations are absolute offsets from the PLM origin, not accumulated steps.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer)
+    internal readonly record struct Draw(NoobTubeDraw Pointer)
     {
         internal int RunCount => Pointer switch
         {
-            Cleared or BrokenFull => 4,
-            BrokenLate or OpenedRows => 3,
-            _ => 1,
+            NoobTubeDraw.Cleared or NoobTubeDraw.BrokenFull => 4,
+            NoobTubeDraw.BrokenLate or NoobTubeDraw.OpenedRows => 3,
+            NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened => 1,
+            _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Pointer}."),
         };
 
         private void CheckRun(int run)
@@ -46,15 +53,17 @@ internal static class NoobTubePlmDrawDefinitions
         internal int WordCount(int run)
         {
             CheckRun(run);
-            return Pointer is Intact or Damaged or Opened ||
-                (Pointer is BrokenLate or BrokenFull && run == 0) ? 1 : 12;
+            return Pointer is NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened ||
+                (Pointer is NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull && run == 0) ? 1 : 12;
         }
 
         private int Row(int run) => Pointer switch
         {
-            BrokenLate => run + 3,
-            BrokenFull => run + 2,
-            _ => run,
+            NoobTubeDraw.BrokenLate => run + 3,
+            NoobTubeDraw.BrokenFull => run + 2,
+            NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened or
+                NoobTubeDraw.Cleared or NoobTubeDraw.OpenedRows => run,
+            _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Pointer}."),
         };
 
         internal sbyte NextY(int run)
@@ -69,10 +78,13 @@ internal static class NoobTubePlmDrawDefinitions
             if (WordCount(run) == 1)
                 return Pointer switch
                 {
-                    Intact => 0xc540, // Projectile trigger, mirrored intact glass tile.
-                    Damaged => 0x8540, // Same glass tile, solid collision after activation.
-                    Opened => 0x8141, // Solid upper rim at the origin.
-                    _ => 0x0141, // Broken frames clear collision at the origin.
+                    NoobTubeDraw.Intact => 0xc540, // Projectile trigger, mirrored intact glass tile.
+                    NoobTubeDraw.Damaged => 0x8540, // Same glass tile, solid collision after activation.
+                    NoobTubeDraw.Opened => 0x8141, // Solid upper rim at the origin.
+                    NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull => 0x0141, // Broken frames clear collision at the origin.
+                    NoobTubeDraw.Cleared or NoobTubeDraw.OpenedRows =>
+                        throw new InvalidOperationException($"NoobTubeDraw {Pointer} has no single-word run."),
+                    _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Pointer}."),
                 };
             int row = Row(run);
             int edgeDistance = Math.Min(cell, 11 - cell);
@@ -91,8 +103,8 @@ internal static class NoobTubePlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        bool owned = pointer is Intact or Damaged or Opened or Cleared or BrokenLate or OpenedRows or BrokenFull;
-        draw = owned ? new(pointer) : default;
+        bool owned = Enum.IsDefined((NoobTubeDraw)pointer);
+        draw = owned ? new((NoobTubeDraw)pointer) : default;
         return owned;
     }
 
@@ -100,23 +112,23 @@ internal static class NoobTubePlmDrawDefinitions
     {
         get
         {
-            foreach (ushort pointer in Pointers())
+            foreach (NoobTubeDraw pointer in Pointers())
             {
-                TryGet(pointer, out var list);
+                TryGet((ushort)pointer, out var list);
                 yield return list;
             }
         }
     }
 
-    private static IEnumerable<ushort> Pointers()
+    private static IEnumerable<NoobTubeDraw> Pointers()
     {
-        yield return Intact;
-        yield return Damaged;
-        yield return Opened;
-        yield return Cleared;
-        yield return BrokenLate;
-        yield return OpenedRows;
-        yield return BrokenFull;
+        yield return NoobTubeDraw.Intact;
+        yield return NoobTubeDraw.Damaged;
+        yield return NoobTubeDraw.Opened;
+        yield return NoobTubeDraw.Cleared;
+        yield return NoobTubeDraw.BrokenLate;
+        yield return NoobTubeDraw.OpenedRows;
+        yield return NoobTubeDraw.BrokenFull;
     }
 
     // Temporary artwork import/export DTOs; gameplay calculates cells directly.
@@ -135,22 +147,25 @@ internal static class NoobTubePlmDrawDefinitions
         return true;
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer) =>
+        VisualId(ClosedNativeWords.Decode<NoobTubeDraw>(pointer, "n00b-tube draw with a visual ID"));
+
+    internal static string VisualId(NoobTubeDraw pointer) => pointer switch
     {
-        Intact => "intact",
-        Damaged => "damaged",
-        Opened => "opened",
-        Cleared => "cleared",
-        BrokenLate => "broken-late",
-        OpenedRows => "opened-rows",
-        BrokenFull => "broken-full",
-        _ => throw new InvalidDataException($"N00b-tube draw ${pointer:X4} has no visual ID."),
+        NoobTubeDraw.Intact => "intact",
+        NoobTubeDraw.Damaged => "damaged",
+        NoobTubeDraw.Opened => "opened",
+        NoobTubeDraw.Cleared => "cleared",
+        NoobTubeDraw.BrokenLate => "broken-late",
+        NoobTubeDraw.OpenedRows => "opened-rows",
+        NoobTubeDraw.BrokenFull => "broken-full",
+        _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {pointer}."),
     };
 
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        foreach (ushort pointer in Pointers())
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
+        foreach (NoobTubeDraw pointer in Pointers())
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet((ushort)pointer, out list);
         list = default;
         return false;
     }

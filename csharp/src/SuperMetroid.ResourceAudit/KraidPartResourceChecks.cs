@@ -11,7 +11,7 @@ internal static class KraidPartResourceChecks
         {
             case "Foot":
                 ExtendedEnemyCompositionResourceChecks.Run("Kraid foot", KraidFootVisualDefinitions.Frames.ToArray(),
-                    EnemyExtendedFrameDefinitions.PreKraidFootVersion, EnemyExtendedFrameDefinitions.PreKraidFootFrameCount);
+                    (int)EnemyExtendedFrameSchema.PreKraidFoot, EnemyExtendedFrameDefinitions.PreKraidFootFrameCount);
                 break;
             case "Lint":
                 EnemyCompositionResourceChecks.Run("Kraid lint", KraidLintVisualDefinitions.Bank,

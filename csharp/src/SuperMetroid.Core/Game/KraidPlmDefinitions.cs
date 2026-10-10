@@ -77,20 +77,24 @@ public static class KraidPlmDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
-    public static KraidPlmRequest? ForSinkCallback(ushort callback)
+    public static KraidPlmRequest? ForSinkCallback(ushort callback) =>
+        ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(callback, "Kraid sinking callback"));
+
+    /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
+    public static KraidPlmRequest? ForSinkCallback(KraidSinkCallback callback)
     {
-        if (callback == KraidSinkCallbacks.NoOperation) return null;
-        byte column = callback switch
+        byte column;
+        switch (callback)
         {
-            KraidSinkCallbacks.CrumbleLeftPlatformLeft => 7,
-            KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 8,
-            KraidSinkCallbacks.CrumbleLeftPlatformRight => 9,
-            KraidSinkCallbacks.CrumbleRightPlatformLeft => 14,
-            KraidSinkCallbacks.CrumbleRightPlatformMiddle => 15,
-            KraidSinkCallbacks.CrumbleRightPlatformRight => 16,
-            _ => throw new InvalidDataException(
-                $"Kraid sinking callback $A7:{callback:X4} has no hardcoded PLM definition."),
-        };
+            case KraidSinkCallback.NoOperation: return null;
+            case KraidSinkCallback.CrumbleLeftPlatformLeft: column = 7; break;
+            case KraidSinkCallback.CrumbleLeftPlatformMiddle: column = 8; break;
+            case KraidSinkCallback.CrumbleLeftPlatformRight: column = 9; break;
+            case KraidSinkCallback.CrumbleRightPlatformLeft: column = 14; break;
+            case KraidSinkCallback.CrumbleRightPlatformMiddle: column = 15; break;
+            case KraidSinkCallback.CrumbleRightPlatformRight: column = 16; break;
+            default: throw new InvalidOperationException($"Undefined KraidSinkCallback {callback}.");
+        }
         // The surviving platforms share the ceiling row and alternate background
         // blocks by column parity, as in the native C691..C714 inline arguments.
         return new(column, 0x12, (column & 1) != 0

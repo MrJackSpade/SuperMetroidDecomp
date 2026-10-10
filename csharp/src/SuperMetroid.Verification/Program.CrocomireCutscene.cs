@@ -109,7 +109,7 @@ internal static partial class Program
         samus.XPosition = 1312;
         body.XPosition = 1600;
         run(body, samus, 1280);
-        AssertEqual(CrocomireDeathPhases.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.XPosition, "collapse frame retains the native camera lock");
@@ -120,11 +120,11 @@ internal static partial class Program
         scrolls = RoomScrollGrid.LoadCompiled(rom, storage, 8, 1);
         camera = new ScrollBoundaryCamera(scrolls);
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
-        state.DeathSequenceIndex = CrocomireDeathPhases.WaitForSamusAtWall;
+        state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         body.XPosition = 480;
         samus.XPosition = 639;
         run(body, samus, 544);
-        AssertEqual(CrocomireDeathPhases.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
+        AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(1), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(2), "left cutscene retains visible screen two");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(3), "left cutscene closes screen three");
@@ -145,7 +145,7 @@ internal static partial class Program
             camera.TrackMovedSamusHorizontally(point with { XPosition = 750 }, point with { XPosition = 751 }, context);
             AssertEqual((ushort)512, camera.XPosition, "rightward target near holding wall stays within screen two");
         }
-        state.DeathSequenceIndex = CrocomireDeathPhases.ClearWallAndOpenScrolls;
+        state.DeathSequenceIndex = CrocomireDeathPhase.ClearWallAndOpenScrolls;
         run(body, samus, 512);
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.XPosition, "left camera unlocks at the native completion phase");

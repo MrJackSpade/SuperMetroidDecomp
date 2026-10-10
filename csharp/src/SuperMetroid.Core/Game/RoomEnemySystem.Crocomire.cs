@@ -65,10 +65,10 @@ public sealed class CrocomireEnemyState
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>Native variable A: even byte offset into the bank-$A4 main/death dispatcher; zero runs the fight/bridge checks, two begins collapse, and $54 displays an already-defeated corpse.</summary>
-    public ushort DeathSequenceIndex
+    public CrocomireDeathPhase DeathSequenceIndex
     {
-        get => Body.VariableA;
-        internal set => Body.VariableA = value;
+        get => ClosedNativeWords.Decode<CrocomireDeathPhase>(Body.VariableA, "Crocomire death-sequence index");
+        internal set => Body.VariableA = (ushort)value;
     }
 
     /// <summary>Native variable B: raw fight latches, including damage bit $0800 and a saturating low-nibble hit count; unused attack branches assign additional overlapping bit meanings.</summary>
@@ -174,7 +174,7 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.SolidToSamus |
                     EnemyProperties.IgnoreSamusCollision,
                 EnemyProperties.IgnoreSamusCollision);
-            state.DeathSequenceIndex = 0x0054;
+            state.DeathSequenceIndex = CrocomireDeathPhase.DefeatedRoomAdvance;
             InstallCrocomireInstructionList(
                 slot,
                 CrocomireInstructionProgramDefinitions.Dead);
@@ -193,7 +193,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.DeathSequenceIndex = 0;
+        state.DeathSequenceIndex = CrocomireDeathPhase.Fighting;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
         // $A4:8ABA-8ABD, on the living branch only.
@@ -249,7 +249,7 @@ public sealed partial class RoomEnemySystem
         CrocomireEnemyState state = RequireCrocomire(slot);
         _crocomireCameraX = cameraX;
 
-        if (state.DeathSequenceIndex == 0)
+        if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
         {
             HandleCrocomireBridgeThreshold(state);
             // The native word write runs even on the frame that starts bridge collapse.
@@ -284,7 +284,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         CrocomireBridgeCollapseStarted = true;
-        state.DeathSequenceIndex = 2;
+        state.DeathSequenceIndex = CrocomireDeathPhase.CrumbleBridgeAndSink;
         InstallCrocomireInstructionList(
             body,
             CrocomireInstructionProgramDefinitions.BridgeCollapsed);
@@ -316,7 +316,7 @@ public sealed partial class RoomEnemySystem
         CrocomireEnemyState state,
         SamusState? samus)
     {
-        if (samus is null || state.DeathSequenceIndex != 0)
+        if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
         ushort leftEdge = unchecked((ushort)(
             body.XPosition - body.XRadius - samus.Kinematics.XRadius));

@@ -168,14 +168,6 @@ public static class CreditsPresentationDefinitions
         public const byte InstructionBank = 0x8c;
         /// <summary>High-word-bit mask distinguishing bank-$8B callback commands from duration/source-row records in the credits stream.</summary>
         public const ushort CommandBit = 0x8000;
-        /// <summary><c>Instruction_CreditsObject_TimerInY</c> at $8B:9A17.</summary>
-        public const ushort SetTimer = 0x9a17;
-        /// <summary><c>Instruction_CreditsObject_DecrementTimer_GotoYIfNonZero</c> at $8B:9A0D.</summary>
-        public const ushort DecrementTimerAndGoto = 0x9a0d;
-        /// <summary><c>CreditsObject_Func2</c> at $8B:F6FE, which ends the scrolling credits.</summary>
-        public const ushort EndCredits = 0xf6fe;
-        /// <summary><c>Instruction_CreditsObject_Delete</c> at $8B:99FE.</summary>
-        public const ushort Delete = 0x99fe;
         /// <summary>Host extraction bound of 4096 interpreted stream operations, including repeated loop commands; separate from the expected 520 output rows.</summary>
         public const int MaximumOperations = 4096;
     }
@@ -198,3 +190,16 @@ public readonly record struct CreditsLineDefinition(
     string Id,
     CreditsLineStyle Style,
     int BlankRowsBefore);
+
+/// <summary>The bank-$8B commands the retail credits row stream uses.</summary>
+public enum CreditsInstruction : ushort
+{
+    /// <summary><c>Instruction_CreditsObject_TimerInY</c> at $8B:9A17.</summary>
+    SetTimer = 0x9a17,
+    /// <summary><c>Instruction_CreditsObject_DecrementTimer_GotoYIfNonZero</c> at $8B:9A0D.</summary>
+    DecrementTimerAndGoto = 0x9a0d,
+    /// <summary><c>CreditsObject_Func2</c> at $8B:F6FE, which ends the scrolling credits.</summary>
+    EndCredits = 0xf6fe,
+    /// <summary><c>Instruction_CreditsObject_Delete</c> at $8B:99FE.</summary>
+    Delete = 0x99fe,
+}

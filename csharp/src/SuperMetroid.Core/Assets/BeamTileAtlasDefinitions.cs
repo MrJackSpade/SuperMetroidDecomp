@@ -2,6 +2,25 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
+/// <summary>The beam character sheets <c>BeamTilesPointers</c> at $90:C3B1 can select, valued by long address.</summary>
+public enum BeamTileSource
+{
+    /// <summary>$9A:F200, Tiles_PowerBeam; native power-beam character source.</summary>
+    Power = 0x9af200,
+    /// <summary>$9A:F400, Tiles_IceBeam; native ice-beam character source.</summary>
+    Ice = 0x9af400,
+    /// <summary>$9A:F600, Tiles_WaveBeam; native wave and ice/wave character source.</summary>
+    Wave = 0x9af600,
+    /// <summary>$9A:F800, Tiles_PlasmaBeam; shared native plasma-combination character source.</summary>
+    Plasma = 0x9af800,
+    /// <summary>$9A:FA00, Tiles_Spazer; shared native Spazer-combination character source.</summary>
+    Spazer = 0x9afa00,
+    /// <summary>The bounded Chainsaw sheet read from adjacent native data.</summary>
+    Chainsaw = Game.ChainsawBeamGraphicsDefinitions.TileSource,
+    /// <summary>The bounded SpaceTime sheet read from adjacent native data.</summary>
+    Spacetime = Game.SpacetimeBeamGraphicsDefinitions.TileSource,
+}
+
 /// <summary>Native $90:AC8D beam-character upload geometry, separate from projectile mechanics.</summary>
 public static class BeamTileAtlasDefinitions
 {
@@ -40,28 +59,26 @@ public static class BeamTileAtlasDefinitions
             SamusBeamCombination.PlasmaIceWave => selection.TableIndex,
         _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
     };
-    /// <summary>$9A:F200, Tiles_PowerBeam; native power-beam character source.</summary>
-    public const int PowerSource = 0x9af200;
-    /// <summary>$9A:F400, Tiles_IceBeam; native ice-beam character source.</summary>
-    public const int IceSource = 0x9af400;
-    /// <summary>$9A:F600, Tiles_WaveBeam; native wave and ice/wave character source.</summary>
-    public const int WaveSource = 0x9af600;
-    /// <summary>$9A:F800, Tiles_PlasmaBeam; shared native plasma-combination character source.</summary>
-    public const int PlasmaSource = 0x9af800;
-    /// <summary>$9A:FA00, Tiles_Spazer; shared native Spazer-combination character source.</summary>
-    public const int SpazerSource = 0x9afa00;
-
     /// <summary>$90:C3B1, BeamTilesPointers; resolves a legacy source to its base selection.
     /// Native shared sheets do not encode the independently editable combination identity.</summary>
     /// <returns>The base selection, or null when the address is not a beam tile source.</returns>
-    public static SamusBeamCombination? LegacySelectionFor(int sourceAddress) => sourceAddress switch
+    public static SamusBeamCombination? LegacySelectionFor(int sourceAddress)
     {
-        Game.ChainsawBeamGraphicsDefinitions.TileSource => Game.ChainsawBeamGraphicsDefinitions.Selection,
-        Game.SpacetimeBeamGraphicsDefinitions.TileSource => Game.SpacetimeBeamGraphicsDefinitions.Selection,
-        PowerSource => SamusBeamCombination.Power, WaveSource => SamusBeamCombination.Wave,
-        IceSource => SamusBeamCombination.Ice, SpazerSource => SamusBeamCombination.Spazer,
-        PlasmaSource => SamusBeamCombination.Plasma, _ => null,
-    };
+        var source = (BeamTileSource)sourceAddress;
+        if (!Enum.IsDefined(source))
+            return null;
+        return source switch
+        {
+            BeamTileSource.Chainsaw => Game.ChainsawBeamGraphicsDefinitions.Selection,
+            BeamTileSource.Spacetime => Game.SpacetimeBeamGraphicsDefinitions.Selection,
+            BeamTileSource.Power => SamusBeamCombination.Power,
+            BeamTileSource.Wave => SamusBeamCombination.Wave,
+            BeamTileSource.Ice => SamusBeamCombination.Ice,
+            BeamTileSource.Spazer => SamusBeamCombination.Spazer,
+            BeamTileSource.Plasma => SamusBeamCombination.Plasma,
+            _ => throw new InvalidOperationException($"Undefined BeamTileSource {source}."),
+        };
+    }
 
     /// <summary>Creates a selection-keyed PNG filename, retaining separately editable combination identities even where native combinations share the same source sheet.</summary>
     /// <param name="selection">Native beam identity $00..$0B, Chainsaw $0D, or SpaceTime $0E; not an artwork-catalog ordinal.</param>

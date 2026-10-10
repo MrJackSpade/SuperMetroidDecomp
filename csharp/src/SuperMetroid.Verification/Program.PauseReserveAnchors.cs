@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
@@ -38,7 +39,7 @@ internal static partial class Program
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + 0x1b * 2);
                 var native = new OamBuffer(); var actual = new OamBuffer(); native.BeginFrame(); actual.BeginFrame();
                 DrawImportedSpritemap(rom, native, pointer, (ushort)anchors[index].X, (ushort)anchors[index].Y, 0x600);
-                edited.Draw(actual, 0x1b, index);
+                edited.Draw(actual, PauseReserveTankVisual.Full, index);
                 native.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
                     "edited reserve coordinates reach actual sprite output");

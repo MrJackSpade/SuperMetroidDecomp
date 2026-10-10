@@ -14,7 +14,7 @@ internal sealed partial class PauseMenuState
         int tank = 0;
         int full = samus.ReserveEnergy / PauseReserveTankRomData.EnergyPerTank;
         int remainder = samus.ReserveEnergy % PauseReserveTankRomData.EnergyPerTank;
-        for (; tank < full; tank++) Draw(PauseReserveTankRomData.FullMap, tank);
+        for (; tank < full; tank++) Draw(PauseReserveTankVisual.Full, tank);
         if (remainder != 0)
         {
             int quotient = remainder / PauseReserveTankRomData.EnergyPerFillStep;
@@ -28,10 +28,10 @@ internal sealed partial class PauseMenuState
             Draw(PauseReserveTankDefinitions.PartialMap(tableOffset / sizeof(ushort)), tank++);
         }
         for (; tank < samus.MaxReserveEnergy / PauseReserveTankRomData.EnergyPerTank; tank++)
-            Draw(PauseReserveTankRomData.EmptyMap, tank);
-        Draw(PauseReserveTankRomData.EndCapMap, tank);
+            Draw(PauseReserveTankVisual.Empty, tank);
+        Draw(PauseReserveTankVisual.EndCap, tank);
 
-        void Draw(ushort map, int index)
+        void Draw(PauseReserveTankVisual map, int index)
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))

@@ -3,15 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$A6 code pointers consumed by translated Ceres enemy dispatchers.</summary>
 internal static class CeresEnemyCodePointers
 {
-    /// <summary><c>Function_CeresDoor_HandleEarthquakeDuringEscape</c> at $A6:F76B.</summary>
-    public const ushort Function_CeresDoor_HandleEarthquakeDuringEscape = 0xf76b;
-
-    /// <summary><c>Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom</c> at $A6:F770.</summary>
-    public const ushort Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom = 0xf770;
-
-    /// <summary><c>Function_CeresDoor_RidleyEscapeMode7Wall</c> at $A6:F7A5.</summary>
-    public const ushort Function_CeresDoor_RidleyEscapeMode7Wall = 0xf7a5;
-
     /// <summary><c>UpdateBabyMetroidPosition_CarriedInArms</c> at $A6:BE9C.</summary>
     public const ushort UpdateBabyMetroidPosition_CarriedInArms = 0xbe9c;
 

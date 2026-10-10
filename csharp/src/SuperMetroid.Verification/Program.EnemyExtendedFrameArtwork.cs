@@ -309,7 +309,7 @@ internal static partial class Program
         // new identities from the hash-checked current stock catalog.
         var legacyDocument = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.FirstVersion,
+            Version = (int)EnemyExtendedFrameSchema.First,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.WalkingFrameCount),
         };
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument,
@@ -367,7 +367,7 @@ internal static partial class Program
         // current stock without dropping either family's prior edit.
         var versionTwoDocument = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreviousVersion,
+            Version = (int)EnemyExtendedFrameSchema.Previous,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.WalkingFrameCount + EnemyExtendedFrameDefinitions.WallFrameCount),
         };
         byte[] versionTwoJson = JsonSerializer.SerializeToUtf8Bytes(versionTwoDocument,
@@ -430,7 +430,7 @@ internal static partial class Program
 
         var preBindings = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreDisplayBindings,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PirateFrameCount),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -446,7 +446,7 @@ internal static partial class Program
         // filling its new Ridley identities from verified stock.
         var versionFour = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PirateDisplayBindingsVersion,
+            Version = (int)EnemyExtendedFrameSchema.PirateDisplayBindings,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PirateFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PirateFrameCount),
         };
@@ -473,7 +473,7 @@ internal static partial class Program
         // filling the new boss's OAM-only frames from hash-checked stock.
         var versionFive = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreDraygonVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreDraygon,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreDraygonFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreDraygonFrameCount),
         };
@@ -511,7 +511,7 @@ internal static partial class Program
         versionSixBindings["draygon_oam_EE65"] = legacySporeName;
         var versionSix = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreSporeIdentityVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreSporeIdentity,
             Frames = versionSixFrames,
             DisplayFrames = versionSixBindings,
         };
@@ -537,7 +537,7 @@ internal static partial class Program
 
         var versionSeven = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreCeresSteamVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreCeresSteam,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount),
         };
@@ -556,7 +556,7 @@ internal static partial class Program
 
         var versionEight = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreOumVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreOum,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreOumFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreOumFrameCount),
         };
@@ -575,7 +575,7 @@ internal static partial class Program
 
         var versionNine = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreCrocomireVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreCrocomire,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCrocomireFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCrocomireFrameCount),
         };
@@ -594,7 +594,7 @@ internal static partial class Program
 
         var versionTen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreCrocomireBodyVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreCrocomireBody,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount),
         };
@@ -609,7 +609,7 @@ internal static partial class Program
 
         var versionEleven = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreBombTorizoVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreBombTorizo,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount),
         };
@@ -635,7 +635,7 @@ internal static partial class Program
 
         var versionTwelve = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizo,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount),
         };
@@ -661,7 +661,7 @@ internal static partial class Program
 
         var versionThirteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreKraidArmVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreKraidArm,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreKraidArmFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreKraidArmFrameCount),
         };
@@ -685,7 +685,7 @@ internal static partial class Program
 
         var versionFourteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoAwakening,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount),
         };
@@ -712,7 +712,7 @@ internal static partial class Program
 
         var versionFifteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoWalking,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount),
         };
@@ -739,7 +739,7 @@ internal static partial class Program
 
         var versionSixteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightward,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount),
         };
@@ -766,7 +766,7 @@ internal static partial class Program
 
         var versionSeventeen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreTorizoJumpBackVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreTorizoJumpBack,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount),
         };
@@ -793,7 +793,7 @@ internal static partial class Program
 
         var versionEighteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightOrb,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount),
         };
@@ -820,7 +820,7 @@ internal static partial class Program
 
         var versionNineteen = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightSonic,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount),
         };
@@ -847,7 +847,7 @@ internal static partial class Program
 
         var versionTwenty = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreTorizoFallingLeftVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreTorizoFallingLeft,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount),
             DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount),
         };
@@ -898,7 +898,7 @@ internal static partial class Program
 
         var versionTwentyOne = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoLeftFootOrb,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount),
             DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount),
         };
@@ -923,7 +923,7 @@ internal static partial class Program
 
         var versionTwentyTwo = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreTorizoJumpBackLeft,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount),
             DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount),
         };
@@ -948,7 +948,7 @@ internal static partial class Program
 
         var versionTwentyThree = new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoLeftOrb,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount),
             DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount),
         };

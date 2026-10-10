@@ -23,7 +23,8 @@ internal static partial class Program
             bool authored = address < 0x9bc43e && alignment == 0;
             if (authored)
             {
-                AssertEqual((Word(address), Word(address + 2)), GrappleConnectionDefinitions.ResolveConnection(address),
+                var connection = GrappleConnectionDefinitions.ResolveConnection(address);
+                AssertEqual((Word(address), Word(address + 2)), ((ushort)connection.Function, (ushort)connection.Handler),
                     "Both native connection words");
                 compiled++;
             }
@@ -104,7 +105,7 @@ internal static partial class Program
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
             return new GrappleConnectionDefinitions.SpecialConnection(Word(address), (SamusPoseId)Word(address + 2),
-                unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6)), Word(address + 8));
+                unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6)), (GrappleConnectionFunction)Word(address + 8));
         }).ToArray();
         AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)
@@ -139,7 +140,7 @@ internal static partial class Program
             AssertEqual(x, samus.XPosition, "Special wrapped body X");
             AssertEqual(y, samus.YPosition, "Special wrapped body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
-            AssertEqual(row.Function == 0xc77e ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
+            AssertEqual(row.Function == GrappleConnectionFunction.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer, "Special resets wall-jump timer");
             AssertEqual(Clamp(x, 0), result.CameraPreviousX!.Value, "Special previous-camera X clamp");
             AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPreviousY!.Value, "Special previous-camera Y clamp");

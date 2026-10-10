@@ -9,6 +9,7 @@ internal static partial class Program
     // knockback pose $54's type-$0A mover ($90:A5FC) and Samus falls. The port kept routing
     // the unlocked frame through the drained branch: in the 100% movie Samus stayed at Y $7D
     // for a frame while native fell to $7E.
+    /// <summary>Verifies that Mother Brain's rainbow lock suppresses knockback movement and that the first unlocked update restores the mover so Samus begins falling immediately.</summary>
     private static void VerifyRainbowReleaseKnockback()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

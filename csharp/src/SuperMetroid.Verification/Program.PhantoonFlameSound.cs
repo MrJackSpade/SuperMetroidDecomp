@@ -3,6 +3,10 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that each casual-flame spawn queues its library-three sound with Max6,
+    /// without replacing Phantoon's independent materialization sound request.
+    /// </summary>
     private static void VerifyPhantoonFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

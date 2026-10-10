@@ -7,6 +7,7 @@ internal static partial class Program
     // #1269: Respawn_Enemy ($86:F264) leaves the spritemap word cleared, and $A0:A08C
     // skips Samus contact while it is zero. In the 100% movie a Hellway Zebbo respawning
     // beside Samus therefore hurts her one frame after it reappears, not on that frame.
+    /// <summary>Verifies that a respawned Hellway enemy remains excluded from contact and grapple interaction until the next processing pass installs its spritemap.</summary>
     private static void VerifyRespawnedEnemyContact()
     {
         const ushort respawningEnemy = 0xf1d3;

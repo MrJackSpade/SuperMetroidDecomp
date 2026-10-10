@@ -2,6 +2,10 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that queued PCM submissions own copies of borrowed sample buffers, retain FIFO order, and drain
+    /// after a blocked device writer is released, while callback failures are surfaced to the disposing caller.
+    /// </summary>
     private static void VerifyQueuedPcmSink()
     {
         using var entered = new ManualResetEventSlim();

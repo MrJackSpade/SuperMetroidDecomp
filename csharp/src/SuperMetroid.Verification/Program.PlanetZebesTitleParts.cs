@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the calculated Planet Zebes glyph layout against native extraction, preserves edited compositions, and matches OAM output at visible and wrapped positions.</summary>
+    /// <param name="rom">Cartridge address space used to extract, load, and draw the native title spritemap.</param>
     private static void VerifyPlanetZebesTitleParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("PlanetZebesTitle", value.AppendIdentity);

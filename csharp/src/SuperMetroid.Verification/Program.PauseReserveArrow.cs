@@ -9,6 +9,14 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the reserve-transfer arrow's AUTO animation and its visibility during MANUAL
+    /// selection, refill, completion, and exit from the tanks menu.
+    /// </summary>
+    /// <remarks>
+    /// Compares rendered frames with the native tile and palette updates, including visible
+    /// arrow-pixel changes during the AUTO cycle.
+    /// </remarks>
     private static void VerifyPauseReserveArrow()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

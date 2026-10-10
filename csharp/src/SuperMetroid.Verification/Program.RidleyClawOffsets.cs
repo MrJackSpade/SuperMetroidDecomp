@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ridley's claw-offset reads against native table words, including index clamping, then verifies that carrying and claw-overlap consumers apply the offsets, signed decay, and word wrapping consistently.</summary>
+    /// <param name="rom">SNES address space containing Ridley's native claw X- and Y-offset tables.</param>
     private static void VerifyRidleyClawOffsets(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));

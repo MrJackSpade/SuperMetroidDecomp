@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks energy and missile station admission from both sides, including full-resource rejection, mid-access completion, and depleted-resource recharge.</summary>
     private static void VerifyRechargeStationAdmission()
     {
         foreach (bool missile in new[] { false, true })

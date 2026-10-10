@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks NTSC Phantoon movement and timing boundaries, then verifies live BG2 scroll handoff and rendered anchoring to the moving body.</summary>
     private static void VerifyPhantoonPosition()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

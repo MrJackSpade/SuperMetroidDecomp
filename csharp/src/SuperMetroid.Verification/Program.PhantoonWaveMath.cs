@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares Phantoon's sine-table reads and, unless restricted to definitions, its fixed-width displacement arithmetic and generated mirrored wave cycles with the native cartridge math.</summary>
+    /// <param name="rom">SNES address space containing the native signed sine samples used as the wave-table reference.</param>
+    /// <param name="definitionsOnly">When true, verifies sine-table byte-phase reads and skips displacement and cycle construction checks.</param>
     private static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var samples = new short[512];

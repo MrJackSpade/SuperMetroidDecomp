@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies pause palette beeps follow the retail loop cadence, reach the SPC command port, and produce PCM audio.</summary>
     static void VerifyPausePaletteSound()
     {
         string rom = Path.GetFullPath("Super Metroid.smc");

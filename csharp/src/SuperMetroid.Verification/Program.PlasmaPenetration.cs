@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies charged and uncharged Plasma beam combinations can hit enemies repeatedly while retaining their type, damage, direction, and animation state.</summary>
     private static void VerifyPlasmaEnemyPenetration()
     {
         var bus = new TestAddressSpace();

@@ -10,6 +10,8 @@ internal static partial class Program
 {
     // Translate this test's deliberately constructed cartridge visuals into the
     // installed contract. Never mutate the shared retail catalog or its arrays.
+    /// <summary>Builds an isolated pause-presentation catalog using native ROM visuals and constructed selector, sprite, and reserve-tank documents for integration fixtures.</summary>
+    /// <param name="bus">Retail cartridge address space supplying the fixed-bank pause colors, backdrops, buttons, and tile assets.</param>
     private static AreaMapPresentationCatalog CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {

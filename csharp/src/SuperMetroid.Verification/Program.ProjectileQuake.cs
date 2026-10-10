@@ -5,6 +5,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native projectile OAM displacement, culling, and draw-priority output across quake
+    /// types, timer phases, freeze states, and screen edges without mutating projectile state.
+    /// </summary>
     private static void VerifyProjectileQuake()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

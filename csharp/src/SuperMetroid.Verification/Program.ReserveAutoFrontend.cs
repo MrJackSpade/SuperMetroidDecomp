@@ -11,6 +11,7 @@ using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
+    /// <summary>Checks zero-health routing through automatic reserve refill, its frozen HUD and warning presentation, completion timing, warning persistence, and gunship-entry handling.</summary>
     private static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

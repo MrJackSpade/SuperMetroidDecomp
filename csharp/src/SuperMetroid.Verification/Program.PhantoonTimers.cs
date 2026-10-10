@@ -4,6 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares Phantoon's compiled timer tables with the retail ROM and checks native timer selection for
+    /// every 16-bit random value and NMI counter byte, including the expected random-call counts.
+    /// The exercised combat paths run without an installed address space, confirming they use compiled data.
+    /// </summary>
+    /// <param name="rom">Retail ROM address space providing the native timer words used for comparison.</param>
     private static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

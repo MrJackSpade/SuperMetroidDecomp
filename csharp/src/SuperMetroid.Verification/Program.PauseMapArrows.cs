@@ -11,6 +11,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks pause-map arrow OAM and pixels against cartridge data across scroll edges, including palette timing, repaint, restore, and page-fade visibility.</summary>
     private static void VerifyPauseMapArrows()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

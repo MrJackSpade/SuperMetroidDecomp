@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares all native Puyo hop records and initial airborne-curve integrations with the
+    /// compiled definitions, while checking invalid selectors and the separate drop path.
+    /// </summary>
+    /// <param name="rom">Retail address space containing hop records and gravity-table values.</param>
     private static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

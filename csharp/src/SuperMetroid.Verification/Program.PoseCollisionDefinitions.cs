@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks prospective and refreshed Samus collision radii for every pose while ensuring runtime radius reads do not access the cartridge.</summary>
+    /// <param name="rom">Cartridge address space supplying the native pose-definition radius bytes for comparison.</param>
     private static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = new SlopeHeightNoReadBus();

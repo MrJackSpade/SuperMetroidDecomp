@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>Checks reserve-tank strip rendering against native sprites across capacities, fill levels, and flicker phases, including saved-state restoration.</summary>
     private static void VerifyPauseReserveTanks()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -88,6 +88,9 @@ internal static partial class Program
             "  Power Bomb runtime: shared desktop rendering includes the active bank-$88 window.");
     }
 
+    /// <summary>Counts pixel positions whose colors differ between two Power Bomb verification frames.</summary>
+    /// <param name="first">Baseline or expected frame to compare.</param>
+    /// <param name="second">Frame compared against <paramref name="first"/>.</param>
     private static int CountPowerBombFrameDifferences(
         ReadOnlySpan<Rgba32> first,
         ReadOnlySpan<Rgba32> second)

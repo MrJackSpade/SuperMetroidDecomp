@@ -8,6 +8,11 @@ internal static partial class Program
 {
     // Isolates the real target/PLM interaction with deliberately controlled camera
     // coordinates. This is NOT a successful controller-only Red Tower climb.
+    /// <summary>
+    /// Compares the retail Red Tower shootable-block interaction with a stationary camera
+    /// and a camera following the shot, checking impact, expiry, and target state.
+    /// </summary>
+    /// <remarks>This controlled camera probe is not a controller-only Red Tower climb.</remarks>
     private static void VerifyControlledRedTowerHeroShot()
     {
         SamusProjectileSpawnSnapshot? stationaryLaunch = null;

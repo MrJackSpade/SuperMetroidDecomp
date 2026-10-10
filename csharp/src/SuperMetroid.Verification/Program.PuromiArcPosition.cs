@@ -8,6 +8,7 @@ internal static partial class Program
     // the arc with EightBitNegativeSineMultiplication ($A0:B0C6). Using the positive sine
     // mirrored every Y offset about the origin: in the 100% movie the Pillar room's body
     // projectiles spawned at Y $B8 instead of native's $E8.
+    /// <summary>Checks that loading the Lower Norfair Pillar room spawns all eight Puromi body projectiles at the native vertical coordinate after applying the negative-sine arc offset.</summary>
     private static void VerifyPuromiArcPosition()
     {
         const ushort nativeBodyY = 0x00e8;

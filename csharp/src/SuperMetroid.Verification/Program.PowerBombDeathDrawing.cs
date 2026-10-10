@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     // #1168: reproduce the runtime's queue -> power-bomb damage -> draw ordering.
+    /// <summary>Verifies power-bomb death drawing for Atomic and Sidehopper actors, including respawn placeholders, surviving sprites, and failures for missing live artwork.</summary>
     private static void VerifyPowerBombDeathDrawing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

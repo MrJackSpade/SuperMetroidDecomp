@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Compares all four compiled casual-flame schedules with ROM and verifies every RNG selection and frame-exact mouth transition.</summary>
+    /// <param name="rom">Retail address space containing Phantoon's native casual-flame schedules.</param>
     private static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

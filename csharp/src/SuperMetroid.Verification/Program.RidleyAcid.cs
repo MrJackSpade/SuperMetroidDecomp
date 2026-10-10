@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the Norfair Ridley room's native acid reveal and death drain through shared
+    /// room FX, including on-screen visibility and exclusion of Ceres-only overlays.
+    /// </summary>
     private static void VerifyRidleyAcid()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

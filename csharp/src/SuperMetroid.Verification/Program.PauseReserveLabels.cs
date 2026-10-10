@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Compares rendered pause reserve labels with cartridge-native tilemap expectations across all combinations of reserve capacity and label mode.</summary>
     private static void VerifyPauseReserveLabels()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

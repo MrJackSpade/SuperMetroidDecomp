@@ -4,6 +4,12 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares compiled Samus pose-input graphs with native transition lists across the complete held-button
+    /// and newly-pressed input space, including zero-input, first-match, self-match, and invalid-pose behavior.
+    /// It also verifies that production lookup runs without ROM reads or per-call allocations.
+    /// </summary>
+    /// <param name="rom">Retail ROM address space supplying native pose-list pointers and transition conditions.</param>
     private static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);

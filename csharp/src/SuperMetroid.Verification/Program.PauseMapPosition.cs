@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Checks pause-map current-position marker placement, native animation timing, and rendered pixels at two room locations.</summary>
     private static void VerifyPauseMapPosition()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

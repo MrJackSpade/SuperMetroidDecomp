@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the recorded neutral left-spin sequence retains native carry-set momentum and moves Samus eleven pixels over eight frames.</summary>
     private static void VerifyReportedShaftMomentum()
     {
         // #1158, recording inputs 5842..5849: neutral controller, left spin pose,

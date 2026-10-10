@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Creates a message-box state with constructed title, panel, and notice presentations, using controlled borders and test text for deterministic fixture rendering.</summary>
     private static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;

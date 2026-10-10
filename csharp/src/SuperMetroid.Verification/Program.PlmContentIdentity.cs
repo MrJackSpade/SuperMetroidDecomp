@@ -73,6 +73,10 @@ internal static partial class Program
             "dynamic item pixels/palettes, draw-run framing and host compatibility pass without a ROM.");
     }
 
+    /// <summary>Builds content identities for the selected room-PLM artwork catalogs, with an optional single-domain edit and entry-order reversal.</summary>
+    /// <param name="edited">Installation directory to edit, or <c>dynamic-palettes</c> to change dynamic palette selectors; <see langword="null"/> leaves selected content unchanged.</param>
+    /// <param name="reverse">Whether to reverse catalog entry order while constructing the fixture.</param>
+    /// <returns>Content hashes keyed by the installation directory for each selected presentation domain.</returns>
     private static IReadOnlyDictionary<string, string> CreatePlmIdentityFixture(
         string? edited = null, bool reverse = false)
     {

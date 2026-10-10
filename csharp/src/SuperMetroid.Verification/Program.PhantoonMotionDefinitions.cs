@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native Phantoon motion words and forward and reverse figure-eight speed and phase updates across the 16-bit speed domain.</summary>
     private static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
         ushort[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,

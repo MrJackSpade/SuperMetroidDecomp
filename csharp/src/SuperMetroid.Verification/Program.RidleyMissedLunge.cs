@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies Ridley's missed-lunge retreat and pass thresholds, including room-boundary handoff,
+    /// the zero-health miss limit, and interruption and recovery around a power-bomb dodge.
+    /// </summary>
     private static void VerifyRidleyMissedLunge()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

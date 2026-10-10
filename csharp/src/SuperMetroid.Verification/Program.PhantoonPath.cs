@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that the compiled figure-eight path and Phantoon's movement reproduce the retail
+    /// signed steps, including cursor wrapping and preservation of fractional coordinates.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the original Phantoon movement bytes used as the reference.</param>
     private static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 534; index++)

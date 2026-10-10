@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies installed post-credits rewards and logo artwork preserve native phases, VRAM, palettes, and pixels without rereading source art.</summary>
     private static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();

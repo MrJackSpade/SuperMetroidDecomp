@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that the compiled cooldown, initial Y-index, and signed X-velocity selectors match
+    /// the native Polyp tables for every possible 16-bit RNG value.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the native launch and cooldown tables used for comparison.</param>
     private static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native reserve-tile geometry, sparse authored-pixel capture, and planar VRAM reconstruction, including bounds validation and rejection of invalid transfers before writes.</summary>
+    /// <param name="rom">SNES address space containing the native map sprite atlas used to verify reserve pixels and upload bytes.</param>
     private static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

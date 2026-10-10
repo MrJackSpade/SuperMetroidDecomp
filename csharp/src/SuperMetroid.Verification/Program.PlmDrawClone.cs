@@ -2,6 +2,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies both PLM draw entry points restore their stored terrain word, publish a tilemap
+    /// update, yield for one frame, and then resume at the following delete instruction.
+    /// </summary>
     private static void VerifyPlmDrawClone()
     {
         foreach (ushort instruction in new[] { RoomPlmInstructionCodes.DrawPlmBlock,

@@ -5,6 +5,7 @@ internal static partial class Program
     // #1269: `$A0:A306` keeps its horizontal radius in `$12`, which EnemyDeath overwrites
     // with the dying actor's respawn bit. The 100% movie's Ki-Hunter therefore survives
     // the frame on which a higher slot dies, and takes the hit one frame later.
+    /// <summary>Verifies that higher-slot death and respawn state affect the horizontal power-bomb radius seen by lower slots in the same update.</summary>
     private static void VerifyPowerBombDeathRadius()
     {
         const ushort explosionX = 128;

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the native death-acceleration arguments and both death-phase callers across position and velocity cases without integrating movement.</summary>
+    /// <param name="rom">Retail address space containing Ridley's native death-movement instructions.</param>
     private static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
     {
         // $A6:C60E LDY #0, $C611 LDA #16: index and extra deceleration are

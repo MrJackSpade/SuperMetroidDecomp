@@ -12,6 +12,10 @@ internal static partial class Program
 {
     // Stage only the neighboring doorway. The destination is loaded exclusively by
     // the normal door coroutine, including population, FX, graphics and PLM ownership.
+    /// <summary>
+    /// Verifies the retail doorway transition initializes the Pillar Room and that both
+    /// Puromi actors visibly move in the composited gameplay scene after entry.
+    /// </summary>
     private static void VerifyPillarFirstEntry()
     {
         const ushort source = 0xb3a5, destination = 0xb457;

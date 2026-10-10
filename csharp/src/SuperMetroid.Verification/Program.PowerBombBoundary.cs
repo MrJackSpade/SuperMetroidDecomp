@@ -3,6 +3,13 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the Power Bomb boundary walk's inclusive visits, corner revisits, clipping,
+    /// and zero-radius behavior for both supported caller words.
+    /// </summary>
+    /// <remarks>
+    /// Uses an inert room to measure traversal visits; it does not validate projectile damage classification.
+    /// </remarks>
     private static void VerifyPowerBombBoundary()
     {
         var level = new RoomLevelData(5, 5, new ushort[25], new byte[25], new ushort[25], new byte[8]);

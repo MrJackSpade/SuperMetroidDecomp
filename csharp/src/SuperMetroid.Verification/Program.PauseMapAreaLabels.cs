@@ -11,6 +11,10 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies pause-map destination labels across five non-Tourian areas against native ROM
+    /// OAM and artwork, including map gating, fade visibility, and serialized restoration.
+    /// </summary>
     private static void VerifyPauseMapAreaLabels()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

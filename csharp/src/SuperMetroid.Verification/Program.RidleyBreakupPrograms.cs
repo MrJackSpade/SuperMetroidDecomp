@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Ridley death releases a grab, spawns and advances all breakup fragments, and matches native program mechanics and rendered OAM.</summary>
     private static void VerifyRidleyBreakupPrograms()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

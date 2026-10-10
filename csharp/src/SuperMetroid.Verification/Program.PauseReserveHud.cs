@@ -7,6 +7,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies paused reserve-tank mode switching and refills, including AUTO-cell updates and
+    /// the NMI-delayed presentation of queued health HUD transfers.
+    /// </summary>
     private static void VerifyPauseReserveHud()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

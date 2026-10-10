@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies projectile OAM encoding across every 16-bit X/attribute word, wrapped origins, and parity with packed spritemap drawing.</summary>
     private static void VerifyProjectileVisualParts()
     {
         var parts = new OamBuffer();

@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies pause-resume reconciliation across Speed Booster equipment, running momentum, and countdown states.
+    /// The checks ensure numeric movement speed survives while booster timers, palette state, and speed echoes
+    /// are preserved, armed, or cleared according to the equipped suit and momentum state.
+    /// </summary>
     private static void VerifyPauseMomentumReconciliation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

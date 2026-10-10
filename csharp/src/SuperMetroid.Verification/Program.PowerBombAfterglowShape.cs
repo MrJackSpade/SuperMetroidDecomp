@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that the final native Power Bomb oval remains the color-math window throughout afterglow and that pixels outside its row-specific bounds stay unaffected.</summary>
     private static void VerifyPowerBombAfterglowShape()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

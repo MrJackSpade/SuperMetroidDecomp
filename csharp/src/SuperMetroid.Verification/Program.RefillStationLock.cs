@@ -7,6 +7,10 @@ internal static partial class Program
     // #1269: command six ($90:F1AA) installs the bare RTL beta $90:E8D6, which neither moves
     // nor animates Samus. Underwater, the 100% movie's Maridia map station therefore spawns
     // no air bubble (and draws no RNG) while the following pause fade runs gameplay.
+    /// <summary>
+    /// Verifies that the refill-station handler pair locks input without advancing Samus's animation
+    /// and that restoring the normal handlers releases that lock.
+    /// </summary>
     private static void VerifyRefillStationLock()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

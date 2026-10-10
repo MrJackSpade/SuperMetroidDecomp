@@ -68,21 +68,34 @@ public static class ProjectileTrailDefinitions
                 _ => Empty,
             };
         var type = new SamusProjectileTypeWord((ushort)selection);
-        var beams = (SamusBeamFlags)type.BeamCombinationIndex;
-        if (beams == SamusBeamFlags.Wave)
-            return !right || type.IsChargedBeam ? Wave : Empty;
-        if (!right)
-        {
-            if (beams == 0 && type.IsChargedBeam) return LeftIce;
-            bool ice = (beams & SamusBeamFlags.Ice) != 0;
-            bool incompatible = (beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) ==
-                (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
-            return ice && !incompatible ? LeftIce : Empty;
-        }
-        bool spazerIce = (beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Ice)) ==
-            (SamusBeamFlags.Spazer | SamusBeamFlags.Ice) && (beams & SamusBeamFlags.Plasma) == 0;
-        bool waveIcePlasma = beams == (SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma);
-        bool chargedWaveIce = type.IsChargedBeam && beams == (SamusBeamFlags.Wave | SamusBeamFlags.Ice);
-        return spazerIce || waveIcePlasma || chargedWaveIce ? RightIce : Empty;
+        bool charged = type.IsChargedBeam;
+        // Ice draws its sparkle unless Spazer and Plasma are both present.
+        return right
+            ? type.BeamCombination switch
+            {
+                SamusBeamCombination.Wave => charged ? Wave : Empty,
+                SamusBeamCombination.IceWave => charged ? RightIce : Empty,
+                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
+                    SamusBeamCombination.PlasmaIceWave => RightIce,
+                SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
+                    SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
+                    SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
+                    SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+                    SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => Empty,
+                _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
+            }
+            : type.BeamCombination switch
+            {
+                SamusBeamCombination.Wave => Wave,
+                SamusBeamCombination.Power => charged ? LeftIce : Empty,
+                SamusBeamCombination.Ice or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerIce or
+                    SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaIce or
+                    SamusBeamCombination.PlasmaIceWave => LeftIce,
+                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
+                    SamusBeamCombination.PlasmaWave or SamusBeamCombination.SpazerPlasma or
+                    SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
+                    SamusBeamCombination.SpazerPlasmaIceWave => Empty,
+                _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
+            };
     }
 }

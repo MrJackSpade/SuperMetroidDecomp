@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
@@ -36,8 +37,8 @@ internal static partial class Program
                     Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)))));
             var compiledBeams = ProjectilePresentationFiles.Load(stock, null).BeamTiles;
             for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-                AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(selection)).Span.SequenceEqual(
-                    expectedBeams.Resolve(BeamTileCatalog.AssetFor(selection)).Span),
+                AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span.SequenceEqual(
+                    expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span),
                     "file-context beam assembly retains every transfer byte and selection");
             var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(index =>
             {

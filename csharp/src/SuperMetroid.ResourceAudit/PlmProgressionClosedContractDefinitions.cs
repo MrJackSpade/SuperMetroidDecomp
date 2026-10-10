@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class PlmProgressionClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "EE5DD1AAFD6BCCA4627D2D11582BCB88782327B9B764DAA7081B5DAD3822D132");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "9985A5C60C510351018F1DDBE431A8E39C599D61233AB8F678B7946BC1290782");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs", "D036DCF1F294E96033A51FD7E85041855BB00ABCD1E1B5D11A2F62ED4B513C66");
 

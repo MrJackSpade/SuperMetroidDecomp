@@ -97,7 +97,8 @@ public sealed class DachoraColorCatalog
         {
             DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out Bgr555 speed) ? speed : SpeedColor(frame, color),
             DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out Bgr555 shine) ? shine : ShineColor(frame, color),
-            _ => normal[color],
+            DachoraPalettePhase.Default => normal[color],
+            _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined Dachora palette phase."),
         };
     }
 

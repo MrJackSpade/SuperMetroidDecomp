@@ -56,7 +56,8 @@ internal static class RoomPlmStationDrawDefinitions
             LayoutKind.Save => 6,
             LayoutKind.MapAccess => Extended ? 1 : 2,
             LayoutKind.ResourceAccess => 1,
-            _ => 2,
+            LayoutKind.Map or LayoutKind.Energy or LayoutKind.Missile => 2,
+            _ => throw new InvalidOperationException($"Undefined LayoutKind {Kind}."),
         };
         private void CheckRun(int run)
         {
@@ -97,9 +98,11 @@ internal static class RoomPlmStationDrawDefinitions
                 case LayoutKind.MapAccess:
                     tile = Extended ? 0x129 : 0x128; collision = 8;
                     flip = (Left ^ (run != 0)) ? 0x400 : 0; break;
-                default:
+                case LayoutKind.ResourceAccess:
                     tile = Extended ? 0xc1 : 0xc3; collision = Extended ? 8 : 11;
                     flip = Left ? 0 : 0x400; break;
+                default:
+                    throw new InvalidOperationException($"Undefined LayoutKind {Kind}.");
             }
             return (ushort)(collision << 12 | flip | tile);
         }

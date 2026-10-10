@@ -7,39 +7,38 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SamusBeamCallbackDefinitions
 {
-    /// <summary>Number of addressable low-nibble combinations in each native table.</summary>
-    public const int CombinationCount = 16;
-
     /// <summary>Resolves the complete native low-nibble domain for one beam producer.</summary>
-    public static SamusBeamCallbackDefinition Resolve(bool charged, int combination)
+    public static SamusBeamCallbackDefinition Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
-        if ((uint)combination >= CombinationCount)
-            throw new ArgumentOutOfRangeException(nameof(combination));
-        if (combination >= 12)
-            return (charged, combination) switch
-            {
-                (false, 12) => Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationTwelveAdjacentWord),
-                (false, 13) => Translated(SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb,
-                    SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb),
-                (false, 14) => Translated(SamusBeamPreInstructionCodes.SpacetimePaletteCopyTail,
-                    SamusProjectilePreInstruction.SpacetimePaletteCopyTail),
-                (false, 15) => Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationFifteenAdjacentWord),
-                (true, 12) => Untranslated(SamusBeamPreInstructionCodes.ChargedCombinationTwelveAdjacentWord),
-                (true, 13 or 14) => Translated(SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution,
-                    SamusProjectilePreInstruction.ChargedChainsawLowWramExecution),
-                _ => Translated(SamusBeamPreInstructionCodes.MurderBeamMisalignedExecution,
-                    SamusProjectilePreInstruction.MurderBeamMisalignedExecution),
-            };
-
-        SamusBeamFlags beam = (SamusBeamFlags)combination;
-        if ((beam & SamusBeamFlags.Wave) == 0)
-            return Translated(SamusBeamPreInstructionCodes.NoWave, SamusProjectilePreInstruction.NoWaveBeam);
-        if (!charged && (beam & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) == 0)
-            return Translated(SamusBeamPreInstructionCodes.WaveThreeFrameTrail,
-                SamusProjectilePreInstruction.WaveBeamThreeFrameTrail);
-        return Translated(SamusBeamPreInstructionCodes.WaveFourFrameTrail,
-            SamusProjectilePreInstruction.WaveBeamFourFrameTrail);
-    }
+        SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
+            SamusBeamCombination.SpazerIce or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaIce =>
+            Translated(SamusBeamPreInstructionCodes.NoWave, SamusProjectilePreInstruction.NoWaveBeam),
+        SamusBeamCombination.Wave or SamusBeamCombination.IceWave => charged
+            ? Translated(SamusBeamPreInstructionCodes.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
+            : Translated(SamusBeamPreInstructionCodes.WaveThreeFrameTrail, SamusProjectilePreInstruction.WaveBeamThreeFrameTrail),
+        SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
+            SamusBeamCombination.PlasmaIceWave =>
+            Translated(SamusBeamPreInstructionCodes.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail),
+        // The four glitched combinations read past the twelve authored callbacks.
+        SamusBeamCombination.SpazerPlasma => charged
+            ? Untranslated(SamusBeamPreInstructionCodes.ChargedCombinationTwelveAdjacentWord)
+            : Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationTwelveAdjacentWord),
+        SamusBeamCombination.SpazerPlasmaWave => charged
+            ? Translated(SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution,
+                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+            : Translated(SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb,
+                SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb),
+        SamusBeamCombination.SpazerPlasmaIce => charged
+            ? Translated(SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution,
+                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+            : Translated(SamusBeamPreInstructionCodes.SpacetimePaletteCopyTail,
+                SamusProjectilePreInstruction.SpacetimePaletteCopyTail),
+        SamusBeamCombination.SpazerPlasmaIceWave => charged
+            ? Translated(SamusBeamPreInstructionCodes.MurderBeamMisalignedExecution,
+                SamusProjectilePreInstruction.MurderBeamMisalignedExecution)
+            : Untranslated(SamusBeamPreInstructionCodes.UnchargedCombinationFifteenAdjacentWord),
+        _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
+    };
 
     private static SamusBeamCallbackDefinition Translated(
         ushort nativePointer,

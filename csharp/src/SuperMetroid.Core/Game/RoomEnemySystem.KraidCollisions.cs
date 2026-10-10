@@ -120,7 +120,8 @@ public sealed partial class RoomEnemySystem
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
                         ReadProjectileVulnerability(body, type) & 0x7f,
-                    _ => 0,
+                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => 0,
+                    _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };
                 int damage = unchecked((ushort)((shot.Damage >> 1) * multiplier));
                 if (damage != 0)

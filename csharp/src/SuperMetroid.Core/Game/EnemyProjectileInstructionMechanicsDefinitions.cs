@@ -260,7 +260,8 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         {
             RingGrowthPhase.Seed => RingSeedFrames,
             RingGrowthPhase.Formation => RingFormationFrames,
-            _ => (ushort)(RingExpansionCadenceBase - radius),
+            RingGrowthPhase.RadialExpansion => (ushort)(RingExpansionCadenceBase - radius),
+            _ => throw new InvalidOperationException($"Undefined RingGrowthPhase {phase}."),
         };
     }
 

@@ -160,6 +160,13 @@ internal sealed class IntroCeresFlightState
                 // $1F, whose owner also performs this function's area-six checkpoint save.
                 Phase = IntroCeresFlightPhase.Finished;
                 break;
+
+            case IntroCeresFlightPhase.Finished:
+                // The flight has ended; its owner moves to state $1F.
+                break;
+
+            default:
+                throw new InvalidOperationException($"Undefined Ceres flight phase {Phase}.");
         }
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)

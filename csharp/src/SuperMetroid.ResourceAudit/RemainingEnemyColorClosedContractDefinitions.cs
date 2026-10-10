@@ -64,7 +64,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/GoldenTorizoHealthPaintDefinitions.cs", "7E2E901504507C3A5D0C96DDD2AE7426A5730FDFB104315827BECBD916DB57F1"),
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "E3EFB5FA4E69B08685BA5D077C28F6A8818EF2EA9514284BEB3419E0F16EB406")]),
         new("SuperMetroid.Core.Assets.DachoraColorCatalog", "dachora-complete-phase-colors", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs", "F44FE68D0BA08D1FFE0626EFDCEF85166100AF943DED4029B47A02A795617F6E"),
+            [new("csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs", "AECE429B6986977AB1F0189C37E02B3A942BECCD04300CA94795104FD354EC24"),
              new("csharp/src/SuperMetroid.Core/Game/DachoraColorRomData.cs", "C5A2F360C875E920B049A13DB5FB62E697B266E864BEF8A231FF045C6B28F8D9")]),
         new("SuperMetroid.Core.Assets.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "E72BF0E51F2E8E5010E9F05BFE62C3E030E21B092601CA46C239D5CA8EAD114A"),

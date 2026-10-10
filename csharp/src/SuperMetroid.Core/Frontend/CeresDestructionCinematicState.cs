@@ -354,6 +354,11 @@ internal sealed partial class CeresDestructionCinematicState
             case CeresDestructionPhase.SlideZebesSceneAway:
                 StepZebesActors(slidingAway: true);
                 break;
+            // The cinematic has ended; its owner advances the game state.
+            case CeresDestructionPhase.Finished:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined CeresDestructionPhase {Phase}.");
         }
     }
 

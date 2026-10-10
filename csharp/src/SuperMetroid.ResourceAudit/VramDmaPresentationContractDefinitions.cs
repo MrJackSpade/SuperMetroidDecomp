@@ -13,7 +13,7 @@ internal static class VramDmaPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "51FECBBD9AD31F43F011A5EA407A0F4398ADBC33FB1EA2797A1BC9A1B11687B5"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "9E3C7A3D71A2F861F3DA0F9C09DF2A8F9BAED7B5BFA6DAA0064F53C2624A4892")]),
         new("SuperMetroid.Core.Assets.GrappleTileAtlas", "native-GrappleTileAtlas-dma-aliases", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs", "49C7E5915AEFAA06AAC4FE3F2BC702B7246DCBADA645765686F9F7AF3D83510F"),
+            [new("csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs", "F74DD86296AC2B83E9C489928649DB07FE010B94A5983D67799821D33B9A2E95"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs", "DC076C56917029A93D0D97885AB7A5E0344E7B9C9EC02276C18C63183DF3AA15"),
              new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs", "BD5C4C72DCD287EB066548250C87C85CF59F8D467B694FEE0D7595E682A69B8A"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "9E3C7A3D71A2F861F3DA0F9C09DF2A8F9BAED7B5BFA6DAA0064F53C2624A4892")]),

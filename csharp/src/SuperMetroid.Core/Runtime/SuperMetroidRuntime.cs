@@ -795,7 +795,8 @@ public sealed partial class SuperMetroidRuntime
             // reload the equipped beam palette before returning to inactive.
             (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
                 "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
+                .LoadTo(Cgram, new SamusBeamLoadoutWord(Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
+                    "Equipped-beam index is outside the beam-combination tables."));
         }
 
         // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.

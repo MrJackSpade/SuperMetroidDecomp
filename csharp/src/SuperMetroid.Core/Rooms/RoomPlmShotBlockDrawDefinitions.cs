@@ -51,7 +51,13 @@ internal static class RoomPlmShotBlockDrawDefinitions
             if (!Restore) return Frame == 3 ? (ushort)0x00ff : (ushort)(0x0053 + Frame);
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
-            int tile = Layout switch { Shape.Horizontal => 0x96, Shape.Vertical => 0x98, _ => 0x99 };
+            int tile = Layout switch
+            {
+                Shape.Horizontal => 0x96,
+                Shape.Vertical => 0x98,
+                Shape.Single or Shape.Square => 0x99,
+                _ => throw new InvalidOperationException($"Undefined shot-block shape {Layout}."),
+            };
             // Parent is shootable; children link left on the first row and up below.
             int collision = row == 0 && column == 0 ? 0xc000 : row == 0 ? 0x5000 : 0xd000;
             return (ushort)(collision | (tile + 32 * row + column));

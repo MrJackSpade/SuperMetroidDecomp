@@ -78,7 +78,15 @@ public static class SamusSpecialSequenceRomData
                         SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
                         SamusMovementType.SpringBallFalling => 1,
                         SamusMovementType.UnusedGlitchBall or SamusMovementType.UnusedGlitchBallAlternate => 0,
-                        _ => 5,
+                        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
+                            SamusMovementType.SpinJumping or SamusMovementType.Crouching or SamusMovementType.Falling or
+                            SamusMovementType.Knockback or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
+                            SamusMovementType.Unused0D or SamusMovementType.TurningOnGround or
+                            SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
+                            SamusMovementType.WallJumping or SamusMovementType.RanIntoWall or SamusMovementType.Grappling or
+                            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
+                            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 5,
+                        _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)index}."),
                     };
                 }
             }

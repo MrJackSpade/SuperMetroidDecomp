@@ -9,7 +9,7 @@
   "AnimatedTileInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTilesState.cs",
-    "line": 120,
+    "line": 123,
     "column": 13,
     "rule": "SME6270",
     "message": "'instructionOrDuration' is a ushort switched over named constants of AnimatedTileInstructionCodes; model the domain as a type",
@@ -92,16 +92,6 @@
     "status": "open"
    }
   ],
-  "AreaId": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyProjectileDamageDefinitions.cs",
-    "line": 15,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over AreaId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "BabyAnimation": [
    {
     "file": "csharp/test-support/VerificationAccess/CoreFrontendAccess.cs",
@@ -140,16 +130,6 @@
     "status": "open"
    }
   ],
-  "Band": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-    "line": 54,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over Band has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "BeaconPaletteFxProgramMechanicsDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/BeaconPaletteFxProgramMechanicsDefinitions.cs",
@@ -163,28 +143,10 @@
   "BeamTileAtlasDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
-    "line": 39,
-    "column": 64,
+    "line": 57,
+    "column": 82,
     "rule": "SME6270",
     "message": "'sourceAddress' is a int switched over named constants of BeamTileAtlasDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "BodyFrame": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
-    "line": 109,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over BodyFrame has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
-    "line": 117,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over BodyFrame has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -283,16 +245,6 @@
     "column": 17,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of CeresCinematicLightPaletteFxProgramMechanicsDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "CeresDestructionPhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionCinematicState.cs",
-    "line": 203,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over CeresDestructionPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -403,7 +355,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 803,
+    "line": 793,
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
@@ -511,7 +463,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs",
-    "line": 807,
+    "line": 813,
     "column": 34,
     "rule": "SME6270",
     "message": "'function' is a ushort switched over named constants of Connections; model the domain as a type",
@@ -632,16 +584,6 @@
     "status": "open"
    }
   ],
-  "DachoraPalettePhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
-    "line": 100,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over DachoraPalettePhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "DeadMonsterRottingDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
@@ -649,26 +591,6 @@
     "column": 34,
     "rule": "SME6270",
     "message": "'table' is a ushort switched over named constants of DeadMonsterRottingDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DeclarationShape": [
-   {
-    "file": "csharp/src/SuperMetroid.ReachabilityAudit/ReachabilityFindings.cs",
-    "line": 44,
-    "column": 21,
-    "rule": "SME6271",
-    "message": "Switch over DeclarationShape has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "Demonstration": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
-    "line": 548,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over Demonstration has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -705,16 +627,6 @@
     "column": 21,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of DownwardGatePreInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "DownwardGateTriggerBehavior": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Gates.cs",
-    "line": 216,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over DownwardGateTriggerBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -756,16 +668,6 @@
     "status": "open"
    }
   ],
-  "EffectType": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs",
-    "line": 72,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over EffectType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "ElevatorPlatformPlmDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs",
@@ -776,26 +678,6 @@
     "status": "open"
    }
   ],
-  "EndingCreditsPhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 595,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over EndingCreditsPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "EndingGunshipPaletteInk": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EndingGunshipPaletteInputView.cs",
-    "line": 110,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over EndingGunshipPaletteInk has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "EndingLogoWrapAtlas": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/EndingLogoWrapParts.cs",
@@ -803,16 +685,6 @@
     "column": 13,
     "rule": "SME6270",
     "message": "'tile' is a int switched over named constants of EndingLogoWrapAtlas; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingReward": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 920,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over EndingReward has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -851,50 +723,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'instruction' is a ushort switched over named constants of EndingRewardJumpDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingRewardSpriteFrame": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/EndingRewardShootingSceneParts.cs",
-    "line": 72,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over EndingRewardSpriteFrame has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "EndingSpriteRole": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.Rendering.cs",
-    "line": 168,
-    "column": 21,
-    "rule": "SME6271",
-    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.SpritePreInstructions.cs",
-    "line": 8,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over EndingSpriteRole has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 792,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 946,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over EndingSpriteRole has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -967,7 +795,7 @@
   "EnemyProjectileInstructionMechanicsDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
-    "line": 318,
+    "line": 319,
     "column": 71,
     "rule": "SME6270",
     "message": "'program' is a ushort switched over named constants of EnemyProjectileInstructionMechanicsDefinitions; model the domain as a type",
@@ -1070,60 +898,6 @@
     "status": "open"
    }
   ],
-  "FileSelectMapNavigationPhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.Capture.cs",
-    "line": 36,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over FileSelectMapNavigationPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs",
-    "line": 149,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over FileSelectMapNavigationPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs",
-    "line": 205,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over FileSelectMapNavigationPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "FrameFamily": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
-    "line": 207,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over FrameFamily has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "GameplayMessageId": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelDefinitions.cs",
-    "line": 55,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over GameplayMessageId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs",
-    "line": 156,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over GameplayMessageId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "GameplayMessageTitleDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
@@ -1151,34 +925,6 @@
     "column": 27,
     "rule": "SME6270",
     "message": "'frame' is a int switched over named constants of GrappleBeamTilePatterns; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "GrappleEnemyReaction": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs",
-    "line": 307,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over GrappleEnemyReaction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "GrappleOriginDirection": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
-    "line": 62,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over GrappleOriginDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs",
-    "line": 70,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over GrappleOriginDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -1232,34 +978,6 @@
     "status": "open"
    }
   ],
-  "InWorldCollectibleKind": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs",
-    "line": 129,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over InWorldCollectibleKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs",
-    "line": 634,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over InWorldCollectibleKind has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "InstructionItemKind": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/InstructionProgramLayout.cs",
-    "line": 109,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over InstructionItemKind has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "Instructions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs",
@@ -1288,26 +1006,6 @@
     "status": "open"
    }
   ],
-  "IntroCeresFlightPhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCeresFlightState.cs",
-    "line": 115,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over IntroCeresFlightPhase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "IntroEggCell": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/IntroEggCrackingParts.cs",
-    "line": 56,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over IntroEggCell has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "IntroNarrationDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs",
@@ -1315,24 +1013,6 @@
     "column": 52,
     "rule": "SME6270",
     "message": "'word' is a ushort switched over named constants of IntroNarrationDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "KraidAiFunction": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidDeath.cs",
-    "line": 19,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over KraidAiFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs",
-    "line": 44,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over KraidAiFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -1420,24 +1100,6 @@
     "status": "open"
    }
   ],
-  "LayoutKind": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 59,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over LayoutKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 100,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over LayoutKind has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "LoadingSuitColorPointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
@@ -1494,16 +1156,6 @@
     "status": "open"
    }
   ],
-  "MagicNumberCategory": [
-   {
-    "file": "csharp/tools/ProductionMagicNumberAudit.cs",
-    "line": 423,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over MagicNumberCategory has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "MamaTurtleEnemyDefinitionCatalog": [
    {
     "file": "csharp/test-support/VerificationAccess/CoreGameAccess.cs",
@@ -1521,16 +1173,6 @@
     "column": 17,
     "rule": "SME6270",
     "message": "'enemyDefinition' is a ushort switched over named constants of MamaTurtleEnemyDefinitionCatalog, RoomEnemySystem, FuneNamiheDefinitions, PipeBugDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MapScrollDirection": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/PauseMapScroll.cs",
-    "line": 36,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over MapScrollDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -1607,16 +1249,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of MaridiaLargeSnailInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainBodyPose": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs",
-    "line": 732,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over MotherBrainBodyPose has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -1697,34 +1329,6 @@
     "column": 59,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of MotherBrainInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "MotherBrainProjectileType": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainShotReaction.cs",
-    "line": 29,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over MotherBrainProjectileType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "MotherBrainRainbowShadeProfile": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs",
-    "line": 71,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over MotherBrainRainbowShadeProfile has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs",
-    "line": 87,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over MotherBrainRainbowShadeProfile has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -1978,16 +1582,6 @@
     "status": "open"
    }
   ],
-  "Phase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CeresHazeState.cs",
-    "line": 48,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over Phase has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "PipeBugDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
@@ -2021,7 +1615,7 @@
   "ProjectileTrailCoordinateDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 370,
+    "line": 378,
     "column": 16,
     "rule": "SME6270",
     "message": "'family' is a int switched over named constants of ProjectileTrailCoordinateDefinitions; model the domain as a type",
@@ -2076,16 +1670,6 @@
     "status": "open"
    }
   ],
-  "RingGrowthPhase": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
-    "line": 263,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over RingGrowthPhase has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "RinkaInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
@@ -2093,58 +1677,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of RinkaInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomCollisionType": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CommonMovement.cs",
-    "line": 384,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CommonMovement.cs",
-    "line": 445,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs",
-    "line": 1168,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
-    "line": 721,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over RoomCollisionType has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs",
-    "line": 91,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over RoomCollisionType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "RoomEnemyProjectileKind": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/KraidRockProjectileInstructionProgramDefinitions.cs",
-    "line": 78,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over RoomEnemyProjectileKind has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -2293,24 +1825,6 @@
     "column": 16,
     "rule": "SME6270",
     "message": "'id' is a byte switched over named constants of RoomFxPaletteBlendDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomFxType": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTilesState.cs",
-    "line": 45,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over RoomFxType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomLayer3FxState.cs",
-    "line": 411,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over RoomFxType has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -2545,7 +2059,7 @@
   "RoomPlmShotBlockDrawDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-    "line": 67,
+    "line": 73,
     "column": 9,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of RoomPlmShotBlockDrawDefinitions; model the domain as a type",
@@ -2555,7 +2069,7 @@
   "RoomPlmStationDrawDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 115,
+    "line": 118,
     "column": 16,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
@@ -2563,7 +2077,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs",
-    "line": 190,
+    "line": 193,
     "column": 16,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of RoomPlmStationDrawDefinitions; model the domain as a type",
@@ -2577,16 +2091,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of RoomSetup; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomSetupCallback": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.EscapeEffects.cs",
-    "line": 22,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over RoomSetupCallback has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -2648,24 +2152,6 @@
     "status": "open"
    }
   ],
-  "SamusAnimationCommand": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs",
-    "line": 90,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusAnimationCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs",
-    "line": 105,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusAnimationCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "SamusArmCannonArtworkFormat": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
@@ -2679,86 +2165,10 @@
   "SamusAtmosphericEffectDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
-    "line": 70,
+    "line": 79,
     "column": 16,
     "rule": "SME6270",
     "message": "'roomIndex' is a byte switched over named constants of SamusAtmosphericEffectDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusBeamFlags": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
-    "line": 312,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs",
-    "line": 324,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 350,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 419,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs",
-    "line": 110,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
-    "line": 106,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
-    "line": 162,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSoundRoutingDefinitions.cs",
-    "line": 49,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusBeamFlags has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "SamusCollisionDirection": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusSolidEnemyCollision.cs",
-    "line": 128,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusCollisionDirection has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -2836,98 +2246,6 @@
     "status": "open"
    }
   ],
-  "SamusMovementType": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RidleySamusInteractionDefinitions.cs",
-    "line": 26,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
-    "line": 55,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
-    "line": 53,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
-    "line": 64,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs",
-    "line": 62,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs",
-    "line": 81,
-    "column": 25,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusXrayState.cs",
-    "line": 725,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusMovementType has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "SamusPoseId": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonPlacementDefinitions.cs",
-    "line": 159,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusPoseId has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyPlacementDefinitions.cs",
-    "line": 83,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusPoseId has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs",
-    "line": 79,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusPoseId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputDefinitions.cs",
-    "line": 364,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusPoseId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "SamusPoseIds": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
@@ -2963,7 +2281,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs",
-    "line": 1908,
+    "line": 1909,
     "column": 22,
     "rule": "SME6270",
     "message": "'Pose' is a byte switched over named constants of SamusPoseIds; model the domain as a type",
@@ -3025,54 +2343,10 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
-    "line": 124,
+    "line": 127,
     "column": 20,
     "rule": "SME6270",
     "message": "'address - 2' is a int switched over named constants of SamusProjectileDamageDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusProjectileDirection": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
-    "line": 1097,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 368,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 398,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SamusProjectileDirection has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "SamusProjectileFamily": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidCollisions.cs",
-    "line": 123,
-    "column": 21,
-    "rule": "SME6271",
-    "message": "Switch over SamusProjectileFamily has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
-    "line": 221,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over SamusProjectileFamily has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3138,16 +2412,6 @@
     "status": "open"
    }
   ],
-  "Scene": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
-    "line": 167,
-    "column": 92,
-    "rule": "SME6271",
-    "message": "Switch over Scene has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "ScrollingSky": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs",
@@ -3165,34 +2429,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'opcode' is a ushort switched over named constants of ShaktoolInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "Shape": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs",
-    "line": 54,
-    "column": 90,
-    "rule": "SME6271",
-    "message": "Switch over Shape has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "ShellProgram": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
-    "line": 122,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over ShellProgram has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
-    "line": 132,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over ShellProgram has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3219,34 +2455,6 @@
     "column": 26,
     "rule": "SME6270",
     "message": "'operand' is a ushort switched over named constants of SkreeMetareeParticleVisualDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SmCompressionCommand": [
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompression.cs",
-    "line": 155,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over SmCompressionCommand has a default that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionFormat.cs",
-    "line": 53,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SmCompressionCommand has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
-  "SnesButton": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Input/ControllerBindings.cs",
-    "line": 88,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SnesButton has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3338,24 +2546,6 @@
     "status": "open"
    }
   ],
-  "StationAccessBehavior": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
-    "line": 308,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over StationAccessBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
-    "line": 337,
-    "column": 17,
-    "rule": "SME6271",
-    "message": "Switch over StationAccessBehavior has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   }
-  ],
   "StationAnimationProgramDefinitions, RoomPlmInstructionLists": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/StationAnimationProgramDefinitions.cs",
@@ -3363,40 +2553,6 @@
     "column": 28,
     "rule": "SME6270",
     "message": "'list' is a ushort switched over named constants of StationAnimationProgramDefinitions, RoomPlmInstructionLists; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SuperMetroidGameState": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.AttractDemo.cs",
-    "line": 18,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SuperMetroidGameState has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.Random.cs",
-    "line": 35,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SuperMetroidGameState has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.Random.cs",
-    "line": 45,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SuperMetroidGameState has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs",
-    "line": 1279,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over SuperMetroidGameState has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3469,7 +2625,7 @@
   "Trails": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.TrailsAndCollisions.cs",
-    "line": 356,
+    "line": 361,
     "column": 21,
     "rule": "SME6270",
     "message": "'instructionOrTimer' is a ushort switched over named constants of Trails; model the domain as a type",
@@ -3499,7 +2655,7 @@
   "VerticalMotion": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
-    "line": 83,
+    "line": 96,
     "column": 9,
     "rule": "SME6270",
     "message": "'address' is a int switched over named constants of VerticalMotion; model the domain as a type",
@@ -3513,16 +2669,6 @@
     "column": 13,
     "rule": "SME6270",
     "message": "'voiceRegister' is a int switched over named constants of Voice; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "VramAssetId": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs",
-    "line": 68,
-    "column": 13,
-    "rule": "SME6271",
-    "message": "Switch over VramAssetId has a discard arm that does not fail; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3569,16 +2715,6 @@
     "column": 24,
     "rule": "SME6270",
     "message": "'command' is a ushort switched over named constants of XrayRevealCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "YardMovementFunction": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Yard.cs",
-    "line": 195,
-    "column": 9,
-    "rule": "SME6271",
-    "message": "Switch over YardMovementFunction has no default and leaves members unhandled; handle every member explicitly and fail loudly on undefined values",
     "status": "open"
    }
   ],
@@ -3665,7 +2801,7 @@
   "masked selector coordinate": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 680,
+    "line": 699,
     "column": 13,
     "rule": "SME6272",
     "message": "Local 'coordinate' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
@@ -3764,13 +2900,57 @@
    "consumers": "SnesCgram, all Assets color/paint catalogs, palette-FX system and color sources, frontend fades (CartridgePaletteTransition, CinematicPaletteFader, ending/intro/title), enemy palette effects, renderers (software, Mode 7, D3D11 upload), asset extraction",
    "tests": "VerifyBgr555Domain (all 32768 words, port masking, bounds, expansion, operations, CGRAM, typed fade, debugger shapes) plus the existing palette suites and all five movie replays",
    "status": "resolved"
+  },
+  "SamusBeamCombination": {
+   "previous": "int BeamCombinationIndex and int 'selection' (0-11 plus Chainsaw $0D / SpaceTime $0E constants) recovered by (SamusBeamFlags)index casts, & 0xF / & 1 masks and flag-combination switches with silent defaults across projectile damage, speed, trails, sounds, callbacks, enemy vulnerability, beam tile/palette artwork, VRAM asset ids and extraction",
+   "type": "enum SamusBeamCombination : byte (16 members: 12 retail rows plus the four Spazer+Plasma glitch combinations) with SamusBeamCombinations.FromComponents/FromTableIndex, Components, HasWave/HasIce/HasSpazer/HasPlasma, IsRetail and TableIndex",
+   "closedProof": "bits 0-3 of the projectile type word ($0C18) and the equipped-beam word ($09A6) index four-bit tables; every 4-bit value is a member",
+   "transitions": "none; table rows are reached through TableIndex for native address arithmetic",
+   "boundary": "SamusProjectileTypeWord.BeamCombination (total); SamusBeamLoadoutWord.Combination returns null when bits 4-11 make the twelve-bit index exceed $F; SamusBeamCombinations.FromTableIndex for ROM-table row decoding; BeamTileCatalog.AssetFor/SelectionFor convert to and from VramAssetId",
+   "invalidValues": "FromTableIndex rejects indexes outside $0-$F; retail-only APIs (palettes, canonical sheets, beam headers) throw for the glitch combinations; $0C and $0F have no artwork and AssetFor/FileName throw",
+   "consumers": "projectile firing, damage, cooldowns, sounds, callbacks, trails, Mother Brain/Phantoon/enemy vulnerability, Crystal Flash and grapple palette reloads, beam tile/palette catalogs and extraction, ResourceAudit VRAM domains",
+   "tests": "VerifyBeamCallbackTables and VerifyProjectileSoundRoutingDefinitions compare all 32 rows with the retail ROM; beam artwork/palette suites; five movie replays",
+   "status": "resolved"
+  },
+  "SmCompressionCommand": {
+   "previous": "seven-member enum; long-header command 7 ($E0, inverted relative copy) decoded to an undefined value and command order compared numerically",
+   "type": "enum SmCompressionCommand : byte with all eight three-bit commands; IsCopy/IsRelativeCopy/InvertsCopiedBytes/PayloadByteCount are exhaustive switches",
+   "closedProof": "three command bits in the native DecompressToMem ($80:B119) header",
+   "transitions": "none",
+   "boundary": "SmCompressionHeader.Decode masks the command bits (every value defined); the terminator has no Command (throws)",
+   "invalidValues": "Command on a terminator throws InvalidOperationException; copy predicates throw for non-copy commands",
+   "consumers": "SmCompression.TryDecompress",
+   "tests": "VerifySmCompressionFormat (every member's payload/copy behavior, terminator)",
+   "status": "resolved"
+  },
+  "MotherBrainProjectileType": {
+   "previous": "three members; classes 3-7 of the native three-bit index arrived as undefined casts and reached a silent default",
+   "type": "enum MotherBrainProjectileType with all eight three-bit classes",
+   "closedProof": "$A9:B58E masks the projectile family nibble to three bits",
+   "transitions": "none",
+   "boundary": "RoomEnemySystem.MotherBrainCombat casts (family >> 8) & 7, always a member",
+   "invalidValues": "MotherBrainShotReaction rejects values above 7",
+   "consumers": "MotherBrainShotReaction",
+   "tests": "Mother Brain glitch and 100% movie replays",
+   "status": "resolved"
+  },
+  "SME6271ExhaustiveSwitches": {
+   "previous": "95 repository-owned enum switches with silent defaults or unhandled members",
+   "type": "every switch names its members; catch-alls throw for undefined values. Domain operations added where the switch encoded a grouping: EndingSpriteFamily/EndingCreditsPhase.Mode7Scene, named no-op groups with their reasons, Kraid rock owner set, Yard dispatch merged, collectible effect dispatch, HUD transition block bounded by range, pose input bounded by the 253-pose count, arm-cannon owners computed from StockPoseDrawingData",
+   "closedProof": "analyzer SME6271 reports zero sites",
+   "transitions": "not applicable",
+   "boundary": "[Flags] enums are exempt: a catch-all covers combinations, not members (analyzer test added)",
+   "invalidValues": "InvalidOperationException/ArgumentOutOfRangeException naming the domain and value",
+   "consumers": "repository-wide",
+   "tests": "EnsureVerification analyzer tests (flags exemption); full suite; five movie replays",
+   "status": "resolved; SME6271 is an error in .editorconfig",
+   "followUp": "enemy-projectile instruction-word reader dispatches by an if-chain over RoomEnemyProjectileKind; replace with an exhaustive kind-to-program-family dispatch (SME6270 comparison rule)"
   }
  },
  "summary": {
-  "openFindings": 405,
-  "openDomains": 243,
+  "openFindings": 310,
+  "openDomains": 191,
   "byRule": {
-   "SME6271": 95,
    "SME6270": 300,
    "SME6272": 10
   }

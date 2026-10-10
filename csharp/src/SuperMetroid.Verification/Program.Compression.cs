@@ -4,11 +4,12 @@ internal static partial class Program
 {
     private static void VerifySmCompressionFormat()
     {
-        // All eight three-bit command codes; command seven (relative inverted copy) is decoded
-        // from its bits and has no named member.
+        // All eight three-bit command codes are named members.
+        AssertEqual(8, Enum.GetValues<SmCompressionCommand>().Length, "compression command domain size");
         for (int code = 0; code < 8; code++)
         {
             var command = (SmCompressionCommand)(code << 5);
+            AssertTrue(Enum.IsDefined(command), $"command {code} is a named member");
             // $E0-$FE are the expanded-header marker range and $FF terminates the stream,
             // so command seven has no short form at all.
             if (code != 7)
@@ -37,8 +38,39 @@ internal static partial class Program
         SmCompressionHeader maximum = SmCompressionHeader.Decode(0xe3, 0xff);
         AssertEqual(SmCompressionFormat.MaximumLongLength, maximum.Length,
             "long compression header maximum length");
-        AssertTrue(SmCompressionHeader.Decode(SmCompressionFormat.Terminator).IsTerminator,
-            "compression terminator is distinct from command-seven long header");
+        SmCompressionHeader terminator = SmCompressionHeader.Decode(SmCompressionFormat.Terminator);
+        AssertTrue(terminator.IsTerminator, "compression terminator is distinct from command-seven long header");
+        AssertEqual(0, terminator.PayloadByteCount, "terminator reads no payload");
+        AssertThrows<InvalidOperationException>(() => _ = terminator.Command, "terminator has no command");
+
+        // Payload size and copy behavior of every command, explicitly per member.
+        foreach (var (command, payload, copy, relative, inverted) in new (SmCompressionCommand, int, bool, bool, bool)[]
+        {
+            (SmCompressionCommand.Literal, 33, false, false, false),
+            (SmCompressionCommand.RepeatByte, 1, false, false, false),
+            (SmCompressionCommand.AlternatePair, 2, false, false, false),
+            (SmCompressionCommand.IncrementingSequence, 1, false, false, false),
+            (SmCompressionCommand.AbsoluteCopy, 2, true, false, false),
+            (SmCompressionCommand.AbsoluteCopyInverted, 2, true, false, true),
+            (SmCompressionCommand.RelativeCopy, 1, true, true, false),
+            (SmCompressionCommand.RelativeCopyInverted, 1, true, true, true),
+        })
+        {
+            SmCompressionHeader header = SmCompressionHeader.Decode(
+                unchecked((byte)(SmCompressionFormat.LongHeaderMarker | ((byte)command >> 5 << 2))), 32);
+            AssertEqual(command, header.Command, $"{command} long header");
+            AssertEqual(payload, header.PayloadByteCount, $"{command} payload bytes");
+            if (copy)
+            {
+                AssertEqual(relative, header.IsRelativeCopy, $"{command} relative copy");
+                AssertEqual(inverted, header.InvertsCopiedBytes, $"{command} inverts copied bytes");
+            }
+            else
+            {
+                AssertThrows<InvalidOperationException>(() => _ = header.IsRelativeCopy, $"{command} has no copy distance");
+                AssertThrows<InvalidOperationException>(() => _ = header.InvertsCopiedBytes, $"{command} has no copy inversion");
+            }
+        }
 
         byte[] stream =
         [

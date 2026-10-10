@@ -1165,7 +1165,13 @@ public static partial class SamusBlockCollision
                     block.Bts != RoomBlockBehaviorValues.None =>
                     block.Bts.ExtensionOffset * level.WidthInBlocks,
                 RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => 0,
-                _ => int.MinValue,
+                RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
+                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or
+                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
+                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
+                    RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or
+                    RoomCollisionType.BombableBlock => int.MinValue,
+                _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
             };
 
             if (delta == int.MinValue)

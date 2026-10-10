@@ -69,24 +69,26 @@ internal static class SamusProjectileDamageDefinitions
     /// weapon headers per charge state, each followed by ten direction pointers.
     /// The charged half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
-    internal static (bool Charged, SamusBeamFlags Beam) BeamIdentity(int header)
+    internal static (bool Charged, SamusBeamCombination Beam) BeamIdentity(int header)
     {
+        if ((uint)header >= 24)
+            throw new ArgumentOutOfRangeException(nameof(header), header, "There are twenty-four beam headers.");
         bool charged = header >= 12;
-        int row = header % 12;
-        SamusBeamFlags beam = row switch
+        SamusBeamCombination beam = (header % 12) switch
         {
-            0 => SamusBeamFlags.None,
-            1 => SamusBeamFlags.Spazer,
-            2 => SamusBeamFlags.Spazer | SamusBeamFlags.Ice,
-            3 => SamusBeamFlags.Spazer | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
-            4 => SamusBeamFlags.Plasma | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
-            5 => SamusBeamFlags.Ice,
-            6 => charged ? SamusBeamFlags.Plasma : SamusBeamFlags.Wave,
-            7 => charged ? SamusBeamFlags.Wave : SamusBeamFlags.Plasma,
-            8 => SamusBeamFlags.Ice | SamusBeamFlags.Wave,
-            9 => SamusBeamFlags.Spazer | SamusBeamFlags.Wave,
-            10 => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Ice : SamusBeamFlags.Wave),
-            _ => SamusBeamFlags.Plasma | (charged ? SamusBeamFlags.Wave : SamusBeamFlags.Ice),
+            0 => SamusBeamCombination.Power,
+            1 => SamusBeamCombination.Spazer,
+            2 => SamusBeamCombination.SpazerIce,
+            3 => SamusBeamCombination.SpazerIceWave,
+            4 => SamusBeamCombination.PlasmaIceWave,
+            5 => SamusBeamCombination.Ice,
+            6 => charged ? SamusBeamCombination.Plasma : SamusBeamCombination.Wave,
+            7 => charged ? SamusBeamCombination.Wave : SamusBeamCombination.Plasma,
+            8 => SamusBeamCombination.IceWave,
+            9 => SamusBeamCombination.SpazerWave,
+            10 => charged ? SamusBeamCombination.PlasmaIce : SamusBeamCombination.PlasmaWave,
+            11 => charged ? SamusBeamCombination.PlasmaWave : SamusBeamCombination.PlasmaIce,
+            var row => throw new InvalidOperationException($"Beam header row {row} is outside twelve."),
         };
         return (charged, beam);
     }
@@ -96,18 +98,22 @@ internal static class SamusProjectileDamageDefinitions
         var (charged, beam) = BeamIdentity(header);
         int damage = beam switch
         {
-            SamusBeamFlags.None => 20,
-            SamusBeamFlags.Ice => 30,
-            SamusBeamFlags.Wave => 50,
-            SamusBeamFlags.Ice | SamusBeamFlags.Wave => 60,
-            SamusBeamFlags.Spazer => 40,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Ice => 60,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Wave => 70,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Ice | SamusBeamFlags.Wave => 100,
-            SamusBeamFlags.Plasma => 150,
-            SamusBeamFlags.Plasma | SamusBeamFlags.Ice => 200,
-            SamusBeamFlags.Plasma | SamusBeamFlags.Wave => 250,
-            _ => 300,
+            SamusBeamCombination.Power => 20,
+            SamusBeamCombination.Ice => 30,
+            SamusBeamCombination.Wave => 50,
+            SamusBeamCombination.IceWave => 60,
+            SamusBeamCombination.Spazer => 40,
+            SamusBeamCombination.SpazerIce => 60,
+            SamusBeamCombination.SpazerWave => 70,
+            SamusBeamCombination.SpazerIceWave => 100,
+            SamusBeamCombination.Plasma => 150,
+            SamusBeamCombination.PlasmaIce => 200,
+            SamusBeamCombination.PlasmaWave => 250,
+            SamusBeamCombination.PlasmaIceWave => 300,
+            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+                SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+                throw new InvalidOperationException($"{beam} has no beam header."),
+            _ => throw new ArgumentOutOfRangeException(nameof(header), beam, "Undefined beam combination."),
         };
         return (ushort)(damage * (charged ? 3 : 1));
     }

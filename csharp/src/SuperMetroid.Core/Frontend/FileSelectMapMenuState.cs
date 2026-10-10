@@ -171,6 +171,16 @@ public sealed partial class FileSelectMapMenuState
                 if (brightness > 0) { brightness--; break; }
                 LoadRequested = pendingFrames >= FileSelectMapRomData.LoadPreludeFrames + 15 + FileSelectMapRomData.LoadBlackFrames;
                 break;
+            // Navigation itself advances these phases; no menu countdown runs.
+            case FileSelectMapNavigationPhase.Area:
+            case FileSelectMapNavigationPhase.PreparingWindow:
+            case FileSelectMapNavigationPhase.ExpandingWindow:
+            case FileSelectMapNavigationPhase.InitializingRoom:
+            case FileSelectMapNavigationPhase.Room:
+            case FileSelectMapNavigationPhase.EnteringArea:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined file-select map phase {Phase}.");
         }
     }
 
@@ -202,7 +212,9 @@ public sealed partial class FileSelectMapMenuState
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations),
                     roomGraphics.RenderFrameOnly(), returnWindow, composed),
             FileSelectMapNavigationPhase.AreaReturnRequested => roomGraphics.RenderFrameOnly(),
-            _ => areaGraphics.Render(usedStations),
+            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
+                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => areaGraphics.Render(usedStations),
+            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
         MasterBrightnessFilter.Apply(pixels, brightness);
         return pixels;

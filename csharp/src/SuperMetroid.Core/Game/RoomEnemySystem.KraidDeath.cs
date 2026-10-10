@@ -127,6 +127,8 @@ public sealed partial class RoomEnemySystem
                 // $A7:C85E forces BG1 column streaming to treat every column as new.
                 state.Layer1XBlockResetRequested = true;
                 return;
+            default:
+                throw new InvalidOperationException($"Kraid body function $A7:{body.VariableA:X4} is not a death function.");
         }
     }
 

@@ -88,7 +88,7 @@ internal static partial class Program
             "death whiteout shades");
 
         TouchRange(bus, SamusPaletteRomData.CrystalFlash.BeamPalettePointers,
-            SamusPaletteRomData.CrystalFlash.BeamPaletteCount * sizeof(ushort),
+            SuperMetroid.Core.Assets.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
         TouchRange(bus, SamusPaletteRomData.CrystalFlash.BodyRecords,
             SamusPaletteRomData.CrystalFlash.BodyRecordCount *

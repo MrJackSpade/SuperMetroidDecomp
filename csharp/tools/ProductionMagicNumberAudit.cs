@@ -420,7 +420,7 @@ internal sealed record MagicNumberFinding(
         MagicNumberCategory.ControllerBits => "SnesButtons/typed controller input",
         MagicNumberCategory.PackedPpuWord => "a packed SNES word wrapper",
         MagicNumberCategory.SramOffset => "SaveRamLayout or another SRAM layout container",
-        _ => "a named domain definition",
+        _ => throw new ArgumentOutOfRangeException(nameof(category), category, "Undefined magic-number category."),
     };
 
     private static string Remediation(MagicNumberCategory category) =>

@@ -26,14 +26,14 @@ internal static partial class Program
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Palette selection retains tile queue timing");
             var document = JsonNode.Parse(bytes)!;
-            var red = document["palettes"]![BeamPaletteDefinitions.Key(selection)]![3]!;
+            var red = document["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))]![3]!;
             red["red"] = red["red"]!.GetValue<int>() ^ 1;
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), new VramWriteQueue(), actual, selection, tiles, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
-            catalog.LoadTo(actual, selection);
+            catalog.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Previously loaded palette remains immutable after editing input");
         }
         string json = Encoding.UTF8.GetString(bytes);
@@ -94,19 +94,19 @@ internal static partial class Program
         var nativeRuntime = CreateRetailRuntimeFixture(bus);
         nativeRuntime.LoadDebugGrapplePalette();
         var grappleExpected = new SnesCgram();
-        palettes.LoadTo(grappleExpected, 2);
+        palettes.LoadTo(grappleExpected, SamusBeamCombination.Ice);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Stock debug grapple selection matches native beam palette index two");
 
         var editedDocument = JsonNode.Parse(BeamPaletteExtractor.Extract(bus))!;
-        var editedColor = editedDocument["palettes"]![BeamPaletteDefinitions.Key(2)]![3]!;
+        var editedColor = editedDocument["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)]![3]!;
         editedColor["red"] = editedColor["red"]!.GetValue<int>() ^ 1;
         var editedPalettes = BeamPaletteCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
         var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);
         nativeRuntime.BeamArtwork = editedArtwork;
         nativeRuntime.LoadDebugGrapplePalette();
-        editedPalettes.LoadTo(grappleExpected, 2);
+        editedPalettes.LoadTo(grappleExpected, SamusBeamCombination.Ice);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Bound debug grapple selection uses edited extracted palette, not cartridge colors");
         AssertEqual(32657, nativeRuntime.Cgram.Colors[223], "Debug grapple retains the adjacent fixed flare color");

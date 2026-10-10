@@ -101,6 +101,10 @@ internal static partial class Program
         Expect(domain + " class C { void M(Mode m) { switch (m) { case Mode.A: break; default: throw new System.ArgumentOutOfRangeException(nameof(m)); } } }");
         Expect(domain + " class C { int M(Mode m) => m switch { Mode.A => 1, Mode.B => 2, Mode.C => 3, _ => throw new System.ArgumentOutOfRangeException(nameof(m)) }; }");
         Expect("class C { int M(System.DayOfWeek d) => d switch { System.DayOfWeek.Monday => 1, _ => 0 }; }");
+        // A [Flags] enum's catch-all covers the combinations a switch does not name.
+        const string flags = "[System.Flags] enum Bits : byte { None = 0, X = 1, Y = 2 }";
+        Expect(flags + " class C { int M(Bits b) => b switch { Bits.X => 1, _ => 0 }; }");
+        Expect(flags + " class C { void M(Bits b) { switch (b) { case Bits.X: break; default: break; } } }");
 
         // SME6272: a masked or shifted local switched as a selector.
         Expect("class C { int M(byte header) { int direction = header & 3; return direction switch { 0 => 1, 1 => 2, _ => 3 }; } }",

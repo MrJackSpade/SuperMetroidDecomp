@@ -454,7 +454,7 @@ static void VerifyTypedNativeWords()
     var projectileType = new SamusProjectileTypeWord(0x9219);
     AssertEqual(SamusProjectileFamily.SuperMissile, projectileType.Family,
         "projectile family enum");
-    AssertEqual(9, projectileType.BeamCombinationIndex, "projectile low-nibble payload");
+    AssertEqual(SamusBeamCombination.PlasmaWave, projectileType.BeamCombination, "projectile low-nibble payload");
     AssertTrue(projectileType.IsChargedBeam && projectileType.IsLive,
         "projectile verified control fields");
     AssertEqual(0x9819,

@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Android;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -193,12 +194,12 @@ internal static class ProjectileHostBindingVerification
         if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
-            if (!actual.Resolve(BeamTileCatalog.AssetFor(selection)).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(selection)).Span))
+            if (!actual.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span))
                 throw new InvalidDataException("Host restored stale beam artwork instead of current PNG selection.");
             var boundColors = new SuperMetroid.Core.Hardware.SnesCgram();
             var diskColors = new SuperMetroid.Core.Hardware.SnesCgram();
-            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, selection);
-            expected.Palettes!.LoadTo(diskColors, selection);
+            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, SamusBeamCombinations.FromTableIndex(selection));
+            expected.Palettes!.LoadTo(diskColors, SamusBeamCombinations.FromTableIndex(selection));
             if (!boundColors.Colors.SequenceEqual(diskColors.Colors))
                 throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
         }

@@ -52,7 +52,15 @@ public static class GameplayMessagePanelDefinitions
             GameplayMessageId.Bombs => GameplayMessagePanelButtonBinding.Shoot,
             GameplayMessageId.XrayScope or
             GameplayMessageId.SpeedBooster => GameplayMessagePanelButtonBinding.Run,
-            _ => GameplayMessagePanelButtonBinding.None,
+            GameplayMessageId.None or GameplayMessageId.EnergyTank or GameplayMessageId.VariaSuit or
+            GameplayMessageId.SpringBall or GameplayMessageId.MorphBall or GameplayMessageId.ScrewAttack or
+            GameplayMessageId.HiJumpBoots or GameplayMessageId.SpaceJump or GameplayMessageId.ChargeBeam or
+            GameplayMessageId.IceBeam or GameplayMessageId.WaveBeam or GameplayMessageId.SpazerBeam or
+            GameplayMessageId.PlasmaBeam or GameplayMessageId.MapDataAccessCompleted or
+            GameplayMessageId.EnergyRechargeCompleted or GameplayMessageId.MissileRechargeCompleted or
+            GameplayMessageId.SaveConfirmation or GameplayMessageId.SaveCompleted or GameplayMessageId.ReserveTank or
+            GameplayMessageId.GravitySuit or GameplayMessageId.GunshipSaveConfirmation => GameplayMessagePanelButtonBinding.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(messageId), messageId, "Undefined gameplay message."),
         };
 }
 

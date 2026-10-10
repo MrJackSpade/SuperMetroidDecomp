@@ -202,26 +202,23 @@ public sealed partial class RoomEnemySystem
             case YardMovementFunction.Airborne:
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
+            // Direction-changing animation can publish the new direction word one frame before
+            // it installs the matching movement pointer. Native JMPs through F, so dispatch by
+            // that pointer—not by the temporarily newer direction field.
+            case YardMovementFunction.CrawlingUpsideUpMovingLeft:
+            case YardMovementFunction.CrawlingUpsideLeftMovingDown:
+            case YardMovementFunction.CrawlingUpsideDownMovingRight:
+            case YardMovementFunction.CrawlingUpsideRightMovingUp:
+            case YardMovementFunction.CrawlingUpsideUpMovingRight:
+            case YardMovementFunction.CrawlingUpsideRightMovingDown:
+            case YardMovementFunction.CrawlingUpsideDownMovingLeft:
+            case YardMovementFunction.CrawlingUpsideLeftMovingUp:
+                RunYardCrawlingMovement(slot, state, level);
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"Yard function $A3:{(ushort)state.MovementFunction:X4} is not translated.");
         }
-
-        // Direction-changing animation can publish the new direction word one frame before
-        // it installs the matching movement pointer. Native JMPs through F, so dispatch by
-        // that pointer—not by the temporarily newer direction field.
-        if (state.MovementFunction is not (
-                YardMovementFunction.CrawlingUpsideUpMovingLeft or
-                YardMovementFunction.CrawlingUpsideLeftMovingDown or
-                YardMovementFunction.CrawlingUpsideDownMovingRight or
-                YardMovementFunction.CrawlingUpsideRightMovingUp or
-                YardMovementFunction.CrawlingUpsideUpMovingRight or
-                YardMovementFunction.CrawlingUpsideRightMovingDown or
-                YardMovementFunction.CrawlingUpsideDownMovingLeft or
-                YardMovementFunction.CrawlingUpsideLeftMovingUp))
-        {
-            throw new InvalidDataException(
-                $"Yard function $A3:{(ushort)state.MovementFunction:X4} is not translated.");
-        }
-
-        RunYardCrawlingMovement(slot, state, level);
     }
 
     /// <summary>Ports the look-at/hide test at $A3:CE9A.</summary>

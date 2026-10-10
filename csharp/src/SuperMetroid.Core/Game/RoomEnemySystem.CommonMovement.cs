@@ -381,7 +381,14 @@ public sealed partial class RoomEnemySystem
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
                     block.Bts.ExtensionOffset * level.WidthInBlocks,
-                _ => 0,
+                RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
+                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
+                    RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
+                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
+                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
+                    RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or
+                    RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock => 0,
+                _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
             };
             if (offset == 0)
                 return block;
@@ -442,7 +449,14 @@ public sealed partial class RoomEnemySystem
                 RoomCollisionType.VerticalExtension when
                     block.Bts != RoomBlockBehaviorValues.None =>
                     block.Bts.ExtensionOffset * level.WidthInBlocks,
-                _ => 0,
+                RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
+                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
+                    RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
+                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
+                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
+                    RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or
+                    RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock => 0,
+                _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
             };
             if (offset == 0)
                 return blockIndex;

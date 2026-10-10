@@ -39,7 +39,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "A switch over a closed domain must not silently ignore unhandled or undefined values.");
+        description: "A switch over a closed domain must not silently ignore unhandled or undefined values. " +
+            "A [Flags] enum is exempt: its values are combinations of members, so a catch-all for the " +
+            "combinations a switch does not name is part of the domain, not an ignored member.");
 
     private static readonly DiagnosticDescriptor MaskedSelectorRule = new(
         MaskedSelectorId,
@@ -73,7 +75,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         AnalyzePrimitiveSwitch(context, value, labels, operation.Syntax);
         AnalyzeMaskedSelector(context, value);
 
-        if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType))
+        if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType))
         {
             ISwitchCaseOperation? defaultSection = operation.Cases.FirstOrDefault(section =>
                 section.Clauses.Any(clause => clause.CaseKind == CaseKind.Default));
@@ -99,7 +101,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         AnalyzePrimitiveSwitch(context, value, labels, operation.Syntax);
         AnalyzeMaskedSelector(context, value);
 
-        if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType))
+        if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType))
         {
             foreach (ISwitchExpressionArmOperation arm in operation.Arms)
             {
@@ -206,6 +208,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
 
     private static bool IsOwned(INamedTypeSymbol type) =>
         type.Locations.Any(location => location.IsInSource);
+
+    private static bool IsFlags(INamedTypeSymbol type) =>
+        type.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
 
     private static bool IsIntegral(ITypeSymbol? type) => type?.SpecialType is
         SpecialType.System_Byte or SpecialType.System_SByte or

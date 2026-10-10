@@ -156,16 +156,14 @@ internal sealed partial class EndingCreditsState
         {
             foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
             {
-                IIntroCinematicSpritePresentation? spriteArt = wrapper.Role switch
+                IIntroCinematicSpritePresentation? spriteArt = wrapper.Role.Family() switch
                 {
-                    <= EndingSpriteRole.CloudBottomB => objectArtwork?.CloudSprites,
-                    >= EndingSpriteRole.ExplodingZebes and
-                        <= EndingSpriteRole.ExplosionAfterglow => objectArtwork?.ExplosionSprites,
-                    >= EndingSpriteRole.OperationWasText and
-                        <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
-                    EndingSpriteRole.RewardSamus => objectArtwork?.RewardSprites,
-                    EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
-                    _ => null,
+                    EndingSpriteFamily.Cloud => objectArtwork?.CloudSprites,
+                    EndingSpriteFamily.Explosion => objectArtwork?.ExplosionSprites,
+                    EndingSpriteFamily.CompletionText => objectArtwork?.CompletionTextSprites,
+                    EndingSpriteFamily.Reward => objectArtwork?.RewardSprites,
+                    EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
+                    var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
                 };
                 wrapper.Sprite.Draw(oam, installedArt: spriteArt);
             }

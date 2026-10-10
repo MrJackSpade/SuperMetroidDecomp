@@ -59,7 +59,10 @@ internal static class SamusHudDefinitions
             SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => TurningHandler,
             SamusMovementType.PostureTransition => TransitionHandler,
             SamusMovementType.DraygonHeld => DraygonHeldHandler,
-            _ => StandardHandler,
+            SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
+                SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or
+                SamusMovementType.RanIntoWall => StandardHandler,
+            _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
     }
 
@@ -68,6 +71,10 @@ internal static class SamusHudDefinitions
     {
         if (pose >= NonFiringTransitionStart)
             throw new ArgumentOutOfRangeException(nameof(pose));
+        if (pose < FirstTransitionPose)
+            return PrecedingInstructionObservations[pose];
+        if (pose > (byte)SamusPoseId.UnusedPose40)
+            return FollowingInstructionObservations[pose - ((byte)SamusPoseId.UnusedPose40 + 1)];
         return (SamusPoseId)pose switch
         {
             SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
@@ -76,8 +83,7 @@ internal static class SamusHudDefinitions
             SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose or
             SamusPoseId.UnusedPose39 or SamusPoseId.UnusedPose3A or
             SamusPoseId.UnusedPose3F or SamusPoseId.UnusedPose40 => 1,
-            _ => pose < FirstTransitionPose ? PrecedingInstructionObservations[pose]
-                : FollowingInstructionObservations[pose - ((byte)SamusPoseId.UnusedPose40 + 1)],
+            _ => throw new InvalidOperationException($"Pose ${pose:X2} is outside the $35-$40 transition block."),
         };
     }
 }

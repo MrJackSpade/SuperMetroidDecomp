@@ -23,7 +23,11 @@ internal static class RidleySamusInteractionDefinitions
         SamusMovementType.Moonwalking or SamusMovementType.WallJumping or SamusMovementType.RanIntoWall or
         SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
         SamusMovementType.Special => GrabPolicy.Ordinary,
-        _ => GrabPolicy.Immune,
+        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
+            SamusMovementType.SpinJumping or SamusMovementType.MorphBallGround or
+            SamusMovementType.UnusedGlitchBall or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
+            SamusMovementType.Grappling or SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld => GrabPolicy.Immune,
+        _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
     };
 
     /// <summary>$A6:BCFC transfers movement bit7 to carry, permitting Ridley's grab when set.</summary>

@@ -109,6 +109,8 @@ public sealed partial class RoomEnemySystem
                     return;
                 FinishKraidGrowth(body, state);
                 return;
+            default:
+                throw new InvalidOperationException($"Kraid body function $A7:{body.VariableA:X4} is not a growth function.");
         }
     }
 

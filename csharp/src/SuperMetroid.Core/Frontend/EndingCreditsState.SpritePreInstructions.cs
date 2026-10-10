@@ -51,6 +51,25 @@ internal sealed partial class EndingCreditsState
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
+            // These actors run no pre-instruction.
+            case EndingSpriteRole.CloudRightA:
+            case EndingSpriteRole.CloudLeftA:
+            case EndingSpriteRole.CloudRightB:
+            case EndingSpriteRole.CloudLeftB:
+            case EndingSpriteRole.CloudTopA:
+            case EndingSpriteRole.CloudTopB:
+            case EndingSpriteRole.CloudBottomA:
+            case EndingSpriteRole.CloudBottomB:
+            case EndingSpriteRole.ExplodingZebes:
+            case EndingSpriteRole.ExplosionSilhouette:
+            case EndingSpriteRole.OperationWasText:
+            case EndingSpriteRole.CompletedSuccessfullyText:
+            case EndingSpriteRole.ClearTimeText:
+            case EndingSpriteRole.ClearTimeDigit:
+            case EndingSpriteRole.RewardSamus:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined ending sprite role {wrapper.Role}.");
         }
     }
 }

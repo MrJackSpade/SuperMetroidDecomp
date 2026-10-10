@@ -26,7 +26,10 @@ internal static class MotherBrainShotReaction
         {
             MotherBrainProjectileType.Beam => 2,
             MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
-            _ => 0,
+            MotherBrainProjectileType.PowerBomb or MotherBrainProjectileType.ClassFour or
+                MotherBrainProjectileType.Bomb or MotherBrainProjectileType.ClassSix or
+                MotherBrainProjectileType.BeamExplosion => 0,
+            _ => throw new ArgumentOutOfRangeException(nameof(projectileType), projectileType, "Undefined projectile class."),
         };
         if (form == 4 && reactionType == 2)
         {

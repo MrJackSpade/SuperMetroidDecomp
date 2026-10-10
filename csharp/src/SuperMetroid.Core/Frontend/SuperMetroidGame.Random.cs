@@ -32,7 +32,26 @@ public sealed partial class SuperMetroidGame
             ceresDestruction?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.EndingAndCredits => endingCredits?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.GameOverMenu => gameOver?.ResumesAfterNmiWait == true,
-        _ => false,
+        SuperMetroidGameState.Reset or SuperMetroidGameState.OpeningCinematic or
+            SuperMetroidGameState.GameOptionsMenu or SuperMetroidGameState.Unused03 or
+            SuperMetroidGameState.FileSelectMap or SuperMetroidGameState.MainGameplayFadeIn or
+            SuperMetroidGameState.MainGameplay or SuperMetroidGameState.HitDoorBlock or
+            SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB or
+            SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
+            SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
+            SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB or
+            SuperMetroidGameState.Unpausing or SuperMetroidGameState.DeathSequenceStart or
+            SuperMetroidGameState.DeathBlackOutSurroundings or SuperMetroidGameState.DeathWaitForMusic or
+            SuperMetroidGameState.DeathPreFlashing or SuperMetroidGameState.DeathFlashing or
+            SuperMetroidGameState.DeathExplosionWhiteOut or SuperMetroidGameState.DeathFinalBlackOut or
+            SuperMetroidGameState.ReserveTanksAuto or SuperMetroidGameState.Unused1c or
+            SuperMetroidGameState.DebugGameOverMenu or SuperMetroidGameState.IntroCinematic or
+            SuperMetroidGameState.MadeItToCeresElevator or SuperMetroidGameState.BlackoutFromCeres or
+            SuperMetroidGameState.TimeUp or SuperMetroidGameState.WhitingOutFromTimeUp or
+            SuperMetroidGameState.SamusEscapesFromZebes or SuperMetroidGameState.TransitionToDemoA or
+            SuperMetroidGameState.TransitionToDemoB or SuperMetroidGameState.PlayingDemo or
+            SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB => false,
+        _ => throw new InvalidOperationException($"Undefined SuperMetroidGameState {GameState}."),
     };
 
     /// <summary>
@@ -88,6 +107,36 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.UnpausingB:
                 FrontendRandomOwner.NextRandom();
                 break;
+            // The gameplay runtime, or no RNG call, owns these states.
+            case SuperMetroidGameState.Unused03:
+            case SuperMetroidGameState.MainGameplayFadeIn:
+            case SuperMetroidGameState.MainGameplay:
+            case SuperMetroidGameState.HitDoorBlock:
+            case SuperMetroidGameState.LoadingNextRoomA:
+            case SuperMetroidGameState.LoadingNextRoomB:
+            case SuperMetroidGameState.PausingDarkening:
+            case SuperMetroidGameState.Unpausing:
+            case SuperMetroidGameState.DeathSequenceStart:
+            case SuperMetroidGameState.DeathBlackOutSurroundings:
+            case SuperMetroidGameState.DeathWaitForMusic:
+            case SuperMetroidGameState.DeathPreFlashing:
+            case SuperMetroidGameState.DeathFlashing:
+            case SuperMetroidGameState.DeathExplosionWhiteOut:
+            case SuperMetroidGameState.ReserveTanksAuto:
+            case SuperMetroidGameState.Unused1c:
+            case SuperMetroidGameState.DebugGameOverMenu:
+            case SuperMetroidGameState.MadeItToCeresElevator:
+            case SuperMetroidGameState.BlackoutFromCeres:
+            case SuperMetroidGameState.TimeUp:
+            case SuperMetroidGameState.SamusEscapesFromZebes:
+            case SuperMetroidGameState.TransitionToDemoA:
+            case SuperMetroidGameState.TransitionToDemoB:
+            case SuperMetroidGameState.PlayingDemo:
+            case SuperMetroidGameState.TransitionFromDemoA:
+            case SuperMetroidGameState.TransitionFromDemoB:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined SuperMetroidGameState {GameState}.");
         }
         // Gameplay retains its existing call after accepted NMI/HDMA processing.
         // Do not advance here for runtime frames or nested NMI-waiting coroutines.

@@ -14,9 +14,12 @@ internal static partial class Program
             AssertEqual(original[index], ControllerBindings.AssignableButton(index),
                 $"native assignable button {index}");
         for (int button = 0; button <= ushort.MaxValue; button++)
-            AssertEqual(Array.IndexOf(original, (ushort)button, 0, 7),
+        {
+            int nativeIndex = Array.IndexOf(original, (ushort)button, 0, 7);
+            AssertEqual(nativeIndex < 0 ? null : nativeIndex,
                 ControllerBindings.AssignableButtonIndex((ushort)button),
                 $"assignable inverse {button:X4}");
+        }
         foreach (int index in new[] { int.MinValue, -1, 7, 8, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ControllerBindings.AssignableButton(index),
                 $"unsupported button index {index}");

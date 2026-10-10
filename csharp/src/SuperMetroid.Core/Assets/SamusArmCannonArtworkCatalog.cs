@@ -1094,7 +1094,9 @@ public static class SamusArmCannonArtworkFormat
             SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => TileOrientation.UpwardDiagonal,
             SamusProjectileDirection.Right or SamusProjectileDirection.Left => TileOrientation.Horizontal,
             SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => TileOrientation.DownwardDiagonal,
-            _ => TileOrientation.Vertical,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft or
+                SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => TileOrientation.Vertical,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined projectile direction."),
         };
         return TileSourcePointers[(int)orientation * (FramesPerDirection - 1) + frame - 1];
     }

@@ -408,11 +408,22 @@ public sealed class RoomLayer3FxState
             case RoomFxType.Acid:
                 liquid.ConfigureLavaAcid(CurrentYPosition, acid: true);
                 return;
-            default:
+            case RoomFxType.None:
+            case RoomFxType.Spores:
+            case RoomFxType.Rain:
+            case RoomFxType.Fog:
+            case RoomFxType.ScrollingSky:
+            case RoomFxType.UnusedScrollingSky:
+            case RoomFxType.Fireflea:
+            case RoomFxType.CeresRidley:
+            case RoomFxType.CeresElevator:
+            case RoomFxType.CeresHaze:
                 // Non-liquid FX still own $196E. Preserve that identity for atmospheric
                 // effects while restoring both liquid positions to their negative sentinel.
                 liquid.ConfigureNonLiquidRoomFx(Type);
                 return;
+            default:
+                throw new InvalidOperationException($"Undefined RoomFxType {Type}.");
         }
     }
 

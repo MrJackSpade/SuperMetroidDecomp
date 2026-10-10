@@ -33,7 +33,9 @@ public sealed partial class FileSelectMapMenuState
                     FileSelectMapRomData.EntryWindowRight + 1, SnesPpuLayout.ScreenHeightPixels - FileSelectMapRomData.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
-            _ => Area(),
+            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
+                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
+            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
         return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
     }

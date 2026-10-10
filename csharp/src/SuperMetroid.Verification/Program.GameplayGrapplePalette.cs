@@ -81,7 +81,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         var expected = new SnesCgram();
         var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");
-        palettes.LoadTo(expected, 2);
+        palettes.LoadTo(expected, SamusBeamCombination.Ice);
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
             samus.Pose = SamusPoseIds.FacingRightNormalPose;
@@ -96,7 +96,7 @@ internal static partial class Program
             samus.YPosition = (ushort)(192 - samus.Kinematics.YRadius);
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             runtime.StepFrame(0);
-            palettes.LoadTo(runtime.Cgram, beam);
+            palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame((ushort)SnesButton.X);
             AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
@@ -105,7 +105,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.CommitPoseHistory(bus);
-            palettes.LoadTo(runtime.Cgram, beam);
+            palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));
             runtime.StepFrame((ushort)SnesButton.X);
             AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
@@ -114,7 +114,7 @@ internal static partial class Program
                 runtime.StepFrame(0);
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "release cancels extending grapple");
             var ordinary = new SnesCgram();
-            palettes.LoadTo(ordinary, beam);
+            palettes.LoadTo(ordinary, SamusBeamCombinations.FromTableIndex(beam));
             AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(ordinary.Colors.Slice(224, 16)),
                 "cancel restores equipped beam palette");
         }

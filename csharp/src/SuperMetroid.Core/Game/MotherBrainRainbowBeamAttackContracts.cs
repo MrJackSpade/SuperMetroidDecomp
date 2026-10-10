@@ -184,6 +184,16 @@ public enum MotherBrainProjectileType
     Missile = 1,
     /// <summary>Low-three-bit class two: a super missile projectile for damage lookup.</summary>
     SuperMissile = 2,
+    /// <summary>Low-three-bit class three: the Power Bomb family.</summary>
+    PowerBomb = 3,
+    /// <summary>Low-three-bit class four: the projectile family nibble $4, whose producer is not translated.</summary>
+    ClassFour = 4,
+    /// <summary>Low-three-bit class five: the bomb family.</summary>
+    Bomb = 5,
+    /// <summary>Low-three-bit class six: the projectile family nibble $6, whose producer is not translated.</summary>
+    ClassSix = 6,
+    /// <summary>Low-three-bit class seven: the beam-explosion family.</summary>
+    BeamExplosion = 7,
 }
 
 /// <summary>

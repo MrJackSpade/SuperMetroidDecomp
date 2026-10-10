@@ -53,7 +53,8 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 IntroEggCell.TopRight => stage >= 3,
                 IntroEggCell.MiddleRight => stage >= 4,
                 IntroEggCell.Center => stage >= 5,
-                _ => false,
+                IntroEggCell.BottomLeft or IntroEggCell.BottomMiddle or IntroEggCell.BottomRight => false,
+                _ => throw new InvalidOperationException($"Undefined egg cell {cell}."),
             };
             int tile = cracked ? IntroEggCrackingAtlas.Patch + 16 * row + column
                 : row == 0 ? IntroEggRockingAtlas.TopStrip + column

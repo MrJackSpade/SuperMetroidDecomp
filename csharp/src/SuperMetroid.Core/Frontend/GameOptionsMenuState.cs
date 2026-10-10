@@ -487,9 +487,8 @@ public sealed class GameOptionsMenuState
             "Controller labels require installed presentation assets.");
         for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
         {
-            int button = Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]);
             content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
-                button < 0 ? 0 : button);
+                Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]) ?? 0);
         }
     }
 

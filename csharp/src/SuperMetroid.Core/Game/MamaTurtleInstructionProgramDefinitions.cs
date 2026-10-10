@@ -119,7 +119,8 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
                 ShellProgram.MamaEnterRight => MamaEnterRightDurations[frame],
                 ShellProgram.BabyHide => BabyHideDurations[frame],
                 ShellProgram.MamaLeave => MamaLeaveDurations[frame],
-                _ => BabyLeaveDurations[frame],
+                ShellProgram.BabyLeave => BabyLeaveDurations[frame],
+                _ => throw new InvalidOperationException($"Undefined ShellProgram {program}."),
             };
         }
         else if (offset == 4 * frames)
@@ -129,7 +130,8 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
                 ShellProgram.MamaEnterRight => MamaTurtleInstructionCodes.RiseToHoverLeftwards,
                 ShellProgram.BabyHide => MamaTurtleInstructionCodes.LeaveShell,
                 ShellProgram.MamaLeave => MamaTurtleInstructionCodes.EnterShell,
-                _ => MamaTurtleInstructionCodes.LeftShell,
+                ShellProgram.BabyLeave => MamaTurtleInstructionCodes.LeftShell,
+                _ => throw new InvalidOperationException($"Undefined ShellProgram {program}."),
             };
         else if (offset == 4 * frames + 2) value = program == ShellProgram.BabyLeave ? (ushort)47 : (ushort)0x7fff;
         else if (offset == 4 * frames + 6) value = CommonEnemyInstructionCodes.Sleep;

@@ -331,6 +331,12 @@ public static partial class SamusGrappleMovement
                         controllerInput,
                         enemy.EnemyDamage);
                     return QueueFiringCancellation(grapple);
+                // Kill and no interaction fall through to terrain, like the native zero return.
+                case GrappleEnemyReaction.None:
+                case GrappleEnemyReaction.Kill:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
             }
         }
 

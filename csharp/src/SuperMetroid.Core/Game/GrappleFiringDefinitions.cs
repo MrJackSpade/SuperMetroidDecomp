@@ -59,7 +59,8 @@ internal static class GrappleFiringDefinitions
             GrappleOriginDirection.DownFacingRight => 3,
             GrappleOriginDirection.DownFacingLeft => -4,
             GrappleOriginDirection.DownLeft or GrappleOriginDirection.UpLeft => -10,
-            _ => -2,
+            GrappleOriginDirection.Left or GrappleOriginDirection.UpFacingLeft => -2,
+            _ => throw new InvalidOperationException($"Undefined GrappleOriginDirection {aim}."),
         };
         short y = aim switch
         {
@@ -67,7 +68,8 @@ internal static class GrappleFiringDefinitions
             GrappleOriginDirection.UpRight or GrappleOriginDirection.UpLeft => -12,
             GrappleOriginDirection.Right or GrappleOriginDirection.Left => running ? (short)-2 : (short)2,
             GrappleOriginDirection.DownRight or GrappleOriginDirection.DownLeft => 0,
-            _ => 6,
+            GrappleOriginDirection.DownFacingRight or GrappleOriginDirection.DownFacingLeft => 6,
+            _ => throw new InvalidOperationException($"Undefined GrappleOriginDirection {aim}."),
         };
         return (x, y);
     }

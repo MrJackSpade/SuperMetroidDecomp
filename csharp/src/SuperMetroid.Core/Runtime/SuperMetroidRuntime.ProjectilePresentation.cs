@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -138,9 +139,9 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
     private void PublishReboundBeamArtwork()
     {
         if (!beamArtworkRefreshPending || Samus is null) return;
-        int selection = Samus.EquippedBeams & 0x0fff;
         // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (selection < BeamTileAtlasDefinitions.SelectionCount)
+        if (new Game.SamusBeamLoadoutWord(Samus.EquippedBeams).Combination is Game.SamusBeamCombination selection &&
+            selection.IsRetail)
         {
             Vram.ExecuteQueuedAssetWrite(BeamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span,
                 BeamTileAtlasDefinitions.DestinationWord);

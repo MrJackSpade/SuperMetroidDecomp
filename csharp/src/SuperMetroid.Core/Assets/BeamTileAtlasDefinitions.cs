@@ -19,10 +19,27 @@ public static class BeamTileAtlasDefinitions
     public const int ArtworkCount = SelectionCount + 2;
     /// <summary>Maps the complete artwork-catalog ordinal to its independently editable beam identity: ordinary selections $00..$0B, then bounded Chainsaw $0D and SpaceTime $0E.</summary>
     /// <param name="index">Zero-based artwork ordinal 0..13; the last two ordinals are not their returned beam-selection values.</param>
-    /// <returns>The native equipped-beam selection used to name and install the tile sheet; unsupported selection $0C is not enumerated.</returns>
+    /// <returns>The beam combination used to name and install the tile sheet; $0C and $0F have no artwork.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The artwork ordinal is outside 0..13.</exception>
-    public static int SelectionAt(int index) => index == SelectionCount ? Game.ChainsawBeamGraphicsDefinitions.Selection :
-        index == SelectionCount + 1 ? Game.SpacetimeBeamGraphicsDefinitions.Selection : (uint)index < SelectionCount ? index : throw new ArgumentOutOfRangeException(nameof(index));
+    public static SamusBeamCombination SelectionAt(int index) => index == SelectionCount ? Game.ChainsawBeamGraphicsDefinitions.Selection :
+        index == SelectionCount + 1 ? Game.SpacetimeBeamGraphicsDefinitions.Selection : (uint)index < SelectionCount
+            ? SamusBeamCombinations.FromTableIndex(index) : throw new ArgumentOutOfRangeException(nameof(index));
+
+    /// <summary>The artwork-catalog ordinal of a combination's sheet: the inverse of <see cref="SelectionAt"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork.</exception>
+    public static int ArtworkOrdinal(SamusBeamCombination selection) => selection switch
+    {
+        Game.ChainsawBeamGraphicsDefinitions.Selection => SelectionCount,
+        Game.SpacetimeBeamGraphicsDefinitions.Selection => SelectionCount + 1,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
+        SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
+            SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
+            SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
+            SamusBeamCombination.PlasmaIceWave => selection.TableIndex,
+        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
+    };
     /// <summary>$9A:F200, Tiles_PowerBeam; native power-beam character source.</summary>
     public const int PowerSource = 0x9af200;
     /// <summary>$9A:F400, Tiles_IceBeam; native ice-beam character source.</summary>
@@ -36,22 +53,34 @@ public static class BeamTileAtlasDefinitions
 
     /// <summary>$90:C3B1, BeamTilesPointers; resolves a legacy source to its base selection.
     /// Native shared sheets do not encode the independently editable combination identity.</summary>
-    public static int LegacySelectionFor(int sourceAddress) => sourceAddress switch
+    /// <returns>The base selection, or null when the address is not a beam tile source.</returns>
+    public static SamusBeamCombination? LegacySelectionFor(int sourceAddress) => sourceAddress switch
     {
         Game.ChainsawBeamGraphicsDefinitions.TileSource => Game.ChainsawBeamGraphicsDefinitions.Selection,
         Game.SpacetimeBeamGraphicsDefinitions.TileSource => Game.SpacetimeBeamGraphicsDefinitions.Selection,
-        PowerSource => 0, WaveSource => 1, IceSource => 2,
-        SpazerSource => 4, PlasmaSource => 8, _ => -1,
+        PowerSource => SamusBeamCombination.Power, WaveSource => SamusBeamCombination.Wave,
+        IceSource => SamusBeamCombination.Ice, SpazerSource => SamusBeamCombination.Spazer,
+        PlasmaSource => SamusBeamCombination.Plasma, _ => null,
     };
 
     /// <summary>Creates a selection-keyed PNG filename, retaining separately editable combination identities even where native combinations share the same source sheet.</summary>
     /// <param name="selection">Native beam identity $00..$0B, Chainsaw $0D, or SpaceTime $0E; not an artwork-catalog ordinal.</param>
     /// <returns><c>beam-XX-tiles.png</c> with two uppercase hexadecimal selection digits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The selection is outside the supported ordinary/bounded domain.</exception>
-    public static string FileName(int selection)
+    public static string FileName(SamusBeamCombination selection)
     {
-        if ((uint)selection >= SelectionCount && selection != Game.ChainsawBeamGraphicsDefinitions.Selection && selection != Game.SpacetimeBeamGraphicsDefinitions.Selection) throw new ArgumentOutOfRangeException(nameof(selection));
-        return $"beam-{selection:X2}-tiles.png";
+        _ = ArtworkOrdinal(selection);
+        return $"beam-{selection.TableIndex:X2}-tiles.png";
+    }
+
+    /// <summary>The bounded glitch sheets read adjacent native data; none of the retail pixel relationships apply.</summary>
+    private static bool IsAdjacentDataArtwork(SamusBeamCombination selection)
+    {
+        if (selection is Game.ChainsawBeamGraphicsDefinitions.Selection or Game.SpacetimeBeamGraphicsDefinitions.Selection)
+            return true;
+        if (!selection.IsRetail)
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork.");
+        return false;
     }
     /// <summary>$9A:F240..F25F is the transposed power-beam tile0 at F200..F21F.</summary>
     private const int PowerTransposedTile = 2;
@@ -117,12 +146,11 @@ public static class BeamTileAtlasDefinitions
     /// fitting of those categorical assignments would re-encode the painting. Only the five
     /// original seed positions are covered; profile width/period/phase, RGB palettes and all
     /// other tile/pixel choices remain required. Independently supplied edits override each pen.</remarks>
-    internal static bool TryStockPlasmaInk(int selection, int pixel, out byte ink)
+    internal static bool TryStockPlasmaInk(SamusBeamCombination selection, int pixel, out byte ink)
     {
-        if (selection is ChainsawBeamGraphicsDefinitions.Selection or SpacetimeBeamGraphicsDefinitions.Selection) { ink = 0; return false; }
-        if ((uint)selection >= SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
+        if (IsAdjacentDataArtwork(selection)) { ink = 0; return false; }
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
-        if (((SamusBeamFlags)selection & SamusBeamFlags.Plasma) == 0)
+        if (!selection.HasPlasma)
         {
             ink = 0;
             return false;
@@ -146,17 +174,15 @@ public static class BeamTileAtlasDefinitions
     /// other pixel sites remain independently required artwork. Source -1 is transparent;
     /// derived sources lie in the first tile or earlier rows/columns of their own impact tile. These rules form acyclic dependencies on independently supplied basis pixels.
     /// </summary>
-    internal static bool TryDerivedPixelSource(int selection, int pixel, out int source)
+    internal static bool TryDerivedPixelSource(SamusBeamCombination selection, int pixel, out int source)
     {
-        if (selection is ChainsawBeamGraphicsDefinitions.Selection or SpacetimeBeamGraphicsDefinitions.Selection) { source = 0; return false; }
-        if ((uint)selection >= SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
+        if (IsAdjacentDataArtwork(selection)) { source = 0; return false; }
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
-        var beams = (SamusBeamFlags)selection;
         int tile = pixel % Width / Height;
         int x = pixel % Height;
         int y = pixel / Width;
         // $9A:F400..F41F is horizontally symmetric about the first Ice tile's center.
-        if (beams == SamusBeamFlags.Ice && tile == 0 && x >= Height / 2)
+        if (selection == SamusBeamCombination.Ice && tile == 0 && x >= Height / 2)
         {
             source = y * Width + Height - 1 - x;
             return true;
@@ -165,7 +191,7 @@ public static class BeamTileAtlasDefinitions
         // Native composition origins remain owned/required in the shared catalog;
         // the base horizontal thickness remains required here. Neither is inferred
         // from the diagonal mask that this projection produces.
-        if ((beams & SamusBeamFlags.Spazer) != 0 && tile >= SpazerDiagonalFirstTile && tile <= SpazerDiagonalFirstTile + 1)
+        if (selection.HasSpazer && tile >= SpazerDiagonalFirstTile && tile <= SpazerDiagonalFirstTile + 1)
         {
             int bandX = (tile - SpazerDiagonalFirstTile) * Height + x;
             double distance = (SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
@@ -193,7 +219,7 @@ public static class BeamTileAtlasDefinitions
         }
         // Native Wave impact sheets are centered shapes: two half-turn pairs and
         // one shape reflected across both central axes. Keep their source quadrants required.
-        if (CanonicalSelection(selection) == (int)SamusBeamFlags.Wave)
+        if (CanonicalSelection(selection) == SamusBeamCombination.Wave)
         {
             if ((tile == WaveLargeImpactTile || tile == WaveSmallImpactTile) && y >= Height / 2)
             {
@@ -208,7 +234,7 @@ public static class BeamTileAtlasDefinitions
         }
         // These exact wide-ribbon repetitions do not dispose of their selected
         // profile rows, pattern periods, or independent source inks.
-        if ((beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0 && tile == LongBeamWideRibbonTile)
+        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamWideRibbonTile)
         {
             if (y is WideRibbonBorderRow or (Height - 1))
                 source = WideRibbonBorderRow * Width + tile * Height;
@@ -227,7 +253,7 @@ public static class BeamTileAtlasDefinitions
             }
             return source != pixel;
         }
-        if ((beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0 && tile == LongBeamImpactTile)
+        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamImpactTile)
         {
             int row = (y & 1) == 0 ? 0 : y % LongBeamImpactRowPeriod;
             source = row * Width + tile * Height + x;
@@ -235,12 +261,12 @@ public static class BeamTileAtlasDefinitions
         }
         // These native ribbon profiles remain required artwork choices; calculate only
         // their exact row reflection/repetition and preserve independently selected inks.
-        if (beams == 0 && tile == 0 && y >= Height / 2)
+        if (selection == SamusBeamCombination.Power && tile == 0 && y >= Height / 2)
         {
             source = (Height - 1 - y) * Width + x;
             return true;
         }
-        if ((beams & SamusBeamFlags.Plasma) != 0 && tile == 0)
+        if (selection.HasPlasma && tile == 0)
         {
             int center = Height / 2;
             if (y < center - PlasmaEdgeDistance || y > center + PlasmaEdgeDistance)
@@ -256,7 +282,7 @@ public static class BeamTileAtlasDefinitions
             }
             return source != pixel;
         }
-        if ((beams & SamusBeamFlags.Spazer) != 0 && tile == 0)
+        if (selection.HasSpazer && tile == 0)
         {
             double distance = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + y + 0.5;
             if (Math.Abs(distance) >= SpazerRibbonThickness / 2.0)
@@ -273,17 +299,17 @@ public static class BeamTileAtlasDefinitions
             source = upper * Width + (x + Height - SpazerLowerRowShift * (y - upper)) % Height;
             return true;
         }
-        if ((beams == 0 || beams == SamusBeamFlags.Ice) && tile >= TransparentTailFirstTile)
+        if (selection is SamusBeamCombination.Power or SamusBeamCombination.Ice && tile >= TransparentTailFirstTile)
         {
             source = -1;
             return true;
         }
-        if (beams == 0 && tile == PowerTransposedTile)
+        if (selection == SamusBeamCombination.Power && tile == PowerTransposedTile)
         {
             source = x * Width + y;
             return true;
         }
-        if ((beams & (SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0 && tile == LongBeamVerticalTile)
+        if ((selection.HasSpazer || selection.HasPlasma) && tile == LongBeamVerticalTile)
         {
             source = (Height - 1 - x) * Width + y;
             return true;
@@ -293,35 +319,42 @@ public static class BeamTileAtlasDefinitions
     }
 
     /// <summary>$90:C3B1..C3C7: Plasma, then Spazer, then Wave, then Ice selects the shared native sheet; secondary equipped effects do not change its pixels.</summary>
-    internal static int CanonicalSelection(int selection)
+    internal static SamusBeamCombination CanonicalSelection(SamusBeamCombination selection) => selection switch
     {
-        if ((uint)selection >= SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        var beams = (SamusBeamFlags)selection;
-        if ((beams & SamusBeamFlags.Plasma) != 0) return (int)SamusBeamFlags.Plasma;
-        if ((beams & SamusBeamFlags.Spazer) != 0) return (int)SamusBeamFlags.Spazer;
-        if ((beams & SamusBeamFlags.Wave) != 0) return (int)SamusBeamFlags.Wave;
-        if ((beams & SamusBeamFlags.Ice) != 0) return (int)SamusBeamFlags.Ice;
-        return 0;
-    }
+        SamusBeamCombination.Power => SamusBeamCombination.Power,
+        SamusBeamCombination.Ice => SamusBeamCombination.Ice,
+        SamusBeamCombination.Wave or SamusBeamCombination.IceWave => SamusBeamCombination.Wave,
+        SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIce or
+            SamusBeamCombination.SpazerIceWave => SamusBeamCombination.Spazer,
+        SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
+            SamusBeamCombination.PlasmaIceWave => SamusBeamCombination.Plasma,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Only retail combinations share a native sheet."),
+        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
+    };
 
     /// <summary>$9A:F660..F69F repeats PowerF260..F29F; FA80..FAFF repeats PlasmaF880..F8FF. Other families provide their own required pixels.</summary>
-    internal static int SharedTileSourceSelection(int selection) => (SamusBeamFlags)CanonicalSelection(selection) switch
+    /// <returns>The sheet whose shared tiles this canonical sheet repeats, or null when it repeats none.</returns>
+    internal static SamusBeamCombination? SharedTileSourceSelection(SamusBeamCombination selection) => CanonicalSelection(selection) switch
     {
-        SamusBeamFlags.Wave => 0,
-        SamusBeamFlags.Spazer => (int)SamusBeamFlags.Plasma,
-        _ => -1,
+        SamusBeamCombination.Wave => SamusBeamCombination.Power,
+        SamusBeamCombination.Spazer => SamusBeamCombination.Plasma,
+        SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Plasma => null,
+        var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
     };
 
     /// <summary>Wave tiles3/4 share Power's same slots; Spazer's last four upload tiles share Plasma's same slots.</summary>
-    internal static bool IsSharedTilePixel(int selection, int pixel)
+    internal static bool IsSharedTilePixel(SamusBeamCombination selection, int pixel)
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel % Width / Height;
-        return (SamusBeamFlags)CanonicalSelection(selection) switch
+        return CanonicalSelection(selection) switch
         {
-            SamusBeamFlags.Wave => tile is 3 or 4,
-            SamusBeamFlags.Spazer => tile >= 4,
-            _ => false,
+            SamusBeamCombination.Wave => tile is 3 or 4,
+            SamusBeamCombination.Spazer => tile >= 4,
+            SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Plasma => false,
+            var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
         };
     }
 }

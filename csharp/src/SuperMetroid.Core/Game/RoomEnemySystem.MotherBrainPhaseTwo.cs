@@ -729,8 +729,12 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyPose.LeaningDown:
                 SetMotherBrainInstructionList(state.Body, 0x99e2);
                 return false;
-            default:
+            case MotherBrainBodyPose.Walking:
+            case MotherBrainBodyPose.CrouchingTransition:
+            case MotherBrainBodyPose.DeathBeam:
                 return false;
+            default:
+                throw new InvalidOperationException($"Undefined MotherBrainBodyPose {state.Pose}.");
         }
     }
 

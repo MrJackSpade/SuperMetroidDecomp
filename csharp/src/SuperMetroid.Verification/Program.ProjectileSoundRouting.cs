@@ -13,13 +13,13 @@ internal static partial class Program
                 ? SamusProjectileRomData.Beams.ChargedSounds
                 : SamusProjectileRomData.Beams.UnchargedSounds;
             for (int selector = 0;
-                 selector < SamusProjectileSoundRoutingDefinitions.SelectorCount;
+                 selector < Enum.GetValues<SamusBeamCombination>().Length;
                  selector++)
             {
                 ushort expected = ReadProjectileWord(retail, table + selector * 2);
                 AssertEqual(
                     expected,
-                    SamusProjectileSoundRoutingDefinitions.Resolve(charged, selector),
+                    SamusProjectileSoundRoutingDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(selector)),
                     $"{(charged ? "charged" : "uncharged")} beam sound selector {selector:X}");
                 observations++;
             }
@@ -30,7 +30,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 16, 17, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(
-                () => SamusProjectileSoundRoutingDefinitions.Resolve(false, invalid),
+                () => SamusProjectileSoundRoutingDefinitions.Resolve(false, SamusBeamCombinations.FromTableIndex(invalid)),
                 $"projectile sound selector {invalid} fails outside four-bit domain");
         }
 

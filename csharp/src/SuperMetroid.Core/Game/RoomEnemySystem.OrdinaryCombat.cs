@@ -1490,7 +1490,7 @@ public sealed partial class RoomEnemySystem
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                            (projectile.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+                            !projectile.PackedType.BeamCombination.HasPlasma);
                 }
                 else if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
                     enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
@@ -2673,7 +2673,7 @@ public sealed partial class RoomEnemySystem
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
-            pointer, projectileType.BeamCombinationIndex);
+            pointer, projectileType.BeamCombination.TableIndex);
         if (beamEntry == 0xff)
         {
             return new NormalShotVulnerability(
@@ -2728,7 +2728,7 @@ public sealed partial class RoomEnemySystem
         SamusProjectileFamily family = projectileType.Family;
         int byteOffset = family switch
         {
-            SamusProjectileFamily.Beam => projectileType.BeamCombinationIndex,
+            SamusProjectileFamily.Beam => projectileType.BeamCombination.TableIndex,
             SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
             SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
             SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
@@ -3272,7 +3272,7 @@ public sealed partial class RoomEnemySystem
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         int vulnerabilityOffset = family switch
         {
-            SamusProjectileFamily.Beam => projectile.PackedType.BeamCombinationIndex,
+            SamusProjectileFamily.Beam => projectile.PackedType.BeamCombination.TableIndex,
             SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
             SamusProjectileFamily.SuperMissile =>
                 EnemyVulnerabilityDefinitions.SuperMissileOffset,

@@ -4,7 +4,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class PlmClosedContractDefinitions
 {
     private static readonly ReviewedSource SharedDrawShape = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "EE5DD1AAFD6BCCA4627D2D11582BCB88782327B9B764DAA7081B5DAD3822D132");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "9985A5C60C510351018F1DDBE431A8E39C599D61233AB8F678B7946BC1290782");
 
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -14,7 +14,7 @@ internal static class PlmClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmStationVisualCatalog", "plm-station-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationVisualCatalog.cs", "D2A197C24AE77D2BEB8B8C66BAA5F5A22BD6622BBDB6280FBB3CE9DD499A9BFD"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "18831FF54D50F0480FBB92F5157A0D206F185C10561CAD33BFEA1D7E729ADB70")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmStationDrawDefinitions.cs", "B0E3CC920170EAB8669341A4046B9E80A8CE1FD8989C30F1B1F5D01524B65732")]),
         new("SuperMetroid.Core.Rooms.RoomPlmBombTorizoHandVisualCatalog", "plm-torizo-hand-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombTorizoHandVisualCatalog.cs", "E01676321A8ACE64C952B6FBDD4D3EC12BC1FDCB76E12E9736326588050671A0"),

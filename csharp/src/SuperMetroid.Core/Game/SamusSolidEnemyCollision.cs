@@ -142,6 +142,11 @@ public static class SamusSolidEnemyCollision
             case SamusCollisionDirection.Down:
                 targetY = RoundPositive(state.YPosition, state.YSubposition, distance, distanceSubposition);
                 break;
+            // The pose-observation probe targets Samus's current position.
+            case SamusCollisionDirection.NonDirectionalProbe:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}.");
         }
 
         return (targetX, targetY);

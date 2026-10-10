@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -67,7 +68,15 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         return (ushort)(index < 2 ? SharedRockAndKagoBug + 6 * index + 2
             : SpitRockShot + 6 + 4 * (index - 2));
     }
-    internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => kind switch
+    /// <summary>The projectile kinds whose instruction programs live in this allocation.</summary>
+    private static readonly FrozenSet<RoomEnemyProjectileKind> OwnerKinds =
+    [
+        RoomEnemyProjectileKind.KraidSpitRock, RoomEnemyProjectileKind.KraidCeilingRock,
+        RoomEnemyProjectileKind.KraidRisingRockLeft, RoomEnemyProjectileKind.KraidRisingRockRight,
+        RoomEnemyProjectileKind.KagoBug,
+    ];
+
+    internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => OwnerKinds.Contains(kind) && kind switch
     {
         RoomEnemyProjectileKind.KraidSpitRock =>
             IsSharedProgramAddress(address) || IsSpitShotProgramAddress(address),
@@ -75,7 +84,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.KraidRisingRockLeft or
         RoomEnemyProjectileKind.KagoBug => IsSharedProgramAddress(address),
         RoomEnemyProjectileKind.KraidRisingRockRight => IsRisingRightProgramAddress(address),
-        _ => false,
+        _ => throw new InvalidOperationException($"{kind} is not a Kraid rock owner."),
     };
 
     internal static ushort ReadMechanicsWord(ushort address)

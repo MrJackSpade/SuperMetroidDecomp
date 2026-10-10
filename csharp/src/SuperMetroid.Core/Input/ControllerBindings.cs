@@ -73,10 +73,10 @@ public readonly record struct ControllerBindings(
     };
 
     /// <summary>
-    /// Inverse of <see cref="AssignableButton"/>; returns -1 for every other ushort,
+    /// Inverse of <see cref="AssignableButton"/>; null for every other ushort,
     /// including combinations of valid buttons, directions, Start, and zero.
     /// </summary>
-    public static int AssignableButtonIndex(ushort button) => (SnesButton)button switch
+    public static int? AssignableButtonIndex(ushort button) => (SnesButton)button switch
     {
         SnesButton.X => 0,
         SnesButton.A => 1,
@@ -85,7 +85,7 @@ public readonly record struct ControllerBindings(
         SnesButton.Y => 4,
         SnesButton.L => 5,
         SnesButton.R => 6,
-        _ => -1,
+        _ => null,
     };
 
     /// <summary>Returns one action word using the controller-menu row order.</summary>
@@ -113,7 +113,7 @@ public readonly record struct ControllerBindings(
     {
         if ((uint)action >= 7)
             throw new ArgumentOutOfRangeException(nameof(action));
-        if (AssignableButtonIndex(physicalButton) < 0)
+        if (AssignableButtonIndex(physicalButton) is null)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
@@ -162,7 +162,7 @@ public readonly record struct ControllerBindings(
             for (int action = 0; action < 7; action++)
             {
                 ushort button = this[action];
-                if (AssignableButtonIndex(button) < 0 || seen[..action].Contains(button))
+                if (AssignableButtonIndex(button) is null || seen[..action].Contains(button))
                     return false;
                 seen[action] = button;
             }

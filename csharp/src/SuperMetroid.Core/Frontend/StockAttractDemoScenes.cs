@@ -545,7 +545,13 @@ public static class StockAttractDemoScenes
         Demonstration.PseudoScrewAttack => AttractDemoRomData.RoomSetup.ChargeBeamScroll,
         Demonstration.Kraid => AttractDemoRomData.RoomSetup.KraidTimer,
         Demonstration.TourianEntrance => AttractDemoRomData.RoomSetup.DefeatedKraid,
-        _ => AttractDemoRomData.RoomSetup.NoOp,
+        Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.SpeedBooster or
+        Demonstration.GrappleBeam or Demonstration.IceBeam or Demonstration.FirefleaRoom or
+        Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.ScrewAttack or
+        Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.EyeDoor or
+        Demonstration.RedBrinstarElevator or Demonstration.AdvancedGrappleBeam or
+        Demonstration.SpecialBeamAttack => AttractDemoRomData.RoomSetup.NoOp,
+        _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
     /// <summary>$91:89FD-8A32: selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct native callbacks.</summary>

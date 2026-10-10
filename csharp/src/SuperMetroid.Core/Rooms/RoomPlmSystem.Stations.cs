@@ -305,7 +305,7 @@ public sealed partial class RoomPlmSystem
             StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft =>
                 accessBlockIndex + 1,
             StationAccessBehavior.SaveFloor => accessBlockIndex,
-            _ => int.MinValue,
+            _ => throw new InvalidOperationException($"Undefined station access {access}."),
         };
 
         foreach (PlmSlot slot in _slots)
@@ -334,7 +334,7 @@ public sealed partial class RoomPlmSystem
                     (collisionPose is SamusPoseIds.FacingRightNormalPose or
                         SamusPoseIds.FacingLeftNormalPose) &&
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
-                _ => false,
+                _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };
             if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&
                 (slot.Station.Kind != StationKind.Save ||

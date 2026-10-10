@@ -335,19 +335,25 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// Ice with Spazer/Plasma selects its spread geometry; plain Wave selects its
     /// oscillating geometry; other combinations share the default placement.
     /// </summary>
-    private static int BeamFamily(SamusBeamFlags beams, bool charged) => beams switch
+    private static int BeamFamily(SamusBeamCombination beams, bool charged) => beams switch
     {
-        SamusBeamFlags.Wave or (SamusBeamFlags.Wave | SamusBeamFlags.Ice) =>
+        SamusBeamCombination.Wave or SamusBeamCombination.IceWave =>
             charged ? ChargedBeamTrails_Wave_WaveIce : UnchargedBeamTrails_Wave_WaveIce,
-        SamusBeamFlags.Ice | SamusBeamFlags.Spazer =>
+        SamusBeamCombination.SpazerIce =>
             charged ? ChargedBeamTrails_IceSpazer : UnchargedBeamTrails_IceSpazer,
-        SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer =>
+        SamusBeamCombination.SpazerIceWave =>
             charged ? ChargedBeamTrails_WaveIceSpazer : UnchargedBeamTrails_WaveIceSpazer,
-        SamusBeamFlags.Ice | SamusBeamFlags.Plasma =>
+        SamusBeamCombination.PlasmaIce =>
             charged ? ChargedBeamTrails_IcePlasma : UnchargedBeamTrails_IcePlasma,
-        SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma =>
+        SamusBeamCombination.PlasmaIceWave =>
             charged ? ChargedBeamTrails_WaveIcePlasma : UnchargedBeamTrails_WaveIcePlasma,
-        _ => charged ? ChargedBeamTrails_Default : UnchargedBeamTrails_Default,
+        SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
+            SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave =>
+            charged ? ChargedBeamTrails_Default : UnchargedBeamTrails_Default,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(beams), beams, "The trail tables hold twelve retail rows."),
+        _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
     };
 
     /// <summary>
@@ -365,7 +371,9 @@ internal static class ProjectileTrailCoordinateDefinitions
             SamusProjectileDirection.UpRight or SamusProjectileDirection.DownLeft => 2,
             SamusProjectileDirection.Right or SamusProjectileDirection.Left => 1,
             SamusProjectileDirection.DownRight or SamusProjectileDirection.UpLeft => 3,
-            _ => 0,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
+            _ => throw new InvalidOperationException($"Undefined SamusProjectileDirection {direction}."),
         };
         return family switch
         {
@@ -395,7 +403,10 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => 0,
         SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 1,
-        _ => (int)direction < 4 ? (int)direction + 1 : (int)direction - 1,
+        SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft or
+            SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft => (int)direction < 4 ? (int)direction + 1 : (int)direction - 1,
+        _ => throw new InvalidOperationException($"Undefined SamusProjectileDirection {direction}."),
     };
 
     private static bool TryPointer(int address, out ushort pointer)
@@ -406,17 +417,25 @@ internal static class ProjectileTrailCoordinateDefinitions
         {
             bool charged = address >= BeamTrailOffsets_charged;
             int start = charged ? BeamTrailOffsets_charged : BeamTrailOffsets_uncharged;
-            pointer = unchecked((ushort)BeamFamily((SamusBeamFlags)((address - start) / 2), charged));
+            pointer = unchecked((ushort)BeamFamily(SamusBeamCombinations.FromTableIndex((address - start) / 2), charged));
             return true;
         }
         if (address is >= BeamTrailOffsets_spazerSBA and < UnchargedBeamTrails_Wave_WaveIce)
         {
-            var beams = (SamusBeamFlags)((address - BeamTrailOffsets_spazerSBA) / 2);
+            // $9B:A4E3 holds ten rows; only the Spazer rows name a trail.
+            SamusBeamCombination beams = SamusBeamCombinations.FromTableIndex((address - BeamTrailOffsets_spazerSBA) / 2);
             pointer = unchecked((ushort)(beams switch
             {
-                SamusBeamFlags.Spazer or (SamusBeamFlags.Spazer | SamusBeamFlags.Ice) => UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B,
-                SamusBeamFlags.Spazer | SamusBeamFlags.Wave => SpazerSBATrail_WaveSpazer,
-                _ => 0,
+                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerIce => UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B,
+                SamusBeamCombination.SpazerWave => SpazerSBATrail_WaveSpazer,
+                SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
+                    SamusBeamCombination.IceWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
+                    SamusBeamCombination.PlasmaWave => 0,
+                SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave or SamusBeamCombination.SpazerPlasma or
+                    SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
+                    SamusBeamCombination.SpazerPlasmaIceWave =>
+                    throw new ArgumentOutOfRangeException(nameof(address), address, "The SBA trail table holds ten rows."),
+                _ => throw new ArgumentOutOfRangeException(nameof(address), address, "Undefined beam combination."),
             }));
             return true;
         }

@@ -1276,7 +1276,17 @@ public sealed partial class SuperMetroidGame
         SuperMetroidGameState.UnpausingA => $"Unpausing: fade out ({pauseBrightness})",
         SuperMetroidGameState.UnpausingB => "Unpausing: restore gameplay",
         SuperMetroidGameState.Unpausing => $"Unpausing: gameplay brighten ({pauseBrightness})",
-        _ => GameState.ToString(),
+        SuperMetroidGameState.Unused03 or SuperMetroidGameState.DeathSequenceStart or
+            SuperMetroidGameState.DeathBlackOutSurroundings or SuperMetroidGameState.DeathWaitForMusic or
+            SuperMetroidGameState.DeathPreFlashing or SuperMetroidGameState.DeathFlashing or
+            SuperMetroidGameState.DeathExplosionWhiteOut or SuperMetroidGameState.DeathFinalBlackOut or
+            SuperMetroidGameState.GameOverMenu or SuperMetroidGameState.ReserveTanksAuto or
+            SuperMetroidGameState.Unused1c or SuperMetroidGameState.DebugGameOverMenu or
+            SuperMetroidGameState.TimeUp or SuperMetroidGameState.WhitingOutFromTimeUp or
+            SuperMetroidGameState.CeresGoesBoomWithSamus or SuperMetroidGameState.TransitionToDemoA or
+            SuperMetroidGameState.TransitionToDemoB or SuperMetroidGameState.PlayingDemo or
+            SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB => GameState.ToString(),
+        _ => throw new InvalidOperationException($"Undefined SuperMetroidGameState {GameState}."),
     };
 
     private bool CanEnterPause(

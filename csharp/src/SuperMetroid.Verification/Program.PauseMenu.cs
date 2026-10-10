@@ -203,7 +203,7 @@ internal static partial class Program
             BeamTileAtlasDefinitions.Width / 8, out int waveWidth, out int waveHeight);
         using var wavePng = new MemoryStream();
         IndexedPng.Write(wavePng, waveWidth, waveHeight, wavePixels, SnesGraphics.DiagnosticPalette(16));
-        beamFiles[BeamTileAtlasDefinitions.FileName(1)] = wavePng.ToArray();
+        beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = (BeamPaletteCatalog)typeof(BeamPaletteCatalog)

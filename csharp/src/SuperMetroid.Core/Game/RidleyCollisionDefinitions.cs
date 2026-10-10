@@ -106,7 +106,9 @@ internal static class RidleyCollisionDefinitions
             {
                 BodyFrame.LeftLegsHalfExtended or BodyFrame.RightLegsHalfExtended => 1,
                 BodyFrame.LeftLegsExtended or BodyFrame.RightLegsExtended => 2,
-                _ => 0,
+                BodyFrame.Left or BodyFrame.Right or BodyFrame.LeftMouthHalfOpen or BodyFrame.LeftMouthOpen or
+                    BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen or BodyFrame.Forward => 0,
+                _ => throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
             }) * (2 + 12)),
             1 => LeftHand,
             2 => LeftBody,
@@ -114,7 +116,10 @@ internal static class RidleyCollisionDefinitions
             {
                 BodyFrame.LeftMouthHalfOpen or BodyFrame.RightMouthHalfOpen => 1,
                 BodyFrame.LeftMouthOpen or BodyFrame.RightMouthOpen => 2,
-                _ => 0,
+                BodyFrame.Left or BodyFrame.Right or BodyFrame.LeftLegsHalfExtended or
+                    BodyFrame.LeftLegsExtended or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended or
+                    BodyFrame.Forward => 0,
+                _ => throw new InvalidOperationException($"Undefined BodyFrame {frame}."),
             }) * (2 + 2 * 12)),
         };
         ComponentOffset origin = LeftBase[component];

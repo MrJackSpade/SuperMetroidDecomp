@@ -17,39 +17,41 @@ public static class SamusProjectileSoundRoutingDefinitions
     private const ushort MissileRequest = 0x0003;
     /// <summary>$90:C2C3 non-beam super-missile firing request, reached by charged selector fourteen.</summary>
     private const ushort SuperMissileRequest = 0x0004;
-    /// <summary>The complete raw low-nibble selector domain accepted by the cartridge.</summary>
-    public const int SelectorCount = 16;
+    /// <summary>The cartridge's explicit no-new-sound result.</summary>
+    private const ushort NoSound = 0;
 
     /// <summary>
-    /// Resolves the byte-sized library-one request word for one raw beam combination.
+    /// Resolves the byte-sized library-one request word for one beam combination.
     /// Zero retains the cartridge's explicit no-new-sound result.
     /// </summary>
-    public static ushort Resolve(bool charged, int beamCombination)
+    public static ushort Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
-        if ((uint)beamCombination >= SelectorCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(beamCombination), beamCombination,
-                "Beam sound routing accepts the cartridge's four-bit selector domain.");
-        }
-
+        SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
+            SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
+            SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave =>
+            Authored(charged, combination),
         // The uncharged overread reaches the first charged beam family. The
         // charged overread reaches the non-beam no-sound/missile/super/no-sound row.
-        if (beamCombination >= 12)
-            return charged ? (beamCombination - 12) switch { 1 => MissileRequest, 2 => SuperMissileRequest, _ => (ushort)0 }
-                : Resolve(true, beamCombination - 12);
+        SamusBeamCombination.SpazerPlasma => charged ? NoSound : Authored(true, SamusBeamCombination.Power),
+        SamusBeamCombination.SpazerPlasmaWave => charged ? MissileRequest : Authored(true, SamusBeamCombination.Wave),
+        SamusBeamCombination.SpazerPlasmaIce => charged ? SuperMissileRequest : Authored(true, SamusBeamCombination.Ice),
+        SamusBeamCombination.SpazerPlasmaIceWave => charged ? NoSound : Authored(true, SamusBeamCombination.IceWave),
+        _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
+    };
 
-        SamusBeamFlags elements = (SamusBeamFlags)beamCombination;
-        int family = beamCombination & (int)(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
-        int variant = (elements & (SamusBeamFlags.Ice | SamusBeamFlags.Wave)) switch
+    // Library one reserves four adjacent sounds per beam family (Power, Spazer, Plasma),
+    // followed by the same three families charged, twelve request IDs later.
+    private static ushort Authored(bool charged, SamusBeamCombination combination)
+    {
+        int family = combination.HasPlasma ? 8 : combination.HasSpazer ? 4 : 0;
+        int variant = (combination.HasIce, combination.HasWave) switch
         {
-            SamusBeamFlags.None => 0,
-            SamusBeamFlags.Ice => 1,
-            SamusBeamFlags.Wave => family == 0 ? 2 : 3,
-            _ => family == 0 ? 3 : 2,
+            (false, false) => 0,
+            (true, false) => 1,
+            (false, true) => family == 0 ? 2 : 3,
+            (true, true) => family == 0 ? 3 : 2,
         };
-        // Library one reserves four adjacent sounds per beam family, followed
-        // by the same three families charged, twelve request IDs later.
         return (ushort)(UnchargedPowerRequest + family + variant + (charged ? 12 : 0));
     }
 }

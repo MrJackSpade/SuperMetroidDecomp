@@ -121,6 +121,8 @@ public sealed partial class SuperMetroidGame
                     PublishMenu(title);
                 }
                 break;
+            default:
+                throw new InvalidOperationException($"{GameState} is not an attract-demo state.");
         }
     }
 

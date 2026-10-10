@@ -1652,7 +1652,7 @@ internal static partial class Program
             {
                 var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
                 int word = edit / 3, channel = edit % 3;
-                var color = document["palettes"]![BeamPaletteDefinitions.Key(word / 16)]![word % 16]!;
+                var color = document["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))]![word % 16]!;
                 string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
                 color[component] = color[component]!.GetValue<int>() ^ 1;
                 selected = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
@@ -1670,7 +1670,7 @@ internal static partial class Program
                     AssertEqual(BeamTileAtlasDefinitions.ByteCount, (int)queue.Entries[0].SizeInBytes, "actual palette producer preserves tile extent");
                     AssertEqual(BeamTileAtlasDefinitions.DestinationWord, queue.Entries[0].EncodedVramDestination, "actual palette producer preserves tile destination");
                 }
-                else selected.LoadTo(actual, selection);
+                else selected.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
                 int pointer = 0x900000 | Word(0x90c3c9 + selection * 2);
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
                 {
@@ -1683,7 +1683,7 @@ internal static partial class Program
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), invalid), "Calculated beam colors preserve selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection/queue producers and read guard pass.");
     }
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
@@ -3147,19 +3147,19 @@ internal static partial class Program
         {
             int sourceAddress = 0x9a0000 | Word(0x90c3b1 + selection * 2);
             byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadByte(sourceAddress + offset)).ToArray();
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(selection)];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), selection);
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
             var stored = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
             int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
             AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
             for (int pixel = 0; pixel < 512; pixel++)
             {
-                bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(selection, pixel, out int sourcePixel);
+                bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out int sourcePixel);
                 if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
                     AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
                         "Spazer diagonal geometry and texture retain exactly five original ink seeds");
-                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out byte selectedInk);
+                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out byte selectedInk);
                 AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
                     "Only the five independently reviewed original Plasma seed positions have retained pen values");
                 AssertEqual(!derived && !ink, stored.ContainsKey(pixel), "Every calculated stock pixel is absent from stored basis");
@@ -3170,21 +3170,21 @@ internal static partial class Program
                         "Direct transpose, quarter-turn or transparency equals independently decoded native pixels");
                 }
             }
-            int canonical = BeamTileAtlasDefinitions.CanonicalSelection(selection);
+            int canonical = BeamTileAtlasDefinitions.CanonicalSelection(SamusBeamCombinations.FromTableIndex(selection)).TableIndex;
             AssertEqual(Word(0x90c3b1 + canonical * 2), Word(0x90c3b1 + selection * 2), "Canonical beam family matches original native source-pointer identity");
             var compiledPixels = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(compiled[selection])!;
             int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
             AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
             runtimeBasisTotal += compiledPixels.Count;
-            int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(selection);
+            int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(SamusBeamCombinations.FromTableIndex(selection))?.TableIndex ?? -1;
             byte[] sharedNative = sharedSelection < 0 ? [] : Enumerable.Range(0, 256)
                 .Select(offset => rom.ReadByte((0x9a0000 | Word(0x90c3b1 + sharedSelection * 2)) + offset)).ToArray();
             for (int pixel = 0; pixel < 512; pixel++)
             {
-                bool shared = BeamTileAtlasDefinitions.IsSharedTilePixel(selection, pixel);
-                bool geometry = BeamTileAtlasDefinitions.TryDerivedPixelSource(selection, pixel, out _) ||
-                    BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out _);
+                bool shared = BeamTileAtlasDefinitions.IsSharedTilePixel(SamusBeamCombinations.FromTableIndex(selection), pixel);
+                bool geometry = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out _) ||
+                    BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out _);
                 AssertEqual(selection == canonical && !shared && !geometry, compiledPixels.ContainsKey(pixel),
                     "No shared-source, rotation or blank stock pixel is hidden in runtime storage");
                 if (shared)
@@ -3203,19 +3203,19 @@ internal static partial class Program
                 using var changedPng = new MemoryStream();
                 IndexedPng.Write(changedPng, 64, 8, pixels, image.Palette);
                 byte[] changed = changedPng.ToArray();
-                var edited = BeamTileAtlas.Load(new MemoryStream(changed), selection);
+                var edited = BeamTileAtlas.Load(new MemoryStream(changed), SamusBeamCombinations.FromTableIndex(selection));
                 byte[] expected = native.ToArray();
                 int tile = editedPixel % 64 / 8;
                 int y = editedPixel / 64;
                 int x = editedPixel % 8;
                 expected[tile * 32 + y * 2] ^= (byte)(1 << (7 - x));
                 AssertTrue(expected.AsSpan().SequenceEqual(edited.Transfer.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
-                var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(selection)] = changed };
+                var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = changed };
                 var editedCatalog = BeamTileCatalog.Load(editedFiles, palettes);
                 VerifyQueued(editedCatalog, selection, expected);
                 for (int other = 0; other < 12; other++)
                     if (other != selection)
-                        AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(other)).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(other)).Span),
+                        AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span),
                             "Shared native beam shapes remain independently editable per installed selection");
                 AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "Pixel edits do not mutate original calculated atlas");
             }
@@ -3223,7 +3223,7 @@ internal static partial class Program
         AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
         AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), invalid), "Beam atlas rejects unsupported selection before decoding PNG");
+            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinations.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
         Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and actual queued NMI drains pass.");
 
         void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)

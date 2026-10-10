@@ -51,7 +51,8 @@ public sealed class CrocomireColorCatalog
         Band.InitialWall => CrocomirePaletteRomData.InitialWallCount,
         Band.InitialProjectile => CrocomirePaletteRomData.InitialProjectileCount,
         Band.SkeletonArm => CrocomirePaletteRomData.SkeletonArmCount,
-        _ => CrocomirePaletteRomData.WallSpikesCount,
+        Band.WallSpikes => CrocomirePaletteRomData.WallSpikesCount,
+        _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
     private void Append(SelectedPresentationHash content, Band band, string label)

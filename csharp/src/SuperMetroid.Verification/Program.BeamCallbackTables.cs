@@ -13,19 +13,19 @@ internal static partial class Program
             int table = charged
                 ? SamusBeamPreInstructionCodes.ChargedTable
                 : SamusBeamPreInstructionCodes.UnchargedTable;
-            for (int combination = 0; combination < SamusBeamCallbackDefinitions.CombinationCount; combination++)
+            for (int combination = 0; combination < Enum.GetValues<SamusBeamCombination>().Length; combination++)
             {
                 AssertEqual(
                     ReadBeamCallbackWord(retail, table + combination * sizeof(ushort)),
-                    SamusBeamCallbackDefinitions.Resolve(charged, combination).NativePointer,
+                    SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(combination)).NativePointer,
                     $"charged={charged} callback {combination:X1} matches cartridge");
 
             }
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusBeamCallbackDefinitions.Resolve(false, 16),
-            "beam callback rejects index beyond low nibble");
+            () => SamusBeamCallbackDefinitions.Resolve(false, SamusBeamCombinations.FromTableIndex(16)),
+            "beam combination rejects index beyond low nibble");
 
         var room = new RoomLevelData(
             16,
@@ -54,7 +54,7 @@ internal static partial class Program
                     .Invoke(projectiles, new object?[] { bus, room, samus, (ushort)SnesButton.X, shared, null, charged });
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
-                AssertEqual(SamusBeamCallbackDefinitions.Resolve(charged, beamType).Translated!.Value,
+                AssertEqual(SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated!.Value,
                     projectiles.Slots[0].PreInstruction,
                     $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
                 continue;
@@ -83,7 +83,7 @@ internal static partial class Program
             // lowest live slot after the release frame.
             SamusProjectileSlot fired = projectiles.Slots.First(slot => slot.IsActive);
             SamusBeamCallbackDefinition expected =
-                SamusBeamCallbackDefinitions.Resolve(charged, beamType);
+                SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType));
             AssertEqual(
                 expected.Translated!.Value,
                 fired.PreInstruction,

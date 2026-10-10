@@ -722,7 +722,18 @@ public sealed class SamusXrayState
             SamusMovementType.Running or
             SamusMovementType.RanIntoWall => XrayPosture.Standing,
         SamusMovementType.Crouching => XrayPosture.Crouching,
-        _ => XrayPosture.Disallowed,
+        SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
+            SamusMovementType.MorphBallGround or SamusMovementType.Falling or
+            SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
+            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Knockback or
+            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Unused0D or
+            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
+            SamusMovementType.Moonwalking or SamusMovementType.SpringBallGround or
+            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling or
+            SamusMovementType.WallJumping or SamusMovementType.Grappling or
+            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
+            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => XrayPosture.Disallowed,
+        _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
     };
 
     private static XrayBeamStepResult SnapshotBeamStep(

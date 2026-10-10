@@ -87,7 +87,10 @@ internal sealed class SamusAnimationSegment
         SamusAnimationCommand.TurnTransition or SamusAnimationCommand.RepeatFrom => 1,
         SamusAnimationCommand.ItemTransition => 4,
         SamusAnimationCommand.ItemAirborneTransition => 6,
-        _ => 0,
+        SamusAnimationCommand.Hold or SamusAnimationCommand.LoopUnlessLowEnergy or
+            SamusAnimationCommand.InstallDrainedFall or SamusAnimationCommand.WallJumpSelect or
+            SamusAnimationCommand.Loop => 0,
+        _ => throw new InvalidOperationException($"Undefined SamusAnimationCommand {Command}."),
     };
 
     /// <summary>Encodes the native byte at <paramref name="offset"/> from the segment start.</summary>
@@ -102,7 +105,10 @@ internal sealed class SamusAnimationSegment
             SamusAnimationCommand.RepeatFrom => (byte)(CommandAddress - RepeatTarget),
             SamusAnimationCommand.TurnTransition or SamusAnimationCommand.Transition =>
                 operand == 1 ? (byte)UnequippedGrounded : (byte)0,
-            _ => operand switch
+            SamusAnimationCommand.Hold or SamusAnimationCommand.LoopUnlessLowEnergy or
+                SamusAnimationCommand.InstallDrainedFall or SamusAnimationCommand.ItemAirborneTransition or
+                SamusAnimationCommand.WallJumpSelect or SamusAnimationCommand.ItemTransition or
+                SamusAnimationCommand.Loop => operand switch
             {
                 1 => unchecked((byte)Item),
                 2 => (byte)((ushort)Item >> 8),
@@ -112,6 +118,7 @@ internal sealed class SamusAnimationSegment
                 5 => (byte)EquippedGrounded,
                 _ => (byte)EquippedAirborne,
             },
+            _ => throw new InvalidOperationException($"Undefined SamusAnimationCommand {Command}."),
         };
     }
 }

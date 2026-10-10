@@ -356,8 +356,8 @@ public sealed class SamusCrystalFlashState
         {
             // `$91:DBEB` calls `$90:ACC2`, which masks away Charge Beam and uses the
             // resulting low twelve bits as an index into the retail beam-palette table.
-            int beamType = new SamusBeamLoadoutWord(samus.EquippedBeams).NativeConfigurationIndex;
-            if ((uint)beamType >= SamusPaletteRomData.CrystalFlash.BeamPaletteCount)
+            if (new SamusBeamLoadoutWord(samus.EquippedBeams).Combination is not SamusBeamCombination beamType ||
+                !beamType.IsRetail)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
             (palettes ?? throw new InvalidOperationException(
                 "Crystal Flash requires installed beam palettes.")).LoadTo(cgram, beamType);

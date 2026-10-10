@@ -57,6 +57,10 @@ public sealed class CeresHazeState
             case Phase.FadingOut:
                 if (_counter != 0) Intensity = _counter--;
                 break;
+            case Phase.Waiting:
+                throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");
+            default:
+                throw new InvalidOperationException($"Undefined haze phase {_phase}.");
         }
     }
 }

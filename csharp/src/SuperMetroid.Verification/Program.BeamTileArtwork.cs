@@ -17,8 +17,8 @@ internal static partial class Program
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(selection)];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), selection);
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
             var native = new SnesVram(); var extracted = new SnesVram();
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
@@ -28,7 +28,7 @@ internal static partial class Program
             using var editedPng = new MemoryStream();
             IndexedPng.Write(editedPng, image.Width, image.Height, image.Pixels, image.Palette);
             editedPng.Position = 0;
-            var edited = BeamTileAtlas.Load(editedPng, selection);
+            var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
             edited.LoadTo(extracted);
             int firstByte = BeamTileAtlasDefinitions.DestinationWord * 2;
             AssertEqual((byte)(native.Bytes[firstByte] ^ 0x80), extracted.Bytes[firstByte], "Edited pixel changes the correct tile plane bit");
@@ -56,7 +56,7 @@ internal static partial class Program
             var stockVram = new SnesVram();
             queue.DrainTo(stockVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(stockVram.Bytes.SequenceEqual(native.Bytes), "Queued PNG publishes native pixels only at drain");
-            var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(selection)] = editedPng.ToArray() };
+            var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedCatalog = BeamTileCatalog.Load(replacements);
             var reboundVram = new SnesVram();
             restored.DrainTo(reboundVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), editedCatalog);
@@ -140,7 +140,7 @@ internal static partial class Program
         AssertTrue(runtime.Vram.Bytes.Slice(start, 256).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),
             "Accepted NMI uses current PNG after legacy queued writes");
         runtime.QueueGameplayBeamTilesAndLoadPalette(1);
-        AssertEqual(BeamTileCatalog.AssetFor(1), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
+        AssertEqual(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
         using var saved = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
@@ -150,7 +150,7 @@ internal static partial class Program
         restored.Samus!.EquippedBeams = 1;
         restored.BeamArtwork = stock;
         restored.RunNmi(0, true);
-        AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(1)).Span),
+        AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),
             "Restored runtime resolves queued beam selection through its bound provider");
         Console.WriteLine("Runtime beam PNG: retained/lag display stability, accepted-NMI refresh after legacy writes, equipment queue and restored provider pass.");
     }

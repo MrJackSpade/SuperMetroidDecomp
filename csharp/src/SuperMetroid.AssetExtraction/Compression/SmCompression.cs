@@ -89,38 +89,6 @@ public static class SmCompression
             }
             SmCompressionHeader decoded = SmCompressionHeader.Decode(header, longLength);
 
-            // Commands 4-7 copy bytes already emitted to the destination. Overlapping
-            // copies are intentional and work like LZSS/RLE expansion, one byte at a time.
-            if (decoded.IsCopy)
-            {
-                int copyFrom;
-                if (decoded.IsRelativeCopy)
-                {
-                    // Relative commands encode a one-byte backwards distance.
-                    if (!Next(out byte distance) || distance == 0)
-                        break;
-                    copyFrom = destination.Count - distance;
-                }
-                else
-                {
-                    // Absolute commands encode an offset from the start of this output.
-                    if (!Next(out byte low) || !Next(out byte high))
-                        break;
-                    copyFrom = low | (high << 8);
-                }
-
-                // Commands 5 and 7 XOR every copied byte with $FF.
-                for (int i = 0; i < decoded.Length; i++, copyFrom++)
-                {
-                    if ((uint)copyFrom >= (uint)destination.Count)
-                        goto Invalid;
-                    byte value = destination[copyFrom];
-                    if (!Append(decoded.InvertsCopiedBytes ? (byte)~value : value))
-                        goto Invalid;
-                }
-                continue;
-            }
-
             switch (decoded.Command)
             {
                 case SmCompressionCommand.Literal:
@@ -152,8 +120,42 @@ public static class SmCompression
                         if (!Append((byte)(initial + i))) goto Invalid;
                     break;
 
+                // Commands 4-7 copy bytes already emitted to the destination. Overlapping
+                // copies are intentional and work like LZSS/RLE expansion, one byte at a time.
+                case SmCompressionCommand.AbsoluteCopy:
+                case SmCompressionCommand.AbsoluteCopyInverted:
+                case SmCompressionCommand.RelativeCopy:
+                case SmCompressionCommand.RelativeCopyInverted:
+                    int copyFrom;
+                    if (decoded.IsRelativeCopy)
+                    {
+                        // Relative commands encode a one-byte backwards distance.
+                        if (!Next(out byte distance) || distance == 0)
+                            goto Invalid;
+                        copyFrom = destination.Count - distance;
+                    }
+                    else
+                    {
+                        // Absolute commands encode an offset from the start of this output.
+                        if (!Next(out byte low) || !Next(out byte high))
+                            goto Invalid;
+                        copyFrom = low | (high << 8);
+                    }
+
+                    // Commands 5 and 7 XOR every copied byte with $FF.
+                    for (int i = 0; i < decoded.Length; i++, copyFrom++)
+                    {
+                        if ((uint)copyFrom >= (uint)destination.Count)
+                            goto Invalid;
+                        byte value = destination[copyFrom];
+                        if (!Append(decoded.InvertsCopiedBytes ? (byte)~value : value))
+                            goto Invalid;
+                    }
+                    break;
+
                 default:
-                    goto Invalid;
+                    throw new InvalidOperationException(
+                        $"Undefined compression command ${(byte)decoded.Command:X2}.");
             }
         }
 

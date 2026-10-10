@@ -69,7 +69,8 @@ internal static class SamusAtmosphericAnimationDefinitions
             EffectType.DivingSplash => RetainedDivingSplashTimers[frame],
             EffectType.LavaSurfaceDamage => LavaSurfaceFrameTicks,
             EffectType.Bubbles => BubbleFrameTicks,
-            _ => (ushort)(DustInitialFrameTicks + DustFrameTickIncrement * frame),
+            EffectType.Dust or EffectType.AlternateDust => (ushort)(DustInitialFrameTicks + DustFrameTickIncrement * frame),
+            _ => throw new InvalidOperationException($"Undefined EffectType {(EffectType)type}."),
         };
     }
 }

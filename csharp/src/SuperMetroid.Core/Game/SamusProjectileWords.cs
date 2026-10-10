@@ -60,10 +60,18 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 
     /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
-    /// <see cref="SamusProjectileTypeWord.BeamCombinationIndex"/>, this deliberately retains unknown/debug-edited bits
+    /// <see cref="SamusProjectileTypeWord.BeamCombination"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
     /// </summary>
     public int NativeConfigurationIndex => Raw & NativeConfigurationMask;
+
+    /// <summary>
+    /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
+    /// 4-11 make the twelve-bit index exceed $F.
+    /// </summary>
+    public SamusBeamCombination? Combination => NativeConfigurationIndex <= 0xf
+        ? (SamusBeamCombination)NativeConfigurationIndex
+        : null;
 
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
     public SamusBeamFlags KnownFlags => (SamusBeamFlags)(Raw & (ushort)(
@@ -89,8 +97,8 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     private const ushort LiveMarker = 0x8000;
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
-    /// <summary>Gets the low-nibble beam-combination table index.</summary>
-    public int BeamCombinationIndex => Raw & BeamCombinationMask;
+    /// <summary>Gets the low-nibble beam combination; all sixteen values are defined.</summary>
+    public SamusBeamCombination BeamCombination => (SamusBeamCombination)(Raw & BeamCombinationMask);
     /// <summary>Gets the raw projectile-family nibble in its native bit position.</summary>
     public ushort FamilyValue => (ushort)(Raw & FamilyMask);
     /// <summary>Gets the named projectile family represented by the family nibble.</summary>

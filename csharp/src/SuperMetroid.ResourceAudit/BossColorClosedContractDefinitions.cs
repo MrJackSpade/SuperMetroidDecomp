@@ -6,8 +6,8 @@ internal static class BossColorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "59DCEAF148465D50730C8E384ACF30AC7556EDFB86C55AB29BFCDE8ADAD2BCF7"),
-             new("csharp/src/SuperMetroid.Core/Assets/BeamPaintDefinitions.cs", "D555257482907608D9D0E73DE94C47999A02EDE3E7FC5D5D2F7D0484A36034D5"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "2FE839F2B77B64095C8FDB428B7C45D77DD2C44D935EAC7810FA5E2F8870B5EF"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamPaintDefinitions.cs", "B7E3B7B96379EA02A08752DC044C44A2A58AE38E9BFE3719B9B4B8FDF24DE52E"),
              new("csharp/src/SuperMetroid.Core/Game/SamusEquipmentFlags.cs", "2E8852212BC9B79DA653988390705EE69A71304E11586DF73E5BC267559EE4D3"),
              new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "70B67ADC8BBE53F174027C613AB4003FEB7F11ED65AD0BF2B4E37C7E6372A582"),
              new("csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs", "1E118EEDF3057E8FD81E575E3133003AB51C9B1D84D1912B198C82EAFC691FF8")]),
@@ -28,7 +28,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "E3EFB5FA4E69B08685BA5D077C28F6A8818EF2EA9514284BEB3419E0F16EB406")]),
         new("SuperMetroid.Core.Assets.CrocomireColorCatalog", "crocomire-v1-complete-fixed-palettes",
             ["ApplyInitial", "ApplyFightBody", "ApplySkeletonArm", "ApplyWallSpikes"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs", "176F9892E0B47902D95844471B941990624E932DD398B31138F397B16D3CBA4C"),
+            [new("csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs", "3E4BF100B37F71E4B8A5290180654D7A33165507D3C44C841FFC1C575B188253"),
              new("csharp/src/SuperMetroid.Core/Assets/CrocomirePaintDefinitions.cs", "9BD73BB9F42E0CABB5F4B76BA8580127734372370BCB65CC048BDF03C734D4DF"),
              new("csharp/src/SuperMetroid.Core/Game/CrocomirePaletteRomData.cs", "39287AD8DC13F8C0EB140651073E744AD82B788C15BD3912FDDE0EE3BF23E895")]),
         new("SuperMetroid.Core.Assets.SporeSpawnColorCatalog", "spore-spawn-v1-complete-scene-palettes",

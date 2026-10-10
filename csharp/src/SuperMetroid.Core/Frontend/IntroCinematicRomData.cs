@@ -164,7 +164,13 @@ public static class IntroCinematicRomData
             private readonly Scene scene;
             internal Regions(Scene scene) => this.scene = scene;
             /// <summary>Gets the number of palette spans in the selected scene.</summary>
-            public int Count => scene switch { Scene.Narration => 4, Scene.Discovery => 2, _ => 3 };
+            public int Count => scene switch
+            {
+                Scene.Narration => 4,
+                Scene.Discovery => 2,
+                Scene.Gameplay or Scene.GameplayClear => 3,
+                _ => throw new InvalidOperationException($"Undefined intro palette scene {scene}."),
+            };
             /// <summary>Gets the palette span at the specified scene-relative index.</summary>
             public IntroPaletteSpan this[int index] => scene switch
             {

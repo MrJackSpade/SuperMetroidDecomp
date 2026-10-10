@@ -487,8 +487,6 @@ public static class SamusPaletteRomData
         /// Investigation: #625 / #670.
         /// </remarks>
         public const int BubblePointers = 0x91dc28;
-        /// <summary>Number of beam-loadout palette pointers.</summary>
-        public const int BeamPaletteCount = 12;
         /// <summary>Number of Crystal Flash body records.</summary>
         public const int BodyRecordCount = 10;
         /// <summary>Bytes occupied by one body pointer/timer record.</summary>

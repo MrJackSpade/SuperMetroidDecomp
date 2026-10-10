@@ -86,7 +86,7 @@ public sealed partial class SamusProjectileSystem
             dataPointerTable = slot.PackedType.IsChargedBeam
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
                 : SamusProjectileRomData.Beams.UnchargedDataPointers;
-            dataPointerIndex = slot.PackedType.BeamCombinationIndex;
+            dataPointerIndex = slot.PackedType.BeamCombination.TableIndex;
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
@@ -127,7 +127,7 @@ public sealed partial class SamusProjectileSystem
         }
         else
         {
-            slot.PreInstruction = (slot.PackedType.BeamCombinationIndex & 1) == 0
+            slot.PreInstruction = !slot.PackedType.BeamCombination.HasWave
                 ? SamusProjectilePreInstruction.NoWaveBeam
                 : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
         }
@@ -195,7 +195,7 @@ public sealed partial class SamusProjectileSystem
             // replacing that handler with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
             ApplyEnemyCollisionPrelude(slotIndex,
-                blocksPlasmaBeam || (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+                blocksPlasmaBeam || !slot.PackedType.BeamCombination.HasPlasma);
             return true;
         }
 
@@ -209,7 +209,7 @@ public sealed partial class SamusProjectileSystem
                 // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
                 // beams, not just special beam-combo particles, retain their lifecycle.
                 if (!blocksPlasmaBeam &&
-                    (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
+                    slot.PackedType.BeamCombination.HasPlasma)
                     return true;
                 // $A0:9A07 only marks the shot; enemy hits never reach Kill_Projectile's sound.
                 KillBeam(slot);
@@ -218,10 +218,15 @@ public sealed partial class SamusProjectileSystem
             case SamusProjectileFamily.SuperMissile:
                 KillMissile(slot, sharedProjectiles);
                 return true;
-            default:
+            case SamusProjectileFamily.PowerBomb:
+            case SamusProjectileFamily.Bomb:
+            case SamusProjectileFamily.BeamExplosion:
+            case SamusProjectileFamily.MissileExplosion:
                 // Existing explosion, bomb, and unknown family slots cannot repeatedly
                 // increment an enemy hit counter merely because their art still overlaps.
                 return false;
+            default:
+                throw new InvalidOperationException($"Undefined SamusProjectileFamily {slot.PackedType.Family}.");
         }
     }
 
@@ -276,7 +281,7 @@ public sealed partial class SamusProjectileSystem
                 ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
                 : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
         ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
-            familyTable + projectile.PackedType.BeamCombinationIndex * 2);
+            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2);
         ushort offsetList = ProjectileTrailCoordinateDefinitions.ReadDirectionPointer(
             bus,
             SamusProjectileRomData.Banks.PaletteAndTrailData |
@@ -718,8 +723,23 @@ public sealed partial class SamusProjectileSystem
                     targetIndex = block.Index + (offset * level.WidthInBlocks);
                     break;
 
-                default:
+                case RoomCollisionType.Air:
+                case RoomCollisionType.Slope:
+                case RoomCollisionType.SpikeAir:
+                case RoomCollisionType.SpecialAir:
+                case RoomCollisionType.ShootableAir:
+                case RoomCollisionType.UnusedAir:
+                case RoomCollisionType.BombableAir:
+                case RoomCollisionType.SolidBlock:
+                case RoomCollisionType.DoorBlock:
+                case RoomCollisionType.SpikeBlock:
+                case RoomCollisionType.SpecialBlock:
+                case RoomCollisionType.ShootableBlock:
+                case RoomCollisionType.GrappleBlock:
+                case RoomCollisionType.BombableBlock:
                     return block;
+                default:
+                    throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
             }
 
             if ((uint)targetIndex >= (uint)level.ForegroundEntries.Length)

@@ -68,7 +68,9 @@ internal sealed class MotherBrainRainbowShadeChannel
             {
                 MotherBrainRainbowShadeProfile.MixedBlue => inputs[0],
                 MotherBrainRainbowShadeProfile.MaximumBlue => inputs[0] - color / Layout.DarkHead * MotherBrainRainbowShadeDefinitions.BlueHeadStep,
-                _ => inputs[0] - color * MotherBrainRainbowShadeDefinitions.GreenHeadStep,
+                MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.SecondGreenRise or
+                    MotherBrainRainbowShadeProfile.RecoveringGreen => inputs[0] - color * MotherBrainRainbowShadeDefinitions.GreenHeadStep,
+                _ => throw new InvalidOperationException($"Undefined rainbow shade profile {profile}."),
             };
         if (profile == MotherBrainRainbowShadeProfile.RecoveringGreen)
             return color is Layout.TissueStart + 2 or Layout.TissueStart + 3
@@ -84,7 +86,10 @@ internal sealed class MotherBrainRainbowShadeChannel
             {
                 MotherBrainRainbowShadeProfile.SecondGreenRise => Rounding.NearestEven,
                 MotherBrainRainbowShadeProfile.MixedBlue => Rounding.Floor,
-                _ => Rounding.NearestUp,
+                MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MaximumBlue => Rounding.NearestUp,
+                MotherBrainRainbowShadeProfile.RecoveringGreen =>
+                    throw new InvalidOperationException("Recovering green tissue samples are selected above."),
+                _ => throw new InvalidOperationException($"Undefined rainbow shade profile {profile}."),
             };
             return Interpolate(inputs[3], inputs[4], color - Layout.TissueStart, Layout.TissueIntervals, rounding);
         }

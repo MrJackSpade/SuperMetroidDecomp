@@ -52,7 +52,16 @@ internal static class SamusAtmosphericEffectDefinitions
             SamusMovementType.Standing or SamusMovementType.MorphBallGround or SamusMovementType.Crouching or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
             SamusMovementType.SpringBallGround or SamusMovementType.RanIntoWall => WaterSplashKind.GroundedPair,
-            _ => WaterSplashKind.Diving,
+            SamusMovementType.Running or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
+                SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall or
+                SamusMovementType.MorphBallFalling or SamusMovementType.UnusedGlitchBallAlternate or
+                SamusMovementType.Knockback or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
+                SamusMovementType.Unused0D or SamusMovementType.SpringBallInAir or
+                SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or
+                SamusMovementType.Grappling or SamusMovementType.TurningWhileJumping or
+                SamusMovementType.TurningWhileFalling or SamusMovementType.DamageBoost or
+                SamusMovementType.DraygonHeld or SamusMovementType.Special => WaterSplashKind.Diving,
+            _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
         };
     }
     /// <summary>$90:A424: one contact at phase two of each five-frame running step.</summary>

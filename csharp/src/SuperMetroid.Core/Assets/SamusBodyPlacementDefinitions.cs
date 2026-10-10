@@ -80,8 +80,18 @@ internal static class SamusBodyPlacementDefinitions
                 target = Game.SamusPoseId.CrouchingRightPose; sourceBottom = false;
                 join = frame == 1 ? UnmorphSupportJoin : 0;
                 break;
-            default:
+            // The rest of the $35-$40 posture block derives no support row.
+            case Game.SamusPoseId.CrouchingTransitionLeftPose:
+            case Game.SamusPoseId.MorphingTransitionLeftPose:
+            case Game.SamusPoseId.UnusedPose39:
+            case Game.SamusPoseId.UnusedPose3A:
+            case Game.SamusPoseId.StandingTransitionLeftPose:
+            case Game.SamusPoseId.UnmorphingTransitionLeftPose:
+            case Game.SamusPoseId.UnusedPose3F:
+            case Game.SamusPoseId.UnusedPose40:
                 value = 0; return true;
+            default:
+                throw new InvalidOperationException($"{pose} is outside the posture source block.");
         }
         value = 0;
         try

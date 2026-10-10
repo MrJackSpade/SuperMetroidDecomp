@@ -119,6 +119,12 @@ internal sealed class InstructionProgramLayout
                 case InstructionItemKind.Skip:
                     address += item.Value;
                     break;
+                // A matching entry and a plain word run only advance through their words.
+                case InstructionItemKind.Entry:
+                case InstructionItemKind.Words:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined instruction item kind {item.Kind}.");
             }
             foreach (InstructionWord word in item.Words)
             {

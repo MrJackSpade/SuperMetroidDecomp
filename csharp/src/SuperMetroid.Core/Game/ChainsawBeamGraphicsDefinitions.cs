@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Game;
 internal static class ChainsawBeamGraphicsDefinitions
 {
     /// <summary>$000D: Plasma/Spazer/Wave indexes two words beyond the twelve-entry tile table at $90:C3B1.</summary>
-    internal const int Selection = 0x0d;
+    internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaWave;
     /// <summary>$9A:C421: $90:C3CB (the second palette-pointer word) reinterpreted by $90:AC8D as the tile pointer.</summary>
     internal const int TileSource = 0x9ac421;
     /// <summary>$90:7FFF: $90:C3E3 (Power palette color one) reinterpreted by $90:ACCD as the color source.</summary>

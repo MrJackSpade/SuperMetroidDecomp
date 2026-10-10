@@ -213,7 +213,7 @@ public sealed partial class RoomPlmSystem
             // The retail right-yellow routine branches on BNE rather than BEQ. Preserve
             // that cartridge asymmetry even though it looks like a likely original bug.
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
-            _ => false,
+            _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
         };
     }
 

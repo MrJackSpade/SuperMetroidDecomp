@@ -17,19 +17,20 @@ internal static class BeamPaintDefinitions
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
-    internal static Bgr555 Color(int selection, int color)
+    internal static Bgr555 Color(SamusBeamCombination selection, int color)
     {
         if (color == 0) return new Bgr555(0, 0, ClearTargetBlue);
         if (color == 1) return new Bgr555(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
         if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) return Bgr555.Black;
-        int source = BeamPaletteDefinitions.ColorSourceSelection(selection, color);
+        SamusBeamCombination source = BeamPaletteDefinitions.ColorSourceSelection(selection, color);
         (int red, int green, int blue) = source switch
         {
-            (int)SamusBeamFlags.Ice => Ice(color),
-            (int)SamusBeamFlags.Wave => Wave(color),
-            (int)SamusBeamFlags.Plasma => Plasma(color),
-            (int)SamusBeamFlags.Spazer => Spazer(color),
-            _ => Power(color),
+            SamusBeamCombination.Power => Power(color),
+            SamusBeamCombination.Ice => Ice(color),
+            SamusBeamCombination.Wave => Wave(color),
+            SamusBeamCombination.Plasma => Plasma(color),
+            SamusBeamCombination.Spazer => Spazer(color),
+            _ => throw new InvalidOperationException($"{source} is not a beam palette row."),
         };
         return new Bgr555(red, green, blue);
     }

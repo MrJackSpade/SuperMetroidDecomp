@@ -12,6 +12,7 @@ internal static class RidleyProjectileDamageDefinitions
     {
         AreaId.Norfair => 60,
         AreaId.Tourian => 80,
-        _ => 3,
+        AreaId.Crateria or AreaId.Brinstar or AreaId.WreckedShip or AreaId.Maridia or AreaId.Ceres => 3,
+        _ => throw new InvalidOperationException($"Undefined AreaId {area}."),
     };
 }

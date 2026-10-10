@@ -126,7 +126,16 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
             InWorldCollectibleKind.IceBeam => 3,
             InWorldCollectibleKind.WaveBeam => 2,
             InWorldCollectibleKind.PlasmaBeam => 1,
-            _ => 0,
+            InWorldCollectibleKind.EnergyTank or InWorldCollectibleKind.MissileTank or
+                InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank or
+                InWorldCollectibleKind.Bombs or InWorldCollectibleKind.ChargeBeam or
+                InWorldCollectibleKind.HiJumpBoots or InWorldCollectibleKind.SpeedBooster or
+                InWorldCollectibleKind.SpazerBeam or InWorldCollectibleKind.SpringBall or
+                InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit or
+                InWorldCollectibleKind.XrayScope or InWorldCollectibleKind.GrappleBeam or
+                InWorldCollectibleKind.SpaceJump or InWorldCollectibleKind.ScrewAttack or
+                InWorldCollectibleKind.MorphBall or InWorldCollectibleKind.ReserveTank => 0,
+            _ => throw new InvalidOperationException($"Undefined InWorldCollectibleKind {kind}."),
         };
     }
 }

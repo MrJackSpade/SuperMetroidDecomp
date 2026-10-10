@@ -13,14 +13,14 @@ public sealed class BeamPaletteCatalog
     private readonly Dictionary<int, Bgr555> palettes = new();
     private BeamPaletteCatalog(Bgr555[][] rows)
     {
-        for (int selection = 0; selection < rows.Length; selection++)
+        for (int index = 0; index < rows.Length; index++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-            if (rows[selection][color] != BeamPaintDefinitions.Color(selection, color))
-                palettes.Add(selection * BeamPaletteDefinitions.ColorCount + color, rows[selection][color]);
+            if (rows[index][color] != BeamPaintDefinitions.Color(SamusBeamCombinations.FromTableIndex(index), color))
+                palettes.Add(index * BeamPaletteDefinitions.ColorCount + color, rows[index][color]);
     }
 
-    private Bgr555 Color(int selection, int color) =>
-        palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
+    private Bgr555 Color(SamusBeamCombination selection, int color) =>
+        palettes.TryGetValue(selection.TableIndex * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -49,7 +49,7 @@ public sealed class BeamPaletteCatalog
         var compiled = new Bgr555[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(selection), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new Bgr555[colors.Length];
@@ -66,10 +66,10 @@ public sealed class BeamPaletteCatalog
 
     /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>
     /// <param name="cgram">Destination color memory to update.</param>
-    /// <param name="selection">Ordinary beam combination index 0..11, using the Wave, Ice, Spazer, and Plasma bits without the Charge bit.</param>
-    public void LoadTo(SnesCgram cgram, int selection)
+    /// <param name="selection">Retail beam combination $0..$B.</param>
+    public void LoadTo(SnesCgram cgram, SamusBeamCombination selection)
     {
-        if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
+        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Color(selection, i));
     }
@@ -123,26 +123,25 @@ public static class BeamPaletteDefinitions
     /// <summary>Sixteen colors copied by the native beam loader, covering all entries of OBJ palette 6, including color zero.</summary>
     public const int ColorCount = 16;
     /// <summary>$90:C3C9..C3E0 selects Ice before Plasma before Wave before Spazer before Power; the first two colors alias the common Power inputs in all five rows.</summary>
-    internal static int ColorSourceSelection(int selection, int color)
+    internal static SamusBeamCombination ColorSourceSelection(SamusBeamCombination selection, int color)
     {
-        if (color < 2) return 0;
-        var beams = (SamusBeamFlags)selection;
-        if ((beams & SamusBeamFlags.Ice) != 0) return (int)SamusBeamFlags.Ice;
-        if ((beams & SamusBeamFlags.Plasma) != 0) return (int)SamusBeamFlags.Plasma;
-        if ((beams & SamusBeamFlags.Wave) != 0) return (int)SamusBeamFlags.Wave;
-        if ((beams & SamusBeamFlags.Spazer) != 0) return (int)SamusBeamFlags.Spazer;
-        return 0;
+        if (color < 2) return SamusBeamCombination.Power;
+        if (selection.HasIce) return SamusBeamCombination.Ice;
+        if (selection.HasPlasma) return SamusBeamCombination.Plasma;
+        if (selection.HasWave) return SamusBeamCombination.Wave;
+        if (selection.HasSpazer) return SamusBeamCombination.Spazer;
+        return SamusBeamCombination.Power;
     }
 
     /// <summary>$90:C3F3..C3FE and corresponding Power/Wave/Plasma/Spazer slots9..14 are black; Ice uses independent colored entries.</summary>
-    internal static bool IsBlackSlot(int selection, int color) =>
-        ((SamusBeamFlags)selection & SamusBeamFlags.Ice) == 0 && color is >= 9 and <= 14;
+    internal static bool IsBlackSlot(SamusBeamCombination selection, int color) =>
+        !selection.HasIce && color is >= 9 and <= 14;
     /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
-    /// <param name="selection">Beam combination index from 0 through 11; Charge and unsupported simultaneous Spazer/Plasma selections are outside this catalog.</param>
+    /// <param name="selection">Retail beam combination; simultaneous Spazer/Plasma selections are outside this catalog.</param>
     /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
-    public static string Key(int selection)
+    public static string Key(SamusBeamCombination selection)
     {
-        if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return $"beam-{selection:X2}";
+        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        return $"beam-{selection.TableIndex:X2}";
     }
 }

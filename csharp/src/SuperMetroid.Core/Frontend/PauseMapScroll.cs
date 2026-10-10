@@ -33,7 +33,8 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
         MapScrollDirection.Right => Signed(maximumX - PauseMapScrollLayout.RightMargin - horizontal) >= 0,
         MapScrollDirection.Up => Signed(minimumY - PauseMapScrollLayout.TopMargin - vertical) < 0,
         MapScrollDirection.Down => Signed(maximumY - PauseMapScrollLayout.BottomMargin - vertical) >= 0,
-        _ => false,
+        MapScrollDirection.None => false,
+        _ => throw new ArgumentOutOfRangeException(nameof(candidate), candidate, "Undefined map scroll direction."),
     };
 
     public bool Step(ushort heldInput, ref ushort horizontal, ref ushort vertical)

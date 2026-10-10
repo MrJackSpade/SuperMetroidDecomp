@@ -39,9 +39,13 @@ internal static class ReachabilityFindings
                 : d.Shape switch
                 {
                     DeclarationShape.Type => UnreachableType,
-                    _ when result.SerializerAccessed.Contains(d.Key) => SerializationOnly,
+                    DeclarationShape.Member or DeclarationShape.Field
+                        when result.SerializerAccessed.Contains(d.Key) => SerializationOnly,
                     DeclarationShape.Field => UnreferencedField,
-                    _ => UnreachableMember,
+                    DeclarationShape.Member => UnreachableMember,
+                    DeclarationShape.EnumMember =>
+                        throw new InvalidOperationException("Enum members are classified by reference above."),
+                    _ => throw new InvalidOperationException($"Undefined declaration shape {d.Shape}."),
                 };
             if (category is not null)
                 findings.Add(new(result.VerificationSourceFiles.Contains(d.File) ? TestSupportUnusedByTools : category, d));

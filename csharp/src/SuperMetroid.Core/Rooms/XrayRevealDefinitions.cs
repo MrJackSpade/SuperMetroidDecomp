@@ -88,7 +88,10 @@ internal static class XrayRevealDefinitions
         RoomCollisionType.VerticalExtension => VerticalExtension,
         RoomCollisionType.GrappleBlock => FindGrappleBlock(bts),
         RoomCollisionType.BombableBlock => FindBombableBlock(bts),
-        _ => null,
+        RoomCollisionType.Slope or RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or
+            RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or RoomCollisionType.BombableAir or
+            RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or RoomCollisionType.SpikeBlock => null,
+        _ => throw new InvalidOperationException($"Undefined RoomCollisionType {type}."),
     };
 
     /// <summary>Finds the authored special-block reveal for one unsigned BTS byte.</summary>

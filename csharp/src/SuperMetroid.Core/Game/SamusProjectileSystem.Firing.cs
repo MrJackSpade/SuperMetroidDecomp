@@ -272,14 +272,14 @@ public sealed partial class SamusProjectileSystem
         // layers composed by the host. In particular, Spazer's familiar three streaks live
         // in one bank-$93 spritemap selected by one data pointer and occupy one projectile
         // slot. This is why no synthetic child projectiles are created here.
-        int beamType = slot.PackedType.BeamCombinationIndex;
+        SamusBeamCombination beamType = slot.PackedType.BeamCombination;
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             (charged
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
-                : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType * 2);
+                : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType.TableIndex * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
@@ -300,10 +300,10 @@ public sealed partial class SamusProjectileSystem
         byte cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusProjectileRomData.Beams.UnchargedCooldowns +
-                SamusProjectileRomData.Beams.ChargedRowOffset + beamType)
+                SamusProjectileRomData.Beams.ChargedRowOffset + beamType.TableIndex)
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
-                ? SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
-                : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
+                ? SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType.TableIndex)
+                : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
@@ -318,7 +318,7 @@ public sealed partial class SamusProjectileSystem
             level,
             slot,
             roomPlms,
-            waveBeam: (beamType & 1) != 0,
+            waveBeam: beamType.HasWave,
             sharedProjectiles.PowerBombExplosion);
         if (!initialImpact)
         {
@@ -375,9 +375,9 @@ public sealed partial class SamusProjectileSystem
         // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
         // with 1000 before the first instruction record executes.
         slot.Type = 0x9018;
-        const int hyperBeamType = 8;
+        const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType * 2);
+            SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
@@ -538,7 +538,7 @@ public sealed partial class SamusProjectileSystem
     {
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
         bool diagonal = direction is 1 or 3 or 6 or 8;
-        int rowOffset = slot.PackedType.BeamCombinationIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
+        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
             (diagonal
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds

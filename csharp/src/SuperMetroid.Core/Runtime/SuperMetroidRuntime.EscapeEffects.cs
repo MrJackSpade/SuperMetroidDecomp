@@ -19,7 +19,23 @@ public sealed partial class SuperMetroidRuntime
             RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking => ZebesEscapeRomData.MediumHorizontal,
             RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeRomData.MainstreetQuake,
             RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeRomData.LandingQuake,
-            _ => null,
+            RoomSetupCallback.None or RoomSetupCallback.AutoDestroyWallDuringEscape or
+                RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape or
+                RoomSetupCallback.ReturnAfterEscapeWallSetup or RoomSetupCallback.ReturnBeforeEscapeSkySetup or
+                RoomSetupCallback.ScrollingSkyLand or RoomSetupCallback.ScrollingSkyOcean or
+                RoomSetupCallback.Return or RoomSetupCallback.ReturnAfterOceanSkySetup or
+                RoomSetupCallback.ReturnBeforeStatueSetupA or RoomSetupCallback.ReturnBeforeStatueSetupB or
+                RoomSetupCallback.RunStatueUnlockingAnimations or RoomSetupCallback.SharedReturn or
+                RoomSetupCallback.SharedReturnB or RoomSetupCallback.SharedReturnC or
+                RoomSetupCallback.SharedReturnD or RoomSetupCallback.OrdinaryReturn or
+                RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile or RoomSetupCallback.BossRoomReturn or
+                RoomSetupCallback.BossRoomReturnB or RoomSetupCallback.BossRoomReturnC or
+                RoomSetupCallback.SetupShaktoolRoomPlm or RoomSetupCallback.ReturnBeforeDraygonSetup or
+                RoomSetupCallback.SetPausingCodeForDraygon or RoomSetupCallback.SetCollectedMap or
+                RoomSetupCallback.ReturnBeforeZebesTimebombSetup or
+                RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupCallback.SpawnCeresHaze or
+                RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze => null,
+            _ => throw new InvalidOperationException($"Undefined RoomSetupCallback {setup}."),
         };
         if (type is { } quake)
         {

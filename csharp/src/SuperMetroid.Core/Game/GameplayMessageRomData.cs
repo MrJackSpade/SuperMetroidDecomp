@@ -153,7 +153,16 @@ public static class GameplayMessageRomData
                 GameplayMessageId.MissileTank or GameplayMessageId.SuperMissileTank or GameplayMessageId.Bombs => 0x12a,
                 GameplayMessageId.PowerBombTank or GameplayMessageId.GrappleBeam or GameplayMessageId.XrayScope => 0x12c,
                 GameplayMessageId.SpeedBooster => 0x120,
-                _ => 0,
+                GameplayMessageId.None or GameplayMessageId.EnergyTank or GameplayMessageId.VariaSuit or
+                    GameplayMessageId.SpringBall or GameplayMessageId.MorphBall or GameplayMessageId.ScrewAttack or
+                    GameplayMessageId.HiJumpBoots or GameplayMessageId.SpaceJump or GameplayMessageId.ChargeBeam or
+                    GameplayMessageId.IceBeam or GameplayMessageId.WaveBeam or GameplayMessageId.SpazerBeam or
+                    GameplayMessageId.PlasmaBeam or GameplayMessageId.MapDataAccessCompleted or
+                    GameplayMessageId.EnergyRechargeCompleted or GameplayMessageId.MissileRechargeCompleted or
+                    GameplayMessageId.SaveConfirmation or GameplayMessageId.SaveCompleted or
+                    GameplayMessageId.ReserveTank or GameplayMessageId.GravitySuit or
+                    GameplayMessageId.GunshipSaveConfirmation => 0,
+                _ => throw new InvalidOperationException($"Undefined GameplayMessageId {messageId}."),
             };
         }
     }

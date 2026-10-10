@@ -52,7 +52,7 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms)
     {
         ushort inheritedY = slot.SpritemapPointer == 0
-            ? unchecked((ushort)(slot.PackedType.BeamCombinationIndex *
+            ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
             : unchecked((ushort)(slot.InstructionPointer -
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));

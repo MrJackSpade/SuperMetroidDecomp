@@ -83,7 +83,7 @@ internal static class SamusProjectileSelectionDefinitions
         if (address < NonBeamSelectors)
         {
             int selector = (address - BeamSelectors) / 2;
-            return BeamHeader(selector >= 12, (SamusBeamFlags)(selector % 12));
+            return BeamHeader(selector >= 12, SamusBeamCombinations.FromTableIndex(selector % 12));
         }
         if (address < TrailSelectors)
             return (ushort)(((address - NonBeamSelectors) / 2) switch
@@ -98,12 +98,15 @@ internal static class SamusProjectileSelectionDefinitions
                 5 => Projectile27, 7 => ShinesparkEcho, _ => 0,
             });
         if (address < LinkSelectors)
-            return (ushort)((SamusBeamFlags)((address - SpecialSelectors) / 2) switch
+            return (ushort)(SamusBeamCombinations.FromTableIndex((address - SpecialSelectors) / 2) switch
             {
-                SamusBeamFlags.Wave => WaveSBA,
-                SamusBeamFlags.Spazer or (SamusBeamFlags.Spazer | SamusBeamFlags.Wave) => SpazerSBA,
-                SamusBeamFlags.Plasma or (SamusBeamFlags.Plasma | SamusBeamFlags.Wave) => PlasmaSBA,
-                _ => 0,
+                SamusBeamCombination.Wave => WaveSBA,
+                SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave => SpazerSBA,
+                SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave => PlasmaSBA,
+                SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.IceWave or
+                    SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
+                    SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => 0,
+                var beams => throw new InvalidOperationException($"The special-attack selector table has no {beams} row."),
             });
         if (address < BeamHeaderStart)
             return address == LinkSelectors + 4 ? unchecked((ushort)SuperMissileLink) : (ushort)0;
@@ -144,39 +147,43 @@ internal static class SamusProjectileSelectionDefinitions
         return address == Projectile27 ? Read(address) : Projectile27Program;
     }
 
-    private static ushort BeamHeader(bool charged, SamusBeamFlags beam)
+    private static ushort BeamHeader(bool charged, SamusBeamCombination beam)
     {
         int row = beam switch
         {
-            SamusBeamFlags.None => 0,
-            SamusBeamFlags.Spazer => 1,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Ice => 2,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Ice | SamusBeamFlags.Wave => 3,
-            SamusBeamFlags.Plasma | SamusBeamFlags.Ice | SamusBeamFlags.Wave => 4,
-            SamusBeamFlags.Ice => 5,
-            SamusBeamFlags.Wave => charged ? 7 : 6,
-            SamusBeamFlags.Plasma => charged ? 6 : 7,
-            SamusBeamFlags.Ice | SamusBeamFlags.Wave => 8,
-            SamusBeamFlags.Spazer | SamusBeamFlags.Wave => 9,
-            SamusBeamFlags.Plasma | SamusBeamFlags.Wave => charged ? 11 : 10,
-            _ => charged ? 10 : 11,
+            SamusBeamCombination.Power => 0,
+            SamusBeamCombination.Spazer => 1,
+            SamusBeamCombination.SpazerIce => 2,
+            SamusBeamCombination.SpazerIceWave => 3,
+            SamusBeamCombination.PlasmaIceWave => 4,
+            SamusBeamCombination.Ice => 5,
+            SamusBeamCombination.Wave => charged ? 7 : 6,
+            SamusBeamCombination.Plasma => charged ? 6 : 7,
+            SamusBeamCombination.IceWave => 8,
+            SamusBeamCombination.SpazerWave => 9,
+            SamusBeamCombination.PlasmaWave => charged ? 11 : 10,
+            SamusBeamCombination.PlasmaIce => charged ? 10 : 11,
+            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+                SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+                throw new InvalidOperationException($"{beam} has no beam header."),
+            _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
         };
         return (ushort)(BeamHeaderStart + (row + (charged ? 12 : 0)) * BeamHeaderStride);
     }
 
-    private static ushort BeamProgram(bool charged, SamusBeamFlags beam, int octant)
+    private static ushort BeamProgram(bool charged, SamusBeamCombination beam, int octant)
     {
         int axis = octant & 3;
-        bool wave = (beam & SamusBeamFlags.Wave) != 0;
-        bool ice = (beam & SamusBeamFlags.Ice) != 0;
-        if ((beam & SamusBeamFlags.Plasma) != 0)
+        bool wave = beam.HasWave;
+        bool ice = beam.HasIce;
+        if (beam.HasPlasma)
         {
             if (charged)
                 return (ushort)((wave ? ChargedPlasmaWaveProgram : ChargedPlasmaProgram) + axis * (wave ? 180 : 68));
             if (!wave) return (ushort)(PlasmaProgram + axis * 20);
             return (ushort)(PlasmaWaveProgram + axis * 76 + (!ice && axis != 2 ? 8 : 0));
         }
-        if ((beam & SamusBeamFlags.Spazer) != 0)
+        if (beam.HasSpazer)
         {
             if (charged)
                 return (ushort)((wave ? ChargedSpazerWaveProgram : ChargedSpazerProgram) + (wave ? octant * 196 : axis * 84));

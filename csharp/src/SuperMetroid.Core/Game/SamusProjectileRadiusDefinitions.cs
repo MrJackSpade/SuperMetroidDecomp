@@ -204,7 +204,11 @@ internal static class SamusProjectileRadiusDefinitions
                     y = axis == 0 ? along : 8;
                 }
                 break;
-            default: pair = 0; return false;
+            case SamusProjectileInstructionDefinitions.FrameFamily.SpazerWave:
+            case SamusProjectileInstructionDefinitions.FrameFamily.PlasmaWave:
+                pair = 0; return false;
+            default:
+                throw new InvalidOperationException($"Undefined frame family {frame.Family}.");
         }
         pair = (ushort)(x | y << 8);
         return true;

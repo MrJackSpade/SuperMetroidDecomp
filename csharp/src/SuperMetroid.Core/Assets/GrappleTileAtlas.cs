@@ -65,7 +65,9 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
             VramAssetId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(3),
             VramAssetId.GrappleVerticalSegmentTiles => verticalSegments ??
                 GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
-            _ => SegmentBytes(transfer.AtlasOffset - 128),
+            VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles =>
+                SegmentBytes(transfer.AtlasOffset - 128),
+            _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
     }
     private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk

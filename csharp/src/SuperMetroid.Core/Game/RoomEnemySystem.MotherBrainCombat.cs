@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
         projectiles.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                (projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+                !projectileType.BeamCombination.HasPlasma);
         // `$A9:B519` lets only missiles and Super Missiles reach the glass.
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return;
@@ -215,7 +215,7 @@ public sealed partial class RoomEnemySystem
         projectiles.ApplyEnemyCollisionPrelude(
             projectile.SlotIndex,
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                (projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+                !projectileType.BeamCombination.HasPlasma);
 
         // `$B58E` indexes its reaction table with the type word's high byte masked to three
         // bits, so missile explosions (`$08`) alias beams exactly as natively.
@@ -273,7 +273,7 @@ public sealed partial class RoomEnemySystem
         head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0002));
         // The shared native no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
-        if ((projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
+        if (projectileType.BeamCombination.HasPlasma)
             head.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
         head.Health = damage >= head.Health
             ? (ushort)0

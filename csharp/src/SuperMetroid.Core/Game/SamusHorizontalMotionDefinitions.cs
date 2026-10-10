@@ -50,7 +50,10 @@ internal static class SamusHorizontalMotionDefinitions
             SamusMovementType.Knockback or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0x50000u,
             SamusMovementType.Moonwalking => 0x08000u,
             SamusMovementType.DamageBoost => air ? 0x50000u : 0x08000u,
-            _ => 0,
+            SamusMovementType.Standing or SamusMovementType.Crouching or SamusMovementType.Unused0B or
+                SamusMovementType.Unused0C or SamusMovementType.TurningOnGround or SamusMovementType.RanIntoWall or
+                SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => 0,
+            _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)row}."),
         };
         // All rows use the same authored acceleration except these named movement cases.
         uint acceleration = (SamusMovementType)row switch
@@ -61,7 +64,17 @@ internal static class SamusHorizontalMotionDefinitions
             SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling or
                 SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling when !air => 0x0400u,
-            _ => 0xc000u,
+            SamusMovementType.Standing or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
+                SamusMovementType.MorphBallGround or SamusMovementType.Crouching or SamusMovementType.Falling or
+                SamusMovementType.MorphBallFalling or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
+                SamusMovementType.Unused0D or SamusMovementType.TurningOnGround or
+                SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
+                SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
+                SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or
+                SamusMovementType.RanIntoWall or SamusMovementType.Grappling or
+                SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
+                SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0xc000u,
+            _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)row}."),
         };
         entry = new((ushort)(acceleration >> 16), (ushort)acceleration,
             (ushort)(maximum >> 16), (ushort)maximum, 0, deceleration);

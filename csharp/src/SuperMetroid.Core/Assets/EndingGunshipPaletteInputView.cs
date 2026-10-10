@@ -89,9 +89,11 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
 
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
-        if (EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color) && frame == 15)
+        // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
+        if (EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out int frame, out int color) && frame == 15 &&
+            Enum.IsDefined((EndingGunshipPaletteInk)color))
         {
-            Bgr555? calculated = (EndingGunshipPaletteInk)color switch
+            Bgr555 calculated = (EndingGunshipPaletteInk)color switch
             {
                 EndingGunshipPaletteInk.Highlight => Gold(highlight, highlight.Red(0), 1),
                 EndingGunshipPaletteInk.DeepShadow => Gold(deepShadow, deepShadow.Red(0), 3),
@@ -107,9 +109,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
                 EndingGunshipPaletteInk.UndersideLight => Underside(undersideLight),
                 EndingGunshipPaletteInk.UndersideMiddle => Underside(undersideMiddle),
                 EndingGunshipPaletteInk.UndersideDark => Underside(undersideDark),
-                _ => null,
+                var ink => throw new InvalidOperationException($"Undefined gunship ink {ink}."),
             };
-            if (calculated.HasValue) { value = calculated.Value; return true; }
+            value = calculated;
+            return true;
         }
         return colors.TryGetValue(pointer, out value);
     }

@@ -10,7 +10,6 @@ public readonly record struct SmCompressionHeader
         IsTerminator = firstByte == SmCompressionFormat.Terminator;
         if (IsTerminator)
         {
-            Command = default;
             Length = 0;
             HeaderByteCount = 1;
             return;
@@ -19,6 +18,7 @@ public readonly record struct SmCompressionHeader
         bool isLong = SmCompressionFormat.IsLongHeader(firstByte);
         if (isLong && secondByte is null)
             throw new InvalidDataException("Long compression header is missing its length byte.");
+        // Masking to bits 5-7 yields one of the eight defined commands.
         Command = isLong
             ? (SmCompressionCommand)((firstByte <<
                 SmCompressionFormat.LongCommandShift) & SmCompressionFormat.CommandMask)
@@ -34,12 +34,14 @@ public readonly record struct SmCompressionHeader
     public byte FirstByte { get; }
     /// <summary>The supplied low length byte for a long header; short headers do not require it.</summary>
     public byte? SecondByte { get; }
-    /// <summary>
-    /// The command bits normalized into bits 5-7. Long headers can also represent the
-    /// inverted relative-copy command <c>$E0</c>, which has no named enum member.
-    /// The value is not meaningful when <see cref="IsTerminator"/> is true.
-    /// </summary>
-    public SmCompressionCommand Command { get; }
+    /// <summary>The command bits normalized into bits 5-7.</summary>
+    /// <exception cref="InvalidOperationException">The header is the stream terminator, which has no command.</exception>
+    public SmCompressionCommand Command
+    {
+        get => IsTerminator
+            ? throw new InvalidOperationException("The compressed-stream terminator has no command.")
+            : field;
+    }
     /// <summary>Number of decompressed bytes emitted: 1-32 for short headers, 1-1024 for long headers, or zero for a terminator.</summary>
     public int Length { get; }
     /// <summary>Number of encoded header bytes consumed: two for a long header, otherwise one.</summary>
@@ -50,17 +52,35 @@ public readonly record struct SmCompressionHeader
         SmCompressionCommand.Literal => Length,
         SmCompressionCommand.AlternatePair or SmCompressionCommand.AbsoluteCopy or
             SmCompressionCommand.AbsoluteCopyInverted => 2,
-        _ => 1,
+        SmCompressionCommand.RepeatByte or SmCompressionCommand.IncrementingSequence or
+            SmCompressionCommand.RelativeCopy or SmCompressionCommand.RelativeCopyInverted => 1,
+        _ => throw UndefinedCommand(Command),
     };
     /// <summary>Whether this header ends the compressed stream without emitting output or reading a payload.</summary>
     public bool IsTerminator { get; }
-    /// <summary>Whether the command obtains its output from bytes already decompressed, using an absolute offset or backward distance.</summary>
-    public bool IsCopy => (byte)Command >= (byte)SmCompressionCommand.AbsoluteCopy;
     /// <summary>Whether a copy command uses a one-byte backward distance instead of a two-byte absolute output offset.</summary>
-    public bool IsRelativeCopy => (byte)Command >= (byte)SmCompressionCommand.RelativeCopy;
-    /// <summary>Whether command bit 5 is set, requesting bytewise inversion when <see cref="IsCopy"/> is true.</summary>
-    public bool InvertsCopiedBytes =>
-        ((byte)Command & SmCompressionFormat.InvertedCopyBit) != 0;
+    public bool IsRelativeCopy => Command switch
+    {
+        SmCompressionCommand.AbsoluteCopy or SmCompressionCommand.AbsoluteCopyInverted => false,
+        SmCompressionCommand.RelativeCopy or SmCompressionCommand.RelativeCopyInverted => true,
+        SmCompressionCommand.Literal or SmCompressionCommand.RepeatByte or
+            SmCompressionCommand.AlternatePair or SmCompressionCommand.IncrementingSequence =>
+            throw new InvalidOperationException($"{Command} is not a copy command."),
+        _ => throw UndefinedCommand(Command),
+    };
+    /// <summary>Whether a copy command XORs every copied byte with <c>$FF</c> (commands 5 and 7).</summary>
+    public bool InvertsCopiedBytes => Command switch
+    {
+        SmCompressionCommand.AbsoluteCopy or SmCompressionCommand.RelativeCopy => false,
+        SmCompressionCommand.AbsoluteCopyInverted or SmCompressionCommand.RelativeCopyInverted => true,
+        SmCompressionCommand.Literal or SmCompressionCommand.RepeatByte or
+            SmCompressionCommand.AlternatePair or SmCompressionCommand.IncrementingSequence =>
+            throw new InvalidOperationException($"{Command} is not a copy command."),
+        _ => throw UndefinedCommand(Command),
+    };
+
+    private static ArgumentOutOfRangeException UndefinedCommand(SmCompressionCommand command) =>
+        new(nameof(command), command, $"Undefined compression command ${(byte)command:X2}.");
 
     /// <summary>Decodes the command and expanded run length without consuming or validating its payload.</summary>
     /// <param name="firstByte">The first encoded header byte, including the optional <c>$FF</c> terminator.</param>
@@ -88,8 +108,6 @@ public static class SmCompressionFormat
     public const byte LongLengthHighMask = 0x03;
     /// <summary>Left shift of three moves a long header's command field from bits 2-4 into normalized bits 5-7.</summary>
     public const int LongCommandShift = 3;
-    /// <summary><c>$20</c>: the normalized command bit that distinguishes an inverted backreference from an ordinary copy.</summary>
-    public const byte InvertedCopyBit = 0x20;
     /// <summary>Default decompression safety cap of 4 MiB, limiting expansion of malformed asset streams.</summary>
     public const int DefaultMaximumOutputBytes = 4 * 1024 * 1024;
 

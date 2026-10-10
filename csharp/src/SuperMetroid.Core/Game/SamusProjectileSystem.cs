@@ -124,21 +124,42 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        int beamType = equippedBeams & 0x0fff;
+        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
         LoadBeamTiles(bus, vram, equippedBeams, artwork);
 
         LoadSelectedBeamPalette(bus, cgram, beamType, artwork?.Palettes);
     }
 
+    /// <summary>
+    /// $90:AC8D/$90:ACCD index their tables by the equipped-beam word's low twelve bits; an
+    /// index above $F (unknown bits 4-11 set) selects no beam combination.
+    /// </summary>
+    private static SamusBeamCombination SelectedCombination(ushort equippedBeams) =>
+        new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
+            nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
+
     private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
-        int selection, Assets.BeamPaletteCatalog? palettes)
+        SamusBeamCombination selection, Assets.BeamPaletteCatalog? palettes)
     {
-        if (selection == ChainsawBeamGraphicsDefinitions.Selection)
-            ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
-        else if (selection == SpacetimeBeamGraphicsDefinitions.Selection)
-            SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);
-        else
-            (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
+        switch (selection)
+        {
+            case ChainsawBeamGraphicsDefinitions.Selection:
+                ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+                break;
+            case SpacetimeBeamGraphicsDefinitions.Selection:
+                SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+                break;
+            case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
+                SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
+                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
+                SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
+                (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
+                break;
+            case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
+                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no translated palette.");
+            default:
+                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
+        }
     }
     /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
     public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
@@ -146,7 +167,7 @@ public sealed partial class SamusProjectileSystem
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
-        int beamType = equippedBeams & 0x0fff;
+        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
         Assets.BeamTileCatalog installed = artwork ?? throw new InvalidOperationException(
             "Beam tiles require installed artwork.");
         vram.LoadBytes(Assets.BeamTileAtlasDefinitions.DestinationWord * 2,
@@ -169,7 +190,7 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(writes);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        int beamType = equippedBeams & 0x0fff;
+        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
 
         // Preserve the native queue position and seven-byte tail increment. Unsupported
         // beam combinations retain physical adjacent-table reads used by glitch paths.

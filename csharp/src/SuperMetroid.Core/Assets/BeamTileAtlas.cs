@@ -8,11 +8,11 @@ public sealed class BeamTileAtlas
 {
     // Unresolved artwork remains required; only the five documented Plasma pen roles have a narrow exception.
     private readonly Dictionary<int, byte> pixels = new();
-    private readonly int selection;
+    private readonly SamusBeamCombination selection;
     private readonly BeamTileAtlas? sharedSource;
     private readonly bool wholeSheetShared;
 
-    private BeamTileAtlas(byte[] selectedPixels, int selection)
+    private BeamTileAtlas(byte[] selectedPixels, SamusBeamCombination selection)
     {
         this.selection = selection;
         for (int pixel = 0; pixel < selectedPixels.Length; pixel++)
@@ -28,7 +28,7 @@ public sealed class BeamTileAtlas
         }
     }
 
-    private BeamTileAtlas(Dictionary<int, byte> pixels, int selection, BeamTileAtlas sharedSource, bool wholeSheetShared)
+    private BeamTileAtlas(Dictionary<int, byte> pixels, SamusBeamCombination selection, BeamTileAtlas sharedSource, bool wholeSheetShared)
     {
         this.pixels = pixels;
         this.selection = selection;
@@ -68,12 +68,11 @@ public sealed class BeamTileAtlas
     /// <param name="png">Caller-owned indexed PNG stream, left open; palette RGB values do not select the beam's runtime colors.</param>
     /// <param name="selection">Native beam identity $00..$0B, bounded Chainsaw $0D, or SpaceTime $0E; not the fourteen-sheet artwork ordinal.</param>
     /// <returns>An immutable selected sheet that materializes its $0100-byte four-bit planar payload through <see cref="Transfer"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="selection"/> is outside the supported ordinary and bounded beam domain.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="selection"/> has no artwork ($0C or $0F).</exception>
     /// <exception cref="InvalidDataException">The PNG format, dimensions, or palette indices cannot represent the required four-bit beam characters.</exception>
-    public static BeamTileAtlas Load(Stream png, int selection)
+    public static BeamTileAtlas Load(Stream png, SamusBeamCombination selection)
     {
-        if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount && selection is not (ChainsawBeamGraphicsDefinitions.Selection or SpacetimeBeamGraphicsDefinitions.Selection))
-            throw new ArgumentOutOfRangeException(nameof(selection));
+        _ = BeamTileAtlasDefinitions.ArtworkOrdinal(selection);
         var image = IndexedPng.Read(png, BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height);
         // Retain the original encoder's exact four-bit input validation at import.
         _ = SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4);

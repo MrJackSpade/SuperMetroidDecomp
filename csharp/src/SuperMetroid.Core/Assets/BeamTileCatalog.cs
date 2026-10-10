@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -15,16 +16,19 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     {
         // Establish the five primary sheets before their combination aliases. Immutable
         // references share only matching pixels; separately supplied edits remain isolated.
-        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
+            SamusBeamCombination selection = SamusBeamCombinations.FromTableIndex(index);
             if (BeamTileAtlasDefinitions.CanonicalSelection(selection) != selection) continue;
-            int source = BeamTileAtlasDefinitions.SharedTileSourceSelection(selection);
-            if (source >= 0) sheets[selection] = sheets[selection].SharePixelsFrom(sheets[source], wholeSheet: false);
+            if (BeamTileAtlasDefinitions.SharedTileSourceSelection(selection) is SamusBeamCombination source)
+                sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], wholeSheet: false);
         }
-        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
-            int source = BeamTileAtlasDefinitions.CanonicalSelection(selection);
-            if (source != selection) sheets[selection] = sheets[selection].SharePixelsFrom(sheets[source], wholeSheet: true);
+            SamusBeamCombination selection = SamusBeamCombinations.FromTableIndex(index);
+            SamusBeamCombination source = BeamTileAtlasDefinitions.CanonicalSelection(selection);
+            if (source != selection)
+                sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], wholeSheet: true);
         }
         this.sheets = sheets;
         Palettes = palettes;
@@ -42,20 +46,14 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     }
 
     /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
-    {
-        if (asset == VramAssetId.BeamChainsawTiles) return sheets[BeamTileAtlasDefinitions.SelectionCount].Transfer;
-        if (asset == VramAssetId.BeamSpacetimeTiles) return sheets[BeamTileAtlasDefinitions.SelectionCount + 1].Transfer;
-        int selection = (int)asset - (int)VramAssetId.BeamPowerTiles;
-        if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new InvalidDataException($"Beam catalog cannot resolve {asset}.");
-        return sheets[selection].Transfer;
-    }
+    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Transfer;
 
     /// <summary>Resolves restored native beam uploads through installed artwork, without ROM DMA.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        int selection = BeamTileAtlasDefinitions.LegacySelectionFor(sourceAddress);
-        if (selection >= 0 && byteCount == BeamTileAtlasDefinitions.ByteCount)
+        if (BeamTileAtlasDefinitions.LegacySelectionFor(sourceAddress) is SamusBeamCombination selection &&
+            byteCount == BeamTileAtlasDefinitions.ByteCount)
         {
             data = Resolve(AssetFor(selection));
             return true;
@@ -65,11 +63,57 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     }
 
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
-    public static VramAssetId AssetFor(int selection)
+    /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
+    public static VramAssetId AssetFor(SamusBeamCombination selection) => selection switch
     {
-        if (selection == Game.ChainsawBeamGraphicsDefinitions.Selection) return VramAssetId.BeamChainsawTiles;
-        if (selection == Game.SpacetimeBeamGraphicsDefinitions.Selection) return VramAssetId.BeamSpacetimeTiles;
-        if ((uint)selection >= BeamTileAtlasDefinitions.SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return (VramAssetId)((int)VramAssetId.BeamPowerTiles + selection);
-    }
+        SamusBeamCombination.Power => VramAssetId.BeamPowerTiles,
+        SamusBeamCombination.Wave => VramAssetId.BeamWaveTiles,
+        SamusBeamCombination.Ice => VramAssetId.BeamIceTiles,
+        SamusBeamCombination.IceWave => VramAssetId.BeamIceWaveTiles,
+        SamusBeamCombination.Spazer => VramAssetId.BeamSpazerTiles,
+        SamusBeamCombination.SpazerWave => VramAssetId.BeamSpazerWaveTiles,
+        SamusBeamCombination.SpazerIce => VramAssetId.BeamSpazerIceTiles,
+        SamusBeamCombination.SpazerIceWave => VramAssetId.BeamSpazerIceWaveTiles,
+        SamusBeamCombination.Plasma => VramAssetId.BeamPlasmaTiles,
+        SamusBeamCombination.PlasmaWave => VramAssetId.BeamPlasmaWaveTiles,
+        SamusBeamCombination.PlasmaIce => VramAssetId.BeamPlasmaIceTiles,
+        SamusBeamCombination.PlasmaIceWave => VramAssetId.BeamPlasmaIceWaveTiles,
+        Game.ChainsawBeamGraphicsDefinitions.Selection => VramAssetId.BeamChainsawTiles,
+        Game.SpacetimeBeamGraphicsDefinitions.Selection => VramAssetId.BeamSpacetimeTiles,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork."),
+        _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
+    };
+
+    /// <summary>The beam combination whose sheet a beam VRAM asset uploads: the inverse of <see cref="AssetFor"/>.</summary>
+    /// <exception cref="InvalidDataException">The asset is not beam artwork.</exception>
+    public static SamusBeamCombination SelectionFor(VramAssetId asset) => asset switch
+    {
+        VramAssetId.BeamPowerTiles => SamusBeamCombination.Power,
+        VramAssetId.BeamWaveTiles => SamusBeamCombination.Wave,
+        VramAssetId.BeamIceTiles => SamusBeamCombination.Ice,
+        VramAssetId.BeamIceWaveTiles => SamusBeamCombination.IceWave,
+        VramAssetId.BeamSpazerTiles => SamusBeamCombination.Spazer,
+        VramAssetId.BeamSpazerWaveTiles => SamusBeamCombination.SpazerWave,
+        VramAssetId.BeamSpazerIceTiles => SamusBeamCombination.SpazerIce,
+        VramAssetId.BeamSpazerIceWaveTiles => SamusBeamCombination.SpazerIceWave,
+        VramAssetId.BeamPlasmaTiles => SamusBeamCombination.Plasma,
+        VramAssetId.BeamPlasmaWaveTiles => SamusBeamCombination.PlasmaWave,
+        VramAssetId.BeamPlasmaIceTiles => SamusBeamCombination.PlasmaIce,
+        VramAssetId.BeamPlasmaIceWaveTiles => SamusBeamCombination.PlasmaIceWave,
+        VramAssetId.BeamChainsawTiles => Game.ChainsawBeamGraphicsDefinitions.Selection,
+        VramAssetId.BeamSpacetimeTiles => Game.SpacetimeBeamGraphicsDefinitions.Selection,
+        VramAssetId.None or VramAssetId.StandardHudTiles or VramAssetId.EscapeTimerFirstTiles or
+            VramAssetId.EscapeTimerSecondTiles or VramAssetId.ProjectileIceWaveTrailTiles or
+            VramAssetId.ProjectileMissileTrailTiles or VramAssetId.GrapplePointFirstTiles or
+            VramAssetId.GrapplePointSecondTiles or VramAssetId.GrapplePointThirdTiles or
+            VramAssetId.GrapplePointFourthTiles or VramAssetId.GrappleHorizontalSegmentTiles or
+            VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles or
+            VramAssetId.KraidBg3RestoreQuarter0 or VramAssetId.KraidBg3RestoreQuarter1 or
+            VramAssetId.KraidBg3RestoreQuarter2 or VramAssetId.KraidBg3RestoreQuarter3 or
+            VramAssetId.GunshipLiftoffFirstTiles or VramAssetId.GunshipLiftoffSecondTiles or
+            VramAssetId.GunshipLiftoffThirdTiles or VramAssetId.GunshipLiftoffFourthTiles or
+            VramAssetId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),
+        _ => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
+    };
 }

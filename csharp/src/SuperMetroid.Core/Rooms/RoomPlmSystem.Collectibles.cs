@@ -654,30 +654,44 @@ public sealed partial class RoomPlmSystem
                 samus.MaxPowerBombs = unchecked((ushort)(samus.MaxPowerBombs + 5));
                 samus.PowerBombs = unchecked((ushort)(samus.PowerBombs + 5));
                 return;
+            case InWorldCollectibleKind.Bombs:
+            case InWorldCollectibleKind.HiJumpBoots:
+            case InWorldCollectibleKind.SpeedBooster:
+            case InWorldCollectibleKind.SpringBall:
+            case InWorldCollectibleKind.VariaSuit:
+            case InWorldCollectibleKind.GravitySuit:
+            case InWorldCollectibleKind.XrayScope:
+            case InWorldCollectibleKind.GrappleBeam:
+            case InWorldCollectibleKind.SpaceJump:
+            case InWorldCollectibleKind.ScrewAttack:
+            case InWorldCollectibleKind.MorphBall:
+                ushort equipmentMask = GetEquipmentMask(kind);
+                samus.EquippedItems |= equipmentMask;
+                samus.CollectedItems |= equipmentMask;
+                // Every Varia/Gravity presentation executes `$84:E29D` immediately before
+                // PickUpEquipment and the synchronous message. It is not part of the later
+                // transformation and therefore must already be clear throughout the fanfare.
+                if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
+                    samus.ProjectileFlareCounter = 0;
+                return;
+            case InWorldCollectibleKind.ChargeBeam:
+            case InWorldCollectibleKind.IceBeam:
+            case InWorldCollectibleKind.WaveBeam:
+            case InWorldCollectibleKind.SpazerBeam:
+            case InWorldCollectibleKind.PlasmaBeam:
+                ushort beamMask = GetBeamMask(kind);
+                samus.CollectedBeams |= beamMask;
+                samus.EquippedBeams |= beamMask;
+
+                // Spazer and Plasma are the only mutually exclusive beam pair. These are the
+                // literal shifts used by $84:88B0, retained instead of naming either one as a
+                // blanket replacement for all beams.
+                samus.EquippedBeams &= unchecked((ushort)~((beamMask << 1) & 0x0008));
+                samus.EquippedBeams &= unchecked((ushort)~((beamMask >> 1) & 0x0004));
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined collectible kind.");
         }
-
-        ushort equipmentMask = GetEquipmentMask(kind);
-        if (equipmentMask != 0)
-        {
-            samus.EquippedItems |= equipmentMask;
-            samus.CollectedItems |= equipmentMask;
-            // Every Varia/Gravity presentation executes `$84:E29D` immediately before
-            // PickUpEquipment and the synchronous message. It is not part of the later
-            // transformation and therefore must already be clear throughout the fanfare.
-            if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                samus.ProjectileFlareCounter = 0;
-            return;
-        }
-
-        ushort beamMask = GetBeamMask(kind);
-        samus.CollectedBeams |= beamMask;
-        samus.EquippedBeams |= beamMask;
-
-        // Spazer and Plasma are the only mutually exclusive beam pair. These are the
-        // literal shifts used by $84:88B0, retained instead of naming either one as a
-        // blanket replacement for all beams.
-        samus.EquippedBeams &= unchecked((ushort)~((beamMask << 1) & 0x0008));
-        samus.EquippedBeams &= unchecked((ushort)~((beamMask >> 1) & 0x0004));
     }
 
     private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
@@ -693,12 +707,7 @@ public sealed partial class RoomPlmSystem
         InWorldCollectibleKind.SpaceJump => (ushort)SamusEquipmentFlags.SpaceJump,
         InWorldCollectibleKind.ScrewAttack => (ushort)SamusEquipmentFlags.ScrewAttack,
         InWorldCollectibleKind.MorphBall => (ushort)SamusEquipmentFlags.MorphBall,
-        InWorldCollectibleKind.EnergyTank or InWorldCollectibleKind.ReserveTank or
-        InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or
-        InWorldCollectibleKind.PowerBombTank or InWorldCollectibleKind.ChargeBeam or
-        InWorldCollectibleKind.IceBeam or InWorldCollectibleKind.WaveBeam or
-        InWorldCollectibleKind.SpazerBeam or InWorldCollectibleKind.PlasmaBeam => 0,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
     private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch

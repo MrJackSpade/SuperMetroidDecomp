@@ -156,8 +156,12 @@ internal static class SamusArmCannonPlacementDefinitions
                 sourcePhase = 0;
                 direction = 2;
                 break;
-            default:
+            // The forward-facing and default allocations keep their stored coordinates.
+            case SamusPoseId.ForwardFacingPowerSuitPose:
+            case SamusPoseId.MovingRightNormalPose:
                 return false;
+            default:
+                throw new InvalidOperationException($"{pose} does not own an arm-cannon drawing allocation.");
         }
         int index = body.Spritemaps.TopBase((byte)pose) + sourcePhase;
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||

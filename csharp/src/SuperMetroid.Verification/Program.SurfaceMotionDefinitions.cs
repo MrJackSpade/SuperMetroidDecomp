@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Crawler slope multipliers and Yard kick selectors against native words, including signed displacement scaling.</summary>
+    /// <param name="rom">Cartridge address space containing the native Crawler slope and Yard kick tables.</param>
     private static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled Rio launch velocities against native room data, including the Norfair velocity selector across every RNG word.</summary>
+    /// <param name="rom">Cartridge address space containing the native Rio launch velocity words.</param>
     private static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

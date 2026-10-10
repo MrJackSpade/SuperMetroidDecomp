@@ -9,6 +9,11 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Exercises the real unpause equipment transition in a bounded underwater fixture for both Morph Ball facings.
+    /// It checks that toggling Spring Ball preserves Samus's ascent, enables repeated airborne launches, and uses
+    /// the native Hi-Jump water launch speeds.
+    /// </summary>
     private static void VerifySpringBallEquipmentJump()
     {
         var installation = RepositoryInstallation.Installation;

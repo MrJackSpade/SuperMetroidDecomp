@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>Verifies phase-8 and phase-10 speed-palette overrun colors, timing, and recovery against the captured native CPU trace.</summary>
     private static void VerifySpeedPaletteOverrun()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

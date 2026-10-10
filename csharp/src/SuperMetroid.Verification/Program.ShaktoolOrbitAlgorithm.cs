@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all 320 Shaktool orbit samples against native ROM words and their quantization bounds, validates 256 angle displacements, and confirms invalid sample indexes are rejected.</summary>
+    /// <param name="rom">SNES address space containing the native Shaktool orbit table.</param>
     private static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
     {
         short Original(int index)

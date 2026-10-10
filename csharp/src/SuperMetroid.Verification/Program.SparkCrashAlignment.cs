@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies diagonal shinespark crashes defer standing-pose alignment and preserve native radii, fractional position, and one-shot camera history writes.</summary>
     private static void VerifySparkCrashAlignment()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

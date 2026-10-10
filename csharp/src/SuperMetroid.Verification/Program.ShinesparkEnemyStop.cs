@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks that a nearby solid enemy stops a vertical shinespark without displacement and starts a crash, while a distant enemy allows continued travel.</summary>
     private static void VerifyShinesparkEnemyStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

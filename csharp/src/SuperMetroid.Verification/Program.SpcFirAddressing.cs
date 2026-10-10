@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Verifies native SPC FIR address calculation for all byte presets, including discarded carry, mutable RAM reads, and F7 operand consumption.</summary>
     private static void VerifySpcFirAddressing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

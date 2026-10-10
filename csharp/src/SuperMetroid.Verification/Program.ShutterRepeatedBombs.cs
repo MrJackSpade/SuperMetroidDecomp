@@ -6,6 +6,11 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Audits 216 repeated-bomb sequences around the Brinstar shutter platform, varying platform slot, horizontal
+    /// offset, firing interval, and unmorph timing, and reports the smallest observed Samus-to-platform gap.
+    /// This diagnostic records potential overlap for investigation; it does not assert that embedding is resolved.
+    /// </summary>
     private static void AuditRepeatedShutterBombs()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

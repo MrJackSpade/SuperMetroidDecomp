@@ -25,6 +25,8 @@ internal static partial class Program
         Console.WriteLine("  Square-slope beam collision: half-height, flipped and quarter slopes stop the beam.");
     }
 
+    /// <summary>Fires a beam through a test-room square slope and reports whether its explosion is anchored at the slope instead of the wall beyond it.</summary>
+    /// <param name="slopeBts">Slope behavior byte selecting the solid half or quarter cell and its orientation.</param>
     private static bool BeamExplodesAtSlope(byte slopeBts)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

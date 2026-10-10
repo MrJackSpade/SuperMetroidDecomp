@@ -4,6 +4,10 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares the managed SPC volume writer with the retail interpolation instructions for both DSP channels,
+    /// including the descending-sample regression case and every 16-bit fixed-point pan input.
+    /// </summary>
     private static void VerifySpcPanInterpolation()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

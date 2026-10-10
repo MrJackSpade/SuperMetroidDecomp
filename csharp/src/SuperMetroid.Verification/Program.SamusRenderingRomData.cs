@@ -88,6 +88,9 @@ internal static partial class Program
             "body DMA definitions, and all arm-cannon directions are in range.");
     }
 
+    /// <summary>Reads a little-endian 16-bit word from two adjacent bytes in the rendering address space.</summary>
+    /// <param name="bus">Address space that supplies the source bytes.</param>
+    /// <param name="address">Address of the low byte; the high byte is read from the following address.</param>
     private static ushort ReadRenderingWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

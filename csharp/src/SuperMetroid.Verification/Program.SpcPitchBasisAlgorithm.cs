@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all thirteen SPC base-note frequencies against ROM values and exact rational bounds for the equal-tempered pitch basis.</summary>
+    /// <param name="rom">Cartridge address space containing the native SPC base-note frequency words.</param>
     private static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {
         BigInteger scale = BigInteger.Pow(10, 28);

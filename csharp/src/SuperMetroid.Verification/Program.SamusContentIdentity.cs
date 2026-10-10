@@ -38,6 +38,9 @@ internal static partial class Program
             "canonical spritemap order and host aggregate/warnings pass without a ROM.");
     }
 
+    /// <summary>Builds a deterministic Samus artwork catalog for content-identity checks, with an optional component edit or spritemap-order variation.</summary>
+    /// <param name="edit">The named catalog component to alter, or <see langword="null"/> for the unchanged baseline fixture.</param>
+    /// <param name="reverseMaps">Whether to reverse spritemap definition order while preserving the represented artwork.</param>
     private static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
     {
         int firstPointer = SamusBodyDefinitionLayout.EndOffset -

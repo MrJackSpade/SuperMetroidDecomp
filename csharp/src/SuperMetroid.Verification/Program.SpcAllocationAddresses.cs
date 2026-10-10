@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    /// <summary>Checks each SPC sound-library allocation field against the independent player offsets, verifies its serialized per-channel address range, and confirms invalid library or field indexes are rejected.</summary>
     private static void VerifySpcAllocationAddresses()
     {
         // Independent original kSomeAddrs and SpcPlayer member offsets from

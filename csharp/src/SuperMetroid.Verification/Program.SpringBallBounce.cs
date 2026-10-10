@@ -7,6 +7,7 @@ internal static partial class Program
     // ($90:91D1) while MorphBallBounceState is nonzero, not the powered jump. The jump's
     // released-button cutoff therefore cannot cancel a rebound: in the 100% movie the
     // bounce's 1.0000 upward speed carries Samus up a pixel before gravity reduces it.
+    /// <summary>Checks that an active Spring Ball rebound keeps rising despite released Jump, while the ordinary in-air jump path applies its rise cutoff.</summary>
     private static void VerifySpringBallBounce()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

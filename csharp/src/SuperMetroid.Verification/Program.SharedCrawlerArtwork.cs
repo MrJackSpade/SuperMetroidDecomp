@@ -4,6 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies shared-crawler visual selectors against native instruction words, compiled
+    /// enemy frames, and the installed HZoomer artwork, including rejection of adjacent pointer data.
+    /// </summary>
+    /// <param name="rom">ROM address space containing the native shared-crawler instruction words.</param>
+    /// <param name="stock">Installed enemy artwork catalog that must contain each selected frame.</param>
     private static void VerifyInstalledSharedCrawlerFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

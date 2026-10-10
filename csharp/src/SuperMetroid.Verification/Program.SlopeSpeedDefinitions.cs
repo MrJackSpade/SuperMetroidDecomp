@@ -3,6 +3,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks all native slope multipliers and compares production scaling with an independent
+    /// native-arithmetic model across packed operands, BTS orientations, and airborne boundaries.
+    /// </summary>
+    /// <param name="rom">Retail address space containing the native horizontal slope multipliers.</param>
     private static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {
         var bus = new SlopeHeightNoReadBus();

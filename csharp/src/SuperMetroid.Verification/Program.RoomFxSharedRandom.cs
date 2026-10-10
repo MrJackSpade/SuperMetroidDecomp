@@ -3,6 +3,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies liquid room-FX participation in the shared RNG lifecycle, including callback installation, frozen updates, native byte swapping, effect removal, and room reload initialization.</summary>
+    /// <param name="bus">Address space used to load the synthetic room effect.</param>
+    /// <param name="vram">Video memory receiving the effect's graphics during loading.</param>
+    /// <param name="cgram">Color memory receiving the effect's palette during loading.</param>
+    /// <param name="fx">Room layer-three effect whose shared-state callback lifecycle is checked.</param>
+    /// <param name="record">Native room-FX record used to initialize the effect.</param>
+    /// <param name="type">Effect type that determines whether the native update swaps the RNG word's bytes.</param>
     private static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
         SnesCgram cgram, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {

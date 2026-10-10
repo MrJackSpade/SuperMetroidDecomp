@@ -3,6 +3,11 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the native Power Bomb response resets Ridley's neutral tail fields without
+    /// overwriting animated foot displacement, and that inactive reaction gates preserve state.
+    /// </summary>
+    /// <remarks>Exercises every tail-angle delta and the fight-mode, grab-state, and bomb-armed gates.</remarks>
     private static void VerifyRidleyPowerBombNeutralTail()
     {
         var prepare = typeof(RoomEnemySystem).GetMethod("PrepareNorfairRidleyCombatFrame", BindingFlags.NonPublic | BindingFlags.Static)!

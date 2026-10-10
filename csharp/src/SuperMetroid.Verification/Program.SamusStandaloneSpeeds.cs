@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks four standalone speed records and their arithmetic, while preserving live low-bank reads and rejecting unknown high-bank addresses.</summary>
+    /// <param name="rom">Retail address space supplying the native standalone speed-table words.</param>
     private static void VerifySamusStandaloneSpeeds(SuperMetroidAddressSpace rom)
     {
         SpeedTableEntry Read(ISnesAddressSpace source, int a)

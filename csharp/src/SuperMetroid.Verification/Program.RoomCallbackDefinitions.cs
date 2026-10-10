@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies every retail room-state callback pointer round-trips through typed identities and dispatch rejects unknown entries.</summary>
     private static void VerifyCompiledRoomCallbackDefinitions()
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

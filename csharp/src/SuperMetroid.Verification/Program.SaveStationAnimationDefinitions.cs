@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks the save-station animation loop operand against the cartridge and runs the sequential room-PLM population verification.</summary>
     private static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(

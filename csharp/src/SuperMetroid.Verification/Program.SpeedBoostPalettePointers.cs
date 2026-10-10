@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native and compiled Speed Booster palette pointer selection for each suit
+    /// combination, the installed CGRAM colors, and failure when palette assets are unavailable.
+    /// </summary>
     private static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

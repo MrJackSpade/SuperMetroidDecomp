@@ -3,6 +3,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the 21 native pan samples, their bounded interpolation endpoint, and the
+    /// adjacent sharp-echo FIR impulse preset against the SPC ROM data.
+    /// </summary>
+    /// <remarks>Also checks that pan-table indices outside the local interpolation view are rejected.</remarks>
+    /// <param name="rom">ROM address space supplying the native SPC pan and FIR bytes.</param>
     private static void VerifySpcPanSamples(ISnesAddressSpace rom)
     {
         AssertEqual(21, SpcMusicTables.PanSampleCount, "native curve ends before the FIR preset");

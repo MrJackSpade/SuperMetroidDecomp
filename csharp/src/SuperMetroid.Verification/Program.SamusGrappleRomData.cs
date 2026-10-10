@@ -140,6 +140,10 @@ internal static partial class Program
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
 
+    /// <summary>Reads a little-endian 16-bit word from two consecutive bytes in the Grapple ROM data.</summary>
+    /// <param name="bus">SNES address space containing the word to read.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The two bytes combined with the first byte as the low-order byte.</returns>
     private static ushort ReadGrappleWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies morphed spike-contact damage and native knockback recovery trajectories, including carried momentum, retained-pose fallbacks, and underwater turn-to-landing behavior.</summary>
     private static void VerifyMorphedSpikeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

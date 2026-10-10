@@ -6,6 +6,10 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     // GR-2: the Chozo pickup must arm native lava motion only on message return.
+    /// <summary>
+    /// Verifies Chozo and exposed Speed Booster message continuations, including the Chozo-only
+    /// delayed lava rise and earthquake, native surface timing, and one-time continuation use.
+    /// </summary>
     private static void VerifySpeedBoosterPickupContinuation()
     {
         var cartridge = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

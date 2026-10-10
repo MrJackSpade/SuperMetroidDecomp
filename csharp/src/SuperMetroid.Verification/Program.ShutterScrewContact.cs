@@ -9,6 +9,7 @@ internal static partial class Program
     // then, while idle, reacts when Samus's four solid-enemy collision words AND to this
     // enemy and her contact damage is nonzero ($A2:EEE9-EF04). In the 100% movie a screw
     // attack pressed against a Three Musketeers' shootable shutter starts it moving.
+    /// <summary>Verifies an idle Three Musketeers shutter treats Samus contact as a shot only when contact damage is nonzero.</summary>
     private static void VerifyShutterScrewContact()
     {
         Confirm(contactDamage: 3, reacts: true);

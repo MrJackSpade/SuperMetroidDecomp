@@ -3,6 +3,10 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks compiled room-state settings against the retail cartridge and confirms production
+    /// Ceres header construction selects its state without a cartridge-reader capability.
+    /// </summary>
     private static void VerifyCompiledRoomStateDefinitions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

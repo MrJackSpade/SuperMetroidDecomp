@@ -9,6 +9,7 @@ internal static partial class Program
     // fails and $91:8304 selects command six. After movement $91:EC85 clears the acceleration
     // mode and base speed and falls through to $91:EC8E's extra-speed cancel. In the 100%
     // movie the next frame's turn therefore starts from rest instead of carrying 3.A000.
+    /// <summary>Verifies that Jump alone leaves a falling Spring Ball in its pose, moves once using carried speed, then clears horizontal speed through the fallback commands.</summary>
     private static void VerifySpringBallFallingFallback()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

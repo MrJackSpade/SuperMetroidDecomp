@@ -5,6 +5,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Checks Ridley's swoop velocity against all native angle-table entries, then verifies tail pogo, stab,
+    /// and recovery transitions, whip targeting, and boundary-directed bounces with deterministic RNG hooks.
+    /// The checks also preserve native tail offsets on stop and use a missile's position when selecting a whip target.
+    /// </summary>
     private static void VerifyRidleyFlightTail()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleySwoopVelocity", BindingFlags.Static | BindingFlags.NonPublic)!

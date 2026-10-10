@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks DSP register publication against the native descending maps for negative, unsettled, and settled echo delays, including echo gating and pending key-mask clearing.</summary>
+    /// <param name="rom">Cartridge address space containing the native DSP destination and source maps.</param>
     private static void VerifySpcDspPublication(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

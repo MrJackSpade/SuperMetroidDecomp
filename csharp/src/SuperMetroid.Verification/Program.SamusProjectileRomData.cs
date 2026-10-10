@@ -172,6 +172,10 @@ internal static partial class Program
             "instructions, missiles, explosions, trails, and slopes are in range.");
     }
 
+    /// <summary>Reads a 16-bit little-endian word from two adjacent ROM address-space bytes.</summary>
+    /// <param name="bus">ROM address space supplying the bytes.</param>
+    /// <param name="address">Address of the word's low byte.</param>
+    /// <returns>The low byte followed by the next byte as a 16-bit value.</returns>
     private static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies captured sound-queue accumulator results and accepted sound writes across queue
+    /// occupancy and suppression cases, including the resulting port acknowledgements.
+    /// </summary>
+    /// <param name="bus">Address space used to advance the cartridge audio state while queued sounds are drained.</param>
     private static void VerifySoundQueueAccumulator(SuperMetroidAddressSpace bus)
     {
         string fixture = Path.GetFullPath("csharp/test-fixtures/movement-release/soundqueue-return.csv");

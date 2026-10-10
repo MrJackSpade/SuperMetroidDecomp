@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks compiled jump, wall-jump, and dry-air launch speeds and gravity words across equipment, liquid environments, and extra-run speeds.</summary>
+    /// <param name="rom">Cartridge address space supplying the native vertical launch and gravity words.</param>
     private static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks real bomb activation, the permanent upper stop, rider alignment, and roll-off behavior for both Brinstar shutter slots.</summary>
     private static void VerifyShutterRiding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks Ridley's inclusive arrival-overlap boundary and compares his opening boss trajectory with recorded native frames while supplying the captured Samus state and RNG values.</summary>
     private static void VerifyRidleyPlayerOpening()
     {
         var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    /// <summary>Verifies the cartridge's four-word pose-history shift on distinct and repeated-pose transitions, plus the wall-jump probe's movement-byte gate.</summary>
     static void VerifySamusPoseHistory()
     {
         // Literal word-level fixture for $91:E719. Preserve direction bytes and

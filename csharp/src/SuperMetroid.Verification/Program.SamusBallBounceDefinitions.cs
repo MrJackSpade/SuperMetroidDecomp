@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native ball-bounce speed definitions and morph/spring landing behavior across signed speeds, bounce phases, and facing directions.</summary>
+    /// <param name="rom">Cartridge address space containing the native rebound speed and subspeed words.</param>
     private static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);

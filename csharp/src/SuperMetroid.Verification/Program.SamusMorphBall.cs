@@ -2072,6 +2072,15 @@ static void VerifySamusMorphBallMovement()
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }
 
+/// <summary>
+/// Starts a production Morph Ball power bomb at the requested position and advances through its fuse until
+/// the explosion starts, then steps once to run the initial center-block boundary scan.
+/// </summary>
+/// <param name="bus">Address space used by Samus collision setup and the production bomb update path.</param>
+/// <param name="level">Room collision grid scanned by the expanding power bomb.</param>
+/// <param name="plms">PLM system that receives any block-reaction entries created by the initial scan.</param>
+/// <param name="xPosition">Samus's starting horizontal room coordinate.</param>
+/// <param name="yPosition">Samus's starting vertical room coordinate.</param>
 private static void RunPowerBombToInitialBoundary(
     ISnesAddressSpace bus,
     RoomLevelData level,

@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies compiled room-state selection against independently decoded retail branch order and
+    /// predicate outcomes for every room, and confirms that unknown room pointers are rejected.
+    /// </summary>
     private static void VerifyCompiledRoomStateSelectionDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

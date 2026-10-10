@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks the eleven compiled Space Colony caption letters against native instruction timing, screen placement, and character tiles.</summary>
+    /// <param name="rom">Cartridge address space containing the caption instruction and drawing data.</param>
     private static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
     {
         int ReadWord(int address) => rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;

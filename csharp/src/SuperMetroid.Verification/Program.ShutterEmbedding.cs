@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Runs 126 Brinstar shutter approach sequences to observe bomb activation, upward rider carry, and support-gap candidates; it is diagnostic and does not assert that embedding is absent.</summary>
     private static void VerifyShutterEmbedding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

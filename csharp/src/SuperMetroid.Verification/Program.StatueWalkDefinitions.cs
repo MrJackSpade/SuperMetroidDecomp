@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks Golden Torizo walking and Chozo statue carry tables against native ROM words, then verifies their movement, subpixel state, Samus offsets, instruction handoff, and invalid selectors.</summary>
+    /// <param name="rom">SNES address space containing the native Torizo walk velocities and Chozo carry-motion records.</param>
     private static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -7,6 +7,10 @@ internal static partial class Program
     // Toggle_Save_Confirmation_Selection adds its own Wait_for_Lag_Frame ($85:8532) before the
     // redraw upload and the $37 sound. A cursor move therefore puts three frames before the
     // next read. In the 100% movie the gunship's A read fell one frame late without it.
+    /// <summary>
+    /// Verifies that changing the save-confirmation selection inserts its redraw wait, queues
+    /// the selection sound without audio-handler calls, and delays the next input read by three frames.
+    /// </summary>
     private static void VerifySaveConfirmationCadence()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

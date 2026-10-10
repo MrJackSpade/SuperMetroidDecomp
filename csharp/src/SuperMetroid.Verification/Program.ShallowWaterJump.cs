@@ -6,6 +6,10 @@ internal static partial class Program
     /// <summary>The checked-in native trace for issue #1258, one row per jump frame.</summary>
     private const string ShallowWaterJumpNativeTracePath = "csharp/test-fixtures/issue-1258-water-jump/native.csv";
 
+    /// <summary>
+    /// Verifies shallow-water contact at takeoff, the jump's ceiling apex, and each captured frame
+    /// against the native trace for pose, position, velocity, collision radius, and medium.
+    /// </summary>
     private static void VerifyShallowWaterJump()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

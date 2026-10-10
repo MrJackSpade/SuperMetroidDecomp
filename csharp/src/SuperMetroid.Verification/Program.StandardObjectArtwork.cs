@@ -5,6 +5,11 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies standard object artwork extraction, guarded queued DMA, external PNG override
+    /// persistence, and rejection of invalid override or stock files.
+    /// </summary>
+    /// <param name="sourceRom">Retail ROM image used to extract the stock artwork and its provenance.</param>
     private static void VerifyStandardObjectArtwork(string sourceRom)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks imported authored atmosphere frames render without a cartridge, missing art fails explicitly, and type-two null pointers use live WRAM.</summary>
+    /// <param name="sourceRom">Retail ROM path used to extract the authored atmosphere artwork and reference attributes.</param>
     private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",

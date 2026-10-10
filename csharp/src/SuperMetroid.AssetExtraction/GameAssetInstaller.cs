@@ -31,19 +31,33 @@ public static partial class GameAssetInstaller
         return InstallValidated(SupportedCartridge.Read(source, cancellationToken), root, cancellationToken, progress);
     }
 
-    /// <summary>Uses a complete installation or rebuilds missing/outdated resources from its own validated ROM.</summary>
+    /// <summary>
+    /// Uses a complete installation or rebuilds missing/outdated resources from its own validated ROM.
+    /// Published content never changes, so any number of processes may open a complete installation
+    /// at once; only recovery and extraction write it, and those hold the setup lock.
+    /// </summary>
     public static GameInstallation? EnsureInstalled(string root,
         CancellationToken cancellationToken = default, IProgress<string>? progress = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
+        if (Inspect(installation, cancellationToken) is { Complete: true }) return installation;
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
+        if (Inspect(installation, cancellationToken) is not { } state) return null;
+        return state.Complete ? installation : ExtractAndPublish(installation, state.Rom, state.Reusable, cancellationToken, progress);
+    }
+
+    /// <summary>
+    /// Reads the installation's own ROM and validates its content in one pass, which decides
+    /// completeness and which components a repair may keep. Null when no ROM is installed.
+    /// </summary>
+    private static InstalledState? Inspect(GameInstallation installation, CancellationToken cancellationToken)
+    {
         if (!File.Exists(installation.RomPath)) return null;
         byte[] rom;
         using (Stream source = File.OpenRead(installation.RomPath)) rom = SupportedCartridge.Read(source, cancellationToken);
-        // One validation pass decides completeness and which components a repair may keep.
         HashSet<InstallerComponent> reusable = InspectInstalledComponents(installation, out bool complete);
-        return complete ? installation : ExtractAndPublish(installation, rom, reusable, cancellationToken, progress);
+        return new InstalledState(rom, reusable, complete);
     }
 
     /// <summary>
@@ -70,6 +84,7 @@ public static partial class GameAssetInstaller
     public static GameInstallation? TryOpenExtractedContent(string root)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
+        if (IsExtractedContentComplete(installation)) return installation;
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
         return IsExtractedContentComplete(installation) ? installation : null;
@@ -178,4 +193,6 @@ public static partial class GameAssetInstaller
     }
 
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+
+    private sealed record InstalledState(byte[] Rom, HashSet<InstallerComponent> Reusable, bool Complete);
 }

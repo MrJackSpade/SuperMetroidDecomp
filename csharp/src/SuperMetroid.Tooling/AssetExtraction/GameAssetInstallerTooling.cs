@@ -18,7 +18,6 @@ internal static class GameAssetInstallerTooling
         var installation = new GameInstallation(Path.GetFullPath(root));
         if (!Directory.Exists(installation.ContentDirectory))
             throw new DirectoryNotFoundException($"Extracted content directory is missing: {installation.ContentDirectory}");
-        using FileStream gate = GameAssetInstaller.Lock(installation.Root);
         GameAssetInstaller.ValidateRequiredExtractedContent(installation);
         return installation;
     }

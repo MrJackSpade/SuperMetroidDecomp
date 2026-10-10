@@ -344,12 +344,12 @@ public sealed partial class ManagedSpcPlayer
             offset += length;
         }
 
-        portsToSnes[AudioRomData.Apu.MusicPort] = 0;
-        inputPorts[AudioRomData.Apu.MusicPort] = SpcDriverData.NoPortCommand;
+        portsToSnes[(byte)ApuPort.Music] = 0;
+        inputPorts[(byte)ApuPort.Music] = SpcDriverData.NoPortCommand;
         // $1E8B leaves $BB on output port 1 and finishes with $F1 = $31, which resets the
         // CPU-to-APU input latches. The driver's $01-$0B words are untouched.
-        portsToSnes[AudioRomData.Apu.LibraryOnePort] = SpcDriverData.UploadReadyLibraryOnePort;
-        for (int port = AudioRomData.Apu.FirstSoundPort; port < AudioRomData.Apu.PortCount; port++)
+        portsToSnes[(byte)ApuPort.SoundLibrary1] = SpcDriverData.UploadReadyLibraryOnePort;
+        for (int port = (byte)ApuPort.SoundLibrary1; port < AudioRomData.Apu.PortCount; port++)
             inputPorts[port] = 0;
         musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer);
         counter = SpcDriverData.Music.TrackStartupTicks;
@@ -465,7 +465,7 @@ public sealed partial class ManagedSpcPlayer
             }
             while (fastForward != 0);
         }
-        else if (portsToSnes[AudioRomData.Apu.MusicPort] != 0)
+        else if (portsToSnes[(byte)ApuPort.Music] != 0)
         {
             for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
             {

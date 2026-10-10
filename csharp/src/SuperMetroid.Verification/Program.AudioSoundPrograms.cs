@@ -92,7 +92,7 @@ internal static partial class Program
             }
 
             CartridgeAudioCommand trigger = CartridgeAudioCommand.WritePort(
-                AudioRomData.Apu.FirstSoundPort,
+                (byte)ApuPort.SoundLibrary1,
                 effect.Command);
             bool stockAudible = false;
             bool editedAudible = false;

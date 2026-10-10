@@ -13,10 +13,14 @@ internal static class GunshipVisualDefinitions
     internal const byte Bank = 0xa2;
     /// <summary>Thirteen distinct Spritemap_Ship_0..C records at $A2:AD81..AFDD.</summary>
     internal const int FrameCount = 13;
-    /// <summary>Spritemap_Ship_0 at $A2:AD81, selected by InstList_ShipTop.</summary>
-    internal const ushort TopHull = 0xad81;
-    /// <summary>Spritemap_Ship_1 at $A2:ADDD, selected by InstList_ShipBottom.</summary>
-    internal const ushort BottomHull = 0xaddd;
+    /// <summary>The two hull frames; the other eleven selected frames are entrance-pad poses.</summary>
+    private enum HullFrame : ushort
+    {
+        /// <summary>Spritemap_Ship_0 at $A2:AD81, selected by InstList_ShipTop.</summary>
+        Top = 0xad81,
+        /// <summary>Spritemap_Ship_1 at $A2:ADDD, selected by InstList_ShipBottom.</summary>
+        Bottom = 0xaddd,
+    }
 
     internal static EnemySpritemapDefinition[] Frames()
     {
@@ -31,12 +35,14 @@ internal static class GunshipVisualDefinitions
             // The closing program reuses the opening frames in reverse. Export
             // each native identity once, keeping the actual timing in the program.
             if (!seen.Add(pointer)) continue;
-            string name = pointer switch
-            {
-                TopHull => "gunship_top_hull",
-                BottomHull => "gunship_bottom_hull",
-                _ => $"gunship_entrance_{padIndex++:D2}",
-            };
+            string name = !Enum.IsDefined((HullFrame)pointer)
+                ? $"gunship_entrance_{padIndex++:D2}"
+                : (HullFrame)pointer switch
+                {
+                    HullFrame.Top => "gunship_top_hull",
+                    HullFrame.Bottom => "gunship_bottom_hull",
+                    _ => throw new InvalidOperationException($"Undefined {nameof(HullFrame)} {pointer:X4}."),
+                };
             frames.Add(new(Bank, pointer, name));
         }
         if (frames.Count != FrameCount)

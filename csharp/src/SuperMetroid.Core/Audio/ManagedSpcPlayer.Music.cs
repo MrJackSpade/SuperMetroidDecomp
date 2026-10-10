@@ -521,8 +521,8 @@ public sealed partial class ManagedSpcPlayer
 
     private void HandleMusicCommand()
     {
-        byte command = inputPorts[AudioRomData.Apu.MusicPort];
-        inputPorts[AudioRomData.Apu.MusicPort] = SpcDriverData.NoPortCommand;
+        byte command = inputPorts[(byte)ApuPort.Music];
+        inputPorts[(byte)ApuPort.Music] = SpcDriverData.NoPortCommand;
         if (command == SpcDriverData.PauseMusicCommand)
         {
             keyOff |= unchecked((byte)~channelOnMask);
@@ -530,12 +530,12 @@ public sealed partial class ManagedSpcPlayer
         }
 
         if (command != SpcDriverData.ResumeMusicCommand && command != SpcDriverData.NoPortCommand &&
-            command != portsToSnes[AudioRomData.Apu.MusicPort])
+            command != portsToSnes[(byte)ApuPort.Music])
         {
             StartTrack(command);
             return;
         }
-        if (portsToSnes[AudioRomData.Apu.MusicPort] == 0)
+        if (portsToSnes[(byte)ApuPort.Music] == 0)
             return;
         if (counter == 0)
             goto ProcessChannels;
@@ -696,7 +696,7 @@ public sealed partial class ManagedSpcPlayer
 
     private void StartTrack(byte track)
     {
-        portsToSnes[AudioRomData.Apu.MusicPort] = track;
+        portsToSnes[(byte)ApuPort.Music] = track;
         // Track zero deliberately indexes the word immediately before the numbered table.
         musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer + track * 2);
         counter = SpcDriverData.Music.TrackStartupTicks;

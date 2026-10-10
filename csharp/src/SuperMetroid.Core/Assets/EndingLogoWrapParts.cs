@@ -40,17 +40,17 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         if (index < 9) return (0x49 - (index - 7), false); // caps, right to left
         if (index == 9) return (0x48, true); // cropped left cap
         if (index < 12) return (0x4c + 2 * (index - 10), false); // upper span, left to right
-        if (index == 12) return (EndingLogoWrapAtlas.LeftCorner, false);
+        if (index == 12) return ((int)EndingLogoWrapCorner.LeftCorner, false);
         if (index < 15) return (0x6b - (index - 13), false); // inner edge, right to left
         if (index < 19)
         {
             int cell = index - 15;
             return (0x79 - cell / 2 * 16 - cell % 2, false); // patch, bottom-right to top-left
         }
-        if (index == 19) return (EndingLogoWrapAtlas.LowerSideEndpoint, false);
-        if (index == 20) return (EndingLogoWrapAtlas.InnerSideJunction, false);
+        if (index == 19) return ((int)EndingLogoWrapCorner.LowerSideEndpoint, false);
+        if (index == 20) return ((int)EndingLogoWrapCorner.InnerSideJunction, false);
         if (index < 23) return (0x10 - (index - 21) * 16, false); // inner side, bottom to top
-        return (index == 23 ? EndingLogoWrapAtlas.OuterSideJunction : EndingLogoWrapAtlas.UpperSideEndpoint, false);
+        return (index == 23 ? (int)EndingLogoWrapCorner.OuterSideJunction : (int)EndingLogoWrapCorner.UpperSideEndpoint, false);
     }
 
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
@@ -106,14 +106,19 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         else
         {
             // Separately packed corners and vertical-edge endpoints.
-            switch (tile)
+            if (!Enum.IsDefined((EndingLogoWrapCorner)tile))
             {
-                case EndingLogoWrapAtlas.LeftCorner: x = -8; y = -8; break;
-                case EndingLogoWrapAtlas.InnerSideJunction: x = 24; y = 8; break;
-                case EndingLogoWrapAtlas.LowerSideEndpoint: x = 32; y = 24; large = true; break;
-                case EndingLogoWrapAtlas.OuterSideJunction: x = 32; y = 8; large = true; break;
-                case EndingLogoWrapAtlas.UpperSideEndpoint: x = 32; y = -8; large = true; break;
-                default: part = default; return false;
+                part = default;
+                return false;
+            }
+            switch ((EndingLogoWrapCorner)tile)
+            {
+                case EndingLogoWrapCorner.LeftCorner: x = -8; y = -8; break;
+                case EndingLogoWrapCorner.InnerSideJunction: x = 24; y = 8; break;
+                case EndingLogoWrapCorner.LowerSideEndpoint: x = 32; y = 24; large = true; break;
+                case EndingLogoWrapCorner.OuterSideJunction: x = 32; y = 8; large = true; break;
+                case EndingLogoWrapCorner.UpperSideEndpoint: x = 32; y = -8; large = true; break;
+                default: throw new InvalidOperationException($"Undefined {nameof(EndingLogoWrapCorner)} {tile:X2}.");
             }
         }
         int size = large ? 16 : 8;
@@ -143,16 +148,16 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
 }
 
 /// <summary>Separately packed corner and side pieces in the ending logo atlas.</summary>
-internal static class EndingLogoWrapAtlas
+internal enum EndingLogoWrapCorner : ushort
 {
-    /// <summary>Tile$5B, eight-pixel left corner of the right-wrap composition.</summary>
-    internal const int LeftCorner = 0x5b;
-    /// <summary>Tile$6C, eight-pixel junction at the inner side of the right wrap.</summary>
-    internal const int InnerSideJunction = 0x6c;
-    /// <summary>Tile$20, sixteen-pixel lower endpoint of the right side.</summary>
-    internal const int LowerSideEndpoint = 0x20;
-    /// <summary>Tile$6D, sixteen-pixel outer side junction.</summary>
-    internal const int OuterSideJunction = 0x6d;
     /// <summary>Tile$01, sixteen-pixel upper endpoint of the right side.</summary>
-    internal const int UpperSideEndpoint = 0x01;
+    UpperSideEndpoint = 0x01,
+    /// <summary>Tile$20, sixteen-pixel lower endpoint of the right side.</summary>
+    LowerSideEndpoint = 0x20,
+    /// <summary>Tile$5B, eight-pixel left corner of the right-wrap composition.</summary>
+    LeftCorner = 0x5b,
+    /// <summary>Tile$6C, eight-pixel junction at the inner side of the right wrap.</summary>
+    InnerSideJunction = 0x6c,
+    /// <summary>Tile$6D, sixteen-pixel outer side junction.</summary>
+    OuterSideJunction = 0x6d,
 }

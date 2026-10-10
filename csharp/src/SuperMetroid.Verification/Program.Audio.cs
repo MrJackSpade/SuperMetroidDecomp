@@ -216,7 +216,7 @@ internal static partial class Program
         AssertEqual(AudioRomData.Queues.SoundLibraryCount, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
         AssertTrue(cancelWrites.Contains(CartridgeAudioCommand.WritePort(
-                AudioRomData.Apu.FirstSoundPort,
+                (byte)ApuPort.SoundLibrary1,
                 SoundEffectLibrary1Sounds.CancelAll.Value)),
             "sound cancellation queues library one sentinel");
 

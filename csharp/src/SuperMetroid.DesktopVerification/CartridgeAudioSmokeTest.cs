@@ -89,9 +89,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.ReadAcknowledgements();
-            if (acknowledgements[1] == powerBeamSound)
+            if (acknowledgements[ApuPort.SoundLibrary1] == powerBeamSound)
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[1] == 0)
+            else if (requestAcknowledged && acknowledgements[ApuPort.SoundLibrary1] == 0)
                 clearAcknowledgedAfterRequest = true;
         }
 

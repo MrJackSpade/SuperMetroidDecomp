@@ -378,13 +378,30 @@ internal static class SpcMusicDefinitionCodec
         throw new InvalidDataException($"Music program '{id}' has no bounded end command.");
     }
 
-    private static string GetNoteOperation(byte opcode) => opcode switch
+    private static string GetNoteOperation(byte opcode)
     {
-        SpcDriverData.Music.TieNote => AudioMusicInstructionOperations.Tie,
-        SpcDriverData.Music.RestNote => AudioMusicInstructionOperations.Rest,
-        >= SpcDriverData.Music.FirstPercussionNote => AudioMusicInstructionOperations.Percussion,
-        _ => AudioMusicInstructionOperations.Note,
-    };
+        if (Enum.IsDefined((NoteCommand)opcode))
+        {
+            return (NoteCommand)opcode switch
+            {
+                NoteCommand.Tie => AudioMusicInstructionOperations.Tie,
+                NoteCommand.Rest => AudioMusicInstructionOperations.Rest,
+                _ => throw new InvalidOperationException($"Undefined {nameof(NoteCommand)} {opcode:X2}."),
+            };
+        }
+        return opcode >= SpcDriverData.Music.FirstPercussionNote
+            ? AudioMusicInstructionOperations.Percussion
+            : AudioMusicInstructionOperations.Note;
+    }
+
+    /// <summary>The two note-range bytes that are not pitches: tie and rest. Pitches and percussion stay numeric.</summary>
+    private enum NoteCommand : byte
+    {
+        /// <summary>Extends the previous note.</summary>
+        Tie = SpcDriverData.Music.TieNote,
+        /// <summary>Silences the track for the note duration.</summary>
+        Rest = SpcDriverData.Music.RestNote,
+    }
 
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)
     {

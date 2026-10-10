@@ -49,7 +49,7 @@ internal static class XrayRevealDefinitions
     /// oracle agree; the neighboring spike table is not part of this lookup.
     /// </remarks>
     private static readonly XrayRevealDefinition HorizontalExtension =
-        new(XrayRevealCodePointers.HorizontalExtension, 0, 0, 0, 0);
+        new(XrayRevealCommand.HorizontalExtension, 0, 0, 0, 0);
     /// <summary>Vertical extension command for every BTS byte.</summary>
     /// <remarks>
     /// Issue #1031: pinned NTSC J/U v1.0 ROM $91:D462..D469 has wildcard
@@ -60,7 +60,7 @@ internal static class XrayRevealDefinitions
     /// oracle agree; adjacent grapple entries do not belong to this lookup.
     /// </remarks>
     private static readonly XrayRevealDefinition VerticalExtension =
-        new(XrayRevealCodePointers.VerticalExtension, 0, 0, 0, 0);
+        new(XrayRevealCommand.VerticalExtension, 0, 0, 0, 0);
 
     /// <summary>Returns the cartridge-authored reveal for one collision type/BTS pair.</summary>
     /// <remarks>
@@ -114,7 +114,7 @@ internal static class XrayRevealDefinitions
         3 or 7 => Square(0x00bc, 0x00bc, 0x00bc, 0x00bc),
         0x0e or 0x0f => One(0x00b6),
         0x82 or 0x83 or 0x84 or 0x85 =>
-            new(XrayRevealCodePointers.CopyBrinstar, 0x00b6, 0, 0, 0),
+            new(XrayRevealCommand.CopyBrinstar, 0x00b6, 0, 0, 0),
         _ => null,
     };
 
@@ -179,18 +179,18 @@ internal static class XrayRevealDefinitions
     };
 
     private static XrayRevealDefinition One(ushort tile) =>
-        new(XrayRevealCodePointers.CopyOne, tile, 0, 0, 0);
+        new(XrayRevealCommand.CopyOne, tile, 0, 0, 0);
 
     private static XrayRevealDefinition Wide(ushort left, ushort right) =>
-        new(XrayRevealCodePointers.CopyWide, left, right, 0, 0);
+        new(XrayRevealCommand.CopyWide, left, right, 0, 0);
 
     private static XrayRevealDefinition Tall(ushort top, ushort bottom) =>
-        new(XrayRevealCodePointers.CopyTall, top, 0, bottom, 0);
+        new(XrayRevealCommand.CopyTall, top, 0, bottom, 0);
 
     private static XrayRevealDefinition Square(
         ushort topLeft,
         ushort topRight,
         ushort bottomLeft,
         ushort bottomRight) =>
-        new(XrayRevealCodePointers.CopySquare, topLeft, topRight, bottomLeft, bottomRight);
+        new(XrayRevealCommand.CopySquare, topLeft, topRight, bottomLeft, bottomRight);
 }

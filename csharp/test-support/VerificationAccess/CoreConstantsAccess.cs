@@ -3536,7 +3536,7 @@ internal static class SamusMovementRomDataPosesConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="SamusMovementRomData.VerticalMotion"/> that only verification reads.</summary>
+/// <summary>Vertical launch velocity and gravity table addresses in bank $90 that only verification reads.</summary>
 internal static class SamusMovementRomDataVerticalMotionConstants
 {
     /// <summary>$90:9EB5 YSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound.</summary>
@@ -3571,42 +3571,6 @@ internal static class SamusMovementRomDataVerticalMotionConstants
     public const int WallJumpSpeeds = 0x909ed1;
     /// <summary>Wall-jump subspeed selected by the current liquid medium.</summary>
     public const int WallJumpSubspeeds = 0x909ed7;
-
-    extension(SamusMovementRomData.VerticalMotion)
-    {
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed"/>
-        internal static int BallBounceSpeed => SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed"/>
-        internal static int BallBounceSubspeed => SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.BombJumpSpeeds"/>
-        internal static int BombJumpSpeeds => SamusMovementRomDataVerticalMotionConstants.BombJumpSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.BombJumpSubspeeds"/>
-        internal static int BombJumpSubspeeds => SamusMovementRomDataVerticalMotionConstants.BombJumpSubspeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.GravityAccelerations"/>
-        internal static int GravityAccelerations => SamusMovementRomDataVerticalMotionConstants.GravityAccelerations;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.GravitySubaccelerations"/>
-        internal static int GravitySubaccelerations => SamusMovementRomDataVerticalMotionConstants.GravitySubaccelerations;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.HiJumpSpeeds"/>
-        internal static int HiJumpSpeeds => SamusMovementRomDataVerticalMotionConstants.HiJumpSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.HiJumpSubspeeds"/>
-        internal static int HiJumpSubspeeds => SamusMovementRomDataVerticalMotionConstants.HiJumpSubspeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.HiWallJumpSpeeds"/>
-        internal static int HiWallJumpSpeeds => SamusMovementRomDataVerticalMotionConstants.HiWallJumpSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.HiWallJumpSubspeeds"/>
-        internal static int HiWallJumpSubspeeds => SamusMovementRomDataVerticalMotionConstants.HiWallJumpSubspeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.KnockbackSpeeds"/>
-        internal static int KnockbackSpeeds => SamusMovementRomDataVerticalMotionConstants.KnockbackSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.KnockbackSubspeeds"/>
-        internal static int KnockbackSubspeeds => SamusMovementRomDataVerticalMotionConstants.KnockbackSubspeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.NormalJumpSpeeds"/>
-        internal static int NormalJumpSpeeds => SamusMovementRomDataVerticalMotionConstants.NormalJumpSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.NormalJumpSubspeeds"/>
-        internal static int NormalJumpSubspeeds => SamusMovementRomDataVerticalMotionConstants.NormalJumpSubspeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.WallJumpSpeeds"/>
-        internal static int WallJumpSpeeds => SamusMovementRomDataVerticalMotionConstants.WallJumpSpeeds;
-        /// <inheritdoc cref="SamusMovementRomDataVerticalMotionConstants.WallJumpSubspeeds"/>
-        internal static int WallJumpSubspeeds => SamusMovementRomDataVerticalMotionConstants.WallJumpSubspeeds;
-    }
 }
 
 /// <summary>Cartridge values of <see cref="SamusPaletteRomData.Banks"/> that only verification reads.</summary>

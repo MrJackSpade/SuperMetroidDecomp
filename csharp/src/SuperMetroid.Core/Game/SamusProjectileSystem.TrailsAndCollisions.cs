@@ -358,23 +358,27 @@ public sealed partial class SamusProjectileSystem
                     // Bank $90 stores executable instruction addresses inline. Each handler
                     // returns to the parser with X already advanced past its one-word opcode.
                     pointer = unchecked((ushort)(pointer + 2));
-                    switch (instructionOrTimer)
+                    if (!Enum.IsDefined((ProjectileTrailInstruction)instructionOrTimer))
+                    {
+                        throw new InvalidOperationException(
+                            $"Unsupported {(isLeft ? "left" : "right")} projectile-trail " +
+                            $"instruction ${instructionOrTimer:X4} at $90:{unchecked((ushort)(pointer - 2)):X4}.");
+                    }
+                    switch ((ProjectileTrailInstruction)instructionOrTimer)
                     {
                         // The opcode names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
-                        case SamusProjectileRomData.Trails.MoveLeftDown:
+                        case ProjectileTrailInstruction.MoveLeftDown:
                             pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition + 1));
                             break;
-                        case SamusProjectileRomData.Trails.MoveRightDown:
+                        case ProjectileTrailInstruction.MoveRightDown:
                             pair.Right.YPosition = unchecked((ushort)(pair.Right.YPosition + 1));
                             break;
-                        case SamusProjectileRomData.Trails.MoveLeftUp:
+                        case ProjectileTrailInstruction.MoveLeftUp:
                             pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition - 1));
                             break;
                         default:
-                            throw new InvalidOperationException(
-                                $"Unsupported {(isLeft ? "left" : "right")} projectile-trail " +
-                                $"instruction ${instructionOrTimer:X4} at $90:{unchecked((ushort)(pointer - 2)):X4}.");
+                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {instructionOrTimer:X4}.");
                     }
                 }
             }

@@ -42,7 +42,7 @@ internal static partial class Program
         var oldFrames = EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreGunshipFrameCount].ToArray();
         var legacy = stockDocument with
         {
-            Version = EnemySpritemapDefinitions.PreGunshipVersion,
+            Version = (int)EnemySpritemapSchema.PreGunship,
             Frames = oldFrames.ToDictionary(frame => frame.Name, frame => stockDocument.Frames[frame.Name].ToArray()),
             DisplayFrames = oldFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
         };

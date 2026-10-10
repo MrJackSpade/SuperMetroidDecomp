@@ -82,159 +82,12 @@ public sealed class EnemySpritemapCatalog
         {
             throw new InvalidDataException("Invalid enemy composition JSON.", error);
         }
-        int expectedCount = document.Version switch
-        {
-            EnemySpritemapDefinitions.PreRidleyBreakupVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRidleyBreakupFrameCount,
-            EnemySpritemapDefinitions.PreSingleFrameVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreSingleFrameFrameCount,
-            EnemySpritemapDefinitions.PreNuclearWaffleVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreNuclearWaffleFrameCount,
-            EnemySpritemapDefinitions.PreKraidLintVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreKraidLintFrameCount,
-            EnemySpritemapDefinitions.PreAuditOrdinaryVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount,
-            EnemySpritemapDefinitions.PreFriendlyAnimalVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount,
-            EnemySpritemapDefinitions.PreZeroVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreZeroFrameCount,
-            EnemySpritemapDefinitions.PreMamaTurtleVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMamaTurtleFrameCount,
-            EnemySpritemapDefinitions.PreGunshipVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreGunshipFrameCount,
-            EnemySpritemapDefinitions.PreBotwoonVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreBotwoonFrameCount,
-            EnemySpritemapDefinitions.PreYardVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreYardFrameCount,
-            EnemySpritemapDefinitions.PreWorkRobotVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreWorkRobotFrameCount,
-            EnemySpritemapDefinitions.PreEvirVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreEvirFrameCount,
-            EnemySpritemapDefinitions.PreMochtroidVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMochtroidFrameCount,
-            EnemySpritemapDefinitions.PreDeadTourianCorpseVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount,
-            EnemySpritemapDefinitions.PreDeadTorizoStationaryVersion when
-                stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
-            EnemySpritemapDefinitions.PreRinkaVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRinkaFrameCount,
-            EnemySpritemapDefinitions.PreViolaVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreViolaFrameCount,
-            EnemySpritemapDefinitions.PreChozoStatueVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreChozoStatueFrameCount,
-            EnemySpritemapDefinitions.PreNorfairLavaJumperVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount,
-            EnemySpritemapDefinitions.PreMultiviolaVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMultiviolaFrameCount,
-            EnemySpritemapDefinitions.PreDragonVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDragonFrameCount,
-            EnemySpritemapDefinitions.PreTripperKamerVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreTripperKamerFrameCount,
-            EnemySpritemapDefinitions.PreShaktoolVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreShaktoolFrameCount,
-            EnemySpritemapDefinitions.PreMetroidVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMetroidFrameCount,
-            EnemySpritemapDefinitions.PreShutterVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreShutterFrameCount,
-            EnemySpritemapDefinitions.PreMorphBallEyeVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
-            EnemySpritemapDefinitions.PreFaceBlockVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreFaceBlockFrameCount,
-            EnemySpritemapDefinitions.PreKagoVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreKagoFrameCount,
-            EnemySpritemapDefinitions.PreFlyVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreFlyFrameCount,
-            EnemySpritemapDefinitions.PreSciserVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreSciserFrameCount,
-            EnemySpritemapDefinitions.PreRidleySupplementVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
-            EnemySpritemapDefinitions.PreDeadTorizoVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
-            EnemySpritemapDefinitions.PreMotherBrainVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMotherBrainFrameCount,
-            EnemySpritemapDefinitions.PreKiHunterVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreKiHunterFrameCount,
-            EnemySpritemapDefinitions.PreYappingMawVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreYappingMawFrameCount,
-            EnemySpritemapDefinitions.PreRoomSpriteObjectVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
-            EnemySpritemapDefinitions.PreDraygonBreathVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
-            EnemySpritemapDefinitions.PreDraygonIntroVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
-            EnemySpritemapDefinitions.PreElevatorVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreElevatorFrameCount,
-            EnemySpritemapDefinitions.PreKamerVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreKamerFrameCount,
-            EnemySpritemapDefinitions.PreFuneNamiheVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
-            EnemySpritemapDefinitions.PreSbugVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreSbugFrameCount,
-            EnemySpritemapDefinitions.PreHZoomerVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreHZoomerFrameCount,
-            EnemySpritemapDefinitions.PreChootVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreChootFrameCount,
-            EnemySpritemapDefinitions.PreHopperVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreHopperFrameCount,
-            EnemySpritemapDefinitions.PreBeetomVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreBeetomFrameCount,
-            EnemySpritemapDefinitions.PreAlcoonVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreAlcoonFrameCount,
-            EnemySpritemapDefinitions.PreBullVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreBullFrameCount,
-            EnemySpritemapDefinitions.PrePuyoVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PrePuyoFrameCount,
-            EnemySpritemapDefinitions.PreNorfairRioVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreNorfairRioFrameCount,
-            EnemySpritemapDefinitions.PreLowerNorfairRioVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount,
-            EnemySpritemapDefinitions.PreRioVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRioFrameCount,
-            EnemySpritemapDefinitions.PreCeresBabyVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreCeresBabyFrameCount,
-            EnemySpritemapDefinitions.PreCeresDoorVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreCeresDoorFrameCount,
-            EnemySpritemapDefinitions.PreDisplayBindingsVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
-            EnemySpritemapDefinitions.PreMagdolliteVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreMagdolliteFrameCount,
-            EnemySpritemapDefinitions.PreFirefleaVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreFirefleaFrameCount,
-            EnemySpritemapDefinitions.LegacyVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.LegacyFrameCount,
-            EnemySpritemapDefinitions.IntermediateVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.IntermediateFrameCount,
-            EnemySpritemapDefinitions.PreOwtchStokeVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreOwtchStokeFrameCount,
-            EnemySpritemapDefinitions.PreRipperVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreRipperFrameCount,
-            EnemySpritemapDefinitions.EarlierVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.EarlierFrameCount,
-            EnemySpritemapDefinitions.PriorVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PriorFrameCount,
-            EnemySpritemapDefinitions.PreviousVersion when stockForLegacyOverride is not null =>
-                EnemySpritemapDefinitions.PreviousFrameCount,
-            EnemySpritemapDefinitions.Version => EnemySpritemapDefinitions.Frames.Length,
-            _ => -1,
-        };
-        bool legacyOverride = expectedCount >= 0 &&
-            document.Version != EnemySpritemapDefinitions.Version;
+        var schema = (EnemySpritemapSchema)document.Version;
+        int expectedCount = !Enum.IsDefined(schema) ||
+            (schema != EnemySpritemapSchema.Current && stockForLegacyOverride is null)
+            ? -1
+            : EnemySpritemapDefinitions.FrameCount(schema);
+        bool legacyOverride = expectedCount >= 0 && schema != EnemySpritemapSchema.Current;
         ReadOnlySpan<EnemySpritemapDefinition> expected = expectedCount >= 0
             ? EnemySpritemapDefinitions.Frames[..expectedCount]
             : [];
@@ -268,7 +121,7 @@ public sealed class EnemySpritemapCatalog
         // selection; only earlier art-only schemas inherit stock bindings.
         // Do not maintain a second version list that can silently lose new edits.
         bool hasAuthoredBindings =
-            document.Version > EnemySpritemapDefinitions.PreDisplayBindingsVersion;
+            document.Version > (int)EnemySpritemapSchema.PreDisplayBindings;
         if (hasAuthoredBindings)
         {
             if (document.DisplayFrames is null ||
@@ -336,7 +189,7 @@ public sealed class EnemySpritemapCatalog
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
 public sealed record EnemySpritemapDocument
 {
-    /// <summary>Composition schema revision; current loading requires <see cref="EnemySpritemapDefinitions.Version"/>, or a supported older revision accompanied by a complete stock catalog for merging.</summary>
+    /// <summary>Composition schema revision; current loading requires <see cref="EnemySpritemapSchema.Current"/>, or a supported older revision accompanied by a complete stock catalog for merging.</summary>
     public required int Version { get; init; }
     /// <summary>Complete case-sensitive semantic frame keys for the selected schema, each mapped to an ordered non-null OAM-part array; parts describe visual offsets, size, tiles, palette, priority, and reflections rather than gameplay hitboxes.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }

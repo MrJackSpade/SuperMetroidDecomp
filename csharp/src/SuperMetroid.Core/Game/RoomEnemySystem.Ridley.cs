@@ -354,7 +354,7 @@ public sealed partial class RoomEnemySystem
                 }
                 else
                 {
-                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
+                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(RidleyMovementTargets.Facing(state.FacingDirection));
                     MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 }
                 return;
@@ -535,7 +535,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         bool descending)
     {
-        int facing = Math.Min(state.FacingDirection, (ushort)2);
+        RidleyFacing facing = RidleyMovementTargets.Facing(state.FacingDirection);
         ushort targetX = descending ? RidleyMovementTargets.DescendingPogoX(facing)
             : RidleyMovementTargets.AscendingPogoX(facing);
         ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.YPosition, (ushort)352);
@@ -589,7 +589,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort targetX = RidleyMovementTargets.GroundAttackX(Math.Min(state.FacingDirection, (ushort)2));
+        ushort targetX = RidleyMovementTargets.GroundAttackX(RidleyMovementTargets.Facing(state.FacingDirection));
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
@@ -789,7 +789,7 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.TargetX = RidleyMovementTargets.CarryAnchorX(Math.Min(state.FacingDirection, (ushort)2));
+        state.TargetX = RidleyMovementTargets.CarryAnchorX(RidleyMovementTargets.Facing(state.FacingDirection));
         state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
             ? (ushort)256
             : unchecked((ushort)(slot.YPosition - 64));

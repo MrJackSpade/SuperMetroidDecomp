@@ -46,7 +46,7 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
             {
                 0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY,
                 1 => 64,
-                2 => TourianStatueRomData.ResetDustPosition,
+                2 => (ushort)TourianStatueInstruction.ResetDustPosition,
                 3 => EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius,
                 4 => 63,
                 _ => 3,

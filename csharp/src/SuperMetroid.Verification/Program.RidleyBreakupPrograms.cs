@@ -47,7 +47,7 @@ internal static partial class Program
         var previous = EnemySpritemapDefinitions.Frames.ToArray().Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
         var legacy = document with
         {
-            Version = EnemySpritemapDefinitions.PreRidleyBreakupVersion,
+            Version = (int)EnemySpritemapSchema.PreRidleyBreakup,
             Frames = previous.ToDictionary(frame => frame.Name, frame => document.Frames[frame.Name]),
             DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name),
         };

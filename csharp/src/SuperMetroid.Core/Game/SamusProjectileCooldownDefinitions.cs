@@ -15,14 +15,18 @@ internal static class SamusProjectileCooldownDefinitions
 
     /// <summary>$90:C27A ProjectileCooldowns_NonBeamProjectiles, indexed by projectile kind.</summary>
     private const int NonBeamCooldowns = 0x90c27a;
-    /// <summary>Native non-beam kind one: ordinary missile.</summary>
-    private const int Missile = 1;
-    /// <summary>Native non-beam kind two: super missile.</summary>
-    private const int SuperMissile = 2;
-    /// <summary>Native non-beam kind three: power bomb.</summary>
-    private const int PowerBomb = 3;
-    /// <summary>Native non-beam kind five: morph-ball bomb.</summary>
-    private const int Bomb = 5;
+    /// <summary>The non-beam projectile kinds with a nonzero $90:C27A cooldown; the other kinds are zero.</summary>
+    private enum NonBeamKind
+    {
+        /// <summary>Native non-beam kind one: ordinary missile.</summary>
+        Missile = 1,
+        /// <summary>Native non-beam kind two: super missile.</summary>
+        SuperMissile = 2,
+        /// <summary>Native non-beam kind three: power bomb.</summary>
+        PowerBomb = 3,
+        /// <summary>Native non-beam kind five: morph-ball bomb.</summary>
+        Bomb = 5,
+    }
     /// <summary>Native low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
     private const int PlasmaIce = 0x0a;
 
@@ -45,14 +49,19 @@ internal static class SamusProjectileCooldownDefinitions
         if (address is >= (SamusProjectileRomData.Beams.UnchargedCooldowns + 32) and < NonBeamCooldowns)
             return 0;
         if (address is >= NonBeamCooldowns and < SamusProjectileRomData.Beams.AutoFireCooldowns)
-            return (address - NonBeamCooldowns) switch
+        {
+            var kind = (NonBeamKind)(address - NonBeamCooldowns);
+            if (!Enum.IsDefined(kind))
+                return 0;
+            return kind switch
             {
-                Missile => 10,
-                SuperMissile => 20,
-                PowerBomb => 40,
-                Bomb => 16,
-                _ => 0,
+                NonBeamKind.Missile => 10,
+                NonBeamKind.SuperMissile => 20,
+                NonBeamKind.PowerBomb => 40,
+                NonBeamKind.Bomb => 16,
+                _ => throw new InvalidOperationException($"Undefined {nameof(NonBeamKind)} {(int)kind}."),
             };
+        }
         if ((uint)(address - SamusProjectileRomData.Beams.AutoFireCooldowns) < SamusProjectileRomData.Beams.CombinationCount)
             return 25;
         if (address == SpacetimeBeamCooldownAddress)

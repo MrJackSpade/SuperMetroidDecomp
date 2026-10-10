@@ -8,6 +8,35 @@ internal readonly record struct SporeSpawnCollisionComponent(
 internal readonly record struct SporeSpawnCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
+/// <summary>The twelve bank-$A5 Spore Spawn hitbox lists selected by its collision components.</summary>
+internal enum SporeSpawnHitboxList : ushort
+{
+    /// <summary>$A5:EF73, closed-head hitbox with no active touch response.</summary>
+    ClosedHead = 0xef73,
+    /// <summary>$A5:EF8D, open-head hitbox.</summary>
+    OpenHead = 0xef8d,
+    /// <summary>$A5:EFA7, extended open-head hitbox.</summary>
+    ExtendedHead = 0xefa7,
+    /// <summary>$A5:EFC1, first four-rectangle moving head.</summary>
+    MovingHead0 = 0xefc1,
+    /// <summary>$A5:EFF3, second four-rectangle moving head.</summary>
+    MovingHead1 = 0xeff3,
+    /// <summary>$A5:F025, third four-rectangle moving head.</summary>
+    MovingHead2 = 0xf025,
+    /// <summary>$A5:F057, fourth four-rectangle moving head.</summary>
+    MovingHead3 = 0xf057,
+    /// <summary>$A5:F139, trailing vulnerable point with Spore Spawn shot AI.</summary>
+    TrailingShotPoint = 0xf139,
+    /// <summary>$A5:F147, mirrored trailing vulnerable point.</summary>
+    MirroredTrailingShotPoint = 0xf147,
+    /// <summary>$A5:F155, trailing point with dud-shot AI.</summary>
+    TrailingDudPoint = 0xf155,
+    /// <summary>$A5:F1A9, fifth four-rectangle moving head.</summary>
+    MovingHead4 = 0xf1a9,
+    /// <summary>$A5:F1DB, sixth four-rectangle moving head.</summary>
+    MovingHead5 = 0xf1db,
+}
+
 /// <summary>
 /// The twelve bank-$A5 Spore Spawn extended OAM frames at $EE65-$EF61 and
 /// their fixed gameplay hitboxes. Version 6 mislabeled their visual keys as
@@ -15,31 +44,6 @@ internal readonly record struct SporeSpawnCollisionHitbox(
 /// </summary>
 internal static class SporeSpawnCollisionDefinitions
 {
-    /// <summary>$A5:EF73, closed-head hitbox with no active touch response.</summary>
-    internal const ushort ClosedHead = 0xef73;
-    /// <summary>$A5:EF8D, open-head hitbox.</summary>
-    internal const ushort OpenHead = 0xef8d;
-    /// <summary>$A5:EFA7, extended open-head hitbox.</summary>
-    internal const ushort ExtendedHead = 0xefa7;
-    /// <summary>$A5:EFC1, first four-rectangle moving head.</summary>
-    internal const ushort MovingHead0 = 0xefc1;
-    /// <summary>$A5:EFF3, second four-rectangle moving head.</summary>
-    internal const ushort MovingHead1 = 0xeff3;
-    /// <summary>$A5:F025, third four-rectangle moving head.</summary>
-    internal const ushort MovingHead2 = 0xf025;
-    /// <summary>$A5:F057, fourth four-rectangle moving head.</summary>
-    internal const ushort MovingHead3 = 0xf057;
-    /// <summary>$A5:F139, trailing vulnerable point with Spore Spawn shot AI.</summary>
-    internal const ushort TrailingShotPoint = 0xf139;
-    /// <summary>$A5:F147, mirrored trailing vulnerable point.</summary>
-    internal const ushort MirroredTrailingShotPoint = 0xf147;
-    /// <summary>$A5:F155, trailing point with dud-shot AI.</summary>
-    internal const ushort TrailingDudPoint = 0xf155;
-    /// <summary>$A5:F1A9, fifth four-rectangle moving head.</summary>
-    internal const ushort MovingHead4 = 0xf1a9;
-    /// <summary>$A5:F1DB, sixth four-rectangle moving head.</summary>
-    internal const ushort MovingHead5 = 0xf1db;
-
     private const ushort Touch = EnemyAiCodePointers.BankA5.SporeSpawnTouch;
     private const ushort Shot = EnemyAiCodePointers.BankA5.SporeSpawnShot;
     private const ushort NoOp = EnemyAiCodePointers.BankA0.NoOp;
@@ -116,16 +120,16 @@ internal static class SporeSpawnCollisionDefinitions
     /// </summary>
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
-        if (pointer == DeadFrame) return new(ClosedHead, 0);
-        if (pointer == ClosedFrame) return new(OpenHead, 0);
+        if (pointer == DeadFrame) return new((ushort)SporeSpawnHitboxList.ClosedHead, 0);
+        if (pointer == ClosedFrame) return new((ushort)SporeSpawnHitboxList.OpenHead, 0);
         if (IsFullyOpenFrame(pointer))
-            return new(MovingHead5, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
+            return new((ushort)SporeSpawnHitboxList.MovingHead5, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
         if (IsOpeningFrame(pointer))
         {
             int opening = (pointer - FirstOpeningFrame) / 18;
-            ushort head = opening == 0 ? ExtendedHead
-                : opening < 5 ? (ushort)(MovingHead0 + (opening - 1) * 50)
-                : (ushort)(MovingHead4 + (opening - 5) * 50);
+            ushort head = opening == 0 ? (ushort)SporeSpawnHitboxList.ExtendedHead
+                : opening < 5 ? (ushort)((ushort)SporeSpawnHitboxList.MovingHead0 + (opening - 1) * 50)
+                : (ushort)((ushort)SporeSpawnHitboxList.MovingHead4 + (opening - 5) * 50);
             return new(head, InnerPointForPhase(opening % 4));
         }
         throw new InvalidDataException(
@@ -134,26 +138,25 @@ internal static class SporeSpawnCollisionDefinitions
 
     private static ushort InnerPointForPhase(int phase) => phase switch
     {
-        0 => TrailingShotPoint,
-        2 => TrailingDudPoint,
-        _ => MirroredTrailingShotPoint,
+        0 => (ushort)SporeSpawnHitboxList.TrailingShotPoint,
+        2 => (ushort)SporeSpawnHitboxList.TrailingDudPoint,
+        _ => (ushort)SporeSpawnHitboxList.MirroredTrailingShotPoint,
     };
     internal static ReadOnlySpan<SporeSpawnCollisionHitbox> HitboxesAt(
         ushort pointer) =>
-        pointer switch
+        ClosedNativeWords.Decode<SporeSpawnHitboxList>(pointer, "Spore Spawn hitbox list") switch
         {
-            ClosedHead => ClosedHeadList,
-            OpenHead => OpenHeadList,
-            ExtendedHead => ExtendedHeadList,
-            MovingHead0 => MovingHead0List,
-            MovingHead1 => MovingHead1List,
-            MovingHead2 => MovingHead2List,
-            MovingHead3 => MovingHead3List,
-            TrailingShotPoint or MirroredTrailingShotPoint => ShotPointList,
-            TrailingDudPoint => DudPointList,
-            MovingHead4 => MovingHead4List,
-            MovingHead5 => MovingHead5List,
-            _ => throw new InvalidDataException(
-                $"Spore Spawn hitbox list $A5:{pointer:X4} is not compiled."),
+            SporeSpawnHitboxList.ClosedHead => ClosedHeadList,
+            SporeSpawnHitboxList.OpenHead => OpenHeadList,
+            SporeSpawnHitboxList.ExtendedHead => ExtendedHeadList,
+            SporeSpawnHitboxList.MovingHead0 => MovingHead0List,
+            SporeSpawnHitboxList.MovingHead1 => MovingHead1List,
+            SporeSpawnHitboxList.MovingHead2 => MovingHead2List,
+            SporeSpawnHitboxList.MovingHead3 => MovingHead3List,
+            SporeSpawnHitboxList.TrailingShotPoint or SporeSpawnHitboxList.MirroredTrailingShotPoint => ShotPointList,
+            SporeSpawnHitboxList.TrailingDudPoint => DudPointList,
+            SporeSpawnHitboxList.MovingHead4 => MovingHead4List,
+            SporeSpawnHitboxList.MovingHead5 => MovingHead5List,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SporeSpawnHitboxList)} {pointer:X4}."),
         };
 }

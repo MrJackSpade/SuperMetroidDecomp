@@ -38,10 +38,10 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         // the hand-crumble wake function and sleep. The interleaved frame is not control.
         value = address switch
         {
-            Initial => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
-            Initial + 2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
+            Initial => (ushort)TorizoInstruction.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            Initial + 2 => (ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock,
             Initial + 4 => 1,
-            DormantFrameOperand + 2 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            DormantFrameOperand + 2 => (ushort)TorizoInstruction.Instruction_Torizo_FunctionInY,
             DormantFrameOperand + 4 => WakeWhenHandCrumbles,
             Sleep => CommonEnemyInstructionCodes.Sleep,
             _ => 0,

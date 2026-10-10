@@ -32,15 +32,15 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc78),
         Entry(Start),
-        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, JumpingFallingMovement),
-        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, Landing),
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, JumpingFallingMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_LinkInstructionInY, Landing),
         Entry(FallingLoop),
         Frame(5),
         Op(CommonEnemyInstructionCodes.Goto, FallingLoop),
         Entry(Landing),
-        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
-        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
         Op(CommonEnemyInstructionCodes.Goto, BombTorizoWalkingLeftLeg));
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

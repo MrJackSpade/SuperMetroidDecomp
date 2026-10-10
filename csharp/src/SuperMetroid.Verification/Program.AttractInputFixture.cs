@@ -23,22 +23,22 @@ internal static partial class Program
         {
             Script.Step(bus, (state, pointer) =>
             {
-                switch (pointer)
+                switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "reference demo pre-instruction"))
                 {
-                    case DemoInputRomData.Routines.NoOp:
-                    case DemoInputRomData.Routines.ClearedPreInstruction:
+                    case AttractDemoPreInstruction.NoOp:
+                    case AttractDemoPreInstruction.Cleared:
                         break;
-                    case DemoInputRomData.Attract.CheckLeave:
+                    case AttractDemoPreInstruction.CheckLeave:
                         if (gameState == SuperMetroidGameState.TransitionFromDemoB)
                             state.Redirect(pointer, DemoInputRomData.Attract.DeleteList);
                         break;
-                    case DemoInputRomData.Attract.ShinesparkPreInstruction:
+                    case AttractDemoPreInstruction.Shinespark:
                         if (movementType != SamusMovementType.DraygonHeld)
-                            state.Redirect(DemoInputRomData.Attract.CheckLeave,
+                            state.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
                                 DemoInputRomData.Attract.ShinesparkContinuation);
                         break;
                     default:
-                        throw new InvalidDataException($"Unknown reference demo pre-instruction $91:{pointer:X4}.");
+                        throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
                 }
             }, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
         }

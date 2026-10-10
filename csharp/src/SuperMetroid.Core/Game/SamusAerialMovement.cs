@@ -552,10 +552,10 @@ public static class SamusAerialMovement
         int speedRecordAddress = medium switch
         {
             SamusLiquidMedium.Water =>
-                SamusMovementRomData.VerticalMotion.GrappleReleaseWaterSpeed,
+                (int)SamusStandaloneSpeedRecord.GrappleReleaseWater,
             SamusLiquidMedium.LavaOrAcid =>
-                SamusMovementRomData.VerticalMotion.GrappleReleaseLavaAcidSpeed,
-            SamusLiquidMedium.Air => SamusMovementRomData.VerticalMotion.GrappleReleaseAirSpeed,
+                (int)SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
+            SamusLiquidMedium.Air => (int)SamusStandaloneSpeedRecord.GrappleReleaseAir,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
         uint baseSpeed = speed.CalculateBaseSpeedAtAddress(bus, speedRecordAddress);

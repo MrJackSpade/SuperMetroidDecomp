@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -196,18 +197,18 @@ public static class XrayRevealVisualFiles
             if (entry is null || entry.BtsValues is null || entry.BtsValues.Length == 0 ||
                 entry.BtsValues.Any(value => value is < 0 or > byte.MaxValue))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid BTS group.");
-            ushort command = XrayRevealTable.Find(entry.CollisionType,
-                unchecked((byte)entry.BtsValues[0]))?.Command ?? 0;
-            if (!XrayRevealVisualCatalog.IsDrawable(command) || entry.Shape != NameOf(command))
+            if (XrayRevealTable.Find(entry.CollisionType, unchecked((byte)entry.BtsValues[0])) is not { } rule ||
+                !XrayRevealVisualCatalog.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
+            XrayRevealCommand command = rule.Command;
             if (entry.TopLeft > 0x0fff || entry.TopRight > 0x0fff ||
                 entry.BottomLeft > 0x0fff || entry.BottomRight > 0x0fff)
                 throw new InvalidDataException($"X-ray visuals {path} contain a nonvisual metatile index.");
-            if ((command is XrayRevealCodePointers.CopyOne or XrayRevealCodePointers.CopyBrinstar &&
+            if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
-                (command == XrayRevealCodePointers.CopyWide &&
+                (command == XrayRevealCommand.CopyWide &&
                     (entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
-                (command == XrayRevealCodePointers.CopyTall &&
+                (command == XrayRevealCommand.CopyTall &&
                     (entry.TopRight != 0 || entry.BottomRight != 0)))
                 throw new InvalidDataException($"X-ray visuals {path} set unused copy operands.");
         }
@@ -227,14 +228,16 @@ public static class XrayRevealVisualFiles
     /// Retain this finite named mapping because pointer arithmetic cannot
     /// derive the serialization labels more clearly or losslessly.
     /// </remarks>
-    private static string NameOf(ushort command) => command switch
+    private static string NameOf(XrayRevealCommand command) => command switch
     {
-        XrayRevealCodePointers.CopyOne => "one",
-        XrayRevealCodePointers.CopyWide => "wide",
-        XrayRevealCodePointers.CopyTall => "tall",
-        XrayRevealCodePointers.CopySquare => "square",
-        XrayRevealCodePointers.CopyBrinstar => "brinstar-only",
-        _ => throw new InvalidDataException($"X-ray command $91:{command:X4} has no visual shape."),
+        XrayRevealCommand.CopyOne => "one",
+        XrayRevealCommand.CopyWide => "wide",
+        XrayRevealCommand.CopyTall => "tall",
+        XrayRevealCommand.CopySquare => "square",
+        XrayRevealCommand.CopyBrinstar => "brinstar-only",
+        XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension =>
+            throw new InvalidDataException($"X-ray command $91:{(int)command:X4} has no visual shape."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
     };
 
     private static XrayRevealDefinition? ReadNative(ISnesAddressSpace bus,
@@ -252,22 +255,22 @@ public static class XrayRevealVisualFiles
                 if (value == XrayRevealCodePointers.End) return null;
                 if (value != XrayRevealCodePointers.AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
-                ushort command = ReadWord(bus, pointer);
+                XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
+                    ReadWord(bus, pointer), "native X-ray reveal command");
                 return command switch
                 {
-                    XrayRevealCodePointers.HorizontalExtension or
-                        XrayRevealCodePointers.VerticalExtension => new(command, 0, 0, 0, 0),
-                    XrayRevealCodePointers.CopyOne or XrayRevealCodePointers.CopyBrinstar =>
+                    XrayRevealCommand.HorizontalExtension or
+                        XrayRevealCommand.VerticalExtension => new(command, 0, 0, 0, 0),
+                    XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar =>
                         new(command, ReadWord(bus, pointer + 2), 0, 0, 0),
-                    XrayRevealCodePointers.CopyWide =>
+                    XrayRevealCommand.CopyWide =>
                         new(command, ReadWord(bus, pointer + 2), ReadWord(bus, pointer + 4), 0, 0),
-                    XrayRevealCodePointers.CopyTall =>
+                    XrayRevealCommand.CopyTall =>
                         new(command, ReadWord(bus, pointer + 2), 0, ReadWord(bus, pointer + 4), 0),
-                    XrayRevealCodePointers.CopySquare =>
+                    XrayRevealCommand.CopySquare =>
                         new(command, ReadWord(bus, pointer + 2), ReadWord(bus, pointer + 4),
                             ReadWord(bus, pointer + 6), ReadWord(bus, pointer + 8)),
-                    _ => throw new InvalidDataException(
-                        $"Native X-ray reveal command $91:{command:X4} is unknown."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
                 };
             }
         }

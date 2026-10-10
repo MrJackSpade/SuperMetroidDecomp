@@ -28,24 +28,24 @@ public sealed class AttractDemoInput
 
     private void ApplyPreInstruction(ushort pointer, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
-        switch (pointer)
+        switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "title-demo pre-instruction"))
         {
-            case DemoInputRomData.Routines.NoOp:
-            case DemoInputRomData.Routines.ClearedPreInstruction:
+            case AttractDemoPreInstruction.NoOp:
+            case AttractDemoPreInstruction.Cleared:
                 break;
-            case DemoInputRomData.Attract.CheckLeave:
+            case AttractDemoPreInstruction.CheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
                     Script.Redirect(pointer, DemoInputRomData.Attract.DeleteList);
                 break;
-            case DemoInputRomData.Attract.ShinesparkPreInstruction:
+            case AttractDemoPreInstruction.Shinespark:
                 // The routine's name does not match its type-$1A comparison. Retain
                 // the actual cartridge branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
-                    Script.Redirect(DemoInputRomData.Attract.CheckLeave,
+                    Script.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
                         DemoInputRomData.Attract.ShinesparkContinuation);
                 break;
             default:
-                throw new InvalidDataException($"Unknown title-demo pre-instruction $91:{pointer:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
         }
     }
 }

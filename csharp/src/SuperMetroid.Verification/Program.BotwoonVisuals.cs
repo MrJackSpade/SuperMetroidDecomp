@@ -69,7 +69,7 @@ internal static partial class Program
         using var previousJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreBotwoonVersion,
+                Version = (int)EnemySpritemapSchema.PreBotwoon,
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));

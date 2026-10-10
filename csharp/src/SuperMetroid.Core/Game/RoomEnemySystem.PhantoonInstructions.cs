@@ -13,9 +13,9 @@ public sealed partial class RoomEnemySystem
         ushort function)
     {
         PhantoonEnemyState state = RequireCompletePhantoonStateForPart(part);
-        switch (function)
+        switch (ClosedNativeWords.Decode<PhantoonInstruction>(function, "Phantoon instruction callback"))
         {
-            case PhantoonInstructionCodes.PlayPhantoonMaterializationSFX:
+            case PhantoonInstruction.PlayPhantoonMaterializationSFX:
                 state.LastMaterializationSound =
                     PhantoonSoundDefinitions.MaterializationSound(
                         state.MaterializationSoundIndex);
@@ -24,25 +24,24 @@ public sealed partial class RoomEnemySystem
                     state.MaterializationSoundIndex = 0;
                 return false;
 
-            case PhantoonInstructionCodes.SetupEyeOpenPhantoonState:
+            case PhantoonInstruction.SetupEyeOpenPhantoonState:
                 BeginPhantoonEyeTracking(state);
                 // A0:808A resumes its local instruction cursor after the callback.
                 // The following Sleep overwrites this eye's callback-installed list;
                 // the body-owned list change still survives on its separate actor.
                 return false;
 
-            case PhantoonInstructionCodes.PickNewPhantoonPattern:
+            case PhantoonInstruction.PickNewPhantoonPattern:
                 PickPhantoonSecondRoundPattern(state);
                 return false;
 
-            case PhantoonInstructionCodes.SpawnCasualFlame:
+            case PhantoonInstruction.SpawnCasualFlame:
                 SpawnPhantoonDestroyableFlame(state.Body, PhantoonFlameSpawnType.Casual, 0);
                 QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlameQueueCapacity);
                 return false;
 
             default:
-                throw new InvalidDataException(
-                    $"Phantoon instruction callback $A7:{function:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined {nameof(PhantoonInstruction)} {function:X4}.");
         }
     }
 

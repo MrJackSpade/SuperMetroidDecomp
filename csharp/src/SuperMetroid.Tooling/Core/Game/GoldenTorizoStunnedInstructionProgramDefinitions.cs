@@ -28,8 +28,8 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd193),
         Entry(Start),
-        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, AttackingMovement),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, AttackingMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0018),
         Op(CommonEnemyInstructionCodes.SetTimer, 0x0002),
         Entry(TileLoop),
@@ -47,10 +47,10 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
         Origin(0xd1d5),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TileLoop),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0010),
-        Op(TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock),
         Op(End),
-        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
-        Op(TorizoInstructionCodes.Instruction_Torizo_Return));
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
 
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static InstructionMechanicsWord MechanicsWord(int index)

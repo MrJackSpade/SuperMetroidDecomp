@@ -32,7 +32,7 @@ internal static partial class Program
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
-                Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+                Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
             ushort timerBeforeShake = enemies.EarthquakeTimer;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
@@ -43,20 +43,20 @@ internal static partial class Program
                 AssertEqual((short)(((32 - frame) & 2) == 0 ? 2 : -2), shake.Bg1Y, "Landing BG1 Y");
             }
         }
-        Execute(TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToBlack);
+        Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToBlack);
         AssertEqual((ushort)0x7fff, cgram.Colors[144], "Black target setup does not black out current palette");
         for (int call = 0; call < 14; call++)
-            Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+            Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
         for (int i = 0; i < 256; i++)
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
         AssertEqual((ushort)0, enemies.EarthquakeTimer, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        Execute(TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);
+        Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);
         AssertEqual((ushort)0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
-        Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+        Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
         AssertEqual((ushort)0x7fff, cgram.Colors[145], "Native transition number zero is a no-op");
-        Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+        Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
         AssertEqual((ushort)0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
         // Save mid-fade: target and numerator must survive, not restart from white.
         using var saved = new MemoryStream();
@@ -67,7 +67,7 @@ internal static partial class Program
         for (int i = 0; i < 256; i++) restoredColors.SetColor(i, cgram.Colors[i]);
         for (int call = 2; call < 14; call++)
         {
-            Execute(TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange);
+            Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
             restored.PaletteTransition!.Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
             AssertTrue(cgram.Colors.SequenceEqual(restoredColors.Colors), "Mid-fade save preserves each color step");
         }

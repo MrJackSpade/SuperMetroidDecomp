@@ -36,9 +36,9 @@ public static class XrayRevealTilemap
             // right half is copied before this row's own commands overwrite it.
             if (first != 0 && Lookup(first - 1) is { } predecessor)
             {
-                if (predecessor.Command == XrayRevealCodePointers.CopySquare)
+                if (predecessor.Command == XrayRevealCommand.CopySquare)
                     CopyMetatile(Destination(0, row) + XrayTilemapLayout.MetatileRowStride, predecessor.BottomRight);
-                if (predecessor.Command is XrayRevealCodePointers.CopyWide or XrayRevealCodePointers.CopySquare)
+                if (predecessor.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(Destination(0, row), predecessor.TopRight);
             }
             for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)
@@ -46,23 +46,23 @@ public static class XrayRevealTilemap
                 int index = first + col;
                 if (Lookup(index) is not { } reveal) continue;
                 int destination = Destination(col, row);
-                if (reveal.Command is XrayRevealCodePointers.HorizontalExtension or XrayRevealCodePointers.VerticalExtension)
+                if (reveal.Command is XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension)
                 {
                     if (XrayRevealExtensions.Resolve(level, index, visuals) is { } replacement)
                         CopyMetatile(destination, replacement);
                     continue;
                 }
-                if (reveal.Command == XrayRevealCodePointers.CopyBrinstar && area != (byte)AreaId.Brinstar)
+                if (reveal.Command == XrayRevealCommand.CopyBrinstar && area != (byte)AreaId.Brinstar)
                     continue;
                 CopyMetatile(destination, reveal.TopLeft);
                 // The last column of screen one suppresses right-hand writes. Screen
                 // two is visited separately with native remaining-count zero, not one.
                 bool right = col != XrayTilemapLayout.MetatileColumns - 2;
-                if (right && reveal.Command is XrayRevealCodePointers.CopyWide or XrayRevealCodePointers.CopySquare)
+                if (right && reveal.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(destination + 2, reveal.TopRight);
-                if (reveal.Command is XrayRevealCodePointers.CopyTall or XrayRevealCodePointers.CopySquare)
+                if (reveal.Command is XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare)
                     CopyMetatile(destination + XrayTilemapLayout.MetatileRowStride, reveal.BottomLeft);
-                if (right && reveal.Command == XrayRevealCodePointers.CopySquare)
+                if (right && reveal.Command == XrayRevealCommand.CopySquare)
                     CopyMetatile(destination + XrayTilemapLayout.MetatileRowStride + 2, reveal.BottomRight);
             }
         }

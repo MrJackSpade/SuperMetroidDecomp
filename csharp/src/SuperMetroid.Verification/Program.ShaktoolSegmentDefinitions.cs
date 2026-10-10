@@ -66,7 +66,7 @@ internal static partial class Program
         object[] arguments =
         [
             enemies.Slots[0],
-            ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions,
+            (ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions,
             (ushort)0x1234,
         ];
         AssertTrue((bool)resetMethod.Invoke(enemies, arguments)!,

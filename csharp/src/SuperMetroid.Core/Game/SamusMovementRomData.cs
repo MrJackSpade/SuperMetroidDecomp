@@ -76,23 +76,6 @@ public static class SamusMovementRomData
         public const ushort ActiveSpeedBoostStage = 0x0400;
     }
 
-    /// <summary>Vertical launch velocities and gravity constants in bank $90.</summary>
-    public static class VerticalMotion
-    {
-
-        /// <summary>Standalone horizontal speed record used by diagonal bomb jumps.</summary>
-        public const int DiagonalBombJumpHorizontalSpeed = 0x909f25;
-
-        /// <summary>Grapple-release horizontal speed records for air.</summary>
-        public const int GrappleReleaseAirSpeed = 0x909f31;
-
-        /// <summary>Grapple-release horizontal speed records for water.</summary>
-        public const int GrappleReleaseWaterSpeed = 0x909f3d;
-
-        /// <summary>Grapple-release horizontal speed records for lava and acid.</summary>
-        public const int GrappleReleaseLavaAcidSpeed = 0x909f49;
-    }
-
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>
     public static class Environment
     {
@@ -108,4 +91,17 @@ public static class SamusMovementRomData
         /// <summary>Retail shared type-four/six/seven attribute list at $90:8C17.</summary>
         public const ushort SharedAtmosphericAttributes = 0x8c17;
     }
+}
+
+/// <summary>Standalone bank-$90 horizontal speed records selected by literal address rather than movement type.</summary>
+public enum SamusStandaloneSpeedRecord
+{
+    /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump, used by diagonal bomb jumps.</summary>
+    DiagonalBombJump = 0x909f25,
+    /// <summary>$90:9F31 XAccelSpeeds_DisconnectGrappleInAir.</summary>
+    GrappleReleaseAir = 0x909f31,
+    /// <summary>$90:9F3D XAccelSpeeds_DisconnectGrappleInWater.</summary>
+    GrappleReleaseWater = 0x909f3d,
+    /// <summary>$90:9F49 XAccelSpeeds_DisconnectGrappleInLavaAcid.</summary>
+    GrappleReleaseLavaAcid = 0x909f49,
 }

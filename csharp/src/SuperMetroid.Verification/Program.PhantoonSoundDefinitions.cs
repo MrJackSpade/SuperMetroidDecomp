@@ -42,7 +42,7 @@ internal static partial class Program
             ushort index = (ushort)(call % 3);
             AssertTrue(!process(
                     body,
-                    PhantoonInstructionCodes.PlayPhantoonMaterializationSFX),
+                    (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX),
                 $"Phantoon materialization callback {call} resumes instruction stream");
             AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
                 state.LastMaterializationSound!.Value,

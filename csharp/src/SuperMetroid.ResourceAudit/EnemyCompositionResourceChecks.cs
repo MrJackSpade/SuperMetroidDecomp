@@ -24,7 +24,7 @@ internal static class EnemyCompositionResourceChecks
         EnemySpritemapDefinition[] expected = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.Version,
+            Version = (int)EnemySpritemapSchema.Current,
             Frames = expected.ToDictionary(frame => frame.Name,
                 frame => new[] { Part(frame.Pointer & 0x7f) }, StringComparer.Ordinal),
             DisplayFrames = expected.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),

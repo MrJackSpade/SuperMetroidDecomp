@@ -21,7 +21,7 @@ internal static class EnemySpritemapFiles
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.Version,
+            Version = (int)EnemySpritemapSchema.Current,
             Frames = frames,
             DisplayFrames = EnemySpritemapDefinitions.Frames.ToArray()
                 .ToDictionary(frame => frame.Name, frame => frame.Name,

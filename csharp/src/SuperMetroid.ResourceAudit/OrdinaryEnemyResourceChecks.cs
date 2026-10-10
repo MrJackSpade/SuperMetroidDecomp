@@ -8,7 +8,7 @@ internal static class OrdinaryEnemyResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
-        int previousVersion = EnemySpritemapDefinitions.PreAuditOrdinaryVersion;
+        int previousVersion = (int)EnemySpritemapSchema.PreAuditOrdinary;
         (string Name, byte Bank, ushort[] Operands, int Count)[] families =
         [
             ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), HibashiVisualDefinitions.FrameCount),

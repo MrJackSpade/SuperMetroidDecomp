@@ -9,6 +9,6 @@ internal static class ZeroResourceChecks
     public static void Run() => EnemyCompositionResourceChecks.Run("Zero", ZeroVisualDefinitions.Bank,
         Enumerable.Range(0, ZeroInstructionProgramDefinitions.PresentationWordCount)
             .Select(ZeroInstructionProgramDefinitions.PresentationWordAddress).ToArray(),
-        ZeroVisualDefinitions.FrameCount, EnemySpritemapDefinitions.PreZeroVersion,
+        ZeroVisualDefinitions.FrameCount, (int)EnemySpritemapSchema.PreZero,
         EnemySpritemapDefinitions.PreZeroFrameCount);
 }

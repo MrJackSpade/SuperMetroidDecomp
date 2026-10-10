@@ -157,11 +157,11 @@ internal static partial class Program
         TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
         bus.ReadByte(SamusProjectileRomData.Banks.Movement |
-            SamusProjectileRomData.Trails.MoveLeftDown);
+            (ushort)ProjectileTrailInstruction.MoveLeftDown);
         bus.ReadByte(SamusProjectileRomData.Banks.Movement |
-            SamusProjectileRomData.Trails.MoveRightDown);
+            (ushort)ProjectileTrailInstruction.MoveRightDown);
         bus.ReadByte(SamusProjectileRomData.Banks.Movement |
-            SamusProjectileRomData.Trails.MoveLeftUp);
+            (ushort)ProjectileTrailInstruction.MoveLeftUp);
         bus.ReadByte(SamusProjectileRomData.Banks.Projectile |
             SamusProjectileRomData.Instructions.Delete);
         bus.ReadByte(SamusProjectileRomData.Banks.Projectile |

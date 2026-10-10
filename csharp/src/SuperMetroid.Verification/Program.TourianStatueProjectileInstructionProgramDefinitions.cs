@@ -81,7 +81,7 @@ internal static partial class Program
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        spawnChild.Invoke(enemies, [particle, TourianStatueRomData.Splash]);
+        spawnChild.Invoke(enemies, [particle, RoomEnemyProjectileKind.TourianStatueSplash]);
         RoomEnemyProjectileSlot splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, splash.InstructionPointer,

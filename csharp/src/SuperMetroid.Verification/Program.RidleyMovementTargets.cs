@@ -7,6 +7,11 @@ internal static partial class Program
 {
     private static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
+        ushort[] Facings(int address, Func<RidleyFacing, ushort> compiled)
+        {
+            AssertEqual(3, Enum.GetValues<RidleyFacing>().Length, "Ridley facing domain");
+            return Table(address, index => compiled((RidleyFacing)index));
+        }
         ushort[] Table(int address, Func<int, ushort> compiled, int count = 3)
         {
             var native = new ushort[count];
@@ -17,11 +22,11 @@ internal static partial class Program
             }
             return native;
         }
-        var descending = Table(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.DescendingPogoX);
-        var ascending = Table(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.AscendingPogoX);
-        var ground = Table(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.GroundAttackX);
-        var carry = Table(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
-        var release = Table(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
+        var descending = Facings(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.DescendingPogoX);
+        var ascending = Facings(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.AscendingPogoX);
+        var ground = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.GroundAttackX);
+        var carry = Facings(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
+        var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();

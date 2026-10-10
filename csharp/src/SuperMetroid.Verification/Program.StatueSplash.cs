@@ -25,7 +25,7 @@ internal static partial class Program
             for (int frame = 0; frame < 200 && particle is null; frame++)
             {
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
-                particle = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && (ushort)p.Kind == TourianStatueRomData.Particle);
+                particle = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             }
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
@@ -48,7 +48,7 @@ internal static partial class Program
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
                 if (crosses)
                 {
-                    var splash = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && (ushort)p.Kind == TourianStatueRomData.Splash);
+                    var splash = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
                     AssertEqual(unchecked((ushort)(x >> 16)), splash!.XPosition, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.YPosition, "splash is four pixels above water surface");

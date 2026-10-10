@@ -74,7 +74,7 @@ internal static partial class Program
             "interleaved Rinka spritemap pointer is rejected as mechanics");
         AssertThrows<InvalidDataException>(
             () => RinkaInstructionProgramDefinitions.ReadMechanicsWord(
-                RinkaInstructionCodes.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2),
+                (ushort)RinkaInstruction.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2),
             "unused Rinka conditional callback cannot acquire an invented operand");
         AssertThrows<InvalidDataException>(
             () => RinkaInstructionProgramDefinitions.ReadMechanicsWord(0xffff),

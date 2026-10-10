@@ -44,10 +44,10 @@ internal abstract class RinkaInstructionProgramDefinitions
         {
             int offset = relative % ListBytes;
             if (offset == 0) return relative < ListBytes
-                ? RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleAndInvisible
-                : RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen;
+                ? (ushort)RinkaInstruction.Instruction_Rinka_SetAsIntangibleAndInvisible
+                : (ushort)RinkaInstruction.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen;
             if (offset == 2) return HiddenHold;
-            if (offset == 6) return RinkaInstructionCodes.Instruction_Rinka_FireRinka;
+            if (offset == 6) return (ushort)RinkaInstruction.Instruction_Rinka_FireRinka;
             if (offset < SetupBytes + PoseCount * 4)
             {
                 int pose = (offset - SetupBytes) / 4;

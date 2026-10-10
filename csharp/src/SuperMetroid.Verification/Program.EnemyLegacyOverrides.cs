@@ -21,16 +21,16 @@ internal static partial class Program
         EnemySpritemapCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
         (int Version, int Count)[] schemas = EnemyOamSchemaFixtures();
-        AssertEqual(EnemySpritemapDefinitions.Version - EnemySpritemapDefinitions.LegacyVersion + 1,
+        AssertEqual((int)EnemySpritemapSchema.Current - (int)EnemySpritemapSchema.Legacy + 1,
             schemas.Length, "every accepted enemy OAM schema has a compatibility fixture");
         int bindingSchemas = 0;
         for (int index = 0; index < schemas.Length; index++)
         {
             (int version, int count) = schemas[index];
-            AssertEqual(EnemySpritemapDefinitions.LegacyVersion + index, version,
+            AssertEqual((int)EnemySpritemapSchema.Legacy + index, version,
                 "historical enemy OAM schema fixtures are contiguous");
             EnemySpritemapDefinition[] authored = definitions[..count];
-            bool hasBindings = version > EnemySpritemapDefinitions.PreDisplayBindingsVersion;
+            bool hasBindings = version > (int)EnemySpritemapSchema.PreDisplayBindings;
             EnemySpritemapDocument document = stockDocument with
             {
                 Version = version,
@@ -74,7 +74,7 @@ internal static partial class Program
                 prefix + "authored bindings take precedence; older schemas inherit stock bindings");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "loading an override does not mutate stock");
 
-            if (version != EnemySpritemapDefinitions.Version)
+            if (version != (int)EnemySpritemapSchema.Current)
                 AssertThrows<InvalidDataException>(() => Load(document),
                     prefix + "a legacy override requires complete current stock");
             if (!hasBindings) continue;
@@ -98,9 +98,9 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = crossBank }, stock),
                 prefix + "cross-bank remaps are rejected");
         }
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapDefinitions.LegacyVersion - 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemySpritemapSchema.Legacy - 1 }, stock),
             "enemy OAM rejects schemas older than its accepted compatibility boundary");
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemySpritemapDefinitions.Version + 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemySpritemapSchema.Current + 1 }, stock),
             "enemy OAM rejects unknown future schemas");
         Console.WriteLine($"PASS enemy OAM overrides: all {schemas.Length} schemas, {bindingSchemas} binding schemas, " +
             "exact art/remap preservation, stock inheritance, reload identity and malformed-data rejection. No ROM or gameplay probes.");
@@ -114,20 +114,11 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Pairs historical schema/count declarations, not the loader's branch results.
-    /// New declarations automatically join the coverage; missing pairs or version gaps fail.
+    /// Pairs every declared schema revision with its declared frame count, not the loader's
+    /// branch results. New revisions automatically join the coverage; version gaps fail.
     /// </summary>
-    private static (int Version, int Count)[] EnemyOamSchemaFixtures()
-    {
-        Type catalog = typeof(EnemySpritemapDefinitions);
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        return catalog.GetFields(flags)
-            .Where(field => field.IsLiteral && field.FieldType == typeof(int) && field.Name.EndsWith("Version", StringComparison.Ordinal))
-            .Select(field => (Version: (int)field.GetRawConstantValue()!, Count: field.Name == nameof(EnemySpritemapDefinitions.Version)
-                ? EnemySpritemapDefinitions.Frames.Length
-                : (int)(catalog.GetField(field.Name[..^"Version".Length] + "FrameCount", flags)
-                    ?? throw new InvalidOperationException($"Enemy OAM schema {field.Name} has no historical frame count."))
-                    .GetRawConstantValue()!))
-            .OrderBy(schema => schema.Version).ToArray();
-    }
+    private static (int Version, int Count)[] EnemyOamSchemaFixtures() =>
+        [.. Enum.GetValues<EnemySpritemapSchema>()
+            .Select(schema => ((int)schema, EnemySpritemapDefinitions.FrameCount(schema)))
+            .OrderBy(schema => schema.Item1)];
 }

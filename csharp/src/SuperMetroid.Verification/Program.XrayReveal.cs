@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,7 +8,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;
-        var commands = new HashSet<ushort>();
+        var commands = new HashSet<XrayRevealCommand>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
@@ -19,10 +20,10 @@ internal static partial class Program
         }
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
         AssertEqual(7, commands.Count, "all seven reveal commands are decoded");
-        AssertEqual(new XrayRevealDefinition(XrayRevealCodePointers.CopyTall, 0x98, 0, 0xb8, 0),
+        AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopyTall, 0x98, 0, 0xb8, 0),
             XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2)!.Value,
             "tall shot-block reveal advances to a distinct lower operand at $91:CF67");
-        AssertEqual(new XrayRevealDefinition(XrayRevealCodePointers.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
+        AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
             XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3)!.Value,
             "square shot-block reveal preserves all four row-major metatiles");
         Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS definitions and operands match the cartridge; production lookup is ROM-independent.");
@@ -45,30 +46,30 @@ internal static partial class Program
                 if (value == XrayRevealCodePointers.End) return null;
                 if (value != XrayRevealCodePointers.AnyBts && value != bts) continue;
                 int commandPointer = ReadNativeXrayRevealWord(bus, match + 2);
-                ushort command = ReadNativeXrayRevealWord(bus, commandPointer);
+                XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
+                    ReadNativeXrayRevealWord(bus, commandPointer), "native X-ray reveal command");
                 return command switch
                 {
-                    XrayRevealCodePointers.HorizontalExtension or
-                        XrayRevealCodePointers.VerticalExtension =>
+                    XrayRevealCommand.HorizontalExtension or
+                        XrayRevealCommand.VerticalExtension =>
                         new(command, 0, 0, 0, 0),
-                    XrayRevealCodePointers.CopyOne or XrayRevealCodePointers.CopyBrinstar =>
+                    XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar =>
                         new(command, ReadNativeXrayRevealWord(bus, commandPointer + 2), 0, 0, 0),
-                    XrayRevealCodePointers.CopyWide =>
+                    XrayRevealCommand.CopyWide =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2),
                             ReadNativeXrayRevealWord(bus, commandPointer + 4), 0, 0),
-                    XrayRevealCodePointers.CopyTall =>
+                    XrayRevealCommand.CopyTall =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2), 0,
                             ReadNativeXrayRevealWord(bus, commandPointer + 4), 0),
-                    XrayRevealCodePointers.CopySquare =>
+                    XrayRevealCommand.CopySquare =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2),
                             ReadNativeXrayRevealWord(bus, commandPointer + 4),
                             ReadNativeXrayRevealWord(bus, commandPointer + 6),
                             ReadNativeXrayRevealWord(bus, commandPointer + 8)),
-                    _ => throw new InvalidDataException(
-                        $"Native X-ray reveal command $91:{command:X4} at ${commandPointer:X4} is unknown."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
                 };
             }
         }

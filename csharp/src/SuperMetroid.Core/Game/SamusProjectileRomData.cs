@@ -173,12 +173,6 @@ public static class SamusProjectileRomData
         public const int ChargedOffsetFamilies = 0x9ba4cb;
         /// <summary>Spazer special-beam-attack offset-family pointers.</summary>
         public const int SpazerSbaOffsetFamilies = 0x9ba4e3;
-        /// <summary>Left-stream instruction that moves its sprite one pixel down.</summary>
-        public const ushort MoveLeftDown = 0xb525;
-        /// <summary>Right-stream instruction that moves its sprite one pixel down.</summary>
-        public const ushort MoveRightDown = 0xb587;
-        /// <summary>Left-stream instruction that moves its sprite one pixel up.</summary>
-        public const ushort MoveLeftUp = 0xb5b3;
     }
 
     /// <summary>Shared bank-$93 projectile instruction opcodes.</summary>
@@ -191,4 +185,15 @@ public static class SamusProjectileRomData
         /// <summary><c>$93:8239</c>, replace the instruction-list cursor.</summary>
         public const ushort GoTo = 0x8239;
     }
+}
+
+/// <summary>The bank-$90 beam-trail instructions; either stream may execute any of them.</summary>
+public enum ProjectileTrailInstruction : ushort
+{
+    /// <summary>Left-stream instruction that moves its sprite one pixel down, $90:B525.</summary>
+    MoveLeftDown = 0xb525,
+    /// <summary>Right-stream instruction that moves its sprite one pixel down, $90:B587.</summary>
+    MoveRightDown = 0xb587,
+    /// <summary>Left-stream instruction that moves its sprite one pixel up, $90:B5B3.</summary>
+    MoveLeftUp = 0xb5b3,
 }

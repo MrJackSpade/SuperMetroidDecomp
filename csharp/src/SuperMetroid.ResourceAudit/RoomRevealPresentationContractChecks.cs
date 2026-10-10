@@ -74,7 +74,7 @@ internal static class RoomRevealPresentationContractChecks
                 entries.Add((type, (byte)value, new(1, 2, 3, 4)));
         var catalog = new XrayRevealVisualCatalog(entries);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, 2) is { } tall &&
-            tall.Command == XrayRevealCodePointers.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
+            tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
             "one identity must select the compiled command and the matching installed operands");
         Require(catalog.Apply(RoomCollisionType.HorizontalExtension, 3) ==
             XrayRevealTable.Find(RoomCollisionType.HorizontalExtension, 3), "extensions must retain their compiled definition");

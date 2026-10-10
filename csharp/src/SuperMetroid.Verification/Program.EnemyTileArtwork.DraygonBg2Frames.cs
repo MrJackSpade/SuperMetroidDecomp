@@ -146,9 +146,9 @@ internal static partial class Program
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Y),
                     $"Draygon {frame.Name} collision Y offset");
-                AssertEqual(ReadWord(record + 6), component.HitboxPointer,
+                AssertEqual(ReadWord(record + 6), (ushort)component.HitboxPointer,
                     $"Draygon {frame.Name} hitbox list identity");
-                nativeLists.Add(component.HitboxPointer);
+                nativeLists.Add((ushort)component.HitboxPointer);
             }
         }
         AssertEqual(3, nativeLists.Count,

@@ -3122,10 +3122,10 @@ internal static partial class Program
                 expected.Add(unchecked((ushort)address));
                 address += 8;
             }
-            else if (word == SamusProjectileRomData.Instructions.GoTo) address += 4;
+            else if (word == (ushort)SamusProjectileInstruction.GoTo) address += 4;
             else
             {
-                AssertEqual(SamusProjectileRomData.Instructions.Delete, word, "Only native terminal delete remains");
+                AssertEqual((ushort)SamusProjectileInstruction.Delete, word, "Only native terminal delete remains");
                 address += 2;
             }
         }

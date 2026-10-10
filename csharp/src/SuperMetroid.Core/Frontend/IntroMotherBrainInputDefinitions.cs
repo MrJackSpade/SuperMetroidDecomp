@@ -46,7 +46,7 @@ internal static class IntroMotherBrainInputDefinitions
         return word switch
         {
             51 => IntroCinematicRomData.Flashback.ExpectedEndInstruction,
-            52 => DemoInputRomData.Instructions.Delete,
+            52 => (ushort)DemoInputInstruction.Delete,
             _ => throw new ArgumentOutOfRangeException(nameof(word)),
         };
     }

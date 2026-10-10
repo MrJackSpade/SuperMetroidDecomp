@@ -248,28 +248,58 @@ public sealed class DemoInputState
             // below treats cursor as the first argument and either returns another cursor
             // to the loop or terminates processing in the delete case.
             cursor = unchecked((ushort)(cursor + 2));
-            switch (word)
+            var instruction = (DemoInputInstruction)word;
+            if (!Enum.IsDefined(instruction))
             {
-                case DemoInputRomData.Instructions.Delete:
+                // Demo lists may call arbitrary bank-$91 routines in addition to the
+                // six shared object opcodes. The callback must explicitly identify a
+                // routine and return its post-operand cursor; this prevents a handler
+                // with parameters from accidentally being treated as a no-argument
+                // instruction and desynchronizing the cartridge bytecode stream.
+                DemoInputInstructionResult result = specialInstruction?.Invoke(
+                    this,
+                    word,
+                    cursor) ?? DemoInputInstructionResult.NotHandled(cursor);
+                if (!result.Handled)
+                {
+                    // The reusable interpreter cannot infer an object's private
+                    // operand width. Its owner must supply the matching callback;
+                    // omission is an invalid composition, not an unknown generic opcode.
+                    throw new InvalidOperationException(
+                        $"Demo-input instruction $91:{word:X4} was not handled by the owning object's callback.");
+                }
+
+                cursor = result.NextInstructionPointer;
+                if (result.TerminateProcessing)
+                {
+                    InstructionPointer = cursor;
+                    return;
+                }
+                continue;
+            }
+
+            switch (instruction)
+            {
+                case DemoInputInstruction.Delete:
                     InstructionPointer = 0;
                     Held = 0;
                     NewlyPressed = 0;
                     return;
 
-                case DemoInputRomData.Instructions.SetPreInstruction:
+                case DemoInputInstruction.SetPreInstruction:
                     PreInstructionPointer = Read(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 
-                case DemoInputRomData.Instructions.ClearPreInstruction:
+                case DemoInputInstruction.ClearPreInstruction:
                     PreInstructionPointer = DemoInputRomData.Routines.ClearedPreInstruction;
                     break;
 
-                case DemoInputRomData.Instructions.Goto:
+                case DemoInputInstruction.Goto:
                     cursor = Read(cursor);
                     break;
 
-                case DemoInputRomData.Instructions.DecrementTimerAndGoto:
+                case DemoInputInstruction.DecrementTimerAndGoto:
                     NativeWordCounterStep timer = NativeWordCounter.Decrement(Timer);
                     Timer = timer.Value;
                     cursor = !timer.IsZero
@@ -277,37 +307,13 @@ public sealed class DemoInputState
                         : unchecked((ushort)(cursor + 2));
                     break;
 
-                case DemoInputRomData.Instructions.SetTimer:
+                case DemoInputInstruction.SetTimer:
                     Timer = Read(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 
                 default:
-                    // Demo lists may call arbitrary bank-$91 routines in addition to the
-                    // six shared object opcodes. The callback must explicitly identify a
-                    // routine and return its post-operand cursor; this prevents a handler
-                    // with parameters from accidentally being treated as a no-argument
-                    // instruction and desynchronizing the cartridge bytecode stream.
-                    DemoInputInstructionResult result = specialInstruction?.Invoke(
-                        this,
-                        word,
-                        cursor) ?? DemoInputInstructionResult.NotHandled(cursor);
-                    if (!result.Handled)
-                    {
-                        // The reusable interpreter cannot infer an object's private
-                        // operand width. Its owner must supply the matching callback;
-                        // omission is an invalid composition, not an unknown generic opcode.
-                        throw new InvalidOperationException(
-                            $"Demo-input instruction $91:{word:X4} was not handled by the owning object's callback.");
-                    }
-
-                    cursor = result.NextInstructionPointer;
-                    if (result.TerminateProcessing)
-                    {
-                        InstructionPointer = cursor;
-                        return;
-                    }
-                    break;
+                    throw new InvalidOperationException($"Undefined DemoInputInstruction {instruction}.");
             }
         }
     }

@@ -83,63 +83,63 @@ public sealed partial class SuperMetroidRuntime
         _attractDemoInput = new AttractDemoInput(scene);
     }
 
-    private void ApplyAttractSamusSetup(ushort pointer)
+    private void ApplyAttractSamusSetup(AttractDemoSamusSetup pointer)
     {
         var samus = Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
         switch (pointer)
         {
-            case AttractDemoRomData.SamusSetup.LandingSite:
+            case AttractDemoSamusSetup.LandingSite:
                 samus.ApplyForwardFacingPoseSetup(_addressSpace);
                 break;
-            case AttractDemoRomData.SamusSetup.StandingRight:
+            case AttractDemoSamusSetup.StandingRight:
                 samus.Pose = SamusPoseId.FacingRightNormalPose;
                 break;
-            case AttractDemoRomData.SamusSetup.LowHealthLeft:
+            case AttractDemoSamusSetup.LowHealthLeft:
                 samus.Health = AttractDemoRomData.SetupValues.LowHealth;
-                goto case AttractDemoRomData.SamusSetup.StandingLeft;
-            case AttractDemoRomData.SamusSetup.StandingLeft:
+                goto case AttractDemoSamusSetup.StandingLeft;
+            case AttractDemoSamusSetup.StandingLeft:
                 samus.Pose = SamusPoseId.FacingLeftNormalPose;
                 break;
-            case AttractDemoRomData.SamusSetup.MorphLeft:
+            case AttractDemoSamusSetup.MorphLeft:
                 samus.Pose = SamusPoseId.MorphBallGroundLeftPose;
                 break;
-            case AttractDemoRomData.SamusSetup.FallingLeft:
+            case AttractDemoSamusSetup.FallingLeft:
                 samus.Pose = SamusPoseId.FallingLeftPose;
                 break;
-            case AttractDemoRomData.SamusSetup.DiagonalShinespark:
+            case AttractDemoSamusSetup.DiagonalShinespark:
                 samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkDiagonalRightPose);
                 break;
-            case AttractDemoRomData.SamusSetup.HorizontalShinespark:
+            case AttractDemoSamusSetup.HorizontalShinespark:
                 samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkHorizontalLeftPose);
                 break;
             default:
-                throw new InvalidDataException($"Unknown demo Samus setup $91:{pointer:X4}.");
+                throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {pointer}.");
         }
     }
 
-    private void ApplyAttractRoomSetup(ushort pointer)
+    private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer)
     {
         switch (pointer)
         {
-            case AttractDemoRomData.RoomSetup.NoOp:
+            case AttractDemoRoomSetup.NoOp:
                 break;
-            case AttractDemoRomData.RoomSetup.ChargeBeamScroll:
+            case AttractDemoRoomSetup.ChargeBeamScroll:
                 Camera!.Scrolls.SetStorage(AttractDemoRomData.SetupValues.ChargeBeamScrollIndex, RoomScrollState.RedBoundary);
                 break;
-            case AttractDemoRomData.RoomSetup.LandingSiteSky:
+            case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical
                 // BG2 page layout. Require that owner rather than writing a dummy mirror.
                 if (ScrollingSky is null)
                     throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
                 break;
-            case AttractDemoRomData.RoomSetup.KraidTimer:
+            case AttractDemoRoomSetup.KraidTimer:
                 Enemies.Slots[0].VariableF = AttractDemoRomData.SetupValues.KraidFunctionTimer;
                 break;
-            case AttractDemoRomData.RoomSetup.DefeatedKraid:
+            case AttractDemoRoomSetup.DefeatedKraid:
                 System.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
                 break;
             default:
-                throw new InvalidDataException($"Unknown demo room setup $82:{pointer:X4}.");
+                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {pointer}.");
         }
     }
 }

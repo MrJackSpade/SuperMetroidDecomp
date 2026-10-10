@@ -121,7 +121,7 @@ internal static partial class Program
             }
             AssertEqual(checked((ushort)(cursor - draw.Pointer)),
                 checked((ushort)(draw.Pointer ==
-                    TourianAccessPlmDrawDefinitions.ClearPointer ? 72 : 12)),
+                    (ushort)TourianAccessDraw.Clear ? 72 : 12)),
                 $"Tourian draw ${draw.Pointer:X4} has the complete native span");
 
             void AssertTourianDrawWord(ushort expected)
@@ -187,7 +187,7 @@ internal static partial class Program
                   pointer < (ushort)RoomPlmInstruction.MoveTourianAccessDown) ||
                  (pointer >= TourianAccessPlmProgramDefinitions.Clear &&
                   pointer < TourianAccessPlmProgramDefinitions.Clear + 6) ||
-                 (pointer >= TourianAccessPlmDrawDefinitions.EmptyRowPointer &&
+                 (pointer >= (ushort)TourianAccessDraw.EmptyRow &&
                   pointer < 0x930f)))
             {
                 ForbiddenReadAttempts++;

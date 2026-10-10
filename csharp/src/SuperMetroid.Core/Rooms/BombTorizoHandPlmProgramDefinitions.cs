@@ -58,7 +58,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
             word = (offset % 8 / 2) switch
             {
                 0 => (ushort)(fragment switch { 0 => 96, 1 => 48, _ => 17 - fragment }),
-                1 => BombTorizoHandPlmDrawDefinitions.Intact,
+                1 => (ushort)BombTorizoHandDraw.Intact,
                 2 => (ushort)RoomPlmInstruction.SpawnTorizoStatueBreaking,
                 _ => (ushort)(fragment * 2),
             };
@@ -70,7 +70,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
             word = (offset / 2) switch
             {
                 0 => 1,
-                1 => BombTorizoHandPlmDrawDefinitions.Cleared,
+                1 => (ushort)BombTorizoHandDraw.Cleared,
                 2 => (ushort)RoomPlmInstruction.QueueSongOneMusicTrack,
                 _ => (ushort)RoomPlmInstruction.Delete,
             };
@@ -81,7 +81,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
             word = (address & ~1) switch
             {
                 0xd368 => 1,
-                0xd36a or 0xd374 => BombTorizoHandPlmDrawDefinitions.Intact,
+                0xd36a or 0xd374 => (ushort)BombTorizoHandDraw.Intact,
                 0xd36c => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 0xd36e => WakeIfSamusHasBombsPreInstruction,
                 0xd370 => (ushort)RoomPlmInstruction.Sleep,

@@ -69,7 +69,7 @@ internal static partial class Program
         EnemyExtendedFrameCatalog stockExtended = baseline.Extended();
         var legacyExtended = baseline.ExtendedDocument() with
         {
-            Version = EnemyExtendedFrameDefinitions.PreDisplayBindingsVersion,
+            Version = (int)EnemyExtendedFrameSchema.PreDisplayBindings,
             Frames = baseline.ExtendedDocument().Frames.Take(EnemyExtendedFrameDefinitions.PirateFrameCount).ToDictionary(),
             DisplayFrames = null,
         };

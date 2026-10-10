@@ -65,7 +65,7 @@ internal static partial class Program
             });
             return new EnemyExtendedFrameDocument
             {
-                Version = EnemyExtendedFrameDefinitions.Version, Frames = Ordered(frames),
+                Version = (int)EnemyExtendedFrameSchema.Current, Frames = Ordered(frames),
                 DisplayFrames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };

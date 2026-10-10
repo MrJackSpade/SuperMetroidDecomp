@@ -666,14 +666,14 @@ static void VerifyDemoInputObject()
     // accidentally hard-coded to the intro's all-record list.
     ushort fixtureHeld = (ushort)(
         SnesButton.Start | SnesButton.Right | SnesButton.L | SnesButton.R);
-    WriteRomWord(rom, 0x918700, DemoInputRomData.Instructions.SetTimer);
+    WriteRomWord(rom, 0x918700, (ushort)DemoInputInstruction.SetTimer);
     WriteRomWord(rom, 0x918702, 0x0002);
     WriteRomWord(rom, 0x918704, 0x0001);
     WriteRomWord(rom, 0x918706, fixtureHeld);
     WriteRomWord(rom, 0x918708, 0x0020);
-    WriteRomWord(rom, 0x91870a, DemoInputRomData.Instructions.DecrementTimerAndGoto);
+    WriteRomWord(rom, 0x91870a, (ushort)DemoInputInstruction.DecrementTimerAndGoto);
     WriteRomWord(rom, 0x91870c, 0x8704);
-    WriteRomWord(rom, 0x91870e, DemoInputRomData.Instructions.Delete);
+    WriteRomWord(rom, 0x91870e, (ushort)DemoInputInstruction.Delete);
     WriteRomWord(rom, 0x918720, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918722, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918724, 0x8700);
@@ -701,7 +701,7 @@ static void VerifyDemoInputObject()
     WriteRomWord(rom, 0x918732, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918734, 0x8750);
     WriteRomWord(rom, 0x918750, 0x8739);
-    WriteRomWord(rom, 0x918752, DemoInputRomData.Instructions.Delete);
+    WriteRomWord(rom, 0x918752, (ushort)DemoInputInstruction.Delete);
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();

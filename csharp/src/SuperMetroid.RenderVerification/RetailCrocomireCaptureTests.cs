@@ -35,35 +35,35 @@ internal static class RetailCrocomireCaptureTests
         // Reuse the cartridge audit's bridge threshold, then let the complete
         // runtime execute every death state, PLM, DMA and scanline publication.
         boss.Body.XPosition = CrocomireCaptureFixture.BridgeThreshold;
-        var phases = new HashSet<ushort>();
+        var phases = new HashSet<CrocomireDeathPhase>();
         bool distorted = false, complete = false;
         int samples = 0;
         for (int tick = 0; tick < 20000; tick++)
         {
-            if (boss.DeathSequenceIndex == CrocomireDeathPhases.WaitForSamusAtWall)
+            if (boss.DeathSequenceIndex == CrocomireDeathPhase.WaitForSamusAtWall)
                 samus.XPosition = CrocomireCaptureFixture.ReturnSamusX;
             runtime.StepFrame(0);
-            bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhases.DissolveFirstImage or CrocomireDeathPhases.DissolveSecondImage;
+            bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
             if (death.MeltingHdmaActive != shouldMelt)
-                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {boss.DeathSequenceIndex:X2}.");
+                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {(int)boss.DeathSequenceIndex:X2}.");
             bool changed = phases.Add(boss.DeathSequenceIndex);
             bool nonuniform = death.Bg2ScrollByScanline.Any(y => y != death.Bg2ScrollByScanline[0]);
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
-            complete = boss.DeathSequenceIndex == CrocomireDeathPhases.InertCorpse;
+            complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Crocomire tick={tick}, phase={boss.DeathSequenceIndex:X2}");
+                    $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");
             }
             if (complete) break;
         }
-        if (!complete || !distorted || !phases.Contains(CrocomireDeathPhases.DissolveFirstImage) ||
-            !phases.Contains(CrocomireDeathPhases.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhases.BreakSpikeWall))
-            throw new InvalidOperationException($"Crocomire fixture incomplete: phase={boss.DeathSequenceIndex:X2}, distortion={distorted}.");
+        if (!complete || !distorted || !phases.Contains(CrocomireDeathPhase.DissolveFirstImage) ||
+            !phases.Contains(CrocomireDeathPhase.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhase.BreakSpikeWall))
+            throw new InvalidOperationException($"Crocomire fixture incomplete: phase={(int)boss.DeathSequenceIndex:X2}, distortion={distorted}.");
         Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion.");
     }
 }

@@ -37,7 +37,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         {
             Crumble => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
             Clear => FrameDuration,
-            Clear + 2 => SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
+            Clear + 2 => (ushort)SporeSpawnCeilingDraw.Clear,
             Clear + 4 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };

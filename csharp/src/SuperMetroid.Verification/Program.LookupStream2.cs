@@ -1717,7 +1717,7 @@ internal static partial class Program
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
         AssertEqual((ushort)0, slot.VariableB, "Gunship completes transfer phase");
-        AssertEqual(GunshipCodePointers.FireUpEngines, slot.VariableF, "Gunship starts engines after fifth transfer");
+        AssertEqual((ushort)GunshipFunction.FireUpEngines, slot.VariableF, "Gunship starts engines after fifth transfer");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");

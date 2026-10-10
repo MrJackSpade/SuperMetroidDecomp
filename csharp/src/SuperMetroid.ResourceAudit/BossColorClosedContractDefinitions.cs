@@ -16,7 +16,7 @@ internal static class BossColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs", "D4DAEB930BD9F83A76D9353426E668C24AD395F20C577605FA7770ADEF96141D"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyStartColorDefinitions.cs", "376B7176C74E7600C0007C4C7A0029F6FD52B3377E1D7B56BB1EA6EFB6660F36"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresBabyPaintDefinitions.cs", "B49705D01E978F1865839B42DD7AE78F3FFF28A139E2F0A1CA11763D50F7872C"),
-             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPaintDefinitions.cs", "67EB21307E6BB5028BE5C8CE0E63A298307243B1E35626C08A259FFB5B097650"),
+             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPaintDefinitions.cs", "1D1DF0D115C03DEB5BED584B0701D89C9AE3BF44B04557C5B0C3FD1106A93B13"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresDoorNormalPaintDefinitions.cs", "BB1823410685DD2448F05E1A4C5005F15CD49F0965179E97A18AD3733BD04D02"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresDoorWarmTargetPaintDefinitions.cs", "164E927F049A94C01BED7C0AFDDB327A3595BD5771139183B748E951DCB51AAA"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyFadeColorDefinitions.cs", "D6D7E342F18E94709AA4488FA60ACF75E182A14715831431A24FE472F6E76BF9"),

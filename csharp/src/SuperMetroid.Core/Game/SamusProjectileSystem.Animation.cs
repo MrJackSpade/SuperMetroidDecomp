@@ -41,13 +41,13 @@ public sealed partial class SamusProjectileSystem
                 return false;
             }
 
-            if (instructionOrTimer == SamusProjectileRomData.Instructions.Delete)
+            if (instructionOrTimer == (ushort)SamusProjectileInstruction.Delete)
             {
                 ClearProjectile(slot);
                 return true;
             }
 
-            if (instructionOrTimer == SamusProjectileRomData.Instructions.GoTo)
+            if (instructionOrTimer == (ushort)SamusProjectileInstruction.GoTo)
             {
                 pointer = SamusProjectileInstructionDefinitions.ReadWord(
                     SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));

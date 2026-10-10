@@ -11,17 +11,18 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    /// <summary>Names a linked restoration by its owning family and decoded layout.</summary>
+    internal static string VisualId(ushort pointer)
     {
-        RoomPlmBombBlockRestoreDrawDefinitions.Horizontal => "bomb-horizontal",
-        RoomPlmBombBlockRestoreDrawDefinitions.Vertical => "bomb-vertical",
-        RoomPlmBombBlockRestoreDrawDefinitions.Square => "bomb-square",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal => "crumble-horizontal",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Vertical => "crumble-vertical",
-        RoomPlmContactCrumbleRestoreDrawDefinitions.Square => "crumble-square",
-        _ => throw new InvalidDataException(
-            $"Linked restore draw ${pointer:X4} has no visual ID."),
-    };
+        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))
+            return "bomb-" + LayoutId(bomb.Vertical, bomb.Square);
+        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out var crumble))
+            return "crumble-" + LayoutId(crumble.Vertical, crumble.Square);
+        throw new InvalidDataException($"Linked restore draw ${pointer:X4} has no visual ID.");
+    }
+
+    private static string LayoutId(bool vertical, bool square) =>
+        square ? "square" : vertical ? "vertical" : "horizontal";
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

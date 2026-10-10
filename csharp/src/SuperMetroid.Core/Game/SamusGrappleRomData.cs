@@ -118,31 +118,5 @@ public static class SamusGrappleRomData
         public const int MovingVerticallyTable = 0x9bc3ee;
         /// <summary>Connection records used while crouching.</summary>
         public const int CrouchingTable = 0x9bc416;
-        /// <summary>Bank-$9B locked-in-place connection handler.</summary>
-        public const ushort LockedInPlaceHandler = 0xc77e;
-        /// <summary>Bank-$9B ordinary swinging connection handler.</summary>
-        public const ushort SwingingHandler = 0xc79d;
-        /// <summary>Bank-$9B wall-grab connection handler.</summary>
-        public const ushort WallGrabHandler = 0xc814;
-        /// <summary>Bank-$9B clockwise swing-pose connection handler.</summary>
-        public const ushort SwingClockwiseHandler = 0xb9d9;
-        /// <summary>Bank-$9B anticlockwise swing-pose connection handler.</summary>
-        public const ushort SwingAnticlockwiseHandler = 0xb9e2;
-        /// <summary>Bank-$9B standing up-right connection handler.</summary>
-        public const ushort StandingUpRightHandler = 0xb9ea;
-        /// <summary>Bank-$9B standing right connection handler.</summary>
-        public const ushort StandingRightHandler = 0xb9f3;
-        /// <summary>Bank-$9B standing down connection handler.</summary>
-        public const ushort StandingDownHandler = 0xb9fc;
-        /// <summary>Bank-$9B standing up-left connection handler.</summary>
-        public const ushort StandingUpLeftHandler = 0xba05;
-        /// <summary>Bank-$9B crouching up-right connection handler.</summary>
-        public const ushort CrouchingUpRightHandler = 0xba0e;
-        /// <summary>Bank-$9B crouching right connection handler.</summary>
-        public const ushort CrouchingRightHandler = 0xba17;
-        /// <summary>Bank-$9B crouching down-left connection handler.</summary>
-        public const ushort CrouchingDownLeftHandler = 0xba20;
-        /// <summary>Bank-$9B crouching up-left connection handler.</summary>
-        public const ushort CrouchingUpLeftHandler = 0xba29;
     }
 }

@@ -10,153 +10,154 @@ public sealed partial class RoomEnemySystem
     {
         switch (state.DeathSequenceIndex)
         {
-            case CrocomireDeathPhases.CrumbleBridgeAndSink:
+            case CrocomireDeathPhase.CrumbleBridgeAndSink:
                 SpawnNextCrocomireBridgeFragment();
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case CrocomireDeathPhases.FirstSubmergedPause:
+            case CrocomireDeathPhase.FirstSubmergedPause:
                 RunCrocomireAcidSoundTimer();
                 UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
                 RunCrocomireSubmergedPause(state);
                 return;
-            case CrocomireDeathPhases.FirstHopRise:
+            case CrocomireDeathPhase.FirstHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
                 return;
-            case CrocomireDeathPhases.FirstHopSink:
+            case CrocomireDeathPhase.FirstHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case CrocomireDeathPhases.SecondSubmergedPause:
+            case CrocomireDeathPhase.SecondSubmergedPause:
                 RunCrocomireAcidSoundTimer();
                 UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
                 RunCrocomireSubmergedPause(state);
                 return;
-            case CrocomireDeathPhases.SecondHopRise:
+            case CrocomireDeathPhase.SecondHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
                 return;
-            case CrocomireDeathPhases.SecondHopSink:
+            case CrocomireDeathPhase.SecondHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
                 return;
-            case CrocomireDeathPhases.InstallFirstMeltImage:
+            case CrocomireDeathPhase.InstallFirstMeltImage:
                 LoadFirstCrocomireMeltingTilemap(state);
                 return;
-            case CrocomireDeathPhases.CopyFirstMeltGraphics:
+            case CrocomireDeathPhase.CopyFirstMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
                 return;
-            case CrocomireDeathPhases.UploadFirstMeltGraphics:
+            case CrocomireDeathPhase.UploadFirstMeltGraphics:
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
-            case CrocomireDeathPhases.ThirdHopRise:
+            case CrocomireDeathPhase.ThirdHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.StartFirstDissolve:
+            case CrocomireDeathPhase.StartFirstDissolve:
                 LastCrocomireSoundEffect = 0x0077;
                 BeginCrocomireMelting(state);
                 return;
-            case CrocomireDeathPhases.DissolveFirstImage:
+            case CrocomireDeathPhase.DissolveFirstImage:
                 RunCrocomireMelting(state, samus);
                 return;
-            case CrocomireDeathPhases.ClearFirstMeltImage:
+            case CrocomireDeathPhase.ClearFirstMeltImage:
                 FinishCrocomireMeltingPass(state);
                 return;
-            case CrocomireDeathPhases.FourthHopSink:
+            case CrocomireDeathPhase.FourthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.ThirdSubmergedPause:
+            case CrocomireDeathPhase.ThirdSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
-            case CrocomireDeathPhases.FourthHopRise:
+            case CrocomireDeathPhase.FourthHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.FifthHopSink:
+            case CrocomireDeathPhase.FifthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.FourthSubmergedPause:
+            case CrocomireDeathPhase.FourthSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
-            case CrocomireDeathPhases.FifthHopRise:
+            case CrocomireDeathPhase.FifthHopRise:
                 RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.SixthHopSink:
+            case CrocomireDeathPhase.SixthHopSink:
                 RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
                 return;
-            case CrocomireDeathPhases.InstallSecondMeltImage:
+            case CrocomireDeathPhase.InstallSecondMeltImage:
                 LoadSecondCrocomireMeltingTilemap(state);
                 return;
-            case CrocomireDeathPhases.CopySecondMeltGraphics:
+            case CrocomireDeathPhase.CopySecondMeltGraphics:
                 InitializeCrocomireMeltingGraphics(state);
                 return;
-            case CrocomireDeathPhases.UploadSecondMeltGraphics:
+            case CrocomireDeathPhase.UploadSecondMeltGraphics:
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
-            case CrocomireDeathPhases.ShippedSpacer:
+            case CrocomireDeathPhase.ShippedSpacer:
                 state.DeathSequenceIndex += 2;
                 return;
-            case CrocomireDeathPhases.SixthHopRise:
+            case CrocomireDeathPhase.SixthHopRise:
                 SelectCrocomireRisingInstruction(state.Body);
                 SpawnCrocomireAcidSmoke(state, samus);
                 RunCrocomireRise(state);
                 return;
-            case CrocomireDeathPhases.StartSecondDissolve:
+            case CrocomireDeathPhase.StartSecondDissolve:
                 LastCrocomireSoundEffect = 0x002d;
                 BeginCrocomireMelting(state);
                 return;
-            case CrocomireDeathPhases.DissolveSecondImage:
+            case CrocomireDeathPhase.DissolveSecondImage:
                 RunCrocomireMelting(state, samus);
                 return;
-            case CrocomireDeathPhases.ClearSecondMeltImage:
+            case CrocomireDeathPhase.ClearSecondMeltImage:
                 FinishCrocomireMeltingPass(state);
                 return;
-            case CrocomireDeathPhases.FinalSink:
+            case CrocomireDeathPhase.FinalSink:
                 RunCrocomireFinalSink(state, samus);
                 return;
-            case CrocomireDeathPhases.WaitForSamusAtWall:
+            case CrocomireDeathPhase.WaitForSamusAtWall:
                 RunCrocomireWaitBehindWall(state, samus);
                 return;
-            case CrocomireDeathPhases.RumbleHiddenWall:
+            case CrocomireDeathPhase.RumbleHiddenWall:
                 RunCrocomireWallRumble(state);
                 return;
-            case CrocomireDeathPhases.BreakSpikeWall:
+            case CrocomireDeathPhase.BreakSpikeWall:
                 RunCrocomireSkeletonTileLoadAndWallBreak(state);
                 return;
-            case CrocomireDeathPhases.DelaySkeletonFall:
+            case CrocomireDeathPhase.DelaySkeletonFall:
                 RunCrocomireWallBreakDelay(state);
                 return;
-            case CrocomireDeathPhases.ArcSkeletonIntoArena:
+            case CrocomireDeathPhase.ArcSkeletonIntoArena:
                 RunCrocomireSkeletonArc(state);
                 return;
-            case CrocomireDeathPhases.WaitForSkeletonTerminalImage:
+            case CrocomireDeathPhase.WaitForSkeletonTerminalImage:
                 RunCrocomireSkeletonCollapse(state);
                 return;
-            case CrocomireDeathPhases.ClearWallAndOpenScrolls:
+            case CrocomireDeathPhase.ClearWallAndOpenScrolls:
                 FinishCrocomireArenaScrolls(state);
                 return;
-            case CrocomireDeathPhases.WaitForStableSkeleton:
+            case CrocomireDeathPhase.WaitForStableSkeleton:
                 if (unchecked((short)(
                         state.Body.CurrentInstruction -
                         CrocomireInstructionProgramDefinitions.SkeletonStable)) >= 0)
                     state.DeathSequenceIndex += 2;
                 return;
-            case CrocomireDeathPhases.NativeOneFrameSpacer:
+            case CrocomireDeathPhase.NativeOneFrameSpacer:
                 state.DeathSequenceIndex += 2;
                 return;
-            case CrocomireDeathPhases.PublishDefeatAndRestoreMusic:
+            case CrocomireDeathPhase.PublishDefeatAndRestoreMusic:
                 CompleteCrocomireBoss(state);
                 return;
-            case CrocomireDeathPhases.InertCorpse:
+            case CrocomireDeathPhase.InertCorpse:
                 return;
-            case CrocomireDeathPhases.DefeatedRoomAdvance:
+            case CrocomireDeathPhase.DefeatedRoomAdvance:
                 state.DeathSequenceIndex += 2;
                 return;
-            case CrocomireDeathPhases.PinDefeatedRoomBg2Scroll:
+            case CrocomireDeathPhase.PinDefeatedRoomBg2Scroll:
                 CrocomireBg2HorizontalScroll = 0;
                 CrocomireBg2VerticalScroll = 0;
                 return;
-            case CrocomireDeathPhases.RiverSkeletonDetour:
+            case CrocomireDeathPhase.RiverSkeletonDetour:
                 RunCrocomireSkeletonRiver(state);
                 return;
+            case CrocomireDeathPhase.Fighting:
+                throw new InvalidDataException("Crocomire's death sequence runs before its bridge collapse began.");
             default:
-                throw new InvalidDataException(
-                    $"Crocomire death-sequence index ${state.DeathSequenceIndex:X2} is outside the 45-entry ROM table.");
+                throw new InvalidOperationException($"Undefined CrocomireDeathPhase {state.DeathSequenceIndex}.");
         }
     }
 
@@ -322,13 +323,13 @@ public sealed partial class RoomEnemySystem
         SelectCrocomireRisingInstruction(state.Body);
         SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
-        if (state.DeathSequenceIndex != 0x3e)
+        if (state.DeathSequenceIndex != CrocomireDeathPhase.WaitForSamusAtWall)
             return;
 
         LastCrocomireMusicRequest = new CrocomireMusicRequest(
             MusicCommand.SelectTrack(6),
             MusicCommandDelay.EightFrames);
-        state.DeathSequenceIndex = 0x58;
+        state.DeathSequenceIndex = CrocomireDeathPhase.RiverSkeletonDetour;
         InstallCrocomireInstructionList(
             state.Body,
             CrocomireInstructionProgramDefinitions.SkeletonFlowingDownRiver);
@@ -349,7 +350,7 @@ public sealed partial class RoomEnemySystem
         {
             body.XPosition = 480;
             body.YPosition = 54;
-            state.DeathSequenceIndex = 0x3e;
+            state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         }
         else
         {

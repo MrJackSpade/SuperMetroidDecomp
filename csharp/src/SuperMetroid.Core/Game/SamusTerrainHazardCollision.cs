@@ -47,15 +47,18 @@ public static class SamusTerrainHazardCollision
         if (samus.InvincibilityTimer != 0)
             return;
 
-        ushort damage = block.Behavior switch
+        // Every other spike-block BTS value selects a harmless reaction.
+        var behavior = (SpikeBlockBehavior)block.Behavior;
+        if (!Enum.IsDefined(behavior))
+            return;
+        ushort damage = behavior switch
         {
-            SamusTerrainHazardRomData.HeavySpikeBlockBehavior
-                when samus.OrdinarySpikeBlockBtsZeroDamageEnabled =>
-                    SamusTerrainHazardRomData.HeavySpikeDamage,
-            SamusTerrainHazardRomData.LightSpikeBlockBehavior or
-                SamusTerrainHazardRomData.AlternateLightSpikeBlockBehavior =>
-                    SamusTerrainHazardRomData.LightSpikeDamage,
-            _ => 0,
+            SpikeBlockBehavior.Heavy => samus.OrdinarySpikeBlockBtsZeroDamageEnabled
+                ? SamusTerrainHazardRomData.HeavySpikeDamage
+                : (ushort)0,
+            SpikeBlockBehavior.Light or SpikeBlockBehavior.AlternateLight =>
+                SamusTerrainHazardRomData.LightSpikeDamage,
+            _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
         };
         if (damage == 0)
             return;

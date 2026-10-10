@@ -45,18 +45,18 @@ public sealed record ControllerInputRecording
         ArgumentNullException.ThrowIfNull(destination);
         Validate();
 
-        uint formatVersion = ContentIdentity is null
-            ? ControllerInputRecordingFormat.LegacyFormatVersion
+        ControllerInputRecordingVersion formatVersion = ContentIdentity is null
+            ? ControllerInputRecordingVersion.Legacy
             : ContentIdentity.AdditionalContentSha256.Count == 0
-                ? ControllerInputRecordingFormat.IdentifiedFormatVersion
-                : ControllerInputRecordingFormat.CurrentFormatVersion;
+                ? ControllerInputRecordingVersion.Identified
+                : ControllerInputRecordingVersion.Current;
         int headerByteCount = ContentIdentity is null
             ? ControllerInputRecordingFormat.LegacyHeaderByteCount
             : ControllerInputRecordingFormat.CurrentHeaderByteCount;
         Span<byte> header = stackalloc byte[headerByteCount];
         header.Clear();
         ControllerInputRecordingFormat.Magic.CopyTo(header);
-        BinaryPrimitives.WriteUInt32LittleEndian(header[8..], formatVersion);
+        BinaryPrimitives.WriteUInt32LittleEndian(header[8..], (uint)formatVersion);
         BinaryPrimitives.WriteInt64LittleEndian(header[12..], StartedUtc.UtcTicks);
 
         // Byte twenty is a format-owned bitfield. Seven reserved zero bytes follow it so
@@ -110,7 +110,7 @@ public sealed record ControllerInputRecording
                     ControllerInputRecordingFormat.CurrentHeaderByteCount]);
         }
         destination.Write(header);
-        if (formatVersion == ControllerInputRecordingFormat.CurrentFormatVersion)
+        if (formatVersion == ControllerInputRecordingVersion.Current)
             GameContentComponentFormat.Write(destination, ContentIdentity!.AdditionalContentSha256);
         destination.Write(InitialSaveRam);
 
@@ -132,25 +132,27 @@ public sealed record ControllerInputRecording
                 ControllerInputRecordingFormat.Magic))
             throw new InvalidDataException("Controller recording has an invalid file signature.");
 
-        uint version = BinaryPrimitives.ReadUInt32LittleEndian(prefix[8..]);
+        uint rawVersion = BinaryPrimitives.ReadUInt32LittleEndian(prefix[8..]);
+        var version = (ControllerInputRecordingVersion)rawVersion;
+        if (!Enum.IsDefined(version))
+            throw new InvalidDataException(
+                $"Controller recording version {rawVersion} is not supported " +
+                $"(expected versions {(uint)ControllerInputRecordingVersion.Legacy} through " +
+                $"{(uint)ControllerInputRecordingVersion.Current}).");
         int headerByteCount = version switch
         {
-            ControllerInputRecordingFormat.LegacyFormatVersion =>
+            ControllerInputRecordingVersion.Legacy =>
                 ControllerInputRecordingFormat.LegacyHeaderByteCount,
-            ControllerInputRecordingFormat.IdentifiedFormatVersion or
-                ControllerInputRecordingFormat.CurrentFormatVersion =>
+            ControllerInputRecordingVersion.Identified or ControllerInputRecordingVersion.Current =>
                 ControllerInputRecordingFormat.CurrentHeaderByteCount,
-            _ => throw new InvalidDataException(
-                $"Controller recording version {version} is not supported " +
-                $"(expected versions {ControllerInputRecordingFormat.LegacyFormatVersion} through " +
-                $"{ControllerInputRecordingFormat.CurrentFormatVersion})."),
+            _ => throw new InvalidOperationException($"Undefined ControllerInputRecordingVersion {version}."),
         };
         Span<byte> header = stackalloc byte[headerByteCount];
         prefix.CopyTo(header);
         source.ReadExactly(header[prefix.Length..]);
 
         GameContentIdentitySnapshot? contentIdentity = null;
-        if (version >= ControllerInputRecordingFormat.IdentifiedFormatVersion)
+        if (version >= ControllerInputRecordingVersion.Identified)
         {
             int identityVersion = BinaryPrimitives.ReadInt32LittleEndian(
                 header[ControllerInputRecordingFormat.ContentIdentityOffset..]);
@@ -171,7 +173,7 @@ public sealed record ControllerInputRecording
                 CompositeSha256 = header[ControllerInputRecordingFormat.CompositeDigestOffset..
                     ControllerInputRecordingFormat.CurrentHeaderByteCount].ToArray(),
             };
-            if (version == ControllerInputRecordingFormat.CurrentFormatVersion)
+            if (version == ControllerInputRecordingVersion.Current)
                 contentIdentity = contentIdentity with
                 {
                     AdditionalContentSha256 = GameContentComponentFormat.Read(source),

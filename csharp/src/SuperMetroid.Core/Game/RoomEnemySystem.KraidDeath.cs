@@ -214,7 +214,7 @@ public sealed partial class RoomEnemySystem
 
     private void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (KraidSinkSchedule.CallbackAt(body.YPosition) is ushort function)
+        if (KraidSinkSchedule.CallbackAt(body.YPosition) is KraidSinkCallback function)
         {
             state.SinkTableEventCount++;
             // Every eight-pixel sinking row invokes its cartridge callback, including the

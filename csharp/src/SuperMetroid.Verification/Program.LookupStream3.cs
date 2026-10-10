@@ -2222,7 +2222,7 @@ internal static partial class Program
         {
             ushort pointer = Read(0xa2df5e + 2 * pattern);
             ushort distancePointer = Read(0xa2df6a + 2 * pattern);
-            AssertEqual(new ChootPatternDefinition(pointer, Read(0xa20000 | distancePointer)),
+            AssertEqual(new ChootPatternDefinition((ChootFallingPath)pointer, Read(0xa20000 | distancePointer)),
                 ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })

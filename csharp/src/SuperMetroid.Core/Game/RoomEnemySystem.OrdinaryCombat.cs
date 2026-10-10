@@ -51,10 +51,6 @@ public sealed partial class RoomEnemySystem
     private const ushort GoldNinjaInvincibleHitboxShotAi = EnemyAiCodePointers.BankB2.GoldNinjaInvincibleHitboxShot;
     private const ushort CrocomireHeaderTouchAi = EnemyAiCodePointers.BankA4.HeaderTouch;
     private const ushort CrocomireClawTouchAi = EnemyAiCodePointers.BankA4.ClawTouch;
-    private const ushort CrocomireNoOpHitboxShotAi = EnemyAiCodePointers.BankA4.NoOpHitboxShot;
-    private const ushort CrocomireDustHitboxShotAi = EnemyAiCodePointers.BankA4.DustHitboxShot;
-    private const ushort CrocomireMouthShotAi = EnemyAiCodePointers.BankA4.MouthShot;
-    private const ushort CrocomireAlternateDustHitboxShotAi = EnemyAiCodePointers.BankA4.AlternateDustHitboxShot;
     private const ushort CrocomirePowerBombAi = EnemyAiCodePointers.BankA4.PowerBomb;
     private const ushort SporeSpawnTouchAi = EnemyAiCodePointers.BankA5.SporeSpawnTouch;
     private const ushort SporeSpawnShotAi = EnemyAiCodePointers.BankA5.SporeSpawnShot;
@@ -2342,11 +2338,7 @@ public sealed partial class RoomEnemySystem
         enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid && callback == ShitroidShotAi ||
         enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon && callback == BotwoonShotAi ||
         enemy.EnemyDefinitionPointer is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue &&
-            callback is CrocomireNoOpHitboxShotAi or
-                CrocomireDustHitboxShotAi or
-                CrocomireMouthShotAi or
-                CrocomireAlternateDustHitboxShotAi or
-                CrocomireHeaderTouchAi ||
+            Enum.IsDefined((CrocomireHitboxShotCallback)callback) ||
         IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
             callback is SpacePirateShotAi or
                 GoldNinjaVulnerableHitboxShotAi or

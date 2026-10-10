@@ -76,7 +76,7 @@ internal static partial class Program
         type.GetMethod("InitializeCrocomire", flags)!.Invoke(enemies, [body]);
         CrocomireEnemyState state = (CrocomireEnemyState)type.GetField("<Crocomire>k__BackingField", flags)!
             .GetValue(enemies)!;
-        AssertEqual((ushort)0, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(CrocomireInstructionProgramDefinitions.Initial,
             body.CurrentInstruction,
@@ -99,7 +99,7 @@ internal static partial class Program
             AssertEqual((ushort)0x7fff,
                 cgram.Colors[CrocomirePaletteRomData.FightBodyDestination + color],
                 $"Crocomire native white hurt flash {color}");
-        AssertEqual((ushort)0, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
         state.StepCounter = 0;
         type.GetMethod("RunCrocomireSkeletonTileLoadAndWallBreak", flags)!
@@ -107,7 +107,7 @@ internal static partial class Program
         AssertBand(CrocomirePaletteRomData.SkeletonArmDestination,
             CrocomirePaletteRomData.SkeletonArmCount, colors.ResolveSkeletonArm,
             "skeleton-arm CGRAM");
-        AssertEqual((ushort)2, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             "installed skeleton-arm colors leave death-phase handoff unchanged");
 
         File.WriteAllBytes(overrideFile, [0]);

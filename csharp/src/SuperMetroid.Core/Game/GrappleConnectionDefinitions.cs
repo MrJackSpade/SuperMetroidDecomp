@@ -1,4 +1,5 @@
 using static SuperMetroid.Core.Game.SamusGrappleRomData.Connections;
+using static SuperMetroid.Core.Game.GrappleConnectionHandler;
 using static SuperMetroid.Core.Game.SamusPoseId;
 
 namespace SuperMetroid.Core.Game;
@@ -13,13 +14,13 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     private static readonly SpecialConnection[] AuthoredStops =
     [
-        new(0xd680, GrappleCrouchingDownRightPose, -30, -24, LockedInPlaceHandler),
-        new(0xb380, GrappleCrouchingDownRightPose, -28, -8, LockedInPlaceHandler),
-        new(0x6a80, GrappleWallContactRightPose, 24, 16, WallGrabHandler),
-        new(0x7380, GrappleWallContactLeftPose, -8, 16, WallGrabHandler),
+        new(0xd680, GrappleCrouchingDownRightPose, -30, -24, GrappleConnectionFunction.LockedInPlace),
+        new(0xb380, GrappleCrouchingDownRightPose, -28, -8, GrappleConnectionFunction.LockedInPlace),
+        new(0x6a80, GrappleWallContactRightPose, 24, 16, GrappleConnectionFunction.WallGrab),
+        new(0x7380, GrappleWallContactLeftPose, -8, 16, GrappleConnectionFunction.WallGrab),
     ];
 
-    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, short X, short Y, ushort Function);
+    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, short X, short Y, GrappleConnectionFunction Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
     internal static int SpecialAngleCount => AuthoredStops.Length * 2;
@@ -67,7 +68,7 @@ internal static class GrappleConnectionDefinitions
     };
 
     /// <summary>$9B:C3C6/$C3EE/$C416 default, vertical and crouching directional connection policies.</summary>
-    internal static (ushort Function, ushort Handler) ResolveConnection(int address)
+    internal static (GrappleConnectionFunction Function, GrappleConnectionHandler Handler) ResolveConnection(int address)
     {
         int offset = address - DefaultTable;
         if (offset < 0 || offset >= 30 * 4 || (offset & 3) != 0)
@@ -76,19 +77,21 @@ internal static class GrappleConnectionDefinitions
         int record = offset / 4;
         int direction = record % 10;
         bool compact = record >= 20;
-        ushort handler = record is >= 10 and < 20
-            ? direction < 5 ? SwingClockwiseHandler : SwingAnticlockwiseHandler
+        GrappleConnectionHandler handler = record is >= 10 and < 20
+            ? direction < 5 ? SwingClockwise : SwingAnticlockwise
             : direction switch
             {
-                0 or 1 => SwingClockwiseHandler,
-                2 => compact ? CrouchingUpRightHandler : StandingUpRightHandler,
-                3 => compact ? CrouchingRightHandler : StandingRightHandler,
-                4 or 5 => StandingDownHandler,
-                6 => compact ? CrouchingDownLeftHandler : StandingDownHandler,
-                7 => compact ? CrouchingUpLeftHandler : StandingUpLeftHandler,
-                _ => SwingAnticlockwiseHandler,
+                0 or 1 => SwingClockwise,
+                2 => compact ? CrouchingUpRight : StandingUpRight,
+                3 => compact ? CrouchingRight : StandingRight,
+                4 or 5 => StandingDown,
+                6 => compact ? CrouchingDownLeft : StandingDown,
+                7 => compact ? CrouchingUpLeft : StandingUpLeft,
+                _ => SwingAnticlockwise,
             };
-        ushort function = handler is SwingClockwiseHandler or SwingAnticlockwiseHandler ? SwingingHandler : LockedInPlaceHandler;
+        GrappleConnectionFunction function = handler is SwingClockwise or SwingAnticlockwise
+            ? GrappleConnectionFunction.Swinging
+            : GrappleConnectionFunction.LockedInPlace;
         return (function, handler);
     }
 }

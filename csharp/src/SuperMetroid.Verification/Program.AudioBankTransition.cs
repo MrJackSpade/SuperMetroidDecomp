@@ -11,7 +11,7 @@ internal static partial class Program
             new Dictionary<byte, ManagedPcmSample> { [0] = positive }));
         ConfigureAudibleVoiceZero(dsp);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
-        dsp.WriteRegister(SnesDspRegisterMap.Global.KeyOff, 1);
+        dsp.WriteRegister((byte)DspGlobalRegister.KeyOff, 1);
         for (int cycle = 0; cycle < 300; cycle++) dsp.Cycle();
         AssertEqual((byte)0, dsp.ReadRegister(SnesDspRegisterMap.Voice.EnvelopeOutput), "release reaches zero");
         // DIR=0, source 0 loop=$FFFF. BRR advances by nine bytes and wraps to $0008.
@@ -21,12 +21,12 @@ internal static partial class Program
         dsp.SetSampleBank(new ManagedPcmSampleBank("after-upload", 0,
             new Dictionary<byte, ManagedPcmSample> { [1] = positive }));
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
-        dsp.WriteRegister(SnesDspRegisterMap.Global.EndFlags, 0);
+        dsp.WriteRegister((byte)DspGlobalRegister.EndFlags, 0);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
-        AssertTrue((dsp.ReadRegister(SnesDspRegisterMap.Global.EndFlags) & 1) != 0, "retired raw headers continue setting ENDX");
+        AssertTrue((dsp.ReadRegister((byte)DspGlobalRegister.EndFlags) & 1) != 0, "retired raw headers continue setting ENDX");
         AssertEqual((byte)0, dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput), "retired voice remains silent");
         dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
-        dsp.WriteRegister(SnesDspRegisterMap.Global.KeyOn, 1);
+        dsp.WriteRegister((byte)DspGlobalRegister.KeyOn, 1);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0, "key-on restores ordinary PCM playback");
         dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 0);

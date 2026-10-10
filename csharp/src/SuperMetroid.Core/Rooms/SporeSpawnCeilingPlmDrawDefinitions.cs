@@ -1,4 +1,19 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The four bank-$84 Spore Spawn ceiling draw lists, valued by native address.</summary>
+internal enum SporeSpawnCeilingDraw : ushort
+{
+    /// <summary><c>$84:9413</c>: clear the ceiling after defeat or crumble.</summary>
+    Clear = 0x9413,
+    /// <summary><c>$84:9423</c>: first crumble appearance.</summary>
+    CrumbleFirst = 0x9423,
+    /// <summary><c>$84:9433</c>: second crumble appearance.</summary>
+    CrumbleSecond = 0x9433,
+    /// <summary><c>$84:9443</c>: third crumble appearance.</summary>
+    CrumbleThird = 0x9443,
+}
 
 /// <summary>
 /// Four native two-by-two physical ceiling draws. Each list has two
@@ -7,36 +22,30 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class SporeSpawnCeilingPlmDrawDefinitions
 {
-    /// <summary><c>$84:9413</c>: clear the ceiling after defeat or crumble.</summary>
-    internal const ushort ClearPointer = 0x9413;
-    /// <summary><c>$84:9423</c>: first crumble appearance.</summary>
-    internal const ushort CrumbleFirstPointer = 0x9423;
-    /// <summary><c>$84:9433</c>: second crumble appearance.</summary>
-    internal const ushort CrumbleSecondPointer = 0x9433;
-    /// <summary><c>$84:9443</c>: third crumble appearance.</summary>
-    internal const ushort CrumbleThirdPointer = 0x9443;
     /// <summary><c>$84:9453</c>: first byte of the following Mother Brain draw region.</summary>
     internal const ushort EndExclusive = 0x9453;
 
     /// <summary>
     /// Clear fills with the blank tile; crumble advances through tiles $53..55
-    /// at the native sixteen-byte record stride. Every cell uses the same air word.
+    /// in its three successive sixteen-byte records. Every cell uses the same air word.
     /// </summary>
     internal static bool TryGetWord(ushort pointer, out ushort word)
     {
-        if (pointer == ClearPointer)
+        var list = (SporeSpawnCeilingDraw)pointer;
+        if (!Enum.IsDefined(list))
         {
-            word = 0x00ff;
-            return true;
+            word = 0;
+            return false;
         }
-        int relative = pointer - CrumbleFirstPointer;
-        if (relative >= 0 && relative <= CrumbleThirdPointer - CrumbleFirstPointer && relative % 16 == 0)
+        word = list switch
         {
-            word = (ushort)(0x53 + relative / 16);
-            return true;
-        }
-        word = 0;
-        return false;
+            SporeSpawnCeilingDraw.Clear => 0x00ff,
+            SporeSpawnCeilingDraw.CrumbleFirst => 0x53,
+            SporeSpawnCeilingDraw.CrumbleSecond => 0x54,
+            SporeSpawnCeilingDraw.CrumbleThird => 0x55,
+            _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {list}."),
+        };
+        return true;
     }
 
     // Temporary DTOs serve artwork interfaces; runtime draws the scalar square directly.
@@ -44,7 +53,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     {
         get
         {
-            for (int pointer = ClearPointer; pointer < EndExclusive; pointer += 16)
+            for (int pointer = (int)SporeSpawnCeilingDraw.Clear; pointer < EndExclusive; pointer += 16)
             {
                 TryGet((ushort)pointer, out var list);
                 yield return list;
@@ -52,14 +61,16 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         }
     }
 
-    internal static string VisualId(ushort pointer) => pointer switch
+    internal static string VisualId(ushort pointer) =>
+        VisualId(ClosedNativeWords.Decode<SporeSpawnCeilingDraw>(pointer, "Spore Spawn ceiling draw with a visual ID"));
+
+    internal static string VisualId(SporeSpawnCeilingDraw pointer) => pointer switch
     {
-        ClearPointer => "clear-ceiling",
-        CrumbleFirstPointer => "crumble-frame-0",
-        CrumbleSecondPointer => "crumble-frame-1",
-        CrumbleThirdPointer => "crumble-frame-2",
-        _ => throw new InvalidDataException(
-            $"Spore Spawn ceiling draw ${pointer:X4} has no visual ID."),
+        SporeSpawnCeilingDraw.Clear => "clear-ceiling",
+        SporeSpawnCeilingDraw.CrumbleFirst => "crumble-frame-0",
+        SporeSpawnCeilingDraw.CrumbleSecond => "crumble-frame-1",
+        SporeSpawnCeilingDraw.CrumbleThird => "crumble-frame-2",
+        _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {pointer}."),
     };
 
     internal static bool TryGetByVisualId(string id,
@@ -79,9 +90,9 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
 
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
-        0 => CrumbleFirstPointer,
-        1 => CrumbleSecondPointer,
-        2 => CrumbleThirdPointer,
+        0 => (ushort)SporeSpawnCeilingDraw.CrumbleFirst,
+        1 => (ushort)SporeSpawnCeilingDraw.CrumbleSecond,
+        2 => (ushort)SporeSpawnCeilingDraw.CrumbleThird,
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 

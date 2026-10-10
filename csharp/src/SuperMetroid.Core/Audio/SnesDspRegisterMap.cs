@@ -25,6 +25,41 @@ internal enum DspVoiceRegister : byte
     SampleOutput = 9,
 }
 
+/// <summary>The S-DSP's named global registers, valued by their register-file address.</summary>
+internal enum DspGlobalRegister : byte
+{
+    /// <summary>MVOLL: left master volume.</summary>
+    MasterVolumeLeft = 0x0c,
+    /// <summary>MVOLR: right master volume.</summary>
+    MasterVolumeRight = 0x1c,
+    /// <summary>EVOLL: left echo volume.</summary>
+    EchoVolumeLeft = 0x2c,
+    /// <summary>EVOLR: right echo volume.</summary>
+    EchoVolumeRight = 0x3c,
+    /// <summary>KON: key-on voice bits.</summary>
+    KeyOn = 0x4c,
+    /// <summary>KOFF: key-off voice bits.</summary>
+    KeyOff = 0x5c,
+    /// <summary>FLG: reset, mute, echo-write and noise-rate flags.</summary>
+    Flags = 0x6c,
+    /// <summary>ENDX: voice end flags, published by the DSP.</summary>
+    EndFlags = 0x7c,
+    /// <summary>EFB: echo feedback.</summary>
+    EchoFeedback = 0x0d,
+    /// <summary>PMON: pitch-modulation voice bits.</summary>
+    PitchModulation = 0x2d,
+    /// <summary>NON: noise voice bits.</summary>
+    NoiseEnable = 0x3d,
+    /// <summary>EON: echo voice bits.</summary>
+    EchoEnable = 0x4d,
+    /// <summary>DIR: BRR sample directory page.</summary>
+    SourceDirectory = 0x5d,
+    /// <summary>ESA: echo buffer page.</summary>
+    EchoBufferAddress = 0x6d,
+    /// <summary>EDL: echo delay.</summary>
+    EchoDelay = 0x7d,
+}
+
 /// <summary>
 /// Hardware register addresses and field masks for the SNES eight-voice S-DSP.
 /// These values describe the chip's public register layout; mixer code should name the
@@ -58,25 +93,12 @@ internal static class SnesDspRegisterMap
         return offset <= Voice.SampleOutput ? (DspVoiceRegister)offset : null;
     }
 
-    internal static class Global
-    {
-        internal const byte MasterVolumeLeft = 0x0c;
-        internal const byte MasterVolumeRight = 0x1c;
-        internal const byte EchoVolumeLeft = 0x2c;
-        internal const byte EchoVolumeRight = 0x3c;
-        internal const byte KeyOn = 0x4c;
-        internal const byte KeyOff = 0x5c;
-        internal const byte Flags = 0x6c;
-        internal const byte EndFlags = 0x7c;
-        internal const byte EchoFeedback = 0x0d;
-        internal const byte PitchModulation = 0x2d;
-        internal const byte NoiseEnable = 0x3d;
-        internal const byte EchoEnable = 0x4d;
-        internal const byte SourceDirectory = 0x5d;
-        internal const byte EchoBufferAddress = 0x6d;
-        internal const byte EchoDelay = 0x7d;
-        internal const byte FirstFirCoefficient = 0x0f;
-    }
+    /// <summary>FIR coefficient C0; coefficient i is at this offset in voice block i.</summary>
+    internal const byte FirstFirCoefficient = 0x0f;
+
+    /// <summary>The named global register an address selects, or null for FIR coefficients and unused addresses.</summary>
+    internal static DspGlobalRegister? GlobalRegisterAt(byte address) =>
+        Enum.IsDefined((DspGlobalRegister)address) ? (DspGlobalRegister)address : null;
 
     internal static class Fields
     {

@@ -30,26 +30,28 @@ public static class PauseReserveTankDefinitions
     public const ushort PaletteBits = PauseReserveTankRomData.PaletteBits;
     /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
     /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>
-    public static IEnumerable<(string Name, ushort Id)> Frames()
+    public static IEnumerable<(string Name, PauseReserveTankVisual Id)> Frames()
     {
-        yield return ("Full", PauseReserveTankRomData.FullMap);
-        yield return ("EndCap", PauseReserveTankRomData.EndCapMap);
-        yield return ("Empty", PauseReserveTankRomData.EmptyMap);
-        for (int fill = 1; fill <= 7; fill++) yield return ($"Fill{fill}", (ushort)(PauseReserveTankRomData.EmptyMap + fill));
+        yield return ("Full", PauseReserveTankVisual.Full);
+        yield return ("EndCap", PauseReserveTankVisual.EndCap);
+        yield return ("Empty", PauseReserveTankVisual.Empty);
+        for (int fill = 1; fill <= 7; fill++) yield return ($"Fill{fill}", (PauseReserveTankVisual)((int)PauseReserveTankVisual.Empty + fill));
     }
     /// <summary>Reserve spritemaps $82:C35B/C369/C3D9..C410 are one stationary small sprite.</summary>
     /// <remarks>Partial levels1..6 advance through sheet tiles47..4C; level7 uses
     /// the full tile4E. Tile4D is empty, and4F is the end cap. Palette is caller-owned.</remarks>
-    internal static int StockTile(ushort identity) => identity switch
+    internal static int StockTile(PauseReserveTankVisual identity) => identity switch
     {
-        PauseReserveTankRomData.FullMap or PauseReserveTankRomData.EmptyMap + 7 => 0x4e,
-        PauseReserveTankRomData.EndCapMap => 0x4f,
-        PauseReserveTankRomData.EmptyMap => 0x4d,
-        > PauseReserveTankRomData.EmptyMap and < PauseReserveTankRomData.EmptyMap + 7 => 0x46 + identity - PauseReserveTankRomData.EmptyMap,
-        _ => throw new InvalidDataException($"Unknown reserve visual {identity:X4}."),
+        PauseReserveTankVisual.Full or PauseReserveTankVisual.Fill7 => 0x4e,
+        PauseReserveTankVisual.EndCap => 0x4f,
+        PauseReserveTankVisual.Empty => 0x4d,
+        PauseReserveTankVisual.Fill1 or PauseReserveTankVisual.Fill2 or PauseReserveTankVisual.Fill3 or
+            PauseReserveTankVisual.Fill4 or PauseReserveTankVisual.Fill5 or PauseReserveTankVisual.Fill6 =>
+            0x46 + (identity - PauseReserveTankVisual.Empty),
+        _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {identity}."),
     };
 
-    internal static SpriteVisualPart StockPart(ushort identity)
+    internal static SpriteVisualPart StockPart(PauseReserveTankVisual identity)
     {
         int tile = StockTile(identity);
         return new() { OffsetX = 0, OffsetY = 0, Size = 8, Priority = 3, Palette = null,
@@ -59,6 +61,6 @@ public static class PauseReserveTankDefinitions
     /// <param name="index">Entry index, 0..15, covering both identical eight-entry native tables.</param>
     /// <returns>The Empty-through-Fill7 spritemap identity selected by index modulo eight; gameplay computes the index using fourteen energy per step.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside the sixteen native entries.</exception>
-    public static ushort PartialMap(int index) => (uint)index < 16
-        ? (ushort)(PauseReserveTankRomData.EmptyMap + index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
+    public static PauseReserveTankVisual PartialMap(int index) => (uint)index < 16
+        ? (PauseReserveTankVisual)((int)PauseReserveTankVisual.Empty + index % 8) : throw new ArgumentOutOfRangeException(nameof(index));
 }

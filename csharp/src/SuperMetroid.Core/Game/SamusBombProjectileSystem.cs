@@ -1115,13 +1115,19 @@ public sealed class SamusBombProjectileSystem
                 return false;
             }
 
-            switch (durationOrOpcode)
+            // The complete referenced bank-$93 projectile interpreter exposes
+            // delete ($822F) and goto ($8239); its only third routine ($8240) is
+            // unreferenced data excluded from the retail build. A different word
+            // in an active bomb list is consequently corrupt ROM/list state.
+            SamusProjectileInstruction instruction = ClosedNativeWords.Decode<SamusProjectileInstruction>(
+                durationOrOpcode, "bomb projectile list opcode");
+            switch (instruction)
             {
-                case SamusProjectileRomData.Instructions.Delete:
+                case SamusProjectileInstruction.Delete:
                     ClearProjectile(slot);
                     return true;
 
-                case SamusProjectileRomData.Instructions.GoTo:
+                case SamusProjectileInstruction.GoTo:
                     // The handler increments Y past the opcode before the instruction
                     // routine reads [[Y]]. Its target is another bank-$93 16-bit pointer.
                     pointer = SamusProjectileInstructionDefinitions.ReadWord(
@@ -1130,12 +1136,7 @@ public sealed class SamusBombProjectileSystem
                     break;
 
                 default:
-                    // The complete referenced bank-$93 projectile interpreter exposes
-                    // delete ($822F) and goto ($8239); its only third routine ($8240) is
-                    // unreferenced data excluded from the retail build. A different word
-                    // in an active bomb list is consequently corrupt ROM/list state.
-                    throw new InvalidDataException(
-                        $"Bomb projectile list contains invalid opcode $93:{durationOrOpcode:X4}.");
+                    throw new InvalidOperationException($"Undefined SamusProjectileInstruction {instruction}.");
             }
         }
 

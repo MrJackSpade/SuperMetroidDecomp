@@ -381,66 +381,13 @@ internal static class RoomCallbackDefinitionsAccess
 {
     extension(RoomCallbackDefinitions)
     {
-        internal static ushort PointerOf(RoomMainCallback callback) => callback switch
-        {
-            RoomMainCallback.None => 0,
-            RoomMainCallback.ScrollingSkyLand => RoomMainCodePointers.ScrollingSkyLand,
-            RoomMainCallback.ScrollingSkyOcean => RoomMainCodePointers.ScrollingSkyOcean,
-            RoomMainCallback.ScrollingSkyLandZebesTimebombSet => RoomMainCodePointers.ScrollingSkyLandZebesTimebombSet,
-            RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions => RoomMainCodePointers.SetScreenShakingAndGenerateRandomExplosions,
-            RoomMainCallback.ScrollScreenRightInDachoraRoom => RoomMainCodePointers.ScrollScreenRightInDachoraRoom,
-            RoomMainCallback.MaridiaElevatube => RoomMainCodePointers.MaridiaElevatube,
-            RoomMainCallback.CeresElevatorShaft => RoomMainCodePointers.CeresElevatorShaft,
-            RoomMainCallback.Return => RoomMainCodePointers.Return,
-            RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris => RoomMainCodePointers.SpawnCeresPreElevatorHallFallingDebris,
-            RoomMainCallback.HandleCeresRidleyGetawayCutscene => RoomMainCodePointers.HandleCeresRidleyGetawayCutscene,
-            RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal => RoomMainCodePointers.ShakeScreenLightHorizontalAndMediumDiagonal,
-            RoomMainCallback.GenerateRandomExplosionEveryFourthFrame => RoomMainCodePointers.GenerateRandomExplosionEveryFourthFrame,
-            RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal => RoomMainCodePointers.ShakeScreenMediumHorizontalAndStrongDiagonal,
-            RoomMainCallback.CrocomireRoomShaking => RoomMainCodePointers.CrocomireRoomShaking,
-            RoomMainCallback.RidleyRoomShaking => RoomMainCodePointers.RidleyRoomShaking,
-            _ => throw new ArgumentOutOfRangeException(nameof(callback)),
-        };
+        internal static ushort PointerOf(RoomMainCallback callback) => Enum.IsDefined(callback)
+            ? (ushort)callback
+            : throw new ArgumentOutOfRangeException(nameof(callback));
 
-        internal static ushort PointerOf(RoomSetupCallback callback) => callback switch
-        {
-            RoomSetupCallback.None => 0,
-            RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen => RoomSetupCodePointers.ClearBlocksAfterSavingAnimalsAndShakeScreen,
-            RoomSetupCallback.AutoDestroyWallDuringEscape => RoomSetupCodePointers.AutoDestroyWallDuringEscape,
-            RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape => RoomSetupCodePointers.TurnWallIntoShotBlocksDuringEscape,
-            RoomSetupCallback.ReturnAfterEscapeWallSetup => RoomSetupCodePointers.ReturnAfterEscapeWallSetup,
-            RoomSetupCallback.ReturnBeforeEscapeSkySetup => RoomSetupCodePointers.ReturnBeforeEscapeSkySetup,
-            RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape => RoomSetupCodePointers.ShakeScreenAndCallScrollingSkyLandDuringEscape,
-            RoomSetupCallback.ScrollingSkyLand => RoomSetupCodePointers.ScrollingSkyLand,
-            RoomSetupCallback.ScrollingSkyOcean => RoomSetupCodePointers.ScrollingSkyOcean,
-            RoomSetupCallback.Return => RoomSetupCodePointers.Return,
-            RoomSetupCallback.ReturnAfterOceanSkySetup => RoomSetupCodePointers.ReturnAfterOceanSkySetup,
-            RoomSetupCallback.ReturnBeforeStatueSetupA => RoomSetupCodePointers.ReturnBeforeStatueSetupA,
-            RoomSetupCallback.ReturnBeforeStatueSetupB => RoomSetupCodePointers.ReturnBeforeStatueSetupB,
-            RoomSetupCallback.RunStatueUnlockingAnimations => RoomSetupCodePointers.RunStatueUnlockingAnimations,
-            RoomSetupCallback.SharedReturn => RoomSetupCodePointers.SharedReturn,
-            RoomSetupCallback.SharedReturnB => RoomSetupCodePointers.SharedReturnB,
-            RoomSetupCallback.SharedReturnC => RoomSetupCodePointers.SharedReturnC,
-            RoomSetupCallback.SharedReturnD => RoomSetupCodePointers.SharedReturnD,
-            RoomSetupCallback.OrdinaryReturn => RoomSetupCodePointers.OrdinaryReturn,
-            RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile => RoomSetupCodePointers.SpawnPrePhantoonRoomEnemyProjectile,
-            RoomSetupCallback.BossRoomReturn => RoomSetupCodePointers.BossRoomReturn,
-            RoomSetupCallback.BossRoomReturnB => RoomSetupCodePointers.BossRoomReturnB,
-            RoomSetupCallback.BossRoomReturnC => RoomSetupCodePointers.BossRoomReturnC,
-            RoomSetupCallback.SetupShaktoolRoomPlm => RoomSetupCodePointers.SetupShaktoolRoomPlm,
-            RoomSetupCallback.ReturnBeforeDraygonSetup => RoomSetupCodePointers.ReturnBeforeDraygonSetup,
-            RoomSetupCallback.SetPausingCodeForDraygon => RoomSetupCodePointers.SetPausingCodeForDraygon,
-            RoomSetupCallback.SetCollectedMap => RoomSetupCodePointers.SetCollectedMap,
-            RoomSetupCallback.ReturnBeforeZebesTimebombSetup => RoomSetupCodePointers.ReturnBeforeZebesTimebombSetup,
-            RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking => RoomSetupCodePointers.SetZebesTimebombEventAndLightHorizontalShaking,
-            RoomSetupCallback.SetLightHorizontalRoomShaking => RoomSetupCodePointers.SetLightHorizontalRoomShaking,
-            RoomSetupCallback.SetMediumHorizontalRoomShaking => RoomSetupCodePointers.SetMediumHorizontalRoomShaking,
-            RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking => RoomSetupCodePointers.SetupEscapeRoom4PlmAndMediumHorizontalShaking,
-            RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze => RoomSetupCodePointers.TurnCeresDoorToSolidBlocksAndSpawnHaze,
-            RoomSetupCallback.SpawnCeresHaze => RoomSetupCodePointers.SpawnCeresHaze,
-            RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze => RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze,
-            _ => throw new ArgumentOutOfRangeException(nameof(callback)),
-        };
+        internal static ushort PointerOf(RoomSetupCallback callback) => Enum.IsDefined(callback)
+            ? (ushort)callback
+            : throw new ArgumentOutOfRangeException(nameof(callback));
     }
 }
 
@@ -1578,19 +1525,6 @@ internal static class RoomPlmTourianAccessVisualCatalogAccess
     {
         /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
         internal static RoomPlmTourianAccessVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmTourianAccessVisualCatalog>();
-    }
-}
-
-/// <summary>Verification access to <see cref="RoomSetupCodePointers"/> members production does not use.</summary>
-internal static class RoomSetupCodePointersAccess
-{
-    extension(RoomSetupCodePointers)
-    {
-        /// <summary>Whether a translated presentation path consumes Ceres haze from this setup.</summary>
-        internal static bool SpawnsCeresHaze(ushort pointer) => pointer is
-            RoomSetupCodePointers.TurnCeresDoorToSolidBlocksAndSpawnHaze or
-            RoomSetupCodePointers.SpawnCeresHaze or
-            RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
     }
 }
 

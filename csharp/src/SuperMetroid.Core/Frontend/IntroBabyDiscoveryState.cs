@@ -163,31 +163,32 @@ internal sealed class IntroBabyDiscoveryState
 
     private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)
     {
-        switch (pointer)
+        // The Baby-discovery object references only these four routines. Another
+        // pointer means the object definition/list pairing is corrupt.
+        IntroBabyDiscoveryPreInstruction preInstruction =
+            ClosedNativeWords.Decode<IntroBabyDiscoveryPreInstruction>(pointer, "Baby-discovery demo pre-instruction");
+        switch (preInstruction)
         {
-            case IntroBabyDiscoveryRomData.RunningLeftPreInstruction:
+            case IntroBabyDiscoveryPreInstruction.RunningLeft:
                 if (Samus.XPosition < 0x00b2)
                     demo.Redirect(
-                        IntroBabyDiscoveryRomData.StopAndLookPreInstruction,
+                        (ushort)IntroBabyDiscoveryPreInstruction.StopAndLook,
                         IntroBabyDiscoveryRomData.StopAndLookInputList);
                 return;
 
-            case IntroBabyDiscoveryRomData.StopAndLookPreInstruction:
+            case IntroBabyDiscoveryPreInstruction.StopAndLook:
                 if (introCrossfadeTimer == 0)
                     demo.Redirect(
-                        IntroBabyDiscoveryRomData.InertPreInstruction,
+                        (ushort)IntroBabyDiscoveryPreInstruction.Inert,
                         IntroBabyDiscoveryRomData.EndInputList);
                 return;
 
-            case IntroBabyDiscoveryRomData.InertPreInstruction:
-            case IntroBabyDiscoveryRomData.InertPreInstructionAlternate:
+            case IntroBabyDiscoveryPreInstruction.Inert:
+            case IntroBabyDiscoveryPreInstruction.InertAlternate:
                 return;
 
             default:
-                // The Baby-discovery object references only the four routines above.
-                // Another pointer means the object definition/list pairing is corrupt.
-                throw new InvalidDataException(
-                    $"Baby-discovery demo names invalid pre-instruction $91:{pointer:X4}.");
+                throw new InvalidOperationException($"Undefined IntroBabyDiscoveryPreInstruction {preInstruction}.");
         }
     }
 

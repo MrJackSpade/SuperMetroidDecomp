@@ -1,19 +1,24 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The five bank-$A9 <c>CorpseRottingTileRowOffsets</c> tables, valued by native address.</summary>
+internal enum CorpseRotationTable : ushort
+{
+    /// <summary>CorpseRottingTileRowOffsets.Torizo at $A9:E226; ten tiles per row.</summary>
+    Torizo = 0xe226,
+    /// <summary>CorpseRottingTileRowOffsets.Sidehopper at $A9:E240; five tiles per row.</summary>
+    Sidehopper = 0xe240,
+    /// <summary>CorpseRottingTileRowOffsets.Zoomer at $A9:E24C; three tiles per row.</summary>
+    Zoomer = 0xe24c,
+    /// <summary>CorpseRottingTileRowOffsets.Ripper at $A9:E252; three tiles per row.</summary>
+    Ripper = 0xe252,
+    /// <summary>CorpseRottingTileRowOffsets.Skree at $A9:E258; two tiles per row.</summary>
+    Skree = 0xe258,
+}
+
 /// <summary>Bounded, pinned bank-$A9 corpse-copy geometry and live-WRAM DMA descriptors.</summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
 internal static class DeadMonsterRottingDefinitions
 {
-    /// <summary>CorpseRottingTileRowOffsets.Torizo at $A9:E226; ten tiles per row.</summary>
-    private const ushort TorizoRows = 0xe226;
-    /// <summary>CorpseRottingTileRowOffsets.Sidehopper at $A9:E240; five tiles per row.</summary>
-    private const ushort SidehopperRows = 0xe240;
-    /// <summary>CorpseRottingTileRowOffsets.Zoomer at $A9:E24C; three tiles per row.</summary>
-    private const ushort ZoomerRows = 0xe24c;
-    /// <summary>CorpseRottingTileRowOffsets.Ripper at $A9:E252; three tiles per row.</summary>
-    private const ushort RipperRows = 0xe252;
-    /// <summary>CorpseRottingTileRowOffsets.Skree at $A9:E258; two tiles per row.</summary>
-    private const ushort SkreeRows = 0xe258;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Sidehopper_Param1_0 at $A9:E0E0; two42-byte variant lists.</summary>
     internal const ushort SidehopperTransfers = 0xe0e0;
     /// <summary>CorpseRottingVRAMTransferDefinitions_Zoomer_Param1_0 at $A9:E134; three18-byte variant lists.</summary>
@@ -69,15 +74,18 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
-    internal static ushort RotationOffset(ushort table, ushort yOffset)
+    internal static ushort RotationOffset(ushort table, ushort yOffset) =>
+        RotationOffset(ClosedNativeWords.Decode<CorpseRotationTable>(table, "compiled corpse rotation table"), yOffset);
+
+    internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
     {
         (int count, int tiles) = table switch
         {
-            TorizoRows => (13, 10),
-            SidehopperRows => (6, 5),
-            ZoomerRows or RipperRows => (3, 3),
-            SkreeRows => (5, 2),
-            _ => throw new InvalidDataException($"Corpse rotation table $A9:{table:X4} has no compiled definition."),
+            CorpseRotationTable.Torizo => (13, 10),
+            CorpseRotationTable.Sidehopper => (6, 5),
+            CorpseRotationTable.Zoomer or CorpseRotationTable.Ripper => (3, 3),
+            CorpseRotationTable.Skree => (5, 2),
+            _ => throw new InvalidOperationException($"Undefined CorpseRotationTable {table}."),
         };
         int row = yOffset >> 3;
         if (row >= count) throw new ArgumentOutOfRangeException(nameof(yOffset));

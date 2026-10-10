@@ -49,19 +49,36 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
             (1 + color + skippedCommands)));
     }
 
+    /// <summary>The program's header and loop control-word addresses.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
+        ColorIndexOperand = ProgramStart + 2,
+        /// <summary>The terminal <c>Goto</c> opcode.</summary>
+        Goto = LoopInstructionPointer,
+        /// <summary>The <c>Goto</c> target operand.</summary>
+        GotoTarget = LoopInstructionPointer + 2,
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        value = 0;
+        var control = (ControlWord)pointer;
+        if (Enum.IsDefined(control))
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            LoopInstructionPointer => PaletteFxInstructionCodes.Goto,
-            LoopInstructionPointer + 2 => FirstFramePointer,
-            _ => 0,
-        };
-        if (value != 0)
+            value = control switch
+            {
+                ControlWord.SetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                ControlWord.ColorIndexOperand => ColorByteIndex,
+                ControlWord.Goto => PaletteFxInstructionCodes.Goto,
+                ControlWord.GotoTarget => FirstFramePointer,
+                _ => throw new InvalidOperationException($"Undefined ControlWord {control}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < FrameCount; frame++)
         {

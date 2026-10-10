@@ -48,12 +48,12 @@ internal static partial class Program
             RoomPlmMotherBrainFakeDeathVisualCatalog edited =
                 installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRowD,
+                edited.GetWord((ushort)MotherBrainFakeDeathDraw.BackgroundRowD,
                     0, 12),
                 "Mother Brain override edits far background tile");
             AssertEqual((ushort)0x0059,
                 edited.GetWord(
-                    MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
+                    (ushort)MotherBrainFakeDeathDraw.ClearBottomRightTube,
                     1, 0),
                 "Mother Brain override edits second-run tube tile");
             VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
@@ -71,7 +71,7 @@ internal static partial class Program
                 RoomPlmMotherBrainFakeDeathVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory)
                     .GetWord(
-                        MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
+                        (ushort)MotherBrainFakeDeathDraw.ClearBottomRightTube,
                         1, 0),
                 "Mother Brain override survives stock replacement");
 

@@ -157,7 +157,7 @@ internal static partial class Program
         samus = runtime.Samus!;
         AssertTrue(!runtime.Enemies.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.Slots[0];
-        ship.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
+        ship.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
         ship.VariableA = 100;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;

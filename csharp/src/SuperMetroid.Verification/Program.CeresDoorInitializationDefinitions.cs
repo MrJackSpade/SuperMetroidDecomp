@@ -22,7 +22,7 @@ internal static partial class Program
             CeresDoorInitializationDefinition definition =
                 CeresDoorInitializationDefinitions.For(variant);
             AssertEqual(ReadCeresDoorInitializationWord(rom, functionTable + variant * 2),
-                definition.MainFunction,
+                (ushort)definition.MainFunction,
                 $"Ceres door function selector {variant}");
             AssertEqual(ReadCeresDoorInitializationWord(rom, instructionTable + variant * 2),
                 definition.InstructionList,
@@ -37,7 +37,7 @@ internal static partial class Program
 
             initialize.Invoke(enemies, [slot]);
 
-            AssertEqual(definition.MainFunction, slot.VariableA,
+            AssertEqual((ushort)definition.MainFunction, slot.VariableA,
                 $"production Ceres door function selector {variant}");
             AssertEqual(definition.InstructionList, slot.CurrentInstruction,
                 $"production Ceres door instruction selector {variant}");

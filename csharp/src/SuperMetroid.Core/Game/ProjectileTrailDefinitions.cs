@@ -35,16 +35,20 @@ public static class ProjectileTrailDefinitions
         0xa96b,
     ];
 
-    /// <summary>$90:B5FB/B5FD: native missile and super-missile trail selection indices.</summary>
-    private const int MissileSelection = 0x20;
-    /// <summary>$90:B5FD: super-missile selector after native family-to-index conversion.</summary>
-    private const int SuperMissileSelection = 0x21;
-    /// <summary>$90:B603-B607/$B651-B655: three Spazer SBA trail selections.</summary>
-    private const int SpazerSbaFirstSelection = 0x24;
-    /// <summary>$90:B605/$B653: middle Spazer SBA selector uses distinct left/right ice trails.</summary>
-    private const int SpazerSbaMiddleSelection = 0x25;
-    /// <summary>$90:B607/$B655: final Spazer SBA selector shares the left ice trail on both sides.</summary>
-    private const int SpazerSbaLastSelection = 0x26;
+    /// <summary>The non-beam trail selections with a trail list; every other one draws none.</summary>
+    private enum SpecialSelection
+    {
+        /// <summary>$90:B5FB/B5FD: native missile trail selection index.</summary>
+        Missile = 0x20,
+        /// <summary>$90:B5FD: super-missile selector after native family-to-index conversion.</summary>
+        SuperMissile = 0x21,
+        /// <summary>$90:B603/$B651: first of the three Spazer SBA trail selections.</summary>
+        SpazerSbaFirst = 0x24,
+        /// <summary>$90:B605/$B653: middle Spazer SBA selector uses distinct left/right ice trails.</summary>
+        SpazerSbaMiddle = 0x25,
+        /// <summary>$90:B607/$B655: final Spazer SBA selector shares the left ice trail on both sides.</summary>
+        SpazerSbaLast = 0x26,
+    }
 
     /// <summary>Returns the complete bounded native selector window, including left-table overlap and adjacent observations.</summary>
     public static ushort ReadSelector(int address)
@@ -59,14 +63,19 @@ public static class ProjectileTrailDefinitions
 
     private static ushort Select(int selection, bool right)
     {
-        if (selection >= MissileSelection)
-            return selection switch
+        if (selection >= (int)SpecialSelection.Missile)
+        {
+            var special = (SpecialSelection)selection;
+            if (!Enum.IsDefined(special))
+                return Empty;
+            return special switch
             {
-                MissileSelection or SuperMissileSelection => right ? Empty : Missile,
-                SpazerSbaFirstSelection or SpazerSbaLastSelection => LeftIce,
-                SpazerSbaMiddleSelection => right ? RightIce : LeftIce,
-                _ => Empty,
+                SpecialSelection.Missile or SpecialSelection.SuperMissile => right ? Empty : Missile,
+                SpecialSelection.SpazerSbaFirst or SpecialSelection.SpazerSbaLast => LeftIce,
+                SpecialSelection.SpazerSbaMiddle => right ? RightIce : LeftIce,
+                _ => throw new InvalidOperationException($"Undefined SpecialSelection {special}."),
             };
+        }
         var type = new SamusProjectileTypeWord((ushort)selection);
         bool charged = type.IsChargedBeam;
         // Ice draws its sparkle unless Spazer and Plasma are both present.

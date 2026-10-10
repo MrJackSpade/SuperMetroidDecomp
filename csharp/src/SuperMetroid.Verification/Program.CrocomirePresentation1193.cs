@@ -93,7 +93,7 @@ internal static partial class Program
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {
-            boss.DeathSequenceIndex = CrocomireDeathPhases.RumbleHiddenWall;
+            boss.DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall;
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
             boss.StepCounter = 6;
             death.RumbleYOffset = 0;
@@ -183,7 +183,7 @@ internal static partial class Program
             roomMain.Invoke(runtime, null);
             AssertEqual((ushort)103, scroll.Bg1VerticalScroll, "Invisible body suppresses the native room callback");
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
-            boss.DeathSequenceIndex = CrocomireDeathPhases.BreakSpikeWall;
+            boss.DeathSequenceIndex = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateScrollsAndUpdates();
             roomMain.Invoke(runtime, null);

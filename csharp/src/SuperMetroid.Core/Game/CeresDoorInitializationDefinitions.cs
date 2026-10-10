@@ -14,7 +14,7 @@ internal enum CeresDoorVariant : ushort
 
 /// <summary>Initial main-function and instruction-list selection for one Ceres-door actor.</summary>
 internal readonly record struct CeresDoorInitializationDefinition(
-    ushort MainFunction,
+    CeresDoorFunction MainFunction,
     ushort InstructionList);
 
 /// <summary>
@@ -22,11 +22,6 @@ internal readonly record struct CeresDoorInitializationDefinition(
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {
-    /// <summary>
-    /// <c>Function_CeresDoor_RotatingElevatorRoom_Default</c> at <c>$A6:F7BD</c>.
-    /// </summary>
-    internal const ushort RotatingElevatorRoomDefaultFunction = 0xf7bd;
-
     /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at <c>$A6:F56C</c>.</summary>
     private const ushort NormalFacingRightInstructionList =
         CeresDoorInstructionProgramDefinitions.NormalFacingRight;
@@ -84,25 +79,25 @@ internal static class CeresDoorInitializationDefinitions
         (CeresDoorVariant)variant switch
         {
             CeresDoorVariant.NormalFacingRight => new(
-                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                CeresDoorFunction.HandleEarthquakeDuringEscape,
                 NormalFacingRightInstructionList),
             CeresDoorVariant.NormalFacingLeft => new(
-                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                CeresDoorFunction.HandleEarthquakeDuringEscape,
                 NormalFacingLeftInstructionList),
             CeresDoorVariant.RotatingElevatorPreExplosionOverlay => new(
-                RotatingElevatorRoomDefaultFunction,
+                CeresDoorFunction.RotatingElevatorRoomDefault,
                 RotatingElevatorPreExplosionOverlayInstructionList),
             CeresDoorVariant.RidleyRoomFacingRight => new(
-                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom,
+                CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom,
                 RidleyRoomFacingRightInstructionList),
             CeresDoorVariant.RotatingElevatorInvisibleWall => new(
-                CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape,
+                CeresDoorFunction.HandleEarthquakeDuringEscape,
                 RotatingElevatorInvisibleWallInstructionList),
             CeresDoorVariant.RidleyEscapeMode7LeftWall => new(
-                CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
+                CeresDoorFunction.RidleyEscapeMode7Wall,
                 RidleyEscapeMode7LeftWallInstructionList),
             CeresDoorVariant.RidleyEscapeMode7RightWall => new(
-                CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall,
+                CeresDoorFunction.RidleyEscapeMode7Wall,
                 RidleyEscapeMode7RightWallInstructionList),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(variant), variant, "Ceres door initialization variant must be zero through six."),

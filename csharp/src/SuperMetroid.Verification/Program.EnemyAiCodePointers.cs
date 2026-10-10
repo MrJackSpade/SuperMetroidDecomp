@@ -5,22 +5,20 @@ internal static partial class Program
 {
     /// <summary>
     /// Audits the production enemy callback catalog rather than maintaining a second hand-written
-    /// list in the verifier. The root fields are complete 24-bit initialization/main entry points;
+    /// list in the verifier. The EnemyAiRoutine members are complete 24-bit initialization/main entry points;
     /// the nested bank containers hold the 16-bit interaction callbacks stored in enemy headers.
     /// </summary>
     static void VerifyEnemyAiCodePointerCatalog()
     {
-        FieldInfo[] longEntryPoints = CatalogFields.Of(typeof(EnemyAiCodePointers), BindingFlags.Public | BindingFlags.Static)
-            .Where(field => field.IsLiteral && field.FieldType == typeof(int))
-            .ToArray();
+        EnemyAiRoutine[] longEntryPoints = Enum.GetValues<EnemyAiRoutine>();
         AssertTrue(longEntryPoints.Length != 0,
-            "enemy AI catalog contains 24-bit initialization/main entry points");
+            "enemy AI routines contain 24-bit initialization/main entry points");
 
-        foreach (FieldInfo field in longEntryPoints)
+        foreach (EnemyAiRoutine routine in longEntryPoints)
         {
-            int address = (int)field.GetRawConstantValue()!;
+            int address = (int)routine;
             AssertTrue(address is >= 0x808000 and <= 0xffffff,
-                $"enemy AI entry {field.Name} is a mapped 24-bit cartridge address");
+                $"enemy AI entry {routine} is a mapped 24-bit cartridge address");
         }
 
         Type[] bankCatalogs = typeof(EnemyAiCodePointers)

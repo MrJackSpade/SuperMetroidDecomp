@@ -14,9 +14,11 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
-        switch (callback)
+        CrocomireHitboxShotCallback shot =
+            ClosedNativeWords.Decode<CrocomireHitboxShotCallback>(callback, "Crocomire hitbox shot AI");
+        switch (shot)
         {
-            case CrocomireNoOpHitboxShotAi:
+            case CrocomireHitboxShotCallback.NoOp:
             {
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
@@ -28,12 +30,12 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            case CrocomireDustHitboxShotAi:
-            case CrocomireAlternateDustHitboxShotAi:
+            case CrocomireHitboxShotCallback.Dust:
+            case CrocomireHitboxShotCallback.AlternateDust:
                 SpawnCrocomireShotDust(projectileType, projectileX, projectileY);
                 return;
 
-            case CrocomireMouthShotAi:
+            case CrocomireHitboxShotCallback.Mouth:
                 ResolveCrocomireMouthShot(
                     state,
                     body,
@@ -42,13 +44,12 @@ public sealed partial class RoomEnemySystem
                     projectileY);
                 return;
 
-            case CrocomireHeaderTouchAi:
+            case CrocomireHitboxShotCallback.HeaderReturn:
                 // Some extended-map records deliberately point at the body header's RTL.
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Crocomire hitbox shot AI $A4:{callback:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined CrocomireHitboxShotCallback {shot}.");
         }
     }
 
@@ -134,7 +135,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveCrocomirePowerBombReaction(RoomEnemySlot body)
     {
         CrocomireEnemyState state = RequireCrocomire(body);
-        if (state.DeathSequenceIndex != 0)
+        if (state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
 
         state.StepCounter = 3;

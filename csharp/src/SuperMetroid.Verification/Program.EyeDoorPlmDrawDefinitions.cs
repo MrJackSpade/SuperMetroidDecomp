@@ -170,9 +170,9 @@ internal static partial class Program
         int eyeBlock = eyeY * width + eyeX;
         for (int frame = 0; frame < 1024 &&
              plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
-                 .PreInstruction != EyeDoorPlmRomData.MissileHitPreInstruction; frame++)
+                 .PreInstruction != (ushort)EyeDoorPreInstruction.MissileHit; frame++)
             plms.Step(guarded, level, streamer, 0, 0, 0);
-        AssertEqual(EyeDoorPlmRomData.MissileHitPreInstruction,
+        AssertEqual((ushort)EyeDoorPreInstruction.MissileHit,
             plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
                 .PreInstruction,
             $"{orientation} retail eye-door program arms its missile pre-instruction");

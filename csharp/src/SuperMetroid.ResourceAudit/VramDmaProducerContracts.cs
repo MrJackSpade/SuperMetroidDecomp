@@ -18,7 +18,8 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadTorizoFrameVramTransfers", "C38E4E76EC0C8172695329818A80151767AC4D67412EBE7962AF0C9203BEE66F") => "dead-torizo",
             ("SuperMetroid.Core.Game.RoomEnemySystem.AdvanceKraidDeathBg3Transfer", "D22EF4DF07D73003473126C8FBB09CE03DF6BC26521AB970B5F71AEA4087312C") => "kraid",
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGraphicsUploads", "CF1DA21493A234AACBF7191BBD0264A72F282D3224338BF0C019FFD46F2543A0") => "enemies",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "09170F3259C9B6D9D6C8DE016CCCF4B2A554BA3DEF536BEBC66FF9C0C23097B1") => "gunship",
+            // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
             ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "71A7789688B774B2A32EB48B793BE93363C555C6C461C1FEC7240A4D59B923D7") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",

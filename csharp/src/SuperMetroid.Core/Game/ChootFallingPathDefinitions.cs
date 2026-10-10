@@ -7,15 +7,15 @@ internal readonly record struct ChootFallingPathPoint(ushort XOffset, ushort YOf
     internal bool IsTerminator => XOffset == 0x8000;
 }
 
-/// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>
-internal static class ChootFallingPathDefinitions
+/// <summary>The five bank-$A2 Choot falling-path streams, valued by native address.</summary>
+internal enum ChootFallingPath : ushort
 {
     /// <summary>$A2:D84C, normal falling motion.</summary>
-    internal const ushort NormalPointer = 0xd84c;
+    Normal = 0xd84c,
     /// <summary>$A2:D976, wide falling motion.</summary>
-    internal const ushort WidePointer = 0xd976;
+    Wide = 0xd976,
     /// <summary>$A2:DAA0, very wide falling motion.</summary>
-    internal const ushort VeryWidePointer = 0xdaa0;
+    VeryWide = 0xdaa0,
 
     /// <summary>
     /// <c>$A2:DBCA-$A2:DD41</c>: the normal path with ten extra copies of
@@ -23,10 +23,10 @@ internal static class ChootFallingPathDefinitions
     /// physical frames 73..82. Physical frame 93 remains the terminator.
     /// All 188 physical words match this expansion in the pinned NTSC J/U
     /// v1.0 ROM; <c>$DD42</c> is the separate loop Y distance. The bounded
-    /// mapping is applied by <see cref="CollapseExpandedPlateaus"/>.
+    /// mapping is applied by <see cref="ChootFallingPathDefinitions"/>.
     /// Investigation: #625 / #658.
     /// </summary>
-    internal const ushort SlowPointer = 0xdbca;
+    Slow = 0xdbca,
 
     /// <summary>
     /// <c>$A2:DD44-$A2:DF5B</c>: the normal path with thirty extra copies of
@@ -34,11 +34,15 @@ internal static class ChootFallingPathDefinitions
     /// physical frames 93..122. Physical frame 133 is the terminator.
     /// All 268 physical words match this expansion in the pinned NTSC J/U
     /// v1.0 ROM; <c>$DF5C</c> is the separate loop Y distance. The bounded
-    /// mapping is applied by <see cref="CollapseExpandedPlateaus"/>.
+    /// mapping is applied by <see cref="ChootFallingPathDefinitions"/>.
     /// Investigation: #625 / #659.
     /// </summary>
-    internal const ushort VerySlowPointer = 0xdd44;
+    VerySlow = 0xdd44,
+}
 
+/// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>
+internal static class ChootFallingPathDefinitions
+{
     private const int PositivePlateauIndex = 28;
     private const int NegativePlateauIndex = 63;
     private const int SlowPlateauFrames = 10;
@@ -136,32 +140,35 @@ internal static class ChootFallingPathDefinitions
     ];
 
     /// <summary>Returns the exact physical sample selected by a native path pointer and frame.</summary>
-    internal static ChootFallingPathPoint At(ushort pointer, int frameIndex)
+    internal static ChootFallingPathPoint At(ushort pointer, int frameIndex) =>
+        At(ClosedNativeWords.Decode<ChootFallingPath>(pointer, "Choot falling-pattern stream"), frameIndex);
+
+    /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
+    internal static ChootFallingPathPoint At(ChootFallingPath pointer, int frameIndex)
     {
         ReadOnlySpan<ushort> path;
         int expandedFrames = 0;
         switch (pointer)
         {
-            case NormalPointer:
+            case ChootFallingPath.Normal:
                 path = Normal;
                 break;
-            case WidePointer:
+            case ChootFallingPath.Wide:
                 path = Wide;
                 break;
-            case VeryWidePointer:
+            case ChootFallingPath.VeryWide:
                 path = VeryWide;
                 break;
-            case SlowPointer:
+            case ChootFallingPath.Slow:
                 path = Normal;
                 expandedFrames = SlowPlateauFrames;
                 break;
-            case VerySlowPointer:
+            case ChootFallingPath.VerySlow:
                 path = Normal;
                 expandedFrames = VerySlowPlateauFrames;
                 break;
             default:
-                throw new InvalidDataException(
-                    $"Choot falling-pattern pointer ${pointer:X4} is not an authored stream.");
+                throw new InvalidOperationException($"Undefined ChootFallingPath {pointer}.");
         }
 
         int sourceFrame = CollapseExpandedPlateaus(frameIndex, expandedFrames);
@@ -169,7 +176,7 @@ internal static class ChootFallingPathDefinitions
         if ((uint)(wordIndex + 1) >= (uint)path.Length)
         {
             throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} exceeds stream ${pointer:X4}.");
+                $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)pointer:X4}.");
         }
 
         return new ChootFallingPathPoint(path[wordIndex], path[wordIndex + 1]);

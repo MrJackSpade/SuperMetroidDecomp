@@ -17,7 +17,7 @@ internal static class TextAndMapClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs", "D37D71282946543594B6C1FF3881E222D5A2C9F5C085833F53F43BE6C53FCE52")]),
         new("SuperMetroid.Core.Assets.CreditsPresentation", "credits-loaded-complete-row-domain", ["GetRow"],
             [new("csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs", "0595E22D2175E47BEE610CC7E3C598E1A4F47CD5689A1162260EBF9970F5705E"),
-             new("csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs", "ACF3A10FD8CF547AA839113E0635CA6317475D0D32CE8D97DC8422DB06A18194"),
+             new("csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs", "D72D6569C182EA810D4650929AD87D9E382B0769B2073BEC649D575B0B48945D"),
              new("csharp/src/SuperMetroid.Core/Assets/EndingTextDefinitions.cs", "D37D71282946543594B6C1FF3881E222D5A2C9F5C085833F53F43BE6C53FCE52")]),
         new("SuperMetroid.Core.Assets.MapSpriteCatalog", "map-sprite-complete-named-compositions", ["Draw", "LoadArtworkTo"],
             [new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "595FA48EE3F54462D44422E1739F0782866FB3673B899E9218B00FEBEE270BB5"),

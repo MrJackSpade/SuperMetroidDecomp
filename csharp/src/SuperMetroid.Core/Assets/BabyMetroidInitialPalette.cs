@@ -24,24 +24,31 @@ internal sealed class BabyMetroidInitialPalette
         return supplied is null ? Calculate(color) : supplied[color];
     }
 
-    private static Bgr555 Calculate(int color) => color switch
+    private static Bgr555 Calculate(int color)
     {
-        DomeHighlightColor => DomeHighlight,
-        DomeSurfaceColor => DomeSurface,
-        DomeShadowColor => DomeShadow,
-        DomeRimColor => DomeRim,
-        InnardGlint => Glint(InnardLightPaint),
-        InnardLight => InnardLightPaint,
-        InnardLightShade or InnardDarkShade => InnardShade(InnardLightPaint, InnardDarkPaint, color - InnardLight),
-        InnardDark => InnardDarkPaint,
-        BabyMetroidCutsceneColorRomData.InitialFangLightColor => FangLight,
-        BabyMetroidCutsceneColorRomData.InitialFangMiddleColor => Midpoint(FangLight, FangDark),
-        BabyMetroidCutsceneColorRomData.InitialFangDarkColor => FangDark,
-        FangOutlineColor => FangOutline,
-        BabyMetroidCutsceneColorRomData.InitialWhiteColor => Bgr555.White,
-        BabyMetroidCutsceneColorRomData.InitialBlackColor => Bgr555.Black,
-        _ => throw new ArgumentOutOfRangeException(nameof(color)),
-    };
+        var slot = (BabyMetroidInitialColorSlot)color;
+        if (!Enum.IsDefined(slot))
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return slot switch
+        {
+            BabyMetroidInitialColorSlot.DomeHighlight => DomeHighlight,
+            BabyMetroidInitialColorSlot.DomeSurface => DomeSurface,
+            BabyMetroidInitialColorSlot.DomeShadow => DomeShadow,
+            BabyMetroidInitialColorSlot.DomeRim => DomeRim,
+            BabyMetroidInitialColorSlot.InnardGlint => Glint(InnardLightPaint),
+            BabyMetroidInitialColorSlot.InnardLight => InnardLightPaint,
+            BabyMetroidInitialColorSlot.InnardLightShade or BabyMetroidInitialColorSlot.InnardDarkShade =>
+                InnardShade(InnardLightPaint, InnardDarkPaint, slot - BabyMetroidInitialColorSlot.InnardLight),
+            BabyMetroidInitialColorSlot.InnardDark => InnardDarkPaint,
+            BabyMetroidInitialColorSlot.FangLight => FangLight,
+            BabyMetroidInitialColorSlot.FangMiddle => Midpoint(FangLight, FangDark),
+            BabyMetroidInitialColorSlot.FangDark => FangDark,
+            BabyMetroidInitialColorSlot.FangOutline => FangOutline,
+            BabyMetroidInitialColorSlot.White => Bgr555.White,
+            BabyMetroidInitialColorSlot.Black => Bgr555.Black,
+            _ => throw new InvalidOperationException($"Undefined BabyMetroidInitialColorSlot {slot}."),
+        };
+    }
 
     private static Bgr555 Glint(Bgr555 light) =>
         light.Map((_, channel) => Math.Min(Bgr555.MaxChannel, channel + InnardGlintAddition));
@@ -50,7 +57,7 @@ internal sealed class BabyMetroidInitialPalette
     {
         int lightRed = light.Red, darkRed = dark.Red;
         int intervals = lightRed - darkRed;
-        int shadeIntervals = InnardDark - InnardLight;
+        int shadeIntervals = BabyMetroidInitialColorSlot.InnardDark - BabyMetroidInitialColorSlot.InnardLight;
         int denominator = shadeIntervals * shadeIntervals * shadeIntervals;
         int weight = shade * shade * (3 * shadeIntervals - 2 * shade);
         // Standard smoothstep, rounded to the nearest RGB5 red level; no historical-tool claim.

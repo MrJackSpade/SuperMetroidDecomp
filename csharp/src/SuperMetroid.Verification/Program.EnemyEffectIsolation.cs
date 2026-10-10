@@ -25,12 +25,12 @@ internal static partial class Program
             AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
             AssertTrue(tail.AsSpan().SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
                 "native overlapping copies retain the unwritten scratch tail");
-            ushort phase = baseline.Actor.DeathSequenceIndex;
+            ushort phase = (ushort)baseline.Actor.DeathSequenceIndex;
             for (int record = 0; record <= pass.Uploads.Length; record++)
             {
                 baseline.Call("UploadNextCrocomireMeltingGraphicsSlice"); edited.Call("UploadNextCrocomireMeltingGraphicsSlice");
                 AssertCrocomireEffectMechanics(baseline, edited, "melt upload " + record);
-                AssertEqual((ushort)(phase + (record == pass.Uploads.Length ? 2 : 0)), baseline.Actor.DeathSequenceIndex,
+                AssertEqual((ushort)(phase + (record == pass.Uploads.Length ? 2 : 0)), (ushort)baseline.Actor.DeathSequenceIndex,
                     "only the native transfer terminator advances the phase");
                 if (record < pass.Uploads.Length)
                 {
@@ -42,7 +42,7 @@ internal static partial class Program
             }
 
             baseline.Call("BeginCrocomireMelting"); edited.Call("BeginCrocomireMelting");
-            phase = baseline.Actor.DeathSequenceIndex;
+            phase = (ushort)baseline.Actor.DeathSequenceIndex;
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
@@ -52,7 +52,7 @@ internal static partial class Program
                 baseline.Dissolve(); edited.Dissolve();
                 AssertCrocomireEffectMechanics(baseline, edited, "melt dissolve call " + call);
                 AssertEqual(call < calls, baseline.Effect.MeltingHdmaActive, "exact HDMA lifetime");
-                AssertEqual((ushort)(phase + (call == calls ? 2 : 0)), baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
+                AssertEqual((ushort)(phase + (call == calls ? 2 : 0)), (ushort)baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
                 AssertEqual((ushort)Math.Min(call - 1, CrocomireMeltingDefinitions.ColumnCount),
                     baseline.Effect.MeltingColumnCursor, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,

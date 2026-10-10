@@ -186,9 +186,14 @@ public static class SamusProjectileRomData
     {
         /// <summary>Bytes in one ordinary bank-$93 timer/spritemap/radius/frame record.</summary>
         public const int AnimationRecordByteCount = 8;
-        /// <summary><c>$93:822F</c>, delete the current projectile slot.</summary>
-        public const ushort Delete = 0x822f;
-        /// <summary><c>$93:8239</c>, replace the instruction-list cursor.</summary>
-        public const ushort GoTo = 0x8239;
     }
+}
+
+/// <summary>The two bank-$93 projectile instruction routines referenced by retail lists.</summary>
+public enum SamusProjectileInstruction : ushort
+{
+    /// <summary><c>$93:822F</c>, delete the current projectile slot.</summary>
+    Delete = 0x822f,
+    /// <summary><c>$93:8239</c>, replace the instruction-list cursor.</summary>
+    GoTo = 0x8239,
 }

@@ -43,8 +43,8 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// </summary>
     private static ushort DrawForProgram(MotherBrainFakeDeathProgram program) => program switch
     {
-        MotherBrainFakeDeathProgram.FillWall => MotherBrainFakeDeathPlmDrawDefinitions.FillWall,
-        MotherBrainFakeDeathProgram.EscapeDoor => MotherBrainFakeDeathPlmDrawDefinitions.EscapeDoor,
+        MotherBrainFakeDeathProgram.FillWall => (ushort)MotherBrainFakeDeathDraw.FillWall,
+        MotherBrainFakeDeathProgram.EscapeDoor => (ushort)MotherBrainFakeDeathDraw.EscapeDoor,
         MotherBrainFakeDeathProgram.BackgroundRow2 or
         MotherBrainFakeDeathProgram.BackgroundRow3 or
         MotherBrainFakeDeathProgram.BackgroundRow4 or
@@ -59,14 +59,14 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
         MotherBrainFakeDeathProgram.BackgroundRowD or
         MotherBrainFakeDeathProgram.BackgroundRowE or
         MotherBrainFakeDeathProgram.BackgroundRowF =>
-            (ushort)(MotherBrainFakeDeathPlmDrawDefinitions.BackgroundRow2 +
+            (ushort)((ushort)MotherBrainFakeDeathDraw.BackgroundRow2 +
                 ((ushort)program - (ushort)MotherBrainFakeDeathProgram.BackgroundRow2) / ProgramByteLength * 30),
-        MotherBrainFakeDeathProgram.ClearCeilingBlock => MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingBlock,
-        MotherBrainFakeDeathProgram.ClearCeilingTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearCeilingTube,
-        MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleSideTube,
-        MotherBrainFakeDeathProgram.ClearBottomMiddleTubes => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomMiddleTubes,
-        MotherBrainFakeDeathProgram.ClearBottomLeftTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomLeftTube,
-        MotherBrainFakeDeathProgram.ClearBottomRightTube => MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
+        MotherBrainFakeDeathProgram.ClearCeilingBlock => (ushort)MotherBrainFakeDeathDraw.ClearCeilingBlock,
+        MotherBrainFakeDeathProgram.ClearCeilingTube => (ushort)MotherBrainFakeDeathDraw.ClearCeilingTube,
+        MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube => (ushort)MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube,
+        MotherBrainFakeDeathProgram.ClearBottomMiddleTubes => (ushort)MotherBrainFakeDeathDraw.ClearBottomMiddleTubes,
+        MotherBrainFakeDeathProgram.ClearBottomLeftTube => (ushort)MotherBrainFakeDeathDraw.ClearBottomLeftTube,
+        MotherBrainFakeDeathProgram.ClearBottomRightTube => (ushort)MotherBrainFakeDeathDraw.ClearBottomRightTube,
         _ => throw new InvalidOperationException($"Undefined MotherBrainFakeDeathProgram {program}."),
     };
 }

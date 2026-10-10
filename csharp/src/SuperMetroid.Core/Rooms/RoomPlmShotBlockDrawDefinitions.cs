@@ -1,5 +1,16 @@
 namespace SuperMetroid.Core.Rooms;
 
+/// <summary>The three bank-$84 shot-block collision-parent restoration draw lists, valued by native address.</summary>
+internal enum ShotBlockRestoreDraw : ushort
+{
+    /// <summary>Final two-block horizontal collision-parent restoration, <c>$84:A47B</c>.</summary>
+    Horizontal = 0xa47b,
+    /// <summary>Final two-block vertical collision-parent restoration, <c>$84:A483</c>.</summary>
+    Vertical = 0xa483,
+    /// <summary>Final four-block square collision-parent restoration, <c>$84:A48B</c>.</summary>
+    Square = 0xa48b,
+}
+
 /// <summary>
 /// Immutable bank-$84 level-word mutations drawn by the ordinary shot-block PLMs.
 /// Each word contains both collision type and a visual block reference; keeping the
@@ -15,12 +26,6 @@ internal static class RoomPlmShotBlockDrawDefinitions
     internal const ushort VerticalFrame0 = 0xa37d;
     /// <summary>First square breakup draw list, <c>$84:A39D</c>.</summary>
     internal const ushort SquareFrame0 = 0xa39d;
-    /// <summary>Final two-block horizontal collision-parent restoration, <c>$84:A47B</c>.</summary>
-    internal const ushort RestoreHorizontal = 0xa47b;
-    /// <summary>Final two-block vertical collision-parent restoration, <c>$84:A483</c>.</summary>
-    internal const ushort RestoreVertical = 0xa483;
-    /// <summary>Final four-block square collision-parent restoration, <c>$84:A48B</c>.</summary>
-    internal const ushort RestoreSquare = 0xa48b;
 
     /// <summary>One native record: direction/count, complete level words, then the signed offset to the next record.</summary>
     internal readonly record struct Run(
@@ -70,13 +75,21 @@ internal static class RoomPlmShotBlockDrawDefinitions
             TryFrames(pointer, HorizontalFrame0, 8, Shape.Horizontal, out draw) ||
             TryFrames(pointer, VerticalFrame0, 8, Shape.Vertical, out draw) ||
             TryFrames(pointer, SquareFrame0, 16, Shape.Square, out draw)) return true;
-        switch (pointer)
+        var restore = (ShotBlockRestoreDraw)pointer;
+        if (!Enum.IsDefined(restore))
         {
-            case RestoreHorizontal: draw = new(pointer, Shape.Horizontal, 0, true); return true;
-            case RestoreVertical: draw = new(pointer, Shape.Vertical, 0, true); return true;
-            case RestoreSquare: draw = new(pointer, Shape.Square, 0, true); return true;
-            default: draw = default; return false;
+            draw = default;
+            return false;
         }
+        Shape layout = restore switch
+        {
+            ShotBlockRestoreDraw.Horizontal => Shape.Horizontal,
+            ShotBlockRestoreDraw.Vertical => Shape.Vertical,
+            ShotBlockRestoreDraw.Square => Shape.Square,
+            _ => throw new InvalidOperationException($"Undefined ShotBlockRestoreDraw {restore}."),
+        };
+        draw = new(pointer, layout, 0, true);
+        return true;
     }
 
     private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
@@ -104,9 +117,9 @@ internal static class RoomPlmShotBlockDrawDefinitions
                 yield return Describe((ushort)(VerticalFrame0 + frame * 8));
                 yield return Describe((ushort)(SquareFrame0 + frame * 16));
             }
-            yield return Describe(RestoreHorizontal);
-            yield return Describe(RestoreVertical);
-            yield return Describe(RestoreSquare);
+            yield return Describe((ushort)ShotBlockRestoreDraw.Horizontal);
+            yield return Describe((ushort)ShotBlockRestoreDraw.Vertical);
+            yield return Describe((ushort)ShotBlockRestoreDraw.Square);
         }
     }
 

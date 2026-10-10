@@ -25,9 +25,9 @@ internal static partial class Program
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstructionCodes),
             typeof(SpacePirateInstructionCodes),
-            typeof(SporeSpawnInstructionCodes),
+            typeof(SporeSpawnInstruction),
             typeof(TorizoInstructionCodes),
-            typeof(WorkRobotInstructionCodes),
+            typeof(WorkRobotInstruction),
         ];
         foreach (Type catalog in codeCatalogs)
             AssertUniqueMappedInstructionPointers(catalog);
@@ -85,6 +85,7 @@ internal static partial class Program
     }
 
     private static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
-        .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
+        .Where(field => field.IsLiteral && (field.FieldType == typeof(ushort) ||
+            (catalog.IsEnum && field.FieldType == catalog && Enum.GetUnderlyingType(catalog) == typeof(ushort))))
         .ToArray();
 }

@@ -60,7 +60,7 @@ public sealed class ManagedSnesDsp
     public void Reset()
     {
         Array.Clear(registers);
-        registers[SnesDspRegisterMap.Global.EndFlags] = byte.MaxValue;
+        registers[(byte)DspGlobalRegister.EndFlags] = byte.MaxValue;
         foreach (Voice voice in voices)
             voice.Reset();
         mute = true;
@@ -161,75 +161,79 @@ public sealed class ManagedSnesDsp
             }
         }
 
-        switch (address)
+        if ((address & SnesDspRegisterMap.VoiceRegisterMask) == SnesDspRegisterMap.FirstFirCoefficient)
         {
-            case SnesDspRegisterMap.Global.MasterVolumeLeft:
+            firValues[voiceIndex] = unchecked((sbyte)value);
+        }
+        else if (SnesDspRegisterMap.GlobalRegisterAt(address) is DspGlobalRegister globalRegister)
+        {
+            switch (globalRegister)
+            {
+            case DspGlobalRegister.MasterVolumeLeft:
                 masterVolumeLeft = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Global.MasterVolumeRight:
+            case DspGlobalRegister.MasterVolumeRight:
                 masterVolumeRight = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Global.EchoVolumeLeft:
+            case DspGlobalRegister.EchoVolumeLeft:
                 echoVolumeLeft = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Global.EchoVolumeRight:
+            case DspGlobalRegister.EchoVolumeRight:
                 echoVolumeRight = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Global.KeyOn:
+            case DspGlobalRegister.KeyOn:
                 for (int index = 0; index < VoiceCount; index++)
                 {
                     if ((value & (1 << index)) != 0)
                         KeyOn(voices[index]);
                 }
                 break;
-            case SnesDspRegisterMap.Global.KeyOff:
+            case DspGlobalRegister.KeyOff:
                 for (int index = 0; index < VoiceCount; index++)
                 {
                     if ((value & (1 << index)) != 0)
                         voices[index].AdsrState = EnvelopeState.Release;
                 }
                 break;
-            case SnesDspRegisterMap.Global.Flags:
+            case DspGlobalRegister.Flags:
                 reset = (value & SnesDspRegisterMap.Fields.Reset) != 0;
                 mute = (value & SnesDspRegisterMap.Fields.Mute) != 0;
                 echoWrites = (value & SnesDspRegisterMap.Fields.EchoWriteDisable) == 0;
                 noiseRate = SnesDspTables.RatePeriod(value & SnesDspRegisterMap.Fields.NoiseRateMask);
                 break;
-            case SnesDspRegisterMap.Global.EndFlags:
+            case DspGlobalRegister.EndFlags:
                 value = 0;
                 break;
-            case SnesDspRegisterMap.Global.EchoFeedback:
+            case DspGlobalRegister.EchoFeedback:
                 feedbackVolume = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Global.PitchModulation:
+            case DspGlobalRegister.PitchModulation:
                 for (int index = 0; index < VoiceCount; index++)
                     voices[index].PitchModulation = (value & (1 << index)) != 0;
                 break;
-            case SnesDspRegisterMap.Global.NoiseEnable:
+            case DspGlobalRegister.NoiseEnable:
                 for (int index = 0; index < VoiceCount; index++)
                     voices[index].UseNoise = (value & (1 << index)) != 0;
                 break;
-            case SnesDspRegisterMap.Global.EchoEnable:
+            case DspGlobalRegister.EchoEnable:
                 for (int index = 0; index < VoiceCount; index++)
                     voices[index].EchoEnable = (value & (1 << index)) != 0;
                 break;
-            case SnesDspRegisterMap.Global.SourceDirectory:
+            case DspGlobalRegister.SourceDirectory:
                 // The extracted catalog has already resolved this BRR directory into stable
                 // source IDs. Preserve the register mirror because software can read it back.
                 break;
-            case SnesDspRegisterMap.Global.EchoBufferAddress:
+            case DspGlobalRegister.EchoBufferAddress:
                 echoBufferAddress = unchecked((ushort)(value << 8));
                 break;
-            case SnesDspRegisterMap.Global.EchoDelay:
+            case DspGlobalRegister.EchoDelay:
                 echoDelay = unchecked((ushort)((value & SnesDspRegisterMap.Fields.EchoDelayMask) * 512));
                 if (echoDelay == 0)
                     echoDelay = 1;
                 break;
-            case var firAddress when
-                (firAddress & SnesDspRegisterMap.VoiceRegisterMask) ==
-                    SnesDspRegisterMap.Global.FirstFirCoefficient:
-                firValues[voiceIndex] = unchecked((sbyte)value);
-                break;
+            default:
+                throw new InvalidOperationException($"Undefined DSP global register {globalRegister}.");
+            }
         }
         registers[address] = value;
     }
@@ -453,7 +457,7 @@ public sealed class ManagedSnesDsp
                 voice.AdsrState = EnvelopeState.Release;
                 voice.Gain = 0;
             }
-            registers[SnesDspRegisterMap.Global.EndFlags] |= unchecked((byte)(1 << voiceIndex));
+            registers[(byte)DspGlobalRegister.EndFlags] |= unchecked((byte)(1 << voiceIndex));
         }
 
         ReadOnlySpan<short> source = sample.Samples.Span;
@@ -465,7 +469,7 @@ public sealed class ManagedSnesDsp
                 if (sample.LoopSampleIndex is int loop)
                 {
                     voice.SampleCursor = loop;
-                    registers[SnesDspRegisterMap.Global.EndFlags] |=
+                    registers[(byte)DspGlobalRegister.EndFlags] |=
                         unchecked((byte)(1 << voiceIndex));
                 }
                 else
@@ -483,7 +487,7 @@ public sealed class ManagedSnesDsp
 
     private ushort ReadLoopAddress(byte source)
     {
-        int directory = (registers[SnesDspRegisterMap.Global.SourceDirectory] << 8) +
+        int directory = (registers[(byte)DspGlobalRegister.SourceDirectory] << 8) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
         return unchecked((ushort)(apuRam[directory & ushort.MaxValue] |
             apuRam[(directory + 1) & ushort.MaxValue] << 8));
@@ -501,7 +505,7 @@ public sealed class ManagedSnesDsp
         if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
         {
             cursor = ReadLoopAddress(voice.SourceNumber);
-            registers[SnesDspRegisterMap.Global.EndFlags] |= unchecked((byte)(1 << index));
+            registers[(byte)DspGlobalRegister.EndFlags] |= unchecked((byte)(1 << index));
         }
         voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
         voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));

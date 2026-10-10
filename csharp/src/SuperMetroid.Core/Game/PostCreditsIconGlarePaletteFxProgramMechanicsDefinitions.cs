@@ -61,20 +61,35 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
+    /// <summary>The program's header and terminal control-word addresses.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
+        ColorIndexOperand = ProgramStart + 2,
+        /// <summary>The terminal <c>Delete</c> opcode.</summary>
+        Delete = DeleteInstructionPointer,
+    }
+
     /// <summary>Named header/delete operations and duration/wait at offsets0/34 of
     /// each36-byte record. Exact finite pointer ownership excludes colors and odd bytes;
     /// independently checked by decoding the original stream through its delete.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        value = 0;
+        var control = (ControlWord)pointer;
+        if (Enum.IsDefined(control))
         {
-            ProgramStart => PaletteFxInstructionCodes.SetColorIndex,
-            ProgramStart + 2 => ColorByteIndex,
-            DeleteInstructionPointer => PaletteFxInstructionCodes.Delete,
-            _ => 0,
-        };
-        if (value != 0)
+            value = control switch
+            {
+                ControlWord.SetColorIndex => PaletteFxInstructionCodes.SetColorIndex,
+                ControlWord.ColorIndexOperand => ColorByteIndex,
+                ControlWord.Delete => PaletteFxInstructionCodes.Delete,
+                _ => throw new InvalidOperationException($"Undefined ControlWord {control}."),
+            };
             return true;
+        }
 
         int offset = pointer - FirstFramePointer;
         if ((uint)offset >= FrameCount * FrameByteCount) return false;

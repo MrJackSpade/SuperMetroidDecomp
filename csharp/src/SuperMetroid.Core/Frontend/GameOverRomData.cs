@@ -78,12 +78,6 @@ public static class GameOverRomData
         public const ushort AcceptedAnswerHoldDuration = 180;
         /// <summary>Native $FFFF animation sentinel, which restarts the stream at $82:BC27 rather than deleting the Baby or drawing a frame.</summary>
         public const ushort End = 0xffff;
-        /// <summary><c>$82:BC0C Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c>: queues library-three sound $23, then advances past the two-byte opcode.</summary>
-        public const ushort CryOpcode23 = 0xbc0c;
-        /// <summary><c>$82:BC15 Instruction_Queue_BabyMetroid_Cry2_SoundEffect</c>: queues library-three sound $26, then advances past the two-byte opcode.</summary>
-        public const ushort CryOpcode26 = 0xbc15;
-        /// <summary><c>$82:BC1E Instruction_Queue_BabyMetroid_Cry3_SoundEffect</c>: queues library-three sound $27, then advances past the two-byte opcode.</summary>
-        public const ushort CryOpcode27 = 0xbc1e;
         /// <summary>First Baby frame, ID $65 in the bounded $65+frame sequence.</summary>
         /// <remarks>Issues #625 and #971: GameOverBabyAnimationDefinitions.NativeSpritemap
         /// documents all 60 native frame records and the three spritemap pointers.</remarks>
@@ -164,3 +158,14 @@ public readonly record struct GameOverTextStream(
     int DestinationByteOffset,
     ushort SourcePointer,
     string Description);
+
+/// <summary>The three bank-$82 cry instructions in the game-over Baby animation stream.</summary>
+public enum GameOverBabyCryInstruction : ushort
+{
+    /// <summary><c>$82:BC0C Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c>: queues library-three sound $23, then advances past the two-byte opcode.</summary>
+    Cry23 = 0xbc0c,
+    /// <summary><c>$82:BC15 Instruction_Queue_BabyMetroid_Cry2_SoundEffect</c>: queues library-three sound $26, then advances past the two-byte opcode.</summary>
+    Cry26 = 0xbc15,
+    /// <summary><c>$82:BC1E Instruction_Queue_BabyMetroid_Cry3_SoundEffect</c>: queues library-three sound $27, then advances past the two-byte opcode.</summary>
+    Cry27 = 0xbc1e,
+}

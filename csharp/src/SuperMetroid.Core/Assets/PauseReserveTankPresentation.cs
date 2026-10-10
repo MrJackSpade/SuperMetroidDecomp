@@ -26,22 +26,22 @@ public sealed class PauseReserveTankPresentation
     /// <param name="nativeIdentity">The native bank-$82 spritemap identity selecting one of the ten visual roles.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
     /// <exception cref="InvalidDataException">The native visual identity is unknown.</exception>
-    public void Draw(OamBuffer oam, ushort nativeIdentity, int index)
+    public void Draw(OamBuffer oam, PauseReserveTankVisual nativeIdentity, int index)
     {
         var anchor = Anchor(index);
         var frame = nativeIdentity switch
         {
-            PauseReserveTankRomData.FullMap => frames.Full,
-            PauseReserveTankRomData.EndCapMap => frames.EndCap,
-            PauseReserveTankRomData.EmptyMap => frames.Empty,
-            PauseReserveTankRomData.EmptyMap + 1 => frames.Fill1,
-            PauseReserveTankRomData.EmptyMap + 2 => frames.Fill2,
-            PauseReserveTankRomData.EmptyMap + 3 => frames.Fill3,
-            PauseReserveTankRomData.EmptyMap + 4 => frames.Fill4,
-            PauseReserveTankRomData.EmptyMap + 5 => frames.Fill5,
-            PauseReserveTankRomData.EmptyMap + 6 => frames.Fill6,
-            PauseReserveTankRomData.EmptyMap + 7 => frames.Fill7,
-            _ => throw new InvalidDataException($"Unknown reserve visual {nativeIdentity:X4}."),
+            PauseReserveTankVisual.Full => frames.Full,
+            PauseReserveTankVisual.EndCap => frames.EndCap,
+            PauseReserveTankVisual.Empty => frames.Empty,
+            PauseReserveTankVisual.Fill1 => frames.Fill1,
+            PauseReserveTankVisual.Fill2 => frames.Fill2,
+            PauseReserveTankVisual.Fill3 => frames.Fill3,
+            PauseReserveTankVisual.Fill4 => frames.Fill4,
+            PauseReserveTankVisual.Fill5 => frames.Fill5,
+            PauseReserveTankVisual.Fill6 => frames.Fill6,
+            PauseReserveTankVisual.Fill7 => frames.Fill7,
+            _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
         if (frame is not null) frame.DrawOnScreen(oam, (ushort)anchor.X, (ushort)anchor.Y, paletteBits);
         else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
@@ -65,9 +65,9 @@ public sealed class PauseReserveTankPresentation
         foreach (var point in document.Anchors)
             if (point is null || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException("Reserve tank anchor requires screen coordinates X=0..255/Y=0..223.");
-        var frames = new FrameSet(Require("Full", PauseReserveTankRomData.FullMap), Require("EndCap", PauseReserveTankRomData.EndCapMap), Require("Empty", PauseReserveTankRomData.EmptyMap),
-            Require("Fill1", PauseReserveTankRomData.EmptyMap + 1), Require("Fill2", PauseReserveTankRomData.EmptyMap + 2), Require("Fill3", PauseReserveTankRomData.EmptyMap + 3), Require("Fill4", PauseReserveTankRomData.EmptyMap + 4), Require("Fill5", PauseReserveTankRomData.EmptyMap + 5), Require("Fill6", PauseReserveTankRomData.EmptyMap + 6), Require("Fill7", PauseReserveTankRomData.EmptyMap + 7));
-        SpriteComposition? Require(string name, ushort identity)
+        var frames = new FrameSet(Require("Full", PauseReserveTankVisual.Full), Require("EndCap", PauseReserveTankVisual.EndCap), Require("Empty", PauseReserveTankVisual.Empty),
+            Require("Fill1", PauseReserveTankVisual.Fill1), Require("Fill2", PauseReserveTankVisual.Fill2), Require("Fill3", PauseReserveTankVisual.Fill3), Require("Fill4", PauseReserveTankVisual.Fill4), Require("Fill5", PauseReserveTankVisual.Fill5), Require("Fill6", PauseReserveTankVisual.Fill6), Require("Fill7", PauseReserveTankVisual.Fill7));
+        SpriteComposition? Require(string name, PauseReserveTankVisual identity)
         {
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null)
                 throw new InvalidDataException($"Missing reserve tank frame {name}.");

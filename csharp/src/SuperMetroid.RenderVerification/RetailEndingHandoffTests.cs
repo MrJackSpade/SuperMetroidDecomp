@@ -41,10 +41,10 @@ internal static class RetailEndingHandoffTests
             var runtime = game.RuntimeForVerification!;
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
             var top = runtime.Enemies.Slots.First(slot =>
-                ((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) == EnemyAiCodePointers.InitAI_ShipTop);
+                ((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) == (int)EnemyAiRoutine.InitAI_ShipTop);
             // Stage the existing accelerating integrator near its native completion
             // threshold. It—not the fixture—publishes the frontend escape event.
-            top.VariableF = GunshipCodePointers.AcceleratingLiftoff;
+            top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
             // The staged hull starts outside this fixture's camera. Explicitly keep
             // its AI active; this is handoff coverage, not full departure validation.
             top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);

@@ -49,11 +49,11 @@ internal static partial class Program
             RoomPlmTourianAccessVisualCatalog edited =
                 installation.LoadRoomPlmTourianAccessVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord(TourianAccessPlmDrawDefinitions.CrumbleFirstPointer,
+                edited.GetWord((ushort)TourianAccessDraw.CrumbleFirst,
                     0, 0),
                 "Tourian override edits the first crumble frame");
             AssertEqual((ushort)0x0058,
-                edited.GetWord(TourianAccessPlmDrawDefinitions.ClearPointer, 5, 0),
+                edited.GetWord((ushort)TourianAccessDraw.Clear, 5, 0),
                 "Tourian override edits the last clear row independently");
 
             VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
@@ -65,7 +65,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0058,
                 RoomPlmTourianAccessVisualFiles.Load(refreshed,
                     installation.RoomPlmTourianAccessVisualOverrideDirectory)
-                    .GetWord(TourianAccessPlmDrawDefinitions.ClearPointer, 5, 0),
+                    .GetWord((ushort)TourianAccessDraw.Clear, 5, 0),
                 "Tourian override survives stock replacement");
 
             firstFrame["blocks"]![0] = 0xf058;

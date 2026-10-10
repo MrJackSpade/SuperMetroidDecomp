@@ -216,10 +216,10 @@ internal static partial class Program
             }
             AssertEqual((ushort)(pass.Uploads.Length * 8), death.MeltingTransferOffset,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} final transfer offset");
-            ushort phaseBeforeTerminator = state.DeathSequenceIndex;
+            ushort phaseBeforeTerminator = (ushort)state.DeathSequenceIndex;
             upload(state);
             AssertEqual(unchecked((ushort)(phaseBeforeTerminator + 2)),
-                state.DeathSequenceIndex,
+                (ushort)state.DeathSequenceIndex,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal phase");
             AssertEqual((ushort)0, death.MeltingTransferOffset,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal reset");
@@ -307,7 +307,7 @@ internal static partial class Program
         initialize(state);
         AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
             $"installed Crocomire melt pass ${pass.HeaderOffset:X4} transfer start");
-        AssertEqual((ushort)2, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt pass ${pass.HeaderOffset:X4} phase timing");
         byte[] scratch = death.MeltingGraphics.ToArray();
         foreach (CrocomireMeltingUpload record in pass.Uploads)
@@ -320,7 +320,7 @@ internal static partial class Program
                     $"installed Crocomire melt pass ${pass.HeaderOffset:X4} VRAM {index}");
         }
         upload(state);
-        AssertEqual((ushort)4, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.FirstSubmergedPause, state.DeathSequenceIndex,
             $"installed Crocomire melt pass ${pass.HeaderOffset:X4} terminal timing");
         return scratch;
     }
@@ -350,7 +350,7 @@ internal static partial class Program
         initialize(state);
         AssertEqual(bodyInstructionList, state.Body.CurrentInstruction,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
-        AssertEqual((ushort)2, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         AssertEqual((ushort)48, death.PixelsToErasePerColumn,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");

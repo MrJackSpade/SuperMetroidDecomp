@@ -46,7 +46,7 @@ internal static class TourianAccessPlmProgramDefinitions
             Crumble + 23 => checked((ushort)(Crumble + 3)),
             Crumble + 25 => (ushort)RoomPlmInstruction.Delete,
             Clear => 1,
-            Clear + 2 => TourianAccessPlmDrawDefinitions.ClearPointer,
+            Clear + 2 => (ushort)TourianAccessDraw.Clear,
             Clear + 4 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };

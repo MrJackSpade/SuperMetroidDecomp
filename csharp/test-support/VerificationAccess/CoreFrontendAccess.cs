@@ -157,14 +157,14 @@ internal static class GameOverRomDataBabyAnimationAccess
         /// identities select three distinct sound operations; use the named cases and
         /// reject unknown opcodes.
         /// </remarks>
-        internal static SoundEffectId ResolveCry(ushort opcode) => opcode switch
-        {
-            GameOverRomData.BabyAnimation.CryOpcode23 => GameOverRomData.BabyAnimation.Cry23,
-            GameOverRomData.BabyAnimation.CryOpcode26 => GameOverRomData.BabyAnimation.Cry26,
-            GameOverRomData.BabyAnimation.CryOpcode27 => GameOverRomData.BabyAnimation.Cry27,
-            _ => throw new InvalidDataException(
-                $"Unknown game-over Baby instruction $82:{opcode:X4}."),
-        };
+        internal static SoundEffectId ResolveCry(ushort opcode) =>
+            ClosedNativeWords.Decode<GameOverBabyCryInstruction>(opcode, "game-over Baby instruction") switch
+            {
+                GameOverBabyCryInstruction.Cry23 => GameOverRomData.BabyAnimation.Cry23,
+                GameOverBabyCryInstruction.Cry26 => GameOverRomData.BabyAnimation.Cry26,
+                GameOverBabyCryInstruction.Cry27 => GameOverRomData.BabyAnimation.Cry27,
+                var undefined => throw new InvalidOperationException($"Undefined GameOverBabyCryInstruction {undefined}."),
+            };
     }
 }
 

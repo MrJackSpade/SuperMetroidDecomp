@@ -190,9 +190,9 @@ public static class GameOverBabyAnimationDefinitions
     /// references were checked against pinned NTSC J/U v1.0 ROM.</remarks>
     public static ushort NativeSoundOpcode(GameOverBabySound sound) => sound switch
     {
-        GameOverBabySound.Cry23 => GameOverRomData.BabyAnimation.CryOpcode23,
-        GameOverBabySound.Cry26 => GameOverRomData.BabyAnimation.CryOpcode26,
-        GameOverBabySound.Cry27 => GameOverRomData.BabyAnimation.CryOpcode27,
+        GameOverBabySound.Cry23 => (ushort)GameOverBabyCryInstruction.Cry23,
+        GameOverBabySound.Cry26 => (ushort)GameOverBabyCryInstruction.Cry26,
+        GameOverBabySound.Cry27 => (ushort)GameOverBabyCryInstruction.Cry27,
         _ => throw new ArgumentOutOfRangeException(nameof(sound)),
     };
 

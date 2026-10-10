@@ -163,7 +163,7 @@ internal static partial class Program
 
         for (int tap = 0; tap < expectedCoefficients.Length; tap++)
         {
-            byte register = unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +
+            byte register = unchecked((byte)(SnesDspRegisterMap.FirstFirCoefficient +
                 tap * SnesDspRegisterMap.VoiceStride));
             AssertEqual(
                 expectedCoefficients[tap],

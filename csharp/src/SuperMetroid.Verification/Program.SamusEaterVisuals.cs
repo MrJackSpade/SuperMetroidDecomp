@@ -53,9 +53,9 @@ internal static partial class Program
             RoomPlmSamusEaterVisualCatalog edited =
                 installation.LoadRoomPlmSamusEaterVisuals();
             VerifySamusEaterLiveDraw(rom, edited,
-                SamusEaterPlmDrawDefinitions.FloorChew2, 0x05a5, 0x0058);
+                (ushort)SamusEaterDraw.FloorChew2, 0x05a5, 0x0058);
             VerifySamusEaterLiveDraw(rom, edited,
-                SamusEaterPlmDrawDefinitions.CeilingChew2, 0x0da5, 0x0059);
+                (ushort)SamusEaterDraw.CeilingChew2, 0x0da5, 0x0059);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmSamusEaterVisualFiles.Extract(rom, refreshed,
@@ -63,7 +63,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0058,
                 RoomPlmSamusEaterVisualFiles.Load(refreshed,
                     installation.RoomPlmSamusEaterVisualOverrideDirectory)
-                    .GetWord(SamusEaterPlmDrawDefinitions.FloorChew2, 0, 0),
+                    .GetWord((ushort)SamusEaterDraw.FloorChew2, 0, 0),
                 "Samus Eater override survives stock refresh");
             floor["blocks"]![0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());

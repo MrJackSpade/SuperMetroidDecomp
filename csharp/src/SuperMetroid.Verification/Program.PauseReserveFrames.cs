@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
@@ -32,7 +33,7 @@ internal static partial class Program
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
                     DrawImportedSpritemap(rom, expected, pointer, 24, 95, 0x600);
                 }
-                edited.Draw(actual, frame.Id, 0);
+                edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                     "each authored reserve frame independently selected");
@@ -42,7 +43,7 @@ internal static partial class Program
                 "each reserve role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.Draw(new OamBuffer(), invalid, 0), "unsupported reserve identity");
+            AssertThrows<InvalidOperationException>(() => stock.Draw(new OamBuffer(), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
         AssertThrows<IndexOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, -1), "anchor error precedes unknown visual");
     }
 
@@ -54,7 +55,7 @@ internal static partial class Program
             AssertEqual((ushort)1, ReadVerificationWord(rom, pointer), "native reserve part count");
             var x = new SnesSpritemapXWord(ReadVerificationWord(rom, pointer + 2));
             var attributes = new SnesObjAttributeWord(ReadVerificationWord(rom, pointer + 5));
-            var stockPart = PauseReserveTankDefinitions.StockPart(frame.Id);
+            var stockPart = PauseReserveTankDefinitions.StockPart((PauseReserveTankVisual)frame.Id);
             AssertEqual(x.SignedOffset, stockPart.OffsetX, "native reserve X offset");
             AssertEqual((int)unchecked((sbyte)rom.ReadByte(pointer + 4)), stockPart.OffsetY, "native reserve Y offset");
             AssertEqual(x.IsLarge ? 16 : 8, stockPart.Size, "native reserve sprite size");
@@ -76,7 +77,7 @@ internal static partial class Program
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, 24, 95, 0x600);
-                edited.Draw(actual, frame.Id, 0);
+                edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                     "independent authored part field reaches OAM");
@@ -102,7 +103,7 @@ internal static partial class Program
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, x, y, 0x600);
-            presentation.Draw(actual, frame.Id, index);
+            presentation.Draw(actual, (PauseReserveTankVisual)frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
                 "native reserve frame selection, OAM attributes, ordering and capacity");

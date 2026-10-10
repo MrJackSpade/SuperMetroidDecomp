@@ -309,24 +309,29 @@ public sealed class GameOptionsMenuState
             return;
 
         QueueSelectSound();
-        switch (SelectedItem)
+        var row = (GameOptionsPrimaryRow)SelectedItem;
+        if (!Enum.IsDefined(row))
+            throw new InvalidOperationException($"Primary options row {SelectedItem} is outside the five-row page.");
+        switch (row)
         {
-            case GameOptionsRomData.Rows.PrimaryStartGame:
+            case GameOptionsPrimaryRow.StartGame:
                 Phase = GameOptionsPhase.FadeOutToIntro;
                 break;
-            case 1:
-            case 2:
+            case GameOptionsPrimaryRow.EnglishText:
+            case GameOptionsPrimaryRow.JapaneseText:
                 JapaneseText = !JapaneseText;
                 SelectedItem = 0;
                 ApplyLanguagePaletteBits();
                 LoadVisiblePage();
                 break;
-            case GameOptionsRomData.Rows.PrimaryControllerSettings:
+            case GameOptionsPrimaryRow.ControllerSettings:
                 BeginDissolveTo(GameOptionsPage.Controller);
                 break;
-            case GameOptionsRomData.Rows.PrimarySpecialSettings:
+            case GameOptionsPrimaryRow.SpecialSettings:
                 BeginDissolveTo(GameOptionsPage.Special);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined GameOptionsPrimaryRow {row}.");
         }
     }
 

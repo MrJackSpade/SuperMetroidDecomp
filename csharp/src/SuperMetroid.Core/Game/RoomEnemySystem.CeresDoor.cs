@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort CeresDoorRotatingRumbleFunction = 0xf7dc;
-    private const ushort CeresDoorElevatorAnimationFunction = 0xf850;
     private const ushort CeresDoorRumbleDuration = 0x0030;
     private const ushort CeresDoorRumbleInterval = 4;
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;
@@ -50,7 +48,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         slot.VramTilesIndex = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.VariableA = initialization.MainFunction;
+        slot.VariableA = (ushort)initialization.MainFunction;
         slot.CurrentInstruction = initialization.InstructionList;
         slot.VariableB = 0;
 
@@ -82,16 +80,18 @@ public sealed partial class RoomEnemySystem
     /// <summary>Dispatches the function word stored in Ceres-door variable A ($0FA8).</summary>
     private void RunCeresDoorMain(RoomEnemySlot slot)
     {
-        switch (slot.VariableA)
+        CeresDoorFunction function =
+            ClosedNativeWords.Decode<CeresDoorFunction>(slot.VariableA, "Ceres door main function");
+        switch (function)
         {
-            case CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscape:
+            case CeresDoorFunction.HandleEarthquakeDuringEscape:
                 RunCeresDoorEarthquake(baseEarthquakeType: 0x0014);
                 return;
-            case CeresEnemyCodePointers.Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom:
+            case CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom:
                 RunCeresDoorEarthquake(baseEarthquakeType: 0x001d);
                 return;
 
-            case CeresEnemyCodePointers.Function_CeresDoor_RidleyEscapeMode7Wall:
+            case CeresDoorFunction.RidleyEscapeMode7Wall:
                 // Ridley's room overlay begins hidden. Odd status values reveal it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.
@@ -103,31 +103,30 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
 
-            case CeresDoorInitializationDefinitions.RotatingElevatorRoomDefaultFunction:
+            case CeresDoorFunction.RotatingElevatorRoomDefault:
                 RunCeresDoorPaletteAnimation();
                 if (CeresStatus >= 2)
                 {
                     // $A6:F7BD installs the destruction function and initializes all three
                     // actor-owned counters, but deliberately does not execute $F7DC until
                     // the following enemy frame.
-                    slot.VariableA = CeresDoorRotatingRumbleFunction;
+                    slot.VariableA = (ushort)CeresDoorFunction.RotatingElevatorRumble;
                     slot.VariableD = CeresDoorRumbleDuration;
                     slot.VariableE = 0;
                     slot.VariableF = 0;
                 }
                 return;
 
-            case CeresDoorRotatingRumbleFunction:
+            case CeresDoorFunction.RotatingElevatorRumble:
                 RunCeresDoorRumbleAndExplosions(slot);
                 return;
 
-            case CeresDoorElevatorAnimationFunction:
+            case CeresDoorFunction.ElevatorAnimation:
                 RunCeresDoorPaletteAnimation();
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Ceres door main function $A6:{slot.VariableA:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined CeresDoorFunction {function}.");
         }
     }
 
@@ -164,7 +163,7 @@ public sealed partial class RoomEnemySystem
             // it to the perpetual elevator-animation function, and publishes $8000 so the
             // room's Mode-7 controller begins the rotation after Ridley's escape.
             slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-            slot.VariableA = CeresDoorElevatorAnimationFunction;
+            slot.VariableA = (ushort)CeresDoorFunction.ElevatorAnimation;
             if (CeresStatus != 0)
                 CeresStatus = CeresDoorEscapedStatus;
             return;

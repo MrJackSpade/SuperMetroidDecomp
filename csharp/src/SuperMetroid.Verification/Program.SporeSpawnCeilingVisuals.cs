@@ -50,11 +50,11 @@ internal static partial class Program
             RoomPlmSporeSpawnCeilingVisualCatalog edited =
                 installation.LoadRoomPlmSporeSpawnCeilingVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord(SporeSpawnCeilingPlmDrawDefinitions.CrumbleFirstPointer,
+                edited.GetWord((ushort)SporeSpawnCeilingDraw.CrumbleFirst,
                     0, 0),
                 "Spore Spawn override edits the first crumble block");
             AssertEqual((ushort)0x0059,
-                edited.GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
+                edited.GetWord((ushort)SporeSpawnCeilingDraw.Clear,
                     1, 1),
                 "Spore Spawn override edits the bottom-right clear block");
 
@@ -67,7 +67,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0059,
                 RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed,
                     installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory)
-                    .GetWord(SporeSpawnCeilingPlmDrawDefinitions.ClearPointer, 1, 1),
+                    .GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 1),
                 "Spore Spawn override survives stock replacement");
 
             first["blocks"]![0] = 0xf058;

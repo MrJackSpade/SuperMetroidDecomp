@@ -30,6 +30,10 @@ public static class PngWriter
         output.Write(checksum);
     }
 
+    /// <summary>Advances PNG's reflected CRC-32 accumulator by one input byte using polynomial <c>0xedb88320</c>.</summary>
+    /// <param name="crc">Unfinalized CRC accumulator before this byte is processed.</param>
+    /// <param name="value">Next byte from the chunk type or payload.</param>
+    /// <returns>The updated, still-unfinalized CRC accumulator.</returns>
     internal static uint UpdateCrc(uint crc, byte value)
     {
         crc ^= value;

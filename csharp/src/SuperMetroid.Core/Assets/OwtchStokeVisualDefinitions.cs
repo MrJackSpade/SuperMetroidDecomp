@@ -9,6 +9,7 @@ internal static class OwtchStokeVisualDefinitions
     private const ushort OwtchFirstFrame = 0xa589;
     /// <summary>$A2:8ACA begins Stoke's left-facing maps: two, three, two, two, four OAM objects.</summary>
     private const ushort StokeFirstFrame = 0x8aca;
+    /// <summary>Resolves a compiled Owtch or Stoke instruction operand to its native spritemap pointer.</summary>
     internal static ushort FrameAt(ushort enemyDefinition, ushort address)
     {
         if (enemyDefinition == RoomEnemySystem.OwtchDefinition)

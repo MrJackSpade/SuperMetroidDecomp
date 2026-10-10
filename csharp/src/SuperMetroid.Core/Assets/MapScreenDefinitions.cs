@@ -30,6 +30,10 @@ public static class MapScreenDefinitions
     /// <param name="area">A playable Zebes area from zero through five.</param>
     /// <returns>The area's <c>Room.*</c> page identity.</returns>
     public static string RoomFrame(AreaId area) => "Room." + AreaName(area);
+    /// <summary>Returns the stable enum-name component used in a map page identity for a playable Zebes area.</summary>
+    /// <param name="area">Area value to encode; only the six playable Zebes area values are supported.</param>
+    /// <returns>The enum name for the supplied area.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value does not identify a playable Zebes area.</exception>
     private static string AreaName(AreaId area) => (uint)area < ZebesAreas
         ? area.ToString() : throw new ArgumentOutOfRangeException(nameof(area));
 

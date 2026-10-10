@@ -24,6 +24,12 @@ public static class GrappleSpriteDefinitions
     /// <summary>$94:B18D-$B199 common OBJ priority three for rope segments.</summary>
     private const int SegmentPriority = 3;
 
+    /// <summary>
+    /// Creates the default OBJ attribute word for a rope-animation frame using its consecutive
+    /// native tile and the shared rope palette and priority.
+    /// </summary>
+    /// <param name="frame">Zero-based rope-animation frame, from 0 through 3.</param>
+    /// <returns>The packed stock tile, palette, and priority attributes for that frame.</returns>
     internal static ushort StockSegment(int frame) => SnesObjAttributeWord.Create(
         FirstSegmentTile + frame, SegmentPalette, SegmentPriority, default).Raw;
 

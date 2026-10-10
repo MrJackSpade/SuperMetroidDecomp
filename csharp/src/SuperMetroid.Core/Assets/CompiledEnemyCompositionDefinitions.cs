@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Builds named ordinary artwork declarations from an explicitly owned finite program.</summary>
 internal static class CompiledEnemyCompositionDefinitions
 {
+    /// <summary>Resolves a finite program's presentation operands into unique exported ordinary-enemy spritemap definitions.</summary>
+    /// <param name="bank">ROM bank containing the instruction operands and selected spritemaps.</param>
+    /// <param name="operands">Presentation operand addresses whose compiled selectors identify the visible frames.</param>
+    /// <param name="expectedCount">Required number of distinct exported compositions after shared empty frames are omitted.</param>
+    /// <param name="name">Name prefix used to identify the generated frame definitions in diagnostics and exports.</param>
+    /// <returns>Definitions for the distinct visible spritemaps selected by the supplied program.</returns>
     internal static EnemySpritemapDefinition[] Frames(byte bank, ReadOnlySpan<ushort> operands,
         int expectedCount, string name)
     {

@@ -142,6 +142,7 @@ internal static class EscapeTimerGlyphDefinitions
         if (tile == 21) { tile = 20; if (x >= 8 / 2) x -= ChosenSeparatorAdvance; }
         return y * EscapeTimerTileAtlasFormat.Width + tile * 8 + x;
     }
+    /// <summary>Validates an atlas pixel index and returns its zero-based 8-pixel tile column.</summary>
     private static int Tile(int pixel)
     {
         if ((uint)pixel >= EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height) throw new ArgumentOutOfRangeException(nameof(pixel));

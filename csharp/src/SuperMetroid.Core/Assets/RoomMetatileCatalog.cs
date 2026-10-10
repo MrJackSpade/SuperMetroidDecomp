@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Complete selected visual block definitions; no level collision or BTS data.</summary>
 public sealed class RoomMetatileCatalog
 {
+    /// <summary>Defensive copy of the installed visual atlases, indexed by their compiled block-definition source identity.</summary>
     private readonly Dictionary<int, RoomMetatileAtlas> bySource;
 
     /// <summary>Builds the selected CRE/graphics-set metatile snapshot and verifies that every compiled retail tileset's block-definition source is present.</summary>

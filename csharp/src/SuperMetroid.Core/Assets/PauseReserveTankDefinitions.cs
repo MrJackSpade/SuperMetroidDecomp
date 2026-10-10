@@ -49,6 +49,13 @@ public static class PauseReserveTankDefinitions
         _ => throw new InvalidDataException($"Unknown reserve visual {identity:X4}."),
     };
 
+    /// <summary>
+    /// Builds the stock single-tile OBJ part for a reserve-tank visual identity, leaving palette
+    /// selection to the caller as in the native draw path.
+    /// </summary>
+    /// <param name="identity">Native spritemap identity for a full tank, cap, empty tank, or fill level.</param>
+    /// <returns>The stock 8-by-8 tile, position, and priority attributes for that identity.</returns>
+    /// <exception cref="InvalidDataException">The identity does not correspond to a stock reserve visual.</exception>
     internal static SpriteVisualPart StockPart(ushort identity)
     {
         int tile = StockTile(identity);

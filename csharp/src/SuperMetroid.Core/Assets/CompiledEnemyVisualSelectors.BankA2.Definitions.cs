@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Assets;
 
 internal static partial class CompiledEnemyVisualSelectors
 {
+    /// <summary>Sorted sparse literal operand-to-pointer selectors whose operands are in bank A2.</summary>
     private static CompiledEnemyVisualSelector[] BankA2 =>
     [
         new(0xA28936, 0x8ACA),

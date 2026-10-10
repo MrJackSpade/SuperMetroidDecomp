@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Complete host-selected set of compressed library-background visual tilemaps.</summary>
 public sealed class RoomBackgroundTilemapCatalog
 {
+    /// <summary>Defensive copy of the validated complete mapping from native compressed-source identities to compiled atlases.</summary>
     private readonly Dictionary<int, RoomBackgroundTilemapAtlas> bySource;
 
     /// <summary>Installs all 58 required compressed-source identities selected by the bank-$8F library-background programs, copying the lookup while retaining the supplied compiled atlases.</summary>

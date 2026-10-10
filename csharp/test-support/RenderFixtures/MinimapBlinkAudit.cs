@@ -8,6 +8,10 @@ using SuperMetroid.Core.Assets;
 /// <summary>Checks the current-position cell in actual published gameplay HUD pixels.</summary>
 internal static class MinimapBlinkAudit
 {
+    /// <summary>Audits the minimap center-cell blink in published gameplay HUD frames for each representative room.</summary>
+    /// <param name="romPath">Retail ROM path used to create the room runtimes.</param>
+    /// <param name="render">Optional runtime-to-pixels renderer; the production software renderer is used when omitted.</param>
+    /// <returns>Zero after every representative room passes the cadence and visible-palette checks.</returns>
     public static int Run(string romPath, Func<SuperMetroidRuntime, Rgba32[]>? render = null)
     {
         foreach (ushort room in MapCrossViewAuditDefinitions.RepresentativeRooms)
@@ -16,6 +20,10 @@ internal static class MinimapBlinkAudit
         return 0;
     }
 
+    /// <summary>Checks that one retail room's stationary center minimap cell keeps a consistent two-state blink cadence.</summary>
+    /// <param name="romPath">Retail ROM path used to initialize the room runtime.</param>
+    /// <param name="room">Cartridge room identifier whose HUD blink is audited.</param>
+    /// <param name="render">Renderer that publishes the runtime image used to sample the HUD cell.</param>
     private static void VerifyRoom(string romPath, ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));

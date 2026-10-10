@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
 public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
 {
+    /// <summary>Contiguous copied bytes for the seven validated scrolling-sky pages, backing native-address transfer resolution and content identity.</summary>
     private readonly byte[] pages;
 
     /// <summary>Copies and validates the seven scrolling-sky pages in native source order.</summary>

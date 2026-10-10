@@ -5,6 +5,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $8D:F4EF..F61A sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
 internal static class MaridiaEnvironmentalColorDefinitions
 {
+    /// <summary>Maps a rotated sand or waterfall color slot to the source pointer for its cyclic phase.</summary>
+    /// <param name="pointer">Palette color pointer within a compiled Maridia rotation program.</param>
+    /// <param name="source">Receives the canonical palette pointer supplying the rotated color.</param>
+    /// <returns><see langword="true"/> when the pointer belongs to a rotating color slot; otherwise, <see langword="false"/>.</returns>
     internal static bool TrySourcePointer(ushort pointer, out ushort source)
     {
         foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)

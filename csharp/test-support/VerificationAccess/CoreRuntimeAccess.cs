@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Verification access to <see cref="SuperMetroidRuntime"/> members production does not use.</summary>
 internal static class SuperMetroidRuntimeAccess
 {
+    /// <summary>Provides verification-only setup and inspection operations for runtime state that production callers do not need.</summary>
     extension(SuperMetroidRuntime self)
     {
 
@@ -105,6 +106,7 @@ internal static class SuperMetroidRuntimeAccess
                 $"Landing Site X=${xPosition:X4} from block row ${minimumFloorBlockY:X2}.");
         }
 
+        /// <summary>Loads the bound beam artwork's grapple-firing palette and flare into CGRAM through the runtime's normal loader.</summary>
         internal void LoadDebugGrapplePalette() => PrivateState.Invoke(self, "LoadGrapplePalette");
 
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>

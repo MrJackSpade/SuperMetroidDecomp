@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Assets;
 
 internal static partial class CompiledEnemyVisualSelectors
 {
+    /// <summary>
+    /// Sparse literal operand-to-frame selectors compiled from bank $A6 for the shared enemy visual lookup table.
+    /// </summary>
     private static CompiledEnemyVisualSelector[] BankA6 =>
     [
         new(0xA68B2B, 0x8CE5),

@@ -5,6 +5,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $8D:C914..C95E and C96A..C9B4 PLANET ZEBES text colors from three independently required bright endpoints.</summary>
 internal static class PlanetZebesTextColorDefinitions
 {
+    /// <summary>
+    /// Maps a palette-word address in a native fade program to its owner, frame, and color slot.
+    /// </summary>
+    /// <param name="pointer">The palette-word address to classify.</param>
+    /// <param name="owner">Receives the fade-in or fade-out program containing the address.</param>
+    /// <param name="frame">Receives the zero-based frame within that program.</param>
+    /// <param name="color">Receives the zero-based color slot within the frame.</param>
+    /// <returns><see langword="true"/> when the address names an aligned color word in either program; otherwise <see langword="false"/>.</returns>
     internal static bool TryCoordinates(ushort pointer, out PlanetZebesTextPaletteFxProgramOwner owner, out int frame, out int color)
     {
         foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)

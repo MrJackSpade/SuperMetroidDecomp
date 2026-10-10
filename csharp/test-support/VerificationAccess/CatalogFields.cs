@@ -13,9 +13,15 @@ internal static class CatalogFields
         [.. SuperMetroid.Tooling.ToolingTypes.WithAdapter(catalog).SelectMany(type => type.GetFields(flags)),
          .. Companion(catalog)?.GetFields(flags) ?? []];
 
+    /// <summary>Finds the test-support constants type named for a catalog, using the flattened nested-type naming convention.</summary>
+    /// <param name="catalog">Catalog whose companion type is sought in this assembly.</param>
+    /// <returns>The matching companion type, or <see langword="null"/> when the assembly defines none.</returns>
     private static Type? Companion(Type catalog) =>
         typeof(CatalogFields).Assembly.GetType(FlatName(catalog) + "Constants");
 
+    /// <summary>Builds the companion naming key by concatenating nested type names from outermost to innermost.</summary>
+    /// <param name="type">Catalog or nested catalog type to flatten.</param>
+    /// <returns>The type's simple name, prefixed by each declaring type's simple name when nested.</returns>
     private static string FlatName(Type type) =>
         type.DeclaringType is { } outer ? FlatName(outer) + type.Name : type.Name;
 }

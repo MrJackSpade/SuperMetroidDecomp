@@ -2,6 +2,8 @@ namespace SuperMetroid.Core.Assets;
 
 public sealed partial class SamusBodyArtworkCatalog
 {
+    /// <summary>Hashes the selected body frames, tile transfers, and dependent art identities as one canonical content identity.</summary>
+    /// <returns>Uppercase hexadecimal SHA-256 digest of the catalog's selected presentation data.</returns>
     private string CreateContentIdentity() => SelectedPresentationHash.Create(nameof(SamusBodyArtworkCatalog), content =>
     {
         content.AppendWords("top pointers", TopSetPointers);

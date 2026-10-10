@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Shared checked compilation for compositions on the indexed menu OBJ sheet.</summary>
 internal static class MenuSpriteCompiler
 {
+    /// <summary>
+    /// Validates menu sprite parts against indexed-sheet limits and packs their coordinates and OBJ attributes.
+    /// </summary>
+    /// <param name="parts">The ordered sprite parts to compile.</param>
+    /// <param name="name">The sprite identity included in validation errors.</param>
+    /// <returns>A composition containing the encoded parts in their supplied order.</returns>
+    /// <exception cref="InvalidDataException">The composition exceeds the part limit or a part lies outside supported ranges.</exception>
     public static SpriteComposition Compile(SpriteVisualPart[] parts, string name)
     {
         if (parts.Length > MapSpriteFormat.MaximumParts)

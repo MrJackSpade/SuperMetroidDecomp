@@ -53,6 +53,9 @@ public static class RoomFxLiquidTilemapDefinitions
         return true;
     }
 
+    /// <summary>Requires a room effect with a calculated liquid BG3 page definition.</summary>
+    /// <param name="type">Effect type; only Lava, Acid, and Water have generated pages.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The type is not one of the supported liquid effects.</exception>
     private static void ValidateType(RoomFxType type)
     {
         if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))

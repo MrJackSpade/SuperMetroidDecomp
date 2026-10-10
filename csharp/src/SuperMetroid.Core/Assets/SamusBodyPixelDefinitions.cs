@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// phase timing and collision are separate owners.</remarks>
 internal static class SamusBodyPixelDefinitions
 {
+    /// <summary>Byte length of one 8-by-8 4-bpp SNES tile, used to address pixels within body allocations.</summary>
     internal const int TileBytes = 32;
 
     /// <summary>Exact transparent cells in the named $9B..9F body allocations;

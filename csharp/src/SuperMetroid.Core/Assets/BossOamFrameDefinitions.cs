@@ -26,6 +26,10 @@ internal static class BossOamFrameDefinitions
     /// <summary>$A5:EF3D, first of three fully-open roots after seven unused records.</summary>
     private const ushort SporeSpawnOpen = 0xef3d;
 
+    /// <summary>Calculates the bank-$A6 extended-OAM root for a Ridley frame using the native 34-byte spacing between selected roots.</summary>
+    /// <param name="index">Zero-based Ridley frame index within <see cref="EnemyExtendedFrameDefinitions.RidleyFrameCount"/>.</param>
+    /// <returns>The bank-local pointer to that frame's extended-OAM record.</returns>
+    /// <exception cref="IndexOutOfRangeException">The frame index is outside Ridley's compiled frame range.</exception>
     internal static ushort RidleyPointer(int index)
     {
         if ((uint)index >= EnemyExtendedFrameDefinitions.RidleyFrameCount) throw new IndexOutOfRangeException();

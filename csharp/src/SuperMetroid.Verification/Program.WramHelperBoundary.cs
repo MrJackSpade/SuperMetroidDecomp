@@ -37,6 +37,8 @@ internal static partial class Program
         Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
     }
 
+    /// <summary>Checks corpse-table initialization, per-entry countdown updates, callback ordering, and the finished-row sentinel.</summary>
+    /// <param name="memory">Cartridge-free address space used as both the WRAM store and callback-visible memory.</param>
     private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
     {
         const int table = 0x7e1800;
@@ -58,6 +60,8 @@ internal static partial class Program
             CorpseRottingTableProcessor.ReadEntry(memory, table, 3, 1), "second row retains its decremented WRAM delay");
     }
 
+    /// <summary>Compares directional projectile velocity inheritance with native overlapping-word arithmetic across WRAM snapshots.</summary>
+    /// <param name="memory">Cartridge-free address space populated with each captured camera-Y sub-speed word pattern.</param>
     private static void VerifyWramProjectileInheritance(SuperMetroidAddressSpace memory)
     {
         ushort[][] snapshots =

@@ -25,6 +25,7 @@ public static class GameplayMessagePanelDefinitions
     public const int VisibleColumns = GameplayMessageRomData.Layout.TilemapWidth -
         OuterLeftColumns - OuterRightColumns;
 
+    /// <summary>Closed set of item-instruction messages with editable large-panel artwork.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.MissileTank,

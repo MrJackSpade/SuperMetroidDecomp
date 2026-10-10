@@ -13,6 +13,12 @@ internal static class RoomFxRecordCatalogSource
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Game", "RoomFxRecordDefinitions.Generated.cs"));
 
+    /// <summary>
+    /// Reads room-state FX lists and Mother Brain's directly selected records from the retail
+    /// address space, rejecting unterminated lists or conflicting records that share a pointer.
+    /// </summary>
+    /// <param name="bus">Cartridge address space used to read fixed-bank room-FX data.</param>
+    /// <returns>Room-FX definitions keyed by record pointer in ascending order.</returns>
     internal static SortedDictionary<ushort, RoomFxRecordDefinition> CaptureRetailRoomFxRecords(
         ISnesAddressSpace bus)
     {
@@ -97,6 +103,12 @@ internal static class RoomFxRecordCatalogSource
         return records;
     }
 
+    /// <summary>
+    /// Renders the captured room-FX records as the generated Core catalog's pointer-selection
+    /// switch, preserving each record's fields in source form.
+    /// </summary>
+    /// <param name="records">Definitions to emit, in the order used to generate the switch arms.</param>
+    /// <returns>Complete C# source for the generated room-FX definition catalog.</returns>
     internal static string RenderRoomFxDefinitions(
         IEnumerable<RoomFxRecordDefinition> records)
     {

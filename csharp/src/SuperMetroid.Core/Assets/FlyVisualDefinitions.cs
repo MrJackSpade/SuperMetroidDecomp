@@ -14,6 +14,8 @@ internal static class FlyVisualDefinitions
     /// <summary><c>Spritemap_Mellow_Mella_Menu_0</c> at $A2:B1E8; four one-object, seven-byte OAM frames.</summary>
     private const ushort FirstFrame = 0xb1e8;
 
+    /// <summary>Builds the four shared bank-$A2 fly-family OAM definitions used to register their installable sprite frames.</summary>
+    /// <returns>A new array of one-object frame records at successive seven-byte OAM entries beginning at <c>$A2:B1E8</c>.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new EnemySpritemapDefinition[4];

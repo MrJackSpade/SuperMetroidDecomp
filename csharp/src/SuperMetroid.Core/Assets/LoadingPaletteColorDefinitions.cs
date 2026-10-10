@@ -161,6 +161,11 @@ public static class LoadingPaletteColorDefinitions
         return (ushort)((distinct ? first : 0xdb6b) + rowOffset + colorOffset);
     }
 
+    /// <summary>Finds the canonical source color for a word in one loading-palette program.</summary>
+    /// <param name="pointer">Address of the candidate color word.</param>
+    /// <param name="first">Address of the first color word in the program's first record.</param>
+    /// <param name="canonical">Receives the shared or original palette address that supplies this color.</param>
+    /// <returns><see langword="true"/> when <paramref name="pointer"/> addresses a supported color word; otherwise, <see langword="false"/>.</returns>
     private static bool TryProgram(ushort pointer, int first, out ushort canonical)
     {
         canonical = 0;

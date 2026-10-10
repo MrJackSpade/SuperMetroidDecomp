@@ -12,6 +12,8 @@ internal static class EvirVisualDefinitions
     /// <summary>Evir's native instruction and spritemap bank, $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Lists Evir's exported body, arm, and projectile compositions for both movement directions.</summary>
+    /// <returns>Named spritemap definitions selected by Evir's compiled bank-$A8 programs.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, 0x8b59, "evir_body_left_0"),

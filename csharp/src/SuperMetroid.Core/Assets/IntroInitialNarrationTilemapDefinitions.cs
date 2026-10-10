@@ -24,6 +24,8 @@ internal static class IntroInitialNarrationTilemapDefinitions
     /// <summary>$95:D089: period tile $26 occupies only the lower glyph row.</summary>
     private const int PeriodTile = 0x26;
 
+    /// <summary>Builds the opening narration's centered BG3 tilemap from the selected prose and compiled font layout.</summary>
+    /// <returns>Little-endian BG3 page bytes containing the two-row glyphs and blank tiles elsewhere.</returns>
     internal static byte[] Compile()
     {
         int columns = IntroCinematicArtworkFormat.TileColumns;

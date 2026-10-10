@@ -34,6 +34,7 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Native tile character index for a question mark.</summary>
     public const int QuestionMarkCharacter = 0x0fe;
 
+    /// <summary>Ordered set of item-acquisition and status messages with editable centered title rows.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.EnergyTank,

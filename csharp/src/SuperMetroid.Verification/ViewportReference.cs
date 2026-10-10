@@ -3,8 +3,24 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 
 // Frozen pre-optimization scalar reference: do not share the optimized tile-row loop.
+/// <summary>Independent scalar 4-bpp viewport compositor retained as a pixel-parity reference for optimized rendering paths.</summary>
 internal static class ViewportReference
 {
+    /// <summary>Composites one wrapped BG viewport pixel by pixel, honoring tile flips, optional per-line horizontal scroll, and an optional priority-plane filter.</summary>
+    /// <param name="output">Row-major destination containing exactly <paramref name="width"/> times <paramref name="height"/> pixels; transparent source pixels leave existing values unchanged.</param>
+    /// <param name="vram">SNES VRAM containing the tilemap entries and 4-bpp character planes.</param>
+    /// <param name="cgram">Color table used to convert nonzero tile pixels into output colors.</param>
+    /// <param name="tilemapBaseWord">Tilemap base address in VRAM words.</param>
+    /// <param name="characterBaseWord">Character-data base address in VRAM words.</param>
+    /// <param name="horizontalScroll">Horizontal scroll register used when no per-line values are supplied.</param>
+    /// <param name="verticalScroll">Vertical scroll register applied to every output scanline.</param>
+    /// <param name="width">Number of output pixels per row.</param>
+    /// <param name="height">Number of output scanlines.</param>
+    /// <param name="tilemapWidthInTiles">Wrapped map width in tiles; accepted values are 32 and 64.</param>
+    /// <param name="tilemapHeightInTiles">Wrapped map height in tiles; accepted values are 32 and 64.</param>
+    /// <param name="horizontalScrollByLine">Optional horizontal register value for each output row; when supplied, its count must equal <paramref name="height"/>.</param>
+    /// <param name="priority">Optional tile-priority plane to render; <see langword="null"/> includes both planes.</param>
+    /// <remarks>Scroll wraps within the declared map dimensions and tilemap screen-block layout; filtered or color-zero pixels do not overwrite the destination.</remarks>
     public static void Composite4BppViewport(
         Span<Rgba32> output,
         SnesVram vram,

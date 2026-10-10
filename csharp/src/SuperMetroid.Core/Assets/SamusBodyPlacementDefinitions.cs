@@ -166,6 +166,13 @@ internal static class SamusBodyPlacementDefinitions
         catch (InvalidDataException) { return false; }
     }
 
+    /// <summary>Finds the lowest opaque sprite pixel in a selected body frame.</summary>
+    /// <param name="art">Installed body artwork and spritemap data used to resolve the frame's uploaded tiles.</param>
+    /// <param name="pose">Pose whose sprite maps and tile selection define the frame.</param>
+    /// <param name="frame">Frame index within the pose's selected animation.</param>
+    /// <param name="drawBottom">Whether the lower body half participates in the rendered support.</param>
+    /// <param name="bottom">Receives the greatest sprite-relative Y coordinate containing an opaque pixel.</param>
+    /// <returns><see langword="true"/> when all required sprite and tile data is available and at least one opaque pixel is found.</returns>
     private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, byte pose, ushort frame,
         bool drawBottom, out int bottom)
     {

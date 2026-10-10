@@ -10,6 +10,10 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class LibraryBackgroundProgramImporter
 {
+    /// <summary>Decodes a terminated bank-$8F background command list into typed transfer, decompression, and clear instructions.</summary>
+    /// <param name="source">Address space supplying the cartridge bytes referenced by the list.</param>
+    /// <param name="pointer">Bank-local pointer to the command list.</param>
+    /// <returns>The decoded instructions together with the list's starting pointer and encoded length.</returns>
     public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -119,6 +123,10 @@ internal static class LibraryBackgroundProgramImporter
         }
     }
 
+    /// <summary>Reads one import-time byte from the mapped cartridge, work RAM, or save RAM region.</summary>
+    /// <param name="source">Address space used to access the classified memory region.</param>
+    /// <param name="address">24-bit bus address of the requested byte.</param>
+    /// <returns>The byte stored at the mapped address.</returns>
     private static byte ReadImportByte(ISnesAddressSpace source, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

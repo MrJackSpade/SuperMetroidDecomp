@@ -14,6 +14,7 @@ public static class GameplayMessageNoticeDefinitions
     /// <summary>Case-sensitive alignment token centering text within its allocated tile-cell width using integer division of the remaining space.</summary>
     public const string CenterAlignment = "Center";
 
+    /// <summary>Canonical notice identities used by presentation validation and exposed in schema order through <see cref="MessageIds"/>.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.MapDataAccessCompleted,

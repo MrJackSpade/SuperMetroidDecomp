@@ -18,6 +18,8 @@ internal static class GunshipVisualDefinitions
     /// <summary>Spritemap_Ship_1 at $A2:ADDD, selected by InstList_ShipBottom.</summary>
     internal const ushort BottomHull = 0xaddd;
 
+    /// <summary>Builds the distinct hull and entrance-pad spritemaps selected by the gunship instruction programs.</summary>
+    /// <returns>Thirteen frame definitions in first-selector order, with opening/closing reuse exported once.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);

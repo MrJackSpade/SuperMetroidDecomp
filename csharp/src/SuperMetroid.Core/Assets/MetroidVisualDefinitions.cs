@@ -14,6 +14,8 @@ internal static class MetroidVisualDefinitions
 
     /// <summary>$A3:F10D / Spritemap_Metroid_Insides_0 starts four records with 8/6/8/8 OAM objects.</summary>
     private const ushort FirstFrame = 0xf10d;
+    /// <summary>Builds the four native ordinary-Metroid body compositions used by the chase and drain visuals.</summary>
+    /// <returns>Frame definitions in native animation order, with pointers derived from the compiled frame layout.</returns>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var result = new EnemySpritemapDefinition[4];

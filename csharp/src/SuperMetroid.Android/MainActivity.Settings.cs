@@ -5,6 +5,7 @@ namespace SuperMetroid.Android;
 
 public sealed partial class MainActivity
 {
+    /// <summary>Opens the INI settings picker; edits preserve unrelated options and take effect on the next app launch.</summary>
     private void ShowIniSettings()
     {
         menuOpen = true;

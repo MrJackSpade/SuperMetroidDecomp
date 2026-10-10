@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Assets;
 
 internal static partial class CompiledEnemyVisualSelectors
 {
+    /// <summary>Literal bank-$B4 instruction-operand addresses paired with their compiled spritemap or frame-pointer targets.</summary>
     private static CompiledEnemyVisualSelector[] BankB4 =>
     [
         new(0xB4BE26, 0xDD51),

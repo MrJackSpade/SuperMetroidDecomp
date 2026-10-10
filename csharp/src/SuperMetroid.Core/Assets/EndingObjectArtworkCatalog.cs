@@ -20,6 +20,7 @@ public enum EndingObjectFragmentId
 /// </summary>
 public sealed class EndingObjectArtworkCatalog
 {
+    /// <summary>Copied fragment-atlas references ordered by their native explosion-map VRAM destination page.</summary>
     private readonly RoomCharacterAtlas[] fragments;
 
     /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>

@@ -20,6 +20,14 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// original attribute words are covered; independent tile pixels, RGB colors and timing are not exempt.</remarks>
     internal const int Priority = 2;
 
+    /// <summary>
+    /// Packs the stock OBJ attributes for one footstep or shared lava/dust frame, combining its
+    /// consecutive tile with the atmospheric palette row and retained drawing priority.
+    /// </summary>
+    /// <param name="footstep">Selects the footstep tile run when <see langword="true"/>; otherwise selects the lava/dust run.</param>
+    /// <param name="frame">Zero-based frame within the four-tile run.</param>
+    /// <returns>The packed SNES OBJ attribute word for the selected frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the four available frames.</exception>
     internal static ushort Attributes(bool footstep, int frame)
     {
         if ((uint)frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)

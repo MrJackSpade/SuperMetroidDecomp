@@ -11,6 +11,8 @@ internal static class MorphBallEyeVisualDefinitions
     /// <summary>Native eye-body and mount spritemap bank.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Lists the eye's active, transition, closed, and directional mount OAM compositions.</summary>
+    /// <returns>Named bank-$A8 spritemap definitions used by Morph Ball eye presentation.</returns>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, 0x9210, "morph_eye_active_0"),

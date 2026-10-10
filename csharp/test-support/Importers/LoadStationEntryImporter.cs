@@ -8,6 +8,13 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Reads native load-station records only while importing or verifying a cartridge.</summary>
 internal static class LoadStationEntryImporter
 {
+    /// <summary>
+    /// Reads the native placement record selected by an area's load-station list and slot index.
+    /// </summary>
+    /// <param name="bus">The cartridge address space containing the load-station pointer table and records.</param>
+    /// <param name="areaIndex">The retail area whose station list is being read.</param>
+    /// <param name="stationIndex">The zero-based station slot within that area's list.</param>
+    /// <returns>The room, door, camera, and Samus placement words stored in the selected record.</returns>
     public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -25,6 +32,12 @@ internal static class LoadStationEntryImporter
             SamusXOffset: ReadWord(bus, address + 12));
     }
 
+    /// <summary>
+    /// Reads one little-endian word from the cartridge's fixed bank at the supplied address.
+    /// </summary>
+    /// <param name="bus">The cartridge address space used for the read.</param>
+    /// <param name="address">The mapped address of the first byte.</param>
+    /// <returns>The two adjacent bytes combined as an unsigned 16-bit value.</returns>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

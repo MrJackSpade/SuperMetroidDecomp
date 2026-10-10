@@ -19,6 +19,7 @@ public sealed class KraidBackgroundArtwork
             }
         });
 
+    /// <summary>Copied lookup from native bank-$A7 head-frame pointers to installed tilemap atlases, used for frame resolution and content identity.</summary>
     private readonly Dictionary<ushort, KraidHeadTilemapAtlas> heads;
 
     /// <summary>Groups installed Kraid BG2 maps, head frames, and revealed room characters without composing or uploading the boss's mutable working tilemap.</summary>

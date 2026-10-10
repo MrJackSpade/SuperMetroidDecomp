@@ -27,7 +27,7 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
         {
             0 => (ushort)1,
             2 => DrawForProgram(address - 2),
-            4 => checked((ushort)RoomPlmInstructionCodes.Delete),
+            4 => checked((ushort)RoomPlmInstruction.Delete),
             _ => throw new InvalidDataException(
                 $"Mother Brain instruction offset {offset} is not a word."),
         };

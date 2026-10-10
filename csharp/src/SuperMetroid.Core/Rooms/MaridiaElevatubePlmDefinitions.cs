@@ -54,8 +54,8 @@ internal static class MaridiaElevatubePlmDefinitions
         {
             InstructionList => 16,
             InstructionList + 2 => DrawPointer,
-            InstructionList + 4 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            InstructionList + 7 => RoomPlmInstructionCodes.Delete,
+            InstructionList + 4 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            InstructionList + 7 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return address is InstructionList or InstructionList + 2 or

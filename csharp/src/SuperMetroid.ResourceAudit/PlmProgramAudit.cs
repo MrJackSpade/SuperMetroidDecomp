@@ -173,7 +173,7 @@ internal static class PlmProgramAudit
                     report.ByteOperands++;
                     if (!readByte(At(offset), out _)) Missing("missing-byte", At(offset), "Opcode byte operand is absent.");
                 }
-                if (opcode == RoomPlmInstructionCodes.CopyFromRamToVram &&
+                if (opcode == (ushort)RoomPlmInstruction.CopyFromRamToVram &&
                     readWord(At(2), out ushort count) && readWord(At(4), out ushort sourceOffset) &&
                     readByte(At(6), out byte sourceBank))
                 {

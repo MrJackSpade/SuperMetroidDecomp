@@ -15,7 +15,7 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
     {
         if (address == Start)
         {
-            value = RoomPlmInstructionCodes.Delete;
+            value = (ushort)RoomPlmInstruction.Delete;
             return true;
         }
         value = 0;
@@ -27,8 +27,8 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
         if (address is Start or End)
         {
             value = address == Start
-                ? unchecked((byte)RoomPlmInstructionCodes.Delete)
-                : unchecked((byte)(RoomPlmInstructionCodes.Delete >> 8));
+                ? unchecked((byte)RoomPlmInstruction.Delete)
+                : unchecked((byte)((ushort)RoomPlmInstruction.Delete >> 8));
             return true;
         }
         value = 0;

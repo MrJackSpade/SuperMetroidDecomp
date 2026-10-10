@@ -118,7 +118,7 @@ internal static partial class Program
             list: 0x0400,
             hitList: 0x0420,
             destroyedList: 0x0440,
-            damageInstruction: RoomPlmInstructionCodes.DamageDraygonCannonFacingRight,
+            damageInstruction: (ushort)RoomPlmInstruction.DamageDraygonCannonFacingRight,
             idleDraw: 0xf000,
             hitDraw: 0xf010,
             destroyedDraw: 0xf020);
@@ -127,7 +127,7 @@ internal static partial class Program
             list: 0x0500,
             hitList: 0x0520,
             destroyedList: 0x0540,
-            damageInstruction: RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft,
+            damageInstruction: (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft,
             idleDraw: 0xf100,
             hitDraw: 0xf110,
             destroyedDraw: 0xf120);

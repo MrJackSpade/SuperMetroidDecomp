@@ -305,7 +305,7 @@ internal static class BotwoonWallPlmProgramDefinitionsConstants
     /// <summary><c>$84:AB6D</c>: first byte of the following Kraid program.</summary>
     public const ushort ClearEndExclusive = 0xab6d;
     /// <summary><c>$84:AB51</c>: first byte of the following scroll callback.</summary>
-    public const ushort CrumbleEndExclusive = RoomPlmInstructionCodes.SetBotwoonScrollsBlue;
+    public const ushort CrumbleEndExclusive = (ushort)RoomPlmInstruction.SetBotwoonScrollsBlue;
 
     extension(BotwoonWallPlmProgramDefinitions)
     {
@@ -3210,16 +3210,16 @@ internal static class RoomPlmHeaderDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="RoomPlmInstructionCodes"/> that only verification reads.</summary>
-internal static class RoomPlmInstructionCodesConstants
+/// <summary>Cartridge values of <see cref="RoomPlmInstruction"/> that only verification reads.</summary>
+internal static class RoomPlmInstructionConstants
 {
     /// <summary><c>$84:8764 Instruction_PLM_LoadItemPLMGfx</c>: load an item's graphics set.</summary>
     public const ushort LoadItemGraphics = 0x8764;
 
-    extension(RoomPlmInstructionCodes)
+    extension(RoomPlmInstruction)
     {
-        /// <inheritdoc cref="RoomPlmInstructionCodesConstants.LoadItemGraphics"/>
-        internal static ushort LoadItemGraphics => RoomPlmInstructionCodesConstants.LoadItemGraphics;
+        /// <inheritdoc cref="RoomPlmInstructionConstants.LoadItemGraphics"/>
+        internal static ushort LoadItemGraphics => RoomPlmInstructionConstants.LoadItemGraphics;
     }
 }
 

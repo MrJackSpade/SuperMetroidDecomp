@@ -86,8 +86,8 @@ internal static class GreyDoorPlmProgramDefinitions
                 0 or 4 => 2,
                 2 => clear,
                 6 => grey + 3 * 12,
-                8 or 84 => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
-                23 => RoomPlmInstructionCodes.GotoIfDoorBitSet,
+                8 or 84 => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+                23 => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
                 25 => orientation switch
                 {
                     0 => BlueDoorPlmProgramDefinitions.ClosedLeft,
@@ -95,21 +95,21 @@ internal static class GreyDoorPlmProgramDefinitions
                     2 => BlueDoorPlmProgramDefinitions.ClosedUp,
                     _ => BlueDoorPlmProgramDefinitions.ClosedDown,
                 },
-                27 or 43 => RoomPlmInstructionCodes.LinkInstruction,
+                27 or 43 => (ushort)RoomPlmInstruction.LinkInstruction,
                 29 => first + 43,
-                31 => RoomPlmInstructionCodes.SetGreyDoorPreInstruction,
+                31 => (ushort)RoomPlmInstruction.SetGreyDoorPreInstruction,
                 33 => 1,
                 35 => grey,
-                37 => RoomPlmInstructionCodes.Sleep,
-                39 or 75 => RoomPlmInstructionCodes.Goto,
+                37 => (ushort)RoomPlmInstruction.Sleep,
+                39 or 75 => (ushort)RoomPlmInstruction.Goto,
                 41 => first + 37,
                 45 => first + 79,
-                47 => RoomPlmInstructionCodes.InstallPreInstruction,
+                47 => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 49 => FollowLinkWhenShot,
                 77 => first + 51,
-                79 => RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto,
+                79 => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
                 82 => first + 84,
-                _ => RoomPlmInstructionCodes.Delete, // Local 103 only.
+                _ => (ushort)RoomPlmInstruction.Delete, // Local 103 only.
             };
         }
         value = (byte)(word >> ((local - start) * 8));

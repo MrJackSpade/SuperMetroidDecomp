@@ -33,8 +33,8 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, origin, 1), "allocate bounded mechanics fixture");
-            WriteMemoryWord(memory, 0x841100, RoomPlmInstructionCodes.DrawPlmBlockClone);
-            WriteMemoryWord(memory, 0x841102, RoomPlmInstructionCodes.Delete);
+            WriteMemoryWord(memory, 0x841100, (ushort)RoomPlmInstruction.DrawPlmBlockClone);
+            WriteMemoryWord(memory, 0x841102, (ushort)RoomPlmInstruction.Delete);
             plms.SetSoleInstructionPointerForVerification(0x1100);
             plms.Step(memory, level, streamer, 0, 0, 0);
             AssertEqual(0xc456,

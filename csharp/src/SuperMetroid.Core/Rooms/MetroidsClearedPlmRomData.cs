@@ -23,7 +23,7 @@ internal static class MetroidsClearedPlmRomData
     {
         if (address == RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired)
         {
-            value = RoomPlmInstructionCodes.Sleep;
+            value = (ushort)RoomPlmInstruction.Sleep;
             return true;
         }
 

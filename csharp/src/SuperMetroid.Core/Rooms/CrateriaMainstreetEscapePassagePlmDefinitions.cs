@@ -17,11 +17,6 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     /// <summary>$84:9253, <c>DrawInst_CrateriaMainStreetEscape</c>: two $00FF air blocks in a row.</summary>
     internal const ushort ClearPairDraw = 0x9253;
 
-    /// <summary>
-    /// $84:BB25, <c>Instruction_PLM_MovePLMRight4Blocks</c>: adds eight to the PLM's byte
-    /// block index, four level words.
-    /// </summary>
-    internal const ushort MoveRightFourBlocks = 0xbb25;
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
@@ -29,10 +24,10 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
         {
             0xbb19 => 0x0001,
             0xbb1b => ClearPairDraw,
-            0xbb1d => MoveRightFourBlocks,
+            0xbb1d => (ushort)RoomPlmInstruction.MoveRightFourBlocks,
             0xbb1f => 0x0001,
             0xbb21 => ClearPairDraw,
-            0xbb23 => RoomPlmInstructionCodes.Delete,
+            0xbb23 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return value != 0;

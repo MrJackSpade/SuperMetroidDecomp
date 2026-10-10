@@ -480,7 +480,7 @@ internal static partial class Program
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 4)), 2);
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 6)), closingDraw);
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
-            RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6);
+            (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6);
         bus.WriteBytes(0x840000 | unchecked((ushort)(closingList + 10)), [0x08]);
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 11)), 2);
         WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 13)), closingDraw);
@@ -937,14 +937,14 @@ internal static partial class Program
 
         WriteWord(bus, 0x84bb34, 6);
         WriteWord(bus, 0x84bb36, 0x948b);
-        WriteWord(bus, 0x84bb38, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x84bb38, (ushort)RoomPlmInstruction.Delete);
         WriteWord(bus, 0x84bb44, 2);
         WriteWord(bus, 0x84bb46, 0x9473);
         WriteWord(bus, 0x84bb48, 2);
         WriteWord(bus, 0x84bb4a, 0x947f);
         WriteWord(bus, 0x84bb4c, 2);
         WriteWord(bus, 0x84bb4e, 0x948b);
-        WriteWord(bus, 0x84bb50, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x84bb50, (ushort)RoomPlmInstruction.Delete);
         WriteVerticalPlmDraw(bus, 0x9473, [0x80ff, 0x80ff, 0x80ff, 0x80ff]);
         WriteVerticalPlmDraw(bus, 0x947f, [0x830f, 0x80ff, 0x80ff, 0x830f]);
         WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
@@ -1127,7 +1127,7 @@ internal static partial class Program
                 RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired,
                 out ushort compiledInstruction),
             "Metroids-cleared resident list is compiled");
-        AssertEqual(RoomPlmInstructionCodes.Sleep, compiledInstruction,
+        AssertEqual((ushort)RoomPlmInstruction.Sleep, compiledInstruction,
             "Metroids-cleared resident list sleeps instead of reading poisoned fixture data");
         AssertTrue(!MetroidsClearedPlmRomData.TryReadInstructionWord(
                 checked((ushort)(RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired + 2)),

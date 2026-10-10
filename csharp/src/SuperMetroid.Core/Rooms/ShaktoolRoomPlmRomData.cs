@@ -15,9 +15,9 @@ internal static class ShaktoolRoomPlmRomData
     {
         value = address switch
         {
-            InstructionList => RoomPlmInstructionCodes.InstallPreInstruction,
+            InstructionList => (ushort)RoomPlmInstruction.InstallPreInstruction,
             InstructionList + 2 => PreInstruction,
-            InstructionList + 4 => RoomPlmInstructionCodes.Sleep,
+            InstructionList + 4 => (ushort)RoomPlmInstruction.Sleep,
             _ => 0,
         };
         return address is InstructionList or InstructionList + 2 or InstructionList + 4;

@@ -64,23 +64,23 @@ internal static class SamusEaterPlmProgramDefinitions
 
     private static ushort InstructionWord(int offset, bool ceiling, int start) => offset switch
     {
-        0 => RoomPlmInstructionCodes.InstallPreInstruction,
+        0 => (ushort)RoomPlmInstruction.InstallPreInstruction,
         2 => SamusEaterPlmRomData.HoldPreInstruction,
-        4 => RoomPlmInstructionCodes.SetEightBitTimer,
+        4 => (ushort)RoomPlmInstruction.SetEightBitTimer,
         7 or 11 or 15 or 24 or 28 or 32 or 36 or 42 => 5,
         9 or 17 or 30 or 38 => ceiling ? SamusEaterPlmDrawDefinitions.CeilingChew2 : SamusEaterPlmDrawDefinitions.FloorChew2,
         13 or 34 => ceiling ? SamusEaterPlmDrawDefinitions.CeilingChew1 : SamusEaterPlmDrawDefinitions.FloorChew1,
         26 or 44 or 56 => ceiling ? SamusEaterPlmDrawDefinitions.CeilingChew3 : SamusEaterPlmDrawDefinitions.FloorChew3,
-        19 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-        22 or 40 => SamusEaterPlmRomData.DamageInstruction,
-        46 => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+        19 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+        22 or 40 => (ushort)RoomPlmInstruction.SamusEaterDamage,
+        46 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
         48 => (ushort)(start + 7),
-        50 => SamusEaterPlmRomData.ReleaseImmunityInstruction,
-        52 => RoomPlmInstructionCodes.ClearPreInstruction,
+        50 => (ushort)RoomPlmInstruction.SamusEaterReleaseImmunity,
+        52 => (ushort)RoomPlmInstruction.ClearPreInstruction,
         54 => 96,
         58 => 1,
         60 => ceiling ? SamusEaterPlmDrawDefinitions.CeilingIdle : SamusEaterPlmDrawDefinitions.FloorIdle,
-        62 => RoomPlmInstructionCodes.Delete,
+        62 => (ushort)RoomPlmInstruction.Delete,
         _ => throw new InvalidOperationException("Invalid plant instruction word boundary."),
     };
 }

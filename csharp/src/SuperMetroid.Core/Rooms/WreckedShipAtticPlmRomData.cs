@@ -19,9 +19,9 @@ public static class WreckedShipAtticPlmRomData
         value = address switch
         {
             RoomPlmInstructionLists.WreckedShipAttic =>
-                RoomPlmInstructionCodes.InstallPreInstruction,
+                (ushort)RoomPlmInstruction.InstallPreInstruction,
             RoomPlmInstructionLists.WreckedShipAttic + 2 => NoOpCallback,
-            RoomPlmInstructionLists.WreckedShipAttic + 4 => RoomPlmInstructionCodes.Sleep,
+            RoomPlmInstructionLists.WreckedShipAttic + 4 => (ushort)RoomPlmInstruction.Sleep,
             _ => 0,
         };
         return address is RoomPlmInstructionLists.WreckedShipAttic or

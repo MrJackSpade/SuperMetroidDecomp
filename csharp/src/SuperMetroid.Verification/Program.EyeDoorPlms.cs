@@ -241,14 +241,14 @@ internal static partial class Program
             eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingRight;
             doorHeader = (ushort)PlmHeaderId.EyeDoorFacingRight;
             bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingRight;
-            convertInstruction = RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingRight;
+            convertInstruction = (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight;
         }
         else
         {
             eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingLeft;
             doorHeader = (ushort)PlmHeaderId.EyeDoorFacingLeft;
             bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingLeft;
-            convertInstruction = RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingLeft;
+            convertInstruction = (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft;
         }
 
         bus.WriteBytes(0x8f9000, [
@@ -277,7 +277,7 @@ internal static partial class Program
             0x24, 0x87, 0x00, 0x04,
         ]);
         WriteWord(bus, 0x840480, convertInstruction);
-        WriteWord(bus, 0x840482, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x840482, (ushort)RoomPlmInstruction.Delete);
 
         SeedPassiveEyeDoorList(bus, 0x0500, 0x0540, 0xf010);
         SeedPassiveEyeDoorList(bus, 0x0600, 0x0640, 0xf020);
@@ -300,7 +300,7 @@ internal static partial class Program
             0x01, 0x00, unchecked((byte)draw), unchecked((byte)(draw >> 8)),
             0xb4, 0x86,
         ]);
-        WriteWord(bus, 0x840000 | openedTarget, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x840000 | openedTarget, (ushort)RoomPlmInstruction.Delete);
     }
 
     private static void StepEyeDoorPlms(

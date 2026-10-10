@@ -16,7 +16,7 @@ internal static class KraidRoomPlmProgramDefinitions
     /// <summary><c>$84:ABAC</c>: spike loop body target.</summary>
     internal const ushort SpikeLoopBody = 0xabac;
     /// <summary><c>$84:ABD6</c>: first byte of move-right callback machine code.</summary>
-    internal const ushort MoveRightCallback = RoomPlmInstructionCodes.MoveRightOneBlock;
+    internal const ushort MoveRightCallback = (ushort)RoomPlmInstruction.MoveRightOneBlock;
     /// <summary><c>$84:ABDD</c>: clear defeated spikes.</summary>
     internal const ushort ClearSpikes = RoomPlmInstructionLists.ClearKraidSpikes;
     /// <summary><c>$84:ABAB</c>: number of two-block spike crumble passes.</summary>
@@ -42,7 +42,7 @@ internal static class KraidRoomPlmProgramDefinitions
                 1 => KraidRoomPlmDrawDefinitions.CeilingBackground2,
                 _ => KraidRoomPlmDrawDefinitions.CeilingBackground3,
             };
-            value = CrumbleWord((ceilingOffset % 18) / 2, finalDraw, RoomPlmInstructionCodes.Delete);
+            value = CrumbleWord((ceilingOffset % 18) / 2, finalDraw, (ushort)RoomPlmInstruction.Delete);
             return true;
         }
         int spikeOffset = address - SpikeLoopBody;
@@ -55,9 +55,9 @@ internal static class KraidRoomPlmProgramDefinitions
                     MoveRightCallback)
                 : word switch
                 {
-                    18 => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+                    18 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
                     19 => SpikeLoopBody,
-                    _ => RoomPlmInstructionCodes.Delete,
+                    _ => (ushort)RoomPlmInstruction.Delete,
                 };
             return true;
         }
@@ -66,8 +66,8 @@ internal static class KraidRoomPlmProgramDefinitions
             ClearCeiling or ClearSpikes => 1,
             ClearCeiling + 2 => KraidRoomPlmDrawDefinitions.ClearCeiling,
             ClearSpikes + 2 => KraidRoomPlmDrawDefinitions.ClearSpikes,
-            ClearCeiling + 4 or ClearSpikes + 4 => RoomPlmInstructionCodes.Delete,
-            CrumbleSpikes => RoomPlmInstructionCodes.SetEightBitTimer,
+            ClearCeiling + 4 or ClearSpikes + 4 => (ushort)RoomPlmInstruction.Delete,
+            CrumbleSpikes => (ushort)RoomPlmInstruction.SetEightBitTimer,
             _ => -1,
         };
         value = selected < 0 ? (ushort)0 : (ushort)selected;

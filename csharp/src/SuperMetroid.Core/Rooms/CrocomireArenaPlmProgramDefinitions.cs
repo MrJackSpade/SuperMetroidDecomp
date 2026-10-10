@@ -33,7 +33,7 @@ internal static class CrocomireArenaPlmProgramDefinitions
         value = (relative % 6) switch
         {
             0 => 1,
-            4 => RoomPlmInstructionCodes.Delete,
+            4 => (ushort)RoomPlmInstruction.Delete,
             _ => (address - 2) switch
             {
                 ClearBridge => CrocomireArenaPlmDrawDefinitions.ClearBridge,

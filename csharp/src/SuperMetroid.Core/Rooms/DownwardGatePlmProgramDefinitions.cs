@@ -42,7 +42,7 @@ internal static class DownwardGatePlmProgramDefinitions
             {
                 0 => 1,
                 2 => (ushort)(0xa5d7 + trigger / 2 * 20 + (trigger % 2) * 12),
-                _ => RoomPlmInstructionCodes.Delete,
+                _ => (ushort)RoomPlmInstruction.Delete,
             };
             return true;
         }
@@ -63,18 +63,18 @@ internal static class DownwardGatePlmProgramDefinitions
             0xbc15 or 0xbc21 => 0xa517,
             0xbc1f => 16,
             0xbc3c => 0xa55d,
-            0xbc17 or 0xbc3e => RoomPlmInstructionCodes.ClearDownwardGateTrigger,
-            0xbc19 or 0xbc40 => RoomPlmInstructionCodes.InstallPreInstruction,
+            0xbc17 or 0xbc3e => (ushort)RoomPlmInstruction.ClearDownwardGateTrigger,
+            0xbc19 or 0xbc40 => (ushort)RoomPlmInstruction.InstallPreInstruction,
             0xbc1b => DownwardGatePreInstructionCodes.WakeIfTriggered,
             0xbc42 => DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow,
-            0xbc1d or 0xbc44 => RoomPlmInstructionCodes.Sleep,
-            0xbc23 => RoomPlmInstructionCodes.SpawnDownwardGateProjectile,
+            0xbc1d or 0xbc44 => (ushort)RoomPlmInstruction.Sleep,
+            0xbc23 => (ushort)RoomPlmInstruction.SpawnDownwardGateProjectile,
             0xbc25 => (ushort)RoomEnemyProjectileKind.DownwardGateMoving,
-            0xbc27 or 0xbc4a => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
-            0xbc46 => RoomPlmInstructionCodes.WakeDownwardGateProjectile,
+            0xbc27 or 0xbc4a => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+            0xbc46 => (ushort)RoomPlmInstruction.WakeDownwardGateProjectile,
             // Native BBF0 advances over this operand without using its value.
             0xbc48 => DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
-            0xbc5d => RoomPlmInstructionCodes.Goto,
+            0xbc5d => (ushort)RoomPlmInstruction.Goto,
             0xbc5f => OpenStart,
             _ => 0,
         };

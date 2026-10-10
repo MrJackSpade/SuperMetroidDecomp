@@ -103,15 +103,21 @@ public sealed partial class RoomPlmSystem
     private bool TryExecuteBombTorizoHandInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
-        ushort instruction)
+        RoomPlmInstruction instruction)
     {
         if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
             return false;
 
         ushort cursor = slot.InstructionPointer;
+        if (instruction is not (
+            RoomPlmInstruction.CopyFromRamToVram or
+            RoomPlmInstruction.SpawnTorizoStatueBreaking or
+            RoomPlmInstruction.QueueSongOneMusicTrack))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.CopyFromRamToVram:
+            case RoomPlmInstruction.CopyFromRamToVram:
             {
                 // $87E5 consumes seven deliberately unaligned bytes after its opcode:
                 // u16 size, u16 source offset, u8 bank, then u16 encoded VRAM destination.
@@ -127,7 +133,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.SpawnTorizoStatueBreaking:
+            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
             {
                 ushort parameter = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 _bombTorizoStatueProjectileRequests.Add(
@@ -140,7 +146,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.QueueSongOneMusicTrack:
+            case RoomPlmInstruction.QueueSongOneMusicTrack:
                 // Despite its name, this routine always queues literal gameplay track six
                 // with the shared eight-frame delay and consumes no inline operand.
                 _musicRequests.Add(new PlmMusicRequest(
@@ -150,7 +156,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
     }
 

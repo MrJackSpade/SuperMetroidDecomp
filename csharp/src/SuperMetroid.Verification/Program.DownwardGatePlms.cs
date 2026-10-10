@@ -256,7 +256,7 @@ internal static partial class Program
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
                 gateX, gateY, argument),
         ]);
-        WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);
+        WriteWord(bus, 0x84aae3, (ushort)RoomPlmInstruction.Delete);
         SeedDownwardGateProjectileRom(bus);
 
         var blockDefinitions = new byte[0x400 * 8];

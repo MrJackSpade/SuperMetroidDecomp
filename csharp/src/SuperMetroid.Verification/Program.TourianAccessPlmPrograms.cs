@@ -184,7 +184,7 @@ internal static partial class Program
             int pointer = address & 0xffff;
             if ((address >> 16) == 0x84 &&
                 ((pointer >= TourianAccessPlmProgramDefinitions.Crumble &&
-                  pointer < TourianStatueRomData.MoveAccessDown) ||
+                  pointer < (ushort)RoomPlmInstruction.MoveTourianAccessDown) ||
                  (pointer >= TourianAccessPlmProgramDefinitions.Clear &&
                   pointer < TourianAccessPlmProgramDefinitions.Clear + 6) ||
                  (pointer >= TourianAccessPlmDrawDefinitions.EmptyRowPointer &&

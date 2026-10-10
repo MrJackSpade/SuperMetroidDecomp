@@ -21,8 +21,8 @@ internal static class SpeedBoosterEscapePlmProgramDefinitions
             // Three install/callback/sleep records hand control to the next phase.
             value = (offset % 6) switch
             {
-                0 => RoomPlmInstructionCodes.InstallPreInstruction,
-                4 => RoomPlmInstructionCodes.Sleep,
+                0 => (ushort)RoomPlmInstruction.InstallPreInstruction,
+                4 => (ushort)RoomPlmInstruction.Sleep,
                 _ => (offset / 6) switch
                 {
                     0 => SpeedBoosterEscapePlmRomData.WaitForSpeedBoosterPreInstruction,

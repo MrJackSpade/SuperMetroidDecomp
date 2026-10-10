@@ -67,7 +67,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
 
             if (address == program.Start + 4)
             {
-                value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6;
+                value = (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6;
                 return true;
             }
 
@@ -85,20 +85,20 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
             if (address == program.TerminalAddress)
             {
                 value = program.Respawns
-                    ? RoomPlmInstructionCodes.SetPlmBtsToOne
-                    : RoomPlmInstructionCodes.Delete;
+                    ? (ushort)RoomPlmInstruction.SetPlmBtsToOne
+                    : (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
 
             if (program.Respawns && address == program.TerminalAddress + 2)
             {
-                value = RoomPlmInstructionCodes.DrawPlmBlock;
+                value = (ushort)RoomPlmInstruction.DrawPlmBlock;
                 return true;
             }
 
             if (program.Respawns && address == program.TerminalAddress + 4)
             {
-                value = RoomPlmInstructionCodes.Delete;
+                value = (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
         }

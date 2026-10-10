@@ -33,7 +33,7 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
             0xbb34 or 0xbb3a => 6,
             0xbb3e => 94,
             0xbb44 or 0xbb48 or 0xbb4c => 2,
-            0xbb38 or 0xbb42 or 0xbb50 => RoomPlmInstructionCodes.Delete,
+            0xbb38 or 0xbb42 or 0xbb50 => (ushort)RoomPlmInstruction.Delete,
             0xbb36 or 0xbb4e => MotherBrainEscapeGatePlmDrawDefinitions.Closed,
             0xbb3c or 0xbb4a => MotherBrainEscapeGatePlmDrawDefinitions.HalfClosed,
             _ => MotherBrainEscapeGatePlmDrawDefinitions.Open, // BB40 and BB46 only.

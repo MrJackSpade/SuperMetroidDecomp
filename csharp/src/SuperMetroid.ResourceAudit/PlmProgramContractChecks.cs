@@ -16,39 +16,39 @@ internal static class PlmProgramContractChecks
         var absentDraw = Audit(new Dictionary<ushort, ushort>
         {
             [PlmAuditFixtureIds.Start] = 4,
-            [PlmAuditFixtureIds.Start + 4] = RoomPlmInstructionCodes.Delete,
+            [PlmAuditFixtureIds.Start + 4] = (ushort)RoomPlmInstruction.Delete,
         });
         Require(absentDraw.Findings.Single().Address == PlmAuditFixtureIds.Start + 2,
             "A duration without its draw-pointer operand must fail, not fall through to WRAM.");
 
         var absentByte = Audit(new Dictionary<ushort, ushort>
         {
-            [PlmAuditFixtureIds.Start] = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            [PlmAuditFixtureIds.Start + 3] = RoomPlmInstructionCodes.Delete,
+            [PlmAuditFixtureIds.Start] = (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            [PlmAuditFixtureIds.Start + 3] = (ushort)RoomPlmInstruction.Delete,
         });
         Require(absentByte.Findings.Single().Code == "missing-byte", "An odd-byte sound operand must be checked.");
 
         var branch = Audit(new Dictionary<ushort, ushort>
         {
-            [PlmAuditFixtureIds.Start] = RoomPlmInstructionCodes.GotoIfSamusHasNoBombs,
+            [PlmAuditFixtureIds.Start] = (ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
             [PlmAuditFixtureIds.Start + 2] = PlmAuditFixtureIds.AbsentTarget,
-            [PlmAuditFixtureIds.Start + 4] = RoomPlmInstructionCodes.Delete,
+            [PlmAuditFixtureIds.Start + 4] = (ushort)RoomPlmInstruction.Delete,
         });
         Require(branch.Findings.Single().Address == PlmAuditFixtureIds.AbsentTarget,
             "Both conditional outcomes must be visited even if one runtime branch would not execute.");
 
         var linked = Audit(new Dictionary<ushort, ushort>
         {
-            [PlmAuditFixtureIds.Start] = RoomPlmInstructionCodes.LinkInstruction,
+            [PlmAuditFixtureIds.Start] = (ushort)RoomPlmInstruction.LinkInstruction,
             [PlmAuditFixtureIds.Start + 2] = PlmAuditFixtureIds.AbsentTarget,
-            [PlmAuditFixtureIds.Start + 4] = RoomPlmInstructionCodes.Sleep,
+            [PlmAuditFixtureIds.Start + 4] = (ushort)RoomPlmInstruction.Sleep,
         });
         Require(linked.Findings.Single().Address == PlmAuditFixtureIds.AbsentTarget,
             "A link operand is a future program root, even when the current list sleeps.");
 
         var loop = Audit(new Dictionary<ushort, ushort>
         {
-            [PlmAuditFixtureIds.Start] = RoomPlmInstructionCodes.Goto,
+            [PlmAuditFixtureIds.Start] = (ushort)RoomPlmInstruction.Goto,
             [PlmAuditFixtureIds.Start + 2] = PlmAuditFixtureIds.Start,
         });
         Require(loop.Findings.Count == 0 && loop.Records == 1, "Control-flow cycles must terminate the audit deterministically.");
@@ -59,7 +59,7 @@ internal static class PlmProgramContractChecks
         {
             [PlmAuditFixtureIds.Start] = 4,
             [PlmAuditFixtureIds.Start + 2] = RoomPlmShotBlockDrawDefinitions.SingleFrame0,
-            [PlmAuditFixtureIds.Start + 4] = RoomPlmInstructionCodes.Delete,
+            [PlmAuditFixtureIds.Start + 4] = (ushort)RoomPlmInstruction.Delete,
         }, ownsDraw: false);
         Require(unowned.Findings.Single().Code == "missing-draw", "An existing pointer word does not prove a draw provider owns it.");
 
@@ -130,15 +130,15 @@ internal static class PlmProgramContractChecks
             RoomPlmGrappleBlockDrawDefinitions.Blank);
         Word(RoomPlmInstructionLists.RespawningBreakableGrappleBlock + 33,
             RoomPlmGrappleBlockDrawDefinitions.BreakFrame0);
-        Word(RoomPlmInstructionLists.RespawningSuperMissileBlock, RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6);
+        Word(RoomPlmInstructionLists.RespawningSuperMissileBlock, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6);
         Word(RoomPlmInstructionLists.PermanentPowerBombBlock + 3, 3);
         Word(RoomPlmInstructionLists.PermanentPowerBombBlock + 7, 2);
         Word(RoomPlmInstructionLists.PermanentPowerBombBlock + 11, 1);
-        Word(EnemyBreakableTerrainDefinitions.InstructionList, RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3);
+        Word(EnemyBreakableTerrainDefinitions.InstructionList, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3);
         Word(RoomPlmInstructionLists.CrumbleReveal1x1 + 2, RoomPlmBombedRevealDrawDefinitions.CrumbleSingle);
         Word(RoomPlmInstructionLists.BombedPowerBombBlockUnused + 2, RoomPlmBombedRevealDrawDefinitions.PowerBomb);
         Word(EscapeAnimalPlmRomData.ReactionList + 17, EscapeAnimalPlmDrawDefinitions.Blank);
-        Word(EscapeAnimalPlmRomData.ReactionList + 19, EscapeAnimalPlmRomData.SetEscapedEventInstruction);
+        Word(EscapeAnimalPlmRomData.ReactionList + 19, (ushort)RoomPlmInstruction.SetAnimalsEscapedEvent);
         Require(EscapeAnimalPlmDrawDefinitions.TryGet(EscapeAnimalPlmDrawDefinitions.Blank, out var wall) &&
             wall.Runs.Span[0].DirectionAndCount == 0x8003 &&
             wall.Runs.Span[0].LevelWords.Span.SequenceEqual(new ushort[] { 0x80ff, 0x80ff, 0x80ff }),

@@ -57,7 +57,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         }
         if (address == BombReveal + 4)
         {
-            value = RoomPlmInstructionCodes.Delete;
+            value = (ushort)RoomPlmInstruction.Delete;
             return true;
         }
 
@@ -66,7 +66,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.Start)
             {
-                value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct;
+                value = (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct;
                 return true;
             }
             int frameOffset = address - program.Start - 3;
@@ -96,14 +96,14 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
             {
                 value = program.Respawns
                     ? program.UseDrawBlockClone
-                        ? RoomPlmInstructionCodes.DrawPlmBlockClone
-                        : RoomPlmInstructionCodes.DrawPlmBlock
-                    : RoomPlmInstructionCodes.Delete;
+                        ? (ushort)RoomPlmInstruction.DrawPlmBlockClone
+                        : (ushort)RoomPlmInstruction.DrawPlmBlock
+                    : (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
             if (program.Respawns && address == program.Terminal + 2)
             {
-                value = RoomPlmInstructionCodes.Delete;
+                value = (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
         }

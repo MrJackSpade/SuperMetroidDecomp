@@ -16,7 +16,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
 
     private readonly record struct Program(ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
-        ushort SoundOpcode = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct)
+        RoomPlmInstruction SoundOpcode = RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
     {
         internal int FrameCount => Respawns ? RestoresLevelWord ? 7 : 8 : 4;
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
@@ -59,12 +59,12 @@ internal static class RoomPlmShotBlockProgramDefinitions
                 (RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, RoomPlmShotBlockDrawDefinitions.RestoreSquare),
             _ => (RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, (ushort)0),
         };
-        ushort sound = start switch
+        RoomPlmInstruction sound = start switch
         {
             RoomPlmInstructionLists.RespawningSuperMissileBlock or RoomPlmInstructionLists.PermanentSuperMissileBlock =>
-                RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            EnemyBreakableTerrainDefinitions.InstructionList => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3,
-            _ => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct,
+                RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            EnemyBreakableTerrainDefinitions.InstructionList => RoomPlmInstruction.QueueSoundLibrary2Maximum3,
+            _ => RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct,
         };
         return new(start, respawns, respawns && restore == 0, first, stride, respawns ? restore : (ushort)0, sound);
     }
@@ -102,7 +102,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.Start)
             {
-                value = program.SoundOpcode;
+                value = (ushort)program.SoundOpcode;
                 return true;
             }
 
@@ -129,14 +129,14 @@ internal static class RoomPlmShotBlockProgramDefinitions
             if (address == program.TerminalAddress)
             {
                 value = program.RestoresLevelWord
-                    ? RoomPlmInstructionCodes.DrawPlmBlock
-                    : RoomPlmInstructionCodes.Delete;
+                    ? (ushort)RoomPlmInstruction.DrawPlmBlock
+                    : (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
 
             if (program.RestoresLevelWord && address == program.TerminalAddress + 2)
             {
-                value = RoomPlmInstructionCodes.Delete;
+                value = (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
         }

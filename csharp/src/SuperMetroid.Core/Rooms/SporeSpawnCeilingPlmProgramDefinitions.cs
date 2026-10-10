@@ -35,10 +35,10 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         }
         value = address switch
         {
-            Crumble => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+            Crumble => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
             Clear => FrameDuration,
             Clear + 2 => SporeSpawnCeilingPlmDrawDefinitions.ClearPointer,
-            Clear + 4 => RoomPlmInstructionCodes.Delete,
+            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return address is Crumble or Clear or Clear + 2 or Clear + 4;

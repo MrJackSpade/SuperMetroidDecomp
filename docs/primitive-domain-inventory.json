@@ -251,16 +251,6 @@
     "status": "open"
    }
   ],
-  "ChozoStatuePlmRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.ChozoStatue.cs",
-    "line": 102,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of ChozoStatuePlmRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
@@ -1479,58 +1469,6 @@
     "status": "open"
    }
   ],
-  "RoomPlmInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.BombTorizoHand.cs",
-    "line": 112,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.DraygonCannons.cs",
-    "line": 92,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
-    "line": 129,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.MotherBrainGlass.cs",
-    "line": 120,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.NoobTube.cs",
-    "line": 89,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of RoomPlmInstructionCodes; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmInstructionCodes, SamusEaterPlmRomData, ChozoStatuePlmRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.ResourceAudit/PlmInstructionFormats.cs",
-    "line": 14,
-    "column": 65,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of RoomPlmInstructionCodes, SamusEaterPlmRomData, ChozoStatuePlmRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "RoomPlmInstructionLists": [
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmProgramDefinitions.cs",
@@ -1559,7 +1497,7 @@
    {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockProgramDefinitions.cs",
     "line": 62,
-    "column": 24,
+    "column": 36,
     "rule": "SME6270",
     "message": "'start' is a ushort switched over named constants of RoomPlmInstructionLists; model the domain as a type",
     "status": "open"
@@ -1724,16 +1662,6 @@
     "column": 13,
     "rule": "SME6270",
     "message": "'setup' is a ushort switched over named constants of SamusEaterPlmRomData, QuicksandRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "SamusEaterPlmRomData, RoomPlmInstructionCodes": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
-    "line": 1214,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of SamusEaterPlmRomData, RoomPlmInstructionCodes; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2405,13 +2333,24 @@
    "consumers": "RoomFxAnimatedTilesState.Step, TourianStatueSequence.StepTiles, WreckedShipTreadmillAnimatedTilesState.Step; compiled mechanics emit (ushort) members as stream words",
    "tests": "VerifyAnimatedTileInstructionCodeCatalog checks the member count, uniqueness and mapping; retail treadmill and statue streams execute through the decoded dispatchers",
    "status": "resolved"
+  },
+  "RoomPlmInstructionCodes": {
+   "previous": "ushort bank-$84 instruction words compared against RoomPlmInstructionCodes constants (plus instruction words parked in the Samus Eater, escape animal, Tourian access, Chozo statue and Crateria escape-passage catalogs) by the movement-owned PLM dispatcher and six per-PLM handlers",
+   "type": "enum RoomPlmInstruction : ushort (51 catalogued routines plus the eight relocated instruction words)",
+   "closedProof": "positive words are timer/draw pairs consumed before dispatch; every negative word the dispatcher executes is a member, and the old default already threw for anything uncatalogued",
+   "transitions": "none; instruction words are immutable stream data",
+   "boundary": "ClosedNativeWords.Decode<RoomPlmInstruction> once in ExecuteInstructionStream; the static PLM audit returns no format for a word outside the enum",
+   "invalidValues": "Decode throws InvalidDataException naming the word; each handler tests membership, then throws InvalidOperationException for an unhandled member",
+   "consumers": "RoomPlmSystem.ExecuteInstructionStream and the BombTorizoHand, ChozoStatue, DraygonCannon, EyeDoor, MotherBrainGlass and NoobTube handlers; compiled program definitions emit (ushort) members as stream words; ResourceAudit PlmInstructionFormats",
+   "tests": "the uncatalogued-opcode PLM fixture still fails loudly; the movement-PLM, eye-door, Draygon cannon, noob tube and population suites execute the typed dispatch; the static PLM audit reports 0 findings",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 234,
-  "openDomains": 169,
+  "openFindings": 226,
+  "openDomains": 165,
   "byRule": {
-   "SME6270": 234
+   "SME6270": 226
   }
  }
 }

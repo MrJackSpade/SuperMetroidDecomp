@@ -6,7 +6,7 @@ internal static class PlmProgressionClosedContractDefinitions
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs", "9985A5C60C510351018F1DDBE431A8E39C599D61233AB8F678B7946BC1290782");
     private static readonly ReviewedSource ElevatubeDefinition = new(
-        "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs", "D036DCF1F294E96033A51FD7E85041855BB00ABCD1E1B5D11A2F62ED4B513C66");
+        "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs", "403B861950E7121C78491A40F6232910987F55BCB55F1253B84C63016A86AB4C");
 
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -18,7 +18,7 @@ internal static class PlmProgressionClosedContractDefinitions
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "ED6B308007D200997CA60EC4873A12CF2D53416EE6DF54729DC94078D4E0EA58"),
              new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "75F04CD495A7511038602B09675F529348D626A744CB6905BA38E37050BE56AD"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "96302C27E6286E087C15C867848E85C86F2E85CDAE9D1EF79F2C14691DD3FB08")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "C724BCB80C826229EB818EE9827AF6253312402EC505E5338BA25FF925BE4E01")]),
         new("SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog", "plm-maridia-elevatube-complete-draw", ["GetWord"],
             [SharedDrawShape, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMaridiaElevatubeVisualCatalog.cs", "E44B8D6B1591FFCE3A7FCB9E1535A4A1BB59063B8894F04256D0B8222EBF295A")]),

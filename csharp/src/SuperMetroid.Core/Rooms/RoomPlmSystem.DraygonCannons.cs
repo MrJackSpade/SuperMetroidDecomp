@@ -82,21 +82,28 @@ public sealed partial class RoomPlmSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         PlmSlot slot,
-        ushort instruction)
+        RoomPlmInstruction instruction)
     {
         DraygonCannonPlmState? state = slot.DraygonCannon;
         if (state is null)
             return false;
 
         ushort cursor = slot.InstructionPointer;
+        if (instruction is not (
+            RoomPlmInstruction.LinkInstruction or
+            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
+            RoomPlmInstruction.DamageDraygonCannonFacingRight or
+            RoomPlmInstruction.DamageDraygonCannonFacingLeft))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.LinkInstruction:
+            case RoomPlmInstruction.LinkInstruction:
                 slot.LinkInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case RoomPlmInstructionCodes.IncrementArgumentAndGotoIfGreaterOrEqual:
+            case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
             {
                 byte threshold = ReadProgramByte(bus, unchecked((ushort)(cursor + 2)));
                 ushort destination = ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
@@ -115,14 +122,14 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.DamageDraygonCannonFacingRight:
+            case RoomPlmInstruction.DamageDraygonCannonFacingRight:
                 if (state.Orientation != DraygonCannonOrientation.Right)
                     throw new InvalidDataException("Right-facing cannon damage opcode reached a left-facing PLM.");
                 DamageDraygonCannon(level, slot, state);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft:
+            case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
                 if (state.Orientation != DraygonCannonOrientation.Left)
                     throw new InvalidDataException("Left-facing cannon damage opcode reached a right-facing PLM.");
                 DamageDraygonCannon(level, slot, state);
@@ -130,7 +137,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
     }
 

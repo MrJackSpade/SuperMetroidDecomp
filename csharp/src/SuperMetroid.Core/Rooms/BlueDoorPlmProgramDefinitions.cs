@@ -79,12 +79,12 @@ internal static class BlueDoorPlmProgramDefinitions
             start = local is 0 or 1 or 40 or 41 ? local & ~1 : ((local - 1) & ~1) + 1;
             word = start switch
             {
-                0 or 29 => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
-                19 or 47 => RoomPlmInstructionCodes.Delete,
+                0 or 29 => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+                19 or 47 => (ushort)RoomPlmInstruction.Delete,
                 21 or 25 => 2,
                 23 => clear,
                 27 => closed + 3 * 12,
-                40 => RoomPlmInstructionCodes.SetPlmBtsFromByte,
+                40 => (ushort)RoomPlmInstruction.SetPlmBtsFromByte,
                 43 => 1,
                 _ => closed, // Local 45: final closed-cap draw.
             };

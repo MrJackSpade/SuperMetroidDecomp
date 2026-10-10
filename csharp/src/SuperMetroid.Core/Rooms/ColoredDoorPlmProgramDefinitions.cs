@@ -114,13 +114,13 @@ internal static class ColoredDoorPlmProgramDefinitions
         }
         else if (local >= hit)
         {
-            if (local < hit + 2) { startWord = hit; word = RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto; }
+            if (local < hit + 2) { startWord = hit; word = (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto; }
             else if (local < hit + 5) { startWord = hit + 3; word = first + open; }
-            else if (color == 2 && local < flash) { startWord = hit + 5; word = RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6; }
-            else if (local < flash + 26) { startWord = flash + 24; word = RoomPlmInstructionCodes.Goto; }
+            else if (color == 2 && local < flash) { startWord = hit + 5; word = (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6; }
+            else if (local < flash + 26) { startWord = flash + 24; word = (ushort)RoomPlmInstruction.Goto; }
             else if (local < open) { startWord = flash + 26; word = first + sleep; }
-            else if (local < open + 2) { startWord = open; word = RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6; }
-            else { startWord = open + 19; word = RoomPlmInstructionCodes.Delete; }
+            else if (local < open + 2) { startWord = open; word = (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6; }
+            else { startWord = open + 19; word = (ushort)RoomPlmInstruction.Delete; }
         }
         else
         {
@@ -130,22 +130,22 @@ internal static class ColoredDoorPlmProgramDefinitions
                 0 or 4 => 2,
                 2 => clear,
                 6 => grey + 36,
-                8 => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
-                23 => RoomPlmInstructionCodes.GotoIfDoorBitSet,
+                8 => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+                23 => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
                 25 => orientation switch
                 {
                     0 => BlueDoorPlmProgramDefinitions.ClosedLeft, 1 => BlueDoorPlmProgramDefinitions.ClosedRight,
                     2 => BlueDoorPlmProgramDefinitions.ClosedUp, _ => BlueDoorPlmProgramDefinitions.ClosedDown,
                 },
-                27 => RoomPlmInstructionCodes.LinkInstruction,
+                27 => (ushort)RoomPlmInstruction.LinkInstruction,
                 29 => first + hit,
-                31 => RoomPlmInstructionCodes.InstallPreInstruction,
+                31 => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 33 => color switch { 0 => PowerBombCallback, 1 => SuperMissileCallback, _ => MissileCallback },
                 35 => yellowDown ? 2 : 1,
                 37 => grey,
-                39 => yellowDown ? 1 : RoomPlmInstructionCodes.Sleep,
-                41 => yellowLoop ? RoomPlmInstructionCodes.Goto : grey,
-                _ => yellowLoop ? first + sleep : RoomPlmInstructionCodes.Sleep, // Local 43.
+                39 => yellowDown ? 1 : (ushort)RoomPlmInstruction.Sleep,
+                41 => yellowLoop ? (ushort)RoomPlmInstruction.Goto : grey,
+                _ => yellowLoop ? first + sleep : (ushort)RoomPlmInstruction.Sleep, // Local 43.
             };
         }
         value = (byte)(word >> ((local - startWord) * 8));

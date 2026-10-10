@@ -11,8 +11,4 @@ internal static class SamusEaterPlmRomData
     public const ushort CeilingSetup = 0xb113;
     /// <summary>$84:AC89, pin Samus to saved coordinates and OR immunity with $10.</summary>
     public const ushort HoldPreInstruction = 0xac89;
-    /// <summary>$84:AC9D, accumulate two whole points of periodic damage.</summary>
-    public const ushort DamageInstruction = 0xac9d;
-    /// <summary>$84:ACB1, publish $30 immunity before releasing the position owner.</summary>
-    public const ushort ReleaseImmunityInstruction = 0xacb1;
 }

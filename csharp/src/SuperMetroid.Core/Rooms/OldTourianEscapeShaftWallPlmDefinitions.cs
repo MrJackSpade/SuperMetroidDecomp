@@ -28,13 +28,13 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
     {
         value = address switch
         {
-            0xb919 => RoomPlmInstructionCodes.InstallPreInstruction,
+            0xb919 => (ushort)RoomPlmInstruction.InstallPreInstruction,
             0xb91b => WaitForSamusPreInstruction,
-            0xb91d => RoomPlmInstructionCodes.Sleep,
-            0xb91f => RoomPlmInstructionCodes.ClearPreInstruction,
+            0xb91d => (ushort)RoomPlmInstruction.Sleep,
+            0xb91f => (ushort)RoomPlmInstruction.ClearPreInstruction,
             0xb921 => 0x0001,
             0xb923 => OpenWallDraw,
-            0xb925 => RoomPlmInstructionCodes.Delete,
+            0xb925 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return value != 0;

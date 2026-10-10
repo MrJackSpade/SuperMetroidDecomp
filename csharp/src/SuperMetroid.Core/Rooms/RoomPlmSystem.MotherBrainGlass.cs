@@ -111,20 +111,29 @@ public sealed partial class RoomPlmSystem
     private bool TryExecuteMotherBrainGlassInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
-        ushort instruction)
+        RoomPlmInstruction instruction)
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
             return false;
 
         ushort cursor = slot.InstructionPointer;
+        if (instruction is not (
+            RoomPlmInstruction.InstallPreInstruction or
+            RoomPlmInstruction.GotoIfAreaBossBitSet or
+            RoomPlmInstruction.GotoIfEventSet or
+            RoomPlmInstruction.GotoIfRoomArgumentLess or
+            RoomPlmInstruction.SpawnFourMotherBrainGlassShards or
+            RoomPlmInstruction.SetEvent))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.InstallPreInstruction:
+            case RoomPlmInstruction.InstallPreInstruction:
                 slot.PreInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case RoomPlmInstructionCodes.GotoIfAreaBossBitSet:
+            case RoomPlmInstruction.GotoIfAreaBossBitSet:
                 BossBits bossMask = BossBitMasks.FromCartridge(
                     ReadProgramByte(bus, unchecked((ushort)(cursor + 2))),
                     "Mother Brain glass area-boss branch");
@@ -134,7 +143,7 @@ public sealed partial class RoomPlmSystem
                     : unchecked((ushort)(cursor + 5));
                 return true;
 
-            case RoomPlmInstructionCodes.GotoIfEventSet:
+            case RoomPlmInstruction.GotoIfEventSet:
                 ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
                 ushort eventTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
@@ -143,7 +152,7 @@ public sealed partial class RoomPlmSystem
                     : unchecked((ushort)(cursor + 6));
                 return true;
 
-            case RoomPlmInstructionCodes.GotoIfRoomArgumentLess:
+            case RoomPlmInstruction.GotoIfRoomArgumentLess:
                 ushort threshold = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 ushort retryTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
                 slot.InstructionPointer = slot.RoomArgument < threshold
@@ -151,7 +160,7 @@ public sealed partial class RoomPlmSystem
                     : unchecked((ushort)(cursor + 6));
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards:
+            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: 15));
                 byte blockX = checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth));
                 byte blockY = checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth));
@@ -169,7 +178,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(cursor + 10));
                 return true;
 
-            case RoomPlmInstructionCodes.SetEvent:
+            case RoomPlmInstruction.SetEvent:
                 ushort setEventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
                 (_setEvent ?? throw new InvalidOperationException(
@@ -178,7 +187,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
     }
 

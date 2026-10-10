@@ -8,15 +8,15 @@ internal static class EscapeAnimalPlmProgramDefinitions
         int offset = address - EscapeAnimalPlmRomData.ReactionList;
         value = offset switch
         {
-            0 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+            0 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
             3 or 7 or 11 => 4,
             15 => 1,
             5 => EscapeAnimalPlmDrawDefinitions.Frame0,
             9 => EscapeAnimalPlmDrawDefinitions.Frame1,
             13 => EscapeAnimalPlmDrawDefinitions.Frame2,
             17 => EscapeAnimalPlmDrawDefinitions.Blank,
-            19 => EscapeAnimalPlmRomData.SetEscapedEventInstruction,
-            21 => RoomPlmInstructionCodes.Delete,
+            19 => (ushort)RoomPlmInstruction.SetAnimalsEscapedEvent,
+            21 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return value != 0;

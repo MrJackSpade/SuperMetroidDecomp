@@ -295,8 +295,8 @@ static void VerifyBreakableGrapplePlms()
     // than treating this as a room-specific or equipped-item condition.
     // Constructed probes run from low work RAM, where wrapped `$84` pointers execute.
     const ushort instructionProbe = 0x1200;
-    ushort[] branchInstructions = [RoomPlmInstructionCodes.GotoIfSamusHasNoBombs,
-        instructionProbe + 8, RoomPlmInstructionCodes.Delete, 0, RoomPlmInstructionCodes.Sleep];
+    ushort[] branchInstructions = [(ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
+        instructionProbe + 8, (ushort)RoomPlmInstruction.Delete, 0, (ushort)RoomPlmInstruction.Sleep];
     RoomLevelData noBombsBranchLevel = CreateLevel(1, definitions);
     var noBombsBranchPlms = new RoomPlmSystem();
     AssertTrue(noBombsBranchPlms.TrySpawnBreakableGrappleBlock(

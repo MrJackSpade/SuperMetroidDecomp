@@ -31,7 +31,7 @@ internal static class RoomPlmPopulationImporter
                 kind >= InWorldCollectibleKind.Bombs)
             {
                 ushort instruction = metadata.InitialInstruction;
-                if (Word(0x84, instruction) != RoomPlmInstructionCodes.LoadItemGraphics)
+                if (Word(0x84, instruction) != RoomPlmInstruction.LoadItemGraphics)
                     throw new InvalidDataException($"Imported collectible $84:{(ushort)header:X4} lacks its item-graphics instruction.");
                 ushort graphicsPointer = Word(0x84, unchecked((ushort)(instruction + 2)));
                 var palettes = new byte[8];

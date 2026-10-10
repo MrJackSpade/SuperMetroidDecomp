@@ -11,68 +11,72 @@ namespace SuperMetroid.ResourceAudit;
 internal sealed record PlmInstructionFormat(int Length, int[] Words, int[] Bytes,
     int[] Targets, bool FallThrough = true)
 {
-    internal static PlmInstructionFormat? Get(ushort opcode) => opcode switch
+    /// <summary>Decodes a stream word; a word outside <see cref="RoomPlmInstruction"/> has no format.</summary>
+    internal static PlmInstructionFormat? Get(ushort opcode) =>
+        Enum.IsDefined((RoomPlmInstruction)opcode) ? Get((RoomPlmInstruction)opcode) : null;
+
+    private static PlmInstructionFormat? Get(RoomPlmInstruction opcode) => opcode switch
     {
-        RoomPlmInstructionCodes.Delete or RoomPlmInstructionCodes.Sleep =>
+        RoomPlmInstruction.Delete or RoomPlmInstruction.Sleep =>
             new(2, [], [], [], false),
-        RoomPlmInstructionCodes.Goto => new(4, [2], [], [2], false),
-        RoomPlmInstructionCodes.DecrementTimerAndGoto or
-        RoomPlmInstructionCodes.GotoIfSamusHasNoBombs or
-        RoomPlmInstructionCodes.GotoIfDoorBitSet => new(4, [2], [], [2]),
-        RoomPlmInstructionCodes.LinkInstruction => new(4, [2], [], [2]),
-        RoomPlmInstructionCodes.GotoIfAreaBossBitSet or
-        RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto or
-        RoomPlmInstructionCodes.IncrementArgumentAndGotoIfGreaterOrEqual =>
+        RoomPlmInstruction.Goto => new(4, [2], [], [2], false),
+        RoomPlmInstruction.DecrementTimerAndGoto or
+        RoomPlmInstruction.GotoIfSamusHasNoBombs or
+        RoomPlmInstruction.GotoIfDoorBitSet => new(4, [2], [], [2]),
+        RoomPlmInstruction.LinkInstruction => new(4, [2], [], [2]),
+        RoomPlmInstruction.GotoIfAreaBossBitSet or
+        RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
+        RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual =>
             new(5, [3], [2], [3]),
-        RoomPlmInstructionCodes.GotoIfEventSet or
-        RoomPlmInstructionCodes.GotoIfRoomArgumentLess => new(6, [2, 4], [], [4]),
-        RoomPlmInstructionCodes.GotoIfSamusNear => new(6, [4], [2, 3], [4]),
-        RoomPlmInstructionCodes.InstallPreInstruction or
-        RoomPlmInstructionCodes.SpawnDownwardGateProjectile or
-        RoomPlmInstructionCodes.WakeDownwardGateProjectile or
-        RoomPlmInstructionCodes.SetEvent or
-        RoomPlmInstructionCodes.SpawnTorizoStatueBreaking or
-        RoomPlmInstructionCodes.ShootEyeDoorProjectile or
-        RoomPlmInstructionCodes.SpawnEyeDoorSweat => new(4, [2], [], []),
-        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1 or
-        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct or
-        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3 or
-        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6 or
-        RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6 or
-        RoomPlmInstructionCodes.SetEightBitTimer or
-        RoomPlmInstructionCodes.SetPlmBtsFromByte => new(3, [], [2], []),
-        RoomPlmInstructionCodes.CopyFromRamToVram => new(9, [2, 4, 7], [6], []),
-        RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards => new(10, [2, 4, 6, 8], [], []),
-        RoomPlmInstructionCodes.ClearPreInstruction or
-        RoomPlmInstructionCodes.SetGreyDoorPreInstruction or
-        RoomPlmInstructionCodes.ClearDownwardGateTrigger or
-        RoomPlmInstructionCodes.SetBotwoonScrollsBlue or
-        RoomPlmInstructionCodes.MoveRightOneBlock or
-        RoomPlmInstructionCodes.MoveBotwoonPlmDownOneBlock or
-        RoomPlmInstructionCodes.SetPlmBtsToOne or
-        RoomPlmInstructionCodes.DrawPlmBlock or
-        RoomPlmInstructionCodes.DrawPlmBlockClone or
-        RoomPlmInstructionCodes.QueueSongOneMusicTrack or
-        RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics or
-        RoomPlmInstructionCodes.SpawnNoobTubeCrack or
-        RoomPlmInstructionCodes.TriggerNoobTubeEarthquake or
-        RoomPlmInstructionCodes.SpawnNoobTubeShardsAndBubbles or
-        RoomPlmInstructionCodes.LockSamus or
-        RoomPlmInstructionCodes.UnlockSamus or
-        RoomPlmInstructionCodes.SpawnTwoEyeDoorSmoke or
-        RoomPlmInstructionCodes.SpawnEyeDoorSmoke or
-        RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingRight or
-        RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingLeft or
-        RoomPlmInstructionCodes.DamageDraygonCannonFacingRight or
-        RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft or
-        SamusEaterPlmRomData.DamageInstruction or
-        SamusEaterPlmRomData.ReleaseImmunityInstruction or
-        EscapeAnimalPlmRomData.SetEscapedEventInstruction or
-        CrateriaMainstreetEscapePassagePlmDefinitions.MoveRightFourBlocks or
-        ChozoStatuePlmRomData.TransformSpikesToSlopes or
-        ChozoStatuePlmRomData.RevertSlopesToSpikes or
-        ChozoStatuePlmRomData.SetLoweredAcidHeight or
-        TourianStatueRomData.MoveAccessDown => new(2, [], [], []),
+        RoomPlmInstruction.GotoIfEventSet or
+        RoomPlmInstruction.GotoIfRoomArgumentLess => new(6, [2, 4], [], [4]),
+        RoomPlmInstruction.GotoIfSamusNear => new(6, [4], [2, 3], [4]),
+        RoomPlmInstruction.InstallPreInstruction or
+        RoomPlmInstruction.SpawnDownwardGateProjectile or
+        RoomPlmInstruction.WakeDownwardGateProjectile or
+        RoomPlmInstruction.SetEvent or
+        RoomPlmInstruction.SpawnTorizoStatueBreaking or
+        RoomPlmInstruction.ShootEyeDoorProjectile or
+        RoomPlmInstruction.SpawnEyeDoorSweat => new(4, [2], [], []),
+        RoomPlmInstruction.QueueSoundLibrary2Maximum1 or
+        RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct or
+        RoomPlmInstruction.QueueSoundLibrary2Maximum3 or
+        RoomPlmInstruction.QueueSoundLibrary2Maximum6 or
+        RoomPlmInstruction.QueueSoundLibrary3Maximum6 or
+        RoomPlmInstruction.SetEightBitTimer or
+        RoomPlmInstruction.SetPlmBtsFromByte => new(3, [], [2], []),
+        RoomPlmInstruction.CopyFromRamToVram => new(9, [2, 4, 7], [6], []),
+        RoomPlmInstruction.SpawnFourMotherBrainGlassShards => new(10, [2, 4, 6, 8], [], []),
+        RoomPlmInstruction.ClearPreInstruction or
+        RoomPlmInstruction.SetGreyDoorPreInstruction or
+        RoomPlmInstruction.ClearDownwardGateTrigger or
+        RoomPlmInstruction.SetBotwoonScrollsBlue or
+        RoomPlmInstruction.MoveRightOneBlock or
+        RoomPlmInstruction.MoveBotwoonPlmDownOneBlock or
+        RoomPlmInstruction.SetPlmBtsToOne or
+        RoomPlmInstruction.DrawPlmBlock or
+        RoomPlmInstruction.DrawPlmBlockClone or
+        RoomPlmInstruction.QueueSongOneMusicTrack or
+        RoomPlmInstruction.EnableNoobTubeWaterPhysics or
+        RoomPlmInstruction.SpawnNoobTubeCrack or
+        RoomPlmInstruction.TriggerNoobTubeEarthquake or
+        RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles or
+        RoomPlmInstruction.LockSamus or
+        RoomPlmInstruction.UnlockSamus or
+        RoomPlmInstruction.SpawnTwoEyeDoorSmoke or
+        RoomPlmInstruction.SpawnEyeDoorSmoke or
+        RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight or
+        RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft or
+        RoomPlmInstruction.DamageDraygonCannonFacingRight or
+        RoomPlmInstruction.DamageDraygonCannonFacingLeft or
+        RoomPlmInstruction.SamusEaterDamage or
+        RoomPlmInstruction.SamusEaterReleaseImmunity or
+        RoomPlmInstruction.SetAnimalsEscapedEvent or
+        RoomPlmInstruction.MoveRightFourBlocks or
+        RoomPlmInstruction.TransformSpikesToSlopes or
+        RoomPlmInstruction.RevertSlopesToSpikes or
+        RoomPlmInstruction.SetLoweredAcidHeight or
+        RoomPlmInstruction.MoveTourianAccessDown => new(2, [], [], []),
         _ => null,
     };
 }

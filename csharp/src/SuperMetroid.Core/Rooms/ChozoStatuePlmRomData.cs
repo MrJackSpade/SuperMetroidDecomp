@@ -3,12 +3,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Bank-$84 identities shared by Chozo enemy requests and terrain collision.</summary>
 internal static class ChozoStatuePlmRomData
 {
-    /// <summary>$84:D3D7, replace the two Wrecked Ship spike slopes with ordinary slopes.</summary>
-    public const ushort TransformSpikesToSlopes = 0xd3d7;
-    /// <summary>$84:D3F4, restore the same two blocks to spike collision.</summary>
-    public const ushort RevertSlopesToSpikes = 0xd3f4;
-    /// <summary>$84:D155, restore the lowered acid's base height on room re-entry.</summary>
-    public const ushort SetLoweredAcidHeight = 0xd155;
     /// <summary>$84:D15C, wait for blank air at (4,8), then install Lower Norfair BTS $83.</summary>
     public const ushort WaitForLowerNorfairHand = 0xd15c;
     /// <summary>$84:D158 writes this lowered-acid base Y coordinate.</summary>

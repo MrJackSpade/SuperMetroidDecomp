@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named bank-$84 PLM instruction-list offsets used by translated room actors.</summary>
 /// <remarks>
 /// Values are native low-word pointers in fixed bank $84. List identities remain separate
-/// from executable opcode identities in <see cref="RoomPlmInstructionCodes"/> and from
+/// from executable opcode identities in <see cref="RoomPlmInstruction"/> and from
 /// draw-list pointers, even though all three domains share the same 16-bit storage type.
 /// </remarks>
 public static class RoomPlmInstructionLists

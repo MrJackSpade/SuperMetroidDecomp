@@ -94,28 +94,28 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
             {
                 0xba4c => 2,
                 0xba4e or 0xba56 => ClearDraw,
-                0xba50 => RoomPlmInstructionCodes.GotoIfSamusHasNoBombs,
+                0xba50 => (ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
                 0xba52 => ClosingStart,
                 0xba54 => 40,
-                0xba58 or Open => RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
-                0xba6b or 0xba8f or 0xbab3 => RoomPlmInstructionCodes.Goto,
+                0xba58 or Open => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+                0xba6b or 0xba8f or 0xbab3 => (ushort)RoomPlmInstruction.Goto,
                 0xba6d => ResidentStart,
-                ResidentStart => RoomPlmInstructionCodes.GotoIfDoorBitSet,
+                ResidentStart => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
                 0xba81 => BlueDoorPlmProgramDefinitions.ClosedRight,
-                0xba83 or Activate => RoomPlmInstructionCodes.LinkInstruction,
+                0xba83 or Activate => (ushort)RoomPlmInstruction.LinkInstruction,
                 0xba85 => Activate,
-                0xba87 => RoomPlmInstructionCodes.SetGreyDoorPreInstruction,
+                0xba87 => (ushort)RoomPlmInstruction.SetGreyDoorPreInstruction,
                 0xba89 => 1,
                 0xba8b => ClosedDraw,
-                Locked => RoomPlmInstructionCodes.Sleep,
+                Locked => (ushort)RoomPlmInstruction.Sleep,
                 0xba91 => Locked,
                 0xba95 => Hit,
-                0xba97 => RoomPlmInstructionCodes.InstallPreInstruction,
+                0xba97 => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 0xba99 => FollowLinkWhenShot,
                 0xbab5 => Flash,
-                Hit => RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto,
+                Hit => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
                 0xbaba => Open,
-                _ => RoomPlmInstructionCodes.Delete, // BACF only.
+                _ => (ushort)RoomPlmInstruction.Delete, // BACF only.
             };
         }
         value = (byte)(word >> ((address - start) * 8));

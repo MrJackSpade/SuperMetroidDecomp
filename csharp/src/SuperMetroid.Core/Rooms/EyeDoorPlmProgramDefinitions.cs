@@ -73,20 +73,20 @@ internal static class EyeDoorPlmProgramDefinitions
         }
         return offset switch
         {
-            0x00 => RoomPlmInstructionCodes.GotoIfDoorBitSet,
+            0x00 => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
             0x02 or 0x14 => (ushort)(start + 0x34), // Delete after the door bit is set.
-            0x04 or 0x2a => RoomPlmInstructionCodes.GotoIfSamusNear,
+            0x04 or 0x2a => (ushort)RoomPlmInstruction.GotoIfSamusNear,
             0x06 or 0x2c => 0x1006, // Six columns, sixteen rows.
             0x08 => (ushort)(start + 0x12), // Install the door-bit callback.
             0x0a => 8,
             0x0c => (ushort)draw,
-            0x0e or 0x30 => RoomPlmInstructionCodes.Goto,
+            0x0e or 0x30 => (ushort)RoomPlmInstruction.Goto,
             0x10 or 0x32 => (ushort)(start + 4), // Resume proximity wait.
-            0x12 => RoomPlmInstructionCodes.LinkInstruction,
-            0x16 => RoomPlmInstructionCodes.InstallPreInstruction,
+            0x12 => (ushort)RoomPlmInstruction.LinkInstruction,
+            0x16 => (ushort)RoomPlmInstruction.InstallPreInstruction,
             0x18 => EyeDoorPlmRomData.WakeWhenDoorBitSetPreInstruction,
             0x2e => (ushort)(start + 0x1a), // Continue the four-pose cycle.
-            0x34 => RoomPlmInstructionCodes.Delete,
+            0x34 => (ushort)RoomPlmInstruction.Delete,
             _ => throw new InvalidOperationException("Unclassified eye-door component word."),
         };
     }
@@ -94,26 +94,26 @@ internal static class EyeDoorPlmProgramDefinitions
     private static ushort EyeWord(int start, int offset, bool right)
     {
         int eye = EyeDrawFirst + (right ? DrawMirrorBytes : 0);
-        ushort makeBlue = right ? RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingRight :
-            RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingLeft;
+        ushort makeBlue = right ? (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight :
+            (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft;
         return offset switch
         {
             // Proximity wait, missile callback, three shots, hit reaction and terminal conversion.
-            0x00 => RoomPlmInstructionCodes.GotoIfDoorBitSet,
-            0x08 or 0x1e or 0x50 => RoomPlmInstructionCodes.GotoIfSamusNear,
-            0x0e or 0x56 or 0x5e or 0xa2 or 0xc1 or 0xc7 => RoomPlmInstructionCodes.Goto,
-            0x12 => RoomPlmInstructionCodes.LinkInstruction,
-            0x16 => RoomPlmInstructionCodes.InstallPreInstruction,
-            0x28 or 0x30 or 0x38 => RoomPlmInstructionCodes.ShootEyeDoorProjectile,
-            0x62 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            0x65 or 0x67 or 0x76 or 0x84 or 0xac or 0xae => RoomPlmInstructionCodes.SpawnTwoEyeDoorSmoke,
-            0x69 => RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto,
-            0x92 => RoomPlmInstructionCodes.SpawnEyeDoorSweat,
-            0xa6 => RoomPlmInstructionCodes.ClearPreInstruction,
-            0xa8 or 0xaa => RoomPlmInstructionCodes.SpawnEyeDoorSmoke,
+            0x00 => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
+            0x08 or 0x1e or 0x50 => (ushort)RoomPlmInstruction.GotoIfSamusNear,
+            0x0e or 0x56 or 0x5e or 0xa2 or 0xc1 or 0xc7 => (ushort)RoomPlmInstruction.Goto,
+            0x12 => (ushort)RoomPlmInstruction.LinkInstruction,
+            0x16 => (ushort)RoomPlmInstruction.InstallPreInstruction,
+            0x28 or 0x30 or 0x38 => (ushort)RoomPlmInstruction.ShootEyeDoorProjectile,
+            0x62 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            0x65 or 0x67 or 0x76 or 0x84 or 0xac or 0xae => (ushort)RoomPlmInstruction.SpawnTwoEyeDoorSmoke,
+            0x69 => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
+            0x92 => (ushort)RoomPlmInstruction.SpawnEyeDoorSweat,
+            0xa6 => (ushort)RoomPlmInstruction.ClearPreInstruction,
+            0xa8 or 0xaa => (ushort)RoomPlmInstruction.SpawnEyeDoorSmoke,
             0xb0 or 0xc5 => makeBlue,
-            0xb2 => RoomPlmInstructionCodes.SetEightBitTimer,
-            0xbd => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+            0xb2 => (ushort)RoomPlmInstruction.SetEightBitTimer,
+            0xbd => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
 
             0x02 => (ushort)(start + 0xc5),
             0x0c => (ushort)(start + 0x12),

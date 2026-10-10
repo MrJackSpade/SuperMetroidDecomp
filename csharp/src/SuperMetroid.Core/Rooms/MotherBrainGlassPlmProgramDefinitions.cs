@@ -58,12 +58,12 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         if (address < Stages)
             return address switch
             {
-                FirstAddress => RoomPlmInstructionCodes.GotoIfAreaBossBitSet,
+                FirstAddress => (ushort)RoomPlmInstruction.GotoIfAreaBossBitSet,
                 0xd205 => BossDead,
-                0xd207 => RoomPlmInstructionCodes.GotoIfEventSet,
+                0xd207 => (ushort)RoomPlmInstruction.GotoIfEventSet,
                 0xd209 => (ushort)EventNumber.MotherBrainGlassDestroyed,
                 0xd20b => NoGlass,
-                0xd20d => RoomPlmInstructionCodes.InstallPreInstruction,
+                0xd20d => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 _ => HitPreInstruction,
             };
         if (address >= BossDead)
@@ -71,7 +71,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
             {
                 0 => 1,
                 2 => address < NoGlass ? MotherBrainGlassPlmDrawDefinitions.Cleared : MotherBrainGlassPlmDrawDefinitions.Shatter3,
-                _ => RoomPlmInstructionCodes.Delete,
+                _ => (ushort)RoomPlmInstruction.Delete,
             };
         int start = Stages;
         for (int stage = 0; stage < 9; stage++)
@@ -96,16 +96,16 @@ internal static class MotherBrainGlassPlmProgramDefinitions
             {
                 0 => 1,
                 2 => DrawAt(stage),
-                4 => RoomPlmInstructionCodes.GotoIfRoomArgumentLess,
+                4 => (ushort)RoomPlmInstruction.GotoIfRoomArgumentLess,
                 6 => (ushort)(2 * (stage + 1)),
                 8 => (ushort)start,
-                10 or 24 => RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards,
+                10 or 24 => (ushort)RoomPlmInstruction.SpawnFourMotherBrainGlassShards,
                 20 => 4,
                 22 or 36 => DrawAt(stage + 1),
                 34 => 48,
-                38 => RoomPlmInstructionCodes.SetEvent,
+                38 => (ushort)RoomPlmInstruction.SetEvent,
                 40 => (ushort)EventNumber.MotherBrainGlassDestroyed,
-                _ => RoomPlmInstructionCodes.Delete,
+                _ => (ushort)RoomPlmInstruction.Delete,
             };
         }
         throw new InvalidOperationException("Glass program stage domain is inconsistent.");

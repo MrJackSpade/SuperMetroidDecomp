@@ -31,7 +31,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         value = offset switch
         {
             0 => 1,
-            4 => RoomPlmInstructionCodes.Delete,
+            4 => (ushort)RoomPlmInstruction.Delete,
             _ => start switch
             {
                 RoomPlmInstructionLists.CrumbleReveal1x1 => RoomPlmBombedRevealDrawDefinitions.CrumbleSingle,

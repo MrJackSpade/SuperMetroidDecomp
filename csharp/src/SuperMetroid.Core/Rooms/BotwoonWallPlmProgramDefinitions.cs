@@ -38,16 +38,16 @@ internal static class BotwoonWallPlmProgramDefinitions
 
         value = address switch
         {
-            Crumble => RoomPlmInstructionCodes.SetEightBitTimer,
-            Crumble + 3 => RoomPlmInstructionCodes.SetBotwoonScrollsBlue,
-            Crumble + 5 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            Crumble + 24 => RoomPlmInstructionCodes.MoveBotwoonPlmDownOneBlock,
-            Crumble + 26 => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+            Crumble => (ushort)RoomPlmInstruction.SetEightBitTimer,
+            Crumble + 3 => (ushort)RoomPlmInstruction.SetBotwoonScrollsBlue,
+            Crumble + 5 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            Crumble + 24 => (ushort)RoomPlmInstruction.MoveBotwoonPlmDownOneBlock,
+            Crumble + 26 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
             Crumble + 28 => Crumble + 5,
-            Crumble + 30 => RoomPlmInstructionCodes.Delete,
+            Crumble + 30 => (ushort)RoomPlmInstruction.Delete,
             Clear => 1,
             Clear + 2 => BotwoonWallPlmDrawDefinitions.ClearPointer,
-            Clear + 4 => RoomPlmInstructionCodes.Delete,
+            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return address is Crumble or Crumble + 3 or Crumble + 5 or

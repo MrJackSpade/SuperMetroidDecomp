@@ -1211,21 +1211,23 @@ public sealed partial class RoomPlmSystem
                 return;
             }
 
-            switch (instruction)
+            RoomPlmInstruction code = ClosedNativeWords.Decode<RoomPlmInstruction>(
+                instruction, "bank-$84 PLM instruction");
+            switch (code)
             {
-                case SamusEaterPlmRomData.DamageInstruction:
+                case RoomPlmInstruction.SamusEaterDamage:
                     RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
-                case SamusEaterPlmRomData.ReleaseImmunityInstruction:
+                case RoomPlmInstruction.SamusEaterReleaseImmunity:
                     RequirePlantSamus().InvincibilityTimer = 0x30;
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
-                case EscapeAnimalPlmRomData.SetEscapedEventInstruction:
+                case RoomPlmInstruction.SetAnimalsEscapedEvent:
                     (_setEvent ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
-                case RoomPlmInstructionCodes.InstallPreInstruction:
+                case RoomPlmInstruction.InstallPreInstruction:
                     // `$84:86C1` is shared infrastructure, not a Mother Brain special.
                     // The operand is the bank-$84 pre-instruction run before this slot's
                     // timer on subsequent handler passes. Both glass and Bomb Torizo's
@@ -1236,14 +1238,14 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
-                case RoomPlmInstructionCodes.ClearPreInstruction:
+                case RoomPlmInstruction.ClearPreInstruction:
                     // $84:86CA installs the shared RTS callback. Zero is the C# semantic
                     // representation of that inert routine for non-family-specific slots.
                     slot.PreInstruction = 0;
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1:
+                case RoomPlmInstruction.QueueSoundLibrary2Maximum1:
                     // `$84:8C79` is the shot-block queue form. It has the same odd-byte
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
                     byte singleSoundId = ReadProgramByte(
@@ -1252,7 +1254,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct:
+                case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
                     // `$84:8C7C` is the direct LDA/JSL form used by the power-bomb-gated
                     // shot-block lists; `$8C79` enters the same max-one queue routine through
                     // a short branch. Both consume the identical odd-byte sound operand.
@@ -1262,7 +1264,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6:
+                case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
                     // $84:8C10 consumes one byte after its pointer. The following timer's
                     // low byte is read as A's harmless high byte by the 16-bit LDA.
                     byte soundId = ReadProgramByte(
@@ -1271,7 +1273,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3:
+                case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
                     // `$84:8C46` has the same odd-byte operand layout as `$8C10`, but the
                     // collision-bomb list's crumble sound `$06` uses the stricter queue cap.
                     byte cappedSoundId = ReadProgramByte(
@@ -1280,7 +1282,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6:
+                case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
                     // Door lists use `$84:8C19` for open/close sounds. Like the adjacent
                     // library-two opcodes, the 16-bit native load intentionally consumes
                     // only one argument byte before advancing Y by one.
@@ -1290,12 +1292,12 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.ClearDownwardGateTrigger:
+                case RoomPlmInstruction.ClearDownwardGateTrigger:
                     slot.LoopTimer = 0;
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.SpawnDownwardGateProjectile:
+                case RoomPlmInstruction.SpawnDownwardGateProjectile:
                     _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
                         DownwardGateProjectileOperation.Spawn,
                         ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2))),
@@ -1303,7 +1305,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
-                case RoomPlmInstructionCodes.WakeDownwardGateProjectile:
+                case RoomPlmInstruction.WakeDownwardGateProjectile:
                     // $BBF0 consumes but does not use the following list address. It locates
                     // the actor whose variable-E stores this PLM's native block byte index.
                     _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
@@ -1313,7 +1315,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
-                case RoomPlmInstructionCodes.Goto:
+                case RoomPlmInstruction.Goto:
                     // `$84:8724` replaces Y with the following little-endian pointer. All
                     // eight collision entry lists use it to share their dimension-specific
                     // respawning/permanent animation tail.
@@ -1335,7 +1337,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = gotoTarget;
                     continue;
 
-                case RoomPlmInstructionCodes.SetEightBitTimer:
+                case RoomPlmInstruction.SetEightBitTimer:
                     // `$84:874E` consumes an odd one-byte operand into PLM_Timers, not the
                     // instruction countdown. Botwoon's list seeds nine vertical rows here.
                     slot.LoopTimer = ReadProgramByte(
@@ -1343,7 +1345,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstructionCodes.DecrementTimerAndGoto:
+                case RoomPlmInstruction.DecrementTimerAndGoto:
                     // `$84:873F` always decrements the independent PLM_Timers word. A
                     // nonzero result jumps through the following pointer; zero consumes it.
                     slot.LoopTimer = unchecked((ushort)(slot.LoopTimer - 1));
@@ -1359,7 +1361,7 @@ public sealed partial class RoomPlmSystem
                     }
                     continue;
 
-                case RoomPlmInstructionCodes.SetBotwoonScrollsBlue:
+                case RoomPlmInstruction.SetBotwoonScrollsBlue:
                     if (scrolls is null)
                     {
                         throw new InvalidOperationException(
@@ -1372,28 +1374,28 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case CrateriaMainstreetEscapePassagePlmDefinitions.MoveRightFourBlocks:
+                case RoomPlmInstruction.MoveRightFourBlocks:
                     // Eight bytes of native block index are four whole level words.
                     slot.BlockIndex = checked(slot.BlockIndex + 4);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.MoveRightOneBlock:
+                case RoomPlmInstruction.MoveRightOneBlock:
                     // The cartridge increments its byte offset twice; our index
                     // already addresses whole level words. Drawing stays list-owned.
                     slot.BlockIndex = checked(slot.BlockIndex + 1);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.MoveBotwoonPlmDownOneBlock:
-                case TourianStatueRomData.MoveAccessDown:
+                case RoomPlmInstruction.MoveBotwoonPlmDownOneBlock:
+                case RoomPlmInstruction.MoveTourianAccessDown:
                     // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
                     // twice. C# stores logical word indexes; adding width once is identical.
                     slot.BlockIndex = checked(slot.BlockIndex + level.WidthInBlocks);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.GotoIfSamusHasNoBombs:
+                case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                     // Native receives Y on the operand after the JSR address. Owning Bombs
                     // skips that two-byte target; lacking Bombs replaces Y with the target.
                     slot.InstructionPointer = collectedItems.HasAny(SamusEquipmentFlags.Bombs)
@@ -1403,12 +1405,12 @@ public sealed partial class RoomPlmSystem
                             unchecked((ushort)(slot.InstructionPointer + 2)));
                     continue;
 
-                case RoomPlmInstructionCodes.SetPlmBtsToOne:
+                case RoomPlmInstruction.SetPlmBtsToOne:
                     level.SetBehavior(slot.BlockIndex, 1);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstructionCodes.SetPlmBtsFromByte:
+                case RoomPlmInstruction.SetPlmBtsFromByte:
                     // `$84:8AF1` consumes the byte immediately following the opcode. Door
                     // closing lists use it after their final visual frame to restore the
                     // shootable blue-door BTS before drawing the permanent closed cap.
@@ -1420,8 +1422,8 @@ public sealed partial class RoomPlmSystem
 
                 // Both cartridge entries join the same draw-and-yield tail. Neither
                 // consumes an operand, so the next instruction remains pointer + 2.
-                case RoomPlmInstructionCodes.DrawPlmBlockClone:
-                case RoomPlmInstructionCodes.DrawPlmBlock:
+                case RoomPlmInstruction.DrawPlmBlockClone:
+                case RoomPlmInstruction.DrawPlmBlock:
                     // $84:8B17 restores PLM_Vars to level data, builds a one-block custom
                     // draw list, sets timer one, and exits the handler. Deletion therefore
                     // occurs on the next PLM pass rather than this restoration pass.
@@ -1437,7 +1439,7 @@ public sealed partial class RoomPlmSystem
                         bg1XOffset);
                     return;
 
-                case RoomPlmInstructionCodes.Delete:
+                case RoomPlmInstruction.Delete:
                     slot.Active = false;
                     MarkBombTorizoHandDeleted(slot);
                     OnPlmDeleted(slot);
@@ -1450,7 +1452,7 @@ public sealed partial class RoomPlmSystem
                     slot.DraygonCannon = null;
                     return;
 
-                case RoomPlmInstructionCodes.Sleep:
+                case RoomPlmInstruction.Sleep:
                     // Sleep decrements Y back onto itself and exits. Colored-door hit
                     // animations use it as the linked idle target, so expose that semantic
                     // transition while retaining the self-rewinding instruction pointer.
@@ -1460,20 +1462,20 @@ public sealed partial class RoomPlmSystem
                     return;
 
                 default:
-                    if (TryExecuteChozoStatueInstruction(bus, level, slot, instruction))
+                    if (TryExecuteChozoStatueInstruction(bus, level, slot, code))
                         continue;
-                    if (TryExecuteBombTorizoHandInstruction(bus, slot, instruction))
+                    if (TryExecuteBombTorizoHandInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
+                    if (TryExecuteMotherBrainGlassInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteNoobTubeInstruction(bus, slot, instruction))
+                    if (TryExecuteNoobTubeInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteEyeDoorInstruction(bus, level, slot, instruction))
+                    if (TryExecuteEyeDoorInstruction(bus, level, slot, code))
                         continue;
-                    if (TryExecuteDraygonCannonInstruction(bus, level, slot, instruction))
+                    if (TryExecuteDraygonCannonInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(
-                        $"Movement-owned PLM reached uncatalogued bank-$84 instruction ${instruction:X4}.");
+                        $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");
             }
         }
 

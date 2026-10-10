@@ -97,11 +97,20 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(index, bts);
     }
 
-    private bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, ushort instruction)
+    private bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
     {
+        // GotoIfEventSet belongs to this handler only for the Lower Norfair hand.
+        if (instruction is not (
+                RoomPlmInstruction.TransformSpikesToSlopes or
+                RoomPlmInstruction.RevertSlopesToSpikes or
+                RoomPlmInstruction.SetLoweredAcidHeight) &&
+            !(instruction == RoomPlmInstruction.GotoIfEventSet &&
+                slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.GotoIfEventSet when
+            case RoomPlmInstruction.GotoIfEventSet when
                 slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand:
                 ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
@@ -114,23 +123,24 @@ public sealed partial class RoomPlmSystem
                     ? ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 4)))
                     : unchecked((ushort)(slot.InstructionPointer + 6));
                 return true;
-            case ChozoStatuePlmRomData.TransformSpikesToSlopes:
+            case RoomPlmInstruction.TransformSpikesToSlopes:
                 WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
                     RoomCollisionType.Slope, ChozoStatuePlmRomData.FirstSlopeBts);
                 WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
                     RoomCollisionType.Slope, ChozoStatuePlmRomData.SecondSlopeBts);
                 break;
-            case ChozoStatuePlmRomData.RevertSlopesToSpikes:
+            case RoomPlmInstruction.RevertSlopesToSpikes:
                 WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
                     RoomCollisionType.SpikeBlock, 0);
                 WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
                     RoomCollisionType.SpikeBlock, 0);
                 break;
-            case ChozoStatuePlmRomData.SetLoweredAcidHeight:
+            case RoomPlmInstruction.SetLoweredAcidHeight:
                 (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
                     .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
                 break;
-            default: return false;
+            default:
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
         slot.InstructionPointer += 2;
         return true;

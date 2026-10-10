@@ -120,15 +120,28 @@ public sealed partial class RoomPlmSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         PlmSlot slot,
-        ushort instruction)
+        RoomPlmInstruction instruction)
     {
         EyeDoorPlmState? state = slot.EyeDoor;
         if (state is null)
             return false;
 
+        if (instruction is not (
+            RoomPlmInstruction.GotoIfDoorBitSet or
+            RoomPlmInstruction.LinkInstruction or
+            RoomPlmInstruction.GotoIfSamusNear or
+            RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
+            RoomPlmInstruction.ShootEyeDoorProjectile or
+            RoomPlmInstruction.SpawnEyeDoorSweat or
+            RoomPlmInstruction.SpawnTwoEyeDoorSmoke or
+            RoomPlmInstruction.SpawnEyeDoorSmoke or
+            RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight or
+            RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.GotoIfDoorBitSet:
+            case RoomPlmInstruction.GotoIfDoorBitSet:
             {
                 ushort destination = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 2)));
@@ -142,13 +155,13 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.LinkInstruction:
+            case RoomPlmInstruction.LinkInstruction:
                 slot.LinkInstruction = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                 return true;
 
-            case RoomPlmInstructionCodes.GotoIfSamusNear:
+            case RoomPlmInstruction.GotoIfSamusNear:
             {
                 SamusState? samus = _eyeDoorSamus?.Invoke();
                 if (samus is null)
@@ -167,7 +180,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.IncrementDoorHitCounterAndGoto:
+            case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
             {
                 byte threshold = ReadProgramByte(
                     bus, unchecked((ushort)(slot.InstructionPointer + 2)));
@@ -194,7 +207,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmInstructionCodes.ShootEyeDoorProjectile:
+            case RoomPlmInstruction.ShootEyeDoorProjectile:
                 SpawnEyeDoorProjectile(
                     bus,
                     slot,
@@ -207,7 +220,7 @@ public sealed partial class RoomPlmSystem
                     MaximumQueued: 6));
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnEyeDoorSweat:
+            case RoomPlmInstruction.SpawnEyeDoorSweat:
                 SpawnEyeDoorProjectile(
                     bus,
                     slot,
@@ -215,7 +228,7 @@ public sealed partial class RoomPlmSystem
                     hasParameter: true);
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnTwoEyeDoorSmoke:
+            case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
                 SpawnEyeDoorProjectile(
                     slot,
                     EyeDoorEnemyProjectileRomData.SmokeDefinition,
@@ -227,7 +240,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnEyeDoorSmoke:
+            case RoomPlmInstruction.SpawnEyeDoorSmoke:
                 SpawnEyeDoorProjectile(
                     slot,
                     EyeDoorEnemyProjectileRomData.SmokeDefinition,
@@ -235,16 +248,16 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingRight:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
                 ConvertEyeToBlueDoor(level, slot, RoomBlockBehaviorValues.BlueDoorFacingRight);
                 return true;
 
-            case RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingLeft:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
                 ConvertEyeToBlueDoor(level, slot, RoomBlockBehaviorValues.BlueDoorFacingLeft);
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
     }
 

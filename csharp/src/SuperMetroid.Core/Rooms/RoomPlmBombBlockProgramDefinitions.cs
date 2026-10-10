@@ -64,13 +64,13 @@ internal static class RoomPlmBombBlockProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.CollisionHead || address == program.ReactionHead)
             {
-                value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3;
+                value = (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3;
                 return true;
             }
 
             if (address == program.CollisionHead + 3)
             {
-                value = RoomPlmInstructionCodes.Goto;
+                value = (ushort)RoomPlmInstruction.Goto;
                 return true;
             }
 
@@ -94,15 +94,15 @@ internal static class RoomPlmBombBlockProgramDefinitions
             if (address == program.Terminal)
             {
                 value = program.Respawns
-                    ? program.SingleBlock ? RoomPlmInstructionCodes.DrawPlmBlock : (ushort)1
-                    : RoomPlmInstructionCodes.Delete;
+                    ? program.SingleBlock ? (ushort)RoomPlmInstruction.DrawPlmBlock : (ushort)1
+                    : (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
 
             if (program.Respawns &&
                 address == program.Terminal + (program.SingleBlock ? 2 : 4))
             {
-                value = RoomPlmInstructionCodes.Delete;
+                value = (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
         }

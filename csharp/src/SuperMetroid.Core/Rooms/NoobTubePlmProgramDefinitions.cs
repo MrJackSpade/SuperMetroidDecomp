@@ -35,34 +35,34 @@ internal static class NoobTubePlmProgramDefinitions
             !IsEvenStep(address, AlreadyBrokenStart, 0xd523)) return false;
         value = address switch
         {
-            0xd4d4 => RoomPlmInstructionCodes.GotoIfEventSet,
+            0xd4d4 => (ushort)RoomPlmInstruction.GotoIfEventSet,
             0xd4d6 or 0xd511 => (ushort)NoobTubePlmRomData.BrokenEvent,
             0xd4d8 => AlreadyBrokenStart,
-            0xd4da or 0xd4e8 => RoomPlmInstructionCodes.LinkInstruction,
+            0xd4da or 0xd4e8 => (ushort)RoomPlmInstruction.LinkInstruction,
             0xd4dc => WaitForInput,
-            0xd4de or 0xd4ec => RoomPlmInstructionCodes.InstallPreInstruction,
+            0xd4de or 0xd4ec => (ushort)RoomPlmInstruction.InstallPreInstruction,
             0xd4e0 => NoobTubePlmRomData.WakeOnPowerBombPreInstruction,
             0xd4e2 or 0xd4fc or 0xd500 => 1,
             0xd4e4 => NoobTubePlmDrawDefinitions.Intact,
-            0xd4e6 or 0xd4f0 => RoomPlmInstructionCodes.Sleep,
+            0xd4e6 or 0xd4f0 => (ushort)RoomPlmInstruction.Sleep,
             0xd4ea => BreakTube,
             0xd4ee => NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
-            0xd4f2 => RoomPlmInstructionCodes.ClearPreInstruction,
-            0xd4f4 => RoomPlmInstructionCodes.LockSamus,
-            0xd4f6 => RoomPlmInstructionCodes.SpawnNoobTubeCrack,
+            0xd4f2 => (ushort)RoomPlmInstruction.ClearPreInstruction,
+            0xd4f4 => (ushort)RoomPlmInstruction.LockSamus,
+            0xd4f6 => (ushort)RoomPlmInstruction.SpawnNoobTubeCrack,
             0xd4f8 => 48,
             0xd4fa => NoobTubePlmDrawDefinitions.Damaged,
             0xd4fe => NoobTubePlmDrawDefinitions.OpenedRows,
             0xd502 => NoobTubePlmDrawDefinitions.BrokenFull,
-            0xd504 => RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
-            0xd507 => RoomPlmInstructionCodes.SpawnNoobTubeShardsAndBubbles,
-            0xd509 => RoomPlmInstructionCodes.TriggerNoobTubeEarthquake,
+            0xd504 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
+            0xd507 => (ushort)RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles,
+            0xd509 => (ushort)RoomPlmInstruction.TriggerNoobTubeEarthquake,
             0xd50b => 96,
             0xd50d => NoobTubePlmDrawDefinitions.Opened,
-            0xd50f => RoomPlmInstructionCodes.SetEvent,
-            0xd513 or AlreadyBrokenStart => RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics,
-            0xd515 => RoomPlmInstructionCodes.UnlockSamus,
-            _ => RoomPlmInstructionCodes.Delete, // D517 or D523.
+            0xd50f => (ushort)RoomPlmInstruction.SetEvent,
+            0xd513 or AlreadyBrokenStart => (ushort)RoomPlmInstruction.EnableNoobTubeWaterPhysics,
+            0xd515 => (ushort)RoomPlmInstruction.UnlockSamus,
+            _ => (ushort)RoomPlmInstruction.Delete, // D517 or D523.
         };
         return true;
     }

@@ -59,7 +59,7 @@ internal static class BombTorizoHandPlmProgramDefinitions
             {
                 0 => (ushort)(fragment switch { 0 => 96, 1 => 48, _ => 17 - fragment }),
                 1 => BombTorizoHandPlmDrawDefinitions.Intact,
-                2 => RoomPlmInstructionCodes.SpawnTorizoStatueBreaking,
+                2 => (ushort)RoomPlmInstruction.SpawnTorizoStatueBreaking,
                 _ => (ushort)(fragment * 2),
             };
             byteInWord = offset & 1;
@@ -71,8 +71,8 @@ internal static class BombTorizoHandPlmProgramDefinitions
             {
                 0 => 1,
                 1 => BombTorizoHandPlmDrawDefinitions.Cleared,
-                2 => RoomPlmInstructionCodes.QueueSongOneMusicTrack,
-                _ => RoomPlmInstructionCodes.Delete,
+                2 => (ushort)RoomPlmInstruction.QueueSongOneMusicTrack,
+                _ => (ushort)RoomPlmInstruction.Delete,
             };
             byteInWord = offset & 1;
         }
@@ -82,11 +82,11 @@ internal static class BombTorizoHandPlmProgramDefinitions
             {
                 0xd368 => 1,
                 0xd36a or 0xd374 => BombTorizoHandPlmDrawDefinitions.Intact,
-                0xd36c => RoomPlmInstructionCodes.InstallPreInstruction,
+                0xd36c => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 0xd36e => WakeIfSamusHasBombsPreInstruction,
-                0xd370 => RoomPlmInstructionCodes.Sleep,
+                0xd370 => (ushort)RoomPlmInstruction.Sleep,
                 0xd372 => 120,
-                _ => RoomPlmInstructionCodes.CopyFromRamToVram, // D376 only.
+                _ => (ushort)RoomPlmInstruction.CopyFromRamToVram, // D376 only.
             };
             byteInWord = address & 1;
         }

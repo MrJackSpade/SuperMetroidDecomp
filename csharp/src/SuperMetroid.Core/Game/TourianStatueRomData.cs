@@ -13,8 +13,6 @@ public static class TourianStatueRomData
     public const int DescentStep = 0x4000;
     /// <summary>$88:DC69 completes at signed BG2 offset -240.</summary>
     public const int DescentDistance = 240;
-    /// <summary>$84:AB00 advances the six-row crumble PLM one row downward.</summary>
-    public const ushort MoveAccessDown = 0xab00;
     /// <summary>$87:839C eight grey target palette colors used by $87:837F.</summary>
     public const int GreyColors = 0x87839c;
     /// <summary>$86:BA78 falling unlocking particle definition.</summary>

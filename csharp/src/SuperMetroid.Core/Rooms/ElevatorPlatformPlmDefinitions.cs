@@ -105,7 +105,7 @@ internal static class ElevatorPlatformPlmDefinitions
             value = 0;
             return false;
         }
-        if (offset == 16) value = RoomPlmInstructionCodes.Goto;
+        if (offset == 16) value = (ushort)RoomPlmInstruction.Goto;
         else if (offset == 18) value = InstructionLoop;
         else if ((offset & 3) == 0) value = 4;
         else

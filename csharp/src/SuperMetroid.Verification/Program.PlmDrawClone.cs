@@ -4,8 +4,8 @@ internal static partial class Program
 {
     private static void VerifyPlmDrawClone()
     {
-        foreach (ushort instruction in new[] { RoomPlmInstructionCodes.DrawPlmBlock,
-            RoomPlmInstructionCodes.DrawPlmBlockClone })
+        foreach (ushort instruction in new[] { RoomPlmInstruction.DrawPlmBlock,
+            RoomPlmInstruction.DrawPlmBlockClone })
         {
             var bus = new TestAddressSpace();
             // The explicit probe cursor keeps this constructed opcode stream away
@@ -21,7 +21,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, block, 1), "spawn restore-word PLM");
             plms.SetSoleWorkRamProgramForVerification(bus, probePointer,
-                instruction, RoomPlmInstructionCodes.Delete);
+                instruction, (ushort)RoomPlmInstruction.Delete);
             plms.Step(bus, level, streamer, 0, 0, 0);
             AssertEqual(0xc321, level.GetCollisionBlockByIndex(block).LevelWord, "draw opcode restores slot level word");
             AssertEqual(1, plms.TilemapUpdates.Count, "draw opcode publishes visible tilemap update");

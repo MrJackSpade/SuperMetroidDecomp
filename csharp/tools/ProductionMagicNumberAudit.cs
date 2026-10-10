@@ -41,6 +41,7 @@ internal static partial class ProductionMagicNumberAudit
         "Pointers.cs",
         "RomData.cs",
         "PlmHeaderId.cs", // Exclusive native PLM header enum; its members are definitions.
+        "RoomPlmInstruction.cs", // Exclusive native bank-$84 PLM instruction enum; its members are definitions.
         "SamusPoseId.cs", // Exclusive native pose enum; its members are definitions.
         "Tables.cs",
         "Values.cs",

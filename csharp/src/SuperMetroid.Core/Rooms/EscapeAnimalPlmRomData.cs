@@ -19,8 +19,6 @@ public static class EscapeAnimalPlmRomData
     public const byte ReactionBts = 0x4f;
     /// <summary>$84:B9A2 plays the native wall-breaking animation before setting the event.</summary>
     public const ushort ReactionList = 0xb9a2;
-    /// <summary>$84:B9B9 marks event 0F, allowing the animals to escape.</summary>
-    public const ushort SetEscapedEventInstruction = 0xb9b9;
     /// <summary>$84:B994 replaces the visual block with index 9F during reaction setup.</summary>
     public const ushort ReactionVisualBlock = 0x009f;
 }

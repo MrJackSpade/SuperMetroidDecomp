@@ -80,15 +80,28 @@ public sealed partial class RoomPlmSystem
     private bool TryExecuteNoobTubeInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
-        ushort instruction)
+        RoomPlmInstruction instruction)
     {
         if (slot.HeaderPointer != PlmHeaderId.NoobTube)
             return false;
 
         ushort cursor = slot.InstructionPointer;
+        if (instruction is not (
+            RoomPlmInstruction.GotoIfEventSet or
+            RoomPlmInstruction.LinkInstruction or
+            RoomPlmInstruction.ClearPreInstruction or
+            RoomPlmInstruction.LockSamus or
+            RoomPlmInstruction.UnlockSamus or
+            RoomPlmInstruction.SpawnNoobTubeCrack or
+            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles or
+            RoomPlmInstruction.TriggerNoobTubeEarthquake or
+            RoomPlmInstruction.SetEvent or
+            RoomPlmInstruction.EnableNoobTubeWaterPhysics))
+            return false;
+
         switch (instruction)
         {
-            case RoomPlmInstructionCodes.GotoIfEventSet:
+            case RoomPlmInstruction.GotoIfEventSet:
                 ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 if (eventNumber != (ushort)NoobTubePlmRomData.BrokenEvent)
                 {
@@ -101,32 +114,32 @@ public sealed partial class RoomPlmSystem
                     : unchecked((ushort)(cursor + 6));
                 return true;
 
-            case RoomPlmInstructionCodes.LinkInstruction:
+            case RoomPlmInstruction.LinkInstruction:
                 slot.LinkInstruction = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case RoomPlmInstructionCodes.ClearPreInstruction:
+            case RoomPlmInstruction.ClearPreInstruction:
                 slot.PreInstruction = NoobTubePlmRomData.InactivePreInstruction;
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.LockSamus:
+            case RoomPlmInstruction.LockSamus:
                 RequireNoobTubeSamus().SetStationaryScriptControlLock(true);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.UnlockSamus:
+            case RoomPlmInstruction.UnlockSamus:
                 RequireNoobTubeSamus().SetStationaryScriptControlLock(false);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnNoobTubeCrack:
+            case RoomPlmInstruction.SpawnNoobTubeCrack:
                 SpawnNoobTubeProjectile(slot, NoobTubePlmRomData.CrackProjectile, 0);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.SpawnNoobTubeShardsAndBubbles:
+            case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
                 for (ushort parameter = 0; parameter <= 0x12; parameter += 2)
                     SpawnNoobTubeProjectile(slot, NoobTubePlmRomData.ShardProjectile, parameter);
                 for (ushort parameter = 0; parameter <= 0x0a; parameter += 2)
@@ -134,7 +147,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.TriggerNoobTubeEarthquake:
+            case RoomPlmInstruction.TriggerNoobTubeEarthquake:
                 (_writeNoobTubeEarthquakeType ?? throw new InvalidOperationException(
                     "N00b tube has no earthquake-type writer."))(NoobTubePlmRomData.EarthquakeType);
                 (_writeEarthquakeTimer ?? throw new InvalidOperationException(
@@ -142,7 +155,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RoomPlmInstructionCodes.SetEvent:
+            case RoomPlmInstruction.SetEvent:
                 ushort setEvent = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 if (setEvent != (ushort)NoobTubePlmRomData.BrokenEvent)
                 {
@@ -154,7 +167,7 @@ public sealed partial class RoomPlmSystem
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
-            case RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics:
+            case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
                 RoomLayer3FxState roomFx = _noobTubeRoomFx
                     ?? throw new InvalidOperationException(
                         "N00b tube has no room-FX owner for its water-physics write.");
@@ -165,7 +178,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
         }
     }
 

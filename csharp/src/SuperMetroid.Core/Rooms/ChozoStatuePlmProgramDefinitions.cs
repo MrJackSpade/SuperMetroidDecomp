@@ -69,7 +69,7 @@ internal static class ChozoStatuePlmProgramDefinitions
     {
         if (start == CrumblePlugStart)
         {
-            if (offset == 16) return RoomPlmInstructionCodes.Delete;
+            if (offset == 16) return (ushort)RoomPlmInstruction.Delete;
             int frame = offset / 4;
             return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
                 (ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * 6);
@@ -77,24 +77,24 @@ internal static class ChozoStatuePlmProgramDefinitions
         if (start == LowerNorfairHandStart)
             return offset switch
             {
-                0 => RoomPlmInstructionCodes.GotoIfEventSet,
+                0 => (ushort)RoomPlmInstruction.GotoIfEventSet,
                 2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
                 4 => RestoreLoweredAcid,
-                6 => RoomPlmInstructionCodes.InstallPreInstruction,
+                6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
                 8 => ChozoStatuePlmRomData.WaitForLowerNorfairHand,
-                10 => RoomPlmInstructionCodes.Sleep,
-                14 => ChozoStatuePlmRomData.SetLoweredAcidHeight,
+                10 => (ushort)RoomPlmInstruction.Sleep,
+                14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
                 16 => 1,
                 18 => ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand,
-                _ => RoomPlmInstructionCodes.Delete,
+                _ => (ushort)RoomPlmInstruction.Delete,
             };
         bool clear = start == ClearSlopeStart;
         return offset switch
         {
             0 => 1,
             2 => clear ? ChozoStatuePlmDrawDefinitions.ClearSlopeAccess : ChozoStatuePlmDrawDefinitions.BlockSlopeAccess,
-            4 => clear ? ChozoStatuePlmRomData.TransformSpikesToSlopes : ChozoStatuePlmRomData.RevertSlopesToSpikes,
-            _ => RoomPlmInstructionCodes.Delete,
+            4 => clear ? (ushort)RoomPlmInstruction.TransformSpikesToSlopes : (ushort)RoomPlmInstruction.RevertSlopesToSpikes,
+            _ => (ushort)RoomPlmInstruction.Delete,
         };
     }
 }

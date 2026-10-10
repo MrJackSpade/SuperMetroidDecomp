@@ -71,18 +71,18 @@ internal static class DraygonCannonPlmProgramDefinitions
         }
         return offset switch
         {
-            0 => RoomPlmInstructionCodes.LinkInstruction,
+            0 => (ushort)RoomPlmInstruction.LinkInstruction,
             2 => (ushort)(start + 18),
-            4 => RoomPlmInstructionCodes.InstallPreInstruction,
+            4 => (ushort)RoomPlmInstruction.InstallPreInstruction,
             6 => DraygonCannonRomData.MissileHitPreInstruction,
             8 => 8,
             10 => shield,
-            12 => RoomPlmInstructionCodes.Sleep,
-            14 or 47 or 69 => RoomPlmInstructionCodes.Goto,
+            12 => (ushort)RoomPlmInstruction.Sleep,
+            14 or 47 or 69 => (ushort)RoomPlmInstruction.Goto,
             16 or 49 => (ushort)(start + 8),
-            18 => RoomPlmInstructionCodes.IncrementArgumentAndGotoIfGreaterOrEqual,
+            18 => (ushort)RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual,
             21 => (ushort)(start + 51),
-            51 => right ? RoomPlmInstructionCodes.DamageDraygonCannonFacingRight : RoomPlmInstructionCodes.DamageDraygonCannonFacingLeft,
+            51 => right ? (ushort)RoomPlmInstruction.DamageDraygonCannonFacingRight : (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft,
             _ => (ushort)(start + 53), // Final goto operand, offset 71.
         };
     }

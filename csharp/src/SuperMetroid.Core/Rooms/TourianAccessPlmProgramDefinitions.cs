@@ -22,7 +22,7 @@ internal static class TourianAccessPlmProgramDefinitions
     {
         if (address == Crumble)
         {
-            value = RoomPlmInstructionCodes.SetEightBitTimer;
+            value = (ushort)RoomPlmInstruction.SetEightBitTimer;
             return true;
         }
         if (address is >= (Crumble + 3) and < (Crumble + 19))
@@ -41,13 +41,13 @@ internal static class TourianAccessPlmProgramDefinitions
         }
         value = address switch
         {
-            Crumble + 19 => TourianStatueRomData.MoveAccessDown,
-            Crumble + 21 => RoomPlmInstructionCodes.DecrementTimerAndGoto,
+            Crumble + 19 => (ushort)RoomPlmInstruction.MoveTourianAccessDown,
+            Crumble + 21 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
             Crumble + 23 => checked((ushort)(Crumble + 3)),
-            Crumble + 25 => RoomPlmInstructionCodes.Delete,
+            Crumble + 25 => (ushort)RoomPlmInstruction.Delete,
             Clear => 1,
             Clear + 2 => TourianAccessPlmDrawDefinitions.ClearPointer,
-            Clear + 4 => RoomPlmInstructionCodes.Delete,
+            Clear + 4 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,
         };
         return address is Crumble + 19 or Crumble + 21 or Crumble + 23 or

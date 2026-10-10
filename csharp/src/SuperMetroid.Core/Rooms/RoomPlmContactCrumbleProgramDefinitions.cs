@@ -57,7 +57,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.Start)
             {
-                value = RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct;
+                value = (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct;
                 return true;
             }
 
@@ -83,16 +83,16 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
             {
                 value = program.Respawns
                     ? program.Dimension == 0
-                        ? RoomPlmInstructionCodes.DrawPlmBlock
+                        ? (ushort)RoomPlmInstruction.DrawPlmBlock
                         : (ushort)1
-                    : RoomPlmInstructionCodes.Delete;
+                    : (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
 
             if (program.Respawns &&
                 address == program.Terminal + (program.Dimension == 0 ? 2 : 4))
             {
-                value = RoomPlmInstructionCodes.Delete;
+                value = (ushort)RoomPlmInstruction.Delete;
                 return true;
             }
         }

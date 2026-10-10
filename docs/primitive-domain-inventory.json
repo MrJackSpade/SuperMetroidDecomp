@@ -329,14 +329,6 @@
   ],
   "ChozoStatuePlmRomData": [
    {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/ChozoStatuePlmDefinitions.cs",
-    "line": 26,
-    "column": 77,
-    "rule": "SME6270",
-    "message": "'headerPointer' is a ushort switched over named constants of ChozoStatuePlmRomData; model the domain as a type",
-    "status": "open"
-   },
-   {
     "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.ChozoStatue.cs",
     "line": 102,
     "column": 9,
@@ -1421,16 +1413,6 @@
     "status": "open"
    }
   ],
-  "QuicksandRomData": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/QuicksandDefinitions.cs",
-    "line": 40,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of QuicksandRomData; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "RidleyExplosionParts": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
@@ -1472,7 +1454,7 @@
   "RoomEnemySystem": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 358,
+    "line": 357,
     "column": 9,
     "rule": "SME6270",
     "message": "'Function' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -1480,7 +1462,7 @@
    },
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
-    "line": 467,
+    "line": 466,
     "column": 9,
     "rule": "SME6270",
     "message": "'PreInstruction' is a ushort switched over named constants of RoomEnemySystem; model the domain as a type",
@@ -1634,80 +1616,6 @@
     "column": 9,
     "rule": "SME6270",
     "message": "'pointer' is a ushort switched over named constants of RoomPlmContactCrumbleRestoreDrawDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "RoomPlmHeaders": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/ResidentDoorClosingDefinitions.cs",
-    "line": 70,
-    "column": 54,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.DraygonCannons.cs",
-    "line": 18,
-    "column": 48,
-    "rule": "SME6270",
-    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.EyeDoors.cs",
-    "line": 25,
-    "column": 72,
-    "rule": "SME6270",
-    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Scrolls.cs",
-    "line": 110,
-    "column": 49,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Stations.cs",
-    "line": 140,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'HeaderPointer' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
-    "line": 339,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
-    "line": 400,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs",
-    "line": 507,
-    "column": 37,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.ResourceAudit/PlmProgramAudit.cs",
-    "line": 104,
-    "column": 16,
-    "rule": "SME6270",
-    "message": "'header' is a ushort switched over named constants of RoomPlmHeaders; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2640,13 +2548,24 @@
    "consumers": "MapSpriteCatalog, MapMarkerGeometry, WorldMapLabelComposition, file-select and pause map icons, arrows, station marker and indicator",
    "tests": "VerifyMapSpriteNameCases, map sprite case/pixel suites, map indicator animation",
    "status": "resolved"
+  },
+  "PlmHeaderId": {
+   "previous": "ushort PLM header words: PlmSlot.HeaderPointer, RoomPlmHeaderDefinition.Header, population placements, boss/enemy PLM requests and every spawn API; 142 RoomPlmHeaders constants plus 30 equal-valued aliases in QuicksandRomData, ChozoStatuePlmRomData, DownwardGate trigger headers, EnemyBreakableTerrainDefinitions, ShaktoolRoomPlmRomData, TourianAccessPlmDefinitions and RoomEnemySystem; 36 verification-only header constants",
+   "type": "enum PlmHeaderId : ushort (None plus all 279 bank-$84 PLMEntries_* headers)",
+   "closedProof": "Every PLM a room population, door transition, item, boss or scripted spawner installs begins at one of the bank-$84 PLMEntries_* records; the 941 retail population records use 70 of them",
+   "transitions": "none (identity)",
+   "boundary": "tools/generate-room-plm-population-definitions.ps1 emits members for the compiled populations; debugger state decodes older ushort payloads; header-range decoders (collectibles, coloured doors) compute byte offsets from the members' values",
+   "invalidValues": "exhaustive switches throw on unnamed members; partial dispatches test membership explicitly before an exhaustive subset switch",
+   "consumers": "RoomPlmSystem and its families, RoomEnemySystem boss PLM requests, quicksand, Chozo statues, Kraid/Crocomire/Mother Brain/Spore Spawn/Shitroid/Botwoon PLM requests, ResourceAudit, verification",
+   "tests": "VerifyRoomPlmHeaderCatalog, VerifyCompiledRoomPlmPopulationDefinitions, retail PLM header lookups, full movie replays",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 269,
-  "openDomains": 174,
+  "openFindings": 258,
+  "openDomains": 172,
   "byRule": {
-   "SME6270": 269
+   "SME6270": 258
   }
  }
 }

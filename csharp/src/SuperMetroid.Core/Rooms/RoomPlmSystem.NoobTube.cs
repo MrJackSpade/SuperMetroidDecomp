@@ -36,7 +36,7 @@ public sealed partial class RoomPlmSystem
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
     private void RunNoobTubePreInstruction(PlmSlot slot, ushort controllerNewInput)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.NoobTube || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != PlmHeaderId.NoobTube || slot.PreInstruction == 0)
             return;
 
         switch (slot.PreInstruction)
@@ -82,7 +82,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         ushort instruction)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.NoobTube)
+        if (slot.HeaderPointer != PlmHeaderId.NoobTube)
             return false;
 
         ushort cursor = slot.InstructionPointer;

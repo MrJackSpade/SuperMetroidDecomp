@@ -25,7 +25,7 @@ public static class XrayRevealOverlays
             int graphics = item.Kind < InWorldCollectibleKind.Bombs
                 ? XrayOverlayRomData.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
             if ((uint)graphics >= XrayOverlayRomData.DynamicGraphicsSlots * 2)
-                throw new InvalidDataException($"Item ${item.Header:X4} has invalid X-ray graphics slot {graphics}.");
+                throw new InvalidDataException($"Item ${(int)item.Header:X4} has invalid X-ray graphics slot {graphics}.");
             ushort word = overlays.ItemMetatile(graphics);
             Write(level, tilemap, word, item.BlockIndex % level.WidthInBlocks,
                 item.BlockIndex / level.WidthInBlocks, layer1X, layer1Y);

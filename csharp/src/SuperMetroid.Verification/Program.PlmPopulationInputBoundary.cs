@@ -10,9 +10,9 @@ internal static partial class Program
     private static void VerifyPlmPopulationInputBoundary()
     {
         byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
-        var trigger = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.ScrollTrigger),
+        var trigger = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
             3, 3, 0x9100, pairs);
-        var extension = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.RightwardsScrollExtension),
+        var extension = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension),
             4, 3, 0x8000);
         var second = trigger with { BlockX = 5, ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];

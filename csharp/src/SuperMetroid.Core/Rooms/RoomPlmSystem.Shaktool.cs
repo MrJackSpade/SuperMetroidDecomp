@@ -14,7 +14,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active) continue;
             ClearSlot(slot);
             slot.Active = true;
-            slot.HeaderPointer = ShaktoolRoomPlmRomData.Header;
+            slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
             slot.BlockIndex = 0;
             slot.InstructionPointer = ShaktoolRoomPlmRomData.InstructionList;
             slot.InstructionTimer = 1;

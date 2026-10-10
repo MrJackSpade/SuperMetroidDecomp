@@ -197,7 +197,7 @@ public sealed partial class RoomEnemySystem
             RequireSetAreaBossDefeated();
             state.BossDefeatPersisted = true;
         }
-        state.BossDoorPlmRequest = RoomPlmHeaders.RestorePhantoonDoorAfterBossFight;
+        state.BossDoorPlmRequest = PlmHeaderId.RestorePhantoonDoorAfterBossFight;
         state.MusicRequest = MusicCommand.SelectTrack(3);
         state.WreckedShipPowerPaletteComplete = true;
     }

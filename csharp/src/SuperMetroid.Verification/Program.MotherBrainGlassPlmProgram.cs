@@ -28,8 +28,8 @@ internal static partial class Program
         source.WriteBytes(0x848000, bank84);
         source.WriteBytes(0x8f9000,
         [
-            unchecked((byte)RoomPlmHeaders.MotherBrainGlass),
-            unchecked((byte)(RoomPlmHeaders.MotherBrainGlass >> 8)),
+            unchecked((byte)PlmHeaderId.MotherBrainGlass),
+            unchecked((byte)((ushort)PlmHeaderId.MotherBrainGlass >> 8)),
             9, 5, 0, 0x80, 0, 0,
         ]);
         var guarded = new MotherBrainGlassProgramReadGuard(source);
@@ -70,12 +70,12 @@ internal static partial class Program
         for (int shot = 0; shot < 18; shot++)
             plms.IncrementMotherBrainGlassRoomArgument();
         int emitted = 0;
-        for (int frame = 0; frame < 128 && plms.HasActiveHeader(RoomPlmHeaders.MotherBrainGlass); frame++)
+        for (int frame = 0; frame < 128 && plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
             plms.Step(guarded, level, streamer, 0, 0, 0);
             emitted += plms.MotherBrainGlassProjectileRequests.Count;
         }
-        AssertTrue(eventSet && !plms.HasActiveHeader(RoomPlmHeaders.MotherBrainGlass),
+        AssertTrue(eventSet && !plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
             $"pointer=${plms.MotherBrainGlassInstructionPointer:X4}, " +
             $"timer={plms.MotherBrainGlassInstructionTimer}");

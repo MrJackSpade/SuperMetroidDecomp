@@ -12,8 +12,8 @@ internal static partial class Program
         {
             var bus = new TestAddressSpace();
             SeedRoomPlmPopulationRom(bus);
-            ushort header = missile ? RoomPlmHeaders.MissileStation : RoomPlmHeaders.EnergyStation;
-            bus.WriteBytes(0x8f9000, [(byte)header, (byte)(header >> 8), 8, 8, 0, 0, 0, 0]);
+            PlmHeaderId header = missile ? PlmHeaderId.MissileStation : PlmHeaderId.EnergyStation;
+            bus.WriteBytes(0x8f9000, [(byte)(ushort)header, (byte)((ushort)header >> 8), 8, 8, 0, 0, 0, 0]);
             var level = CreateRoom(32, 16, new ushort[512], new byte[512],
                 blockDefinitions: new byte[0x400 * 8]);
             var streamer = level.CreateBackgroundStreamer();

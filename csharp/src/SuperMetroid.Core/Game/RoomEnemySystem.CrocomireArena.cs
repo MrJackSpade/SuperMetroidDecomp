@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Crocomire's bridge threshold latches and cross-bank arena publications.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private void PublishCrocomirePlm(byte blockX, byte blockY, ushort header) =>
+    private void PublishCrocomirePlm(byte blockX, byte blockY, PlmHeaderId header) =>
         _crocomirePlmRequests.Add(new CrocomirePlmRequest(blockX, blockY, header));
 
     /// <summary>
@@ -42,7 +42,7 @@ public sealed partial class RoomEnemySystem
             {
                 death.BridgeBlockAt1568Crumbling = true;
                 PublishCrocomirePlm(
-                    0x61, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
+                    0x61, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
                 SpawnRoomGraphicsDustExplosion(1568, 176, animationIndex: 0x0015);
             }
             return;
@@ -54,9 +54,9 @@ public sealed partial class RoomEnemySystem
         {
             death.BridgeBlocksAt1584Crumbling = true;
             PublishCrocomirePlm(
-                0x62, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
+                0x62, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
             PublishCrocomirePlm(
-                0x63, 0x0b, RoomPlmHeaders.CrumbleCrocomireBridgeBlock);
+                0x63, 0x0b, PlmHeaderId.CrumbleCrocomireBridgeBlock);
             SpawnRoomGraphicsDustExplosion(1584, 176, animationIndex: 0x0015);
         }
     }
@@ -77,7 +77,7 @@ public sealed partial class RoomEnemySystem
     {
         for (byte blockX = 0x61; blockX <= 0x6a; blockX++)
             PublishCrocomirePlm(
-                blockX, 0x0b, RoomPlmHeaders.ClearCrocomireBridgeBlock);
+                blockX, 0x0b, PlmHeaderId.ClearCrocomireBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBridgeDustCount; puff++)
         {
@@ -85,7 +85,7 @@ public sealed partial class RoomEnemySystem
             SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 0x0015);
         }
 
-        PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
+        PublishCrocomirePlm(0x4e, 0x03, PlmHeaderId.CreateCrocomireInvisibleWall);
     }
 
     private const int CrocomireBridgeDustCount = 7;

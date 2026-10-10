@@ -92,7 +92,7 @@ public sealed partial class RoomPlmSystem
 
     private static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != MotherBrainGlassPreInstruction)
         {
@@ -113,7 +113,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         ushort instruction)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
+        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
             return false;
 
         ushort cursor = slot.InstructionPointer;
@@ -205,7 +205,7 @@ public sealed partial class RoomPlmSystem
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slots.Length)
         {
             PlmSlot candidate = _slots[_motherBrainGlassSlotIndex];
-            if (candidate.Active && candidate.HeaderPointer == RoomPlmHeaders.MotherBrainGlass)
+            if (candidate.Active && candidate.HeaderPointer == PlmHeaderId.MotherBrainGlass)
             {
                 slot = candidate;
                 return true;
@@ -217,7 +217,7 @@ public sealed partial class RoomPlmSystem
 
     private void OnPlmDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.MotherBrainGlass)
+        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
             return;
         _motherBrainGlassLastRoomArgument = slot.RoomArgument;
         _motherBrainGlassSlotIndex = -1;

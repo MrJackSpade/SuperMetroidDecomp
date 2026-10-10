@@ -68,7 +68,7 @@ internal static partial class Program
             new RoomLevelWord(level.GetCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex,
             "accepted setup installs cartridge visual parent $0B6");
         RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-        AssertEqual(RoomPlmHeaders.SpeedBlockRespawning, slot.HeaderPointer,
+        AssertEqual(PlmHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
             "BTS $0E selects the standard respawning header");
         AssertEqual(RoomPlmInstructionLists.SpeedBlockRespawning, slot.InstructionPointer,
             "BTS $0E selects list $C974");
@@ -111,7 +111,7 @@ internal static partial class Program
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
-        AssertEqual(RoomPlmHeaders.SpeedBlockPermanent,
+        AssertEqual(PlmHeaderId.SpeedBlockPermanent,
             plms.PopulationSlots.Single().HeaderPointer,
             "BTS $0F selects the standard permanent header");
 

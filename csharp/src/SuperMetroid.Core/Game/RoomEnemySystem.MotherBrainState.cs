@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 
@@ -493,7 +494,7 @@ public sealed class MotherBrainEnemyState
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
-    internal void RequestPlm(byte blockX, byte blockY, ushort header) =>
+    internal void RequestPlm(byte blockX, byte blockY, PlmHeaderId header) =>
         _plmRequests.Add(new MotherBrainPlmRequest(blockX, blockY, header));
 }
 
@@ -509,7 +510,7 @@ public readonly record struct MotherBrainMusicRequest(MusicCommand Command, Musi
 /// <param name="BlockX">Foreground block-column coordinate, measured in sixteen-pixel room blocks.</param>
 /// <param name="BlockY">Foreground block-row coordinate, measured in sixteen-pixel room blocks.</param>
 /// <param name="Header">Low-word PLM definition-header pointer in fixed bank $84, consumed by the room PLM allocator.</param>
-public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, ushort Header);
+public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
 
 /// <summary>One <c>$86:C5BB</c> enemy-drop request produced by a destroyed Mother Brain bomb.</summary>
 public readonly record struct MotherBrainBombDropRequest();

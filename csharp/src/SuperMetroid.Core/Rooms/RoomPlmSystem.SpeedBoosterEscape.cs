@@ -36,7 +36,7 @@ public sealed partial class RoomPlmSystem
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
     private void RunSpeedBoosterEscapePreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.SpeedBoosterEscape)
+        if (slot.HeaderPointer != PlmHeaderId.SpeedBoosterEscape)
             return;
 
         RoomLayer3FxState fx = _speedBoosterEscapeFx

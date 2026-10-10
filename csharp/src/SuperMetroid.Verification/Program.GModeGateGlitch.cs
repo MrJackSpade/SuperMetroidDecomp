@@ -51,11 +51,11 @@ internal static partial class Program
         RoomLevelData level = runtime.LevelData!;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
             plms.Step(bus, level, runtime.BackgroundStreamer!, 0, 224, 0);
         gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         ushort sleepingGateInstruction = gate.InstructionPointer;
         while (plms.ActiveCount < 40)
         {
@@ -121,7 +121,7 @@ internal static partial class Program
             }
 
             RoomPlmSlotSnapshot currentGate = plms.PopulationSlots.Single(slot =>
-                slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+                slot.HeaderPointer == PlmHeaderId.DownwardGate);
             if (currentGate.InstructionPointer != sleepingGateInstruction && openedFrame < 0)
                 openedFrame = frame;
         }
@@ -511,7 +511,7 @@ internal static partial class Program
         {
             AssertTrue(plms.TrySpawnQuicksandReaction(
                     blockIndex: 0,
-                    header: QuicksandRomData.SurfaceInsideHeader),
+                    header: PlmHeaderId.InsideReactionQuicksandSurface),
                 $"G-Mode fixture allocates suspended PLM slot {slot}");
         }
         AssertTrue(plms.IsAllocationFull,

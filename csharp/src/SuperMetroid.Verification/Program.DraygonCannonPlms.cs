@@ -109,9 +109,9 @@ internal static partial class Program
             0x71, 0xdf, 29, 21, 0x08, 0x88,
             0, 0,
         ]);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRight + 2, 0x0400);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingRightDestroyed + 2, 0x0440);
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.DraygonCannonFacingLeft + 2, 0x0500);
+        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingRight + 2, 0x0400);
+        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingRightDestroyed + 2, 0x0440);
+        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.DraygonCannonFacingLeft + 2, 0x0500);
 
         SeedShieldedCannonList(
             bus,

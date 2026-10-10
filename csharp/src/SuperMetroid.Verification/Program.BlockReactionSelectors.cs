@@ -84,7 +84,7 @@ internal static partial class Program
     {
         for (int index = 0; index < 8; index++)
             AssertEqual(ReadBotwoonInstructionWord(rom, 0x949139 + 2 * index),
-                RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
+                (ushort)RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
         for (int index = 8; index <= byte.MaxValue; index++)
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
                 "contact crumble header rejects unsupported BTS without masking");

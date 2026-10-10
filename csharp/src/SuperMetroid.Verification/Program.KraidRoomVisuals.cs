@@ -110,16 +110,16 @@ internal static partial class Program
         var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
             KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
             0x8180, 0x0058, edited, tube, layer1X: 0));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.ClearKraidCeiling,
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling,
             KraidRoomPlmDrawDefinitions.ClearCeiling, 14,
             0x0130, 0x0059, edited, tube, layer1X: 64));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.ClearKraidSpikes,
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes,
             KraidRoomPlmDrawDefinitions.ClearSpikes, 21,
             0x0110, 0x005a, edited, tube, layer1X: 192));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
             KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
             0x8180, 0x0180, null, tube, layer1X: 0));
 
@@ -153,7 +153,7 @@ internal static partial class Program
     }
 
     private static void VerifyKraidDraw(
-        ushort header, ushort drawPointer, int blockOffset,
+        PlmHeaderId header, ushort drawPointer, int blockOffset,
         ushort physicalWord, ushort visualWord,
         RoomPlmKraidVisualCatalog? kraid,
         RoomPlmMaridiaElevatubeVisualCatalog tube,
@@ -174,7 +174,7 @@ internal static partial class Program
             MaridiaElevatubeVisuals = tube,
         };
         AssertTrue(plms.TrySpawnKraidRoomMutation(level, 5, 5, header),
-            $"Kraid visual owner ${header:X4} allocates");
+            $"Kraid visual owner ${(int)header:X4} allocates");
         var guard = new KraidRoomSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, layer1X, 0, 0);

@@ -1334,13 +1334,13 @@ internal static partial class Program
                 {
                     int offset = slotIndex * 2;
                     bool active = plmSlots.TryGetValue(slotIndex, out var slot);
-                    Check($"PLM {slotIndex} header", active ? slot.HeaderPointer : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
+                    Check($"PLM {slotIndex} header", active ? (ushort)slot.HeaderPointer : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
                     ushort instruction = slot.InstructionPointer;
                     ushort preInstruction = slot.PreInstruction == 0 ? NativeSnapshotMemory.PlmDefaultPreInstruction : slot.PreInstruction;
                     var greyDoor = runtime.Plms.GreyDoors.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
-                    AssertTrue(greyDoor.Header != 0,
-                        $"Movie PLM {slot.HeaderPointer:X4} needs a family-variable coverage mapping");
+                    AssertTrue(greyDoor.Header != PlmHeaderId.None,
+                        $"Movie PLM {(int)slot.HeaderPointer:X4} needs a family-variable coverage mapping");
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.

@@ -60,10 +60,10 @@ internal static partial class Program
             blockDefinitions[0x53 * 8] = 0x53;
             blockDefinitions[0x54 * 8] = 0x54;
             var guarded = new ChozoProgramAndDrawReadGuard(rom);
-            foreach ((ushort header, ushort physical, ushort visual) in new[]
+            foreach ((PlmHeaderId header, ushort physical, ushort visual) in new[]
             {
-                (ChozoStatuePlmRomData.ClearSlopeAccess, (ushort)0x012b, (ushort)0x0053),
-                (ChozoStatuePlmRomData.BlockSlopeAccess, (ushort)0xa12b, (ushort)0x0054),
+                (PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, (ushort)0x012b, (ushort)0x0053),
+                (PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, (ushort)0xa12b, (ushort)0x0054),
             })
             {
                 var level = CreateRoom(width, 16,
@@ -73,16 +73,16 @@ internal static partial class Program
                 var plms = new RoomPlmSystem { ChozoStatueVisuals = selected };
                 AssertTrue(plms.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, 3, 4, IsHardcoded: false)),
-                    $"Chozo actor ${header:X4} spawns in a bounded test room");
+                    $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
                 plms.Step(guarded, level, streamer, 0, 0, 0);
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
                     level.GetCollisionBlockByIndex(origin).LevelWord,
-                    $"edited Chozo art retains native physical word for ${header:X4}");
+                    $"edited Chozo art retains native physical word for ${(int)header:X4}");
                 AssertEqual(visual,
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                         origin, 0).TopRow[0],
-                    $"edited Chozo art reaches streamed tilemap for ${header:X4}");
+                    $"edited Chozo art reaches streamed tilemap for ${(int)header:X4}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");
@@ -92,7 +92,7 @@ internal static partial class Program
                 blockDefinitions: blockDefinitions);
             var crumblePlms = new RoomPlmSystem();
             AssertTrue(crumblePlms.TrySpawnChozoStatuePlm(crumbleLevel,
-                new ChozoStatuePlmRequest(ChozoStatuePlmRomData.CrumblePlug,
+                new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                     3, 4, IsHardcoded: false)),
                 "Chozo crumble plug spawns in a bounded test room");
             var seenCrumbleWords = new HashSet<ushort>();
@@ -113,7 +113,7 @@ internal static partial class Program
                 blockDefinitions: blockDefinitions);
             var wreckedHandPlms = new RoomPlmSystem();
             AssertTrue(wreckedHandPlms.TrySpawnChozoStatuePlm(wreckedHandLevel,
-                new ChozoStatuePlmRequest(ChozoStatuePlmRomData.WreckedShipHand,
+                new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
                     3, 4, IsHardcoded: false)),
                 "Wrecked Ship hand spawns from its compiled header");
             wreckedHandPlms.Step(guarded, wreckedHandLevel,

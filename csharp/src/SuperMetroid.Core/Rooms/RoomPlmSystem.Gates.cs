@@ -183,16 +183,16 @@ public sealed partial class RoomPlmSystem
     private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
         ((byte)trigger & 1) == 0;
 
-    private static ushort HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
+    private static PlmHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
     {
-        DownwardGateTriggerBehavior.GreenLeft => DownwardGateTriggerPlmHeaders.GreenLeft,
-        DownwardGateTriggerBehavior.GreenRight => DownwardGateTriggerPlmHeaders.GreenRight,
-        DownwardGateTriggerBehavior.RedLeft => DownwardGateTriggerPlmHeaders.RedLeft,
-        DownwardGateTriggerBehavior.RedRight => DownwardGateTriggerPlmHeaders.RedRight,
-        DownwardGateTriggerBehavior.BlueLeft => DownwardGateTriggerPlmHeaders.BlueLeft,
-        DownwardGateTriggerBehavior.BlueRight => DownwardGateTriggerPlmHeaders.BlueRight,
-        DownwardGateTriggerBehavior.YellowLeft => DownwardGateTriggerPlmHeaders.YellowLeft,
-        DownwardGateTriggerBehavior.YellowRight => DownwardGateTriggerPlmHeaders.YellowRight,
+        DownwardGateTriggerBehavior.GreenLeft => PlmHeaderId.LeftGreenGateTrigger,
+        DownwardGateTriggerBehavior.GreenRight => PlmHeaderId.RightGreenGateTrigger,
+        DownwardGateTriggerBehavior.RedLeft => PlmHeaderId.LeftRedGateTrigger,
+        DownwardGateTriggerBehavior.RedRight => PlmHeaderId.RightRedGateTrigger,
+        DownwardGateTriggerBehavior.BlueLeft => PlmHeaderId.LeftBlueGateTrigger,
+        DownwardGateTriggerBehavior.BlueRight => PlmHeaderId.RightBlueGateTrigger,
+        DownwardGateTriggerBehavior.YellowLeft => PlmHeaderId.LeftYellowGateTrigger,
+        DownwardGateTriggerBehavior.YellowRight => PlmHeaderId.RightYellowGateTrigger,
         _ => throw new ArgumentOutOfRangeException(nameof(trigger), trigger, null),
     };
 

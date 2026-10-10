@@ -144,7 +144,7 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         var plms = new RoomPlmSystem { BotwoonWallVisuals = edited };
         AssertTrue(plms.TrySpawnBotwoonWall(level,
-                RoomPlmHeaders.ClearBotwoonWall),
+                PlmHeaderId.ClearBotwoonWall),
             "edited Botwoon wall-clear PLM allocates");
         var guard = new BotwoonWallSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

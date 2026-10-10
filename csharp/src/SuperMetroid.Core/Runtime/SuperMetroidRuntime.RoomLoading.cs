@@ -1160,7 +1160,7 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     private void ApplyPendingBotwoonWallPlm()
     {
-        if (Enemies.LastBotwoonWallPlm is not ushort header)
+        if (Enemies.LastBotwoonWallPlm is not PlmHeaderId header)
             return;
         if (LevelData is null || Camera is null)
         {
@@ -1173,7 +1173,7 @@ public sealed partial class SuperMetroidRuntime
         // artificial full-pool audit must not gain a host-only exception or terrain edit.
         Plms.TrySpawnBotwoonWall(LevelData, header);
 
-        if (header == RoomPlmHeaders.ClearBotwoonWall)
+        if (header == PlmHeaderId.ClearBotwoonWall)
         {
             // The already-defeated branch performs this 16-bit `$0101` store directly in
             // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction

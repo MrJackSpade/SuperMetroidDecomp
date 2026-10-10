@@ -31,7 +31,7 @@ internal static partial class Program
         ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(16, 16, foreground, new byte[256], new ushort[256], new byte[8192]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnMotherBrainMutation(level, 0, 6, RoomPlmHeaders.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
+        AssertTrue(plms.TrySpawnMotherBrainMutation(level, 0, 6, PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
         AssertEqual((ushort)0x9123, level.GetCollisionBlock(0, 6).LevelWord, "door setup preserves visual bits");
         AssertEqual((byte)1, level.GetCollisionBlock(0, 6).Behavior, "door setup selects second door header");
         for (int row = 7; row < 10; row++)

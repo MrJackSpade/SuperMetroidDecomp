@@ -30,8 +30,8 @@ internal static partial class Program
         var system = new Bank80SystemState();
         var items = new[]
         {
-            new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
-            new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
+            new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),
+            new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 2, InWorldCollectibleKind.EnergyTank, -1),
         };
         var map = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(level, map, items, system, 0, 16, 16, visuals);

@@ -63,7 +63,7 @@ public sealed class RoomPlmPopulationDefinition
         {
             records.Add(new RoomPlmPlacement(
                 RoomPlmHeaderDefinitions.Get(header), x, y, argument)
-                { CompiledScrollSource = header == RoomPlmHeaders.ScrollTrigger ? argument : null });
+                { CompiledScrollSource = header == PlmHeaderId.ScrollTrigger ? argument : null });
         });
         return new RoomPlmPopulationDefinition(pointer, records);
     }
@@ -77,11 +77,11 @@ public sealed class RoomPlmPopulationDefinition
         ushort? compiledSource = program.Length == 0 ? placement.CompiledScrollSource : null;
         if (compiledSource is { } sourcePointer)
         {
-            if (placement.Header.Header != RoomPlmHeaders.ScrollTrigger || program.Length != 0 ||
+            if (placement.Header.Header != PlmHeaderId.ScrollTrigger || program.Length != 0 ||
                 !RoomPlmScrollProgramDefinitions.TryApply(sourcePointer, null))
                 throw new InvalidDataException("Retail scroll placement has an invalid program identity.");
         }
-        else if (placement.Header.Header == RoomPlmHeaders.ScrollTrigger)
+        else if (placement.Header.Header == PlmHeaderId.ScrollTrigger)
         {
             if (program.Length is < 1 or > 2 * RoomScrollGrid.StorageByteCount - 1 ||
                 program.Length % 2 == 0 || (program[^1] & 0x80) == 0)

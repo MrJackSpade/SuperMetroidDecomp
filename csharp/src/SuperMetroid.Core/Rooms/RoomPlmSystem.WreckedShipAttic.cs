@@ -10,7 +10,7 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     private static void RunWreckedShipAtticPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.WreckedShipAttic ||
+        if (slot.HeaderPointer != PlmHeaderId.WreckedShipAttic ||
             slot.PreInstruction == 0)
         {
             return;

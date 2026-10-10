@@ -31,7 +31,7 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
-            slot.HeaderPointer = RoomPlmHeaders.OldTourianEscapeShaftFakeWall;
+            slot.HeaderPointer = PlmHeaderId.OldTourianEscapeShaftFakeWall;
             slot.LoopTimer = 0;
             SetupDoorTransitionDeactivatedSlot(level, slot);
             slot.InstructionPointer = OldTourianEscapeShaftWallPlmDefinitions.InstructionList;
@@ -49,7 +49,7 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     private void RunOldTourianEscapeShaftWallPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.OldTourianEscapeShaftFakeWall || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != PlmHeaderId.OldTourianEscapeShaftFakeWall || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != OldTourianEscapeShaftWallPlmDefinitions.WaitForSamusPreInstruction)
         {

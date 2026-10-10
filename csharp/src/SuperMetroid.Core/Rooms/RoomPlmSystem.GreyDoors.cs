@@ -192,7 +192,7 @@ public sealed partial class RoomPlmSystem
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
             throw new InvalidDataException(
-                $"Grey-door header ${slot.HeaderPointer:X4} selected invalid condition " +
+                $"Grey-door header ${(int)slot.HeaderPointer:X4} selected invalid condition " +
                 $"offset ${conditionOffset:X2} from room argument ${rawRoomArgument:X4}.");
         }
 
@@ -222,23 +222,23 @@ public sealed partial class RoomPlmSystem
     }
 
     private static bool TryIdentifyGreyDoor(
-        ushort header,
+        PlmHeaderId header,
         out ColoredDoorOrientation orientation)
     {
-        if (header == RoomPlmHeaders.BombTorizoGreyDoor)
+        if (header == PlmHeaderId.BombTorizoGreyDoor)
         {
             orientation = ColoredDoorOrientation.Right;
             return true;
         }
 
-        if (header is < RoomPlmHeaders.GreyDoorFacingLeft or
-            > RoomPlmHeaders.GreyDoorFacingDown)
+        if (header is < PlmHeaderId.GreyDoorFacingLeft or
+            > PlmHeaderId.GreyDoorFacingDown)
         {
             orientation = default;
             return false;
         }
 
-        int byteOffset = header - RoomPlmHeaders.GreyDoorFacingLeft;
+        int byteOffset = header - PlmHeaderId.GreyDoorFacingLeft;
         if (byteOffset % 6 != 0 || byteOffset > 18)
         {
             orientation = default;

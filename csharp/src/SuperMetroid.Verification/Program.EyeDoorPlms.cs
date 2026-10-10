@@ -238,16 +238,16 @@ internal static partial class Program
         ushort convertInstruction;
         if (orientation == EyeDoorOrientation.Right)
         {
-            eyeHeader = RoomPlmHeaders.EyeDoorEyeFacingRight;
-            doorHeader = RoomPlmHeaders.EyeDoorFacingRight;
-            bottomHeader = RoomPlmHeaders.EyeDoorBottomFacingRight;
+            eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingRight;
+            doorHeader = (ushort)PlmHeaderId.EyeDoorFacingRight;
+            bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingRight;
             convertInstruction = RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingRight;
         }
         else
         {
-            eyeHeader = RoomPlmHeaders.EyeDoorEyeFacingLeft;
-            doorHeader = RoomPlmHeaders.EyeDoorFacingLeft;
-            bottomHeader = RoomPlmHeaders.EyeDoorBottomFacingLeft;
+            eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingLeft;
+            doorHeader = (ushort)PlmHeaderId.EyeDoorFacingLeft;
+            bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingLeft;
             convertInstruction = RoomPlmInstructionCodes.MoveUpAndMakeBlueDoorFacingLeft;
         }
 

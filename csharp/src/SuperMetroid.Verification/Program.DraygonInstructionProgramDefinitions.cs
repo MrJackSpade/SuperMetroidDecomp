@@ -11,7 +11,6 @@ internal static partial class Program
     private static void VerifyDraygonInstructionProgramDefinitions()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
 

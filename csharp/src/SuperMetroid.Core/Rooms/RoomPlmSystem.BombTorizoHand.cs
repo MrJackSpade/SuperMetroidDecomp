@@ -40,7 +40,7 @@ public sealed partial class RoomPlmSystem
     /// <c>$AA:C6C6</c> does. This is intentionally generic: the enemy does not know which
     /// translated family owns a slot, only whether one of forty header words matches.
     /// </summary>
-    public bool HasActiveHeader(ushort header) =>
+    public bool HasActiveHeader(PlmHeaderId header) =>
         _slots.Any(slot => slot.Active && slot.HeaderPointer == header);
 
     /// <summary>Runs setup $D606 after the generic room allocator has installed the header.</summary>
@@ -79,7 +79,7 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     private void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand || slot.PreInstruction == 0)
+        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction)
         {
@@ -105,7 +105,7 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         ushort instruction)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
+        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
             return false;
 
         ushort cursor = slot.InstructionPointer;
@@ -158,7 +158,7 @@ public sealed partial class RoomPlmSystem
 
     private static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.BombTorizoHand)
+        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
             return;
         slot.HeaderPointer = 0;
         slot.PreInstruction = 0;

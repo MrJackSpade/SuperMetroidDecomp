@@ -8,19 +8,19 @@ public sealed partial class RoomPlmSystem
 {
     private Action<ushort>? _disableDraygonCannon;
 
-    private static bool IsDraygonCannonHeader(ushort header) => header is
-        RoomPlmHeaders.DraygonCannonFacingRight or
-        RoomPlmHeaders.DraygonCannonFacingRightDestroyed or
-        RoomPlmHeaders.DraygonCannonFacingLeft;
+    private static bool IsDraygonCannonHeader(PlmHeaderId header) => header is
+        PlmHeaderId.DraygonCannonFacingRight or
+        PlmHeaderId.DraygonCannonFacingRightDestroyed or
+        PlmHeaderId.DraygonCannonFacingLeft;
 
     private static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot)
     {
         DraygonCannonOrientation orientation = slot.HeaderPointer switch
         {
-            RoomPlmHeaders.DraygonCannonFacingRight or
-                RoomPlmHeaders.DraygonCannonFacingRightDestroyed =>
+            PlmHeaderId.DraygonCannonFacingRight or
+                PlmHeaderId.DraygonCannonFacingRightDestroyed =>
                     DraygonCannonOrientation.Right,
-            RoomPlmHeaders.DraygonCannonFacingLeft => DraygonCannonOrientation.Left,
+            PlmHeaderId.DraygonCannonFacingLeft => DraygonCannonOrientation.Left,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.HeaderPointer, "Not a retail Draygon cannon header."),
         };
@@ -29,12 +29,12 @@ public sealed partial class RoomPlmSystem
         if (!DraygonCannonData.IsControlWord(variablePointer))
         {
             throw new InvalidDataException(
-                $"Draygon cannon header $84:{slot.HeaderPointer:X4} has invalid control " +
+                $"Draygon cannon header $84:{(int)slot.HeaderPointer:X4} has invalid control " +
                 $"word ${variablePointer:X4}.");
         }
 
         slot.DraygonCannon = new DraygonCannonPlmState(variablePointer, orientation);
-        if (slot.HeaderPointer == RoomPlmHeaders.DraygonCannonFacingRightDestroyed)
+        if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.

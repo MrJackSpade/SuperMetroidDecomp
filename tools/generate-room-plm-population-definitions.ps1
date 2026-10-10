@@ -39,8 +39,8 @@ public static class PlmHeaderGenerationProcessPolicy {
     }
 
     $headerNames = @{}
-    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs'))
-    foreach ($match in [regex]::Matches($headerCatalog, 'const ushort (\w+) = 0x([0-9a-fA-F]+);')) {
+    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/PlmHeaderId.cs'))
+    foreach ($match in [regex]::Matches($headerCatalog, '(?m)^    (\w+) = 0x([0-9a-fA-F]+),\r?$')) {
         $headerNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
     }
     $rom = [IO.File]::ReadAllBytes($romFile)
@@ -51,7 +51,7 @@ public static class PlmHeaderGenerationProcessPolicy {
     $lines.Add('/// <summary>Ordered named room setup cases; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>')
     $lines.Add('internal static partial class RoomPlmPopulationDefinitions')
     $lines.Add('{')
-    $lines.Add('    internal static bool TryPlace(ushort pointer, Action<ushort, byte, byte, ushort>? place)')
+    $lines.Add('    internal static bool TryPlace(ushort pointer, Action<PlmHeaderId, byte, byte, ushort>? place)')
     $lines.Add('    {')
     $lines.Add('        switch (pointer)')
     $lines.Add('        {')
@@ -80,7 +80,7 @@ public static class PlmHeaderGenerationProcessPolicy {
             }
             if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
-            $lines.Add(('                place?.Invoke(RoomPlmHeaders.{0}, {1}, {2}, 0x{3:X4});' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
+            $lines.Add(('                place?.Invoke(PlmHeaderId.{0}, {1}, {2}, 0x{3:X4});' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
             $offset += 6
         }
         $recordTotal += $count
@@ -105,7 +105,7 @@ public static class PlmHeaderGenerationProcessPolicy {
     $headerLines.Add('/// <summary>Named retail header dispatch; regenerate with tools/generate-room-plm-population-definitions.ps1 -HeadersOnly.</summary>')
     $headerLines.Add('internal static partial class RoomPlmHeaderDefinitions')
     $headerLines.Add('{')
-    $headerLines.Add('    private static bool TrySelect(ushort header, out RoomPlmHeaderDefinition value)')
+    $headerLines.Add('    private static bool TrySelect(PlmHeaderId header, out RoomPlmHeaderDefinition value)')
     $headerLines.Add('    {')
     $headerLines.Add('        value = header switch')
     $headerLines.Add('        {')
@@ -114,18 +114,19 @@ public static class PlmHeaderGenerationProcessPolicy {
         $headerOffset = 0x20000 + ($header - 0x8000)
         $setup = [int]$rom[$headerOffset] -bor ([int]$rom[$headerOffset + 1] -shl 8)
         $initial = [int]$rom[$headerOffset + 2] -bor ([int]$rom[$headerOffset + 3] -shl 8)
-        $headerLines.Add(('            RoomPlmHeaders.{0} => new(header, 0x{1:X4}, 0x{2:X4}),' -f $headerNames[$header], $setup, $initial))
+        $headerLines.Add(('            PlmHeaderId.{0} => new(header, 0x{1:X4}, 0x{2:X4}),' -f $headerNames[$header], $setup, $initial))
     }
-    $headerLines.Add('            _ => default,')
+    # Headers no retail population installs have no compiled definition; name each one so an
+    # undefined word fails instead of reading as a missing definition.
+    $uncovered = @('None') + @($headerNames.Keys | Sort-Object | Where-Object { -not $headers.Contains($_) } | ForEach-Object { $headerNames[$_] })
+    for ($index = 0; $index -lt $uncovered.Count; $index += 4) {
+        $group = @($uncovered[$index..([Math]::Min($index + 3, $uncovered.Count - 1))] | ForEach-Object { "PlmHeaderId.$_" })
+        $suffix = if ($index + 4 -ge $uncovered.Count) { ' => default,' } else { ' or' }
+        $headerLines.Add('            ' + ($group -join ' or ') + $suffix)
+    }
+    $headerLines.Add('            _ => throw new InvalidOperationException($"Undefined PlmHeaderId {header}."),')
     $headerLines.Add('        };')
-    $headerLines.Add('        return value.Header != 0;')
-    $headerLines.Add('    }')
-    $headerLines.Add('')
-    $headerLines.Add('    private static IEnumerable<RoomPlmHeaderDefinition> Enumerate()')
-    $headerLines.Add('    {')
-    foreach ($header in $orderedHeaders) {
-        $headerLines.Add(('        yield return Get(RoomPlmHeaders.{0});' -f $headerNames[$header]))
-    }
+    $headerLines.Add('        return value.Header != PlmHeaderId.None;')
     $headerLines.Add('    }')
     $headerLines.Add('}')
     [IO.File]::WriteAllLines($headerOutputFile, $headerLines, [Text.UTF8Encoding]::new($false))

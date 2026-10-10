@@ -19,22 +19,6 @@ public static class QuicksandRomData
     public const ushort SlowFallsSetup = 0xb4a8;
     /// <summary>$84:B4B6, PlmSetup_B727_SandFallsFast.</summary>
     public const ushort FastFallsSetup = 0xb4b6;
-    /// <summary>$84:B713, inside reaction header for the quicksand surface.</summary>
-    public const ushort SurfaceInsideHeader = 0xb713;
-    /// <summary>$84:B71F, inside reaction header for submerging quicksand.</summary>
-    public const ushort SubmergingInsideHeader = 0xb71f;
-    /// <summary>$84:B723, inside reaction header for slow sandfalls.</summary>
-    public const ushort SlowFallsInsideHeader = 0xb723;
-    /// <summary>$84:B727, inside reaction header for fast sandfalls.</summary>
-    public const ushort FastFallsInsideHeader = 0xb727;
-    /// <summary>$84:B72B, collision reaction header for the quicksand surface.</summary>
-    public const ushort SurfaceCollisionHeader = 0xb72b;
-    /// <summary>$84:B737, collision reaction header for submerging quicksand.</summary>
-    public const ushort SubmergingCollisionHeader = 0xb737;
-    /// <summary>$84:B73B, collision reaction header for slow sandfalls.</summary>
-    public const ushort SlowFallsCollisionHeader = 0xb73b;
-    /// <summary>$84:B73F, collision reaction header for fast sandfalls.</summary>
-    public const ushort FastFallsCollisionHeader = 0xb73f;
     /// <summary>Immediate 16.16 extra displacement in PlmSetup_B71F_SubmergingQuicksand.</summary>
     public const int SubmergingDisplacement = 0x12000;
     /// <summary>Immediate 16.16 extra displacement in PlmSetup_B723_SandfallsSlow.</summary>

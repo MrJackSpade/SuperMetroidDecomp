@@ -79,7 +79,7 @@ public sealed partial class RoomPlmSystem
         for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
         {
             RoomPlmPlacement placement = population.Placements.Span[recordIndex];
-            ushort header = placement.Header.Header;
+            PlmHeaderId header = placement.Header.Header;
             var record = new RoomPlmPopulationRecord(
 recordIndex,
                 unchecked((ushort)(populationPointer + recordIndex * RoomPlmPopulationFormat.RecordByteCount)),
@@ -99,7 +99,7 @@ recordIndex,
             {
                 throw new InvalidDataException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
-                    $"header $84:{header:X4} has block outside safe native allocation " +
+                    $"header $84:{(int)header:X4} has block outside safe native allocation " +
                     $"({record.BlockX},{record.BlockY}) and argument ${record.RoomArgument:X4}.",
                     error);
             }
@@ -130,7 +130,7 @@ recordIndex,
                 throw new NotSupportedException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
                     $"at $8F:{record.RecordPointer:X4} uses untranslated header " +
-                    $"$84:{header:X4} (setup $84:{setupPointer:X4}, list " +
+                    $"$84:{(int)header:X4} (setup $84:{setupPointer:X4}, list " +
                     $"$84:{instructionList:X4}) at block ({record.BlockX},{record.BlockY}) " +
                     $"with argument ${record.RoomArgument:X4}.");
             }
@@ -207,7 +207,7 @@ recordIndex,
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
-        ushort header = record.HeaderPointer;
+        PlmHeaderId header = record.HeaderPointer;
         if (TryIdentifyColoredDoor(
                 header,
                 out ColoredDoorColor color,
@@ -223,11 +223,11 @@ recordIndex,
             return true;
         }
 
-        if (header is RoomPlmHeaders.ScrollTrigger or
-            RoomPlmHeaders.RightwardsScrollExtension or
-            RoomPlmHeaders.LeftwardsScrollExtension or
-            RoomPlmHeaders.DownwardsScrollExtension or
-            RoomPlmHeaders.UpwardsScrollExtension)
+        if (header is PlmHeaderId.ScrollTrigger or
+            PlmHeaderId.RightwardsScrollExtension or
+            PlmHeaderId.LeftwardsScrollExtension or
+            PlmHeaderId.DownwardsScrollExtension or
+            PlmHeaderId.UpwardsScrollExtension)
         {
             SetupScrollSlot(level, slot, header, placement.ScrollProgram.Span, placement.CompiledScrollSource);
             return true;
@@ -243,31 +243,31 @@ recordIndex,
             return true;
         }
 
-        if (header == RoomPlmHeaders.MotherBrainGlass)
+        if (header == PlmHeaderId.MotherBrainGlass)
         {
             SetupMotherBrainGlassSlot(level, streamer, record, slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.BombTorizoHand)
+        if (header == PlmHeaderId.BombTorizoHand)
         {
             SetupBombTorizoHandSlot(level, slot, isAreaTorizoDefeated);
             return true;
         }
 
-        if (header == RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
+        if (header == PlmHeaderId.SetMetroidsClearedStatesWhenRequired)
         {
             SetupMetroidsClearedSlot(slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.SpeedBoosterEscape)
+        if (header == PlmHeaderId.SpeedBoosterEscape)
         {
             SetupSpeedBoosterEscapeSlot(slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.WreckedShipAttic)
+        if (header == PlmHeaderId.WreckedShipAttic)
         {
             // Setup $84:BAFA deliberately performs no state mutation. Keeping an explicit
             // branch matters: the actor must still consume its native slot and later run
@@ -275,25 +275,25 @@ recordIndex,
             return true;
         }
 
-        if (header == RoomPlmHeaders.NoobTube)
+        if (header == PlmHeaderId.NoobTube)
         {
             SetupNoobTubeSlot(level, slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.MotherBrainEscapeRoomGate)
+        if (header == PlmHeaderId.MotherBrainEscapeRoomGate)
         {
             SetupDoorTransitionDeactivatedSlot(level, slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.DownwardGate)
+        if (header == PlmHeaderId.DownwardGate)
         {
             SetupDownwardGateSlot(level, slot);
             return true;
         }
 
-        if (header == RoomPlmHeaders.DownwardGateShotBlock)
+        if (header == PlmHeaderId.DownwardGateShotBlock)
         {
             SetupDownwardGateShotBlock(level, slot);
             return true;
@@ -322,7 +322,7 @@ recordIndex,
 public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     ushort RecordPointer,
-    ushort HeaderPointer,
+    PlmHeaderId HeaderPointer,
     byte BlockX,
     byte BlockY,
     ushort RoomArgument);

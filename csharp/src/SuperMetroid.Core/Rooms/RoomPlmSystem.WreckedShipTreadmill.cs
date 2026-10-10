@@ -21,12 +21,12 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(streamer);
 
-        ushort header = direction switch
+        PlmHeaderId header = direction switch
         {
             WreckedShipTreadmillDirection.Rightwards =>
-                RoomPlmHeaders.WreckedShipEntranceTreadmillFromWest,
+                PlmHeaderId.WreckedShipEntranceTreadmillFromWest,
             WreckedShipTreadmillDirection.Leftwards =>
-                RoomPlmHeaders.WreckedShipEntranceTreadmillFromEast,
+                PlmHeaderId.WreckedShipEntranceTreadmillFromEast,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(direction), direction, "Unknown Wrecked Ship treadmill direction."),
         };
@@ -96,7 +96,7 @@ public sealed partial class RoomPlmSystem
 
             ClearSlot(slot);
             slot.Active = true;
-            slot.HeaderPointer = RoomPlmHeaders.MaridiaElevatube;
+            slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = RoomPlmInstructionLists.MaridiaElevatube;
             slot.InstructionTimer = 1;

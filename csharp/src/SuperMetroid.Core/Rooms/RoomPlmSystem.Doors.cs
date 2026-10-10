@@ -184,28 +184,28 @@ public sealed partial class RoomPlmSystem
     }
 
     private static bool TryIdentifyColoredDoor(
-        ushort header,
+        PlmHeaderId header,
         out ColoredDoorColor color,
         out ColoredDoorOrientation orientation)
     {
-        ushort firstHeader;
-        if (header is >= RoomPlmHeaders.YellowDoorFacingLeft and
-            <= RoomPlmHeaders.YellowDoorFacingDown)
+        PlmHeaderId firstHeader;
+        if (header is >= PlmHeaderId.YellowDoorFacingLeft and
+            <= PlmHeaderId.YellowDoorFacingDown)
         {
             color = ColoredDoorColor.Yellow;
-            firstHeader = RoomPlmHeaders.YellowDoorFacingLeft;
+            firstHeader = PlmHeaderId.YellowDoorFacingLeft;
         }
-        else if (header is >= RoomPlmHeaders.GreenDoorFacingLeft and
-            <= RoomPlmHeaders.GreenDoorFacingDown)
+        else if (header is >= PlmHeaderId.GreenDoorFacingLeft and
+            <= PlmHeaderId.GreenDoorFacingDown)
         {
             color = ColoredDoorColor.Green;
-            firstHeader = RoomPlmHeaders.GreenDoorFacingLeft;
+            firstHeader = PlmHeaderId.GreenDoorFacingLeft;
         }
-        else if (header is >= RoomPlmHeaders.RedDoorFacingLeft and
-            <= RoomPlmHeaders.RedDoorFacingDown)
+        else if (header is >= PlmHeaderId.RedDoorFacingLeft and
+            <= PlmHeaderId.RedDoorFacingDown)
         {
             color = ColoredDoorColor.Red;
-            firstHeader = RoomPlmHeaders.RedDoorFacingLeft;
+            firstHeader = PlmHeaderId.RedDoorFacingLeft;
         }
         else
         {
@@ -214,7 +214,7 @@ public sealed partial class RoomPlmSystem
             return false;
         }
 
-        int byteOffset = header - firstHeader;
+        int byteOffset = (int)header - (int)firstHeader;
         if (byteOffset % 6 != 0 || byteOffset > 18)
         {
             orientation = default;
@@ -264,12 +264,12 @@ public sealed partial class RoomPlmSystem
             _ => throw new InvalidOperationException(
                 "Validated blue-door BTS escaped its four-way instruction table."),
         };
-        ushort headerPointer = orientation switch
+        PlmHeaderId headerPointer = orientation switch
         {
-            ColoredDoorOrientation.Left => RoomPlmHeaders.BlueDoorFacingLeft,
-            ColoredDoorOrientation.Right => RoomPlmHeaders.BlueDoorFacingRight,
-            ColoredDoorOrientation.Up => RoomPlmHeaders.BlueDoorFacingUp,
-            ColoredDoorOrientation.Down => RoomPlmHeaders.BlueDoorFacingDown,
+            ColoredDoorOrientation.Left => PlmHeaderId.BlueDoorFacingLeft,
+            ColoredDoorOrientation.Right => PlmHeaderId.BlueDoorFacingRight,
+            ColoredDoorOrientation.Up => PlmHeaderId.BlueDoorFacingUp,
+            ColoredDoorOrientation.Down => PlmHeaderId.BlueDoorFacingDown,
             _ => throw new InvalidOperationException(
                 "Validated blue-door BTS escaped its four-way header table."),
         };

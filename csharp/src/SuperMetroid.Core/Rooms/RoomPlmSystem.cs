@@ -234,12 +234,12 @@ public sealed partial class RoomPlmSystem
     /// each four-frame, four-image row and repeats nine times using PLM_Timers.
     /// </remarks>
     /// <returns>False only when all 40 native PLM slots are occupied.</returns>
-    public bool TrySpawnBotwoonWall(RoomLevelData level, ushort header)
+    public bool TrySpawnBotwoonWall(RoomLevelData level, PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (header is not (
-            RoomPlmHeaders.ClearBotwoonWall or
-            RoomPlmHeaders.CrumbleBotwoonWall))
+            PlmHeaderId.ClearBotwoonWall or
+            PlmHeaderId.CrumbleBotwoonWall))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -265,14 +265,14 @@ public sealed partial class RoomPlmSystem
             // for owner queries and mixed populations, not just instruction dispatch.
             slot.HeaderPointer = header;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == RoomPlmHeaders.ClearBotwoonWall
+            slot.InstructionPointer = header == PlmHeaderId.ClearBotwoonWall
                 ? RoomPlmInstructionLists.ClearBotwoonWall
                 : RoomPlmInstructionLists.CrumbleBotwoonWall;
 
             // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
             // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
             // PLM instruction-timer allocation before returning to the enemy initializer.
-            slot.InstructionTimer = header == RoomPlmHeaders.CrumbleBotwoonWall
+            slot.InstructionTimer = header == PlmHeaderId.CrumbleBotwoonWall
                 ? (ushort)64
                 : (ushort)1;
             return true;
@@ -287,12 +287,12 @@ public sealed partial class RoomPlmSystem
     /// header $B793 starts directly at that clear list for an already-defeated room.
     /// </summary>
     /// <returns>False only when all 40 native PLM slots are occupied.</returns>
-    public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, ushort header)
+    public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (header is not (
-                RoomPlmHeaders.CrumbleSporeSpawnCeiling or
-                RoomPlmHeaders.ClearSporeSpawnCeiling))
+                PlmHeaderId.CrumbleSporeSpawnCeiling or
+                PlmHeaderId.ClearSporeSpawnCeiling))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -312,7 +312,7 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == RoomPlmHeaders.CrumbleSporeSpawnCeiling
+            slot.InstructionPointer = header == PlmHeaderId.CrumbleSporeSpawnCeiling
                 ? RoomPlmInstructionLists.CrumbleSporeSpawnCeiling
                 : RoomPlmInstructionLists.ClearSporeSpawnCeiling;
             slot.InstructionTimer = 1;
@@ -333,24 +333,24 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         byte blockX,
         byte blockY,
-        ushort header)
+        PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1 =>
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground1 =>
                 RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground1,
-            RoomPlmHeaders.CrumbleKraidPlatformVariant1 =>
+            PlmHeaderId.CrumbleKraidPlatformVariant1 =>
                 RoomPlmInstructionLists.CrumbleKraidPlatformVariant1,
-            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2 =>
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground2 =>
                 RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground2,
-            RoomPlmHeaders.CrumbleKraidPlatformVariant2 =>
+            PlmHeaderId.CrumbleKraidPlatformVariant2 =>
                 RoomPlmInstructionLists.CrumbleKraidPlatformVariant2,
-            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3 =>
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground3 =>
                 RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3,
-            RoomPlmHeaders.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
-            RoomPlmHeaders.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
-            RoomPlmHeaders.CrumbleKraidSpikes => RoomPlmInstructionLists.CrumbleKraidSpikes,
+            PlmHeaderId.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
+            PlmHeaderId.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
+            PlmHeaderId.CrumbleKraidSpikes => RoomPlmInstructionLists.CrumbleKraidSpikes,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -394,16 +394,16 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         byte blockX,
         byte blockY,
-        ushort header)
+        PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            RoomPlmHeaders.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
-            RoomPlmHeaders.CrumbleCrocomireBridgeBlock => RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock,
-            RoomPlmHeaders.ClearCrocomireBridgeBlock => RoomPlmInstructionLists.ClearCrocomireBridgeBlock,
-            RoomPlmHeaders.ClearCrocomireInvisibleWall => RoomPlmInstructionLists.ClearCrocomireInvisibleWall,
-            RoomPlmHeaders.CreateCrocomireInvisibleWall => RoomPlmInstructionLists.CreateCrocomireInvisibleWall,
+            PlmHeaderId.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
+            PlmHeaderId.CrumbleCrocomireBridgeBlock => RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock,
+            PlmHeaderId.ClearCrocomireBridgeBlock => RoomPlmInstructionLists.ClearCrocomireBridgeBlock,
+            PlmHeaderId.ClearCrocomireInvisibleWall => RoomPlmInstructionLists.ClearCrocomireInvisibleWall,
+            PlmHeaderId.CreateCrocomireInvisibleWall => RoomPlmInstructionLists.CreateCrocomireInvisibleWall,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -442,12 +442,12 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         byte blockX,
         byte blockY,
-        ushort header)
+        PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (header is not (
-            RoomPlmHeaders.ClearBabyMetroidInvisibleWall or
-            RoomPlmHeaders.CreateBabyMetroidInvisibleWall))
+            PlmHeaderId.ClearBabyMetroidInvisibleWall or
+            PlmHeaderId.CreateBabyMetroidInvisibleWall))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(header),
@@ -479,7 +479,7 @@ public sealed partial class RoomPlmSystem
             {
                 int blockIndex = level.GetBlockIndex(blockX, blockY + rowOffset);
                 ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-                ushort replacement = header == RoomPlmHeaders.CreateBabyMetroidInvisibleWall
+                ushort replacement = header == PlmHeaderId.CreateBabyMetroidInvisibleWall
                     ? unchecked((ushort)((current & 0x0fff) | 0x8000))
                     : unchecked((ushort)(current & 0x0fff));
                 level.SetForegroundEntry(blockIndex, replacement);
@@ -501,31 +501,31 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         byte blockX,
         byte blockY,
-        ushort header)
+        PlmHeaderId header)
     {
         ArgumentNullException.ThrowIfNull(level);
         ushort instructionPointer = header switch
         {
-            RoomPlmHeaders.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
-            RoomPlmHeaders.MotherBrainsRoomEscapeDoor => RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
-            RoomPlmHeaders.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
-            RoomPlmHeaders.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
-            RoomPlmHeaders.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
-            RoomPlmHeaders.MotherBrainsBackgroundRow5 => RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
-            RoomPlmHeaders.MotherBrainsBackgroundRow6 => RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
-            RoomPlmHeaders.MotherBrainsBackgroundRow7 => RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
-            RoomPlmHeaders.MotherBrainsBackgroundRow8 => RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
-            RoomPlmHeaders.MotherBrainsBackgroundRow9 => RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
-            RoomPlmHeaders.MotherBrainsBackgroundRowA => RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
-            RoomPlmHeaders.MotherBrainsBackgroundRowB => RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
-            RoomPlmHeaders.MotherBrainsBackgroundRowC => RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
-            RoomPlmHeaders.MotherBrainsBackgroundRowD => RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
-            RoomPlmHeaders.ClearMotherBrainCeilingBlock => RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
-            RoomPlmHeaders.ClearMotherBrainCeilingTube => RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
-            RoomPlmHeaders.ClearMotherBrainBottomMiddleSideTube => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
-            RoomPlmHeaders.ClearMotherBrainBottomMiddleTubes => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
-            RoomPlmHeaders.ClearMotherBrainBottomLeftTube => RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
-            RoomPlmHeaders.ClearMotherBrainBottomRightTube => RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
+            PlmHeaderId.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
+            PlmHeaderId.MotherBrainsRoomEscapeDoor => RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
+            PlmHeaderId.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
+            PlmHeaderId.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
+            PlmHeaderId.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
+            PlmHeaderId.MotherBrainsBackgroundRow5 => RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
+            PlmHeaderId.MotherBrainsBackgroundRow6 => RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
+            PlmHeaderId.MotherBrainsBackgroundRow7 => RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
+            PlmHeaderId.MotherBrainsBackgroundRow8 => RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
+            PlmHeaderId.MotherBrainsBackgroundRow9 => RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
+            PlmHeaderId.MotherBrainsBackgroundRowA => RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
+            PlmHeaderId.MotherBrainsBackgroundRowB => RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
+            PlmHeaderId.MotherBrainsBackgroundRowC => RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
+            PlmHeaderId.MotherBrainsBackgroundRowD => RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
+            PlmHeaderId.ClearMotherBrainCeilingBlock => RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
+            PlmHeaderId.ClearMotherBrainCeilingTube => RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
+            PlmHeaderId.ClearMotherBrainBottomMiddleSideTube => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
+            PlmHeaderId.ClearMotherBrainBottomMiddleTubes => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
+            PlmHeaderId.ClearMotherBrainBottomLeftTube => RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
+            PlmHeaderId.ClearMotherBrainBottomRightTube => RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -548,7 +548,7 @@ public sealed partial class RoomPlmSystem
             slot.InstructionPointer = instructionPointer;
             slot.InstructionTimer = 1;
             slot.HeaderPointer = header;
-            if (header == RoomPlmHeaders.MotherBrainsRoomEscapeDoor)
+            if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
             {
                 // B5F8 installs the door-list index and three upward-linked extensions
                 // synchronously, before the first draw instruction changes their artwork.
@@ -1496,7 +1496,7 @@ public sealed partial class RoomPlmSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
-        ushort headerPointer,
+        PlmHeaderId headerPointer,
         int blockIndex,
         ushort drawPointer,
         ushort layer1XPosition,
@@ -2137,7 +2137,7 @@ public sealed partial class RoomPlmSystem
         /// <summary>Native PLMExtra_Vars coordinate saved by the Brinstar plant setup.</summary>
         public ushort PlantHeldY { get; set; }
         public bool Active { get; set; }
-        public ushort HeaderPointer { get; set; }
+        public PlmHeaderId HeaderPointer { get; set; }
         public int BlockIndex { get; set; }
         /// <summary>
         /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb

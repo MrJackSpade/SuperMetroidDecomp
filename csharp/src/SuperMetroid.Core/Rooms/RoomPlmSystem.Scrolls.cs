@@ -103,16 +103,16 @@ public sealed partial class RoomPlmSystem
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     private static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
-        ushort header, ReadOnlySpan<byte> program, ushort? compiledSource)
+        PlmHeaderId header, ReadOnlySpan<byte> program, ushort? compiledSource)
     {
-        if (header != RoomPlmHeaders.ScrollTrigger)
+        if (header != PlmHeaderId.ScrollTrigger)
         {
             (int collisionType, int behavior) = header switch
             {
-                RoomPlmHeaders.RightwardsScrollExtension => (5, 0xff),
-                RoomPlmHeaders.LeftwardsScrollExtension => (5, 0x01),
-                RoomPlmHeaders.DownwardsScrollExtension => (13, 0xff),
-                RoomPlmHeaders.UpwardsScrollExtension => (13, 0x01),
+                PlmHeaderId.RightwardsScrollExtension => (5, 0xff),
+                PlmHeaderId.LeftwardsScrollExtension => (5, 0x01),
+                PlmHeaderId.DownwardsScrollExtension => (13, 0xff),
+                PlmHeaderId.UpwardsScrollExtension => (13, 0x01),
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };

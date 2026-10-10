@@ -20,7 +20,7 @@ internal static partial class Program
         var headers = owners.Select(owner => owner.Header).ToHashSet();
         for (int header = 0; header <= ushort.MaxValue; header++)
             AssertEqual(headers.Contains((ushort)header),
-                KraidRoomPlmDrawDefinitions.IsKraidOwner((ushort)header),
+                KraidRoomPlmDrawDefinitions.IsKraidOwner((PlmHeaderId)header),
                 "Kraid visual owner classification across full header domain");
     }
 

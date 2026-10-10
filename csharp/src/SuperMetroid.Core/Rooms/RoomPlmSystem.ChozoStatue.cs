@@ -42,8 +42,8 @@ public sealed partial class RoomPlmSystem
             if (reaction.Active) continue;
             ClearSlot(reaction);
             reaction.Active = true;
-            reaction.HeaderPointer = wreckedShip ? ChozoStatuePlmRomData.WreckedShipTrigger
-                : ChozoStatuePlmRomData.LowerNorfairTrigger;
+            reaction.HeaderPointer = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
+                : PlmHeaderId.CollisionLowerNorfairChozoHandCheck;
             reaction.BlockIndex = block.Index;
             if (eligible)
             {
@@ -74,10 +74,10 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = index;
             slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
-            if (request.HeaderPointer == ChozoStatuePlmRomData.WreckedShipHand)
+            if (request.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
                 WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
                     ChozoStatuePlmRomData.WreckedShipHandBts.Value);
-            else if (request.HeaderPointer == ChozoStatuePlmRomData.CrumblePlug)
+            else if (request.HeaderPointer == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
             {
                 // Native D108 omits LDA: the two spawn entry points leave different A
                 // values, so preserve that quirk rather than reading the previous tile.
@@ -102,7 +102,7 @@ public sealed partial class RoomPlmSystem
         switch (instruction)
         {
             case RoomPlmInstructionCodes.GotoIfEventSet when
-                slot.HeaderPointer == ChozoStatuePlmRomData.LowerNorfairHand:
+                slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand:
                 ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
                 if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
                     throw new InvalidDataException($"Lower Norfair hand referenced unexpected event ${eventNumber:X4}.");

@@ -106,8 +106,8 @@ internal static partial class Program
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnBotwoonWall(level,
-                clear ? RoomPlmHeaders.ClearBotwoonWall :
-                    RoomPlmHeaders.CrumbleBotwoonWall),
+                clear ? PlmHeaderId.ClearBotwoonWall :
+                    PlmHeaderId.CrumbleBotwoonWall),
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = new BotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(

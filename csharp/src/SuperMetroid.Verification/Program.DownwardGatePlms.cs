@@ -52,7 +52,7 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate header oracle revision");
-        foreach ((ushort header, int source) in new[] { ((ushort)0xc82a, 0x84c82c), ((ushort)0xc836, 0x84c838) })
+        foreach ((PlmHeaderId header, int source) in new[] { (PlmHeaderId.DownwardGate, 0x84c82c), (PlmHeaderId.DownwardGateShotBlock, 0x84c838) })
             AssertEqual(ReadSamusEaterPlmWord(rom, source), RoomPlmHeaderDefinitions.Get(header).InitialInstruction,
                 "Gate compiled-population first instruction");
     }
@@ -87,7 +87,7 @@ internal static partial class Program
         AssertEqual(2, plms.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex, "gate receives the first highest native slot");
-        AssertEqual(RoomPlmHeaders.DownwardGate, slots[0].HeaderPointer,
+        AssertEqual(PlmHeaderId.DownwardGate, slots[0].HeaderPointer,
             "first resident slot is the closed downward gate");
         AssertEqual(38, slots[1].NativeSlotIndex, "shot block receives the next native slot");
         AssertEqual(RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
@@ -177,7 +177,7 @@ internal static partial class Program
             level.GetCollisionBlockByIndex(gateBlockIndex + level.WidthInBlocks).LevelWord,
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(DownwardGatePreInstructionCodes.WakeIfTriggered,
             openedGate.PreInstruction, "open gate sleeps under shot-only callback");
 
@@ -219,7 +219,7 @@ internal static partial class Program
         AssertTrue(plms.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, projectile),
             $"{trigger} is claimed by the gate dispatcher");
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGatePlm(plms, bus, level, streamer);
@@ -232,7 +232,7 @@ internal static partial class Program
             level.GetCollisionBlockByIndex(triggerBlockIndex).LevelWord,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(plms.PopulationSlots.All(slot =>
-                slot.HeaderPointer != RoomPlmHeaders.DownwardGateShotBlock),
+                slot.HeaderPointer != PlmHeaderId.DownwardGateShotBlock),
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
@@ -251,9 +251,9 @@ internal static partial class Program
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomPlmPopulationDefinition(populationPointer,
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGate),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGate),
                 gateX, gateY, 0),
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.DownwardGateShotBlock),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
                 gateX, gateY, argument),
         ]);
         WriteWord(bus, 0x84aae3, RoomPlmInstructionCodes.Delete);

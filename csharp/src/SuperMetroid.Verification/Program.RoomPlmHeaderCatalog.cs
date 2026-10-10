@@ -11,9 +11,9 @@ internal static partial class Program
     /// </summary>
     static void VerifyRoomPlmHeaderCatalog()
     {
-        ushort[] cataloguedHeaders = CatalogFields.Of(typeof(RoomPlmHeaders), BindingFlags.Public | BindingFlags.Static)
-            .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+        ushort[] cataloguedHeaders = Enum.GetValues<PlmHeaderId>()
+            .Where(header => header != PlmHeaderId.None)
+            .Select(header => (ushort)header)
             .ToArray();
         AssertEqual(cataloguedHeaders.Length, cataloguedHeaders.Distinct().Count(),
             "PLM header catalog has no duplicate native pointers");
@@ -57,7 +57,7 @@ internal static partial class Program
         }
 
         ushort[] supportedHeaders = retailHeaders
-            .Where(RoomPlmSystem.IsSupportedRoomPopulationHeader)
+            .Where(header => RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)header))
             .Distinct()
             .ToArray();
         foreach (ushort header in supportedHeaders)

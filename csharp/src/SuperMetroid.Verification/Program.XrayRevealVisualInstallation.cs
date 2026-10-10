@@ -111,7 +111,7 @@ internal static partial class Program
         AssertEqual(before, level.GetPlmCollisionBlockByIndex(33),
             "X-ray visual override leaves collision type and BTS untouched");
 
-        var item = new CollectiblePlmSnapshot(RoomPlmHeaders.ExposedEnergyTank, 33, 1,
+        var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
         var overlayLevel = new RoomLevelData(32, 32, new ushort[1024], new byte[1024],
             new ushort[1024], definitions);

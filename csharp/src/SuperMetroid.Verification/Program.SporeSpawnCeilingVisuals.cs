@@ -163,8 +163,8 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
         var plms = new RoomPlmSystem { SporeSpawnCeilingVisuals = edited };
         AssertTrue(plms.TrySpawnSporeSpawnCeiling(level,
-                clear ? RoomPlmHeaders.ClearSporeSpawnCeiling :
-                    RoomPlmHeaders.CrumbleSporeSpawnCeiling),
+                clear ? PlmHeaderId.ClearSporeSpawnCeiling :
+                    PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
         var guard = new SporeSpawnCeilingSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

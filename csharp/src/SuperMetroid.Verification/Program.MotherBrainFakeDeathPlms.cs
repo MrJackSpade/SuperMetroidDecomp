@@ -36,30 +36,30 @@ internal static partial class Program
                 MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out _),
                 $"Mother Brain program ${pointer - 2:X4} selects a compiled draw");
         }
-        (ushort Header, ushort Program)[] reachable =
+        (PlmHeaderId Header, ushort Program)[] reachable =
         [
-            (RoomPlmHeaders.FillMotherBrainsWall, RoomPlmInstructionLists.FillMotherBrainsWall),
-            (RoomPlmHeaders.MotherBrainsRoomEscapeDoor, RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow2, RoomPlmInstructionLists.MotherBrainsBackgroundRow2),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow3, RoomPlmInstructionLists.MotherBrainsBackgroundRow3),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow4, RoomPlmInstructionLists.MotherBrainsBackgroundRow4),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow5, RoomPlmInstructionLists.MotherBrainsBackgroundRow5),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow6, RoomPlmInstructionLists.MotherBrainsBackgroundRow6),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow7, RoomPlmInstructionLists.MotherBrainsBackgroundRow7),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow8, RoomPlmInstructionLists.MotherBrainsBackgroundRow8),
-            (RoomPlmHeaders.MotherBrainsBackgroundRow9, RoomPlmInstructionLists.MotherBrainsBackgroundRow9),
-            (RoomPlmHeaders.MotherBrainsBackgroundRowA, RoomPlmInstructionLists.MotherBrainsBackgroundRowA),
-            (RoomPlmHeaders.MotherBrainsBackgroundRowB, RoomPlmInstructionLists.MotherBrainsBackgroundRowB),
-            (RoomPlmHeaders.MotherBrainsBackgroundRowC, RoomPlmInstructionLists.MotherBrainsBackgroundRowC),
-            (RoomPlmHeaders.MotherBrainsBackgroundRowD, RoomPlmInstructionLists.MotherBrainsBackgroundRowD),
-            (RoomPlmHeaders.ClearMotherBrainCeilingBlock, RoomPlmInstructionLists.ClearMotherBrainCeilingBlock),
-            (RoomPlmHeaders.ClearMotherBrainCeilingTube, RoomPlmInstructionLists.ClearMotherBrainCeilingTube),
-            (RoomPlmHeaders.ClearMotherBrainBottomMiddleSideTube, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube),
-            (RoomPlmHeaders.ClearMotherBrainBottomMiddleTubes, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes),
-            (RoomPlmHeaders.ClearMotherBrainBottomLeftTube, RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube),
-            (RoomPlmHeaders.ClearMotherBrainBottomRightTube, RoomPlmInstructionLists.ClearMotherBrainBottomRightTube),
+            (PlmHeaderId.FillMotherBrainsWall, RoomPlmInstructionLists.FillMotherBrainsWall),
+            (PlmHeaderId.MotherBrainsRoomEscapeDoor, RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor),
+            (PlmHeaderId.MotherBrainsBackgroundRow2, RoomPlmInstructionLists.MotherBrainsBackgroundRow2),
+            (PlmHeaderId.MotherBrainsBackgroundRow3, RoomPlmInstructionLists.MotherBrainsBackgroundRow3),
+            (PlmHeaderId.MotherBrainsBackgroundRow4, RoomPlmInstructionLists.MotherBrainsBackgroundRow4),
+            (PlmHeaderId.MotherBrainsBackgroundRow5, RoomPlmInstructionLists.MotherBrainsBackgroundRow5),
+            (PlmHeaderId.MotherBrainsBackgroundRow6, RoomPlmInstructionLists.MotherBrainsBackgroundRow6),
+            (PlmHeaderId.MotherBrainsBackgroundRow7, RoomPlmInstructionLists.MotherBrainsBackgroundRow7),
+            (PlmHeaderId.MotherBrainsBackgroundRow8, RoomPlmInstructionLists.MotherBrainsBackgroundRow8),
+            (PlmHeaderId.MotherBrainsBackgroundRow9, RoomPlmInstructionLists.MotherBrainsBackgroundRow9),
+            (PlmHeaderId.MotherBrainsBackgroundRowA, RoomPlmInstructionLists.MotherBrainsBackgroundRowA),
+            (PlmHeaderId.MotherBrainsBackgroundRowB, RoomPlmInstructionLists.MotherBrainsBackgroundRowB),
+            (PlmHeaderId.MotherBrainsBackgroundRowC, RoomPlmInstructionLists.MotherBrainsBackgroundRowC),
+            (PlmHeaderId.MotherBrainsBackgroundRowD, RoomPlmInstructionLists.MotherBrainsBackgroundRowD),
+            (PlmHeaderId.ClearMotherBrainCeilingBlock, RoomPlmInstructionLists.ClearMotherBrainCeilingBlock),
+            (PlmHeaderId.ClearMotherBrainCeilingTube, RoomPlmInstructionLists.ClearMotherBrainCeilingTube),
+            (PlmHeaderId.ClearMotherBrainBottomMiddleSideTube, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube),
+            (PlmHeaderId.ClearMotherBrainBottomMiddleTubes, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes),
+            (PlmHeaderId.ClearMotherBrainBottomLeftTube, RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube),
+            (PlmHeaderId.ClearMotherBrainBottomRightTube, RoomPlmInstructionLists.ClearMotherBrainBottomRightTube),
         ];
-        foreach ((ushort header, ushort program) in reachable)
+        foreach ((PlmHeaderId header, ushort program) in reachable)
             VerifyMotherBrainFakeDeathMutation(header, program);
 
         Console.WriteLine(
@@ -68,7 +68,7 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainFakeDeathMutation(
-        ushort header, ushort program)
+        PlmHeaderId header, ushort program)
     {
         const int width = 32;
         const int height = 16;
@@ -78,16 +78,16 @@ internal static partial class Program
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnMotherBrainMutation(level, 5, 3, header),
-            $"Mother Brain mutation ${header:X4} allocates");
+            $"Mother Brain mutation ${(int)header:X4} allocates");
         ushort[] expected = Enumerable.Range(0, words.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).LevelWord)
             .ToArray();
         AssertTrue(MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(
                 checked((ushort)(program + 2)), out ushort drawPointer),
-            $"Mother Brain mutation ${header:X4} selects a compiled draw");
+            $"Mother Brain mutation ${(int)header:X4} selects a compiled draw");
         AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(
                 drawPointer, out var draw),
-            $"Mother Brain mutation ${header:X4} has a physical draw");
+            $"Mother Brain mutation ${(int)header:X4} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
             RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
@@ -104,16 +104,16 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, 0, 0, 0);
         AssertEqual(1, plms.ActiveCount,
-            $"Mother Brain mutation ${header:X4} persists through its draw frame");
+            $"Mother Brain mutation ${(int)header:X4} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).LevelWord,
-                $"Mother Brain mutation ${header:X4} level block {index}");
+                $"Mother Brain mutation ${(int)header:X4} level block {index}");
         plms.Step(guard, level, streamer, 0, 0, 0);
         AssertEqual(0, plms.ActiveCount,
-            $"Mother Brain mutation ${header:X4} deletes on the following frame");
+            $"Mother Brain mutation ${(int)header:X4} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain mutation ${header:X4} reads no migrated source bytes");
+            $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
     private sealed class MotherBrainFakeDeathSourceGuard(ISnesAddressSpace source)

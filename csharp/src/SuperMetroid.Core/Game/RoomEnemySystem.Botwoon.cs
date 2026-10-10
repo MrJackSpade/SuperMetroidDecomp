@@ -227,7 +227,7 @@ public sealed partial class RoomEnemySystem
     /// Hardcoded bank-$84 PLM requested by Botwoon. $B797 is the already-defeated wall;
     /// $B79B is the live crumble sequence.
     /// </summary>
-    public ushort? LastBotwoonWallPlm { get; private set; }
+    public PlmHeaderId? LastBotwoonWallPlm { get; private set; }
 
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
     public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
@@ -255,7 +255,7 @@ public sealed partial class RoomEnemySystem
         // installs the permanent open wall and makes both one-screen scroll entries blue.
         if (RequireAreaMiniBossDefeated())
         {
-            LastBotwoonWallPlm = RoomPlmHeaders.ClearBotwoonWall;
+            LastBotwoonWallPlm = PlmHeaderId.ClearBotwoonWall;
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.WallCrumbleRequested = true;
             state.BossBitSet = true;
@@ -860,7 +860,7 @@ public sealed partial class RoomEnemySystem
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
-        LastBotwoonWallPlm = RoomPlmHeaders.CrumbleBotwoonWall;
+        LastBotwoonWallPlm = PlmHeaderId.CrumbleBotwoonWall;
         state.WallCrumbleRequested = true;
 
         // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup

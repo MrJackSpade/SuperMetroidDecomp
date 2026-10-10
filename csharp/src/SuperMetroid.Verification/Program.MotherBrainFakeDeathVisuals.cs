@@ -56,11 +56,11 @@ internal static partial class Program
                     MotherBrainFakeDeathPlmDrawDefinitions.ClearBottomRightTube,
                     1, 0),
                 "Mother Brain override edits second-run tube tile");
-            VerifyMotherBrainVisualDraw(RoomPlmHeaders.MotherBrainsBackgroundRowD,
+            VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
                 12, 0, 0x1249, 0x0058, edited, cameraX: 64);
-            VerifyMotherBrainVisualDraw(RoomPlmHeaders.ClearMotherBrainBottomRightTube,
+            VerifyMotherBrainVisualDraw(PlmHeaderId.ClearMotherBrainBottomRightTube,
                 -1, 0, 0x00ff, 0x0059, edited, cameraX: 0);
-            VerifyMotherBrainVisualDraw(RoomPlmHeaders.MotherBrainsBackgroundRowD,
+            VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
                 12, 0, 0x1249, new RoomLevelWord(0x1249).VisualWord,
                 null, cameraX: 64);
 
@@ -98,7 +98,7 @@ internal static partial class Program
             "Mother Brain fake-death visuals: 22 stock draws, live row/tube edits, collision isolation, override persistence and strict failures pass.");
     }
 
-    private static void VerifyMotherBrainVisualDraw(ushort header,
+    private static void VerifyMotherBrainVisualDraw(PlmHeaderId header,
         int xOffset, int yOffset, ushort physicalWord, ushort visualWord,
         RoomPlmMotherBrainFakeDeathVisualCatalog? visuals, ushort cameraX)
     {
@@ -111,21 +111,21 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0249 * 4, 0x0249);
         var plms = new RoomPlmSystem { MotherBrainFakeDeathVisuals = visuals };
         AssertTrue(plms.TrySpawnMotherBrainMutation(level, 5, 3, header),
-            $"Mother Brain visual header ${header:X4} allocates");
+            $"Mother Brain visual header ${(int)header:X4} allocates");
         var guard = new MotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), cameraX, 0, 0);
         int blockIndex = (3 + yOffset) * width + 5 + xOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
-            $"Mother Brain visual header ${header:X4} retains physical block");
+            $"Mother Brain visual header ${(int)header:X4} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
         ushort blockDestination = level.CreateBackgroundStreamer()
             .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == visualWord),
-            $"Mother Brain visual header ${header:X4} presents edited tile");
+            $"Mother Brain visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain visual header ${header:X4} reads no compiled source");
+            $"Mother Brain visual header ${(int)header:X4} reads no compiled source");
     }
 }

@@ -106,7 +106,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BombTorizoLowHealthRecoveryInstruction = 0xb155;
     private const ushort BombTorizoDeathInstruction = 0xb1c8;
     private const ushort BombTorizoInitialExtendedSpritemap = 0x87d0;
-    private const ushort BombTorizoHandTriggerPlm = 0xd6ea;
     private const ushort BombTorizoShotGuardValue = 0x7777;
 
     /// <summary>
@@ -190,7 +189,7 @@ public sealed partial class RoomEnemySystem
 
     private TorizoEnemyState? _torizoState;
     private readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
-    private Func<ushort, bool>? _isRoomPlmPresent;
+    private Func<PlmHeaderId, bool>? _isRoomPlmPresent;
     private Func<bool>? _isAreaTorizoDefeated;
     private Action? _setAreaTorizoDefeated;
 
@@ -370,7 +369,7 @@ public sealed partial class RoomEnemySystem
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
                 torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
-                if (RequireRoomPlmPresent(BombTorizoHandTriggerPlm))
+                if (RequireRoomPlmPresent(PlmHeaderId.BombTorizoHand))
                     return;
 
                 LastBombTorizoMusicRequest = new BombTorizoMusicRequest(

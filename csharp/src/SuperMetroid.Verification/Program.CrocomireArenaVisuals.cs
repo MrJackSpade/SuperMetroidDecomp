@@ -52,11 +52,11 @@ internal static partial class Program
             AssertEqual((ushort)0x0059,
                 edited.GetWord(CrocomireArenaPlmDrawDefinitions.CreateInvisibleWall, 2, 7),
                 "Crocomire override edits final wall column");
-            VerifyCrocomireVisualDraw(RoomPlmHeaders.ClearCrocomireBridge,
+            VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
                 9, 0, 0x0080, 0x0058, edited);
-            VerifyCrocomireVisualDraw(RoomPlmHeaders.CreateCrocomireInvisibleWall,
+            VerifyCrocomireVisualDraw(PlmHeaderId.CreateCrocomireInvisibleWall,
                 2, 7, 0x8080, 0x0059, edited);
-            VerifyCrocomireVisualDraw(RoomPlmHeaders.ClearCrocomireBridge,
+            VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
                 9, 0, 0x0080, 0x0080, null);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -91,7 +91,7 @@ internal static partial class Program
         Console.WriteLine("Crocomire arena visuals: five stock draws, bridge/wall edits, physical isolation, override persistence and strict failures pass.");
     }
 
-    private static void VerifyCrocomireVisualDraw(ushort header,
+    private static void VerifyCrocomireVisualDraw(PlmHeaderId header,
         int xOffset, int yOffset, ushort physicalWord, ushort visualWord,
         RoomPlmCrocomireVisualCatalog? visuals)
     {
@@ -104,13 +104,13 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0080 * 4, 0x0080);
         var plms = new RoomPlmSystem { CrocomireVisuals = visuals };
         AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, 5, 3, header),
-            $"Crocomire visual header ${header:X4} allocates");
+            $"Crocomire visual header ${(int)header:X4} allocates");
         var guard = new CrocomireSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), 0, 0, 0);
         int blockIndex = (3 + yOffset) * width + 5 + xOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
-            $"Crocomire visual header ${header:X4} retains physical block");
+            $"Crocomire visual header ${(int)header:X4} retains physical block");
         // $84:8E7C places block (x, y) in BG1's two-screen ring at this word (BG1 X offset zero).
         int ringX = (blockIndex % width) & 0x1f;
         int ringY = (blockIndex / width) & 0x0f;
@@ -118,8 +118,8 @@ internal static partial class Program
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == visualWord),
-            $"Crocomire visual header ${header:X4} presents edited tile");
+            $"Crocomire visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Crocomire visual header ${header:X4} reads no compiled source");
+            $"Crocomire visual header ${(int)header:X4} reads no compiled source");
     }
 }

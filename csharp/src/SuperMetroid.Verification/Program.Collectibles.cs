@@ -231,7 +231,7 @@ internal static partial class Program
         SeedCollectibleRom(bus);
         // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
         var fixture = LoadCollectible(bus,
-            (ushort)(RoomPlmHeaders.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
+            (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
             26, precollected: false, width: 128, blockX: 69, blockY: 41, height: 48);
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
         var movement = new SamusKinematicsState

@@ -30,7 +30,7 @@ public sealed partial class RoomPlmSystem
         ushort enemyDeaths,
         byte enemyDeathQuota)
     {
-        if (slot.HeaderPointer != RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
+        if (slot.HeaderPointer != PlmHeaderId.SetMetroidsClearedStatesWhenRequired)
             return;
 
         ushort expectedPreInstruction =

@@ -85,7 +85,7 @@ internal static partial class Program
             {
                 foreach (RoomPlmHeaderDefinition header in RoomPlmHeaderDefinitionsTooling.All)
                 {
-                    int headerAddress = 0x840000 | header.Header;
+                    int headerAddress = 0x840000 | (ushort)header.Header;
                     if (address >= headerAddress && address < headerAddress + 4)
                     {
                         ForbiddenHeaderReadAttempts++;

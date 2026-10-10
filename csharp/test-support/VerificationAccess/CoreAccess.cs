@@ -206,15 +206,15 @@ internal static partial class CoreAccess
     {
 
         /// <summary>The one active slot running <paramref name="headerPointer"/>; throws unless exactly one does.</summary>
-        internal RoomPlmSlotSnapshot SinglePopulationSlot(ushort headerPointer)
+        internal RoomPlmSlotSnapshot SinglePopulationSlot(PlmHeaderId headerPointer)
         {
             RoomPlmSlotSnapshot[] matches = plms.PopulationSlots
                 .Where(slot => slot.HeaderPointer == headerPointer).ToArray();
             return matches.Length switch
             {
                 1 => matches[0],
-                0 => throw new InvalidOperationException($"No active PLM uses header ${headerPointer:X4}."),
-                _ => throw new InvalidOperationException($"More than one active PLM uses header ${headerPointer:X4}."),
+                0 => throw new InvalidOperationException($"No active PLM uses header ${(ushort)headerPointer:X4}."),
+                _ => throw new InvalidOperationException($"More than one active PLM uses header ${(ushort)headerPointer:X4}."),
             };
         }
 

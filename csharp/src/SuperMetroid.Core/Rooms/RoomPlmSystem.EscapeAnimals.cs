@@ -42,7 +42,7 @@ public sealed partial class RoomPlmSystem
                 CrateriaMainstreetEscapePassagePlmDefinitions.BlockX,
                 CrateriaMainstreetEscapePassagePlmDefinitions.BlockY);
             slot.RestoreLevelWord = 0;
-            slot.HeaderPointer = RoomPlmHeaders.CrateriaMainstreetEscapePassage;
+            slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
             slot.LoopTimer = 0;
             slot.InstructionPointer = CrateriaMainstreetEscapePassagePlmDefinitions.InstructionList;
             slot.InstructionTimer = 1;

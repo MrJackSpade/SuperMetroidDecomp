@@ -292,11 +292,11 @@ public sealed partial class RoomEnemySystem
                 state.RequestPlm(
                     blockX: 15,
                     blockY: 4,
-                    header: RoomPlmHeaders.FillMotherBrainsWall);
+                    header: PlmHeaderId.FillMotherBrainsWall);
                 state.RequestPlm(
                     blockX: 15,
                     blockY: 9,
-                    header: RoomPlmHeaders.FillMotherBrainsWall);
+                    header: PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }

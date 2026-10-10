@@ -248,7 +248,7 @@ public sealed partial class RoomEnemySystem
         Action? setAreaMiniBossDefeated = null,
         Func<bool>? isAreaTorizoDefeated = null,
         Action? setAreaTorizoDefeated = null,
-        Func<ushort, bool>? isRoomPlmPresent = null,
+        Func<PlmHeaderId, bool>? isRoomPlmPresent = null,
         Action<bool>? setSamusControlsEnabled = null,
         Action<int, RoomScrollState>? setRoomScrollState = null,
         Action? setAreaBossDefeated = null,

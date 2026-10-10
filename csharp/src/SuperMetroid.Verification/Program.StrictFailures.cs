@@ -29,9 +29,9 @@ static void VerifyStrictFailureBoundaries()
         "master brightness above INIDISP range is rejected");
 
     AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
-            RoomPlmHeaders.YellowDoorFacingLeft),
+            PlmHeaderId.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader(0xdead),
+    AssertTrue(!RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)0xdead),
         "unknown PLM is absent from the production dispatcher");
 
     var enemies = new RoomEnemySystem();

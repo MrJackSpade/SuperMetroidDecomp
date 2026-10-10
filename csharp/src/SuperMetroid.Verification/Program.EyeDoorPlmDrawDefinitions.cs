@@ -127,12 +127,12 @@ internal static partial class Program
         const byte eyeY = 4;
         const ushort doorBit = 5;
         ushort[] headers = orientation == EyeDoorOrientation.Left
-            ? [RoomPlmHeaders.EyeDoorEyeFacingLeft,
-                RoomPlmHeaders.EyeDoorFacingLeft,
-                RoomPlmHeaders.EyeDoorBottomFacingLeft]
-            : [RoomPlmHeaders.EyeDoorEyeFacingRight,
-                RoomPlmHeaders.EyeDoorFacingRight,
-                RoomPlmHeaders.EyeDoorBottomFacingRight];
+            ? [(ushort)PlmHeaderId.EyeDoorEyeFacingLeft,
+                (ushort)PlmHeaderId.EyeDoorFacingLeft,
+                (ushort)PlmHeaderId.EyeDoorBottomFacingLeft]
+            : [(ushort)PlmHeaderId.EyeDoorEyeFacingRight,
+                (ushort)PlmHeaderId.EyeDoorFacingRight,
+                (ushort)PlmHeaderId.EyeDoorBottomFacingRight];
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = rom.ReadByte(0x848000 + offset);

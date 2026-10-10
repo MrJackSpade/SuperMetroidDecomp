@@ -22,7 +22,7 @@ internal static partial class Program
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)
         {
-            AssertEqual(headers[index], exported[index].Header, "Retail header ascending enumeration");
+            AssertEqual(headers[index], (ushort)exported[index].Header, "Retail header ascending enumeration");
             ushort expected = ReadSamusEaterPlmWord(rom, 0x840000 | (headers[index] + (instruction ? 2 : 0)));
             AssertEqual(expected, instruction ? exported[index].InitialInstruction : exported[index].Setup,
                 "Retail header original enumerated field");
@@ -30,12 +30,14 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort header = (ushort)raw;
-            if (!headers.Contains(header))
-                AssertThrows<InvalidDataException>(() => RoomPlmHeaderDefinitions.Get(header), "Retail header rejects all unsupported inputs");
+            if (!Enum.IsDefined((PlmHeaderId)header))
+                AssertThrows<InvalidOperationException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)header), "Undefined header identities fail");
+            else if (!headers.Contains(header))
+                AssertThrows<InvalidDataException>(() => RoomPlmHeaderDefinitions.Get((PlmHeaderId)header), "Retail header rejects all unsupported headers");
             else
             {
-                RoomPlmHeaderDefinition selected = RoomPlmHeaderDefinitions.Get(header);
-                AssertEqual(header, selected.Header, "Retail header identity preserved");
+                RoomPlmHeaderDefinition selected = RoomPlmHeaderDefinitions.Get((PlmHeaderId)header);
+                AssertEqual(header, (ushort)selected.Header, "Retail header identity preserved");
                 ushort expected = ReadSamusEaterPlmWord(rom, 0x840000 | (raw + (instruction ? 2 : 0)));
                 AssertEqual(expected, instruction ? selected.InitialInstruction : selected.Setup, "Retail header original selected field");
             }

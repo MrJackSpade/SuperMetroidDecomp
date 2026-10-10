@@ -10,7 +10,7 @@ internal static partial class Program
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 1, request => request.BlockY));
 
     private static void VerifyKraidDefeatedPlmHeaders(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => request.Header));
+        Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => (ushort)request.Header));
 
     private static void VerifyKraidDefeatedPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)

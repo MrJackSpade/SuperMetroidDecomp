@@ -259,7 +259,7 @@ public sealed partial class RoomEnemySystem
         state.Tentacles!.VariableB = 0;
         body.VariableF = (ushort)PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
         body.VariableE = 30;
-        state.BossDoorPlmRequest = RoomPlmHeaders.DrawPhantoonDoorDuringBossFight;
+        state.BossDoorPlmRequest = PlmHeaderId.DrawPhantoonDoorDuringBossFight;
     }
 
     private static void RunPhantoonStartingFlamePause(RoomEnemySlot body)

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One direction-selected fallback door-closing PLM definition.</summary>
 internal readonly record struct DoorClosingPlmDefinition(
-    ushort Header,
+    PlmHeaderId Header,
     ushort InitialInstructionList);
 
 /// <summary>
@@ -38,13 +38,13 @@ public static class DoorClosingPlmRomData
         DoorClosingBehavior.None => null,
         DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
         {
-            DoorDirection.Right => new(RoomPlmHeaders.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
-            DoorDirection.Left => new(RoomPlmHeaders.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
-            DoorDirection.Down => new(RoomPlmHeaders.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
-            DoorDirection.Up => new(RoomPlmHeaders.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
+            DoorDirection.Right => new(PlmHeaderId.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
+            DoorDirection.Left => new(PlmHeaderId.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
+            DoorDirection.Down => new(PlmHeaderId.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
+            DoorDirection.Up => new(PlmHeaderId.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
-        DoorClosingBehavior.EscapeGateCloses => new(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
+        DoorClosingBehavior.EscapeGateCloses => new(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };

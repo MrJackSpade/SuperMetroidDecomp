@@ -44,7 +44,7 @@ internal static class PlmProgramAudit
             string? route = TypedHeaderRoute(header.Header);
             if (route is not null)
                 report.Classifications.Add(new());
-            else walker.Visit(header.InitialInstruction, $"header ${header.Header:X4}");
+            else walker.Visit(header.InitialInstruction, $"header ${(int)header.Header:X4}");
         }
         FieldInfo[] instructionLists = [.. ToolingTypes.WithAdapter(typeof(RoomPlmInstructionLists))
             .SelectMany(type => type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))];
@@ -97,17 +97,17 @@ internal static class PlmProgramAudit
 
     // These are actual alternative execution owners, not missing-data exemptions.
     // Their setup/step source is guarded alongside the generic interpreter.
-    private static string? TypedHeaderRoute(ushort header)
+    private static string? TypedHeaderRoute(PlmHeaderId header)
     {
         if (RoomPlmSystem.TryIdentifyPermanentCollectible(header, out _, out _))
             return "SetupCollectibleSlot / TryStepCollectible";
         return header switch
         {
-            RoomPlmHeaders.ScrollTrigger or RoomPlmHeaders.RightwardsScrollExtension or
-            RoomPlmHeaders.LeftwardsScrollExtension or RoomPlmHeaders.DownwardsScrollExtension or
-            RoomPlmHeaders.UpwardsScrollExtension => "SetupScrollSlot / TryStepScrollPlm (extensions delete during setup)",
-            RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
-            RoomPlmHeaders.MissileStation or RoomPlmHeaders.SaveStation => "SetupStation / TryStepStation",
+            PlmHeaderId.ScrollTrigger or PlmHeaderId.RightwardsScrollExtension or
+            PlmHeaderId.LeftwardsScrollExtension or PlmHeaderId.DownwardsScrollExtension or
+            PlmHeaderId.UpwardsScrollExtension => "SetupScrollSlot / TryStepScrollPlm (extensions delete during setup)",
+            PlmHeaderId.MapStation or PlmHeaderId.EnergyStation or
+            PlmHeaderId.MissileStation or PlmHeaderId.SaveStation => "SetupStation / TryStepStation",
             _ => null,
         };
     }

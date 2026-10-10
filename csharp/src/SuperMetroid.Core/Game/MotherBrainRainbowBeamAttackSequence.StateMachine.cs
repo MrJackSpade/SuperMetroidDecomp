@@ -1062,7 +1062,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 escapeDoorPlm = new(
                     BlockX: 0x00,
                     BlockY: 0x06,
-                    PlmEntry: RoomPlmHeaders.MotherBrainsRoomEscapeDoor);
+                    PlmEntry: PlmHeaderId.MotherBrainsRoomEscapeDoor);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing:

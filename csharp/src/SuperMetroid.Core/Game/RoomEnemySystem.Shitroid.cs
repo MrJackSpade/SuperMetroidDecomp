@@ -59,7 +59,7 @@ public enum ShitroidAiFunction : ushort
 }
 
 /// <summary>One hardcoded bank-$84 wall mutation emitted by Shitroid's room script.</summary>
-public readonly record struct ShitroidPlmRequest(byte BlockX, byte BlockY, ushort Header);
+public readonly record struct ShitroidPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
 
 /// <summary>One delayed music command emitted by the Shitroid encounter.</summary>
 public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
@@ -349,7 +349,7 @@ public sealed partial class RoomEnemySystem
                     state.Function = ShitroidAiFunction.HoverNearSamus;
                     slot.Parameter2 = 1;
                     SetShitroidScrollPair(RoomScrollState.Blue);
-                    QueueShitroidWallPlms(RoomPlmHeaders.ClearBabyMetroidInvisibleWall);
+                    QueueShitroidWallPlms(PlmHeaderId.ClearBabyMetroidInvisibleWall);
                 }
                 return;
 
@@ -507,7 +507,7 @@ public sealed partial class RoomEnemySystem
         // byte scroll array without pretending that this is ordinary camera tracking.
         RequestedShitroidCameraX = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
-        QueueShitroidWallPlms(RoomPlmHeaders.CreateBabyMetroidInvisibleWall);
+        QueueShitroidWallPlms(PlmHeaderId.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
         state.CryEnabled = 1;
     }
@@ -522,7 +522,7 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(3, highState);
     }
 
-    private void QueueShitroidWallPlms(ushort header)
+    private void QueueShitroidWallPlms(PlmHeaderId header)
     {
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x30, 0x03, header));
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(0x1f, 0x03, header));

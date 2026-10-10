@@ -13,7 +13,7 @@ public sealed partial class RoomPlmSystem
             if (slot.Active) continue;
             ClearSlot(slot);
             slot.Active = true;
-            slot.HeaderPointer = EnemyBreakableTerrainDefinitions.Header;
+            slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = EnemyBreakableTerrainDefinitions.InstructionList;
             slot.InstructionTimer = 1;

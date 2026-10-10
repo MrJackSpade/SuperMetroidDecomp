@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Rooms
     /// <summary>Verification view of one occupied physical PLM slot.</summary>
     internal readonly record struct RoomPlmSlotSnapshot(
         int NativeSlotIndex,
-        ushort HeaderPointer,
+        PlmHeaderId HeaderPointer,
         int BlockIndex,
         ushort RoomArgument,
         ushort InstructionPointer,
@@ -38,7 +38,7 @@ namespace SuperMetroid.Core.Rooms
 
     /// <summary>Verification view of a resident colored-door PLM slot.</summary>
     internal readonly record struct ColoredDoorPlmSnapshot(
-        ushort Header,
+        PlmHeaderId Header,
         int BlockIndex,
         ushort RoomArgument,
         ColoredDoorColor Color,
@@ -48,7 +48,7 @@ namespace SuperMetroid.Core.Rooms
 
     /// <summary>Verification view of a resident grey-door PLM slot.</summary>
     internal readonly record struct GreyDoorPlmSnapshot(
-        ushort Header,
+        PlmHeaderId Header,
         int BlockIndex,
         ushort RoomArgument,
         ColoredDoorOrientation Orientation,
@@ -60,7 +60,7 @@ namespace SuperMetroid.Core.Rooms
 
     /// <summary>Verification view of one of the three physical eye-door PLMs.</summary>
     internal readonly record struct EyeDoorPlmSnapshot(
-        ushort Header,
+        PlmHeaderId Header,
         int BlockIndex,
         ushort RoomArgument,
         EyeDoorComponent Component,
@@ -69,7 +69,7 @@ namespace SuperMetroid.Core.Rooms
         ushort PreInstruction);
 
     /// <summary>One resident door header and the closing instruction list it selects.</summary>
-    internal readonly record struct ResidentDoorClosingDefinition(ushort Header, ushort ClosingInstructionList);
+    internal readonly record struct ResidentDoorClosingDefinition(PlmHeaderId Header, ushort ClosingInstructionList);
 }
 
 namespace SuperMetroid.Core.Runtime

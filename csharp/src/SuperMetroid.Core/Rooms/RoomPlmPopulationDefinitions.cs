@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmPopulationDefinitions
 {
 
-    internal static void Place(ushort pointer, Action<ushort, byte, byte, ushort> place)
+    internal static void Place(ushort pointer, Action<PlmHeaderId, byte, byte, ushort> place)
     {
         ArgumentNullException.ThrowIfNull(place);
         if (!TryPlace(pointer, place))

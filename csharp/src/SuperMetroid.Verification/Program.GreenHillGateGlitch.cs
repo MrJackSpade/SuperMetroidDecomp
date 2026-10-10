@@ -62,16 +62,16 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenHillZone);
         RoomPlmSlotSnapshot gate = runtime.Plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(0x1be4, gate.BlockIndex, "authored Green Hill gate block");
         RoomPlmSlotSnapshot trigger = runtime.Plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGateShotBlock);
+            slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
         AssertEqual((ushort)0, trigger.RoomArgument,
             "authored Green Hill trigger selects the blue-left gate table");
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         gate = runtime.Plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         RoomEnemyProjectileSlot gateActor = runtime.Enemies.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
@@ -109,7 +109,7 @@ internal static partial class Program
                 input |= SnesButton.X;
             runtime.StepFrame((ushort)input);
             gate = runtime.Plms.PopulationSlots.Single(slot =>
-                slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+                slot.HeaderPointer == PlmHeaderId.DownwardGate);
             if (gate.LoopTimer == 0)
                 continue;
             openFrame = frame;

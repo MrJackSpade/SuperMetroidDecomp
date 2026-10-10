@@ -9,7 +9,7 @@ internal static partial class Program
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
         SamusEaterPlmDefinition[] definitions =
-            [SamusEaterPlmDefinitions.Resolve(0xb6cb), SamusEaterPlmDefinitions.Resolve(0xb6cf)];
+            [SamusEaterPlmDefinitions.Resolve(PlmHeaderId.InsideReactionBrinstarFloorPlant), SamusEaterPlmDefinitions.Resolve(PlmHeaderId.InsideReactionBrinstarCeilingPlant)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
         AssertEqual(definitions[0].InstructionListPointer,
             SamusEaterPlmProgramDefinitions.FloorStart,
@@ -23,7 +23,7 @@ internal static partial class Program
         Suite(nameof(VerifySamusEaterProgramDraws), () => VerifySamusEaterProgramDraws(rom));
         Suite(nameof(VerifySamusEaterProgramSound), () => VerifySamusEaterProgramSound(rom));
 
-        foreach (ushort headerPointer in new ushort[] { 0xb6cb, 0xb6cf })
+        foreach (PlmHeaderId headerPointer in new ushort[] { 0xb6cb, 0xb6cf })
         {
             SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(headerPointer);
             const int width = 4;
@@ -64,7 +64,7 @@ internal static partial class Program
         }
 
         AssertThrows<InvalidDataException>(
-            () => SamusEaterPlmDefinitions.Resolve(0xb6d3),
+            () => SamusEaterPlmDefinitions.Resolve(PlmHeaderId.MapStation),
             "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
             "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
@@ -81,14 +81,14 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort header = (ushort)raw;
-            if (header is not (0xb6cb or 0xb6cf))
+            if (header is not ((ushort)PlmHeaderId.InsideReactionBrinstarFloorPlant or (ushort)PlmHeaderId.InsideReactionBrinstarCeilingPlant))
             {
-                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve(header),
+                AssertThrows<InvalidDataException>(() => SamusEaterPlmDefinitions.Resolve((PlmHeaderId)header),
                     "plant header selector rejects every unsupported identity");
                 continue;
             }
-            var actual = SamusEaterPlmDefinitions.Resolve(header);
-            AssertEqual(header == 0xb6cb ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
+            var actual = SamusEaterPlmDefinitions.Resolve((PlmHeaderId)header);
+            AssertEqual(header == (ushort)PlmHeaderId.InsideReactionBrinstarFloorPlant ? SamusEaterPlmDefinitions.Floor : SamusEaterPlmDefinitions.Ceiling,
                 actual, "plant selected header identity");
             if (mounting)
             {

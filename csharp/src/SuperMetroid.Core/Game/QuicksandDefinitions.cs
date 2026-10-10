@@ -33,28 +33,36 @@ public static class QuicksandDefinitions
     /// including the unused surface clones between the named headers. No table is stored.
     /// </summary>
     public static bool TryGetReaction(
-        ushort header,
+        PlmHeaderId header,
         out QuicksandReactionDefinition definition)
     {
         // Native headers select behavior; the gaps contain unused clones outside this API.
+        if (header is not (PlmHeaderId.InsideReactionQuicksandSurface or PlmHeaderId.InsideReactionSubmergingQuicksand or
+            PlmHeaderId.InsideReactionSandFallsSlow or PlmHeaderId.InsideReactionSandFallsFast or
+            PlmHeaderId.CollisionReactionQuicksandSurface or PlmHeaderId.CollisionReactionSubmergingQuicksand or
+            PlmHeaderId.CollisionReactionSandFallsSlow or PlmHeaderId.CollisionReactionSandFallsFast))
+        {
+            definition = default;
+            return false;
+        }
         ushort setup = header switch
         {
-            QuicksandRomData.SurfaceInsideHeader => QuicksandRomData.SurfaceSetup,
-            QuicksandRomData.SubmergingInsideHeader => QuicksandRomData.SubmergingSetup,
-            QuicksandRomData.SlowFallsInsideHeader => QuicksandRomData.SlowFallsSetup,
-            QuicksandRomData.FastFallsInsideHeader => QuicksandRomData.FastFallsSetup,
-            QuicksandRomData.SurfaceCollisionHeader => QuicksandRomData.SurfaceCollision,
-            QuicksandRomData.SubmergingCollisionHeader => QuicksandRomData.SubmergingCollision,
-            QuicksandRomData.SlowFallsCollisionHeader or QuicksandRomData.FastFallsCollisionHeader =>
+            PlmHeaderId.InsideReactionQuicksandSurface => QuicksandRomData.SurfaceSetup,
+            PlmHeaderId.InsideReactionSubmergingQuicksand => QuicksandRomData.SubmergingSetup,
+            PlmHeaderId.InsideReactionSandFallsSlow => QuicksandRomData.SlowFallsSetup,
+            PlmHeaderId.InsideReactionSandFallsFast => QuicksandRomData.FastFallsSetup,
+            PlmHeaderId.CollisionReactionQuicksandSurface => QuicksandRomData.SurfaceCollision,
+            PlmHeaderId.CollisionReactionSubmergingQuicksand => QuicksandRomData.SubmergingCollision,
+            PlmHeaderId.CollisionReactionSandFallsSlow or PlmHeaderId.CollisionReactionSandFallsFast =>
                 QuicksandRomData.SandFallsCollision,
-            _ => 0,
+            _ => throw new InvalidOperationException($"Undefined quicksand header {header}."),
         };
-        definition = setup == 0 ? default : new(setup, RoomPlmInstructionLists.Delete);
-        return setup != 0;
+        definition = new(setup, RoomPlmInstructionLists.Delete);
+        return true;
     }
 
     /// <summary>Resolves one supported sand header or rejects an invalid allocator request.</summary>
-    public static QuicksandReactionDefinition ResolveReaction(ushort header) =>
+    public static QuicksandReactionDefinition ResolveReaction(PlmHeaderId header) =>
         TryGetReaction(header, out QuicksandReactionDefinition definition)
             ? definition
             : throw new ArgumentOutOfRangeException(

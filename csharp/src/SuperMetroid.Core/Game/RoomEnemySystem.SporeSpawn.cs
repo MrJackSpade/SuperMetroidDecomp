@@ -92,7 +92,7 @@ public sealed class SporeSpawnEnemyState
 /// <param name="BlockX">Zero-based room block column in 16-pixel units; the native ceiling request uses seven.</param>
 /// <param name="BlockY">Zero-based room block row in 16-pixel units; the native ceiling request uses thirty.</param>
 /// <param name="Header">Bank-relative PLM header offset in bank $84, selecting the ceiling clear or crumble operation.</param>
-public readonly record struct SporeSpawnPlmRequest(byte BlockX, byte BlockY, ushort Header);
+public readonly record struct SporeSpawnPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
 
 /// <summary>Frame-local marker for one item-drop attempt from a destroyed spore or the boss's death instruction.</summary>
 /// <remarks>Contains no position or table selector: the publisher also invokes drop spawning immediately, using stalk header $DF7F for a spore or body header $DF3F for one of the sixteen death drops.</remarks>
@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
             body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialDead;
             body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
             UpdateSporeSpawnStalks(state);
-            PublishSporeSpawnPlm(header: RoomPlmHeaders.ClearSporeSpawnCeiling);
+            PublishSporeSpawnPlm(header: PlmHeaderId.ClearSporeSpawnCeiling);
             return;
         }
 
@@ -380,7 +380,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void PublishSporeSpawnPlm(ushort header) =>
+    private void PublishSporeSpawnPlm(PlmHeaderId header) =>
         LastSporeSpawnPlm = new SporeSpawnPlmRequest(7, 30, header);
 
     private static (ushort Position, ushort Subposition) AddSporeSpawnFixed(

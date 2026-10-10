@@ -38,7 +38,7 @@ internal static partial class Program
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 runtime.BombProjectiles.StepFrame(bus, level, samus, input, input);
                 runtime.Projectiles.StepFrame(bus, level, samus, input, input, cameraX, cameraY, runtime.BombProjectiles, roomPlms: runtime.Plms);
-                if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == RoomPlmHeaders.BlueDoorFacingRight))
+                if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
                 runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, cameraX, cameraY, 0);
                 openingSound |= runtime.Plms.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));

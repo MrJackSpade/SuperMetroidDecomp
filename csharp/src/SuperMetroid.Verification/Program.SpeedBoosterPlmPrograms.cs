@@ -135,7 +135,7 @@ internal static partial class Program
             ushort header = ReadBotwoonInstructionWord(rom,tableAddress);
             AssertEqual((ushort)0xcdea,ReadBotwoonInstructionWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
             ushort expected = instruction ? ReadBotwoonInstructionWord(rom,0x840000 | (header + 2)) : header;
-            AssertEqual(expected,instruction ? definition.InstructionPointer : definition.HeaderPointer,
+            AssertEqual(expected,instruction ? definition.InstructionPointer : (ushort)definition.HeaderPointer,
                 instruction ? "speed native selected instruction" : "speed native selected header");
         }
     }

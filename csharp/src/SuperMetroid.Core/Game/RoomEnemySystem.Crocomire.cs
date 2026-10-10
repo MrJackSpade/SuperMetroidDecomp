@@ -186,9 +186,9 @@ public sealed partial class RoomEnemySystem
             RequireSetRoomScrollState(1, RoomScrollState.Blue);
             RequireSetRoomScrollState(2, RoomScrollState.Blue);
             RequireSetRoomScrollState(3, RoomScrollState.Blue);
-            PublishCrocomirePlm(0x20, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
-            PublishCrocomirePlm(0x1e, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
-            PublishCrocomirePlm(0x61, 0x0b, RoomPlmHeaders.ClearCrocomireBridge);
+            PublishCrocomirePlm(0x20, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
+            PublishCrocomirePlm(0x1e, 0x03, PlmHeaderId.ClearCrocomireInvisibleWall);
+            PublishCrocomirePlm(0x61, 0x0b, PlmHeaderId.ClearCrocomireBridge);
             TransferCrocomireBg2Words(0, 1024);
             return;
         }

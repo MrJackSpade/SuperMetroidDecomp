@@ -10,13 +10,13 @@ public sealed partial class RoomPlmSystem
     private Func<SamusState?>? _eyeDoorSamus;
     private Action<EyeDoorProjectileRequest>? _spawnEyeDoorProjectile;
 
-    private static bool IsEyeDoorHeader(ushort header) => header is
-        RoomPlmHeaders.EyeDoorEyeFacingRight or
-        RoomPlmHeaders.EyeDoorFacingRight or
-        RoomPlmHeaders.EyeDoorBottomFacingRight or
-        RoomPlmHeaders.EyeDoorEyeFacingLeft or
-        RoomPlmHeaders.EyeDoorFacingLeft or
-        RoomPlmHeaders.EyeDoorBottomFacingLeft;
+    private static bool IsEyeDoorHeader(PlmHeaderId header) => header is
+        PlmHeaderId.EyeDoorEyeFacingRight or
+        PlmHeaderId.EyeDoorFacingRight or
+        PlmHeaderId.EyeDoorBottomFacingRight or
+        PlmHeaderId.EyeDoorEyeFacingLeft or
+        PlmHeaderId.EyeDoorFacingLeft or
+        PlmHeaderId.EyeDoorBottomFacingLeft;
 
     private void SetupEyeDoorSlot(
         RoomLevelData level,
@@ -24,17 +24,17 @@ public sealed partial class RoomPlmSystem
     {
         (EyeDoorComponent component, EyeDoorOrientation orientation) = slot.HeaderPointer switch
         {
-            RoomPlmHeaders.EyeDoorEyeFacingRight =>
+            PlmHeaderId.EyeDoorEyeFacingRight =>
                 (EyeDoorComponent.Eye, EyeDoorOrientation.Right),
-            RoomPlmHeaders.EyeDoorFacingRight =>
+            PlmHeaderId.EyeDoorFacingRight =>
                 (EyeDoorComponent.Door, EyeDoorOrientation.Right),
-            RoomPlmHeaders.EyeDoorBottomFacingRight =>
+            PlmHeaderId.EyeDoorBottomFacingRight =>
                 (EyeDoorComponent.Bottom, EyeDoorOrientation.Right),
-            RoomPlmHeaders.EyeDoorEyeFacingLeft =>
+            PlmHeaderId.EyeDoorEyeFacingLeft =>
                 (EyeDoorComponent.Eye, EyeDoorOrientation.Left),
-            RoomPlmHeaders.EyeDoorFacingLeft =>
+            PlmHeaderId.EyeDoorFacingLeft =>
                 (EyeDoorComponent.Door, EyeDoorOrientation.Left),
-            RoomPlmHeaders.EyeDoorBottomFacingLeft =>
+            PlmHeaderId.EyeDoorBottomFacingLeft =>
                 (EyeDoorComponent.Bottom, EyeDoorOrientation.Left),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),

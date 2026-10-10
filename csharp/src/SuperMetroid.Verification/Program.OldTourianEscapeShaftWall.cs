@@ -19,7 +19,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.Climb);
-        AssertTrue(runtime.Plms!.HasActiveHeader(RoomPlmHeaders.OldTourianEscapeShaftFakeWall),
+        AssertTrue(runtime.Plms!.HasActiveHeader(PlmHeaderId.OldTourianEscapeShaftFakeWall),
             "the escape state's setup spawns the fake-wall PLM");
 
         int Explosions() => runtime.Enemies.EnemyProjectiles.Count(projectile =>

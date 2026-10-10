@@ -62,8 +62,8 @@ internal static partial class Program
         bus.WriteBytes(0x848000, bank84);
         bus.WriteBytes(0x8f9000,
         [
-            unchecked((byte)RoomPlmHeaders.MotherBrainGlass),
-            unchecked((byte)(RoomPlmHeaders.MotherBrainGlass >> 8)),
+            unchecked((byte)PlmHeaderId.MotherBrainGlass),
+            unchecked((byte)((ushort)PlmHeaderId.MotherBrainGlass >> 8)),
             originX, originY, 0x00, 0x80, 0x00, 0x00,
         ]);
         // The production control list is compiled and immutable. Draw each layout through the

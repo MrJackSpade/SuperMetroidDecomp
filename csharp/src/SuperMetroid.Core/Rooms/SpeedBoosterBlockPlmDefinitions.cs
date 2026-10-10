@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <c>$94:9139-$92F7</c> when Samus touches Speed Booster terrain.
 /// </summary>
 public readonly record struct SpeedBoosterBlockPlmDefinition(
-    ushort HeaderPointer,
+    PlmHeaderId HeaderPointer,
     ushort InstructionPointer);
 
 /// <summary>Typed catalog for all five retail Speed Booster collision-block variants.</summary>
@@ -15,27 +15,27 @@ public static class SpeedBoosterBlockPlmDefinitions
 {
     /// <summary>Brinstar BTS <c>$82</c>: respawning, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowRespawning = new(
-        RoomPlmHeaders.SpeedBlockBrinstarSlowRespawning,
+        PlmHeaderId.SpeedBlockBrinstarSlowRespawning,
         RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning);
 
     /// <summary>Brinstar BTS <c>$83</c>: permanent, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowPermanent = new(
-        RoomPlmHeaders.SpeedBlockBrinstarSlowPermanent,
+        PlmHeaderId.SpeedBlockBrinstarSlowPermanent,
         RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent);
 
     /// <summary>Area-independent BTS <c>$0E</c>: standard respawning block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition Respawning = new(
-        RoomPlmHeaders.SpeedBlockRespawning,
+        PlmHeaderId.SpeedBlockRespawning,
         RoomPlmInstructionLists.SpeedBlockRespawning);
 
     /// <summary>Brinstar BTS <c>$84</c>: Dachora-room standard respawning block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition DachoraRespawning = new(
-        RoomPlmHeaders.SpeedBlockDachoraRespawning,
+        PlmHeaderId.SpeedBlockDachoraRespawning,
         RoomPlmInstructionLists.SpeedBlockDachoraRespawning);
 
     /// <summary>Area-independent BTS <c>$0F</c> and Brinstar BTS <c>$85</c>: permanent block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition Permanent = new(
-        RoomPlmHeaders.SpeedBlockPermanent,
+        PlmHeaderId.SpeedBlockPermanent,
         RoomPlmInstructionLists.SpeedBlockPermanent);
 
     /// <summary>

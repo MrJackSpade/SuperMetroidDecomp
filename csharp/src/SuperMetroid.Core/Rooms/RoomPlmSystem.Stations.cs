@@ -137,9 +137,12 @@ public sealed partial class RoomPlmSystem
         AreaId area,
         PlmSlot slot)
     {
+        if (slot.HeaderPointer is not (PlmHeaderId.ElevatorPlatform or PlmHeaderId.MapStation or
+            PlmHeaderId.EnergyStation or PlmHeaderId.MissileStation or PlmHeaderId.SaveStation))
+            return false;
         switch (slot.HeaderPointer)
         {
-            case RoomPlmHeaders.ElevatorPlatform:
+            case PlmHeaderId.ElevatorPlatform:
             {
                 // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
                 // bit 15 and the visual payload. The list at $AFB6 is then handled by the
@@ -152,20 +155,20 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case RoomPlmHeaders.MapStation:
+            case PlmHeaderId.MapStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Map);
                 return true;
-            case RoomPlmHeaders.EnergyStation:
+            case PlmHeaderId.EnergyStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Energy);
                 return true;
-            case RoomPlmHeaders.MissileStation:
+            case PlmHeaderId.MissileStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Missile);
                 return true;
-            case RoomPlmHeaders.SaveStation:
+            case PlmHeaderId.SaveStation:
                 SetupStation(level, streamer, system, area, slot, StationKind.Save);
                 return true;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined station header {slot.HeaderPointer}.");
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Exact active-attack function-pointer phases admitted by the sequence.</summary>
@@ -231,7 +232,7 @@ public readonly record struct MotherBrainEscapeDoorParticleSpawnRequest(ushort P
 public readonly record struct MotherBrainEscapeDoorPlmRequest(
     byte BlockX,
     byte BlockY,
-    ushort PlmEntry);
+    PlmHeaderId PlmEntry);
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(

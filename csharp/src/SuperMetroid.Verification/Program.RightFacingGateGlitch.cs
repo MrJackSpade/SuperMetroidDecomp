@@ -43,9 +43,9 @@ internal static partial class Program
 
         RoomLevelData original = runtime.LevelData!;
         var residentGate = runtime.Plms.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGateShotBlock);
+            slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
         AssertEqual(32, original.WidthInBlocks, "Pink Brinstar Hopper room width");
         AssertEqual(32, original.HeightInBlocks, "Pink Brinstar Hopper room height");
         AssertEqual(0x0091, residentGate.BlockIndex, "Authored Pink Brinstar gate block");
@@ -116,7 +116,7 @@ internal static partial class Program
                     (ushort)cameraY,
                     bombs,
                     roomPlms: plms);
-                var gate = plms.SinglePopulationSlot(RoomPlmHeaders.DownwardGate);
+                var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {
                     SamusProjectileSlot shot = shots.Slots[0];
@@ -180,9 +180,9 @@ internal static partial class Program
 
         RoomLevelData level = runtime.LevelData!;
         var gate = runtime.Plms.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGateShotBlock);
+            slot => slot.HeaderPointer == PlmHeaderId.DownwardGateShotBlock);
         AssertEqual(64, level.WidthInBlocks, "East Tunnel room width");
         AssertEqual(32, level.HeightInBlocks, "East Tunnel room height");
         AssertEqual(0x0156, gate.BlockIndex, "Authored East Tunnel gate block");
@@ -231,7 +231,7 @@ internal static partial class Program
                 input |= SnesButton.X;
             runtime.StepFrame((ushort)input);
             gate = runtime.Plms.PopulationSlots.Single(
-                slot => slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+                slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
             if (gate.LoopTimer == 0)
                 continue;
 

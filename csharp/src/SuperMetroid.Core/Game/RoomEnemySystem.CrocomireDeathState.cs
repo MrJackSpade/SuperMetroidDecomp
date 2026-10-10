@@ -1,7 +1,8 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call made by bank $A4's Crocomire AI.</summary>
-public readonly record struct CrocomirePlmRequest(byte BlockX, byte BlockY, ushort Header);
+public readonly record struct CrocomirePlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
 
 /// <summary>One delayed music request emitted by Crocomire's death graph.</summary>
 public readonly record struct CrocomireMusicRequest(MusicCommand Command, MusicCommandDelay Delay);

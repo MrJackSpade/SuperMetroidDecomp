@@ -39,7 +39,7 @@ internal static partial class Program
             AssertEqual((ushort?)null,customized.Placements.Span[0].CompiledScrollSource,"Explicit custom pairs replace compiled source");
             AssertTrue(customized.Placements.Span[0].ScrollProgram.Span.SequenceEqual(new byte[] {1,2,0x80}),"Explicit custom pairs survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
-                [new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(0xb703),0,0,0x94fa)]),
+                [new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),0,0,0x94fa)]),
                 "Constructed scroll still requires decoded program");
         }
         int totalPairs = 0, totalBytes = 0;

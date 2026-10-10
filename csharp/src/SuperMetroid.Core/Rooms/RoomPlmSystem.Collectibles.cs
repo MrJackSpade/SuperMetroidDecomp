@@ -227,24 +227,24 @@ public sealed partial class RoomPlmSystem
     /// room populations without duplicating the header-range ABI.
     /// </summary>
     public static bool TryIdentifyPermanentCollectible(
-        ushort header,
+        PlmHeaderId header,
         out InWorldCollectibleKind kind,
         out CollectiblePresentation presentation)
     {
         if (TryDecodeCollectibleRange(
                 header,
-                RoomPlmHeaders.ExposedEnergyTank,
+                PlmHeaderId.ExposedEnergyTank,
                 out kind))
         {
             presentation = CollectiblePresentation.Exposed;
             return true;
         }
-        if (TryDecodeCollectibleRange(header, RoomPlmHeaders.ChozoEnergyTank, out kind))
+        if (TryDecodeCollectibleRange(header, PlmHeaderId.ChozoEnergyTank, out kind))
         {
             presentation = CollectiblePresentation.ChozoOrb;
             return true;
         }
-        if (TryDecodeCollectibleRange(header, RoomPlmHeaders.ShotBlockEnergyTank, out kind))
+        if (TryDecodeCollectibleRange(header, PlmHeaderId.ShotBlockEnergyTank, out kind))
         {
             presentation = CollectiblePresentation.ShotBlock;
             return true;
@@ -256,11 +256,11 @@ public sealed partial class RoomPlmSystem
     }
 
     private static bool TryDecodeCollectibleRange(
-        ushort header,
-        ushort firstHeader,
+        PlmHeaderId header,
+        PlmHeaderId firstHeader,
         out InWorldCollectibleKind kind)
     {
-        int byteOffset = header - firstHeader;
+        int byteOffset = (int)header - (int)firstHeader;
         if (byteOffset >= 0 &&
             byteOffset < RoomPlmHeaders.PermanentCollectibleKindCount * 4 &&
             (byteOffset & 3) == 0)
@@ -863,7 +863,7 @@ public enum CollectiblePhase : byte
 /// <param name="Kind">The permanent item kind decoded from the header's position in its presentation table.</param>
 /// <param name="GraphicsSlot">The rotating dynamic-art allocation from zero through three, or -1 for an item using static art.</param>
 public readonly record struct CollectiblePlmSnapshot(
-    ushort Header,
+    PlmHeaderId Header,
     int BlockIndex,
     ushort RoomArgument,
     InWorldCollectibleKind Kind,

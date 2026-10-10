@@ -21,7 +21,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False only when the native allocation is full.</returns>
     public bool TrySpawnQuicksandReaction(
         int blockIndex,
-        ushort header)
+        PlmHeaderId header)
     {
         QuicksandReactionDefinition definition =
             QuicksandDefinitions.ResolveReaction(header);

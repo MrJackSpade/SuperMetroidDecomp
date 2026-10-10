@@ -221,7 +221,7 @@ internal static partial class Program
         WriteTestWord(
             interferenceBus,
             0x8f0000 | yellowDoorPopulation,
-            RoomPlmHeaders.YellowDoorFacingLeft);
+            (ushort)PlmHeaderId.YellowDoorFacingLeft);
         interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 2), 2);
         interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 3), 1);
         WriteTestWord(

@@ -59,7 +59,7 @@ internal static partial class Program
             ushort header = ReadTourianAccessWord(rom, item.SpawnOperand);
             var actual = TourianAccessPlmDefinitions.ForState(item.Clear);
             AssertEqual(instruction ? ReadTourianAccessWord(rom, 0x840000 | (header + 2)) : header,
-                instruction ? actual.InstructionListPointer : actual.HeaderPointer,
+                instruction ? actual.InstructionListPointer : (ushort)actual.HeaderPointer,
                 $"Tourian native spawn selection clear={item.Clear} instruction={instruction}");
             AssertEqual((byte)6, rom.ReadByte(item.SpawnOperand - 2), "Tourian native spawn column");
             AssertEqual((byte)12, rom.ReadByte(item.SpawnOperand - 1), "Tourian native spawn row");

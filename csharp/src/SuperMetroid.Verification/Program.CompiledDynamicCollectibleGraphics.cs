@@ -62,9 +62,9 @@ internal static partial class Program
                     return Reject(address);
                 int kind = (int)graphic.Kind;
                 foreach (ushort baseHeader in new ushort[]
-                         { RoomPlmHeaders.ExposedEnergyTank,
-                           RoomPlmHeaders.ChozoEnergyTank,
-                           RoomPlmHeaders.ShotBlockEnergyTank })
+                         { (ushort)PlmHeaderId.ExposedEnergyTank,
+                           (ushort)PlmHeaderId.ChozoEnergyTank,
+                           (ushort)PlmHeaderId.ShotBlockEnergyTank })
                 {
                     ushort header = checked((ushort)(baseHeader + kind * 4));
                     ushort instruction = ReadCollectibleGraphicsWord(source, header + 2);

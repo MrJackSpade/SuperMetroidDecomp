@@ -19,20 +19,20 @@ internal static class RoomPlmPopulationImporter
         ushort cursor = pointer;
         for (int index = 0; index < RoomPlmPopulationFormat.MaximumParserIterations; index++)
         {
-            ushort header = Word(0x8f, cursor);
+            PlmHeaderId header = (PlmHeaderId)Word(0x8f, cursor);
             if (header == 0)
                 return new RoomPlmPopulationDefinition(pointer, records);
             var metadata = new RoomPlmHeaderDefinition(header,
-                Word(0x84, header), Word(0x84, unchecked((ushort)(header + 2))));
+                Word(0x84, (ushort)header), Word(0x84, unchecked((ushort)(header + 2))));
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
-            byte[] scroll = header == RoomPlmHeaders.ScrollTrigger ? Scroll(argument) : [];
+            byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
             RoomPlmDynamicCollectibleGraphic? graphic = null;
             if (RoomPlmSystem.TryIdentifyPermanentCollectible(header, out var kind, out _) &&
                 kind >= InWorldCollectibleKind.Bombs)
             {
                 ushort instruction = metadata.InitialInstruction;
                 if (Word(0x84, instruction) != RoomPlmInstructionCodes.LoadItemGraphics)
-                    throw new InvalidDataException($"Imported collectible $84:{header:X4} lacks its item-graphics instruction.");
+                    throw new InvalidDataException($"Imported collectible $84:{(ushort)header:X4} lacks its item-graphics instruction.");
                 ushort graphicsPointer = Word(0x84, unchecked((ushort)(instruction + 2)));
                 var palettes = new byte[8];
                 var tiles = new byte[0x100];

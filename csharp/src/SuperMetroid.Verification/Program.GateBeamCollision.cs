@@ -31,7 +31,7 @@ internal static partial class Program
         AssertEqual((ushort)113, shot.XPosition, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.YPosition, "Native impact Y");
         AssertEqual((ushort)0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
-        AssertTrue(plms.PopulationSlots.Where(s => s.HeaderPointer == RoomPlmHeaders.DownwardGate)
+        AssertTrue(plms.PopulationSlots.Where(s => s.HeaderPointer == PlmHeaderId.DownwardGate)
             .All(s => s.LoopTimer == 0), "Beam cannot wake the wrong-side switch through the gate body");
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }

@@ -6,7 +6,7 @@ public sealed partial class RoomPlmSystem
 {
     /// <summary>Runs the native feet/head alignment gate and allocates the ordinary ROM coroutine.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
-        RoomCollisionBlock block, ushort header, SamusState samus)
+        RoomCollisionBlock block, PlmHeaderId header, SamusState samus)
     {
         SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(header);
         // Rejected native setups clear their just-allocated slot without changing

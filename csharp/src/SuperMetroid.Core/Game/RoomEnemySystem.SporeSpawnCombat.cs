@@ -84,7 +84,7 @@ public sealed partial class RoomEnemySystem
         body.InstructionTimer = 1;
         RequireSetAreaMiniBossDefeated();
         state.ScrollClampHookActive = false;
-        PublishSporeSpawnPlm(header: RoomPlmHeaders.CrumbleSporeSpawnCeiling);
+        PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
     }
 
     /// <summary>Ports common bank-$A0 <c>CreateADudShot</c> for a protected head hitbox.</summary>

@@ -61,7 +61,7 @@ internal static partial class Program
             if (field == 0)
             {
                 AssertTrue(plms.TrySpawnChozoStatuePlm(level,
-                    new ChozoStatuePlmRequest(0xd6f8, 3, 4, IsHardcoded: false)), "Chozo layout fixture spawn");
+                    new ChozoStatuePlmRequest(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, 3, 4, IsHardcoded: false)), "Chozo layout fixture spawn");
                 plms.DrawSolePlmFrameForVerification(guarded, level, level.CreateBackgroundStreamer(), pointer);
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }

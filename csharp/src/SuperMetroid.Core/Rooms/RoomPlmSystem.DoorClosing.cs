@@ -54,7 +54,7 @@ public sealed partial class RoomPlmSystem
             if (closingList < 0x8000)
             {
                 throw new InvalidDataException(
-                    $"Door-cap PLM $84:{resident.HeaderPointer:X4} at block {blockIndex} " +
+                    $"Door-cap PLM $84:{(int)resident.HeaderPointer:X4} at block {blockIndex} " +
                     $"has invalid second instruction list $84:{closingList:X4}.");
             }
 

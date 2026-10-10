@@ -17,11 +17,11 @@ internal static class SamusEaterPlmDefinitions
         new(0xacf8, Ceiling: true);
 
     /// <summary>Resolves one supported plant header without interpreting adjacent bank-$84 data.</summary>
-    public static SamusEaterPlmDefinition Resolve(ushort headerPointer) => headerPointer switch
+    public static SamusEaterPlmDefinition Resolve(PlmHeaderId headerPointer) => headerPointer switch
     {
-        0xb6cb => Floor,
-        0xb6cf => Ceiling,
-        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM ${headerPointer:X4}."),
+        PlmHeaderId.InsideReactionBrinstarFloorPlant => Floor,
+        PlmHeaderId.InsideReactionBrinstarCeilingPlant => Ceiling,
+        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)headerPointer:X4}."),
     };
 }
 

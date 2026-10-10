@@ -57,7 +57,7 @@ internal static partial class Program
         RoomLevelData level = runtime.LevelData!;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(FrozenGateBlockIndex, gate.BlockIndex,
             "Caterpillar retail downward gate block");
 
@@ -82,7 +82,7 @@ internal static partial class Program
                 bg1XOffset: 0);
         }
         gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(DownwardGatePreInstructionCodes.WakeIfTriggeredOrSamusBelow,
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
         ushort sleepingInstruction = gate.InstructionPointer;
@@ -132,7 +132,7 @@ internal static partial class Program
             FrozenGateCameraY,
             bg1XOffset: 0);
         gate = plms.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            slot.HeaderPointer == PlmHeaderId.DownwardGate);
         bool gateWoke = gate.InstructionPointer != sleepingInstruction;
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");

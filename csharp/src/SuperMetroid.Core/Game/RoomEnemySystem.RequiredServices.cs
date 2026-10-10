@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -42,7 +43,7 @@ public sealed partial class RoomEnemySystem
     internal void RequireSetAreaTorizoDefeated() =>
         (_setAreaTorizoDefeated ?? throw MissingService("set the area-Torizo flag"))();
 
-    internal bool RequireRoomPlmPresent(ushort headerPointer) =>
+    internal bool RequireRoomPlmPresent(PlmHeaderId headerPointer) =>
         (_isRoomPlmPresent ?? throw MissingService("query the active room PLM population"))(
             headerPointer);
 

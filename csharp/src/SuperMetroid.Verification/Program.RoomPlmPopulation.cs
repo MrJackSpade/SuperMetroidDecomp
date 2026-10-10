@@ -45,7 +45,7 @@ internal static partial class Program
                     actual?.InitialInstructionList ?? 0, "Fallback original initial list or no-actor zero");
             else
             {
-                AssertEqual(header, actual?.Header ?? 0, "Fallback original direction header");
+                AssertEqual(header, (ushort)(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
                 AssertEqual(header, DoorClosingPlmRomData.GetHeader(direction), "Fallback public original header");
             }
         }
@@ -90,7 +90,7 @@ internal static partial class Program
             if (expectedHeader == 0)
                 continue;
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(expectedHeader, slot.HeaderPointer,
+            AssertEqual(expectedHeader, (ushort)slot.HeaderPointer,
                 $"door-closing direction {direction} installs compiled header");
             AssertEqual(expectedList, slot.InstructionPointer,
                 $"door-closing direction {direction} installs compiled initial list");
@@ -124,11 +124,11 @@ internal static partial class Program
 
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
-        AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => entry.Header).SequenceEqual(headers),
+        AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => (ushort)entry.Header).SequenceEqual(headers),
             "Resident closing exact native header set and enumeration order");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!headers.Contains((ushort)raw))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((ushort)raw),
+                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)raw),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
@@ -139,10 +139,10 @@ internal static partial class Program
                 rom,
                 0x840000 | unchecked((ushort)(definition.Header + 4)));
             AssertEqual(expected, definition.ClosingInstructionList,
-                $"resident door $84:{definition.Header:X4} closing list matches cartridge");
+                $"resident door $84:{(int)definition.Header:X4} closing list matches cartridge");
             AssertEqual(expected,
-                ResidentDoorClosingDefinitions.Resolve(definition.Header),
-                $"resident door $84:{definition.Header:X4} resolves by identity");
+                ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)definition.Header),
+                $"resident door $84:{(int)definition.Header:X4} resolves by identity");
 
             // Typed placement metadata supplies the first list only. The transition
             // must obtain its second list from the resident-door definition catalog,
@@ -156,8 +156,8 @@ internal static partial class Program
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog. Decode
                 // their setup/first-list metadata here, in the import-side oracle.
-                new RoomPlmPlacement(new RoomPlmHeaderDefinition(definition.Header,
-                    ReadWord(rom, 0x840000 | definition.Header),
+                new RoomPlmPlacement(new RoomPlmHeaderDefinition((PlmHeaderId)definition.Header,
+                    ReadWord(rom, 0x840000 | (ushort)definition.Header),
                     ReadWord(rom, 0x840000 | unchecked((ushort)(definition.Header + 2)))),
                     blockX, blockY, 0x8000), // Negative argument always closes.
             ]);
@@ -180,7 +180,7 @@ internal static partial class Program
                     AreaId.Crateria,
                     () => new SamusState(),
                     () => false),
-                $"resident door $84:{definition.Header:X4} loads through production setup");
+                $"resident door $84:{(int)definition.Header:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
                 Pointer: 0,
@@ -193,14 +193,14 @@ internal static partial class Program
                 SamusDistance: 0,
                 SetupCodePointer: 0);
             AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
-                $"resident door $84:{definition.Header:X4} accepts transition redirect");
+                $"resident door $84:{(int)definition.Header:X4} accepts transition redirect");
             AssertEqual(expected, plms.PopulationSlots.Single().InstructionPointer,
-                $"resident door $84:{definition.Header:X4} installs compiled closing list");
+                $"resident door $84:{(int)definition.Header:X4} installs compiled closing list");
             definitionIndex++;
         }
 
         AssertThrows<InvalidDataException>(
-            () => ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.BlueDoorFacingLeft),
+            () => ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.BlueDoorFacingLeft),
             "nonresident blue-door collision header is outside resident closing domain");
     }
 
@@ -276,11 +276,11 @@ internal static partial class Program
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
         AssertEqual(39, slots[0].NativeSlotIndex, "first ROM record receives highest native slot");
-        AssertEqual(0xb703, slots[0].HeaderPointer, "first resident preserves record identity");
+        AssertEqual(0xb703, (ushort)slots[0].HeaderPointer, "first resident preserves record identity");
         AssertEqual(38, slots[1].NativeSlotIndex, "post-delete record reuses next native slot");
-        AssertEqual(0xb70b, slots[1].HeaderPointer, "elevator follows ROM order, not family order");
+        AssertEqual(0xb70b, (ushort)slots[1].HeaderPointer, "elevator follows ROM order, not family order");
         AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
-        AssertEqual(0xb6df, slots[2].HeaderPointer, "station header remains observable");
+        AssertEqual(0xb6df, (ushort)slots[2].HeaderPointer, "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(0x0000, level.GetCollisionBlock(12, 8).LevelWord,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -345,12 +345,12 @@ internal static partial class Program
         const ushort initialList = 0xba7f;
         const ushort closingList = 0xba4c;
 
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.BombTorizoGreyDoor, 0xc794);
+        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.BombTorizoGreyDoor, 0xc794);
         WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmHeaders.BombTorizoGreyDoor + 2)),
+            0x840000 | unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 2)),
             initialList);
         WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmHeaders.BombTorizoGreyDoor + 4)),
+            0x840000 | unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 4)),
             closingList);
 
         // The PLM program and its draw pointers are compiled cartridge data. Do
@@ -454,12 +454,12 @@ internal static partial class Program
         const ushort closingDraw = 0xa600;
         const ushort lockedDraw = 0xa610;
 
-        WriteWord(bus, 0x840000 | RoomPlmHeaders.GreyDoorFacingLeft, 0xc794);
+        WriteWord(bus, 0x840000 | (ushort)PlmHeaderId.GreyDoorFacingLeft, 0xc794);
         WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmHeaders.GreyDoorFacingLeft + 2)),
+            0x840000 | unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 2)),
             initialList);
         WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmHeaders.GreyDoorFacingLeft + 4)),
+            0x840000 | unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 4)),
             closingList);
         WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)), closedBlueList);
         WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)), activationList);
@@ -493,8 +493,8 @@ internal static partial class Program
 
         bus.WriteBytes(0x8f0000 | population,
         [
-            unchecked((byte)RoomPlmHeaders.GreyDoorFacingLeft),
-            unchecked((byte)(RoomPlmHeaders.GreyDoorFacingLeft >> 8)),
+            unchecked((byte)PlmHeaderId.GreyDoorFacingLeft),
+            unchecked((byte)((ushort)PlmHeaderId.GreyDoorFacingLeft >> 8)),
             doorX,
             doorY,
             unchecked((byte)roomArgument),
@@ -568,7 +568,7 @@ internal static partial class Program
         const int blockY = 4;
 
         WriteWord(bus,
-            0x840000 | unchecked((ushort)(RoomPlmHeaders.WreckedShipAttic + 2)),
+            0x840000 | unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
@@ -847,9 +847,9 @@ internal static partial class Program
 
         var decoded = new RoomPlmPopulationDefinition(population,
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.GreenDoorFacingRight),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingRight),
                 offRoomX, offRoomY, 0x27),
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.GreenDoorFacingLeft),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.GreenDoorFacingLeft),
                 inRoomX, inRoomY, 0x28),
         ]);
 
@@ -890,7 +890,7 @@ internal static partial class Program
 
         var malformed = new RoomPlmPopulationDefinition(malformedPopulation,
         [
-            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(RoomPlmHeaders.ScrollTrigger),
+            new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
                 offRoomX, offRoomY, 0x9800, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
@@ -1055,7 +1055,7 @@ internal static partial class Program
         var fallback = new RoomPlmSystem();
         AssertTrue(fallback.TrySpawnDoorClosingPlm(guarded, fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
-        AssertEqual(RoomPlmHeaders.MotherBrainEscapeRoomGateClosing,
+        AssertEqual(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
             "fallback actor uses the cartridge's dedicated C8D0 header");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,

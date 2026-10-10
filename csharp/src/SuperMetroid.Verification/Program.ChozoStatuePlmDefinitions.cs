@@ -35,19 +35,19 @@ internal static partial class Program
         AssertEqual(5, definitions.Length, "Chozo terrain PLM definition count");
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
-        AssertTrue(headers.SequenceEqual(definitions.Select(d => d.HeaderPointer)), "Chozo original header enumeration");
+        AssertTrue(headers.SequenceEqual(definitions.Select(d => (ushort)d.HeaderPointer)), "Chozo original header enumeration");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort header = (ushort)raw;
             if (!headers.Contains(header))
-                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve(header), "Chozo full unsupported header domain");
+                AssertThrows<InvalidDataException>(() => ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header), "Chozo full unsupported header domain");
             else
             {
-                var selected = ChozoStatuePlmDefinitions.Resolve(header);
-                AssertEqual(header, selected.HeaderPointer, "Chozo dispatch header identity");
+                var selected = ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header);
+                AssertEqual(header, (ushort)selected.HeaderPointer, "Chozo dispatch header identity");
                 AssertEqual(ReadChozoStatuePlmWord(rom, 0x840000 | (header + 2)), selected.InstructionListPointer,
                     "Chozo dispatch original initial list");
-                AssertEqual(definitions.Single(d => d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
+                AssertEqual(definitions.Single(d => (ushort)d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
             }
         }
         foreach (ChozoStatuePlmDefinition definition in definitions)
@@ -58,7 +58,7 @@ internal static partial class Program
             AssertEqual(
                 expected,
                 definition.InstructionListPointer,
-                $"Chozo PLM ${definition.HeaderPointer:X4} initial list matches cartridge");
+                $"Chozo PLM ${(int)definition.HeaderPointer:X4} initial list matches cartridge");
 
             const int width = 32;
             const int height = 16;
@@ -79,7 +79,7 @@ internal static partial class Program
 
             AssertTrue(
                 plms.TrySpawnChozoStatuePlm(level, request),
-                $"Chozo PLM ${definition.HeaderPointer:X4} allocates");
+                $"Chozo PLM ${(int)definition.HeaderPointer:X4} allocates");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");
             AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Chozo PLM header identity");
@@ -90,7 +90,7 @@ internal static partial class Program
                 "Chozo PLM compiled initial instruction list");
             AssertEqual(1, slot.InstructionTimer, "Chozo PLM starts on timer one");
 
-            if (definition.HeaderPointer == ChozoStatuePlmRomData.WreckedShipHand)
+            if (definition.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(3, 4);
                 AssertEqual(
@@ -105,7 +105,7 @@ internal static partial class Program
         }
 
         AssertThrows<InvalidDataException>(
-            () => ChozoStatuePlmDefinitions.Resolve(0xd6f2),
+            () => ChozoStatuePlmDefinitions.Resolve(PlmHeaderId.CollisionWreckedShipChozoHandCheck),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
 

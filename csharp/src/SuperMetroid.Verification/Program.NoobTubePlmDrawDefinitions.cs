@@ -60,8 +60,8 @@ internal static partial class Program
         bus.WriteBytes(0x848000, bank84);
         bus.WriteBytes(0x8f9400,
         [
-            unchecked((byte)RoomPlmHeaders.NoobTube),
-            unchecked((byte)(RoomPlmHeaders.NoobTube >> 8)),
+            unchecked((byte)PlmHeaderId.NoobTube),
+            unchecked((byte)((ushort)PlmHeaderId.NoobTube >> 8)),
             originX, originY, 0, 0, 0, 0,
         ]);
         // The retail control stream is compiled and immutable. Draw each physical layout through

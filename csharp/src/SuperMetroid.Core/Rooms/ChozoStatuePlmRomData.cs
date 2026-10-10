@@ -3,20 +3,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Bank-$84 identities shared by Chozo enemy requests and terrain collision.</summary>
 internal static class ChozoStatuePlmRomData
 {
-    /// <summary>$84:D6EE, Wrecked Ship hand; setup $D616 writes solid special BTS $80.</summary>
-    public const ushort WreckedShipHand = 0xd6ee;
-    /// <summary>$84:D6F2, downward morph contact with the Wrecked Ship hand.</summary>
-    public const ushort WreckedShipTrigger = 0xd6f2;
-    /// <summary>$84:D6F8, clear the walking statue's slope access using the ROM draw list.</summary>
-    public const ushort ClearSlopeAccess = 0xd6f8;
-    /// <summary>$84:D6FC, block slope access before and after the walking sequence.</summary>
-    public const ushort BlockSlopeAccess = 0xd6fc;
-    /// <summary>$84:D6D6, sleeping Lower Norfair hand controller.</summary>
-    public const ushort LowerNorfairHand = 0xd6d6;
-    /// <summary>$84:D6DA, Space Jump/downward morph admission for Lower Norfair.</summary>
-    public const ushort LowerNorfairTrigger = 0xd6da;
-    /// <summary>$84:D113, crumbling plug and walking statue's crumbling footstep terrain.</summary>
-    public const ushort CrumblePlug = 0xd113;
     /// <summary>$84:D3D7, replace the two Wrecked Ship spike slopes with ordinary slopes.</summary>
     public const ushort TransformSpikesToSlopes = 0xd3d7;
     /// <summary>$84:D3F4, restore the same two blocks to spike collision.</summary>

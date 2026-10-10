@@ -70,7 +70,7 @@ internal static class DoorClosingPlmRomDataAccess
     {
         /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
         internal static ushort GetHeader(byte orientation) =>
-            DoorClosingPlmRomData.GetDefinition(CartridgeDoorOrientation.Decode(orientation))?.Header ?? 0;
+            (ushort)(DoorClosingPlmRomData.GetDefinition(CartridgeDoorOrientation.Decode(orientation))?.Header ?? PlmHeaderId.None);
     }
 }
 
@@ -351,26 +351,26 @@ internal static class ResidentDoorClosingDefinitionsAccess
         {
             get
             {
-                yield return new(RoomPlmHeaders.BombTorizoGreyDoor, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.BombTorizoGreyDoor));
-                yield return new(RoomPlmHeaders.GreyDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreyDoorFacingLeft));
-                yield return new(RoomPlmHeaders.GreyDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreyDoorFacingRight));
-                yield return new(RoomPlmHeaders.GreyDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreyDoorFacingUp));
-                yield return new(RoomPlmHeaders.GreyDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreyDoorFacingDown));
-                yield return new(RoomPlmHeaders.YellowDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.YellowDoorFacingLeft));
-                yield return new(RoomPlmHeaders.YellowDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.YellowDoorFacingRight));
-                yield return new(RoomPlmHeaders.YellowDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.YellowDoorFacingUp));
-                yield return new(RoomPlmHeaders.YellowDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.YellowDoorFacingDown));
-                yield return new(RoomPlmHeaders.GreenDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreenDoorFacingLeft));
-                yield return new(RoomPlmHeaders.GreenDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreenDoorFacingRight));
-                yield return new(RoomPlmHeaders.GreenDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreenDoorFacingUp));
-                yield return new(RoomPlmHeaders.GreenDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.GreenDoorFacingDown));
-                yield return new(RoomPlmHeaders.RedDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.RedDoorFacingLeft));
-                yield return new(RoomPlmHeaders.RedDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.RedDoorFacingRight));
-                yield return new(RoomPlmHeaders.RedDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.RedDoorFacingUp));
-                yield return new(RoomPlmHeaders.RedDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.RedDoorFacingDown));
-                yield return new(RoomPlmHeaders.MotherBrainEscapeRoomGate, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.MotherBrainEscapeRoomGate));
-                yield return new(RoomPlmHeaders.EyeDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.EyeDoorFacingRight));
-                yield return new(RoomPlmHeaders.EyeDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(RoomPlmHeaders.EyeDoorFacingLeft));
+                yield return new(PlmHeaderId.BombTorizoGreyDoor, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.BombTorizoGreyDoor));
+                yield return new(PlmHeaderId.GreyDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreyDoorFacingLeft));
+                yield return new(PlmHeaderId.GreyDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreyDoorFacingRight));
+                yield return new(PlmHeaderId.GreyDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreyDoorFacingUp));
+                yield return new(PlmHeaderId.GreyDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreyDoorFacingDown));
+                yield return new(PlmHeaderId.YellowDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.YellowDoorFacingLeft));
+                yield return new(PlmHeaderId.YellowDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.YellowDoorFacingRight));
+                yield return new(PlmHeaderId.YellowDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.YellowDoorFacingUp));
+                yield return new(PlmHeaderId.YellowDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.YellowDoorFacingDown));
+                yield return new(PlmHeaderId.GreenDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreenDoorFacingLeft));
+                yield return new(PlmHeaderId.GreenDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreenDoorFacingRight));
+                yield return new(PlmHeaderId.GreenDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreenDoorFacingUp));
+                yield return new(PlmHeaderId.GreenDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.GreenDoorFacingDown));
+                yield return new(PlmHeaderId.RedDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.RedDoorFacingLeft));
+                yield return new(PlmHeaderId.RedDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.RedDoorFacingRight));
+                yield return new(PlmHeaderId.RedDoorFacingUp, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.RedDoorFacingUp));
+                yield return new(PlmHeaderId.RedDoorFacingDown, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.RedDoorFacingDown));
+                yield return new(PlmHeaderId.MotherBrainEscapeRoomGate, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.MotherBrainEscapeRoomGate));
+                yield return new(PlmHeaderId.EyeDoorFacingRight, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.EyeDoorFacingRight));
+                yield return new(PlmHeaderId.EyeDoorFacingLeft, ResidentDoorClosingDefinitions.Resolve(PlmHeaderId.EyeDoorFacingLeft));
             }
         }
     }
@@ -1020,24 +1020,24 @@ internal static class RoomPlmSystemAccess
         /// This is a read-only inventory seam for private-ROM audits; production still performs
         /// dispatch and contextual failure from <see cref="RoomPlmSystem.LoadRoomPopulation"/> itself.
         /// </summary>
-        internal static bool IsSupportedRoomPopulationHeader(ushort header)
+        internal static bool IsSupportedRoomPopulationHeader(PlmHeaderId header)
         {
-            if (header is RoomPlmHeaders.ScrollTrigger or
-                RoomPlmHeaders.RightwardsScrollExtension or
-                RoomPlmHeaders.LeftwardsScrollExtension or
-                RoomPlmHeaders.DownwardsScrollExtension or
-                RoomPlmHeaders.UpwardsScrollExtension or
-                RoomPlmHeaders.MotherBrainGlass or RoomPlmHeaders.BombTorizoHand or
-                RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
-                RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
-                RoomPlmHeaders.SaveStation or
-                RoomPlmHeaders.SpeedBoosterEscape or
-                RoomPlmHeaders.WreckedShipAttic or
-                RoomPlmHeaders.NoobTube or
-                RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
-                RoomPlmHeaders.MotherBrainEscapeRoomGate or
-                RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock ||
-                ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsEyeDoorHeader", (ushort)(header)))!) || ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsDraygonCannonHeader", (ushort)(header)))!))
+            if (header is PlmHeaderId.ScrollTrigger or
+                PlmHeaderId.RightwardsScrollExtension or
+                PlmHeaderId.LeftwardsScrollExtension or
+                PlmHeaderId.DownwardsScrollExtension or
+                PlmHeaderId.UpwardsScrollExtension or
+                PlmHeaderId.MotherBrainGlass or PlmHeaderId.BombTorizoHand or
+                PlmHeaderId.MapStation or PlmHeaderId.EnergyStation or
+                PlmHeaderId.MissileStation or PlmHeaderId.ElevatorPlatform or
+                PlmHeaderId.SaveStation or
+                PlmHeaderId.SpeedBoosterEscape or
+                PlmHeaderId.WreckedShipAttic or
+                PlmHeaderId.NoobTube or
+                PlmHeaderId.SetMetroidsClearedStatesWhenRequired or
+                PlmHeaderId.MotherBrainEscapeRoomGate or
+                PlmHeaderId.DownwardGate or PlmHeaderId.DownwardGateShotBlock ||
+                ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsEyeDoorHeader", header))!) || ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsDraygonCannonHeader", header))!))
             {
                 return true;
             }
@@ -1047,13 +1047,13 @@ internal static class RoomPlmSystemAccess
             return RoomPlmSystem.TryIdentifyPermanentCollectible(header, out _, out _);
         }
 
-        internal static bool IsColoredDoorHeader(ushort header) => header is
-            RoomPlmHeaders.YellowDoorFacingLeft or RoomPlmHeaders.YellowDoorFacingRight or
-            RoomPlmHeaders.YellowDoorFacingUp or RoomPlmHeaders.YellowDoorFacingDown or
-            RoomPlmHeaders.GreenDoorFacingLeft or RoomPlmHeaders.GreenDoorFacingRight or
-            RoomPlmHeaders.GreenDoorFacingUp or RoomPlmHeaders.GreenDoorFacingDown or
-            RoomPlmHeaders.RedDoorFacingLeft or RoomPlmHeaders.RedDoorFacingRight or
-            RoomPlmHeaders.RedDoorFacingUp or RoomPlmHeaders.RedDoorFacingDown;
+        internal static bool IsColoredDoorHeader(PlmHeaderId header) => header is
+            PlmHeaderId.YellowDoorFacingLeft or PlmHeaderId.YellowDoorFacingRight or
+            PlmHeaderId.YellowDoorFacingUp or PlmHeaderId.YellowDoorFacingDown or
+            PlmHeaderId.GreenDoorFacingLeft or PlmHeaderId.GreenDoorFacingRight or
+            PlmHeaderId.GreenDoorFacingUp or PlmHeaderId.GreenDoorFacingDown or
+            PlmHeaderId.RedDoorFacingLeft or PlmHeaderId.RedDoorFacingRight or
+            PlmHeaderId.RedDoorFacingUp or PlmHeaderId.RedDoorFacingDown;
     }
 
     extension(RoomPlmSystem self)
@@ -1064,7 +1064,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<ColoredDoorPlmState?>(slot, "ColoredDoor")))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
-                    PrivateState.Property<ushort>(entry.slot, "HeaderPointer"),
+                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
                     PrivateState.Property<int>(entry.slot, "BlockIndex"),
                     PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
                     entry.door!.Color, entry.door.Orientation, entry.door.Phase, entry.door.HitCounter)),
@@ -1076,7 +1076,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<GreyDoorPlmState?>(slot, "GreyDoor")))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
-                    PrivateState.Property<ushort>(entry.slot, "HeaderPointer"),
+                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
                     PrivateState.Property<int>(entry.slot, "BlockIndex"),
                     PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
                     entry.door!.Orientation, entry.door.Condition, entry.door.Phase,
@@ -1089,7 +1089,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<object?>(slot, "EyeDoor")))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
-                    PrivateState.Property<ushort>(entry.slot, "HeaderPointer"),
+                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
                     PrivateState.Property<int>(entry.slot, "BlockIndex"),
                     PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
                     PrivateState.Property<EyeDoorComponent>(entry.door!, "Component"),
@@ -1199,7 +1199,7 @@ internal static class RoomPlmSystemAccess
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
             PrivateState.Invoke(self, "DrawPlmInstruction", bus, level, streamer,
-                PrivateState.Property<ushort>(active[0], "HeaderPointer"),
+                PrivateState.Property<PlmHeaderId>(active[0], "HeaderPointer"),
                 PrivateState.Property<int>(active[0], "BlockIndex"),
                 drawPointer, (ushort)0, (ushort)0, (ushort)0);
         }
@@ -1268,7 +1268,7 @@ internal static class RoomPlmSystemAccess
             object slot = PrivateState.Field<object[]>(self, "_slots")[index];
             return new RoomPlmSlotSnapshot(
                 NativeSlotIndex: index,
-                HeaderPointer: PrivateState.Property<ushort>(slot, "HeaderPointer"),
+                HeaderPointer: PrivateState.Property<PlmHeaderId>(slot, "HeaderPointer"),
                 BlockIndex: PrivateState.Property<int>(slot, "BlockIndex"),
                 RoomArgument: PrivateState.Property<ushort>(slot, "RoomArgument"),
                 InstructionPointer: PrivateState.Property<ushort>(slot, "InstructionPointer"),

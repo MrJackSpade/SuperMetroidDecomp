@@ -146,14 +146,14 @@ internal static class KraidRoomPlmDrawDefinitions
             $"Kraid room draw ${pointer:X4} has no visual ID."),
     };
 
-    internal static bool IsKraidOwner(ushort header) => header is
-        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1 or
-        RoomPlmHeaders.CrumbleKraidPlatformVariant1 or
-        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2 or
-        RoomPlmHeaders.CrumbleKraidPlatformVariant2 or
-        RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3 or
-        RoomPlmHeaders.ClearKraidCeiling or
-        RoomPlmHeaders.CrumbleKraidSpikes or
-        RoomPlmHeaders.ClearKraidSpikes;
+    internal static bool IsKraidOwner(PlmHeaderId header) => header is
+        PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
+        PlmHeaderId.CrumbleKraidPlatformVariant1 or
+        PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or
+        PlmHeaderId.CrumbleKraidPlatformVariant2 or
+        PlmHeaderId.CrumbleKraidCeilingIntoBackground3 or
+        PlmHeaderId.ClearKraidCeiling or
+        PlmHeaderId.CrumbleKraidSpikes or
+        PlmHeaderId.ClearKraidSpikes;
 
 }

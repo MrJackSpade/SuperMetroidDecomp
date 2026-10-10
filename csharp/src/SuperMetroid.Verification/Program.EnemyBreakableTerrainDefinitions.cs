@@ -10,7 +10,7 @@ internal static partial class Program
         for (int index = 0; index < 16; index++)
         {
             ushort header = ReadEnemyTerrainWord(rom, 0xa0c2da + index * 2);
-            AssertEqual(index == 15 ? EnemyBreakableTerrainDefinitions.Header : 0,
+            AssertEqual(index == 15 ? (ushort)PlmHeaderId.EnemyBreakableBlock : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
         }

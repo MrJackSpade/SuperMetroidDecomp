@@ -102,7 +102,7 @@ internal static partial class Program
                 };
                 int result = field switch
                 {
-                    0 => placement.Header.Header,
+                    0 => (ushort)placement.Header.Header,
                     1 => placement.BlockX,
                     2 => placement.BlockY,
                     3 => placement.RoomArgument,

@@ -39,7 +39,7 @@ public static class SamusInsideBlockReactions
                 SpecialAirReactionDefinitions.ResolveInside(
                     area,
                     block.Bts.AreaReactionIndex);
-            ushort header = areaReaction.HeaderPointer;
+            PlmHeaderId header = areaReaction.HeaderPointer;
             if (header == 0) return;
             bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
                 header,
@@ -143,7 +143,7 @@ public static class SamusInsideBlockReactions
             SpecialAirReactionDefinitions.ResolveCollision(
                 body.SandCollisionArea,
                 block.Bts.AreaReactionIndex);
-        ushort header = areaReaction.HeaderPointer;
+        PlmHeaderId header = areaReaction.HeaderPointer;
         if (header == 0) return false;
         bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
             header,

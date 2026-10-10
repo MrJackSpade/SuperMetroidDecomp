@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -149,7 +150,7 @@ public sealed class PhantoonEnemyState
     /// The room PLM at block (0,6) closes/opens the boss door. The PLM system is an outer
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
-    public ushort? BossDoorPlmRequest { get; internal set; }
+    public PlmHeaderId? BossDoorPlmRequest { get; internal set; }
 
     /// <summary>Gets the encounter's lazily created bank-$88 wave owner, which advances scanline scroll mechanics separately from accepted-NMI display latching.</summary>
     public PhantoonWaveHdmaState Wave => field ??= new();

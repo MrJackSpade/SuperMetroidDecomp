@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks X-ray reveal and special-room overlay composition, including collectible filtering, slot precedence, tile flips, and the fine-scroll viewport boundary.</summary>
     private static void VerifyXrayOverlays()
     {
         var bus = new TestAddressSpace();

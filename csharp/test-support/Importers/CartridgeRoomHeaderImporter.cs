@@ -10,6 +10,11 @@ public static class CartridgeRoomHeaderImporter
 {
     // This is the import/reference decoder. Gameplay uses the compiled room branches;
     // importing native headers must remain independent of those generated definitions.
+    /// <summary>Evaluates the native room-state selector list and returns the first matching state pointer, or the inline default state pointer at <see cref="RoomStateSelectorCodes.Finish"/>.</summary>
+    /// <param name="bus">Address space supplying the import-only cartridge source used to read selector commands and operands.</param>
+    /// <param name="cursor">Bank-$8F offset of the first selector command.</param>
+    /// <param name="selection">Event, boss, and equipment conditions used to evaluate each selector.</param>
+    /// <returns>The bank-$8F offset of the selected state payload.</returns>
     private static ushort SelectImportedState(ISnesAddressSpace bus, ushort cursor,
         RoomStateSelectionContext selection)
     {

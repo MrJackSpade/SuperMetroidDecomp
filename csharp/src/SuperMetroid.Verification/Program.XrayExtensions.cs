@@ -3,6 +3,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies X-ray reveal traversal across signed entry, axis routing, BTS arithmetic,
+    /// terminal filtering, and cyclic-extension rejection cases.
+    /// </summary>
     private static void VerifyXrayExtensions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

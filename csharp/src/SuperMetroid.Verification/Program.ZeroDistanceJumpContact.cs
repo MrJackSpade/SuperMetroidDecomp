@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    /// <summary>Checks zero-distance jump contact across facing, freeze, and gap cases, plus the crouch knockback collision-radius update order.</summary>
     private static void VerifyZeroDistanceJumpContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    /// <summary>Compares title-scene rendering with snapshot renderers across sequence phases and motion using constructed and optional retail ROM data, including retained-packet behavior.</summary>
     private static void VerifyTitleRenderSnapshots()
     {
         Verify(CreateConstructedTitleRom(), "constructed");

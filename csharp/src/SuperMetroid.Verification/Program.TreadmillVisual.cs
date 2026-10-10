@@ -8,6 +8,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Scans Wrecked Ship room placements and, for rooms whose FX selects powered-floor animation, compares the
+    /// four treadmill graphics uploads and rendered tile pixels with the retail DMA source, direction, and cadence.
+    /// </summary>
     private static void VerifyTreadmillVisual()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Verifies immutable frame rendering and latest-frame mailbox sequencing, generation invalidation, bounded replacement, and publication while a consumer is blocked.</summary>
     private static void VerifyRenderFrameHandoff()
     {
         byte[] fades = [2, 12];

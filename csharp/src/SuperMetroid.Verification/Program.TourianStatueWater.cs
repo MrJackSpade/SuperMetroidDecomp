@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    /// <summary>Verifies Tourian statue water reaches liquid physics and rendered BG3 color math while remaining independent of statue scrolling and lava/acid effects.</summary>
     private static int VerifyTourianStatueWater()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

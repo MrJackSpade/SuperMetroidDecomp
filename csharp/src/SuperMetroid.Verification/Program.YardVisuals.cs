@@ -5,6 +5,9 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks all Yard selectors against native frame identity and OAM while executing installed instructions without cartridge presentation reads.</summary>
+    /// <param name="rom">Retail address space supplying Yard selector values and reference spritemaps.</param>
+    /// <param name="stock">Artwork catalog providing the editable spritemap parts used by the installed enemy.</param>
     private static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

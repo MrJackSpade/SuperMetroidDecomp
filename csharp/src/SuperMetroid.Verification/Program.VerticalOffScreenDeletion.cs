@@ -5,6 +5,10 @@ internal static partial class Program
     // #1269: $86:B5B9 keeps n00b-tube shards above the camera and until they are $120
     // pixels below its top row. The port deleted them at $100, removing a 100% movie shard
     // while native still advanced it.
+    /// <summary>
+    /// Verifies Noob Tube shards remain active above and less than $120 pixels below the
+    /// camera's top row, and are deleted at the native $120-pixel boundary.
+    /// </summary>
     private static void VerifyVerticalOffScreenDeletion()
     {
         const ushort cameraY = 0x100;

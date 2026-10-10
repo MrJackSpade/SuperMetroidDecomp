@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Work Robot selectors retain native frame identity and OAM while installed programs avoid runtime presentation-word reads.</summary>
     private static void VerifyInstalledWorkRobotVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

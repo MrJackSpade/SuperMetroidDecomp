@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Runs the frontend Torizo landing sequence and checks that room-shake displacement is applied for exactly the native 32-frame earthquake lifetime.</summary>
     private static int VerifyTorizoLandingLifetime()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

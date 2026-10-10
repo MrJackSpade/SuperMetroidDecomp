@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks wall-jump pose and collision-radius expansion, preserving facing and X while applying ceiling correction and vertical subpixel clamping.</summary>
+    /// <param name="bus">Address space used to read the native collision radii for spin and wall-jump poses.</param>
     private static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
     {
         foreach (bool ceiling in new[] { false, true })

@@ -4,6 +4,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies the Yapping Maw's held-delay grapple drop, including deferred pose completion,
+    /// input release when the delay expires, and acceptance of a subsequent grapple input.
+    /// </summary>
     private static void VerifyYappingMawGrappleRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

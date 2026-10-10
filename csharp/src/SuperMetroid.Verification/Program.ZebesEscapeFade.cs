@@ -11,6 +11,7 @@ internal static partial class Program
     // dims one step per call and blanks on the fifteenth, handing off on that same call. The
     // port froze time on the transition and dimmed every second call, so in the 100% movie
     // Samus stopped rising into the gunship and the RNG stopped advancing.
+    /// <summary>Checks that the Zebes escape transition leaves gameplay running and completes its zero-delay fade handoff after fifteen state-$26 calls.</summary>
     private static void VerifyZebesEscapeFade()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

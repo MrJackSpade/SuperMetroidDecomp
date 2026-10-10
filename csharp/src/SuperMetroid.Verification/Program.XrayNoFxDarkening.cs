@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>Verifies X-ray color math without room effects, including opaque BG3 darkening, transparent-pixel fallback, and Fireflea subtraction.</summary>
     private static void VerifyXrayNoFxDarkening()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

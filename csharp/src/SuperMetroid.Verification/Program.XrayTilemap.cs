@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies X-ray tilemap copying and reveal placement across BG1 screen wrapping, multi-cell reveals, viewport edges, and area-specific commands.</summary>
     private static void VerifyXrayTilemap()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

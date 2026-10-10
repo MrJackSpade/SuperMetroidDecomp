@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies yard-kick contact dispatch preserves horizontal speed words and fractions by facing and applies the capped native vertical kick table.</summary>
     private static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var assets = LoadFixtureRoomAssets(bus, room);

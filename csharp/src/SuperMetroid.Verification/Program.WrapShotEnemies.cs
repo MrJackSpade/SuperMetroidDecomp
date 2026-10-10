@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Verifies that a Wave wrap shot can trigger the aliased tile on either room edge without damaging a remote eligible Ripper, while a world-space overlap still reaches the enemy collision dispatcher.</summary>
     private static void VerifyWrapShotEnemySeparation()
     {
         foreach (bool left in new[] { false, true })

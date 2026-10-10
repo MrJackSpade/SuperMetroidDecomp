@@ -9,6 +9,7 @@ internal static partial class Program
     // InitializeSamusPose replaces the installed pose, and UpdateSamusPose then skips the
     // command: with Space Jump the spin is promoted and the launch speed carries; without it
     // the pose is kept and command six clears the speed.
+    /// <summary>Verifies input-free wall-jump exits preserve launch speed when Space Jump promotes the spin pose and clear it otherwise.</summary>
     private static void VerifyWallJumpSpinExit()
     {
         Confirm(SamusEquipmentFlags.SpaceJump, speedKept: true);

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Compares the tile-row viewport renderer with the scalar reference across 120 deterministic 4bpp cases, then reports an informational rendering benchmark.</summary>
     private static void VerifyViewportTileRowParity()
     {
         var random = new Random(54);

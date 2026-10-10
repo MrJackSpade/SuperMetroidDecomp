@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>Checks snapshot-render parity for water, lava, acid, rain, and fog color math across surface and phase cases, while verifying HUD preservation, owned scroll registers, and render-packet validation.</summary>
     private static void VerifyRoomFxSnapshots()
     {
         var random = new Random(32108);

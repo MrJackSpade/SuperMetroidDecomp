@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Checks native Tourian and Maridia elevator-door lists, collision and pose gating, BTS masking, and rejection of invalid list entries.</summary>
     private static void VerifyTourianElevatorDoors()
     {
         // Reports #1181-1184: real Tourian list/BTS values at the production collision seam.

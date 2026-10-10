@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies Torizo palette opcodes preserve landing-shake timing and apply resumable, masked fades to cartridge palette targets without starting another quake.</summary>
     private static int VerifyTorizoPaletteShake()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

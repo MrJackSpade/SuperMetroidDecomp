@@ -3,6 +3,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies conveyor carry admission and direction across area, power, and vertical-speed
+    /// conditions, including grounded movement consumption and clipping against a solid wall.
+    /// </summary>
     private static void VerifyTreadmillPhysics()
     {
         var bus = new TestAddressSpace();

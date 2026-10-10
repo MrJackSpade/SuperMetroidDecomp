@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Verifies both Torizo initialization records against ROM and checks population-bit preservation, initialized actor state, and defeated-encounter early returns.</summary>
     private static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
     {
         for (int variant = 0; variant < 2; variant++)

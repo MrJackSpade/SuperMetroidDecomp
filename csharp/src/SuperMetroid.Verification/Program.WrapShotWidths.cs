@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Compares 1,080 frame records for beam-width collisions across three room geometries, three beam choices, and adjacent one-pixel firing origins.</summary>
+    /// <param name="tracePath">CSV trace containing the corresponding native cartridge projectile and target-block records.</param>
     private static void VerifyWrapShotWidths(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();

@@ -7,6 +7,7 @@ internal static partial class Program
     // As a signed 16.16 value its whole word floors, so the first quarter-pixel step already
     // reads -1, and $88:DC90's $FF10 test unlocks Tourian three quarter-steps before 240.0.
     // In the 100% movie the port's truncating offset lowered every statue a frame late.
+    /// <summary>Verifies that signed 16.16 statue descent floors fractional steps and that Tourian unlocks when the native whole-word threshold is reached.</summary>
     private static void VerifyTourianStatueDescentRounding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

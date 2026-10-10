@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks native wall-jump dust output for both launch paths, facings, and medium conditions, including suppression and preservation of other effect slots.</summary>
     private static void VerifyWallJumpDust()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

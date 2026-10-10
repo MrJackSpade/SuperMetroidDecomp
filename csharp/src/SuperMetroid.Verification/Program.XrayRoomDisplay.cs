@@ -3,6 +3,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Exhaustively checks X-ray room admission for every 16-bit room pointer and boss ID, including Fireflea
+    /// precedence, then verifies the active backdrop and native color-math register values for each display mode.
+    /// </summary>
     private static void VerifyXrayRoomDisplayRules()
     {
         // Keep the literal native comparisons independent of the production catalog.

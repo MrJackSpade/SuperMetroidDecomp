@@ -5,6 +5,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies wrap-shot projectile traces and remote tile reactions at both room edges across
+    /// beam configurations, including cases where non-Wave beams cannot trigger the remote tile.
+    /// </summary>
+    /// <param name="nativeTrace">CSV trace of the original cartridge's projectile and tile state for each frame.</param>
     private static void VerifyWrapShotTrace(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).ToArray();

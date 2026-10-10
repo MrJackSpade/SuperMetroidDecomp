@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Checks Work Robot initial instruction selection against all native selector words and verifies production initialization and selector bounds.</summary>
+    /// <param name="rom">Cartridge address space containing the native Work Robot initial instruction-list words.</param>
     private static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {
         ushort NativeWord(int selector)

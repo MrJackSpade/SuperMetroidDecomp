@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Compares the falling-left instruction controls, separate visual-frame selector, and physical collision
+    /// components and hitboxes with their bank-$AA cartridge data.
+    /// </summary>
+    /// <param name="rom">Cartridge address space supplying the native bank-$AA words.</param>
     private static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;

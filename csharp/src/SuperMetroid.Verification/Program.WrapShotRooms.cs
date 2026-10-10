@@ -6,6 +6,11 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies retail wrap-shot activation of remote blue doors in Landing Site, Crocomire,
+    /// and Green Brinstar, including room-specific beam requirements and opening effects.
+    /// </summary>
+    /// <remarks>Checks hit timing, clearing of all four door-cap cells, and the cartridge opening sound.</remarks>
     private static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {

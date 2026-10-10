@@ -18,6 +18,12 @@ internal static partial class Program
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
+    /// <summary>
+    /// Kills the selected retail-room enemy with a Super Missile and returns the spawned
+    /// death explosion's instruction-program pointer.
+    /// </summary>
+    /// <param name="enemyDefinition">Enemy definition pointer identifying the target in the room.</param>
+    /// <returns>The instruction pointer selected for the enemy's death explosion.</returns>
     private static ushort SuperMissileKillProgram(ushort enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

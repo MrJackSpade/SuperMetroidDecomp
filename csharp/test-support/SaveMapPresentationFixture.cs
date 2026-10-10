@@ -5,6 +5,12 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Explicit startup import for diagnostics that decode cartridge-compatible SRAM.</summary>
 internal static class SaveMapPresentationFixture
 {
+    /// <summary>
+    /// Extracts map presentation data into a temporary installation and loads the catalog used
+    /// by save-RAM diagnostics, removing the temporary files before returning.
+    /// </summary>
+    /// <param name="nativeSource">Cartridge address space supplying the map presentation assets.</param>
+    /// <returns>The loaded area-map presentation catalog for save-RAM decoding.</returns>
     public static AreaMapPresentationCatalog Create(ISnesAddressSpace nativeSource)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

@@ -2,6 +2,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies stale-generation rejection and reset ordering around an in-flight presentation, including callback
+    /// exception release, reentrancy rejection, and nonblocking asynchronous reset while mailbox publication proceeds.
+    /// </summary>
     private static void VerifyRenderPresentationGate()
     {
         var gate = new RenderPresentationGate(1);

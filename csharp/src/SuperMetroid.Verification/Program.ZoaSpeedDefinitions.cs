@@ -4,6 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies all native byte-window speed records and, unless limited to definitions, checks
+    /// signed Zoa movement, subpixel carry, and off-screen spawn resets against the real handler.
+    /// </summary>
+    /// <param name="rom">Address space containing the native speed records used as the reference.</param>
+    /// <param name="definitionsOnly">When true, checks table selection and bounds without running movement integration cases.</param>
     private static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

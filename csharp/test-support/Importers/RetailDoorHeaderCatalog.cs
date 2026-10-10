@@ -33,6 +33,10 @@ internal static class RetailDoorHeaderCatalog
             yield return pointer;
     }
 
+    /// <summary>Enumerates door-header pointers across an inclusive, contiguous cartridge range.</summary>
+    /// <param name="start">Address of the first header in the range.</param>
+    /// <param name="end">Address of the last header to include.</param>
+    /// <returns>Pointers from <paramref name="start"/> through <paramref name="end"/>, stepping by the header size.</returns>
     private static IEnumerable<ushort> EnumerateRange(ushort start, ushort end)
     {
         for (int pointer = start; pointer <= end; pointer += CartridgeDoorHeader.SizeInBytes)

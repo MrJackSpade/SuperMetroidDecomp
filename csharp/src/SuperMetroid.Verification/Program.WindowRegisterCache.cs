@@ -2,6 +2,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies native word-write byte ownership, selective window initialization, and the distinction between
+    /// lagged and accepted NMI snapshots, including preservation of the intervening gameplay main-screen byte.
+    /// It also checks that out-of-range and cross-owner word writes fail without partially changing the cache.
+    /// </summary>
     private static void VerifyWindowRegisterCache()
     {
         // Literal addresses independently match the native CPU STY probe. Check

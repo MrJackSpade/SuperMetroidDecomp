@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Checks X-ray selection, Run/Shoot priority, scan-time projectile freezes, and cooldown and beam resumption after release under both control mappings.</summary>
     private static void VerifyXrayControls()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -11,6 +11,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies both reported waterfall rooms retain native screen and color-math composition,
+    /// with BG2 used by the subscreen and no separate post-composition liquid overlay.
+    /// </summary>
     private static void VerifyWaterfallRooms()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

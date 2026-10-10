@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies per-pixel hardware window composition against independently rendered layer
+    /// references, and checks window-register snapshot round trips and legacy packet defaults.
+    /// </summary>
     private static void VerifyWindowPixels()
     {
         var random = new Random(396);

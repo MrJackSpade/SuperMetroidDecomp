@@ -5,6 +5,14 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Exact diagnostic comparison shared by GPU fixtures; failures preserve all reproduction inputs.</summary>
 internal static class PixelComparison
 {
+    /// <summary>
+    /// Compares rendered pixels exactly and, on mismatch, saves the frame and comparison artifacts
+    /// before throwing an exception that identifies the first differing pixel.
+    /// </summary>
+    /// <param name="packet">Frame snapshot whose dimensions, identity, and serialized reproduction data describe the comparison.</param>
+    /// <param name="expected">Reference RGBA pixels in row-major order, matching the packet dimensions.</param>
+    /// <param name="actual">Rendered RGBA pixels to compare with the reference.</param>
+    /// <param name="context">Description included in the failure message and diagnostic artifact metadata.</param>
     internal static void Verify(RenderFrameSnapshot packet, Rgba32[] expected, Rgba32[] actual, string context)
     {
         if (expected.Length != packet.Width * packet.Height || actual.Length != expected.Length)

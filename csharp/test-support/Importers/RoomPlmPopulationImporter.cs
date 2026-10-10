@@ -10,6 +10,13 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class RoomPlmPopulationImporter
 {
+    /// <summary>Imports a bounded, zero-terminated room PLM population and its referenced scroll data and dynamic collectible graphics.</summary>
+    /// <param name="source">Address space that explicitly exposes cartridge-import reads.</param>
+    /// <param name="pointer">Bank-$8F offset of the first population record.</param>
+    /// <returns>The typed population definition decoded from the cartridge data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> does not implement the cartridge-import source contract.</exception>
+    /// <exception cref="InvalidDataException">The population or a referenced scroll program is unterminated or malformed.</exception>
     public static RoomPlmPopulationDefinition Read(ISnesAddressSpace source, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(source);

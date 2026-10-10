@@ -6,6 +6,10 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+/// <summary>
+/// Verifies invalid controller bindings and brightness levels, unsupported PLM headers, and
+/// missing enemy services fail explicitly at their boundaries.
+/// </summary>
 static void VerifyStrictFailureBoundaries()
 {
     var duplicateBindings = new ControllerBindings(

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>Verifies normal Select/Run X-ray activation, frozen beam reveal and release restoration, including native display rules for excluded rooms.</summary>
     private static void VerifyXrayInput()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

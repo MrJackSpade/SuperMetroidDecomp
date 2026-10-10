@@ -4,6 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies calculated Zebes planet-band parts match native identity and OAM while
+    /// preserving edited or custom compositions and wrapped-origin drawing behavior.
+    /// </summary>
+    /// <param name="rom">SNES address space supplying the original sprite data and OAM reference.</param>
     private static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ZebesPlanetBand", value.AppendIdentity);

@@ -7,6 +7,10 @@ using SuperMetroid.Desktop;
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit
 {
+    /// <summary>Audits RNG continuity through frontend save loading and the continue-menu handoff with zero, one, or two extra file-map updates, including a serialized menu capture and true-reset reseeding.</summary>
+    /// <param name="rom">Path to the retail ROM used to create the address space for each audit run.</param>
+    /// <param name="bindPresentation">Binds the presentation assets required by each newly created or restored game instance.</param>
+    /// <returns>Zero after every wait-length scenario passes its RNG checks.</returns>
     public static int Run(string rom, Action<SuperMetroidGame> bindPresentation)
     {
         foreach (int wait in new[] { 0, 1, 2 })

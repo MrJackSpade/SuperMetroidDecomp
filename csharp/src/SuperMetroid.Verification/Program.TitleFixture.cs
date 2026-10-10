@@ -8,6 +8,13 @@ internal static partial class Program
 {
     // Extract from the fixture's own source, including constructed/patched ROMs.
     // Supplying retail artwork here would erase the synthetic visual assertions.
+    /// <summary>
+    /// Builds a title sequence using artwork and palette data extracted from the supplied source,
+    /// keeping constructed or patched fixture data consistent with its rendering state.
+    /// </summary>
+    /// <param name="source">Address space from which title graphics, palette, and any unprovided gradient are extracted.</param>
+    /// <param name="audio">Optional audio state attached to the title sequence.</param>
+    /// <param name="titleGradientPresentation">Optional preloaded gradient presentation; when absent, the gradient is extracted from <paramref name="source"/>.</param>
     private static TitleSequenceState CreateTitleFixture(ISnesAddressSpace source,
         CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {

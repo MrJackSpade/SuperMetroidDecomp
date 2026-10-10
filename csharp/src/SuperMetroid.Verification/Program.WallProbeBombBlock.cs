@@ -7,6 +7,7 @@ internal static partial class Program
     // reaction as movement, whose setup ($84:CE83) breaks the block for a screw-attacking
     // Samus and reports no collision. In the 100% movie a screw attack turning left beside
     // a bomb block therefore keeps its X fraction; treating the block as solid wrote $FFFF.
+    /// <summary>Checks that the wall-jump horizontal probe applies bomb-block reactions according to Samus's pose, preserving the X subpixel fraction for a screw attack while treating the block as solid otherwise.</summary>
     private static void VerifyWallProbeBombBlock()
     {
         const int width = 8;

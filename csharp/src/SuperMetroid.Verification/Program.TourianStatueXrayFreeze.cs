@@ -8,6 +8,7 @@ internal static partial class Program
     // Disable_AnimatedTilesObjects ($91:E239) and Set_NonXray_SamusPose re-enables them
     // ($91:E34B), so the statues' timers stand still while the scope is up. In the 100% movie
     // an X-ray in the statue room delays the first unlock by the scope's 175 frames.
+    /// <summary>Checks that Tourian statue animation programs and timers remain frozen while X-ray suspends animated tiles, then resume after the scope is dismissed.</summary>
     private static void VerifyTourianStatueXrayFreeze()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -9,6 +9,10 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : IPaletteFxColorSource
 {
+    /// <summary>Reads the reference palette-FX word at a bank-local byte pointer.</summary>
+    /// <param name="pointer">The byte offset within the palette-FX bank.</param>
+    /// <param name="color">Receives the little-endian 16-bit word stored at that offset.</param>
+    /// <returns><see langword="true"/> after reading the word from the configured address space.</returns>
     public bool TryReadColor(ushort pointer, out ushort color)
     {
         int address = RoomFxRomData.Banks.PaletteFx | pointer;

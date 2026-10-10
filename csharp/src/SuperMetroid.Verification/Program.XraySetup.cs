@@ -5,6 +5,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>
+    /// Verifies that X-ray setup captures the two BG1 pages at their scheduled NMI stages, builds
+    /// its reveal map from those saved pages, and keeps that map unchanged through full beam use.
+    /// </summary>
     private static void VerifyXraySetupBuffers()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

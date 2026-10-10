@@ -375,22 +375,24 @@ public sealed partial class RoomEnemySystem
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Rinka)
             return false;
 
-        switch (opcode)
+        if (!Enum.IsDefined((RinkaInstruction)opcode))
+            return false;
+        switch ((RinkaInstruction)opcode)
         {
-            case RinkaInstructionCodes.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2:
+            case RinkaInstruction.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2:
                 // No retail Rinka list in the pinned revision invokes this routine, so there
                 // is no authored operand to compile. Treating the following native code bytes
                 // as one would let a corrupt/restored cursor escape the bounded program.
                 throw new InvalidDataException(
                     "Unused Rinka conditional instruction $A2:B9A2 has no retail program operand.");
 
-            case RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleAndInvisible:
+            case RinkaInstruction.Instruction_Rinka_SetAsIntangibleAndInvisible:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RinkaInstructionCodes.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen:
+            case RinkaInstruction.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision |
@@ -398,7 +400,7 @@ public sealed partial class RoomEnemySystem
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
-            case RinkaInstructionCodes.Instruction_Rinka_FireRinka:
+            case RinkaInstruction.Instruction_Rinka_FireRinka:
                 slot.Properties = slot.Properties.Without(
                     EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 RequireRinkaState(slot).Function = RinkaEnemyFunction.AimDelay;
@@ -407,7 +409,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined {nameof(RinkaInstruction)} {opcode:X4}.");
         }
     }
 

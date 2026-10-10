@@ -73,20 +73,20 @@ internal static partial class Program
         int liquidTableByteCount = 3 * sizeof(ushort);
         foreach (int table in new[]
         {
-            SamusMovementRomData.VerticalMotion.NormalJumpSpeeds,
-            SamusMovementRomData.VerticalMotion.NormalJumpSubspeeds,
-            SamusMovementRomData.VerticalMotion.HiJumpSpeeds,
-            SamusMovementRomData.VerticalMotion.HiJumpSubspeeds,
-            SamusMovementRomData.VerticalMotion.WallJumpSpeeds,
-            SamusMovementRomData.VerticalMotion.WallJumpSubspeeds,
-            SamusMovementRomData.VerticalMotion.HiWallJumpSpeeds,
-            SamusMovementRomData.VerticalMotion.HiWallJumpSubspeeds,
-            SamusMovementRomData.VerticalMotion.KnockbackSpeeds,
-            SamusMovementRomData.VerticalMotion.KnockbackSubspeeds,
-            SamusMovementRomData.VerticalMotion.BombJumpSpeeds,
-            SamusMovementRomData.VerticalMotion.BombJumpSubspeeds,
-            SamusMovementRomData.VerticalMotion.GravitySubaccelerations,
-            SamusMovementRomData.VerticalMotion.GravityAccelerations,
+            SamusMovementRomDataVerticalMotionConstants.NormalJumpSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.NormalJumpSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.HiJumpSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.HiJumpSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.WallJumpSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.WallJumpSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.HiWallJumpSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.HiWallJumpSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.KnockbackSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.KnockbackSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.BombJumpSpeeds,
+            SamusMovementRomDataVerticalMotionConstants.BombJumpSubspeeds,
+            SamusMovementRomDataVerticalMotionConstants.GravitySubaccelerations,
+            SamusMovementRomDataVerticalMotionConstants.GravityAccelerations,
         })
         {
             TouchRange(bus, table, liquidTableByteCount, $"liquid-indexed table ${table:X6}");
@@ -94,10 +94,10 @@ internal static partial class Program
 
         foreach (int speedRecord in new[]
         {
-            SamusMovementRomData.VerticalMotion.DiagonalBombJumpHorizontalSpeed,
-            SamusMovementRomData.VerticalMotion.GrappleReleaseAirSpeed,
-            SamusMovementRomData.VerticalMotion.GrappleReleaseWaterSpeed,
-            SamusMovementRomData.VerticalMotion.GrappleReleaseLavaAcidSpeed,
+            (int)SamusStandaloneSpeedRecord.DiagonalBombJump,
+            (int)SamusStandaloneSpeedRecord.GrappleReleaseAir,
+            (int)SamusStandaloneSpeedRecord.GrappleReleaseWater,
+            (int)SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
         })
         {
             TouchRange(bus, speedRecord, SpeedTableEntry.ByteCount,

@@ -37,11 +37,11 @@ internal abstract class NorfairRioInstructionProgramDefinitions
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < 7) return LoopWord(index, Idle, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate, true);
+        if (index < 7) return LoopWord(index, Idle, (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8_duplicate, true);
         if (index < 21) return TransitionWord(index - 7, StartDescending, false);
-        if (index < 28) return LoopWord(index - 21, Descending, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC, false);
+        if (index < 28) return LoopWord(index - 21, Descending, (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negativeC, false);
         if (index < 46) return TransitionWord(index - 28, StartAscending, true);
-        if (index < 53) return LoopWord(index - 46, Ascending, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C_duplicate, false);
+        if (index < 53) return LoopWord(index - 46, Ascending, (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_C_duplicate, false);
         if (index < 59) return LoopWord(index - 53, FlamesAscending, 0, false);
         return LoopWord(index - 59, FlamesDescending, 0, false);
     }
@@ -66,29 +66,29 @@ internal abstract class NorfairRioInstructionProgramDefinitions
             return new((ushort)(start + index / 2 * 6 + index % 2 * 2),
                 index % 2 == 0 ? TransitionCallback(index / 2, ascending) : (ushort)1);
         return new((ushort)(start + poses * 6 + (index - poses * 2) * 2),
-            index == poses * 2 ? NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : CommonEnemyInstructionCodes.Sleep);
+            index == poses * 2 ? (ushort)NorfairRioInstruction.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : CommonEnemyInstructionCodes.Sleep);
     }
 
     /// <summary>Named per-pose dispatch: each pose selects the handler that sets the flame Y offset
     /// (-16,-12,-4,0,4,8,8,12 ascending) attaching the flame to that drawn pose. A semantic case mapping.</summary>
     private static ushort TransitionCallback(int pose, bool ascending) => ascending ? pose switch
     {
-        0 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
-        1 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
-        2 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
-        3 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
-        4 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
-        5 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
-        6 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate,
-        _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C,
+        0 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative10,
+        1 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
+        2 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative4,
+        3 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_0,
+        4 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_4,
+        5 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8,
+        6 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8_duplicate,
+        _ => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_C,
     } : pose switch
     {
-        0 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
-        1 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
-        2 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
-        3 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
-        4 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
-        _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
+        0 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8,
+        1 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_4,
+        2 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_0,
+        3 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative4,
+        4 => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
+        _ => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative10,
     };
 
     public static ushort PresentationWordAddress(int index)

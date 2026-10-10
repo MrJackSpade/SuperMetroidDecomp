@@ -26,7 +26,7 @@ internal static partial class Program
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.Version,
+            Version = (int)EnemySpritemapSchema.Current,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
@@ -1512,8 +1512,8 @@ internal static partial class Program
                         break;
                     }
                     cursor += 2;
-                    if (word == SamusProjectileRomData.Trails.MoveLeftDown) pair.Left.YPosition++;
-                    else if (word == SamusProjectileRomData.Trails.MoveRightDown) pair.Right.YPosition++;
+                    if (word == (ushort)ProjectileTrailInstruction.MoveLeftDown) pair.Left.YPosition++;
+                    else if (word == (ushort)ProjectileTrailInstruction.MoveRightDown) pair.Right.YPosition++;
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }

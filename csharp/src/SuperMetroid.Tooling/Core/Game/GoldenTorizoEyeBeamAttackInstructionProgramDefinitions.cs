@@ -30,14 +30,14 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd10d),
         Entry(Start),
-        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoSimpleMovementFunction),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, TorizoSimpleMovementFunction),
         Op(End),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0008),
         Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
-        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_QueueLaserSFX),
+        Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_QueueLaserSFX),
         Entry(SpawnLoop),
-        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnEyeBeam, 0x0000),
+        Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_SpawnEyeBeam, 0x0000),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0004),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, SpawnLoop),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0008),
@@ -56,12 +56,12 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
         Op(CommonEnemyInstructionCodes.CopyToVram),
         Origin(0xd167),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TileLoop),
-        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_EnableEyeBeamExplosions),
+        Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_EnableEyeBeamExplosions),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0008),
         Op(End),
-        Op(TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
-        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
-        Op(TorizoInstructionCodes.Instruction_Torizo_Return));
+        Op((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
 
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
     public static InstructionMechanicsWord MechanicsWord(int index)

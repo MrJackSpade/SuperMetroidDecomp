@@ -76,7 +76,7 @@ public static class GameplayMessageNoticeDefinitions
                     {
                         ushort word = template[row * width + column].Raw;
                         if (IsText(word)) { column++; continue; }
-                        if ((word & 0x03ff) == GameplayMessageTitleDefinitions.SpaceCharacter &&
+                        if ((GameplayMessageTitleGlyph)(word & 0x03ff) == GameplayMessageTitleGlyph.Space &&
                             column + 1 < width && IsText(template[row * width + column + 1].Raw))
                         {
                             column += 2;
@@ -89,10 +89,10 @@ public static class GameplayMessageNoticeDefinitions
             }
         }
 
-        static bool IsText(ushort word) => (word & 0x03ff) is
-            >= GameplayMessageTitleDefinitions.UppercaseACharacter and <= GameplayMessageTitleDefinitions.UppercaseZCharacter or
-            GameplayMessageTitleDefinitions.HyphenCharacter or GameplayMessageTitleDefinitions.PeriodCharacter or
-            GameplayMessageTitleDefinitions.QuestionMarkCharacter;
+        static bool IsText(ushort word) => (GameplayMessageTitleGlyph)(word & 0x03ff) is
+            >= GameplayMessageTitleGlyph.A and <= GameplayMessageTitleGlyph.Z or
+            GameplayMessageTitleGlyph.Hyphen or GameplayMessageTitleGlyph.Period or
+            GameplayMessageTitleGlyph.QuestionMark;
     }
 }
 

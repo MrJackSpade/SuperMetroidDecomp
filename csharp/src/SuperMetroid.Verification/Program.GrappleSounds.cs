@@ -44,7 +44,7 @@ internal static partial class Program
             var audio = new CartridgeAudioState();
             audio.AdvanceFrame(bus, default);
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-            AssertEqual(CartridgeAudioCommand.WritePort(AudioRomData.Apu.FirstSoundPort, request.SoundEffect.Value),
+            AssertEqual(CartridgeAudioCommand.WritePort((byte)ApuPort.SoundLibrary1, request.SoundEffect.Value),
                 audio.AdvanceFrame(bus, default).Single(), "grapple command reaches the actual APU sound port");
         }
     }

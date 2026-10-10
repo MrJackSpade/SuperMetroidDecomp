@@ -120,7 +120,7 @@ internal static partial class Program
                 DestinationScreenX: 0,
                 DestinationScreenY: 0,
                 SamusDistance: 0,
-                SetupCodePointer: 0);
+                SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&

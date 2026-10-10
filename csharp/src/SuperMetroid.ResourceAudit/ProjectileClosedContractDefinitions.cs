@@ -14,7 +14,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "368BAF27A59AD317E14B4D907C23EA5BB2438547E593FC781712960F529E631B")]),
         new("SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog", "flare-complete-standing-running-offsets", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs", "BDBF2DC9D67C0B61C43478DC3F3ED1DE04927C8A13BD660A6EF0AD94D7DE5686"),
-             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "A06A301733CE5BF54A16245DCBBC2D25FD9AA29A91CCEF5EAFBF79127FD99D9E"),
+             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "4D0505B1370D9341A971D32611556D1BB4E5B11F2854A10E31DE243F7160054B"),
              new("csharp/src/SuperMetroid.Core/Game/SamusProjectileOriginDefinitions.cs", "DCDBA41F41C3974F2074733DBEA6044CA4329C23144296AB1E191430BECF8378"),
              new("csharp/src/SuperMetroid.Core/Game/SamusProjectileRomData.cs", "BD90CE26CABBBC4396588D1EA5780943BE429901181EA67249D86026D30C44C6"),
              new("csharp/src/SuperMetroid.Core/Game/SamusProjectileWords.cs", "D346C876F27FBFD6133D056C7358D0CFCA140B91857E1313B02172AD78745B46"),

@@ -2333,18 +2333,18 @@ internal static class SporeSpawnCollisionDefinitionsAccess
     /// <summary>The twelve native hitbox list identities.</summary>
     private static readonly ushort[] ListPointers =
     [
-        SporeSpawnCollisionDefinitions.ClosedHead,
-        SporeSpawnCollisionDefinitions.OpenHead,
-        SporeSpawnCollisionDefinitions.ExtendedHead,
-        SporeSpawnCollisionDefinitions.MovingHead0,
-        SporeSpawnCollisionDefinitions.MovingHead1,
-        SporeSpawnCollisionDefinitions.MovingHead2,
-        SporeSpawnCollisionDefinitions.MovingHead3,
-        SporeSpawnCollisionDefinitions.TrailingShotPoint,
-        SporeSpawnCollisionDefinitions.MirroredTrailingShotPoint,
-        SporeSpawnCollisionDefinitions.TrailingDudPoint,
-        SporeSpawnCollisionDefinitions.MovingHead4,
-        SporeSpawnCollisionDefinitions.MovingHead5,
+        (ushort)SporeSpawnHitboxList.ClosedHead,
+        (ushort)SporeSpawnHitboxList.OpenHead,
+        (ushort)SporeSpawnHitboxList.ExtendedHead,
+        (ushort)SporeSpawnHitboxList.MovingHead0,
+        (ushort)SporeSpawnHitboxList.MovingHead1,
+        (ushort)SporeSpawnHitboxList.MovingHead2,
+        (ushort)SporeSpawnHitboxList.MovingHead3,
+        (ushort)SporeSpawnHitboxList.TrailingShotPoint,
+        (ushort)SporeSpawnHitboxList.MirroredTrailingShotPoint,
+        (ushort)SporeSpawnHitboxList.TrailingDudPoint,
+        (ushort)SporeSpawnHitboxList.MovingHead4,
+        (ushort)SporeSpawnHitboxList.MovingHead5,
     ];
 
     extension(SporeSpawnCollisionDefinitions)

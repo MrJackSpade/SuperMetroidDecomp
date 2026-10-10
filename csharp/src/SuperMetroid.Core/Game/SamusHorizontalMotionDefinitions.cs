@@ -93,19 +93,18 @@ internal static class SamusHorizontalMotionDefinitions
     /// </summary>
     internal static bool TryResolveStandalone(int address, out SpeedTableEntry entry)
     {
-        switch (address)
+        if (!Enum.IsDefined((SamusStandaloneSpeedRecord)address))
         {
-            case SamusMovementRomData.VerticalMotion.DiagonalBombJumpHorizontalSpeed:
-                entry = DiagonalBombJump;
-                return true;
-            case SamusMovementRomData.VerticalMotion.GrappleReleaseAirSpeed:
-            case SamusMovementRomData.VerticalMotion.GrappleReleaseWaterSpeed:
-            case SamusMovementRomData.VerticalMotion.GrappleReleaseLavaAcidSpeed:
-                entry = GrappleRelease;
-                return true;
-            default:
-                entry = default;
-                return false;
+            entry = default;
+            return false;
         }
+        entry = (SamusStandaloneSpeedRecord)address switch
+        {
+            SamusStandaloneSpeedRecord.DiagonalBombJump => DiagonalBombJump,
+            SamusStandaloneSpeedRecord.GrappleReleaseAir or SamusStandaloneSpeedRecord.GrappleReleaseWater or
+                SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid => GrappleRelease,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusStandaloneSpeedRecord)} {address:X6}."),
+        };
+        return true;
     }
 }

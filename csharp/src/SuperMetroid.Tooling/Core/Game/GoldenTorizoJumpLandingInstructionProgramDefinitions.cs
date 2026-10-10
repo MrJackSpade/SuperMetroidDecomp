@@ -24,7 +24,7 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
         bool rightFootForward = ((landing & 1) != 0) != facingRight;
         ushort value = (index % 5) switch
         {
-            0 => TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_OrY2_ForAttack,
+            0 => (ushort)TorizoInstruction.Instruction_GoldenTorizo_CallY_OrY2_ForAttack,
             1 => facingRight
                 ? (rightFootForward ? GoldenTorizoRightOrbInstructionProgramDefinitions.Start
                     : GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start)

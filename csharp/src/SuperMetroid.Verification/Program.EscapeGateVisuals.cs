@@ -119,7 +119,7 @@ internal static partial class Program
             DestinationScreenX: 0,
             DestinationScreenY: 0,
             SamusDistance: 0x8000,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         AssertTrue(closing.TrySpawnDoorClosingPlm(guarded, closingLevel,
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -34,6 +36,72 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
     private const ushort ClosedDraw = 0xa6d7;
     /// <summary>$84:A9EF: closed right-facing blue cap used during flashing.</summary>
     private const ushort BlueDraw = 0xa9ef;
+
+    /// <summary>
+    /// Word starts outside the regular closing, flashing and opening frame runs, by
+    /// bank-<c>$84</c> address. Each one-byte operand shifts the following alignment.
+    /// </summary>
+    private enum ProgramWord : ushort
+    {
+        /// <summary>$84:BA4C: first closing duration.</summary>
+        ClosingDuration = ClosingStart,
+        /// <summary>$84:BA4E: first closing cleared-cap draw.</summary>
+        ClosingClearDraw = ClosingStart + 2,
+        /// <summary>$84:BA50: goto-if-Samus-has-no-bombs opcode.</summary>
+        ClosingGotoIfNoBombs = ClosingStart + 4,
+        /// <summary>$84:BA52: goto-if-no-bombs target, the closing list itself.</summary>
+        ClosingGotoIfNoBombsTarget = ClosingStart + 6,
+        /// <summary>$84:BA54: closing wait duration.</summary>
+        ClosingWaitDuration = ClosingStart + 8,
+        /// <summary>$84:BA56: closing wait cleared-cap draw.</summary>
+        ClosingWaitDraw = ClosingStart + 10,
+        /// <summary>$84:BA58: library-three closing sound opcode.</summary>
+        ClosingQueueSound = ClosingStart + 12,
+        /// <summary>$84:BA6B: closing terminal goto opcode.</summary>
+        ClosingGoto = ClosingEnd - 3,
+        /// <summary>$84:BA6D: closing goto target, the resident list.</summary>
+        ClosingGotoTarget = ClosingEnd - 1,
+        /// <summary>$84:BA7F: goto-if-door-bit-set opcode.</summary>
+        ResidentGotoIfDoorBitSet = ResidentStart,
+        /// <summary>$84:BA81: goto-if-door-bit-set target, the blue right-facing door.</summary>
+        ResidentGotoIfDoorBitSetTarget = ResidentStart + 2,
+        /// <summary>$84:BA83: resident link-instruction opcode.</summary>
+        ResidentLinkInstruction = ResidentStart + 4,
+        /// <summary>$84:BA85: resident link target, the activation list.</summary>
+        ResidentLinkTarget = ResidentStart + 6,
+        /// <summary>$84:BA87: set-grey-door pre-instruction opcode.</summary>
+        ResidentSetGreyDoorPreInstruction = ResidentStart + 8,
+        /// <summary>$84:BA89: resident closed-cap duration.</summary>
+        ResidentClosedDuration = ResidentStart + 10,
+        /// <summary>$84:BA8B: resident closed-cap draw.</summary>
+        ResidentClosedDraw = ResidentStart + 12,
+        /// <summary>$84:BA8D: locked-loop sleep opcode.</summary>
+        LockedSleep = Locked,
+        /// <summary>$84:BA8F: locked-loop goto opcode.</summary>
+        LockedGoto = Locked + 2,
+        /// <summary>$84:BA91: locked-loop goto target.</summary>
+        LockedGotoTarget = Locked + 4,
+        /// <summary>$84:BA93: activation link-instruction opcode.</summary>
+        ActivateLinkInstruction = Activate,
+        /// <summary>$84:BA95: activation link target, the hit list.</summary>
+        ActivateLinkTarget = Activate + 2,
+        /// <summary>$84:BA97: install-pre-instruction opcode.</summary>
+        ActivateInstallPreInstruction = Activate + 4,
+        /// <summary>$84:BA99: follow-link-when-shot pre-instruction operand.</summary>
+        ActivatePreInstructionOperand = Activate + 6,
+        /// <summary>$84:BAB3: flashing terminal goto opcode.</summary>
+        FlashGoto = Hit - 4,
+        /// <summary>$84:BAB5: flashing goto target.</summary>
+        FlashGotoTarget = Hit - 2,
+        /// <summary>$84:BAB7: increment-door-hit-counter-and-goto opcode.</summary>
+        HitIncrementAndGoto = Hit,
+        /// <summary>$84:BABA: hit goto target after the one-byte hit count.</summary>
+        HitGotoTarget = Hit + 3,
+        /// <summary>$84:BABC: library-three opening sound opcode.</summary>
+        OpenQueueSound = Open,
+        /// <summary>$84:BACF: terminal delete opcode.</summary>
+        Delete = ResidentEnd - 1,
+    }
 
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
@@ -90,32 +158,33 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
             start = address < 0xba5a ? address & ~1 :
                 address is >= 0xbaba and <= 0xbabd ? address & ~1 :
                 ((address - 1) & ~1) + 1;
-            word = start switch
+            word = ClosedNativeWords.Decode<ProgramWord>((ushort)start, "Bomb Torizo grey-door program word") switch
             {
-                0xba4c => 2,
-                0xba4e or 0xba56 => ClearDraw,
-                0xba50 => (ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
-                0xba52 => ClosingStart,
-                0xba54 => 40,
-                0xba58 or Open => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
-                0xba6b or 0xba8f or 0xbab3 => (ushort)RoomPlmInstruction.Goto,
-                0xba6d => ResidentStart,
-                ResidentStart => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
-                0xba81 => BlueDoorPlmProgramDefinitions.ClosedRight,
-                0xba83 or Activate => (ushort)RoomPlmInstruction.LinkInstruction,
-                0xba85 => Activate,
-                0xba87 => (ushort)RoomPlmInstruction.SetGreyDoorPreInstruction,
-                0xba89 => 1,
-                0xba8b => ClosedDraw,
-                Locked => (ushort)RoomPlmInstruction.Sleep,
-                0xba91 => Locked,
-                0xba95 => Hit,
-                0xba97 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                0xba99 => FollowLinkWhenShot,
-                0xbab5 => Flash,
-                Hit => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
-                0xbaba => Open,
-                _ => (ushort)RoomPlmInstruction.Delete, // BACF only.
+                ProgramWord.ClosingDuration => 2,
+                ProgramWord.ClosingClearDraw or ProgramWord.ClosingWaitDraw => ClearDraw,
+                ProgramWord.ClosingGotoIfNoBombs => (ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
+                ProgramWord.ClosingGotoIfNoBombsTarget => ClosingStart,
+                ProgramWord.ClosingWaitDuration => 40,
+                ProgramWord.ClosingQueueSound or ProgramWord.OpenQueueSound => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+                ProgramWord.ClosingGoto or ProgramWord.LockedGoto or ProgramWord.FlashGoto => (ushort)RoomPlmInstruction.Goto,
+                ProgramWord.ClosingGotoTarget => ResidentStart,
+                ProgramWord.ResidentGotoIfDoorBitSet => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
+                ProgramWord.ResidentGotoIfDoorBitSetTarget => BlueDoorPlmProgramDefinitions.ClosedRight,
+                ProgramWord.ResidentLinkInstruction or ProgramWord.ActivateLinkInstruction => (ushort)RoomPlmInstruction.LinkInstruction,
+                ProgramWord.ResidentLinkTarget => Activate,
+                ProgramWord.ResidentSetGreyDoorPreInstruction => (ushort)RoomPlmInstruction.SetGreyDoorPreInstruction,
+                ProgramWord.ResidentClosedDuration => 1,
+                ProgramWord.ResidentClosedDraw => ClosedDraw,
+                ProgramWord.LockedSleep => (ushort)RoomPlmInstruction.Sleep,
+                ProgramWord.LockedGotoTarget => Locked,
+                ProgramWord.ActivateLinkTarget => Hit,
+                ProgramWord.ActivateInstallPreInstruction => (ushort)RoomPlmInstruction.InstallPreInstruction,
+                ProgramWord.ActivatePreInstructionOperand => FollowLinkWhenShot,
+                ProgramWord.FlashGotoTarget => Flash,
+                ProgramWord.HitIncrementAndGoto => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
+                ProgramWord.HitGotoTarget => Open,
+                ProgramWord.Delete => (ushort)RoomPlmInstruction.Delete,
+                _ => throw new InvalidOperationException($"Undefined {nameof(ProgramWord)} {start:X4}."),
             };
         }
         value = (byte)(word >> ((address - start) * 8));

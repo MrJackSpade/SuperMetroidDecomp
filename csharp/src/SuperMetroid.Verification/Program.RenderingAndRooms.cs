@@ -484,7 +484,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalState(0, 0, RoomScrollState.Blue);
     grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorCodes.DoorASM_Scroll_0_Green_1_Blue,
+        DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
         DoorPointers.ConstructionZoneFromFirstMissile,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(0),
@@ -493,7 +493,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
         "$8F:BE25 writes Construction Zone screen one blue");
     grid.SetStorage(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorCodes.DoorCode_Scroll6_Green,
+        DoorSetupCode.DoorCode_Scroll6_Green,
         DoorPointers.ParlorFromClimb,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
@@ -505,7 +505,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
     grid.SetStorage(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorCodes.DoorASM_FromCeresElevatorShaft,
+        DoorSetupCode.DoorASM_FromCeresElevatorShaft,
         DoorPointers.FromCeresElevatorShaft,
         grid);
     AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(7),
@@ -924,17 +924,17 @@ static void VerifyCartridgeRoomStateSelection()
     // Finish's following byte is the inline default state header, so its expected pointer is
     // derived from this exact command layout instead of fabricated by the production code.
     int selector = roomAddress + 11;
-    WriteTestWord(bus, selector, RoomStateSelectorCodes.EventHasBeenSet);
+    WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.EventHasBeenSet);
     bus.WriteByte(selector + 2, 0x00);
     WriteTestWord(bus, selector + 3, 0x9100);
-    WriteTestWord(bus, selector + 5, RoomStateSelectorCodes.BossIsDead);
+    WriteTestWord(bus, selector + 5, (ushort)RoomStateSelectorCode.BossIsDead);
     bus.WriteByte(selector + 7, 0x04);
     WriteTestWord(bus, selector + 8, 0x9120);
-    WriteTestWord(bus, selector + 10, RoomStateSelectorCodes.MorphBallAndMissiles);
+    WriteTestWord(bus, selector + 10, (ushort)RoomStateSelectorCode.MorphBallAndMissiles);
     WriteTestWord(bus, selector + 12, 0x9140);
-    WriteTestWord(bus, selector + 14, RoomStateSelectorCodes.PowerBombs);
+    WriteTestWord(bus, selector + 14, (ushort)RoomStateSelectorCode.PowerBombs);
     WriteTestWord(bus, selector + 16, 0x9160);
-    WriteTestWord(bus, selector + 18, RoomStateSelectorCodes.Finish);
+    WriteTestWord(bus, selector + 18, (ushort)RoomStateSelectorCode.Finish);
     const ushort defaultStatePointer = 0x901f;
 
     // All five state headers may remain zero-filled: State.Pointer alone proves which
@@ -972,9 +972,9 @@ static void VerifyCartridgeRoomStateSelection()
     // The Tourian-specific routine owns its boss-bit operand in executable code rather
     // than the room stream. Exercise it separately so the catalogued implicit mask cannot
     // accidentally be replaced with the operand-reading behavior of the generic routine.
-    WriteTestWord(bus, selector, RoomStateSelectorCodes.MainAreaBossIsDead);
+    WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.MainAreaBossIsDead);
     WriteTestWord(bus, selector + 2, 0x9180);
-    WriteTestWord(bus, selector + 4, RoomStateSelectorCodes.Finish);
+    WriteTestWord(bus, selector + 4, (ushort)RoomStateSelectorCode.Finish);
     AssertEqual((ushort)0x9180,
         SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(
@@ -987,7 +987,7 @@ static void VerifyCartridgeRoomStateSelection()
     // Known unused callbacks remain deliberately unsupported, while an arbitrary word is
     // diagnosed as unknown. Both must stop at the cartridge boundary instead of falling
     // through to a fabricated default state.
-    WriteTestWord(bus, selector, RoomStateSelectorCodes.UnusedDoor);
+    WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.UnusedDoor);
     AssertThrows<NotSupportedException>(
         () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "known unused room selector fails loudly");

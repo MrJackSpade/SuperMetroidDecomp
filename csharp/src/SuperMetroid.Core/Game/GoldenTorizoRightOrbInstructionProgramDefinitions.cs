@@ -24,7 +24,7 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc99),
         Entry(Start),
-        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementAttackingFunction),
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementAttackingFunction),
         Frame(6),
         Frame(3),
         Frame(3),
@@ -32,16 +32,16 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
         Frame(3),
         Frame(6),
         Op(CommonEnemyInstructionCodes.SetTimer, 0x0006),
-        Op(TorizoInstructionCodes.Instruction_Torizo_PlayShotTorizoSFX),
-        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnChozoOrbs),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_PlayShotTorizoSFX),
+        Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_SpawnChozoOrbs),
         Op(CommonEnemyInstructionCodes.WaitFrames, 0x0006),
         Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TorizoSpewChozoOrbFacingLeftRightFootFwd1),
         Frame(3),
         Frame(3),
         Frame(3),
         Frame(3),
-        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
-        Op(TorizoInstructionCodes.Instruction_Torizo_Return));
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
     public static int PresentationWordCount => Layout.PresentationSlotCount;
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

@@ -197,7 +197,7 @@ static void VerifyDoorOpeningTrajectories()
             DestinationScreenX: 3,
             DestinationScreenY: 2,
             SamusDistance: 0x0100,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)
             : destinationY;

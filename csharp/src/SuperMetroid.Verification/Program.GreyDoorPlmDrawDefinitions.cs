@@ -114,7 +114,7 @@ internal static partial class Program
                     DestinationScreenX: 0,
                     DestinationScreenY: 0,
                     SamusDistance: 0,
-                    SetupCodePointer: 0);
+                    SetupCodePointer: DoorSetupCode.None);
                 AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor,
                         system),
                     $"resident grey door ${(int)header:X4} selects its closing list");
@@ -188,7 +188,7 @@ internal static partial class Program
             DestinationScreenX: 0,
             DestinationScreenY: 0,
             SamusDistance: 0,
-            SetupCodePointer: 0);
+            SetupCodePointer: DoorSetupCode.None);
         AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
             "Bomb Torizo door selects its Bomb-gated closing list");
         for (int frame = 0; frame < 10; frame++)

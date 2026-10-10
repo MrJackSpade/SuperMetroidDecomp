@@ -35,7 +35,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
             ushort low = right ? RunningRightLowTide : RunningLeftLowTide;
             ushort high = right ? RunningRightHighTide : RunningLeftHighTide;
             if (local == 0)
-                return new(low, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE);
+                return new(low, (ushort)EscapeEtecoonInstruction.GotoIfAcidYLessThanCE);
             if (local == 1)
                 return new((ushort)(low + 2), high);
             return local < 8
@@ -46,7 +46,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         {
             int local = index - 28;
             if (local == 0)
-                return new(RunningForEscape, EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY);
+                return new(RunningForEscape, (ushort)EscapeEtecoonInstruction.SetPreInstruction);
             if (local == 1)
                 return new((ushort)(RunningForEscape + 2), (ushort)EscapeEtecoonPreInstruction.EscapeRight);
             return FourPoseLoop((ushort)(RunningForEscape + 4), local - 2, 3);
@@ -60,7 +60,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         if (gratitude < 3)
             return new((ushort)(ExpressGratitudeThenEscape + 2 * gratitude), gratitude switch
             {
-                0 => EscapeAnimalInstructionCodes.Instruction_CommonB3_SetEnemy0FB2ToRTS,
+                0 => (ushort)EscapeEtecoonInstruction.ClearPreInstruction,
                 1 => CommonEnemyInstructionCodes.SetTimer,
                 _ => 8,
             });
@@ -72,7 +72,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
                 field switch
                 {
                     0 => 8,
-                    1 => EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY,
+                    1 => (ushort)EscapeEtecoonInstruction.AddXPosition,
                     _ => unchecked((ushort)-3),
                 });
         }

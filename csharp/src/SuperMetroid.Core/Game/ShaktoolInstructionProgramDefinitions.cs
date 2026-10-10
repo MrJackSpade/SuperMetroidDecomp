@@ -88,7 +88,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
                 : final ? SawHandHeadBobFinalPiece : SawHandHeadBobPrimaryPiece;
             var writer = new WordSelector(address, start);
             writer.Wait(attack ? AttackTicks : BobTicks);
-            if (final) writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions);
+            if (final) writer.Command((ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions);
             writer.Goto(final ? SawHandFinalPiece : SawHandPrimaryPiece);
             return writer.Value;
         }
@@ -107,9 +107,9 @@ internal abstract class ShaktoolInstructionProgramDefinitions
             var writer = new WordSelector(address, front ? ArmPieceAttackFront : ArmPieceAttackBack);
             ushort lead = (ushort)(AttackDisplacementTicks + AttackStaggerTicks * (front ? 2 : 1));
             writer.Wait(lead);
-            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
+            writer.Command((ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
             writer.Wait(AttackDisplacementTicks);
-            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
+            writer.Command((ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
             writer.Wait((ushort)(AttackTicks - lead - AttackDisplacementTicks));
             writer.Goto(ArmPieceNormal);
             return writer.Value;
@@ -133,10 +133,10 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         {
             var writer = new WordSelector(address, HeadAttack);
             writer.Wait(AttackDisplacementTicks);
-            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
-            writer.Command(ShaktoolInstructionCodes.RTL_AAD99F);
+            writer.Command((ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
+            writer.Command((ushort)ShaktoolInstruction.RTL_AAD99F);
             writer.Wait(AttackDisplacementTicks);
-            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
+            writer.Command((ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
             writer.Wait(AttackTicks - 2 * AttackDisplacementTicks);
             writer.Wait(HeadFallthroughTicks);
             return writer.Value;
@@ -159,9 +159,9 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     {
         ushort lead = (ushort)(inwardLayer * BobStaggerTicks);
         if (lead != 0) writer.Wait(lead);
-        writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel);
+        writer.Command((ushort)ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel);
         writer.Wait((ushort)(BobTicks - 2 * lead));
-        writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel);
+        writer.Command((ushort)ShaktoolInstruction.Instruction_Shaktool_Raise1Pixel);
         if (lead != 0) writer.Wait(lead);
     }
     private struct WordSelector(ushort address, ushort start)

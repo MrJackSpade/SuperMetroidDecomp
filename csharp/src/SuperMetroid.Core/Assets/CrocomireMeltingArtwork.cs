@@ -60,7 +60,7 @@ public sealed class CrocomireMeltingArtwork
     {
         CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
         ReadOnlySpan<byte> image = (headerOffset ==
-            CrocomireMeltingTransferDefinitions.FirstHeaderOffset ? first : second).Transfer.Span;
+            (ushort)CrocomireMeltingHeader.First ? first : second).Transfer.Span;
         int used = UsedByteCount(pass);
         if (scratch.Length < used)
             throw new InvalidDataException("Crocomire melting scratch image is too small.");

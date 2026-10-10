@@ -52,7 +52,7 @@ internal static partial class Program
         var samus = new SamusState();
         var system = new Bank80SystemState();
         var request = new EyeDoorProjectileRequest(
-            EyeDoorEnemyProjectileRomData.SweatDefinition,
+            EyeDoorProjectileDefinition.Sweat,
             Parameter: 4,
             PlmBlockIndex: 4 * roomWidth + 7,
             DoorBit: 0);

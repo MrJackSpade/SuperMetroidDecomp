@@ -23,8 +23,8 @@ internal sealed class EndingRewardJump
         this.queueGraphicsUpload = queueGraphicsUpload ?? throw new ArgumentNullException(nameof(queueGraphicsUpload));
         helmeted = reward == EndingReward.Armored;
         if (reward != EndingReward.Suitless)
-            head = Spawn(helmeted ? EndingRewardJumpDefinitions.HelmetedHead : EndingRewardJumpDefinitions.HelmetlessHead);
-        body = Spawn(reward == EndingReward.Suitless ? EndingRewardJumpDefinitions.SuitlessBody : EndingRewardJumpDefinitions.SuitedBody);
+            head = Spawn(helmeted ? EndingRewardActor.JumpHelmetedHead : EndingRewardActor.JumpHelmetlessHead);
+        body = Spawn(reward == EndingReward.Suitless ? EndingRewardActor.JumpSuitlessBody : EndingRewardActor.JumpSuitedBody);
     }
 
     public void Step(Func<ushort, ushort>? instructionWord = null)
@@ -109,7 +109,7 @@ internal sealed class EndingRewardJump
     }
 
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-    private static IntroDiscoverySprite Spawn(ushort definition)
+    private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
         var (x, y, palette) =

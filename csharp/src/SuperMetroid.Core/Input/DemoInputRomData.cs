@@ -33,10 +33,6 @@ public static class DemoInputRomData
     /// <summary>Title-demo-specific pre-instructions and their redirect destinations.</summary>
     public static class Attract
     {
-        /// <summary>$91:8A9B, DemoPreInstr_CheckLeaveDemo: delete during game state $2C.</summary>
-        public const ushort CheckLeave = 0x8a9b;
-        /// <summary>$91:8AB0, DemoPreInstr_8AB0: redirects unless movement type is $1A.</summary>
-        public const ushort ShinesparkPreInstruction = 0x8ab0;
         /// <summary>$91:8776, InstList_DemoInput_Delete: common demo object deletion list.</summary>
         public const ushort DeleteList = 0x8776;
         /// <summary>$91:9346, unused shinespark continuation targeted literally by $8AB0.</summary>
@@ -51,4 +47,17 @@ public static class DemoInputRomData
         /// <summary>Six bytes per input record: duration word, held-button word, and explicitly authored newly-pressed-button word; $91:8420 advances the cursor by this byte count.</summary>
         public const int InputRecordBytes = 6;
     }
+}
+
+/// <summary>The bank-$91 pre-instructions a title-demo input object can hold.</summary>
+public enum AttractDemoPreInstruction : ushort
+{
+    /// <summary>$91:83BF, the return-only routine installed by the demo object definition.</summary>
+    NoOp = DemoInputRomData.Routines.NoOp,
+    /// <summary>$91:8447, the return-only routine installed when the pre-instruction is cleared.</summary>
+    Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
+    /// <summary>$91:8A9B, DemoPreInstr_CheckLeaveDemo: delete during game state $2C.</summary>
+    CheckLeave = 0x8a9b,
+    /// <summary>$91:8AB0, DemoPreInstr_8AB0: redirects unless movement type is $1A.</summary>
+    Shinespark = 0x8ab0,
 }

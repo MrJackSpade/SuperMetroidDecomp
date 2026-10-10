@@ -27,15 +27,15 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd1f1),
         Entry(Dodge),
-        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, SimpleMovement),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, SimpleMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(24),
-        Op(TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_ClearAnimationLock),
         Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving),
         Entry(Turn),
-        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, SimpleMovement),
-        Op(TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, SimpleMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(8));
 
     public static int MechanicsWordCount => Layout.MechanicsWordCount;

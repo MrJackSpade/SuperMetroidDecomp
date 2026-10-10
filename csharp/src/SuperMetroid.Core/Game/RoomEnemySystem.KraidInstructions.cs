@@ -26,29 +26,29 @@ public sealed partial class RoomEnemySystem
     private void ProcessKraidFootInstruction(ushort instruction, RoomLevelData? level)
     {
         RoomEnemySlot body = _slots[0];
-        switch (instruction)
+        switch (ClosedNativeWords.Decode<KraidFootInstruction>(instruction, "Kraid foot instruction"))
         {
-            case KraidInstructionCodes.Instruction_Kraid_NOP_A7B633:
+            case KraidFootInstruction.Instruction_Kraid_NOP_A7B633:
                 return;
-            case KraidInstructionCodes.Instruction_Kraid_DecrementYPosition:
+            case KraidFootInstruction.Instruction_Kraid_DecrementYPosition:
                 body.YPosition = unchecked((ushort)(body.YPosition - 1));
                 return;
-            case KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking:
+            case KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking:
                 body.YPosition = unchecked((ushort)(body.YPosition + 1));
                 EarthquakeType = 1;
                 EarthquakeTimer = 10;
                 return;
-            case KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6:
+            case KraidFootInstruction.Instruction_Kraid_QueueSFX76_Lib2_Max6:
                 LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0076));
                 return;
-            case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3:
-            case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3_duplicate:
+            case KraidFootInstruction.Instruction_Kraid_XPositionMinus3:
+            case KraidFootInstruction.Instruction_Kraid_XPositionMinus3_duplicate:
                 body.XPosition = unchecked((ushort)(body.XPosition - 3));
                 return;
-            case KraidInstructionCodes.Instruction_Kraid_XPositionPlus3:
+            case KraidFootInstruction.Instruction_Kraid_XPositionPlus3:
                 body.XPosition = unchecked((ushort)(body.XPosition + 3));
                 return;
-            case KraidInstructionCodes.UNUSED_Instruction_Kraid_MoveRight_A7B683:
+            case KraidFootInstruction.UNUSED_Instruction_Kraid_MoveRight_A7B683:
                 if (level is null)
                     throw new InvalidOperationException(
                         "Kraid's move-right foot instruction requires room collision data.");
@@ -68,8 +68,7 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             default:
-                throw new InvalidDataException(
-                    $"Kraid foot instruction $A7:{instruction:X4} is not translated.");
+                throw new InvalidOperationException($"Undefined {nameof(KraidFootInstruction)} {instruction:X4}.");
         }
     }
 }

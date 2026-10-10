@@ -15,9 +15,10 @@ internal static class EnemyVisualProgramSpecializations
     {
         // #142 rewrites the Delete-word test as a constant pattern; the same two words.
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "0BEAE0450DFCAAEA1A5B383DD7034B29721059D8F10FA22A73DA886808BE5F7A",
-        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "6E5D066AC2B21A6DAA905FE0C06618FB560DF8982E2C2B8C2A5321041446104B",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "7C40FB832920219672D6C26A111F163684B55251B169CC0F1D70E11799AC8456",
-        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "E81BAF67EE6DB25209B292A70F74D12F29CBD6C1D1B1A23821ABE5C51E5446A5",
+        // #627 re-pin: Golden Torizo owners emit TorizoInstruction members of equal value; words unchanged.
+        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D8BF07BFB960582C4B11E9E6AD23030DAF63DC3C7E70BB6FE8D3C28F40B5FF0C",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "DF060E33E8E2C9785BD6A04051B72D6D76F1984CB8B3E9E5F8525724FBD51CC7",
+        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "7AA77596D9F22D13D25F856F1FF7FD912A354B44BD11146AADC49375127B0941",
         [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "75F94F33315595FA75DCDFEE8D1E35E4AF705F36C81C6A26BCFD5CFF4A39E079",
     };
 

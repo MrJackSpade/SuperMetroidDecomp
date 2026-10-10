@@ -46,7 +46,7 @@ internal static partial class Program
             "Botwoon head selects sixteen distinct visible OAM frames");
         AssertThrows<InvalidDataException>(
             () => BotwoonVisualDefinitions.FrameAt(
-                BotwoonInstructionProgramDefinitions.MovingUpLeft),
+                (ushort)BotwoonMovementProgram.UpLeft),
             "Botwoon visual catalog rejects its neighboring instruction control word");
 
         // Existing version-59 edits must survive the newly extracted head frames.
@@ -69,7 +69,7 @@ internal static partial class Program
         using var previousJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreBotwoonVersion,
+                Version = (int)EnemySpritemapSchema.PreBotwoon,
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));

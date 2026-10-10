@@ -5,151 +5,285 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>One named visual frame selected by an otherwise compiled enemy program.</summary>
 internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Pointer, string Name);
 
+/// <summary>Enemy composition schema revisions accepted by the catalog, oldest first.</summary>
+internal enum EnemySpritemapSchema
+{
+    /// <summary>Schema revision 4.</summary>
+    Legacy = 4,
+    /// <summary>Schema revision 5.</summary>
+    Intermediate = 5,
+    /// <summary>Schema revision 6.</summary>
+    Earlier = 6,
+    /// <summary>Schema revision 7.</summary>
+    Prior = 7,
+    /// <summary>Schema revision 8.</summary>
+    Previous = 8,
+    /// <summary>Schema revision 9.</summary>
+    PreOwtchStoke = 9,
+    /// <summary>Schema revision 10.</summary>
+    PreRipper = 10,
+    /// <summary>Schema revision 11.</summary>
+    PreFireflea = 11,
+    /// <summary>Schema revision 12.</summary>
+    PreMagdollite = 12,
+    /// <summary>Last art-only composition schema; later accepted schemas own editable display bindings.</summary>
+    PreDisplayBindings = 13,
+    /// <summary>Schema revision 14.</summary>
+    PreCeresDoor = 14,
+    /// <summary>Schema revision 15.</summary>
+    PreCeresBaby = 15,
+    /// <summary>Schema revision 16.</summary>
+    PreRio = 16,
+    /// <summary>Schema revision 17.</summary>
+    PreLowerNorfairRio = 17,
+    /// <summary>Schema revision 18.</summary>
+    PreNorfairRio = 18,
+    /// <summary>Schema revision 19.</summary>
+    PrePuyo = 19,
+    /// <summary>Schema revision 20.</summary>
+    PreBull = 20,
+    /// <summary>Schema revision 21.</summary>
+    PreAlcoon = 21,
+    /// <summary>Schema revision 22.</summary>
+    PreBeetom = 22,
+    /// <summary>Schema revision 23.</summary>
+    PreHopper = 23,
+    /// <summary>Schema revision 24.</summary>
+    PreChoot = 24,
+    /// <summary>Schema revision 25.</summary>
+    PreHZoomer = 25,
+    /// <summary>Schema revision 26.</summary>
+    PreSbug = 26,
+    /// <summary>Schema revision 27.</summary>
+    PreFuneNamihe = 27,
+    /// <summary>Schema revision 28.</summary>
+    PreKamer = 28,
+    /// <summary>Schema revision 29.</summary>
+    PreElevator = 29,
+    /// <summary>Schema revision 30.</summary>
+    PreDraygonIntro = 30,
+    /// <summary>Schema revision 31.</summary>
+    PreDraygonBreath = 31,
+    /// <summary>Schema revision 32.</summary>
+    PreRoomSpriteObject = 32,
+    /// <summary>Schema revision 33.</summary>
+    PreYappingMaw = 33,
+    /// <summary>Schema revision 34.</summary>
+    PreKiHunter = 34,
+    /// <summary>Schema revision 35.</summary>
+    PreMotherBrain = 35,
+    /// <summary>Schema revision 36.</summary>
+    PreDeadTorizo = 36,
+    /// <summary>Schema revision 37.</summary>
+    PreRidleySupplement = 37,
+    /// <summary>Schema revision 38.</summary>
+    PreSciser = 38,
+    /// <summary>Schema revision 39.</summary>
+    PreFly = 39,
+    /// <summary>Schema revision 40.</summary>
+    PreKago = 40,
+    /// <summary>Schema revision 41.</summary>
+    PreFaceBlock = 41,
+    /// <summary>Schema revision 42.</summary>
+    PreMorphBallEye = 42,
+    /// <summary>Schema revision 43.</summary>
+    PreShutter = 43,
+    /// <summary>Schema revision 44.</summary>
+    PreMetroid = 44,
+    /// <summary>Schema revision 45.</summary>
+    PreShaktool = 45,
+    /// <summary>Schema revision 46.</summary>
+    PreTripperKamer = 46,
+    /// <summary>Schema revision 47.</summary>
+    PreDragon = 47,
+    /// <summary>Schema revision 48.</summary>
+    PreMultiviola = 48,
+    /// <summary>Schema revision 49.</summary>
+    PreNorfairLavaJumper = 49,
+    /// <summary>Schema revision 50.</summary>
+    PreChozoStatue = 50,
+    /// <summary>Schema revision 51.</summary>
+    PreViola = 51,
+    /// <summary>Schema revision 52.</summary>
+    PreRinka = 52,
+    /// <summary>Schema revision 53.</summary>
+    PreDeadTorizoStationary = 53,
+    /// <summary>Schema revision 54.</summary>
+    PreDeadTourianCorpse = 54,
+    /// <summary>Schema revision 55.</summary>
+    PreMochtroid = 55,
+    /// <summary>Schema revision 56.</summary>
+    PreEvir = 56,
+    /// <summary>Schema revision 57.</summary>
+    PreWorkRobot = 57,
+    /// <summary>Schema revision 58.</summary>
+    PreYard = 58,
+    /// <summary>Schema revision 59.</summary>
+    PreBotwoon = 59,
+    /// <summary>Schema revision 60.</summary>
+    PreGunship = 60,
+    /// <summary>Schema before the tatori family; previous compositions and bindings remain editable.</summary>
+    PreMamaTurtle = 61,
+    /// <summary>Schema before the Zero crawler; existing edits and bindings remain valid.</summary>
+    PreZero = 62,
+    /// <summary>Schema before the friendly-animal compositions; existing edits remain valid.</summary>
+    PreFriendlyAnimal = 63,
+    /// <summary>Schema before audit-identified ordinary environmental/Tourian artwork additions.</summary>
+    PreAuditOrdinary = 64,
+    /// <summary>Schema before Kraid's two ordinary belly-lint frames were installed.</summary>
+    PreKraidLint = 65,
+    /// <summary>Schema before Puromi/Nuclear Waffle's eight head frames were installed.</summary>
+    PreNuclearWaffle = 66,
+    /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
+    PreSingleFrame = 67,
+    /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
+    PreRidleyBreakup = 68,
+    /// <summary>The current schema, holding every named frame.</summary>
+    Current = 69,
+}
+
 /// <summary>
 /// Stock identities for installed enemy compositions. These are visual frame selections,
 /// not editable instruction timers, AI callbacks, collision or hitbox definitions.
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
-    internal const int PreRidleyBreakupVersion = 68;
+    /// <summary>Returns the number of named frames a document of <paramref name="schema"/> carries.</summary>
+    internal static int FrameCount(EnemySpritemapSchema schema) => schema switch
+    {
+        EnemySpritemapSchema.Legacy => LegacyFrameCount,
+        EnemySpritemapSchema.Intermediate => IntermediateFrameCount,
+        EnemySpritemapSchema.Earlier => EarlierFrameCount,
+        EnemySpritemapSchema.Prior => PriorFrameCount,
+        EnemySpritemapSchema.Previous => PreviousFrameCount,
+        EnemySpritemapSchema.PreOwtchStoke => PreOwtchStokeFrameCount,
+        EnemySpritemapSchema.PreRipper => PreRipperFrameCount,
+        EnemySpritemapSchema.PreFireflea => PreFirefleaFrameCount,
+        EnemySpritemapSchema.PreMagdollite => PreMagdolliteFrameCount,
+        EnemySpritemapSchema.PreDisplayBindings => PreDisplayBindingsFrameCount,
+        EnemySpritemapSchema.PreCeresDoor => PreCeresDoorFrameCount,
+        EnemySpritemapSchema.PreCeresBaby => PreCeresBabyFrameCount,
+        EnemySpritemapSchema.PreRio => PreRioFrameCount,
+        EnemySpritemapSchema.PreLowerNorfairRio => PreLowerNorfairRioFrameCount,
+        EnemySpritemapSchema.PreNorfairRio => PreNorfairRioFrameCount,
+        EnemySpritemapSchema.PrePuyo => PrePuyoFrameCount,
+        EnemySpritemapSchema.PreBull => PreBullFrameCount,
+        EnemySpritemapSchema.PreAlcoon => PreAlcoonFrameCount,
+        EnemySpritemapSchema.PreBeetom => PreBeetomFrameCount,
+        EnemySpritemapSchema.PreHopper => PreHopperFrameCount,
+        EnemySpritemapSchema.PreChoot => PreChootFrameCount,
+        EnemySpritemapSchema.PreHZoomer => PreHZoomerFrameCount,
+        EnemySpritemapSchema.PreSbug => PreSbugFrameCount,
+        EnemySpritemapSchema.PreFuneNamihe => PreFuneNamiheFrameCount,
+        EnemySpritemapSchema.PreKamer => PreKamerFrameCount,
+        EnemySpritemapSchema.PreElevator => PreElevatorFrameCount,
+        EnemySpritemapSchema.PreDraygonIntro => PreDraygonIntroFrameCount,
+        EnemySpritemapSchema.PreDraygonBreath => PreDraygonBreathFrameCount,
+        EnemySpritemapSchema.PreRoomSpriteObject => PreRoomSpriteObjectFrameCount,
+        EnemySpritemapSchema.PreYappingMaw => PreYappingMawFrameCount,
+        EnemySpritemapSchema.PreKiHunter => PreKiHunterFrameCount,
+        EnemySpritemapSchema.PreMotherBrain => PreMotherBrainFrameCount,
+        EnemySpritemapSchema.PreDeadTorizo => PreDeadTorizoFrameCount,
+        EnemySpritemapSchema.PreRidleySupplement => PreRidleySupplementFrameCount,
+        EnemySpritemapSchema.PreSciser => PreSciserFrameCount,
+        EnemySpritemapSchema.PreFly => PreFlyFrameCount,
+        EnemySpritemapSchema.PreKago => PreKagoFrameCount,
+        EnemySpritemapSchema.PreFaceBlock => PreFaceBlockFrameCount,
+        EnemySpritemapSchema.PreMorphBallEye => PreMorphBallEyeFrameCount,
+        EnemySpritemapSchema.PreShutter => PreShutterFrameCount,
+        EnemySpritemapSchema.PreMetroid => PreMetroidFrameCount,
+        EnemySpritemapSchema.PreShaktool => PreShaktoolFrameCount,
+        EnemySpritemapSchema.PreTripperKamer => PreTripperKamerFrameCount,
+        EnemySpritemapSchema.PreDragon => PreDragonFrameCount,
+        EnemySpritemapSchema.PreMultiviola => PreMultiviolaFrameCount,
+        EnemySpritemapSchema.PreNorfairLavaJumper => PreNorfairLavaJumperFrameCount,
+        EnemySpritemapSchema.PreChozoStatue => PreChozoStatueFrameCount,
+        EnemySpritemapSchema.PreViola => PreViolaFrameCount,
+        EnemySpritemapSchema.PreRinka => PreRinkaFrameCount,
+        EnemySpritemapSchema.PreDeadTorizoStationary => PreDeadTorizoStationaryFrameCount,
+        EnemySpritemapSchema.PreDeadTourianCorpse => PreDeadTourianCorpseFrameCount,
+        EnemySpritemapSchema.PreMochtroid => PreMochtroidFrameCount,
+        EnemySpritemapSchema.PreEvir => PreEvirFrameCount,
+        EnemySpritemapSchema.PreWorkRobot => PreWorkRobotFrameCount,
+        EnemySpritemapSchema.PreYard => PreYardFrameCount,
+        EnemySpritemapSchema.PreBotwoon => PreBotwoonFrameCount,
+        EnemySpritemapSchema.PreGunship => PreGunshipFrameCount,
+        EnemySpritemapSchema.PreMamaTurtle => PreMamaTurtleFrameCount,
+        EnemySpritemapSchema.PreZero => PreZeroFrameCount,
+        EnemySpritemapSchema.PreFriendlyAnimal => PreFriendlyAnimalFrameCount,
+        EnemySpritemapSchema.PreAuditOrdinary => PreAuditOrdinaryFrameCount,
+        EnemySpritemapSchema.PreKraidLint => PreKraidLintFrameCount,
+        EnemySpritemapSchema.PreNuclearWaffle => PreNuclearWaffleFrameCount,
+        EnemySpritemapSchema.PreSingleFrame => PreSingleFrameFrameCount,
+        EnemySpritemapSchema.PreRidleyBreakup => PreRidleyBreakupFrameCount,
+        EnemySpritemapSchema.Current => Frames.Length,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EnemySpritemapSchema)} {(int)schema}."),
+    };
+
     internal const int PreRidleyBreakupFrameCount = 1404;
-    /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
-    internal const int PreSingleFrameVersion = 67;
     internal const int PreSingleFrameFrameCount = 1402;
-    /// <summary>Schema before Puromi/Nuclear Waffle's eight head frames were installed.</summary>
-    internal const int PreNuclearWaffleVersion = 66;
     internal const int PreNuclearWaffleFrameCount = 1394;
-    /// <summary>Schema before Kraid's two ordinary belly-lint frames were installed.</summary>
-    internal const int PreKraidLintVersion = 65;
     internal const int PreKraidLintFrameCount = 1392;
-    /// <summary>Schema before audit-identified ordinary environmental/Tourian artwork additions.</summary>
-    internal const int PreAuditOrdinaryVersion = 64;
     internal const int PreAuditOrdinaryFrameCount = 1339;
-    /// <summary>Schema before the friendly-animal compositions; existing edits remain valid.</summary>
-    internal const int PreFriendlyAnimalVersion = 63;
     internal const int PreFriendlyAnimalFrameCount = 1257;
-    /// <summary>Schema before the Zero crawler; existing edits and bindings remain valid.</summary>
-    internal const int PreZeroVersion = 62;
     internal const int PreZeroFrameCount = 1241;
-    /// <summary>Schema before the tatori family; previous compositions and bindings remain editable.</summary>
-    internal const int PreMamaTurtleVersion = 61;
     internal const int PreMamaTurtleFrameCount = 1212;
-    internal const int PreGunshipVersion = 60;
     internal const int PreGunshipFrameCount = 1199;
-    internal const int PreBotwoonVersion = 59;
     internal const int PreBotwoonFrameCount = 1183;
-    internal const int PreYardVersion = 58;
     internal const int PreYardFrameCount = 1079;
-    internal const int PreWorkRobotVersion = 57;
     internal const int PreWorkRobotFrameCount = 1052;
-    internal const int PreEvirVersion = 56;
     internal const int PreEvirFrameCount = 1028;
-    internal const int PreMochtroidVersion = 55;
     internal const int PreMochtroidFrameCount = 1022;
-    internal const int PreDeadTourianCorpseVersion = 54;
     internal const int PreDeadTourianCorpseFrameCount = 1009;
-    internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 69;
-    internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
-    internal const int PreViolaVersion = 51;
     internal const int PreViolaFrameCount = 995;
-    internal const int PreChozoStatueVersion = 50;
     internal const int PreChozoStatueFrameCount = 969;
-    internal const int PreNorfairLavaJumperVersion = 49;
     internal const int PreNorfairLavaJumperFrameCount = 958;
-    internal const int PreMultiviolaVersion = 48;
     internal const int PreMultiviolaFrameCount = 950;
-    internal const int PreDragonVersion = 47;
     internal const int PreDragonFrameCount = 938;
-    internal const int PreTripperKamerVersion = 46;
     internal const int PreTripperKamerFrameCount = 920;
-    internal const int PreShaktoolVersion = 45;
     internal const int PreShaktoolFrameCount = 905;
-    internal const int PreMetroidVersion = 44;
     internal const int PreMetroidFrameCount = 901;
-    internal const int PreShutterVersion = 43;
     internal const int PreShutterFrameCount = 896;
-    internal const int PreMorphBallEyeVersion = 42;
     internal const int PreMorphBallEyeFrameCount = 874;
-    internal const int PreFaceBlockVersion = 41;
     internal const int PreFaceBlockFrameCount = 869;
-    internal const int PreKagoVersion = 40;
     internal const int PreKagoFrameCount = 866;
-    internal const int PreFlyVersion = 39;
     internal const int PreFlyFrameCount = 862;
-    internal const int PreSciserVersion = 38;
     internal const int PreSciserFrameCount = 850;
-    internal const int PreRidleySupplementVersion = 37;
     internal const int PreRidleySupplementFrameCount = 819;
-    internal const int PreDeadTorizoVersion = 36;
     internal const int PreDeadTorizoFrameCount = 818;
-    internal const int PreMotherBrainVersion = 35;
     internal const int PreMotherBrainFrameCount = 800;
-    internal const int PreKiHunterVersion = 34;
     internal const int PreKiHunterFrameCount = 759;
-    internal const int PreYappingMawVersion = 33;
     internal const int PreYappingMawFrameCount = 735;
-    internal const int PreRoomSpriteObjectVersion = 32;
     internal const int PreRoomSpriteObjectFrameCount = 472;
-    internal const int PreDraygonBreathVersion = 31;
     internal const int PreDraygonBreathFrameCount = 463;
-    internal const int PreDraygonIntroVersion = 30;
     internal const int PreDraygonIntroFrameCount = 459;
-    internal const int PreElevatorVersion = 29;
     internal const int PreElevatorFrameCount = 457;
-    internal const int PreKamerVersion = 28;
     internal const int PreKamerFrameCount = 453;
-    internal const int PreFuneNamiheVersion = 27;
     internal const int PreFuneNamiheFrameCount = 431;
-    internal const int PreSbugVersion = 26;
     internal const int PreSbugFrameCount = 407;
-    internal const int PreHZoomerVersion = 25;
     internal const int PreHZoomerFrameCount = 387;
-    internal const int PreChootVersion = 24;
     internal const int PreChootFrameCount = 383;
-    internal const int PreHopperVersion = 23;
     internal const int PreHopperFrameCount = 359;
-    internal const int PreBeetomVersion = 22;
     internal const int PreBeetomFrameCount = 337;
-    internal const int PreAlcoonVersion = 21;
     internal const int PreAlcoonFrameCount = 319;
-    internal const int PreBullVersion = 20;
     internal const int PreBullFrameCount = 316;
-    internal const int PrePuyoVersion = 19;
     internal const int PrePuyoFrameCount = 308;
-    internal const int PreNorfairRioVersion = 18;
     internal const int PreNorfairRioFrameCount = 288;
-    internal const int PreLowerNorfairRioVersion = 17;
     internal const int PreLowerNorfairRioFrameCount = 270;
-    internal const int PreRioVersion = 16;
     internal const int PreRioFrameCount = 262;
-    internal const int PreCeresBabyVersion = 15;
     internal const int PreCeresBabyFrameCount = 259;
-    internal const int PreCeresDoorVersion = 14;
     internal const int PreCeresDoorFrameCount = 244;
-    /// <summary>Last art-only composition schema; later accepted schemas own editable display bindings.</summary>
-    internal const int PreDisplayBindingsVersion = 13;
     internal const int PreDisplayBindingsFrameCount = 244;
-    internal const int PreMagdolliteVersion = 12;
     internal const int PreMagdolliteFrameCount = 215;
-    internal const int PreFirefleaVersion = 11;
     internal const int PreFirefleaFrameCount = 194;
-    internal const int PreRipperVersion = 10;
     internal const int PreRipperFrameCount = 180;
-    internal const int PreOwtchStokeVersion = 9;
     internal const int PreOwtchStokeFrameCount = 167;
-    internal const int PreviousVersion = 8;
     internal const int PreviousFrameCount = 145;
-    internal const int PriorVersion = 7;
     internal const int PriorFrameCount = 101;
-    internal const int EarlierVersion = 6;
     internal const int EarlierFrameCount = 79;
-    internal const int IntermediateVersion = 5;
     internal const int IntermediateFrameCount = 69;
-    internal const int LegacyVersion = 4;
     internal const int LegacyFrameCount = 47;
     internal const string FileName = "enemy-compositions.json";
     internal const byte BoyonBank = 0xa2;

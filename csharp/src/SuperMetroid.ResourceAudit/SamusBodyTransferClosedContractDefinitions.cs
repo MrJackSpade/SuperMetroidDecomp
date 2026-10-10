@@ -26,7 +26,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "508F338277A39A05D1257D29F9E38F03AC902F004543FBEC1E0075DE4E3D9DDD"),
              new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs", "AEC295EEC2013263835DA5FCA9BE81604F6A8D3B8550CDBDCDB0999ABE335403"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "8C0C442727D4C01AE214E89B8238FAFCEBA7870AC61D1E9C13B07376AA4DF304"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "9ABD1C3A883B639287F5E273F0DDAE5CCBFDAA860E68E7482A8B30E490CC15D8"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "1F0A858C191CEF505F59FBC544DA589F1481D8FE574A7795E709B9CD99204093"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapPoseDefinitions.cs", "82D88C7F296DD00736D81FBD300F77FFA928107C72F99CE40EA0D763521AF3A0"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesTileWords.cs", "53E2BCCED161FB8351D7D6FD5BC537006B9C6E53E2A3030898CC8009A38D3B99"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs", "F28577FD0536F007A2458EFA116C51AFD3D2A4781637EC38B40A0647EC0569A0")]),

@@ -70,8 +70,8 @@ internal abstract class PhantoonInstructionProgramDefinitions
             return new((ushort)(EyeOpen + 12 + (word - 3) * 2), word switch
             {
                 3 or 5 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
-                4 => PhantoonInstructionCodes.PlayPhantoonMaterializationSFX,
-                6 => PhantoonInstructionCodes.SetupEyeOpenPhantoonState,
+                4 => (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX,
+                6 => (ushort)PhantoonInstruction.SetupEyeOpenPhantoonState,
                 _ => CommonEnemyInstructionCodes.Sleep,
             });
         }
@@ -85,7 +85,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
                 : new((ushort)(EyeballCentered + 4 + (word - 1) * 2), word switch
                 {
                     1 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
-                    2 => PhantoonInstructionCodes.PlayPhantoonMaterializationSFX,
+                    2 => (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX,
                     _ => CommonEnemyInstructionCodes.Sleep,
                 });
         }
@@ -103,7 +103,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
             return word < 2 ? Frame(MouthFollowUp, word, MouthPreparationFrames)
                 : new((ushort)(MouthFollowUp + 8 + (word - 2) * 2),
                     word == 2 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
-                        : PhantoonInstructionCodes.SpawnCasualFlame);
+                        : (ushort)PhantoonInstruction.SpawnCasualFlame);
         }
         return SleepWord(InitialMouth, index - 56);
     }
@@ -121,7 +121,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
         ushort value;
         if (pickPattern && command < 2)
             value = command == 0 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
-                : PhantoonInstructionCodes.PickNewPhantoonPattern;
+                : (ushort)PhantoonInstruction.PickNewPhantoonPattern;
         else
             value = command == (pickPattern ? 2 : 0) ? CommonEnemyInstructionCodes.Goto : EyeClosed;
         return new((ushort)(start + 8 + command * 2), value);

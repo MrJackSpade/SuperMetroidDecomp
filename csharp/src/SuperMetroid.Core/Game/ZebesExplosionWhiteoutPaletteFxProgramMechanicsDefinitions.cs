@@ -68,23 +68,43 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
             color * sizeof(ushort)));
     }
 
+    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
+    private enum MechanicsWord : ushort
+    {
+        /// <summary>Wide-background <c>SetColorIndex</c> opcode at <c>$8D:D362</c>.</summary>
+        WideBackgroundSetColorIndex = WideExplosionBackgroundProgramStart,
+        /// <summary>Wide-background color-index operand at <c>$8D:D364</c>.</summary>
+        WideBackgroundColorIndexOperand = WideExplosionBackgroundProgramStart + 2,
+        /// <summary>Wide-background <c>goto</c> opcode at <c>$8D:D366</c>.</summary>
+        WideBackgroundGoto = WideExplosionBackgroundProgramStart + 4,
+        /// <summary>Wide-background goto target operand at <c>$8D:D368</c>.</summary>
+        WideBackgroundGotoTarget = WideExplosionBackgroundProgramStart + 6,
+        /// <summary>Space-whiteout <c>SetColorIndex</c> opcode at <c>$8D:D36A</c>.</summary>
+        SpaceWhiteoutSetColorIndex = SpaceWhiteoutProgramStart,
+        /// <summary>Space-whiteout color-index operand at <c>$8D:D36C</c>; its value is zero.</summary>
+        SpaceWhiteoutColorIndexOperand = SpaceWhiteoutProgramStart + 2,
+        /// <summary>Terminal <c>delete</c> opcode at <c>$8D:D3C8</c>.</summary>
+        Delete = DeleteInstructionPointer,
+    }
+
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        value = pointer switch
+        if (Enum.IsDefined((MechanicsWord)pointer))
         {
-            WideExplosionBackgroundProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
-            WideExplosionBackgroundProgramStart + 2 =>
-                WideExplosionBackgroundColorByteIndex,
-            WideExplosionBackgroundProgramStart + 4 => (ushort)PaletteFxInstruction.Goto,
-            WideExplosionBackgroundProgramStart + 6 => FirstFramePointer,
-            SpaceWhiteoutProgramStart => (ushort)PaletteFxInstruction.SetColorIndex,
-            SpaceWhiteoutProgramStart + 2 => SpaceWhiteoutColorByteIndex,
-            DeleteInstructionPointer => (ushort)PaletteFxInstruction.Delete,
-            _ => 0,
-        };
-        if (value != 0 || pointer == SpaceWhiteoutProgramStart + 2)
+            value = (MechanicsWord)pointer switch
+            {
+                MechanicsWord.WideBackgroundSetColorIndex => (ushort)PaletteFxInstruction.SetColorIndex,
+                MechanicsWord.WideBackgroundColorIndexOperand => WideExplosionBackgroundColorByteIndex,
+                MechanicsWord.WideBackgroundGoto => (ushort)PaletteFxInstruction.Goto,
+                MechanicsWord.WideBackgroundGotoTarget => FirstFramePointer,
+                MechanicsWord.SpaceWhiteoutSetColorIndex => (ushort)PaletteFxInstruction.SetColorIndex,
+                MechanicsWord.SpaceWhiteoutColorIndexOperand => SpaceWhiteoutColorByteIndex,
+                MechanicsWord.Delete => (ushort)PaletteFxInstruction.Delete,
+                _ => throw new InvalidOperationException($"Undefined Zebes whiteout mechanics word ${pointer:X4}."),
+            };
             return true;
+        }
 
         for (int frame = 0; frame < FrameCount; frame++)
         {
@@ -99,6 +119,7 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
                 return true;
         }
 
+        value = 0;
         return false;
     }
 }

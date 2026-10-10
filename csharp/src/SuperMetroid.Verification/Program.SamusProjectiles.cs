@@ -1055,8 +1055,8 @@ static void VerifySamusPowerBeamProjectiles()
     // Use bank $90's mutable low-half alias for the synthetic stream: fixed high-bank
     // program data is compiled and deliberately cannot be rewritten by a test fixture.
     foreach (bool executeOnLeft in new[] { false, true })
-    foreach (ushort command in new[] { SamusProjectileRomData.Trails.MoveLeftDown,
-        SamusProjectileRomData.Trails.MoveRightDown, SamusProjectileRomData.Trails.MoveLeftUp })
+    foreach (ushort command in new[] { (ushort)ProjectileTrailInstruction.MoveLeftDown,
+        (ushort)ProjectileTrailInstruction.MoveRightDown, (ushort)ProjectileTrailInstruction.MoveLeftUp })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
         var pair = commandProjectiles.TrailSlots[0];
@@ -1070,10 +1070,10 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, 0x900004, 0x2c38);
         trailOam.BeginFrame();
         commandProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
-        AssertEqual(command == SamusProjectileRomData.Trails.MoveLeftDown ? 101 :
-            command == SamusProjectileRomData.Trails.MoveLeftUp ? 99 : 100,
+        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
+            command == (ushort)ProjectileTrailInstruction.MoveLeftUp ? 99 : 100,
             pair.Left.YPosition, "trail command targets named left side regardless of executing stream");
-        AssertEqual(command == SamusProjectileRomData.Trails.MoveRightDown ? 121 : 120,
+        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
             pair.Right.YPosition, "trail command targets named right side regardless of executing stream");
         AssertEqual(0x0006, executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");

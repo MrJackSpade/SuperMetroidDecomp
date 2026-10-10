@@ -35,7 +35,7 @@ internal static partial class Program
             Register("oam-binding");
             return new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.Version,
+                Version = (int)EnemySpritemapSchema.Current,
                 Frames = Ordered(definitions.Select((frame, index) =>
                     KeyValuePair.Create(frame.Name, Parts("oam", index == definitions.Length - 1)))),
                 DisplayFrames = Ordered(definitions.Select((frame, index) => KeyValuePair.Create(frame.Name,

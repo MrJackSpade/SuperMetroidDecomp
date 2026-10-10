@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 
@@ -39,7 +40,8 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
     /// <summary>The compiled header these bytes decode to; pseudo-doors have none.</summary>
     internal CartridgeDoorHeader Decode() =>
         new(Pointer, DestinationRoomPointer, CartridgeDoorOrientation.Decode(Orientation), PlmX, PlmY,
-            DestinationScreenX, DestinationScreenY, SamusDistance, SetupCodePointer);
+            DestinationScreenX, DestinationScreenY, SamusDistance,
+            ClosedNativeWords.Decode<DoorSetupCode>(SetupCodePointer, "door setup routine"));
 }
 
 /// <summary>Import-only native oracle: label boundaries, never compiled catalog membership.</summary>

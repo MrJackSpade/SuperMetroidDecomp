@@ -17,34 +17,36 @@ public static class CartridgeRoomHeaderImporter
         ushort Word(ushort pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8f0000 | pointer);
         for (int commands = 0; commands < 256; commands++)
         {
-            ushort code = Word(cursor);
+            ushort word = Word(cursor);
             cursor = unchecked((ushort)(cursor + 2));
-            if (code == RoomStateSelectorCodes.Finish) return cursor;
+            RoomStateSelectorCode code = ClosedNativeWords.Decode<RoomStateSelectorCode>(word, "native room selector");
             bool match;
             switch (code)
             {
-                case RoomStateSelectorCodes.EventHasBeenSet:
+                case RoomStateSelectorCode.Finish:
+                    return cursor;
+                case RoomStateSelectorCode.EventHasBeenSet:
                     match = selection.IsEventSet(cartridge.ReadCartridgeByte(0x8f0000 | cursor));
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
-                case RoomStateSelectorCodes.BossIsDead:
+                case RoomStateSelectorCode.BossIsDead:
                     match = selection.IsBossDead((BossBits)cartridge.ReadCartridgeByte(0x8f0000 | cursor));
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
-                case RoomStateSelectorCodes.MainAreaBossIsDead:
+                case RoomStateSelectorCode.MainAreaBossIsDead:
                     match = selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss);
                     break;
-                case RoomStateSelectorCodes.MorphBallAndMissiles:
+                case RoomStateSelectorCode.MorphBallAndMissiles:
                     match = selection.HasMorphBallAndMissiles;
                     break;
-                case RoomStateSelectorCodes.PowerBombs:
+                case RoomStateSelectorCode.PowerBombs:
                     match = selection.HasPowerBombs;
                     break;
-                case RoomStateSelectorCodes.UnusedDoor:
-                case RoomStateSelectorCodes.UnusedMorphBall:
-                    throw new NotSupportedException($"Unused native room selector $8F:{code:X4}.");
+                case RoomStateSelectorCode.UnusedDoor:
+                case RoomStateSelectorCode.UnusedMorphBall:
+                    throw new NotSupportedException($"Unused native room selector $8F:{word:X4}.");
                 default:
-                    throw new InvalidDataException($"Unknown native room selector $8F:{code:X4}.");
+                    throw new InvalidOperationException($"Undefined {nameof(RoomStateSelectorCode)} {word:X4}.");
             }
             ushort state = Word(cursor);
             if (match) return state;

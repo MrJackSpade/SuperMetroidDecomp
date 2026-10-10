@@ -10,6 +10,6 @@ internal static class MamaTurtleResourceChecks
         MamaTurtleVisualDefinitions.Bank,
         Enumerable.Range(0, MamaTurtleInstructionProgramDefinitions.PresentationWordCount)
             .Select(MamaTurtleInstructionProgramDefinitions.PresentationWordAddress).ToArray(),
-        MamaTurtleVisualDefinitions.FrameCount, EnemySpritemapDefinitions.PreMamaTurtleVersion,
+        MamaTurtleVisualDefinitions.FrameCount, (int)EnemySpritemapSchema.PreMamaTurtle,
         EnemySpritemapDefinitions.PreMamaTurtleFrameCount);
 }

@@ -494,39 +494,41 @@ public sealed partial class RoomEnemySystem
             return false;
 
         ShaktoolSegmentState state = RequireShaktoolState(slot);
-        switch (opcode)
+        if (!Enum.IsDefined((ShaktoolInstruction)opcode))
+            return false;
+        switch ((ShaktoolInstruction)opcode)
         {
-            case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931:
-            case ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F:
+            case ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931:
+            case ShaktoolInstruction.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 byte centerDirection = unchecked((byte)RequireShaktoolState(group[3])
                     .OrientationAndAcceleration);
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931
+                    opcode == (ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931
                         ? unchecked((byte)(centerDirection ^ 0x80))
                         : centerDirection);
                 break;
             }
 
-            case ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel:
-            case ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel:
+            case ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel:
+            case ShaktoolInstruction.Instruction_Shaktool_Raise1Pixel:
             {
                 byte targetDirection = unchecked((byte)(state.TargetAngle >> 8));
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel
+                    opcode == (ushort)ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel
                         ? unchecked((byte)(targetDirection ^ 0x80))
                         : targetDirection);
                 break;
             }
 
-            case ShaktoolInstructionCodes.RTL_AAD99F:
+            case ShaktoolInstruction.RTL_AAD99F:
                 // Explicit RTL stub used between the two long attack pauses.
                 break;
 
-            case ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions:
+            case ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
@@ -538,7 +540,7 @@ public sealed partial class RoomEnemySystem
             }
 
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolInstruction)} {opcode:X4}.");
         }
 
         cursor = unchecked((ushort)(cursor + 2));

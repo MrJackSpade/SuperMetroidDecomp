@@ -223,8 +223,8 @@ public sealed class XrayRevealVisualCatalog
     /// clearer than a pointer interval, since the two extension routines
     /// precede the copy commands but are not drawable.
     /// </remarks>
-    public static bool IsDrawable(ushort command) => command is
-        XrayRevealCodePointers.CopyOne or XrayRevealCodePointers.CopyWide or
-        XrayRevealCodePointers.CopyTall or XrayRevealCodePointers.CopySquare or
-        XrayRevealCodePointers.CopyBrinstar;
+    public static bool IsDrawable(XrayRevealCommand command) => command is
+        XrayRevealCommand.CopyOne or XrayRevealCommand.CopyWide or
+        XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare or
+        XrayRevealCommand.CopyBrinstar;
 }

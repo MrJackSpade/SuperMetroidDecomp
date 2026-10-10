@@ -75,14 +75,6 @@ public static class AudioRomData
     /// <summary>Zero-based APU I/O port selectors and SPC music-control command bytes, not host audio-channel indices.</summary>
     public static class Apu
     {
-        /// <summary>Port zero, SNES register <c>$2140</c>, used for music commands and upload handshakes.</summary>
-        public const byte MusicPort = 0;
-        /// <summary>First sound-library port, one (<c>$2141</c>); adding a zero-based library index selects ports one through three.</summary>
-        public const byte FirstSoundPort = 1;
-        /// <summary>APU I/O port of sound library one.</summary>
-        public const byte LibraryOnePort = FirstSoundPort;
-        /// <summary>Port two, SNES register <c>$2142</c>, used for sound-library-two commands and acknowledgements.</summary>
-        public const byte LibraryTwoPort = 2;
         /// <summary>Number of byte-wide bidirectional APU I/O ports, indexed zero through three and mapped to SNES registers <c>$2140-$2143</c>.</summary>
         public const int PortCount = 4;
 
@@ -92,4 +84,17 @@ public static class AudioRomData
         /// <summary>SPC driver command that resumes a previously paused sequence.</summary>
         public const byte ResumeMusic = 0xf1;
     }
+}
+
+/// <summary>The four byte-wide bidirectional APU I/O ports, SNES registers <c>$2140-$2143</c>.</summary>
+public enum ApuPort : byte
+{
+    /// <summary>Port zero, <c>$2140</c>, used for music commands and upload handshakes.</summary>
+    Music = 0,
+    /// <summary>Port one, <c>$2141</c>: sound library one; adding a zero-based library index selects ports one through three.</summary>
+    SoundLibrary1 = 1,
+    /// <summary>Port two, <c>$2142</c>: sound library two.</summary>
+    SoundLibrary2 = 2,
+    /// <summary>Port three, <c>$2143</c>: sound library three.</summary>
+    SoundLibrary3 = 3,
 }

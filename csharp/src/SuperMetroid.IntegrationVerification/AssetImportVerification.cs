@@ -111,7 +111,7 @@ try
         CartridgeAudioCommand[] commands = frame == 0
             ? [CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress),
                CartridgeAudioCommand.Upload(AudioAssetCatalogData.Music[0].SnesAddress),
-               CartridgeAudioCommand.WritePort(AudioRomData.Apu.MusicPort, AudioRomDataMusicTracks.Title)] : [];
+               CartridgeAudioCommand.WritePort((byte)ApuPort.Music, AudioRomDataMusicTracks.Title)] : [];
         foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
     }
     Check(audible > 0, "newly extracted resources produce audible title music through the production renderer");

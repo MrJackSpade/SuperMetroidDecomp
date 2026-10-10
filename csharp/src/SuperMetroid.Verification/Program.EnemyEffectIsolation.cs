@@ -12,7 +12,7 @@ internal static partial class Program
         var edited = new CrocomireEffectFixture(MeltEffectArtwork(0xaa, seed: 3));
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
-            bool first = pass.HeaderOffset == CrocomireMeltingTransferDefinitions.FirstHeaderOffset;
+            bool first = pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First;
             int source = (int)(first ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap);
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");

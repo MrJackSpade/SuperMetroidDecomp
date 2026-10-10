@@ -65,7 +65,7 @@ internal static partial class Program
                 DestinationScreenX: 3,
                 DestinationScreenY: 2,
                 SamusDistance: 0x0100,
-                SetupCodePointer: 0);
+                SetupCodePointer: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,
                 sourceX,

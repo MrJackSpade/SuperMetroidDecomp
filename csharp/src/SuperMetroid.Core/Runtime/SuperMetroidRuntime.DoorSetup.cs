@@ -30,10 +30,10 @@ public sealed partial class SuperMetroidRuntime
 
         switch (door.SetupCodePointer)
         {
-            case 0:
+            case DoorSetupCode.None:
                 return;
 
-            case DoorCodes.DoorASM_ToCeresElevatorShaft:
+            case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
                 // `$8F:E4E0` owns the Ceres Mode-7 matrix and center registers. Those
                 // values must exist before room graphics/actors initialize, so the shared
                 // loader installs them at construction time and this native-order dispatch
@@ -45,7 +45,7 @@ public sealed partial class SuperMetroidRuntime
                 }
                 return;
 
-            case DoorCodes.DoorASM_FromCeresElevatorShaft:
+            case DoorSetupCode.DoorASM_FromCeresElevatorShaft:
                 // `$8F:E513` is the paired exit routine for `$8F:E4E0`. Native writes
                 // fake BGMODE `$09` (Mode 1 with BG3 priority) and clears `$0783`, the
                 // Mode-7 IRQ/transfer flag. The software renderer represents those two
@@ -58,24 +58,24 @@ public sealed partial class SuperMetroidRuntime
                 CeresElevatorShaft.Reset(active: false, RoomMainScratch);
                 return;
 
-            case DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance:
+            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards);
                 return;
 
-            case DoorCodes.DoorASM_StartWreckedShipTreadmillEastEntrance:
+            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards);
                 return;
 
-            case DoorCodes.DoorASM_SetupElevatubeFromSouth:
+            case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
                 SetUpMaridiaElevatube(fromSouth: true);
                 return;
 
-            case DoorCodes.DoorASM_SetupElevatubeFromNorth:
+            case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
                 SetUpMaridiaElevatube(fromSouth: false);
                 return;
 
-            case DoorCodes.DoorASM_ResetElevatubeOnNorthExit:
-            case DoorCodes.DoorASM_ResetElevatubeOnSouthExit:
+            case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
+            case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
                 MaridiaElevatube.ResetOnExit(Samus ?? throw new InvalidOperationException(
                     "Maridia elevatube exit setup requires an active Samus state."));
                 return;
@@ -83,8 +83,8 @@ public sealed partial class SuperMetroidRuntime
             default:
                 if (DoorScrollPrograms.Contains(door.SetupCodePointer))
                     return;
-                throw new NotSupportedException(
-                    $"Door $83:{door.Pointer:X4} setup AI $8F:{door.SetupCodePointer:X4} is not translated.");
+                throw new InvalidOperationException(
+                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door $83:{door.Pointer:X4}.");
         }
     }
 
@@ -129,27 +129,27 @@ public sealed partial class SuperMetroidRuntime
 internal static class DoorSetupCodeInterpreter
 {
     public static void ApplyScrollWrites(
-        ushort setupCodePointer,
+        DoorSetupCode setupCodePointer,
         ushort doorPointer,
         RoomScrollGrid scrolls)
     {
         ArgumentNullException.ThrowIfNull(scrolls);
         switch (setupCodePointer)
         {
-            case 0:
-            case DoorCodes.DoorASM_ToCeresElevatorShaft:
-            case DoorCodes.DoorASM_FromCeresElevatorShaft:
-            case DoorCodes.DoorASM_StartWreckedShipTreadmillWestEntrance:
-            case DoorCodes.DoorASM_StartWreckedShipTreadmillEastEntrance:
-            case DoorCodes.DoorASM_SetupElevatubeFromSouth:
-            case DoorCodes.DoorASM_SetupElevatubeFromNorth:
-            case DoorCodes.DoorASM_ResetElevatubeOnNorthExit:
+            case DoorSetupCode.None:
+            case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
+            case DoorSetupCode.DoorASM_FromCeresElevatorShaft:
+            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
+            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
+            case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
+            case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
+            case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
                 // The two Ceres routines change PPU/Mode-7 state, not room scroll bytes.
                 // The treadmill and first three elevatube routines likewise own only
                 // object/Samus state. Their non-scroll effects are applied by the runtime.
                 return;
 
-            case DoorCodes.DoorASM_ResetElevatubeOnSouthExit:
+            case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
                 // $8F:E309 performs one 16-bit $0202 store at $7E:CD20. The typed grid
                 // expresses the same two green storage bytes before Samus is unlocked.
                 scrolls.SetStorage(0, RoomScrollState.Green);
@@ -159,8 +159,8 @@ internal static class DoorSetupCodeInterpreter
             default:
                 if (DoorScrollPrograms.TryApply(setupCodePointer, scrolls))
                     return;
-                throw new NotSupportedException(
-                    $"Door $83:{doorPointer:X4} setup AI $8F:{setupCodePointer:X4} is not translated.");
+                throw new InvalidOperationException(
+                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCodePointer:X4} in door $83:{doorPointer:X4}.");
         }
     }
 }

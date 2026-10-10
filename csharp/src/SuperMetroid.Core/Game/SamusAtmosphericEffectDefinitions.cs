@@ -25,22 +25,26 @@ internal enum CrateriaAtmosphericEffectFlags : byte
 /// </summary>
 internal static class SamusAtmosphericEffectDefinitions
 {
-    /// <summary>$8F:91F8 LandingSite header, room index zero.</summary>
-    private const byte LandingSiteRoom = 0;
-    /// <summary>$8F:93FE WestOcean header, room index five.</summary>
-    private const byte WestOceanRoom = 5;
-    /// <summary>$8F:948C CrateriaKihunter header, room index seven.</summary>
-    private const byte CrateriaKihunterRoom = 7;
-    /// <summary>$8F:94FD EastOcean header, room index nine.</summary>
-    private const byte EastOceanRoom = 9;
-    /// <summary>$8F:9552 ForgottenHighwayKagos header, room index ten.</summary>
-    private const byte ForgottenHighwayKagosRoom = 10;
-    /// <summary>$8F:957D CrabMaze header, room index eleven.</summary>
-    private const byte CrabMazeRoom = 11;
-    /// <summary>$8F:95A8 ForgottenHighwayElbow header, room index twelve.</summary>
-    private const byte ForgottenHighwayElbowRoom = 12;
-    /// <summary>$8F:95FF Moat header, room index fourteen.</summary>
-    private const byte MoatRoom = 14;
+    /// <summary>The Crateria room indexes whose $90:EDC9/$91:F0F3 entries are nonzero; the other selectors are none.</summary>
+    private enum AtmosphericRoom : byte
+    {
+        /// <summary>$8F:91F8 LandingSite header, room index zero.</summary>
+        LandingSite = 0,
+        /// <summary>$8F:93FE WestOcean header, room index five.</summary>
+        WestOcean = 5,
+        /// <summary>$8F:948C CrateriaKihunter header, room index seven.</summary>
+        CrateriaKihunter = 7,
+        /// <summary>$8F:94FD EastOcean header, room index nine.</summary>
+        EastOcean = 9,
+        /// <summary>$8F:9552 ForgottenHighwayKagos header, room index ten.</summary>
+        ForgottenHighwayKagos = 10,
+        /// <summary>$8F:957D CrabMaze header, room index eleven.</summary>
+        CrabMaze = 11,
+        /// <summary>$8F:95A8 ForgottenHighwayElbow header, room index twelve.</summary>
+        ForgottenHighwayElbow = 12,
+        /// <summary>$8F:95FF Moat header, room index fourteen.</summary>
+        Moat = 14,
+    }
 
     /// <summary>$90:81A4: grounded postures produce the paired surface splash; other movement dives.</summary>
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
@@ -76,13 +80,16 @@ internal static class SamusAtmosphericEffectDefinitions
     {
         if (roomIndex >= 16)
             throw new InvalidDataException($"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
-        return roomIndex switch
+        if (!Enum.IsDefined((AtmosphericRoom)roomIndex))
+            return CrateriaAtmosphericEffectFlags.None;
+        return (AtmosphericRoom)roomIndex switch
         {
-            LandingSiteRoom => CrateriaAtmosphericEffectFlags.LandingSite,
-            WestOceanRoom => CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
-            CrateriaKihunterRoom or EastOceanRoom or ForgottenHighwayKagosRoom or CrabMazeRoom or
-            ForgottenHighwayElbowRoom or MoatRoom => CrateriaAtmosphericEffectFlags.WetFootsteps,
-            _ => CrateriaAtmosphericEffectFlags.None,
+            AtmosphericRoom.LandingSite => CrateriaAtmosphericEffectFlags.LandingSite,
+            AtmosphericRoom.WestOcean => CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
+            AtmosphericRoom.CrateriaKihunter or AtmosphericRoom.EastOcean or AtmosphericRoom.ForgottenHighwayKagos or
+            AtmosphericRoom.CrabMaze or AtmosphericRoom.ForgottenHighwayElbow or AtmosphericRoom.Moat =>
+                CrateriaAtmosphericEffectFlags.WetFootsteps,
+            _ => throw new InvalidOperationException($"Undefined {nameof(AtmosphericRoom)} {roomIndex}."),
         };
     }
 }

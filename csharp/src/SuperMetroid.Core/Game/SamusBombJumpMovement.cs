@@ -71,7 +71,7 @@ public static class SamusBombJumpMovement
             // direction three is right. Existing base words intentionally participate.
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
                 bus,
-            SamusMovementRomData.VerticalMotion.DiagonalBombJumpHorizontalSpeed);
+            (int)SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,

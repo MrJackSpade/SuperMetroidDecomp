@@ -18,7 +18,7 @@ public sealed record CartridgeDoorHeader(
     byte DestinationScreenX,
     byte DestinationScreenY,
     ushort SamusDistance,
-    ushort SetupCodePointer)
+    DoorSetupCode SetupCodePointer)
 {
 
     /// <summary>
@@ -26,5 +26,5 @@ public sealed record CartridgeDoorHeader(
     /// B=C=0, M7X=$0080, and M7Y=$03F0 at $8F:E4E0.
     /// </summary>
     public bool UsesCeresElevatorMode7 =>
-        SetupCodePointer == DoorCodes.DoorASM_ToCeresElevatorShaft;
+        SetupCodePointer == DoorSetupCode.DoorASM_ToCeresElevatorShaft;
 }

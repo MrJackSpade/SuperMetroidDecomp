@@ -317,7 +317,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the Ceres Baby's elapsed draw-frame counter, compared with the current animation duration and restarted at one.</summary>
     public ushort BabyInstructionTimer { get; internal set; }
     /// <summary>Gets the Ceres Baby's native bank-$A6 behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
-    public ushort BabyFunction { get; internal set; }
+    public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>Gets the current native spritemap identity selected by the Ceres Baby's animation list.</summary>
     public ushort BabyCurrentSpritemap { get; internal set; }
     /// <summary>Gets the Ceres Baby's wrapped whole-pixel world X coordinate, independently updated while falling or attached to a hand.</summary>

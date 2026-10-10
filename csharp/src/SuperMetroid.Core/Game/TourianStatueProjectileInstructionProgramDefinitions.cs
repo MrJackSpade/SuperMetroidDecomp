@@ -60,14 +60,14 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         foreach (ushort hold in EyeHolds) layout.Pose(hold);
         layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6);
         layout.SkipByte(); // Sound ID is a byte, outside the mechanics-word API.
-        layout.Word(TourianStatueRomData.Earthquake);
-        for (int particle = 0; particle < ParticleBurstCount; particle++) layout.Word(TourianStatueRomData.SpawnParticle);
+        layout.Word((ushort)TourianStatueInstruction.Earthquake);
+        for (int particle = 0; particle < ParticleBurstCount; particle++) layout.Word((ushort)TourianStatueInstruction.SpawnParticle);
         layout.Delete();
         layout.Start(Particle);
         for (int pair = 0; pair < 2; pair++)
         {
             layout.Pose(ParticleHold); layout.Pose(ParticleHold);
-            if (pair == 0) layout.Word(TourianStatueRomData.SpawnTail);
+            if (pair == 0) layout.Word((ushort)TourianStatueInstruction.SpawnTail);
         }
         layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
         layout.Word(Particle);
@@ -77,7 +77,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
             layout.Pose(TailHold);
             if (phase < 3)
             {
-                layout.Word(TourianStatueRomData.AddY);
+                layout.Word((ushort)TourianStatueInstruction.AddY);
                 layout.Word((ushort)(8 >> phase));
             }
         }

@@ -55,7 +55,7 @@ internal static partial class Program
         EnemySpritemapCatalog stockOam = baseline.Oam();
         var legacyOam = baseline.OamDocument() with
         {
-            Version = EnemySpritemapDefinitions.PreDisplayBindingsVersion,
+            Version = (int)EnemySpritemapSchema.PreDisplayBindings,
             Frames = baseline.OamDocument().Frames.Take(EnemySpritemapDefinitions.PreDisplayBindingsFrameCount).ToDictionary(),
             DisplayFrames = null,
         };

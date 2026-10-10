@@ -26,9 +26,9 @@ public static class ProjectileTrailProgramDefinitions
             (ProjectileTrailDefinitions.Wave + ShortTerminatorOffset) or
             (ProjectileTrailDefinitions.Missile + ShortTerminatorOffset)) return true;
         if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.LeftIce))
-        { word = SamusProjectileRomData.Trails.MoveLeftDown; return true; }
+        { word = (ushort)ProjectileTrailInstruction.MoveLeftDown; return true; }
         if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.RightIce))
-        { word = SamusProjectileRomData.Trails.MoveRightDown; return true; }
+        { word = (ushort)ProjectileTrailInstruction.MoveRightDown; return true; }
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         {
             if (pointer != frame) continue;

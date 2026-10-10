@@ -239,37 +239,39 @@ public sealed partial class RoomEnemySystem
             return false;
 
         NorfairRioEnemyState state = RequireNorfairRioState(slot);
-        switch (opcode)
+        if (!Enum.IsDefined((NorfairRioInstruction)opcode))
+            return false;
+        switch ((NorfairRioInstruction)opcode)
         {
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag:
+            case NorfairRioInstruction.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag:
                 state.AnimationSignal = true;
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8:
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_8_duplicate:
                 state.FollowerYOffset = 8;
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C:
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C_duplicate:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_C:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_C_duplicate:
                 state.FollowerYOffset = 12;
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC:
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negativeC:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate:
                 state.FollowerYOffset = unchecked((ushort)-12);
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_4:
                 state.FollowerYOffset = 4;
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_0:
                 state.FollowerYOffset = 0;
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative4:
                 state.FollowerYOffset = unchecked((ushort)-4);
                 break;
-            case NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10:
+            case NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative10:
                 state.FollowerYOffset = unchecked((ushort)-16);
                 break;
             default:
-                return false;
+                throw new InvalidOperationException($"Undefined {nameof(NorfairRioInstruction)} {opcode:X4}.");
         }
 
         cursor = unchecked((ushort)(cursor + 2));

@@ -13,18 +13,23 @@ public static class XrayRevealCodePointers
     public const ushort End = 0xffff;
     /// <summary>Native BTS wildcard; matches any byte BTS in the selected block family.</summary>
     public const ushort AnyBts = 0xff00;
+}
+
+/// <summary>The seven bank-$91 revealed-block commands named by the X-ray reveal tables.</summary>
+public enum XrayRevealCommand : ushort
+{
     /// <summary>RevealedBlockCommand_VerticalExtension at $91:CE79.</summary>
-    public const ushort VerticalExtension = 0xce79;
+    VerticalExtension = 0xce79,
     /// <summary>RevealedBlockCommand_HorizontalExtension at $91:CEBB.</summary>
-    public const ushort HorizontalExtension = 0xcebb;
+    HorizontalExtension = 0xcebb,
     /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2Tilemap at $91:CF36.</summary>
-    public const ushort CopyOne = 0xcf36;
+    CopyOne = 0xcf36,
     /// <summary>RevealedBlockCommand_Copy1x1BlockToXrayBG2TilemapIfBrinstar at $91:CF3E.</summary>
-    public const ushort CopyBrinstar = 0xcf3e;
+    CopyBrinstar = 0xcf3e,
     /// <summary>RevealedBlockCommand_Copy2x1BlockToXrayBG2Tilemap at $91:CF4E.</summary>
-    public const ushort CopyWide = 0xcf4e;
+    CopyWide = 0xcf4e,
     /// <summary>RevealedBlockCommand_Copy1x2BlockToXrayBG2Tilemap at $91:CF62.</summary>
-    public const ushort CopyTall = 0xcf62;
+    CopyTall = 0xcf62,
     /// <summary>RevealedBlockCommand_Copy2x2BlockToXrayBG2Tilemap at $91:CF6F.</summary>
-    public const ushort CopySquare = 0xcf6f;
+    CopySquare = 0xcf6f,
 }

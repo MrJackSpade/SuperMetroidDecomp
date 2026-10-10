@@ -41,12 +41,12 @@ public readonly record struct CartridgeAudioAcknowledgements(
     byte Port3)
 {
     /// <summary>Gets the acknowledgement byte for APU output port zero through three.</summary>
-    public byte this[int port] => port switch
+    public byte this[ApuPort port] => port switch
     {
-        AudioRomData.Apu.MusicPort => Port0,
-        AudioRomData.Apu.FirstSoundPort => Port1,
-        AudioRomData.Apu.LibraryTwoPort => Port2,
-        AudioRomData.Apu.PortCount - 1 => Port3,
-        _ => throw new ArgumentOutOfRangeException(nameof(port), port, "APU port must be 0..3."),
+        ApuPort.Music => Port0,
+        ApuPort.SoundLibrary1 => Port1,
+        ApuPort.SoundLibrary2 => Port2,
+        ApuPort.SoundLibrary3 => Port3,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ApuPort)} {(int)port}."),
     };
 }

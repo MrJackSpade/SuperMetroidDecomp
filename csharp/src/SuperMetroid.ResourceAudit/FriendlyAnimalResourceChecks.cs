@@ -8,7 +8,7 @@ internal static class FriendlyAnimalResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
-        int previousVersion = EnemySpritemapDefinitions.PreFriendlyAnimalVersion;
+        int previousVersion = (int)EnemySpritemapSchema.PreFriendlyAnimal;
         (byte bank, ushort[] operands, int count, int offset) = family switch
         {
             "Etecoon" => (FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.EtecoonOperands(),

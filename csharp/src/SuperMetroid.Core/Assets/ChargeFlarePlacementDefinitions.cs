@@ -16,12 +16,16 @@ public static class ChargeFlarePlacementDefinitions
     /// <param name="direction">Full native low-nibble selector 0..15, including bounded overreads beyond the ten named aiming directions; formatted as two decimal digits rather than hexadecimal.</param>
     /// <returns>A key such as <c>standing-00</c> or <c>running-15</c>.</returns>
     public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
-    /// <summary>$90:C1BC/C1D6: standing turn aiming up or diagonally up.</summary>
-    private const int TurningUp = 10;
-    /// <summary>$90:C1BE/C1D8: standing turn with neutral aim.</summary>
-    private const int TurningNeutral = 11;
-    /// <summary>$90:C1C0/C1DA: standing turn aiming down or diagonally down.</summary>
-    private const int TurningDown = 12;
+    /// <summary>The three standing turn rows that follow the ten named aiming directions.</summary>
+    private enum StandingTurnDirection : byte
+    {
+        /// <summary>$90:C1BC/C1D6: standing turn aiming up or diagonally up.</summary>
+        Up = 10,
+        /// <summary>$90:C1BE/C1D8: standing turn with neutral aim.</summary>
+        Neutral = 11,
+        /// <summary>$90:C1C0/C1DA: standing turn aiming down or diagonally down.</summary>
+        Down = 12,
+    }
     /// <summary>$90:C1A8/C1C2 have thirteen named standing origins; running rows C1DC/C1F0 have ten.</summary>
     private const int StandingDirectionCount = 13;
 
@@ -44,7 +48,17 @@ public static class ChargeFlarePlacementDefinitions
             return new() { X = BeamOffset(false, adjacent).Y, Y = BeamOffset(true, adjacent).X };
         }
         if (!running && direction >= SamusProjectileRomData.Origins.DirectionCount)
-            return new() { X = -4, Y = direction switch { TurningUp => -20, TurningNeutral => -2, TurningDown => 8, _ => throw new InvalidOperationException() } };
+            return new()
+            {
+                X = -4,
+                Y = ClosedNativeWords.Decode<StandingTurnDirection>((byte)direction, "standing turn flare direction") switch
+                {
+                    StandingTurnDirection.Up => -20,
+                    StandingTurnDirection.Neutral => -2,
+                    StandingTurnDirection.Down => 8,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(StandingTurnDirection)} {direction}."),
+                },
+            };
         (int x, int y) = (running, (SamusProjectileDirection)direction) switch
         {
             (false, SamusProjectileDirection.UpFacingRight) => (2, -28),

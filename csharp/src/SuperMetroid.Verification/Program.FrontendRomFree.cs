@@ -835,7 +835,7 @@ internal static partial class Program
             throw new InvalidOperationException("Torizo callback dispatcher was not found.");
         object?[] arguments =
         [
-            torizo, null, null, TorizoInstructionCodes.Instruction_Torizo_Return,
+            torizo, null, null, (ushort)TorizoInstruction.Instruction_Torizo_Return,
             (ushort)0xf000, (ushort)0, (byte)0, false,
         ];
         AssertTrue(callback.Invoke(enemies, arguments) is true,

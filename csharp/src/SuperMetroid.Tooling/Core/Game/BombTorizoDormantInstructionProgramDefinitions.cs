@@ -40,10 +40,10 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         // (DormantFrameOperand) and the sleep at +12 (Sleep).
         value = (address - Initial) switch
         {
-            0 => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
-            2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
+            0 => (ushort)TorizoInstruction.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            2 => (ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock,
             4 => 1,
-            8 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            8 => (ushort)TorizoInstruction.Instruction_Torizo_FunctionInY,
             10 => WakeWhenHandCrumbles,
             12 => CommonEnemyInstructionCodes.Sleep,
             _ => 0,

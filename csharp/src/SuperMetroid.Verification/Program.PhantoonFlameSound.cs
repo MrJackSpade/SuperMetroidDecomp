@@ -14,7 +14,7 @@ internal static partial class Program
         var collect = typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!
             .CreateDelegate<Action>(enemies);
         begin();
-        callback(enemies.Slots[3], PhantoonInstructionCodes.SpawnCasualFlame);
+        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
         collect();
         AssertEqual(1, enemies.SoundRequests.Count, "casual flame emits one sound request");
         var flameSound = new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d), 6);
@@ -23,9 +23,9 @@ internal static partial class Program
             "sound accompanies the actual casual-flame spawn");
 
         begin();
-        callback(enemies.Slots[0], PhantoonInstructionCodes.PlayPhantoonMaterializationSFX);
-        callback(enemies.Slots[3], PhantoonInstructionCodes.SpawnCasualFlame);
-        callback(enemies.Slots[3], PhantoonInstructionCodes.SpawnCasualFlame);
+        callback(enemies.Slots[0], (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX);
+        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
+        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
         collect();
         AssertEqual(2, enemies.SoundRequests.Count(request => request == flameSound),
             "distinct flame callbacks retain their separate native queue calls");

@@ -42,20 +42,24 @@ internal static class BotwoonVisualDefinitions
             if (operandAddress == BotwoonInstructionProgramDefinitions.Hidden + 2)
                 return CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
             bool spitting = operandAddress >= BotwoonInstructionProgramDefinitions.SpittingUpLeft;
-            int relative = operandAddress - (spitting ? BotwoonInstructionProgramDefinitions.SpittingUpLeft : BotwoonInstructionProgramDefinitions.MovingUpLeft);
+            int relative = operandAddress - (spitting ? BotwoonInstructionProgramDefinitions.SpittingUpLeft : (ushort)BotwoonMovementProgram.UpLeft);
             int direction = relative / (spitting ? 16 : 8);
             bool open = spitting && relative % 16 == 12;
             // Closed maps all have two entries: two-byte count plus ten sprite bytes.
             if (!open) return (ushort)(0xe329 + 12 * direction);
             int pointer = 0xe3a1 + 12 * direction;
             // Each prior diagonal open-mouth map contributes a third five-byte piece.
-            for (int prior = 0; prior < direction; prior++)
+            foreach (BotwoonMovementProgram movement in Enum.GetValues<BotwoonMovementProgram>())
             {
-                int movement = BotwoonInstructionProgramDefinitions.MovingUpLeft + 8 * prior;
-                if (movement is BotwoonInstructionProgramDefinitions.MovingUpLeft or
-                    BotwoonInstructionProgramDefinitions.MovingDownLeft or
-                    BotwoonInstructionProgramDefinitions.MovingDownRight or
-                    BotwoonInstructionProgramDefinitions.MovingUpRight)
+                bool diagonal = movement switch
+                {
+                    BotwoonMovementProgram.UpLeft or BotwoonMovementProgram.DownLeft or
+                        BotwoonMovementProgram.DownRight or BotwoonMovementProgram.UpRight => true,
+                    BotwoonMovementProgram.Left or BotwoonMovementProgram.Down or
+                        BotwoonMovementProgram.Right or BotwoonMovementProgram.Up => false,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonMovementProgram)} {movement}."),
+                };
+                if (diagonal && ((ushort)movement - (ushort)BotwoonMovementProgram.UpLeft) / 8 < direction)
                     pointer += 5;
             }
             return (ushort)pointer;

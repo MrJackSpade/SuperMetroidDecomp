@@ -592,13 +592,13 @@ internal static partial class Program
             "ProcessInstructions", flags)!;
         foreach ((ushort entry, int calls) in new (ushort, int)[]
                  {
-                     (LowerNorfairRioInstructionProgramDefinitions.Idle, 5),
-                     (LowerNorfairRioInstructionProgramDefinitions.PrepareToSwoop, 10),
-                     (LowerNorfairRioInstructionProgramDefinitions.Descending, 2),
-                     (LowerNorfairRioInstructionProgramDefinitions.AscendingPart1, 4),
-                     (LowerNorfairRioInstructionProgramDefinitions.AscendingPart2, 4),
-                     (LowerNorfairRioInstructionProgramDefinitions.Cooldown, 10),
-                     (LowerNorfairRioInstructionProgramDefinitions.Flames, 4),
+                     ((ushort)LowerNorfairRioProgram.Idle, 5),
+                     ((ushort)LowerNorfairRioProgram.PrepareToSwoop, 10),
+                     ((ushort)LowerNorfairRioProgram.Descending, 2),
+                     ((ushort)LowerNorfairRioProgram.AscendingPart1, 4),
+                     ((ushort)LowerNorfairRioProgram.AscendingPart2, 4),
+                     ((ushort)LowerNorfairRioProgram.Cooldown, 10),
+                     ((ushort)LowerNorfairRioProgram.Flames, 4),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
@@ -1232,7 +1232,7 @@ internal static partial class Program
         using (var preYardJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreYardVersion,
+                Version = (int)EnemySpritemapSchema.PreYard,
                 Frames = preYardFrames,
                 DisplayFrames = preYardBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1256,7 +1256,7 @@ internal static partial class Program
         using (var preRobotJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreWorkRobotVersion,
+                Version = (int)EnemySpritemapSchema.PreWorkRobot,
                 Frames = preRobotFrames,
                 DisplayFrames = preRobotBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1280,7 +1280,7 @@ internal static partial class Program
         using (var preEvirJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreEvirVersion,
+                Version = (int)EnemySpritemapSchema.PreEvir,
                 Frames = preEvirFrames,
                 DisplayFrames = preEvirBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1304,7 +1304,7 @@ internal static partial class Program
         using (var preMochtroidJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMochtroidVersion,
+                Version = (int)EnemySpritemapSchema.PreMochtroid,
                 Frames = preMochtroidFrames,
                 DisplayFrames = preMochtroidBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1328,7 +1328,7 @@ internal static partial class Program
         using (var preCorpsesJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDeadTourianCorpseVersion,
+                Version = (int)EnemySpritemapSchema.PreDeadTourianCorpse,
                 Frames = preCorpsesFrames,
                 DisplayFrames = preCorpsesBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1351,7 +1351,7 @@ internal static partial class Program
         using (var preDeadTorizoJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDeadTorizoStationaryVersion,
+                Version = (int)EnemySpritemapSchema.PreDeadTorizoStationary,
                 Frames = preStationaryFrames,
                 DisplayFrames = preStationaryBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1374,7 +1374,7 @@ internal static partial class Program
         using (var preRinkaJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreRinkaVersion,
+                Version = (int)EnemySpritemapSchema.PreRinka,
                 Frames = preRinkaFrames,
                 DisplayFrames = preRinkaBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1396,7 +1396,7 @@ internal static partial class Program
         using (var preViolaJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreViolaVersion,
+                Version = (int)EnemySpritemapSchema.PreViola,
                 Frames = preViolaFrames,
                 DisplayFrames = preViolaBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1419,7 +1419,7 @@ internal static partial class Program
         using (var preChozoStatueJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreChozoStatueVersion,
+                Version = (int)EnemySpritemapSchema.PreChozoStatue,
                 Frames = preChozoStatueFrames,
                 DisplayFrames = preChozoStatueBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1442,7 +1442,7 @@ internal static partial class Program
         using (var preNorfairLavaJumperJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreNorfairLavaJumperVersion,
+                Version = (int)EnemySpritemapSchema.PreNorfairLavaJumper,
                 Frames = preNorfairLavaJumperFrames,
                 DisplayFrames = preNorfairLavaJumperBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1464,7 +1464,7 @@ internal static partial class Program
         using (var preMultiviolaJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMultiviolaVersion,
+                Version = (int)EnemySpritemapSchema.PreMultiviola,
                 Frames = preMultiviolaFrames,
                 DisplayFrames = preMultiviolaBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1486,7 +1486,7 @@ internal static partial class Program
         using (var preDragonJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDragonVersion,
+                Version = (int)EnemySpritemapSchema.PreDragon,
                 Frames = preDragonFrames,
                 DisplayFrames = preDragonBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1508,7 +1508,7 @@ internal static partial class Program
         using (var preTripperKamerJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreTripperKamerVersion,
+                Version = (int)EnemySpritemapSchema.PreTripperKamer,
                 Frames = preTripperKamerFrames,
                 DisplayFrames = preTripperKamerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -1531,7 +1531,7 @@ internal static partial class Program
         using (var preShaktoolJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreShaktoolVersion,
+                Version = (int)EnemySpritemapSchema.PreShaktool,
                 Frames = preShaktoolFrames,
                 DisplayFrames = preShaktoolBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })))
@@ -2444,7 +2444,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMetroidVersion,
+                Version = (int)EnemySpritemapSchema.PreMetroid,
                 Frames = preMetroidFrames,
                 DisplayFrames = preMetroidBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2455,7 +2455,7 @@ internal static partial class Program
                 $"version-forty-four override inherits Metroid frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreMetroidVersion,
+            Version = (int)EnemySpritemapSchema.PreMetroid,
             Frames = preMetroidFrames,
             DisplayFrames = preMetroidBindings,
         };
@@ -2470,7 +2470,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreShutterVersion,
+                Version = (int)EnemySpritemapSchema.PreShutter,
                 Frames = preShutterFrames,
                 DisplayFrames = preShutterBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2481,7 +2481,7 @@ internal static partial class Program
                 $"version-forty-three override inherits shutter frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreShutterVersion,
+            Version = (int)EnemySpritemapSchema.PreShutter,
             Frames = preShutterFrames,
             DisplayFrames = preShutterBindings,
         };
@@ -2496,7 +2496,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMorphBallEyeVersion,
+                Version = (int)EnemySpritemapSchema.PreMorphBallEye,
                 Frames = preMorphBallEyeFrames,
                 DisplayFrames = preMorphBallEyeBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2507,7 +2507,7 @@ internal static partial class Program
                 $"version-forty-two override inherits eye frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreMorphBallEyeVersion,
+            Version = (int)EnemySpritemapSchema.PreMorphBallEye,
             Frames = preMorphBallEyeFrames,
             DisplayFrames = preMorphBallEyeBindings,
         };
@@ -2522,7 +2522,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreFaceBlockVersion,
+                Version = (int)EnemySpritemapSchema.PreFaceBlock,
                 Frames = preFaceBlockFrames,
                 DisplayFrames = preFaceBlockBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2533,7 +2533,7 @@ internal static partial class Program
                 $"version-forty-one override inherits face-block frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreFaceBlockVersion,
+            Version = (int)EnemySpritemapSchema.PreFaceBlock,
             Frames = preFaceBlockFrames,
             DisplayFrames = preFaceBlockBindings,
         };
@@ -2548,7 +2548,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreKagoVersion,
+                Version = (int)EnemySpritemapSchema.PreKago,
                 Frames = preKagoFrames,
                 DisplayFrames = preKagoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2559,7 +2559,7 @@ internal static partial class Program
                 $"version-forty override inherits Kago frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreKagoVersion,
+            Version = (int)EnemySpritemapSchema.PreKago,
             Frames = preKagoFrames,
             DisplayFrames = preKagoBindings,
         };
@@ -2574,7 +2574,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreFlyVersion,
+                Version = (int)EnemySpritemapSchema.PreFly,
                 Frames = preFlyFrames,
                 DisplayFrames = preFlyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2585,7 +2585,7 @@ internal static partial class Program
                 $"version-thirty-nine override inherits fly frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreFlyVersion,
+            Version = (int)EnemySpritemapSchema.PreFly,
             Frames = preFlyFrames,
             DisplayFrames = preFlyBindings,
         };
@@ -2600,7 +2600,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreSciserVersion,
+                Version = (int)EnemySpritemapSchema.PreSciser,
                 Frames = preSciserFrames,
                 DisplayFrames = preSciserBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2611,7 +2611,7 @@ internal static partial class Program
                 $"version-thirty-eight override inherits Sciser {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreSciserVersion,
+            Version = (int)EnemySpritemapSchema.PreSciser,
             Frames = preSciserFrames,
             DisplayFrames = preSciserBindings,
         };
@@ -2626,7 +2626,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreRidleySupplementVersion,
+                Version = (int)EnemySpritemapSchema.PreRidleySupplement,
                 Frames = preRidleyFrames,
                 DisplayFrames = preRidleyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2637,7 +2637,7 @@ internal static partial class Program
                 $"version-thirty-seven override inherits Ridley supplement {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreRidleySupplementVersion,
+            Version = (int)EnemySpritemapSchema.PreRidleySupplement,
             Frames = preRidleyFrames,
             DisplayFrames = preRidleyBindings,
         };
@@ -2652,7 +2652,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDeadTorizoVersion,
+                Version = (int)EnemySpritemapSchema.PreDeadTorizo,
                 Frames = preDeadTorizoFrames,
                 DisplayFrames = preDeadTorizoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2663,7 +2663,7 @@ internal static partial class Program
             "version-thirty-six override inherits Dead Torizo corpse frame");
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreDeadTorizoVersion,
+            Version = (int)EnemySpritemapSchema.PreDeadTorizo,
             Frames = preDeadTorizoFrames,
             DisplayFrames = preDeadTorizoBindings,
         };
@@ -2678,7 +2678,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMotherBrainVersion,
+                Version = (int)EnemySpritemapSchema.PreMotherBrain,
                 Frames = preMotherBrainFrames,
                 DisplayFrames = preMotherBrainBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2690,7 +2690,7 @@ internal static partial class Program
         // All earlier migration fixtures start from the previous complete schema.
         document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreMotherBrainVersion,
+            Version = (int)EnemySpritemapSchema.PreMotherBrain,
             Frames = preMotherBrainFrames,
             DisplayFrames = preMotherBrainBindings,
         };
@@ -2705,7 +2705,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreKiHunterVersion,
+                Version = (int)EnemySpritemapSchema.PreKiHunter,
                 Frames = preHunterFrames,
                 DisplayFrames = preHunterBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2728,7 +2728,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreYappingMawVersion,
+                Version = (int)EnemySpritemapSchema.PreYappingMaw,
                 Frames = preMawFrames,
                 DisplayFrames = preMawBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2752,7 +2752,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreRoomSpriteObjectVersion,
+                Version = (int)EnemySpritemapSchema.PreRoomSpriteObject,
                 Frames = preRoomSpriteFrames,
                 DisplayFrames = preRoomSpriteBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2776,7 +2776,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDraygonBreathVersion,
+                Version = (int)EnemySpritemapSchema.PreDraygonBreath,
                 Frames = preBreathFrames,
                 DisplayFrames = preBreathBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2799,7 +2799,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreDraygonIntroVersion,
+                Version = (int)EnemySpritemapSchema.PreDraygonIntro,
                 Frames = preDraygonFrames,
                 DisplayFrames = preDraygonBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2821,7 +2821,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreElevatorVersion,
+                Version = (int)EnemySpritemapSchema.PreElevator,
                 Frames = preElevatorFrames,
                 DisplayFrames = preElevatorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2843,7 +2843,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreKamerVersion,
+                Version = (int)EnemySpritemapSchema.PreKamer,
                 Frames = preKamerFrames,
                 DisplayFrames = preKamerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2867,7 +2867,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreFuneNamiheVersion,
+                Version = (int)EnemySpritemapSchema.PreFuneNamihe,
                 Frames = preFuneFrames,
                 DisplayFrames = preFuneBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2898,7 +2898,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreSbugVersion,
+                Version = (int)EnemySpritemapSchema.PreSbug,
                 Frames = preSbugFrames,
                 DisplayFrames = preSbugBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2928,7 +2928,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreHZoomerVersion,
+                Version = (int)EnemySpritemapSchema.PreHZoomer,
                 Frames = preHZoomerFrames,
                 DisplayFrames = preHZoomerBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2957,7 +2957,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreChootVersion,
+                Version = (int)EnemySpritemapSchema.PreChoot,
                 Frames = preChootFrames,
                 DisplayFrames = preChootBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -2989,7 +2989,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreHopperVersion,
+                Version = (int)EnemySpritemapSchema.PreHopper,
                 Frames = preHopperFrames,
                 DisplayFrames = preHopperBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3018,7 +3018,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreBeetomVersion,
+                Version = (int)EnemySpritemapSchema.PreBeetom,
                 Frames = preBeetomFrames,
                 DisplayFrames = preBeetomBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3046,7 +3046,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreAlcoonVersion,
+                Version = (int)EnemySpritemapSchema.PreAlcoon,
                 Frames = preAlcoonFrames,
                 DisplayFrames = preAlcoonBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3069,7 +3069,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreBullVersion,
+                Version = (int)EnemySpritemapSchema.PreBull,
                 Frames = preBullFrames,
                 DisplayFrames = preBullBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3092,7 +3092,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PrePuyoVersion,
+                Version = (int)EnemySpritemapSchema.PrePuyo,
                 Frames = prePuyoFrames,
                 DisplayFrames = prePuyoBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3116,7 +3116,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreNorfairRioVersion,
+                Version = (int)EnemySpritemapSchema.PreNorfairRio,
                 Frames = preNorfairRioFrames,
                 DisplayFrames = preNorfairRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3145,7 +3145,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreLowerNorfairRioVersion,
+                Version = (int)EnemySpritemapSchema.PreLowerNorfairRio,
                 Frames = preLowerRioFrames,
                 DisplayFrames = preLowerRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3176,7 +3176,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreRioVersion,
+                Version = (int)EnemySpritemapSchema.PreRio,
                 Frames = preRioFrames,
                 DisplayFrames = preRioBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3209,7 +3209,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreCeresBabyVersion,
+                Version = (int)EnemySpritemapSchema.PreCeresBaby,
                 Frames = preCeresBabyFrames,
                 DisplayFrames = preCeresBabyBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3238,7 +3238,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreCeresDoorVersion,
+                Version = (int)EnemySpritemapSchema.PreCeresDoor,
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3260,7 +3260,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreCeresDoorVersion,
+                Version = (int)EnemySpritemapSchema.PreCeresDoor,
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -3276,7 +3276,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreMagdolliteVersion,
+                Version = (int)EnemySpritemapSchema.PreMagdollite,
                 Frames = preMagdolliteFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preMagdolliteUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3298,7 +3298,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreFirefleaVersion,
+                Version = (int)EnemySpritemapSchema.PreFireflea,
                 Frames = preFirefleaFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preFirefleaUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3320,7 +3320,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreRipperVersion,
+                Version = (int)EnemySpritemapSchema.PreRipper,
                 Frames = preRipperFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preRipperUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3345,7 +3345,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreOwtchStokeVersion,
+                Version = (int)EnemySpritemapSchema.PreOwtchStoke,
                 Frames = preOwtchStokeFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preOwtchStokeUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3366,7 +3366,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PreviousVersion,
+                Version = (int)EnemySpritemapSchema.Previous,
                 Frames = previousFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3397,7 +3397,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.PriorVersion,
+                Version = (int)EnemySpritemapSchema.Prior,
                 Frames = priorFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog priorUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3419,7 +3419,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.EarlierVersion,
+                Version = (int)EnemySpritemapSchema.Earlier,
                 Frames = earlierFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog earlierUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3450,7 +3450,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.IntermediateVersion,
+                Version = (int)EnemySpritemapSchema.Intermediate,
                 Frames = intermediateFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog intermediateUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3470,7 +3470,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = EnemySpritemapDefinitions.LegacyVersion,
+                Version = (int)EnemySpritemapSchema.Legacy,
                 Frames = legacyFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog legacyUpgraded = stock.WithSpritemaps(LoadSpritemapOverride());
@@ -3484,7 +3484,7 @@ internal static partial class Program
             "legacy override gains stock Skultera composition");
         var preBindings = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapDefinitions.PreDisplayBindingsVersion,
+            Version = (int)EnemySpritemapSchema.PreDisplayBindings,
             Frames = preCeresDoorFrames,
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(

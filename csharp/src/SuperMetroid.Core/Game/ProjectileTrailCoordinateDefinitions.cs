@@ -359,13 +359,46 @@ internal static class ProjectileTrailCoordinateDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
     };
 
+    /// <summary>The fourteen bank-$9B direction-pointer tables, one per trail family.</summary>
+    private enum TrailFamily
+    {
+        /// <summary><c>UnchargedBeamTrails_Default</c> direction pointers.</summary>
+        UnchargedBeamTrailsDefault = UnchargedBeamTrails_Default,
+        /// <summary><c>ChargedBeamTrails_Default</c> direction pointers.</summary>
+        ChargedBeamTrailsDefault = ChargedBeamTrails_Default,
+        /// <summary><c>UnchargedBeamTrails_Wave_WaveIce</c> direction pointers.</summary>
+        UnchargedBeamTrailsWaveWaveIce = UnchargedBeamTrails_Wave_WaveIce,
+        /// <summary><c>ChargedBeamTrails_Wave_WaveIce</c> direction pointers.</summary>
+        ChargedBeamTrailsWaveWaveIce = ChargedBeamTrails_Wave_WaveIce,
+        /// <summary><c>UnchargedBeamTrails_IceSpazer</c> direction pointers.</summary>
+        UnchargedBeamTrailsIceSpazer = UnchargedBeamTrails_IceSpazer,
+        /// <summary><c>UnchargedBeamTrails_WaveIceSpazer</c> direction pointers.</summary>
+        UnchargedBeamTrailsWaveIceSpazer = UnchargedBeamTrails_WaveIceSpazer,
+        /// <summary><c>UnchargedBeamTrails_IcePlasma</c> direction pointers.</summary>
+        UnchargedBeamTrailsIcePlasma = UnchargedBeamTrails_IcePlasma,
+        /// <summary><c>UnchargedBeamTrails_WaveIcePlasma</c> direction pointers.</summary>
+        UnchargedBeamTrailsWaveIcePlasma = UnchargedBeamTrails_WaveIcePlasma,
+        /// <summary><c>ChargedBeamTrails_IceSpazer</c> direction pointers.</summary>
+        ChargedBeamTrailsIceSpazer = ChargedBeamTrails_IceSpazer,
+        /// <summary><c>ChargedBeamTrails_WaveIceSpazer</c> direction pointers.</summary>
+        ChargedBeamTrailsWaveIceSpazer = ChargedBeamTrails_WaveIceSpazer,
+        /// <summary><c>ChargedBeamTrails_IcePlasma</c> direction pointers.</summary>
+        ChargedBeamTrailsIcePlasma = ChargedBeamTrails_IcePlasma,
+        /// <summary><c>ChargedBeamTrails_WaveIcePlasma</c> direction pointers.</summary>
+        ChargedBeamTrailsWaveIcePlasma = ChargedBeamTrails_WaveIcePlasma,
+        /// <summary><c>SpazerSBATrail_WaveSpazer</c> direction pointers.</summary>
+        SpazerSBATrailWaveSpazer = SpazerSBATrail_WaveSpazer,
+        /// <summary><c>UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B</c> direction pointers.</summary>
+        UnusedSpazerSBATrailSpazerIceSpazer = UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B,
+    }
+
     /// <summary>
     /// $9B:A4F7-A56E/A98F-AA06/B327-B33A/B37B-B38E: each family has ten
     /// direction pointers. The four-byte X/Y pair records pack a fixed number
     /// of animation frames per direction. Vertical facing duplicates share
     /// one octant; Wave shares opposite axes and default beams share all axes.
     /// </summary>
-    private static int DirectionSequence(int family, SamusProjectileDirection direction)
+    private static int DirectionSequence(TrailFamily family, SamusProjectileDirection direction)
     {
         int octant = direction == SamusProjectileDirection.UpFacingLeft ? 0 :
             (int)direction >= (int)SamusProjectileDirection.DownFacingLeft ? (int)direction - 1 : (int)direction;
@@ -380,23 +413,23 @@ internal static class ProjectileTrailCoordinateDefinitions
         };
         return family switch
         {
-            UnchargedBeamTrails_Default => UnchargedBeamTrails_Default_0,
-            ChargedBeamTrails_Default => ChargedBeamTrails_Default_0,
-            UnchargedBeamTrails_Wave_WaveIce => UnchargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
-            ChargedBeamTrails_Wave_WaveIce => ChargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
-            UnchargedBeamTrails_IceSpazer => UnchargedBeamTrails_IceSpazer_0 + IceSpazerDirection(direction) * 3 * 4,
-            UnchargedBeamTrails_WaveIceSpazer => UnchargedBeamTrails_WaveIceSpazer_0 + octant * 10 * 4,
-            UnchargedBeamTrails_IcePlasma => UnchargedBeamTrails_IcePlasma_0 + octant * 2 * 4,
-            UnchargedBeamTrails_WaveIcePlasma => UnchargedBeamTrails_WaveIcePlasma_0 + octant * 9 * 4,
-            ChargedBeamTrails_IceSpazer => ChargedBeamTrails_IceSpazer_0 + octant * 10 * 4,
-            ChargedBeamTrails_WaveIceSpazer => ChargedBeamTrails_WaveIceSpazer_0 + octant * 24 * 4,
-            ChargedBeamTrails_IcePlasma => ChargedBeamTrails_IcePlasma_0 + octant * 8 * 4,
-            ChargedBeamTrails_WaveIcePlasma => ChargedBeamTrails_WaveIcePlasma_0 + octant * 22 * 4,
-            SpazerSBATrail_WaveSpazer => SpazerSBATrail_WaveSpazer_0 +
+            TrailFamily.UnchargedBeamTrailsDefault => UnchargedBeamTrails_Default_0,
+            TrailFamily.ChargedBeamTrailsDefault => ChargedBeamTrails_Default_0,
+            TrailFamily.UnchargedBeamTrailsWaveWaveIce => UnchargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
+            TrailFamily.ChargedBeamTrailsWaveWaveIce => ChargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
+            TrailFamily.UnchargedBeamTrailsIceSpazer => UnchargedBeamTrails_IceSpazer_0 + IceSpazerDirection(direction) * 3 * 4,
+            TrailFamily.UnchargedBeamTrailsWaveIceSpazer => UnchargedBeamTrails_WaveIceSpazer_0 + octant * 10 * 4,
+            TrailFamily.UnchargedBeamTrailsIcePlasma => UnchargedBeamTrails_IcePlasma_0 + octant * 2 * 4,
+            TrailFamily.UnchargedBeamTrailsWaveIcePlasma => UnchargedBeamTrails_WaveIcePlasma_0 + octant * 9 * 4,
+            TrailFamily.ChargedBeamTrailsIceSpazer => ChargedBeamTrails_IceSpazer_0 + octant * 10 * 4,
+            TrailFamily.ChargedBeamTrailsWaveIceSpazer => ChargedBeamTrails_WaveIceSpazer_0 + octant * 24 * 4,
+            TrailFamily.ChargedBeamTrailsIcePlasma => ChargedBeamTrails_IcePlasma_0 + octant * 8 * 4,
+            TrailFamily.ChargedBeamTrailsWaveIcePlasma => ChargedBeamTrails_WaveIcePlasma_0 + octant * 22 * 4,
+            TrailFamily.SpazerSBATrailWaveSpazer => SpazerSBATrail_WaveSpazer_0 +
                 ((int)direction % 5 is > 0 and < 4 ? (int)direction % 5 : 0) * 4 * 4,
-            UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B => UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F +
+            TrailFamily.UnusedSpazerSBATrailSpazerIceSpazer => UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F +
                 (direction is SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft ? 3 * 4 : 0),
-            _ => throw new InvalidOperationException("Unknown projectile trail direction family."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(TrailFamily)} {(int)family:X6}."),
         };
     }
 
@@ -449,7 +482,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         if (block == 0) return false;
         int offset = address - block;
         int family = block + offset / 20 * 20;
-        pointer = unchecked((ushort)DirectionSequence(family, (SamusProjectileDirection)(offset % 20 / 2)));
+        pointer = unchecked((ushort)DirectionSequence((TrailFamily)family, (SamusProjectileDirection)(offset % 20 / 2)));
         return true;
     }
     /// <summary>

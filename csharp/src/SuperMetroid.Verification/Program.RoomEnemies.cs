@@ -566,7 +566,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     var frames = EnemySpritemapDefinitions.Frames.ToArray();
     var spriteDocument = new EnemySpritemapDocument
     {
-        Version = EnemySpritemapDefinitions.Version,
+        Version = (int)EnemySpritemapSchema.Current,
         Frames = frames.ToDictionary(frame => frame.Name, frame =>
             frame.Bank == 0xa2 && frame.Pointer == 0xe527
                 ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
@@ -1134,7 +1134,7 @@ static void VerifyCeresRidleyRoomEntry()
     var fixtureSpriteFrames = EnemySpritemapDefinitions.Frames.ToArray();
     var fixtureSprites = new EnemySpritemapDocument
     {
-        Version = EnemySpritemapDefinitions.Version,
+        Version = (int)EnemySpritemapSchema.Current,
         Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame =>
             frame.Bank == 0xa6 && frame.Pointer == 0xa329
                 ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,

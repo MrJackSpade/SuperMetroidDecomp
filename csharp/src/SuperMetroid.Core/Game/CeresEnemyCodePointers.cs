@@ -1,34 +1,38 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The Ceres Baby Metroid's bank-$A6 behavior function, kept in Ridley's extended workspace.</summary>
+public enum CeresBabyFunction : ushort
+{
+    /// <summary>Outside Ceres the Baby workspace is never initialized and holds zero.</summary>
+    None = 0,
+    /// <summary><c>UpdateBabyMetroidPosition_CarriedInArms</c> at $A6:BE9C.</summary>
+    CarriedInArms = 0xbe9c,
+    /// <summary><c>UpdateBabyMetroidPosition_CarriedInFeet</c> at $A6:BEB3.</summary>
+    CarriedInFeet = 0xbeb3,
+    /// <summary><c>DropBabyMetroid</c> at $A6:BECA.</summary>
+    Drop = 0xbeca,
+    /// <summary><c>BabyMetroidDropped</c> at $A6:BEDC.</summary>
+    Dropped = 0xbedc,
+    /// <summary><c>RTS_A6BF19</c> at $A6:BF19: the idle function after landing.</summary>
+    Idle = 0xbf19,
+}
+
+/// <summary>The Ceres Baby Metroid cutscene animation-list instructions in bank $A6.</summary>
+internal enum CeresBabyInstruction : ushort
+{
+    /// <summary><c>Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX</c> at $A6:BFC9.</summary>
+    PlayCrySfxOrGoto = 0xbfc9,
+    /// <summary><c>Instruction_BabyMetroidCutscene_UpdateColors</c> at $A6:BFE1.</summary>
+    UpdateColors = 0xbfe1,
+    /// <summary><c>Instruction_BabyMetroidCutscene_GotoXIfNotFalling</c> at $A6:BFF2.</summary>
+    GotoIfNotFalling = 0xbff2,
+    /// <summary><c>Instruction_BabyMetroidCutscene_GotoX</c> at $A6:BFF8.</summary>
+    Goto = 0xbff8,
+}
+
 /// <summary>Named bank-$A6 code pointers consumed by translated Ceres enemy dispatchers.</summary>
 internal static class CeresEnemyCodePointers
 {
-    /// <summary><c>UpdateBabyMetroidPosition_CarriedInArms</c> at $A6:BE9C.</summary>
-    public const ushort UpdateBabyMetroidPosition_CarriedInArms = 0xbe9c;
-
-    /// <summary><c>DropBabyMetroid</c> at $A6:BECA.</summary>
-    public const ushort DropBabyMetroid = 0xbeca;
-
-    /// <summary><c>BabyMetroidDropped</c> at $A6:BEDC.</summary>
-    public const ushort BabyMetroidDropped = 0xbedc;
-
-    /// <summary><c>UpdateBabyMetroidPosition_CarriedInFeet</c> at $A6:BEB3.</summary>
-    public const ushort UpdateBabyMetroidPosition_CarriedInFeet = 0xbeb3;
-
-    /// <summary><c>RTS_A6BF19</c> at $A6:BF19.</summary>
-    public const ushort RTS_A6BF19 = 0xbf19;
-
-    /// <summary><c>Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX</c> at $A6:BFC9.</summary>
-    public const ushort Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX = 0xbfc9;
-
-    /// <summary><c>Instruction_BabyMetroidCutscene_UpdateColors</c> at $A6:BFE1.</summary>
-    public const ushort Instruction_BabyMetroidCutscene_UpdateColors = 0xbfe1;
-
-    /// <summary><c>Instruction_BabyMetroidCutscene_GotoXIfNotFalling</c> at $A6:BFF2.</summary>
-    public const ushort Instruction_BabyMetroidCutscene_GotoXIfNotFalling = 0xbff2;
-
-    /// <summary><c>Instruction_BabyMetroidCutscene_GotoX</c> at $A6:BFF8.</summary>
-    public const ushort Instruction_BabyMetroidCutscene_GotoX = 0xbff8;
 
     /// <summary><c>UNUSED_Instruction_RidleyCeres_GotoYIfNotHoldingBaby_A6E4EE</c> at $A6:E4EE.</summary>
     public const ushort RidleyGotoIfNotHoldingBaby = 0xe4ee;

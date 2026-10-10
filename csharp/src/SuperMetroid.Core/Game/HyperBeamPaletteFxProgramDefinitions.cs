@@ -26,6 +26,15 @@ internal static class HyperBeamPaletteFxProgramDefinitions
     /// <summary>Fixed duration loaded by every authored color record.</summary>
     public const ushort FrameDuration = 2;
 
+    /// <summary>The two control commands outside the timed records; both resume at the first record.</summary>
+    private enum ControlPointer : ushort
+    {
+        /// <summary>The entry command at <c>$8D:D900</c>.</summary>
+        Entry = InitialInstructionPointer,
+        /// <summary>The terminal loop command at <c>$8D:D9CC</c>.</summary>
+        Loop = LoopInstructionPointer,
+    }
+
     /// <summary>
     /// Resolves an entry, timed-frame, or loop pointer to one typed frame. Restored
     /// pointers outside the native program fail rather than entering adjacent bank data.
@@ -35,11 +44,15 @@ internal static class HyperBeamPaletteFxProgramDefinitions
         out bool completedCycle)
     {
         completedCycle = instructionPointer == LoopInstructionPointer;
-        ushort framePointer = instructionPointer switch
+        ushort framePointer = instructionPointer;
+        if (Enum.IsDefined((ControlPointer)instructionPointer))
         {
-            InitialInstructionPointer or LoopInstructionPointer => FirstFramePointer,
-            _ => instructionPointer,
-        };
+            framePointer = (ControlPointer)instructionPointer switch
+            {
+                ControlPointer.Entry or ControlPointer.Loop => FirstFramePointer,
+                _ => throw new InvalidOperationException($"Undefined {nameof(ControlPointer)} {instructionPointer:X4}."),
+            };
+        }
 
         int relative = framePointer - FirstFramePointer;
         if (relative < 0 ||

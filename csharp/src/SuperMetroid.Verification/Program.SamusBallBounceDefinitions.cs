@@ -6,8 +6,8 @@ internal static partial class Program
     private static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
-        ushort whole = Word(SamusMovementRomData.VerticalMotion.BallBounceSpeed);
-        ushort fraction = Word(SamusMovementRomData.VerticalMotion.BallBounceSubspeed);
+        ushort whole = Word(SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed);
+        ushort fraction = Word(SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed);
         AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed, "Native ball rebound whole definition");
         AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSubspeed, "Native ball rebound fraction definition");
         var guard = new ImpulsePoseReadGuard(rom);

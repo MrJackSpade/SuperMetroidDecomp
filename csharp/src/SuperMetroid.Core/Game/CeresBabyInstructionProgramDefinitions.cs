@@ -71,7 +71,7 @@ internal abstract class CeresBabyInstructionProgramDefinitions
             int address = Initial + group * 20 + (word < 2 ? word * 2 : 4 + (word - 2) * 4);
             ushort value = word switch
             {
-                0 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling,
+                0 => (ushort)CeresBabyInstruction.GotoIfNotFalling,
                 1 => ExpressiveLoop,
                 _ => 10,
             };
@@ -79,22 +79,22 @@ internal abstract class CeresBabyInstructionProgramDefinitions
         }
         if (index < 14)
             return new((ushort)(ExpressiveLoop + (index - 12) * 2), index == 12
-                ? CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX : Initial);
+                ? (ushort)CeresBabyInstruction.PlayCrySfxOrGoto : Initial);
         if (index < 38)
         {
             int frame = (index - 14) / 2;
             bool callback = (index & 1) == 0;
             return new((ushort)(ExpressiveLoop + 4 + frame * 8 + (callback ? 0 : 4)),
-                callback ? CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors
+                callback ? (ushort)CeresBabyInstruction.UpdateColors
                     : (ushort)(2 + Math.Abs(frame - 4)));
         }
         int tail = index - 38;
         return new((ushort)(ExpressiveLoop + 100 + (tail == 0 ? 0 : 2 + tail * 2)), tail switch
         {
-            0 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors,
-            1 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling,
+            0 => (ushort)CeresBabyInstruction.UpdateColors,
+            1 => (ushort)CeresBabyInstruction.GotoIfNotFalling,
             2 => ExpressiveLoop,
-            3 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX,
+            3 => (ushort)CeresBabyInstruction.Goto,
             _ => Initial,
         });
     }

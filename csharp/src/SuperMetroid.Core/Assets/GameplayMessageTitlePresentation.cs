@@ -138,34 +138,33 @@ public sealed class GameplayMessageTitlePresentation
 
     internal static ushort CompileGlyph(char character, int palette)
     {
-        int characterIndex = character switch
+        GameplayMessageTitleGlyph glyph = character switch
         {
-            ' ' => GameplayMessageTitleDefinitions.SpaceCharacter,
-            '-' => GameplayMessageTitleDefinitions.HyphenCharacter,
-            '.' => GameplayMessageTitleDefinitions.PeriodCharacter,
-            '?' => GameplayMessageTitleDefinitions.QuestionMarkCharacter,
-            >= 'A' and <= 'Z' => GameplayMessageTitleDefinitions.UppercaseACharacter + character - 'A',
+            ' ' => GameplayMessageTitleGlyph.Space,
+            '-' => GameplayMessageTitleGlyph.Hyphen,
+            '.' => GameplayMessageTitleGlyph.Period,
+            '?' => GameplayMessageTitleGlyph.QuestionMark,
+            >= 'A' and <= 'Z' => (GameplayMessageTitleGlyph)((int)GameplayMessageTitleGlyph.A + character - 'A'),
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
         };
-        return unchecked((ushort)(characterIndex |
+        return unchecked((ushort)((ushort)glyph |
             GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
     }
 
     internal static char DecodeGlyph(ushort word)
     {
-        int character = word & 0x03ff;
-        return character switch
+        GameplayMessageTitleGlyph glyph = ClosedNativeWords.Decode<GameplayMessageTitleGlyph>(
+            (ushort)(word & 0x03ff), "gameplay-message title glyph");
+        return glyph switch
         {
-            GameplayMessageTitleDefinitions.SpaceCharacter => ' ',
-            GameplayMessageTitleDefinitions.HyphenCharacter => '-',
-            GameplayMessageTitleDefinitions.PeriodCharacter => '.',
-            GameplayMessageTitleDefinitions.QuestionMarkCharacter => '?',
-            >= GameplayMessageTitleDefinitions.UppercaseACharacter and
-                <= GameplayMessageTitleDefinitions.UppercaseZCharacter =>
-                (char)('A' + character - GameplayMessageTitleDefinitions.UppercaseACharacter),
-            _ => throw new InvalidDataException(
-                $"Gameplay-message title uses unsupported character ${character:X3}."),
+            GameplayMessageTitleGlyph.Space => ' ',
+            GameplayMessageTitleGlyph.Hyphen => '-',
+            GameplayMessageTitleGlyph.Period => '.',
+            GameplayMessageTitleGlyph.QuestionMark => '?',
+            >= GameplayMessageTitleGlyph.A and <= GameplayMessageTitleGlyph.Z =>
+                (char)('A' + (glyph - GameplayMessageTitleGlyph.A)),
+            _ => throw new InvalidOperationException($"Undefined {nameof(GameplayMessageTitleGlyph)} {(int)glyph:X3}."),
         };
     }
 

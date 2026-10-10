@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -16,16 +17,16 @@ public sealed class RoomPlmKraidVisualCatalog
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmKraidVisualCatalog), content =>
     {
-        Append(KraidRoomPlmDrawDefinitions.CrumbleFirst, crumbleFirst);
-        Append(KraidRoomPlmDrawDefinitions.CrumbleSecond, crumbleSecond);
-        Append(KraidRoomPlmDrawDefinitions.CrumbleThird, crumbleThird);
-        Append(KraidRoomPlmDrawDefinitions.CeilingBackground1, ceilingBackground1);
-        Append(KraidRoomPlmDrawDefinitions.CeilingBackground2, ceilingBackground2);
-        Append(KraidRoomPlmDrawDefinitions.CeilingBackground3, ceilingBackground3);
-        Append(KraidRoomPlmDrawDefinitions.SpikeFirst, spikeFirst);
-        Append(KraidRoomPlmDrawDefinitions.SpikeSecond, spikeSecond);
-        Append(KraidRoomPlmDrawDefinitions.ClearCeiling, clearCeiling);
-        Append(KraidRoomPlmDrawDefinitions.ClearSpikes, clearSpikes);
+        Append((ushort)KraidRoomDraw.CrumbleFirst, crumbleFirst);
+        Append((ushort)KraidRoomDraw.CrumbleSecond, crumbleSecond);
+        Append((ushort)KraidRoomDraw.CrumbleThird, crumbleThird);
+        Append((ushort)KraidRoomDraw.CeilingBackground1, ceilingBackground1);
+        Append((ushort)KraidRoomDraw.CeilingBackground2, ceilingBackground2);
+        Append((ushort)KraidRoomDraw.CeilingBackground3, ceilingBackground3);
+        Append((ushort)KraidRoomDraw.SpikeFirst, spikeFirst);
+        Append((ushort)KraidRoomDraw.SpikeSecond, spikeSecond);
+        Append((ushort)KraidRoomDraw.ClearCeiling, clearCeiling);
+        Append((ushort)KraidRoomDraw.ClearSpikes, clearSpikes);
 
         void Append(ushort pointer, ushort[] words)
         {
@@ -44,19 +45,20 @@ public sealed class RoomPlmKraidVisualCatalog
     /// is direct dispatch, independent of entry order; it needs no dictionary.</remarks>
     private ref ushort[] Frame(ushort pointer)
     {
-        switch (pointer)
+        KraidRoomDraw draw = ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room visual draw");
+        switch (draw)
         {
-            case KraidRoomPlmDrawDefinitions.CrumbleFirst: return ref crumbleFirst;
-            case KraidRoomPlmDrawDefinitions.CrumbleSecond: return ref crumbleSecond;
-            case KraidRoomPlmDrawDefinitions.CrumbleThird: return ref crumbleThird;
-            case KraidRoomPlmDrawDefinitions.CeilingBackground1: return ref ceilingBackground1;
-            case KraidRoomPlmDrawDefinitions.CeilingBackground2: return ref ceilingBackground2;
-            case KraidRoomPlmDrawDefinitions.CeilingBackground3: return ref ceilingBackground3;
-            case KraidRoomPlmDrawDefinitions.SpikeFirst: return ref spikeFirst;
-            case KraidRoomPlmDrawDefinitions.SpikeSecond: return ref spikeSecond;
-            case KraidRoomPlmDrawDefinitions.ClearCeiling: return ref clearCeiling;
-            case KraidRoomPlmDrawDefinitions.ClearSpikes: return ref clearSpikes;
-            default: throw new InvalidDataException($"Kraid room visuals lack draw ${pointer:X4}.");
+            case KraidRoomDraw.CrumbleFirst: return ref crumbleFirst;
+            case KraidRoomDraw.CrumbleSecond: return ref crumbleSecond;
+            case KraidRoomDraw.CrumbleThird: return ref crumbleThird;
+            case KraidRoomDraw.CeilingBackground1: return ref ceilingBackground1;
+            case KraidRoomDraw.CeilingBackground2: return ref ceilingBackground2;
+            case KraidRoomDraw.CeilingBackground3: return ref ceilingBackground3;
+            case KraidRoomDraw.SpikeFirst: return ref spikeFirst;
+            case KraidRoomDraw.SpikeSecond: return ref spikeSecond;
+            case KraidRoomDraw.ClearCeiling: return ref clearCeiling;
+            case KraidRoomDraw.ClearSpikes: return ref clearSpikes;
+            default: throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {pointer:X4}.");
         }
     }
 

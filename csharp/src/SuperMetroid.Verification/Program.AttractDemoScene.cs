@@ -21,7 +21,7 @@ internal static partial class Program
         WriteRomWord(rom, 0x91b000, 0x8a53);
         WriteRomWord(rom, 0x829012, AttractDemoRomData.EndOfSet);
         WriteRomWord(rom, 0x919000, DemoInputRomData.Routines.NoOp);
-        WriteRomWord(rom, 0x919002, DemoInputRomData.Attract.CheckLeave);
+        WriteRomWord(rom, 0x919002, (ushort)AttractDemoPreInstruction.CheckLeave);
         WriteRomWord(rom, 0x919004, 0xc000);
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, (ushort)SnesButton.Left);
@@ -48,13 +48,13 @@ internal static partial class Program
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
-        input.Script.Redirect(DemoInputRomData.Attract.ShinesparkPreInstruction, 0xc000);
+        input.Script.Redirect((ushort)AttractDemoPreInstruction.Shinespark, 0xc000);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)SnesButton.Left)
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer != 7 ||
-            input.Script.PreInstructionPointer != DemoInputRomData.Attract.CheckLeave)
+            input.Script.PreInstructionPointer != (ushort)AttractDemoPreInstruction.CheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         var frontend = new SuperMetroidGame(bus);

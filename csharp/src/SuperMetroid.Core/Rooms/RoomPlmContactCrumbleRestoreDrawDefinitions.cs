@@ -1,5 +1,16 @@
 namespace SuperMetroid.Core.Rooms;
 
+/// <summary>The three bank-$84 linked contact-crumble restoration draw lists.</summary>
+internal enum ContactCrumbleRestoreDraw : ushort
+{
+    /// <summary>Horizontal parent and child restoration at $84:A4A1.</summary>
+    Horizontal = 0xa4a1,
+    /// <summary>Vertical parent and child restoration at $84:A4A9.</summary>
+    Vertical = 0xa4a9,
+    /// <summary>Four-block parent and children restoration at $84:A4B1.</summary>
+    Square = 0xa4b1,
+}
+
 /// <summary>
 /// Complete native restoration words for linked Samus-contact crumble blocks.
 /// The type-B parent and type-5/type-D children are physical room mutations;
@@ -7,13 +18,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 {
-    /// <summary>Horizontal parent and child restoration at $84:A4A1.</summary>
-    internal const ushort Horizontal = 0xa4a1;
-    /// <summary>Vertical parent and child restoration at $84:A4A9.</summary>
-    internal const ushort Vertical = 0xa4a9;
-    /// <summary>Four-block parent and children restoration at $84:A4B1.</summary>
-    internal const ushort Square = 0xa4b1;
-
     internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
     {
         internal int RunCount => Square ? 2 : 1;
@@ -33,13 +37,19 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        switch (pointer)
+        if (!Enum.IsDefined((ContactCrumbleRestoreDraw)pointer))
         {
-            case Horizontal: draw = new(pointer, false, false); return true;
-            case Vertical: draw = new(pointer, true, false); return true;
-            case Square: draw = new(pointer, false, true); return true;
-            default: draw = default; return false;
+            draw = default;
+            return false;
         }
+        draw = (ContactCrumbleRestoreDraw)pointer switch
+        {
+            ContactCrumbleRestoreDraw.Horizontal => new(pointer, false, false),
+            ContactCrumbleRestoreDraw.Vertical => new(pointer, true, false),
+            ContactCrumbleRestoreDraw.Square => new(pointer, false, true),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ContactCrumbleRestoreDraw)} {pointer:X4}."),
+        };
+        return true;
     }
 
     // Temporary draw DTOs support existing artwork import/export consumers.
@@ -48,9 +58,9 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
     {
         get
         {
-            yield return Export(new(Horizontal, false, false));
-            yield return Export(new(Vertical, true, false));
-            yield return Export(new(Square, false, true));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Horizontal, false, false));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Vertical, true, false));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Square, false, true));
         }
     }
 

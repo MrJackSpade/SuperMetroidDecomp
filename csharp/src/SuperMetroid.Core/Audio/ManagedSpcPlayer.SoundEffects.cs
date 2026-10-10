@@ -13,7 +13,7 @@ public sealed partial class ManagedSpcPlayer
     /// </remarks>
     private void HandleSoundLibraryCommand(int libraryIndex)
     {
-        int port = libraryIndex + AudioRomData.Apu.FirstSoundPort;
+        int port = libraryIndex + (byte)ApuPort.SoundLibrary1;
         byte previous = previousSoundCommandReads[libraryIndex];
         byte command = soundCommandReads[libraryIndex];
         previousSoundCommandReads[libraryIndex] = command;

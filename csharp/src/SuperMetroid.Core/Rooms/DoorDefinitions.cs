@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Compiled physical doors and per-room door-list connections for the retail game.</summary>
@@ -617,7 +619,8 @@ public static class DoorDefinitions
     private static CartridgeDoorHeader Door(ushort pointer, ushort destination, byte orientation,
         byte plmX, byte plmY, byte screenX, byte screenY, ushort samusDistance, ushort setupCode) =>
         new(pointer, destination, CartridgeDoorOrientation.Decode(orientation),
-            plmX, plmY, screenX, screenY, samusDistance, setupCode);
+            plmX, plmY, screenX, screenY, samusDistance,
+            ClosedNativeWords.Decode<DoorSetupCode>(setupCode, "door setup routine"));
 
     /// <summary>Resolves type-$9 BTS through the room's bounded physical-header progression.</summary>
     public static DoorListEntry Resolve(ushort doorListPointer, byte behavior)

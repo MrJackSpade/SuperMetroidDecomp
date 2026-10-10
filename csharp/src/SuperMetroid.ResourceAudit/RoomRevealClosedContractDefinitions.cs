@@ -4,14 +4,14 @@ namespace SuperMetroid.ResourceAudit;
 internal static class RoomRevealClosedContractDefinitions
 {
     private static readonly ReviewedSource XrayCatalog = new(
-        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "9582691188679D18CC56B94C6733957F3B60778D6A5CFB4A4EC5DCD4247B6EAD");
+        "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs", "A61503219766F20B3F35C0471EE5466A5F945B0E180D5A921066996F77DF790F");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
             [XrayCatalog,
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "DAF667ADFD0D2095DC0A6123A1D5D8FF3DF467B7EA566890DAD3BD2591944892"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "7EE09234B8B55AC1019059D23E937D318A536A6855F8F2A4F287554BFB15C040"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "86EC8000705FAFF078C2A9C8264A2ECFE81172DC47C5F6DDF6FCFCD6A0A101FE"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "4D686FABDD811AAA87C100570BBC53A5E944892B08C0A89CA62619A1F9514C93"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "6E9316260AAED6ABE3D9E74455C7BEAEBB1AFA7FE232E7BA1D1149B9D78F9405"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "DBB91BA49C7DEC14C71DFA9FE9CA740EEA4ADAA73D6FCB2A101164E7515A07B7"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "76E66EDE002E9700C0CBC0987C44DA5EC988A3318193A38B7ED389C601D78121")]),
         new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
             [XrayCatalog, new("csharp/src/SuperMetroid.Core/Rooms/XrayOverlayRomData.cs", "07721A2212E9940BAEE87A39FB9173633668385EC5B726714C88A482860ABC90"),

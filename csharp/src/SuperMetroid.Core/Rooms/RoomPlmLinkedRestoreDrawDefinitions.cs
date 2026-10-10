@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -11,18 +13,26 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
-    /// <summary>Names a linked restoration by its owning family and decoded layout.</summary>
     internal static string VisualId(ushort pointer)
     {
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))
-            return "bomb-" + LayoutId(bomb.Vertical, bomb.Square);
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out var crumble))
-            return "crumble-" + LayoutId(crumble.Vertical, crumble.Square);
-        throw new InvalidDataException($"Linked restore draw ${pointer:X4} has no visual ID.");
+        if (Enum.IsDefined((BombBlockRestoreDraw)pointer))
+        {
+            return (BombBlockRestoreDraw)pointer switch
+            {
+                BombBlockRestoreDraw.Horizontal => "bomb-horizontal",
+                BombBlockRestoreDraw.Vertical => "bomb-vertical",
+                BombBlockRestoreDraw.Square => "bomb-square",
+                _ => throw new InvalidOperationException($"Undefined {nameof(BombBlockRestoreDraw)} {pointer:X4}."),
+            };
+        }
+        return ClosedNativeWords.Decode<ContactCrumbleRestoreDraw>(pointer, "linked restore draw with a visual ID") switch
+        {
+            ContactCrumbleRestoreDraw.Horizontal => "crumble-horizontal",
+            ContactCrumbleRestoreDraw.Vertical => "crumble-vertical",
+            ContactCrumbleRestoreDraw.Square => "crumble-square",
+            _ => throw new InvalidOperationException($"Undefined {nameof(ContactCrumbleRestoreDraw)} {pointer:X4}."),
+        };
     }
-
-    private static string LayoutId(bool vertical, bool square) =>
-        square ? "square" : vertical ? "vertical" : "horizontal";
 
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

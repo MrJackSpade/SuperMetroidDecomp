@@ -110,7 +110,7 @@ public static class AudioInputReplaySmokeTest
                     powerBeamCommandObserved = true;
                 }
             }
-            powerBeamAcknowledged |= acknowledgements[1] == 0x0b;
+            powerBeamAcknowledged |= acknowledgements[ApuPort.SoundLibrary1] == 0x0b;
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
                 firstDoorBegan = true;

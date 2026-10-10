@@ -1,15 +1,19 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The three bank-$86 enemy-projectile definitions spawned by eye-door PLMs.</summary>
+public enum EyeDoorProjectileDefinition : ushort
+{
+    /// <summary><c>$86:B743</c>, native <c>EnemyProjectile_EyeDoorProjectile</c>: the eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact lists terminate it.</summary>
+    Projectile = 0xb743,
+    /// <summary><c>$86:B751</c>, native <c>EnemyProjectile_EyeDoorSweat</c>: the falling sweat actor spawned by the door PLM with side-selected launch velocity and a floor-impact animation.</summary>
+    Sweat = 0xb751,
+    /// <summary><c>$86:E517</c>, native <c>EnemyProjectile_MiscDustPLM</c>: the shared PLM dust/explosion definition used for eye-door smoke, with parameter-selected artwork and RNG-offset placement around the spawning block.</summary>
+    Smoke = 0xe517,
+}
+
 /// <summary>Named bank-$86 identities and tables used only by eye-door effects.</summary>
 public static class EyeDoorEnemyProjectileRomData
 {
-
-    /// <summary><c>$86:B743</c>, native <c>EnemyProjectile_EyeDoorProjectile</c>: the eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact lists terminate it.</summary>
-    public const ushort ProjectileDefinition = 0xb743;
-    /// <summary><c>$86:B751</c>, native <c>EnemyProjectile_EyeDoorSweat</c>: the falling sweat actor spawned by the door PLM with side-selected launch velocity and a floor-impact animation.</summary>
-    public const ushort SweatDefinition = 0xb751;
-    /// <summary><c>$86:E517</c>, native <c>EnemyProjectile_MiscDustPLM</c>: the shared PLM dust/explosion definition used for eye-door smoke, with parameter-selected artwork and RNG-offset placement around the spawning block.</summary>
-    public const ushort SmokeDefinition = 0xe517;
 
     /// <summary><c>$86:B6B9</c>, native <c>PreInstruction_EnemyProjectile_EyeDoorProjectile_Moving</c>: moves with block collision, accumulates angle-selected acceleration, and selects the explosion sequence on impact or an opened door bit.</summary>
     public const ushort ProjectilePreInstruction = 0xb6b9;

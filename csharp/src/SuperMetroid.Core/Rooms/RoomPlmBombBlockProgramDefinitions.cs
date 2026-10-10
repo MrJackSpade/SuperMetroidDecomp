@@ -45,9 +45,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
             {
                 value = dimension switch
                 {
-                    1 => RoomPlmBombBlockRestoreDrawDefinitions.Horizontal,
-                    2 => RoomPlmBombBlockRestoreDrawDefinitions.Vertical,
-                    3 => RoomPlmBombBlockRestoreDrawDefinitions.Square,
+                    1 => (ushort)BombBlockRestoreDraw.Horizontal,
+                    2 => (ushort)BombBlockRestoreDraw.Vertical,
+                    3 => (ushort)BombBlockRestoreDraw.Square,
                     _ => throw new InvalidDataException("Linked bomb-block program has no restore shape."),
                 };
                 return true;

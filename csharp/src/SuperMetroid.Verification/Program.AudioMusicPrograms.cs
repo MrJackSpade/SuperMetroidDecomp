@@ -115,7 +115,7 @@ internal static partial class Program
             CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine);
             CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
             CartridgeAudioCommand titleCommand = CartridgeAudioCommand.WritePort(
-                AudioRomData.Apu.MusicPort,
+                (byte)ApuPort.Music,
                 unchecked((byte)titleTrackIndex));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);

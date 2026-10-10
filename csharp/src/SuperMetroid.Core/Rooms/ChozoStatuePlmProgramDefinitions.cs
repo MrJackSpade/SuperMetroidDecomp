@@ -85,14 +85,14 @@ internal static class ChozoStatuePlmProgramDefinitions
                 10 => (ushort)RoomPlmInstruction.Sleep,
                 14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
                 16 => 1,
-                18 => ChozoStatuePlmDrawDefinitions.LowerNorfairClearedHand,
+                18 => (ushort)ChozoStatueDraw.LowerNorfairClearedHand,
                 _ => (ushort)RoomPlmInstruction.Delete,
             };
         bool clear = start == ClearSlopeStart;
         return offset switch
         {
             0 => 1,
-            2 => clear ? ChozoStatuePlmDrawDefinitions.ClearSlopeAccess : ChozoStatuePlmDrawDefinitions.BlockSlopeAccess,
+            2 => clear ? (ushort)ChozoStatueDraw.ClearSlopeAccess : (ushort)ChozoStatueDraw.BlockSlopeAccess,
             4 => clear ? (ushort)RoomPlmInstruction.TransformSpikesToSlopes : (ushort)RoomPlmInstruction.RevertSlopesToSpikes,
             _ => (ushort)RoomPlmInstruction.Delete,
         };

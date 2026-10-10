@@ -21,7 +21,7 @@ internal static partial class Program
         string edited = previous[0].Name;
         var legacy = document with
         {
-            Version = EnemySpritemapDefinitions.PreSingleFrameVersion,
+            Version = (int)EnemySpritemapSchema.PreSingleFrame,
             Frames = previous.ToDictionary(frame => frame.Name, frame => document.Frames[frame.Name]),
             DisplayFrames = previous.ToDictionary(frame => frame.Name, frame => frame.Name),
         };

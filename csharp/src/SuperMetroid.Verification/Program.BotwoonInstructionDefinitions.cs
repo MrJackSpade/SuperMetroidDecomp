@@ -147,16 +147,7 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonVisualMapping), () => VerifyBotwoonVisualMapping(rom));
         var guard = new BotwoonInstructionReadGuard(rom);
         ushort[] movementPrograms =
-        [
-            BotwoonInstructionProgramDefinitions.MovingUpLeft,
-            BotwoonInstructionProgramDefinitions.MovingLeft,
-            BotwoonInstructionProgramDefinitions.MovingDownLeft,
-            BotwoonInstructionProgramDefinitions.MovingDown,
-            BotwoonInstructionProgramDefinitions.MovingDownRight,
-            BotwoonInstructionProgramDefinitions.MovingRight,
-            BotwoonInstructionProgramDefinitions.MovingUpRight,
-            BotwoonInstructionProgramDefinitions.MovingUp,
-        ];
+            [.. Enum.GetValues<BotwoonMovementProgram>().Select(program => (ushort)program)];
         ushort[] spitPrograms =
         [
             BotwoonInstructionProgramDefinitions.SpittingUpLeft,

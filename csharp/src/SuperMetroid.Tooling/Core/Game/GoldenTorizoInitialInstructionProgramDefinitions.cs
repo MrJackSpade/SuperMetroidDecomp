@@ -31,9 +31,9 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
         ushort value = index switch
         {
             0 => CommonEnemyInstructionCodes.CopyToVram,
-            1 => TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState,
-            2 => TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock,
-            3 => TorizoInstructionCodes.Instruction_Torizo_FunctionInY,
+            1 => (ushort)TorizoInstruction.Instruction_Torizo_SetSteppedLeftWithRightFootState,
+            2 => (ushort)TorizoInstruction.Instruction_Torizo_SetAnimationLock,
+            3 => (ushort)TorizoInstruction.Instruction_Torizo_FunctionInY,
             4 => WakeWhenSamusApproaches,
             5 => 1,
             _ => CommonEnemyInstructionCodes.Sleep,

@@ -81,7 +81,7 @@ internal static partial class Program
             if (XrayRevealTable.Find(type, (byte)bts) is not { } native ||
                 !XrayRevealVisualCatalog.IsDrawable(native.Command)) continue;
             var visual = new XrayRevealVisualWords(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
-            if (!editedOperands && native.Command == XrayRevealCodePointers.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
+            if (!editedOperands && native.Command == XrayRevealCommand.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
                 visual = visual with
                 {

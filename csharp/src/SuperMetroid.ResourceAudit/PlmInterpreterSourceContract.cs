@@ -32,13 +32,15 @@ internal static class PlmInterpreterSourceContract
         ["SetupScrollSlot/5"] = "90427E5947D2E103127996ADD0748C112C8F7139E365F6EF4AC20EEE7656AFDD",
         // #627 decodes station animation list words into StationAnimationList; no program reads change.
         ["SetupStation/6"] = "BCB7F88A91D291BBC12B18C2E2441E9B415F725B0595A1E7CB232EE63896B944",
-        ["SpawnEyeDoorProjectile/3"] = "528A979BBCEFD1FD759D8507E71C4D7B88503590E40577116BC0843C98FD0F7E",
-        ["SpawnEyeDoorProjectile/4"] = "2CFF585079A6B3D8D6FB70A2C1C2DC00C74F46B7A5541F070CFB765AE6215232",
+        // #627 types the eye-door projectile definition as EyeDoorProjectileDefinition; no program reads change.
+        ["SpawnEyeDoorProjectile/3"] = "0CFBE0699B18063775D047C16BD1F16F32C516BC7A9FBE158592A8C7C19CD2F3",
+        ["SpawnEyeDoorProjectile/4"] = "2E19C737A5E889783FC733015EF4262F4B028B45BF9E24E76EA5FF91BD9634F5",
         // #627 typed handlers test membership, then throw on an unhandled member; no program reads or operand widths change.
         ["TryExecuteBombTorizoHandInstruction/3"] = "38039FAFA28040DB31AC5E080842B0146B50DB494C750E87B7341D11FCD1ECE2",
         ["TryExecuteChozoStatueInstruction/4"] = "5372E7E6D95723C4EC346537A1F49DA015A16AB4B8FF8452336DA5D4E0CC979F",
         ["TryExecuteDraygonCannonInstruction/4"] = "260A37C2A8B309CE9DDDCF395BCE3A49B81DC158CBB6B1641ED9B06B757976D0",
-        ["TryExecuteEyeDoorInstruction/4"] = "E4C0169DC63624F56434E356DE9A9DC96303343C5AD3B16F4012537CD0B038B0",
+        // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
+        ["TryExecuteEyeDoorInstruction/4"] = "D7F81274817191AD32F210205A433B79F30863AE3695A168F350A5EDF9E13159",
         ["TryExecuteMotherBrainGlassInstruction/3"] = "8B7C27BE9344830E619C0AB4336C5D248C539753B0C9356DB15AEB2518FCA29A",
         // #627 re-pin: spawned projectile definitions became NoobTubeProjectileDefinition members of equal value; no program reads change.
         ["TryExecuteNoobTubeInstruction/3"] = "8D68636858EAF7CBD39F30AF108E157B9D3C6903EEF8B3DE012DECCC6F833986",

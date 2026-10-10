@@ -86,11 +86,11 @@ internal static partial class Program
                 installation.RoomPlmLinkedRestoreVisualDirectory);
             AssertEqual((ushort)0x0058,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    RoomPlmBombBlockRestoreDrawDefinitions.Horizontal, 0, 0),
+                    (ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
                 "stock bomb restore selects cartridge block 058");
             AssertEqual((ushort)0x00bc,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    RoomPlmContactCrumbleRestoreDrawDefinitions.Horizontal, 0, 0),
+                    (ushort)ContactCrumbleRestoreDraw.Horizontal, 0, 0),
                 "stock crumble restore selects cartridge block 0BC");
             AssertThrows<InvalidDataException>(
                 () => new RoomPlmLinkedRestoreVisualCatalog(
@@ -114,7 +114,7 @@ internal static partial class Program
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    RoomPlmBombBlockRestoreDrawDefinitions.Horizontal, 0, 0),
+                    (ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
                 "installed restore override selects edited block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -123,7 +123,7 @@ internal static partial class Program
             AssertEqual((ushort)0x0053,
                 RoomPlmLinkedRestoreVisualFiles.Load(refreshed,
                     installation.RoomPlmLinkedRestoreVisualOverrideDirectory)
-                    .GetWord(RoomPlmBombBlockRestoreDrawDefinitions.Horizontal, 0, 0),
+                    .GetWord((ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
                 "restore override survives stock replacement");
             bomb["blocks"]![0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());

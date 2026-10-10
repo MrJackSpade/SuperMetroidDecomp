@@ -15,32 +15,36 @@ public static class TourianStatueRomData
     public const int DescentDistance = 240;
     /// <summary>$87:839C eight grey target palette colors used by $87:837F.</summary>
     public const int GreyColors = 0x87839c;
-    /// <summary>$86:BA78 falling unlocking particle definition.</summary>
-    public const ushort Particle = 0xba78;
-    /// <summary>$86:BA86 particle tail definition.</summary>
-    public const ushort Tail = 0xba86;
-    /// <summary>$86:BA5C water splash definition.</summary>
-    public const ushort Splash = 0xba5c;
     /// <summary>$86:B91E eye glow colors, four words per statue.</summary>
     public const int EyeColors = 0x86b91e;
-    /// <summary>$86:B9FD soul motion pre-instruction.</summary>
-    public const ushort SoulMotion = 0xb9fd;
-    /// <summary>$86:B982 particle motion pre-instruction.</summary>
-    public const ushort ParticleMotion = 0xb982;
-    /// <summary>$86:B977 splash follows water surface.</summary>
-    public const ushort SplashMotion = 0xb977;
-    /// <summary>$86:B7EA spawn particle at this projectile.</summary>
-    public const ushort SpawnParticle = 0xb7ea;
-    /// <summary>$86:B818 spawn particle tail.</summary>
-    public const ushort SpawnTail = 0xb818;
-    /// <summary>$86:B7F5 unlocking earthquake.</summary>
-    public const ushort Earthquake = 0xb7f5;
-    /// <summary>$86:B841 add signed word to projectile Y.</summary>
-    public const ushort AddY = 0xb841;
     /// <summary>$86:B79F delete projectile instruction list.</summary>
     public const ushort DeleteProjectile = 0xb79f;
-    /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>
-    public const ushort ResetDustPosition = 0xaf36;
     /// <summary>$88:DC23/DC69 earthquake type 13 with timer bits $20.</summary>
     public const ushort DescentEarthquakeType = 13, DescentEarthquakeTimer = 0x20;
+}
+
+/// <summary>The bank-$86 pre-instructions that move Tourian statue unlocking effects.</summary>
+internal enum TourianStatuePreInstruction : ushort
+{
+    /// <summary>$86:B977 splash follows water surface.</summary>
+    SplashMotion = 0xb977,
+    /// <summary>$86:B982 particle motion pre-instruction.</summary>
+    ParticleMotion = 0xb982,
+    /// <summary>$86:B9FD soul motion pre-instruction.</summary>
+    SoulMotion = 0xb9fd,
+}
+
+/// <summary>The bank-$86 instructions private to Tourian statue unlocking effects and the Chozo dust.</summary>
+internal enum TourianStatueInstruction : ushort
+{
+    /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>
+    ResetDustPosition = 0xaf36,
+    /// <summary>$86:B7EA spawn particle at this projectile.</summary>
+    SpawnParticle = 0xb7ea,
+    /// <summary>$86:B7F5 unlocking earthquake.</summary>
+    Earthquake = 0xb7f5,
+    /// <summary>$86:B818 spawn particle tail.</summary>
+    SpawnTail = 0xb818,
+    /// <summary>$86:B841 add signed word to projectile Y.</summary>
+    AddY = 0xb841,
 }

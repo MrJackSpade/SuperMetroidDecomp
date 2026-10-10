@@ -42,7 +42,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
             ref presentation,
             ref cursor,
             fast: false,
-            KraidInstructionCodes.Instruction_Kraid_XPositionMinus3);
+            (ushort)KraidFootInstruction.Instruction_Kraid_XPositionMinus3);
         RequireCursor(cursor, LungeForward);
 
         AddForwardProgram(
@@ -50,7 +50,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
             ref presentation,
             ref cursor,
             fast: true,
-            KraidInstructionCodes.Instruction_Kraid_XPositionMinus3_duplicate);
+            (ushort)KraidFootInstruction.Instruction_Kraid_XPositionMinus3_duplicate);
         RequireCursor(cursor, WalkingBackward);
 
         AddBackwardProgram(ref words, ref presentation, ref cursor);
@@ -104,7 +104,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         ushort moveLeftInstruction)
     {
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         for (int frame = 0; frame < 11; frame++)
             AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)4);
         AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
@@ -113,48 +113,48 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)4 : (ushort)0x10);
 
         AddVerticalAndHorizontal(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
+            (ushort)KraidFootInstruction.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
         AddFrame(ref words, ref presentation, ref cursor, 1);
         AddVerticalAndHorizontal(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
+            (ushort)KraidFootInstruction.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
         AddFrame(ref words, ref presentation, ref cursor, 1);
 
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
         AddVerticalAndHorizontal(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
+            (ushort)KraidFootInstruction.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
         AddFrame(ref words, ref presentation, ref cursor, 1);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
         AddVerticalAndHorizontal(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
+            (ushort)KraidFootInstruction.Instruction_Kraid_DecrementYPosition,
             moveLeftInstruction);
         AddFrame(ref words, ref presentation, ref cursor, 1);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddFrame(ref words, ref presentation, ref cursor, fast ? (ushort)1 : (ushort)3);
 
         for (int frame = 0; frame < 3; frame++)
         {
             AddVerticalAndHorizontal(ref words, ref cursor,
-                KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
+                (ushort)KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
                 moveLeftInstruction);
             AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         AddVerticalAndHorizontal(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
+            (ushort)KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
             moveLeftInstruction);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6);
+            (ushort)KraidFootInstruction.Instruction_Kraid_QueueSFX76_Lib2_Max6);
         AddFrame(ref words, ref presentation, ref cursor, 1);
 
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddInstruction(ref words, ref cursor, moveLeftInstruction);
         AddFrame(ref words, ref presentation, ref cursor, 1);
         for (int frame = 0; frame < 4; frame++)
@@ -183,37 +183,37 @@ internal abstract class KraidFootInstructionProgramDefinitions
         ref ushort cursor)
     {
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
+            (ushort)KraidFootInstruction.Instruction_Kraid_XPositionPlus3);
         AddFrame(ref words, ref presentation, ref cursor, 4);
         for (int frame = 0; frame < 6; frame++)
         {
             AddInstruction(ref words, ref cursor,
-                KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
+                (ushort)KraidFootInstruction.Instruction_Kraid_XPositionPlus3);
             AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         for (int frame = 0; frame < 4; frame++)
         {
             AddVerticalAndHorizontal(ref words, ref cursor,
-                KraidInstructionCodes.Instruction_Kraid_DecrementYPosition,
-                KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
+                (ushort)KraidFootInstruction.Instruction_Kraid_DecrementYPosition,
+                (ushort)KraidFootInstruction.Instruction_Kraid_XPositionPlus3);
             AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         for (int frame = 0; frame < 3; frame++)
         {
             AddVerticalAndHorizontal(ref words, ref cursor,
-                KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
-                KraidInstructionCodes.Instruction_Kraid_XPositionPlus3);
+                (ushort)KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking,
+                (ushort)KraidFootInstruction.Instruction_Kraid_XPositionPlus3);
             AddFrame(ref words, ref presentation, ref cursor, 1);
         }
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_IncrementYPosition_SetScreenShaking);
+            (ushort)KraidFootInstruction.Instruction_Kraid_IncrementYPosition_SetScreenShaking);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6);
+            (ushort)KraidFootInstruction.Instruction_Kraid_QueueSFX76_Lib2_Max6);
         AddFrame(ref words, ref presentation, ref cursor, 1);
         AddInstruction(ref words, ref cursor,
-            KraidInstructionCodes.Instruction_Kraid_NOP_A7B633);
+            (ushort)KraidFootInstruction.Instruction_Kraid_NOP_A7B633);
         AddFrame(ref words, ref presentation, ref cursor, 0x14);
         for (int frame = 0; frame < 8; frame++)
             AddFrame(ref words, ref presentation, ref cursor, 4);

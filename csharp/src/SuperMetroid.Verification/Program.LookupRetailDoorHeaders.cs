@@ -40,7 +40,7 @@ internal static partial class Program
     private static void VerifyDoorHeaderDestinationScreenX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 6, 1, header => header.DestinationScreenX);
     private static void VerifyDoorHeaderDestinationScreenY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 7, 1, header => header.DestinationScreenY);
     private static void VerifyDoorHeaderSamusDistance(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 8, 2, header => header.SamusDistance);
-    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => header.SetupCodePointer);
+    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => (ushort)header.SetupCodePointer);
 
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<CartridgeDoorHeader, int> field)

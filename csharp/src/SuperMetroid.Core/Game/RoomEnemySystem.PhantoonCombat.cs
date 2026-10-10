@@ -280,14 +280,14 @@ public sealed partial class RoomEnemySystem
         if ((state.Eye!.VariableF & 1) == 0)
         {
             for (int direction = PhantoonRageRomData.EvenWaveFirstDirection; direction >= 0; direction--)
-                SpawnPhantoonDestroyableFlame(body, unchecked((ushort)(PhantoonRageRomData.FlameParameter | direction)));
+                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
         }
         else
         {
             // Native DEY/CPY/BPL includes direction eight: alternating waves
             // intentionally contain seven and eight flames, not seven each.
             for (int direction = PhantoonRageRomData.OddWaveFirstDirection; direction >= PhantoonRageRomData.OddWaveLastDirection; direction--)
-                SpawnPhantoonDestroyableFlame(body, unchecked((ushort)(PhantoonRageRomData.FlameParameter | direction)));
+                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
         }
 
         QueueEnemySound(PhantoonRageRomData.WaveSound, PhantoonRageRomData.WaveSoundQueueCapacity);
@@ -449,9 +449,7 @@ public sealed partial class RoomEnemySystem
         ushort delay = 0x10;
         for (int flame = 0; flame < 8; flame++)
         {
-            SpawnPhantoonDestroyableFlame(
-                body,
-                unchecked((ushort)(0x0400 | delay | column)));
+            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Rain, (byte)(delay | column));
             column++;
             if (column >= 9)
                 column = 0;

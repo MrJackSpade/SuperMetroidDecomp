@@ -17,7 +17,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "A06A301733CE5BF54A16245DCBBC2D25FD9AA29A91CCEF5EAFBF79127FD99D9E"),
              new("csharp/src/SuperMetroid.Core/Game/SamusProjectileOriginDefinitions.cs", "DCDBA41F41C3974F2074733DBEA6044CA4329C23144296AB1E191430BECF8378"),
              new("csharp/src/SuperMetroid.Core/Game/SamusProjectileRomData.cs", "BD90CE26CABBBC4396588D1EA5780943BE429901181EA67249D86026D30C44C6"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusProjectileWords.cs", "55C3A2B2F0EAB35B7FE403D999AE92A23B357DE51871684227E8EC8532E67AAC"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusProjectileWords.cs", "D346C876F27FBFD6133D056C7358D0CFCA140B91857E1313B02172AD78745B46"),
              new("csharp/src/SuperMetroid.Core/Game/GrappleFiringDefinitions.cs", "DB0F8DF1AA6F43BE2067AA951C534EB1AB93C05DD21654FE8939F85A2C01A36D"),
              new("csharp/src/SuperMetroid.Core/Game/SamusGrappleRomData.cs", "01DAB028E1831D07ADE23522C4B10E29CE273569606A1FFE239F23CB426F85D8")]),
         new("SuperMetroid.Core.Assets.ChargeFlareSpriteCatalog", "flare-complete-private-composition-set", ["Draw"],

@@ -11,22 +11,31 @@ internal static class SamusProjectileInheritance
 {
     internal static (short X, short Y) ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
     {
-        int direction = directionWord & 15;
-        if (direction > 9)
-            throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${direction:X2}.");
+        var word = new SamusProjectileDirectionWord(directionWord);
+        if (word.DirectionIndex > 9)
+            throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
+        SamusProjectileDirection direction = word.Direction;
         ushort upward = SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Up - 1);
         int upContribution = (upward & 0xff00) == 0 ? 0 : (upward >> 2) | 0xc000;
         short x = unchecked((short)(direction switch
         {
-            1 or 2 or 3 => baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Right - 1),
-            6 or 7 or 8 => -baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Left - 1),
-            _ => 0,
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
+                baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Right - 1),
+            SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft =>
+                -baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Left - 1),
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
+            _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         }));
         short y = unchecked((short)(direction switch
         {
-            0 or 1 or 8 or 9 => -baseSpeed + upContribution,
-            3 or 4 or 5 or 6 => baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Down - 1),
-            _ => 0,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
+                SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft => -baseSpeed + upContribution,
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft =>
+                baseSpeed + SnesWorkRam.ReadWord(memory, SamusProjectileInheritanceAddresses.Down - 1),
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
+            _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         }));
         return (x, y);
     }

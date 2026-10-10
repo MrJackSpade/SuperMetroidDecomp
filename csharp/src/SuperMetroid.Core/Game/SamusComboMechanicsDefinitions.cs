@@ -1,25 +1,51 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>The four special beam attacks: one per beam equipped alone.</summary>
+internal enum SamusComboKind
+{
+    /// <summary>Wave alone.</summary>
+    Wave,
+    /// <summary>Ice alone.</summary>
+    Ice,
+    /// <summary>Spazer alone.</summary>
+    Spazer,
+    /// <summary>Plasma alone.</summary>
+    Plasma,
+}
+
 /// <summary>Compiled cartridge mechanics for Samus's special beam attacks.</summary>
 internal static class SamusComboMechanicsDefinitions
 {
+    /// <summary>
+    /// The special beam attack a retail combination fires, or null when it fires none: only
+    /// Wave, Ice, Spazer or Plasma equipped alone has one.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is outside the twelve retail rows.</exception>
+    internal static SamusComboKind? ComboKind(SamusBeamCombination beam) => beam switch
+    {
+        SamusBeamCombination.Wave => SamusComboKind.Wave,
+        SamusBeamCombination.Ice => SamusComboKind.Ice,
+        SamusBeamCombination.Spazer => SamusComboKind.Spazer,
+        SamusBeamCombination.Plasma => SamusComboKind.Plasma,
+        SamusBeamCombination.Power or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
+            SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
+            throw new ArgumentOutOfRangeException(nameof(beam), beam, "The combo tables hold twelve retail rows."),
+        _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
+    };
+
     /// <summary>
     /// CostOfSBAsInPowerBombs at $90:CC21: one Power Bomb for Wave, Ice,
     /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
     /// </summary>
     /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0 and pinned
-    /// bank_90.asm: after validating b=0..11,
-    /// return 1 iff b!=0 and (b&amp;(b-1))==0, otherwise zero. This recognizes
-    /// precisely the four single-beam selections without storing twelve costs.
+    /// bank_90.asm: the four single-beam rows cost one and the other eight cost zero.
     /// FireSBA masks equipped beams to a low nibble, then doubles it for a word
-    /// lookup. This API receives the undoubled index; its proof covers all twelve costs.
-    /// Keep zero distinct from a power of two and do not accept unused indices 12..15.</remarks>
-    internal static ushort GetPowerBombCost(int beamIndex)
-    {
-        if ((uint)beamIndex >= 12)
-            throw new ArgumentOutOfRangeException(nameof(beamIndex));
-        return (ushort)(beamIndex != 0 && (beamIndex & (beamIndex - 1)) == 0 ? 1 : 0);
-    }
+    /// lookup. Rows 12..15 are outside the table.</remarks>
+    internal static ushort GetPowerBombCost(SamusBeamCombination beam) =>
+        ComboKind(beam) is null ? (ushort)0 : (ushort)1;
 
     /// <summary>
     /// IcePlasmaSBAProjectileOriginAngles at $90:CD08: four evenly spaced

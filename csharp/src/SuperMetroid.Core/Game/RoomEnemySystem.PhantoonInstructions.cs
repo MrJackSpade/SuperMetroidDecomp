@@ -36,7 +36,7 @@ public sealed partial class RoomEnemySystem
                 return false;
 
             case PhantoonInstructionCodes.SpawnCasualFlame:
-                SpawnPhantoonDestroyableFlame(state.Body, parameter: 0);
+                SpawnPhantoonDestroyableFlame(state.Body, PhantoonFlameSpawnType.Casual, 0);
                 QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlameQueueCapacity);
                 return false;
 

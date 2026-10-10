@@ -714,7 +714,8 @@ public static class SamusArmCannonArtworkFormat
         if (address is >= AdjacentCostStart and < DrawingDataEndExclusive)
         {
             int offset = address - AdjacentCostStart;
-            ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(offset / sizeof(ushort));
+            ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(
+                SamusBeamCombinations.FromTableIndex(offset / sizeof(ushort)));
             value = (byte)(cost >> ((offset & 1) * 8));
             return true;
         }

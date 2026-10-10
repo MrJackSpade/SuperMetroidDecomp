@@ -113,6 +113,13 @@ internal static partial class Program
             PrimitiveDomainAnalyzer.MaskedSelectorId, "by shift");
         // A masked value used as arithmetic, not as a selector, is accepted.
         Expect("class C { int M(byte header) { int low = header & 3; return low + 1; } }");
+        // A piecewise numeric function over a shifted index is not a selector.
+        Expect("class C { int M(int index) { int frame = index >> 1; return frame switch { < 32 => 1, 70 => 2, _ => 3 }; } }");
+        // A switch expression that throws for every unnamed value is the boundary decoder itself.
+        Expect("class C { char M(ushort word) { int tile = word & 0x3ff; return tile switch { 1 => 'a', 2 => 'b', _ => throw new System.IO.InvalidDataException() }; } }");
+        // A statement switch that dispatches on a masked selector is still reported, even with a throwing default.
+        Expect("class C { void M(byte header) { int direction = header & 3; switch (direction) { case 0: break; default: throw new System.Exception(); } } }",
+            PrimitiveDomainAnalyzer.MaskedSelectorId, "by mask");
     }
 
     private static MetadataReference[] BuildReferences()

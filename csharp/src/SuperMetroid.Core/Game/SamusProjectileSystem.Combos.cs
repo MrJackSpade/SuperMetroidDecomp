@@ -20,50 +20,66 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(shared);
         sound = 0;
         if (samus.SelectedHudItem != 3) return false;
-        int beam = samus.EquippedBeams & 15;
-        if (beam >= 12)
+        SamusBeamCombination beam = new SamusBeamLoadoutWord(samus.EquippedBeams).LowNibbleCombination;
+        if (!beam.IsRetail)
             throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
         short remaining = unchecked((short)(samus.PowerBombs -
             SamusComboMechanicsDefinitions.GetPowerBombCost(beam)));
         samus.PowerBombs = remaining < 0 ? (ushort)0 : (ushort)remaining;
-        bool activated = beam is 1 or 2 or 4 or 8;
-        if (beam == 2 && _slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
-            beam == 8 && _slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
-            activated = false;
+        SamusComboKind? combo = SamusComboMechanicsDefinitions.ComboKind(beam);
+        // A live Ice or Plasma combo is not restarted.
+        bool activated = combo is not null &&
+            !(combo == SamusComboKind.Ice && _slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
+              combo == SamusComboKind.Plasma && _slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo);
         if (activated)
         {
+            SamusComboKind kind = combo!.Value;
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slots[i];
                 slot.Type = (ushort)((samus.EquippedBeams & 0x100f) | SamusComboRomData.ProjectileTag);
-                slot.Direction = beam == 4 ? (ushort)5 : (ushort)0;
-                slot.PreInstruction = beam switch { 1 => SamusProjectilePreInstruction.WaveCombo,
-                    2 => SamusProjectilePreInstruction.IceCombo, 4 => SamusProjectilePreInstruction.SpazerCombo,
-                    _ => SamusProjectilePreInstruction.PlasmaCombo };
-                if (beam != 8) slot.TrailTimer = beam == 4 && i < 2 ? (ushort)0 : (ushort)4;
-                slot.Variable = beam is 2 or 8
+                slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
+                slot.PreInstruction = kind switch
+                {
+                    SamusComboKind.Wave => SamusProjectilePreInstruction.WaveCombo,
+                    SamusComboKind.Ice => SamusProjectilePreInstruction.IceCombo,
+                    SamusComboKind.Spazer => SamusProjectilePreInstruction.SpazerCombo,
+                    SamusComboKind.Plasma => SamusProjectilePreInstruction.PlasmaCombo,
+                    _ => throw new InvalidOperationException($"Undefined combo {kind}."),
+                };
+                if (kind != SamusComboKind.Plasma) slot.TrailTimer = kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4;
+                slot.Variable = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? SamusComboMechanicsDefinitions.GetOriginAngle(i)
                     : (ushort)0;
-                if (beam is 1 or 4)
+                if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                 {
                     slot.XSubposition = slot.YSubposition = 0;
-                    slot.XVelocity = beam == 1 ? (short)0 : (short)40;
+                    slot.XVelocity = kind == SamusComboKind.Wave ? (short)0 : (short)40;
                 }
-                if (beam == 4) slot.AuxiliaryPhase = 0;
-                if (beam == 8) slot.XVelocity = 40;
-                slot.YVelocity = beam is 1 or 2 ? (short)600 : beam == 4 ? (short)((i & 1) == 0 ? 4 : -4) : (short)0;
-                if (beam == 1)
+                if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = 0;
+                if (kind == SamusComboKind.Plasma) slot.XVelocity = 40;
+                slot.YVelocity = kind is SamusComboKind.Wave or SamusComboKind.Ice ? (short)600
+                    : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0;
+                if (kind == SamusComboKind.Wave)
                 {
                     slot.XPosition = unchecked((ushort)(samus.XPosition + (i < 2 ? 128 : -128)));
                     slot.YPosition = unchecked((ushort)(samus.YPosition + (i is 0 or 3 ? 128 : -128)));
                 }
-                if (beam == 4 && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
-                InitializeComboData(slot, beam == 2, beam == 4 && i >= 2);
+                if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
+                InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);
             }
             ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slots[0].Type & 0x3f)));
-            ComboState = beam == 4 ? (ushort)0 : beam == 1 || samus.IsFacingRight(bus) ? (ushort)4 : unchecked((ushort)-4);
-            sound = beam switch { 1 => 0x28, 2 => 0x23, 4 => 0x25, _ => 0x27 };
+            ComboState = kind == SamusComboKind.Spazer ? (ushort)0
+                : kind == SamusComboKind.Wave || samus.IsFacingRight(bus) ? (ushort)4 : unchecked((ushort)-4);
+            sound = kind switch
+            {
+                SamusComboKind.Wave => 0x28,
+                SamusComboKind.Ice => 0x23,
+                SamusComboKind.Spazer => 0x25,
+                SamusComboKind.Plasma => 0x27,
+                _ => throw new InvalidOperationException($"Undefined combo {kind}."),
+            };
         }
         if (samus.PowerBombs == 0)
             samus.SelectedHudItem = samus.AutoCancelHudItemIndex = 0;

@@ -23,10 +23,10 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", BindingFlags.NonPublic | BindingFlags.Instance)!
                 .SetValue(enemies, new PhantoonFlameSpawnReadGuard(rom));
             var spawn = typeof(RoomEnemySystem).GetMethod("SpawnPhantoonDestroyableFlame", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .CreateDelegate<Func<RoomEnemySlot, ushort, bool>>(enemies);
+                .CreateDelegate<Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool>>(enemies);
             var body = enemies.Slots[0];
             body.XPosition = body.YPosition = origin;
-            AssertTrue(spawn(body, parameter), "Real Phantoon flame allocation succeeds");
+            AssertTrue(spawn(body, (PhantoonFlameSpawnType)(parameter >> 8), (byte)parameter), "Real Phantoon flame allocation succeeds");
             var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);
             int type = parameter >> 8, index = parameter & 255;
             ushort angle = type == 2 ? rom.ReadByte(0x8698b4 + index) : type == 6 ? rom.ReadByte(0x869979 + index) : (ushort)0;

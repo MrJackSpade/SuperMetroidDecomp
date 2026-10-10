@@ -101,29 +101,28 @@ public sealed class ManagedSnesDsp
             throw new ArgumentOutOfRangeException(nameof(address), address, "DSP register is outside $00-$7F.");
         int voiceIndex = (address / SnesDspRegisterMap.VoiceStride) & SnesDspRegisterMap.VoiceIndexMask;
         Voice voice = voices[voiceIndex];
-        int voiceRegister = address & SnesDspRegisterMap.VoiceRegisterMask;
-        if (voiceRegister <= SnesDspRegisterMap.Voice.LastWritable)
+        if (SnesDspRegisterMap.VoiceRegisterAt(address) is DspVoiceRegister voiceRegister)
         {
             switch (voiceRegister)
             {
-            case SnesDspRegisterMap.Voice.VolumeLeft:
+            case DspVoiceRegister.VolumeLeft:
                 voice.VolumeLeft = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Voice.VolumeRight:
+            case DspVoiceRegister.VolumeRight:
                 voice.VolumeRight = unchecked((sbyte)value);
                 break;
-            case SnesDspRegisterMap.Voice.PitchLow:
+            case DspVoiceRegister.PitchLow:
                 voice.Pitch = unchecked((ushort)((voice.Pitch &
                     (SnesDspRegisterMap.Fields.PitchHighMask << 8)) | value));
                 break;
-            case SnesDspRegisterMap.Voice.PitchHigh:
+            case DspVoiceRegister.PitchHigh:
                 voice.Pitch = unchecked((ushort)(((voice.Pitch & byte.MaxValue) | (value << 8)) &
                     SnesDspRegisterMap.Fields.PitchMask));
                 break;
-            case SnesDspRegisterMap.Voice.SourceNumber:
+            case DspVoiceRegister.SourceNumber:
                 voice.SourceNumber = value;
                 break;
-            case SnesDspRegisterMap.Voice.Adsr1:
+            case DspVoiceRegister.Adsr1:
                 voice.AdsrRates[0] = SnesDspTables.RatePeriod(
                     (value & SnesDspRegisterMap.Fields.AdsrAttackMask) * 2 + 1);
                 voice.AdsrRates[1] = SnesDspTables.RatePeriod(
@@ -131,14 +130,14 @@ public sealed class ManagedSnesDsp
                         SnesDspRegisterMap.Fields.AdsrDecayShift) * 2 + 16);
                 voice.UseGain = (value & SnesDspRegisterMap.Fields.AdsrEnabled) == 0;
                 break;
-            case SnesDspRegisterMap.Voice.Adsr2:
+            case DspVoiceRegister.Adsr2:
                 voice.AdsrRates[2] = SnesDspTables.RatePeriod(
                     value & SnesDspRegisterMap.Fields.AdsrSustainRateMask);
                 voice.SustainLevel = unchecked((ushort)((((value &
                     SnesDspRegisterMap.Fields.AdsrSustainLevelMask) >>
                     SnesDspRegisterMap.Fields.AdsrSustainLevelShift) + 1) * 0x100));
                 break;
-            case SnesDspRegisterMap.Voice.Gain:
+            case DspVoiceRegister.Gain:
                 voice.DirectGain = (value & SnesDspRegisterMap.Fields.AdsrEnabled) == 0;
                 if ((value & SnesDspRegisterMap.Fields.AdsrEnabled) != 0)
                 {
@@ -153,6 +152,12 @@ public sealed class ManagedSnesDsp
                         SnesDspRegisterMap.Fields.GainValueMask) * 16));
                 }
                 break;
+            // The DSP publishes these each sample; a write does not change the voice.
+            case DspVoiceRegister.EnvelopeOutput:
+            case DspVoiceRegister.SampleOutput:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined DSP voice register {voiceRegister}.");
             }
         }
 

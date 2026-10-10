@@ -28,6 +28,8 @@ public enum CacatacDirection : ushort
     Left = 0,
     /// <summary>Population and native direction word one: rightward patrol; the restore instruction also treats the separate initial-stop selector two as rightward.</summary>
     Right = 1,
+    /// <summary>Population selector two: an initial stop. The word stays two until an attack; the restore instruction then treats it as rightward.</summary>
+    InitialStop = 2,
 }
 
 /// <summary>
@@ -140,14 +142,14 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     private void InitializeCacatac(RoomEnemySlot slot)
     {
-        int rawDirection = slot.Parameter1 & 0x00ff;
+        var direction = (CacatacDirection)(slot.Parameter1 & 0x00ff);
         int distanceIndex = slot.Parameter2 & 0x00ff;
         int speedIndex = slot.Parameter2 >> 8;
-        if (rawDirection >= 3)
+        if (!Enum.IsDefined(direction))
         {
             throw new InvalidDataException(
                 $"Cacatac parameter one ${slot.Parameter1:X4} selects direction " +
-                $"{rawDirection}, outside its three-word function table.");
+                $"{(ushort)direction}, outside its three-word function table.");
         }
         if (distanceIndex >= 6)
         {
@@ -180,12 +182,13 @@ public sealed partial class RoomEnemySystem
             RightSubvelocity = right.Fraction,
             LeftVelocity = unchecked((ushort)left.Whole),
             LeftSubvelocity = left.Fraction,
-            Direction = (CacatacDirection)rawDirection,
-            Function = rawDirection switch
+            Direction = direction,
+            Function = direction switch
             {
-                0 => CacatacEnemyFunction.MovingLeft,
-                1 => CacatacEnemyFunction.MovingRight,
-                _ => CacatacEnemyFunction.Stopped,
+                CacatacDirection.Left => CacatacEnemyFunction.MovingLeft,
+                CacatacDirection.Right => CacatacEnemyFunction.MovingRight,
+                CacatacDirection.InitialStop => CacatacEnemyFunction.Stopped,
+                _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
             },
             MaximumXPosition = unchecked((ushort)(slot.XPosition + distance)),
             MinimumXPosition = unchecked((ushort)(slot.XPosition - distance)),

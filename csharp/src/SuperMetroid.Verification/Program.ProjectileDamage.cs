@@ -113,13 +113,13 @@ internal static partial class Program
     {
         for (int beam = 0; beam < 12; beam++)
             AssertEqual(readWord(SamusComboRomData.Costs + beam * 2),
-                SamusComboMechanicsDefinitions.GetPowerBombCost(beam),
+                SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetPowerBombCost(12),
+            () => SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombination.SpazerPlasma),
             "combo cost rejects a beam index beyond the native table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanicsDefinitions.GetPowerBombCost(-1),
+            () => SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(-1)),
             "combo cost rejects a negative beam index");
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }

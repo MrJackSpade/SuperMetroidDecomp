@@ -50,7 +50,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "A discriminator extracted by mask or shift must be decoded to its domain type rather than carried as a primitive.");
+        description: "A discriminator extracted by mask or shift must be decoded to its domain type rather than carried as a primitive. " +
+            "A switch with relational patterns is a piecewise numeric function, not a selector, and a switch expression " +
+            "whose catch-all throws is itself the validating decoder at the raw boundary; neither is reported.");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
@@ -73,7 +75,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             .SelectMany(section => section.Clauses)
             .SelectMany(LabelValues);
         AnalyzePrimitiveSwitch(context, value, labels, operation.Syntax);
-        AnalyzeMaskedSelector(context, value);
+        bool numeric = operation.Cases.SelectMany(section => section.Clauses)
+            .OfType<IPatternCaseClauseOperation>().Any(clause => HasRelational(clause.Pattern));
+        if (!numeric)
+            AnalyzeMaskedSelector(context, value);
 
         if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType))
         {
@@ -99,7 +104,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         IOperation value = Unwrap(operation.Value);
         IEnumerable<IOperation> labels = operation.Arms.SelectMany(arm => PatternValues(arm.Pattern));
         AnalyzePrimitiveSwitch(context, value, labels, operation.Syntax);
-        AnalyzeMaskedSelector(context, value);
+        bool numeric = operation.Arms.Any(arm => HasRelational(arm.Pattern));
+        bool decoder = operation.Arms.Any(arm => arm.Pattern is IDiscardPatternOperation && arm.Guard is null &&
+            Unwrap(arm.Value) is IThrowOperation);
+        if (!numeric && !decoder)
+            AnalyzeMaskedSelector(context, value);
 
         if (value.Type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType))
         {
@@ -178,6 +187,14 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         IBinaryPatternOperation binary => PatternValues(binary.LeftPattern).Concat(PatternValues(binary.RightPattern)),
         INegatedPatternOperation negated => PatternValues(negated.Pattern),
         _ => [],
+    };
+
+    private static bool HasRelational(IPatternOperation pattern) => pattern switch
+    {
+        IRelationalPatternOperation => true,
+        IBinaryPatternOperation binary => HasRelational(binary.LeftPattern) || HasRelational(binary.RightPattern),
+        INegatedPatternOperation negated => HasRelational(negated.Pattern),
+        _ => false,
     };
 
     private static bool CoversAllMembers(INamedTypeSymbol enumType, IEnumerable<IOperation> labels)

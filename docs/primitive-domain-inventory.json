@@ -251,7 +251,7 @@
   "CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
-    "line": 733,
+    "line": 724,
     "column": 9,
     "rule": "SME6270",
     "message": "'BabyFunction' is a ushort switched over named constants of CeresEnemyCodePointers; model the domain as a type",
@@ -911,7 +911,7 @@
   "Global": [
    {
     "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
-    "line": 159,
+    "line": 164,
     "column": 9,
     "rule": "SME6270",
     "message": "'address' is a byte switched over named constants of Global; model the domain as a type",
@@ -1615,7 +1615,7 @@
   "ProjectileTrailCoordinateDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 378,
+    "line": 381,
     "column": 16,
     "rule": "SME6270",
     "message": "'family' is a int switched over named constants of ProjectileTrailCoordinateDefinitions; model the domain as a type",
@@ -2155,7 +2155,7 @@
   "SamusArmCannonArtworkFormat": [
    {
     "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
-    "line": 721,
+    "line": 722,
     "column": 9,
     "rule": "SME6270",
     "message": "'address' is a ushort switched over named constants of SamusArmCannonArtworkFormat; model the domain as a type",
@@ -2662,16 +2662,6 @@
     "status": "open"
    }
   ],
-  "Voice": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
-    "line": 107,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'voiceRegister' is a int switched over named constants of Voice; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "WorkRobotInstructionCodes": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobot.cs",
@@ -2767,106 +2757,6 @@
     "message": "'offset / 4' is a int switched over named constants of ZoaSpeedDefinitions; model the domain as a type",
     "status": "open"
    }
-  ],
-  "masked selector beam": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.Combos.cs",
-    "line": 23,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'beam' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector character": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
-    "line": 157,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'character' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector choice": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
-    "line": 537,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'choice' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector coordinate": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
-    "line": 699,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'coordinate' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector direction": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileInheritance.cs",
-    "line": 14,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'direction' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector filter": [
-   {
-    "file": "csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
-    "line": 286,
-    "column": 17,
-    "rule": "SME6272",
-    "message": "Local 'filter' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector frame": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/CeresRidleyGetawayDefinitions.cs",
-    "line": 17,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'frame' extracts a field by shift and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector rawDirection": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Cacatac.cs",
-    "line": 143,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'rawDirection' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector type": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PhantoonProjectiles.cs",
-    "line": 54,
-    "column": 14,
-    "rule": "SME6272",
-    "message": "Local 'type' extracts a field by shift and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
-  ],
-  "masked selector voiceRegister": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
-    "line": 104,
-    "column": 13,
-    "rule": "SME6272",
-    "message": "Local 'voiceRegister' extracts a field by mask and is then switched over as a selector; decode it to a domain type",
-    "status": "open"
-   }
   ]
  },
  "resolved": {
@@ -2945,14 +2835,25 @@
    "tests": "EnsureVerification analyzer tests (flags exemption); full suite; five movie replays",
    "status": "resolved; SME6271 is an error in .editorconfig",
    "followUp": "enemy-projectile instruction-word reader dispatches by an if-chain over RoomEnemyProjectileKind; replace with an exhaustive kind-to-program-family dispatch (SME6270 comparison rule)"
+  },
+  "SME6272MaskedSelectors": {
+   "previous": "10 locals extracted by mask or shift and then switched as selectors",
+   "type": "SamusComboKind (with SamusComboMechanicsDefinitions.ComboKind and SamusBeamLoadoutWord.LowNibbleCombination), PhantoonFlameSpawnType, DspVoiceRegister (SnesDspRegisterMap.VoiceRegisterAt), CacatacDirection.InitialStop, the trail RecordField, SamusProjectileDirection for velocity inheritance, and the $A6:A743 Ceres Ridley attack table",
+   "closedProof": "each selector indexes a native jump or pointer table of fixed size",
+   "transitions": "none",
+   "boundary": "decoders on the owning word types (SamusProjectileDirectionWord, SamusBeamLoadoutWord) and register maps; Phantoon flame spawns take the typed spawn type and index",
+   "invalidValues": "undefined Cacatac selectors, voice registers and combo rows throw",
+   "consumers": "Samus combos and projectile inheritance, Phantoon flames, Cacatac, Ceres Ridley, S-DSP register writes, trail coordinates",
+   "tests": "EnsureVerification analyzer tests (relational and decoder exemptions, statement selectors still reported); ProjectileDamage combo cost; managed audio suites; five movie replays",
+   "status": "resolved; SME6272 is an error in .editorconfig",
+   "analyzerScope": "a switch with relational patterns is a piecewise numeric function, and a switch expression whose catch-all throws is the boundary decoder; neither is a selector"
   }
  },
  "summary": {
-  "openFindings": 310,
-  "openDomains": 191,
+  "openFindings": 299,
+  "openDomains": 180,
   "byRule": {
-   "SME6270": 300,
-   "SME6272": 10
+   "SME6270": 299
   }
  }
 }

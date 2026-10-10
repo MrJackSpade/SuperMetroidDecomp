@@ -9,8 +9,6 @@ internal static class PhantoonRageRomData
     internal const int OddWaveFirstDirection = 15;
     /// <summary>$A7:D8E1: inclusive final odd-wave direction after DEY/CPY/BPL.</summary>
     internal const int OddWaveLastDirection = 8;
-    /// <summary>$A7:D8C0/$D8D5: parameter high byte selects the enraged flame initializer.</summary>
-    internal const ushort FlameParameter = 0x0200;
     /// <summary>$A7:D8F4: round count before closing the eye and fading out.</summary>
     internal const int WaveCount = 8;
     /// <summary>$A7:D8F9: AI calls separating successive waves.</summary>

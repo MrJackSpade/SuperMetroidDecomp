@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
     /// Initializes destroyable flame $86:9C29. The high parameter byte chooses one of the
     /// four native producers: casual fall, rage split, vertical rain, or spiral.
     /// </summary>
-    private bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, ushort parameter)
+    private bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, byte index)
     {
         RoomEnemyProjectileSlot? flame = AllocateEnemyProjectile();
         if (flame is null)
@@ -51,11 +51,9 @@ public sealed partial class RoomEnemySystem
         flame.XSubposition = 0;
         flame.YSubposition = 0;
         flame.YVelocity = 0;
-        byte type = unchecked((byte)(parameter >> 8));
-        byte index = unchecked((byte)parameter);
         switch (type)
         {
-            case 0:
+            case PhantoonFlameSpawnType.Casual:
                 flame.XVelocity = 0;
                 flame.XPosition = body.XPosition;
                 flame.YPosition = unchecked((ushort)(body.YPosition + 32));
@@ -71,7 +69,7 @@ public sealed partial class RoomEnemySystem
                 flame.BlocksSamusProjectiles = false;
                 break;
 
-            case 2:
+            case PhantoonFlameSpawnType.Enraged:
                 flame.XVelocity = unchecked((ushort)(index >= 8
                     ? -PhantoonFlameMotionRomData.RageAngleStep : PhantoonFlameMotionRomData.RageAngleStep));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
@@ -81,20 +79,20 @@ public sealed partial class RoomEnemySystem
                     EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Enraged;
                 break;
 
-            case 4:
-                // The low parameter byte is packed as dx: the low nibble is a column and
-                // the high nibble is the delayed-fall timer divided by eight.
+            case PhantoonFlameSpawnType.Rain:
+                // The index byte is packed as dx: the low nibble is a column and the high
+                // nibble is the delayed-fall timer divided by eight.
                 byte column = unchecked((byte)(index & 0x0f));
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
-                flame.XVelocity = unchecked((ushort)((parameter & 0x00f0) >> 1));
+                flame.XVelocity = unchecked((ushort)((index & 0xf0) >> 1));
                 flame.XPosition = PhantoonFlameSpawnDefinitions.RainX(column);
                 flame.YPosition = 40;
                 flame.PreInstruction =
                     EnemyProjectileCodePointers.PreInst_EnemyProj_PhantoonDestroyableFlame_Rain;
                 break;
 
-            case 6:
+            case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.XVelocity = 128;
@@ -106,8 +104,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             default:
-                throw new InvalidDataException(
-                    $"Phantoon flame parameter ${parameter:X4} selects invalid type {type}.");
+                throw new InvalidOperationException($"Undefined Phantoon flame spawn type {type}.");
         }
         return true;
     }

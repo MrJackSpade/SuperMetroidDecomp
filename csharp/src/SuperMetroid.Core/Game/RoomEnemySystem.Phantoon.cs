@@ -630,6 +630,6 @@ public sealed partial class RoomEnemySystem
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)
-            SpawnPhantoonDestroyableFlame(body, unchecked((ushort)(0x0600 | direction)));
+            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, (byte)direction);
     }
 }

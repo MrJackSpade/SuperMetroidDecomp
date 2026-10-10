@@ -73,6 +73,9 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
         ? (SamusBeamCombination)NativeConfigurationIndex
         : null;
 
+    /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>
+    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Raw & 0x000f);
+
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
     public SamusBeamFlags KnownFlags => (SamusBeamFlags)(Raw & (ushort)(
         SamusBeamFlags.Wave |

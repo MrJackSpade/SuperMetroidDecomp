@@ -531,16 +531,7 @@ public sealed partial class RoomEnemySystem
                 return;
         }
 
-        // A6:A743 contains sixteen literal function pointers: six fireball routes, five
-        // lunges, and five swoops. $A6:A72D only reads RandomNumberSeed; it does not
-        // generate another number.
-        int choice = _readRandomNumber!() & 0x0f;
-        state.Function = choice switch
-        {
-            0 or 1 or 2 or 3 or 9 or 15 => RidleyAiFunction.CeresFireballMoveToPosition,
-            4 or 5 or 6 or 7 or 8 => RidleyAiFunction.CeresLungeSetup,
-            _ => RidleyAiFunction.CeresSwoopSetup,
-        };
+        state.Function = CeresRidleyAttackDefinitions.SelectAttack(_readRandomNumber!());
         state.HoverCounter = 0;
     }
 

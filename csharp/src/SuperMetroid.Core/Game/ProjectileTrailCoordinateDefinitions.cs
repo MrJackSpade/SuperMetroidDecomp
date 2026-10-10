@@ -330,6 +330,9 @@ internal static class ProjectileTrailCoordinateDefinitions
 
     private static readonly FrozenDictionary<int, StoredFrame> Frames = CreateFrames();
 
+    /// <summary>The four signed bytes of one trail frame record, in record order.</summary>
+    private enum RecordField { LeftX, LeftY, RightX, RightY }
+
     /// <summary>
     /// $9B:A4B3-A4F5: the beam-bit dispatch read by $9B:A418/A42A/A43C.
     /// Ice with Spazer/Plasma selects its spread geometry; plain Wave selects its
@@ -696,10 +699,18 @@ internal static class ProjectileTrailCoordinateDefinitions
         int pointerAddress = address % 2 == 1 ? address : address - 1;
         if (TryPointer(pointerAddress, out ushort pointer))
         { value = (byte)(pointer >> ((address - pointerAddress) * 8)); return true; }
-        int coordinate = (address - UnchargedBeamTrails_Default_0) & 3;
-        if (TryCalculatedFrame(address - coordinate, out Offset frame) || TryStoredFrame(address - coordinate, out frame))
+        int offsetInRecord = (address - UnchargedBeamTrails_Default_0) & 3;
+        int recordAddress = address - offsetInRecord;
+        if (TryCalculatedFrame(recordAddress, out Offset frame) || TryStoredFrame(recordAddress, out frame))
         {
-            value = unchecked((byte)(coordinate switch { 0 => frame.LeftX, 1 => frame.LeftY, 2 => frame.RightX, _ => frame.RightY }));
+            value = unchecked((byte)((RecordField)offsetInRecord switch
+            {
+                RecordField.LeftX => frame.LeftX,
+                RecordField.LeftY => frame.LeftY,
+                RecordField.RightX => frame.RightX,
+                RecordField.RightY => frame.RightY,
+                var field => throw new InvalidOperationException($"Undefined trail record field {field}."),
+            }));
             return true;
         }
         if (ReflectedListStartObservations.TryGetValue(address, out value))

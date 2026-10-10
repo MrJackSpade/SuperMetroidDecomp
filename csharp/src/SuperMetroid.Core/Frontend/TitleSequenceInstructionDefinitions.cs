@@ -40,20 +40,20 @@ internal static class TitleSequenceInstructionDefinitions
     {
         if (offset < 4) return (ushort)(offset == 0 ? 60 : 0);
         if (offset < 24) return CardWord(offset - 4, 4, 45, YearFirstLetter,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene0);
+            (ushort)TitleSequenceInstruction.TriggerScene0);
         if (offset < 60) return CardWord(offset - 24, 8, 45, NintendoFirstLetter,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene1);
+            (ushort)TitleSequenceInstruction.TriggerScene1);
         if (offset < 96) return CardWord(offset - 60, 8, 45, PresentsFirstLetter,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene2);
+            (ushort)TitleSequenceInstruction.TriggerScene2);
         if (offset < 136) return CardWord(offset - 96, 9, 120, MetroidFirstLetter,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene3);
+            (ushort)TitleSequenceInstruction.TriggerScene3);
         return offset == 136 ? (ushort)32 : TitleSequenceRomData.Sprites.SuperMetroidLogo;
     }
 
     private static ushort CardWord(int offset, int frames, ushort finalHold, ushort firstLetter, ushort sceneCommand)
     {
         if (offset == frames * 4) return sceneCommand;
-        if (offset == frames * 4 + 2) return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+        if (offset == frames * 4 + 2) return (ushort)CinematicSpriteInstruction.Delete;
         int frame = offset / 4;
         if ((offset & 2) == 0) return frame == frames - 1 ? finalHold : (ushort)8;
         if (firstLetter != MetroidFirstLetter || frame < 3)

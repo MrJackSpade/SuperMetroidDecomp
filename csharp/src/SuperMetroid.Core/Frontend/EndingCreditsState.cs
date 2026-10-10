@@ -781,30 +781,28 @@ internal sealed partial class EndingCreditsState
                 EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.ReadWord,
                 var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
             };
-            wrapper.Sprite.Step((opcode, cursor) =>
-                HandleSpriteOpcode(opcode, cursor),
-                instructionWord: instructionWord);
+            wrapper.Sprite.Step<EndingSpriteInstruction>(HandleSpriteOpcode, instructionWord);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    private ushort? HandleSpriteOpcode(ushort opcode, ushort cursor)
+    private ushort HandleSpriteOpcode(EndingSpriteInstruction opcode, ushort cursor)
     {
         switch (opcode)
         {
-            case CinematicCodePointers.Ending_Instruction_FadeExplosionPalette:
+            case EndingSpriteInstruction.FadeExplosionPalette:
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
                 cgram.SetColor(254, new Bgr555(1, 0, 0));
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette:
+            case EndingSpriteInstruction.SpawnExplosionSilhouette:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
                 cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_StartZebesExplosion:
+            case EndingSpriteInstruction.StartZebesExplosion:
                 explosionBurstDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Supernova, 0);
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Explosion, 0);
@@ -817,7 +815,7 @@ internal sealed partial class EndingCreditsState
                     EndingSpriteRole.ExplosionStarsLeft);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_ExplosionFinale:
+            case EndingSpriteInstruction.ExplosionFinale:
                 explosionFinaleDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 SpawnSprite(
@@ -825,7 +823,7 @@ internal sealed partial class EndingCreditsState
                     EndingSpriteRole.ExplosionAfterglow);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_EndZebesExplosion:
+            case EndingSpriteInstruction.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
                 cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
@@ -836,48 +834,47 @@ internal sealed partial class EndingCreditsState
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnCompletedText:
+            case EndingSpriteInstruction.SpawnCompletedText:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.CompletedSuccessfullyText,
                     EndingSpriteRole.CompletedSuccessfullyText);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnClearTime:
+            case EndingSpriteInstruction.SpawnClearTime:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeText,
                     EndingSpriteRole.ClearTimeText);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnHoursTens:
+            case EndingSpriteInstruction.SpawnHoursTens:
                 SpawnDigit(gameTimeHours / 10, EndingCreditsRomData.Text.HoursTensX);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnHoursUnits:
+            case EndingSpriteInstruction.SpawnHoursUnits:
                 SpawnDigit(gameTimeHours % 10, EndingCreditsRomData.Text.HoursUnitsX);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnColon:
+            case EndingSpriteInstruction.SpawnColon:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeColon,
                     EndingSpriteRole.ClearTimeDigit);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnMinutesTens:
+            case EndingSpriteInstruction.SpawnMinutesTens:
                 SpawnDigit(gameTimeMinutes / 10, EndingCreditsRomData.Text.MinutesTensX);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_SpawnMinutesUnits:
+            case EndingSpriteInstruction.SpawnMinutesUnits:
                 SpawnDigit(gameTimeMinutes % 10, EndingCreditsRomData.Text.MinutesUnitsX);
                 return cursor;
 
-            case CinematicCodePointers.Ending_Instruction_TransitionToCredits:
+            case EndingSpriteInstruction.TransitionToCredits:
                 fadeCounter = 1;
                 Phase = EndingCreditsPhase.FadeOutToCredits;
                 return cursor;
 
             default:
-                throw new InvalidDataException(
-                    $"Ending sprite opcode $8B:{opcode:X4} at $8B:{unchecked((ushort)(cursor - 2)):X4} is untranslated.");
+                throw new InvalidOperationException($"Undefined EndingSpriteInstruction {opcode}.");
         }
     }
 

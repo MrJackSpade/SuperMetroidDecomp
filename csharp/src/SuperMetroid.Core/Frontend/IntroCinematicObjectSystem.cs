@@ -353,22 +353,26 @@ internal sealed class IntroCinematicObjectSystem
 
             // The opening border animation uses only the common goto. Delete and sleep are
             // retained because they are fundamental interpreter control flow, not page lore.
-            switch (instructionOrDuration)
+            switch (CinematicInstructionWords.Decode<CinematicSpriteInstruction>(instructionOrDuration, pointer))
             {
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Goto:
+                case CinematicSpriteInstruction.Goto:
                     pointer = ReadBank8B(Add(
                         pointer,
                         IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                     break;
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
+                case CinematicSpriteInstruction.Delete:
                     SpriteMapPointer = 0;
                     spriteInstructionPointer = 0;
                     return;
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Sleep:
+                case CinematicSpriteInstruction.Sleep:
                     spriteInstructionPointer = pointer;
                     return;
-                default:
+                case CinematicSpriteInstruction.SetPreInstruction:
+                case CinematicSpriteInstruction.DecrementTimerAndGoto:
+                case CinematicSpriteInstruction.SetTimer:
                     throw Unsupported("sprite", instructionOrDuration, pointer);
+                default:
+                    throw new InvalidOperationException($"Undefined CinematicSpriteInstruction {instructionOrDuration}.");
             }
         }
     }
@@ -398,81 +402,81 @@ internal sealed class IntroCinematicObjectSystem
                 return;
             }
 
-            switch (instructionOrDuration)
+            switch (CinematicInstructionWords.Decode<CinematicBackgroundInstruction>(instructionOrDuration, pointer))
             {
-                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto:
+                case CinematicBackgroundInstruction.Goto:
                     pointer = ReadBank8C(Add(
                         pointer,
                         IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                     break;
-                case CinematicCodePointers.CinematicBackgroundObject_Instruction_Delete:
+                case CinematicBackgroundInstruction.Delete:
                     instructionPointer = 0;
                     return;
-                case CinematicCodePointers.Instruction_BeginEnglishPage1:
+                case CinematicBackgroundInstruction.BeginPage1:
                     // English skips the Japanese Mode-7 glyph object spawned by this opcode.
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishEnglishPage1:
+                case CinematicBackgroundInstruction.FinishPage1:
                     // $8B:AE5B switches the cinematic function to its input-wait routine.
                     // The page marker sprite is Japanese-only, but the state change is not.
                     PageOneAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_BeginEnglishPage2:
+                case CinematicBackgroundInstruction.BeginPage2:
                     // $AE79 differs only in the Japanese subtitle object it conditionally
                     // spawns. The default English route consumes no operands.
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishEnglishPage2:
+                case CinematicBackgroundInstruction.FinishPage2:
                     // $AE91 selects the baby-Metroid-discovery input wait and makes the
                     // same existing caret object blink; page-three setup is the next slice.
                     PageTwoAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_BeginEnglishPage3:
+                case CinematicBackgroundInstruction.BeginPage3:
                     // $B074 clears the Japanese click flag and conditionally starts a Mode
                     // 7 subtitle object. English has no extra actor or operands here.
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishEnglishPage3:
+                case CinematicBackgroundInstruction.FinishPage3:
                     // $B08C selects the page-three input wait that proceeds to the Ceres
                     // delivery scene; the optional subtitle/arrow branch is Japanese-only.
                     PageThreeAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_BeginEnglishPage4:
+                case CinematicBackgroundInstruction.BeginPage4:
                     // English skips the optional page-four Japanese Mode-7 subtitle actor.
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishEnglishPage4:
+                case CinematicBackgroundInstruction.FinishPage4:
                     PageFourAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_BeginEnglishPage5:
+                case CinematicBackgroundInstruction.BeginPage5:
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishEnglishPage5:
+                case CinematicBackgroundInstruction.FinishPage5:
                     PageFiveAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_BeginEnglishPage6:
+                case CinematicBackgroundInstruction.BeginPage6:
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_SetCaretToBlink:
+                case CinematicBackgroundInstruction.SetCaretToBlink:
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case CinematicCodePointers.Instruction_FinishIntro:
+                case CinematicBackgroundInstruction.FinishIntro:
                     IntroFinishRequested = true;
                     pointer = Add(pointer, 2);
                     break;
                 default:
-                    throw Unsupported("background", instructionOrDuration, pointer);
+                    throw new InvalidOperationException($"Undefined CinematicBackgroundInstruction {instructionOrDuration}.");
             }
         }
     }

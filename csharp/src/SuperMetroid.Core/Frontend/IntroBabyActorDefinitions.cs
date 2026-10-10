@@ -4,9 +4,6 @@ namespace SuperMetroid.Core.Frontend;
 internal static class IntroBabyActorDefinitions
 {
 
-    /// <summary><c>$8B:BA5E</c>, initial confused-baby pre-instruction.</summary>
-    public const ushort ConfusedBabyInitialPreInstruction = 0xba5e;
-
     /// <summary><c>$8B:CE5B/$A8D5</c>, the intact Metroid egg at (112,155).</summary>
     public static IntroBabyActorDefinition Egg =>
         new(0xa8e8, 0xcb33, 0x0070, 0x009b, 0x0e00);
@@ -21,7 +18,7 @@ internal static class IntroBabyActorDefinitions
 
     /// <summary><c>$8B:CE79/$BA4B</c>, the newly hatched confused baby at (112,155).</summary>
     public static IntroBabyActorDefinition ConfusedBaby =>
-        new(ConfusedBabyInitialPreInstruction, 0xcc2b, 0x0070, 0x009b, 0x0e00);
+        new((ushort)ConfusedBabyPreInstruction.WaitingForHatch, 0xcc2b, 0x0070, 0x009b, 0x0e00);
 }
 
 /// <summary>

@@ -22,7 +22,7 @@ internal static class IntroCaretInstructionDefinitions
         int displayWords = blink ? 4 : 2;
         if (word < displayWords)
             return (word & 1) == 0 ? (ushort)5 : word == 1 ? IntroCaretSpriteDefinitions.Still : (ushort)0;
-        return word == displayWords ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto
+        return word == displayWords ? (ushort)CinematicSpriteInstruction.Goto
             : blink ? CinematicCodePointers.Lists.IntroTextCaretBlink : StartPointer;
     }
 

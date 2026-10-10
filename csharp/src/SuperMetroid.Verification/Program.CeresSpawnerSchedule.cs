@@ -37,13 +37,13 @@ internal static partial class Program
                         }
                     }
                 }
-                native.Step((opcode, cursor) =>
+                native.Step((CeresSpawnerOpcode opcode, ushort cursor) =>
                 {
                     expected = opcode switch
                     {
-                        0xc404 => expected with { Initial = true },
-                        0xc50c => expected with { Final = true },
-                        _ => throw new InvalidOperationException($"Unexpected spawner opcode {opcode:X4}."),
+                        CeresSpawnerOpcode.SpawnInitial => expected with { Initial = true },
+                        CeresSpawnerOpcode.SpawnFinal => expected with { Final = true },
+                        _ => throw new InvalidOperationException($"Undefined CeresSpawnerOpcode {opcode}."),
                     };
                     return cursor;
                 }, pointer => Word(0x8b0000 | pointer));

@@ -81,9 +81,9 @@ internal static partial class Program
                 // independent list interpreters advance across each callback.
                 var nativeCallbacks = new List<ushort>();
                 var generatedCallbacks = new List<ushort>();
-                native.Step((opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                native.Step((EndingRewardOpcode opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
                     (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                installed.Step((opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
+                installed.Step((EndingRewardOpcode opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
                     EndingRewardInstructionDefinitions.ReadWord);
                 AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
                     $"reward actor ${start:X4} callback order/timing at frame {frame}");

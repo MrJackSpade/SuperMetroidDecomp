@@ -345,104 +345,6 @@
     "status": "open"
    }
   ],
-  "CinematicCodePointers": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/CeresDestructionCinematicState.Actors.cs",
-    "line": 225,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs",
-    "line": 793,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
-    "line": 212,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
-    "line": 238,
-    "column": 24,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroBabyDiscoveryState.cs",
-    "line": 259,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstructionPointer' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicObjectSystem.cs",
-    "line": 356,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'instructionOrDuration' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicObjectSystem.cs",
-    "line": 401,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'instructionOrDuration' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroDiscoverySprite.cs",
-    "line": 127,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'word' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroRinkaSystem.cs",
-    "line": 93,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroRinkaSystem.cs",
-    "line": 160,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'PreInstructionPointer' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/IntroScientistCutsceneState.cs",
-    "line": 98,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'opcode' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceState.cs",
-    "line": 462,
-    "column": 13,
-    "rule": "SME6270",
-    "message": "'durationOrCommand' is a ushort switched over named constants of CinematicCodePointers; model the domain as a type",
-    "status": "open"
-   }
-  ],
   "CommonEnemyInstructionCodes, MotherBrainInstructionCodes, EnemyInstructionCodePointers, MamaTurtleInstructionCodes, CeresEnemyCodePointers": [
    {
     "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs",
@@ -692,38 +594,20 @@
   "EndingRewardActorDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
-    "line": 55,
+    "line": 50,
     "column": 84,
     "rule": "SME6270",
     "message": "'address' is a ushort switched over named constants of EndingRewardActorDefinitions; model the domain as a type",
-    "status": "open"
-   },
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardGesture.cs",
-    "line": 52,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of EndingRewardActorDefinitions; model the domain as a type",
     "status": "open"
    }
   ],
   "EndingRewardActorDefinitions, EndingRewardJumpDefinitions": [
    {
     "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardActorDefinitions.cs",
-    "line": 34,
+    "line": 29,
     "column": 73,
     "rule": "SME6270",
     "message": "'definition' is a ushort switched over named constants of EndingRewardActorDefinitions, EndingRewardJumpDefinitions; model the domain as a type",
-    "status": "open"
-   }
-  ],
-  "EndingRewardJumpDefinitions": [
-   {
-    "file": "csharp/src/SuperMetroid.Core/Frontend/EndingRewardJump.cs",
-    "line": 89,
-    "column": 9,
-    "rule": "SME6270",
-    "message": "'instruction' is a ushort switched over named constants of EndingRewardJumpDefinitions; model the domain as a type",
     "status": "open"
    }
   ],
@@ -2800,13 +2684,24 @@
    "consumers": "all first-party projects",
    "tests": "EnsureVerification analyzer cases for SME6273",
    "status": "resolved"
+  },
+  "CinematicInstructions": {
+   "previous": "ushort opcode/pre-instruction words switched over CinematicCodePointers, EndingLogoDefinitions, EndingRewardActorDefinitions and EndingRewardJumpDefinitions constants; owner callbacks returned null for opcodes they did not own",
+   "type": "CinematicSpriteInstruction and CinematicBackgroundInstruction for the shared interpreters; closed per-owner instruction enums (ZebesTitle, IntroEgg, ConfusedBaby, IntroScientistBaby, IntroRinkaSpawner, IntroRinka, EndingSprite, EndingLogo, EndingRewardGesture, EndingRewardJump, TitleSequence); IntroRinkaPreInstruction and ConfusedBabyPreInstruction",
+   "closedProof": "Each owner's compiled instruction lists contain only the bank-$8B entry points named by its enum; the shared interpreter set is the six CinematicSpriteObject_Instruction routines at $8B:9438-$94D6",
+   "transitions": "none (list words); pre-instruction writes store the member's word",
+   "boundary": "IntroDiscoverySprite.Step<TInstruction> decodes each command word through CinematicInstructionWords: shared set first, then the owner's set; pre-instructions decode at their owner's dispatch",
+   "invalidValues": "a command word outside both sets throws InvalidDataException with its $8B address; owner switches are exhaustive and throw on unnamed members",
+   "consumers": "Ceres destruction, intro egg/baby/scientist/Rinka actors, intro object system, title sequence, ending explosion/logo/reward actors, oracle verification of the native lists",
+   "tests": "VerifyIntroCinematicRomData (catalog coverage), cinematic instruction-list oracle suites, title/intro/ending replays",
+   "status": "resolved"
   }
  },
  "summary": {
-  "openFindings": 291,
-  "openDomains": 177,
+  "openFindings": 277,
+  "openDomains": 175,
   "byRule": {
-   "SME6270": 291
+   "SME6270": 277
   }
  }
 }

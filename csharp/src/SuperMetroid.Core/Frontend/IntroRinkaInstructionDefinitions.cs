@@ -18,24 +18,24 @@ internal static class IntroRinkaInstructionDefinitions
     {
         if (word < 6)
             return (word & 1) == 0 ? (ushort)10 : IntroRinkaSpriteDefinitions.FramePointer(word / 2);
-        if (word == 6) return CinematicCodePointers.Instruction_StartMoving_IntroRinka;
+        if (word == 6) return (ushort)IntroRinkaInstruction.StartMoving;
         if (word < 15)
         {
             int display = word - 7;
             return (display & 1) == 0 ? (ushort)10
                 : IntroRinkaSpriteDefinitions.FramePointer(Math.Abs(display / 2 - 1));
         }
-        if (word == 15) return CinematicCodePointers.CinematicSpriteObject_Instruction_Goto;
+        if (word == 15) return (ushort)CinematicSpriteInstruction.Goto;
         if (word == 16) return StartPointer + 14;
         // Two invisible waits and their distinct spawn operations, then terminate.
         return (word - 17) switch
         {
             0 => 74,
             1 or 4 => 0,
-            2 => CinematicCodePointers.Instruction_Spawn_IntroRinkas_0_1,
+            2 => (ushort)IntroRinkaSpawnerInstruction.SpawnRinkas0And1,
             3 => 128,
-            5 => CinematicCodePointers.Instruction_Spawn_IntroRinkas_2_3,
-            _ => CinematicCodePointers.CinematicSpriteObject_Instruction_Delete,
+            5 => (ushort)IntroRinkaSpawnerInstruction.SpawnRinkas2And3,
+            _ => (ushort)CinematicSpriteInstruction.Delete,
         };
     }
 

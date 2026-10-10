@@ -44,7 +44,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         {
             0 => 10,
             1 => frame,
-            2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            2 => (ushort)CinematicSpriteInstruction.Goto,
             3 => start,
             _ => throw new InvalidDataException("Ceres static-frame loop cursor is invalid."),
         };
@@ -57,15 +57,15 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         {
             0 => 64, // Blank wait before fading in.
             1 => 0,
-            2 => CinematicCodePointers.Instruction_FadeInPlanetZebesText,
+            2 => (ushort)ZebesTitleInstruction.FadeInText,
             3 => 32,
             4 or 7 or 10 => CeresDestructionSpriteDefinitions.Title,
-            5 => CinematicCodePointers.Instruction_SpawnPlanetZebesJapanTextIfNeeded,
+            5 => (ushort)ZebesTitleInstruction.SpawnJapaneseTextIfNeeded,
             6 => 192,
-            8 => CinematicCodePointers.Instruction_FadeOutPlanetZebesText,
+            8 => (ushort)ZebesTitleInstruction.FadeOutText,
             9 => 96,
-            11 => CinematicCodePointers.Instruction_StartFlyingToZebes,
-            12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Delete,
+            11 => (ushort)ZebesTitleInstruction.StartFlyingToZebes,
+            12 => (ushort)CinematicSpriteInstruction.Delete,
             _ => throw new InvalidDataException("Planet Zebes title cursor is invalid."),
         };
         return (byte)(word >> (8 * (offset & 1)));

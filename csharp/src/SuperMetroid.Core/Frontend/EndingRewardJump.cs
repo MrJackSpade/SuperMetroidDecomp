@@ -38,7 +38,7 @@ internal sealed class EndingRewardJump
                 Move(head);
                 if (unchecked((short)head.YPosition) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
-            head.Step(Instruction, instructionWord);
+            head.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
         }
         if (body.PreInstructionPointer == EndingRewardJumpDefinitions.BodyFlight)
         {
@@ -62,7 +62,7 @@ internal sealed class EndingRewardJump
                 body.PreInstructionPointerForDiscovery(0);
             }
         }
-        body.Step(Instruction, instructionWord);
+        body.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
     }
 
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
@@ -84,26 +84,27 @@ internal sealed class EndingRewardJump
         actor.YSubPosition = (ushort)position;
     }
 
-    private ushort? Instruction(ushort instruction, ushort cursor)
+    private ushort Instruction(EndingRewardJumpInstruction instruction, ushort cursor)
     {
         switch (instruction)
         {
-            case EndingRewardJumpDefinitions.Launch:
+            case EndingRewardJumpInstruction.Launch:
                 velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return cursor;
-            case EndingRewardJumpDefinitions.PrepareHead:
+            case EndingRewardJumpInstruction.PrepareHead:
                 RequireHead().XPosition = (ushort)(helmeted ? 118 : 120);
                 RequireHead().YPosition = 120;
                 return cursor;
-            case EndingRewardJumpDefinitions.LaunchHead:
+            case EndingRewardJumpInstruction.LaunchHead:
                 RequireHead().XPosition = (ushort)(helmeted ? 120 : 121);
                 RequireHead().YPosition = (ushort)(helmeted ? 114 : 116);
                 return cursor;
-            case EndingRewardJumpDefinitions.Shoot:
+            case EndingRewardJumpInstruction.Shoot:
                 body.SetAttributes(SnesObjPalettes.Index7);
                 ShotRequested = true;
                 return cursor;
-            default: return null;
+            default:
+                throw new InvalidOperationException($"Undefined EndingRewardJumpInstruction {instruction}.");
         }
     }
 

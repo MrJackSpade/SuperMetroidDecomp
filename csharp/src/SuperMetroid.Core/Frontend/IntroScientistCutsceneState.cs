@@ -86,42 +86,42 @@ internal sealed class IntroScientistCutsceneState
             }
         }
 
-        baby.Step(HandleInstruction, instructionWord);
+        baby.Step<IntroScientistBabyInstruction>(HandleInstruction, instructionWord);
     }
 
     public void Draw(OamBuffer oam,
         IntroScientistSpritePresentation? installedArt = null) =>
         baby.Draw(oam, installedArt: installedArt);
 
-    private ushort? HandleInstruction(ushort opcode, ushort argumentPointer)
+    private ushort HandleInstruction(IntroScientistBabyInstruction opcode, ushort argumentPointer)
     {
         switch (opcode)
         {
-            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1:
+            case IntroScientistBabyInstruction.PlayCry1:
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.BabyCry1,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
-            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2:
+            case IntroScientistBabyInstruction.PlayCry2:
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.BabyCry2,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
-            case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3:
+            case IntroScientistBabyInstruction.PlayCry3:
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.BabyCry3,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
-            case CinematicCodePointers.Instruction_StartIntroPage4:
+            case IntroScientistBabyInstruction.StartIntroPage4:
                 // The delivery loop ends by selecting page four.
                 PageFourRequested = true;
                 return argumentPointer;
-            case CinematicCodePointers.Instruction_StartIntroPage5:
+            case IntroScientistBabyInstruction.StartIntroPage5:
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return argumentPointer;
             default:
-                return null;
+                throw new InvalidOperationException($"Undefined IntroScientistBabyInstruction {opcode}.");
         }
     }
 

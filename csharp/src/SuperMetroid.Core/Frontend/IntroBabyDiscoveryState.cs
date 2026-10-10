@@ -132,13 +132,13 @@ internal sealed class IntroBabyDiscoveryState
             // $8B:A914: page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
-        egg.Step(HandleEggInstruction,
+        egg.Step<IntroEggInstruction>(HandleEggInstruction,
             IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         // The baby slot follows the egg slot in the native descending actor traversal, so
         // it observes the egg's freshly advanced list pointer in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
-        confusedBaby.Step(HandleConfusedBabyInstruction,
+        confusedBaby.Step<ConfusedBabyInstruction>(HandleConfusedBabyInstruction,
             IntroBabyDiscoveryInstructionDefinitions.ReadWord);
 
         foreach (IntroEggParticle particle in eggParticles)
@@ -207,11 +207,11 @@ internal sealed class IntroBabyDiscoveryState
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
-    private ushort? HandleEggInstruction(ushort opcode, ushort argumentPointer)
+    private ushort HandleEggInstruction(IntroEggInstruction opcode, ushort argumentPointer)
     {
         switch (opcode)
         {
-            case CinematicCodePointers.Instruction_SpawnMetroidEggParticles:
+            case IntroEggInstruction.SpawnParticles:
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
@@ -221,7 +221,7 @@ internal sealed class IntroBabyDiscoveryState
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
 
-            case CinematicCodePointers.Instruction_StartIntroPage3:
+            case IntroEggInstruction.StartIntroPage3:
                 // This opcode switches the outer cinematic function to page three and then
                 // returns without consuming operands. The state owner performs the palette
                 // transition; the actor interpreter merely reports the native request.
@@ -229,24 +229,19 @@ internal sealed class IntroBabyDiscoveryState
                 return argumentPointer;
 
             default:
-                return null;
+                throw new InvalidOperationException($"Undefined IntroEggInstruction {opcode}.");
         }
     }
 
-    private ushort? HandleConfusedBabyInstruction(ushort opcode, ushort argumentPointer)
+    private ushort HandleConfusedBabyInstruction(ConfusedBabyInstruction opcode, ushort argumentPointer)
     {
         byte soundId = opcode switch
         {
-            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1 =>
-                IntroCinematicRomData.Objects.BabyCry1.Value,
-            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2 =>
-                IntroCinematicRomData.Objects.BabyCry2.Value,
-            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3 =>
-                IntroCinematicRomData.Objects.BabyCry3.Value,
-            _ => 0,
+            ConfusedBabyInstruction.PlayCry1 => IntroCinematicRomData.Objects.BabyCry1.Value,
+            ConfusedBabyInstruction.PlayCry2 => IntroCinematicRomData.Objects.BabyCry2.Value,
+            ConfusedBabyInstruction.PlayCry3 => IntroCinematicRomData.Objects.BabyCry3.Value,
+            _ => throw new InvalidOperationException($"Undefined ConfusedBabyInstruction {opcode}."),
         };
-        if (soundId == 0)
-            return null;
 
         audio?.QueueSound(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, soundId),
@@ -256,42 +251,42 @@ internal sealed class IntroBabyDiscoveryState
 
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
-        switch (confusedBaby.PreInstructionPointer)
+        switch (CinematicInstructionWords.Decode<ConfusedBabyPreInstruction>(
+                    confusedBaby.PreInstructionPointer, confusedBaby.InstructionPointer))
         {
-            case IntroBabyActorDefinitions.ConfusedBabyInitialPreInstruction:
+            case ConfusedBabyPreInstruction.WaitingForHatch:
                 // $BA5E watches the egg's *next* instruction pointer. CB79 is the first
                 // fully-hatched frame list, so the baby starts moving on that exact handoff.
                 if (egg.InstructionPointer >= CinematicCodePointers.Lists.MetroidEggHatchedFrame2)
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
-                        CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Hatched);
+                        (ushort)ConfusedBabyPreInstruction.Hatched);
                     BabyYVelocity = 0;
                 }
                 return;
 
-            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Hatched:
+            case ConfusedBabyPreInstruction.Hatched:
                 StepHatchedBaby();
                 return;
 
-            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Idling:
+            case ConfusedBabyPreInstruction.Idling:
                 BabyIdleTimer = unchecked((ushort)(BabyIdleTimer - 1));
                 if (unchecked((short)BabyIdleTimer) <= 0)
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
-                        CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Dancing);
+                        (ushort)ConfusedBabyPreInstruction.Dancing);
                     BabyIdleTimer = 0;
                     BabyYVelocity = 0;
                     confusedBaby.GeneralTimer = 0;
                 }
                 return;
 
-            case CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Dancing:
+            case ConfusedBabyPreInstruction.Dancing:
                 StepDancingBaby(introCrossfadeTimer);
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Confused-baby sprite names invalid pre-instruction $8B:{confusedBaby.PreInstructionPointer:X4}.");
+                throw new InvalidOperationException($"Undefined ConfusedBabyPreInstruction {confusedBaby.PreInstructionPointer}.");
         }
     }
 
@@ -337,7 +332,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             BabyIdleTimer = 0x0080;
             confusedBaby.PreInstructionPointerForDiscovery(
-                CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Idling);
+                (ushort)ConfusedBabyPreInstruction.Idling);
         }
     }
 

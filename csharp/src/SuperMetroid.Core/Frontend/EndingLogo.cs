@@ -62,7 +62,7 @@ internal sealed class EndingLogo
         for (int i = 0; i < actors.Length; i++)
         {
             if (i < 2 && !settled[i]) MoveHalf(i);
-            actors[i].Step(Instruction, instructionWord);
+            actors[i].Step<EndingLogoInstruction>(Instruction, instructionWord);
         }
     }
 
@@ -82,9 +82,10 @@ internal sealed class EndingLogo
         else speeds[index] += EndingLogoDefinitions.Acceleration;
     }
 
-    private ushort? Instruction(ushort opcode, ushort cursor)
+    private ushort Instruction(EndingLogoInstruction opcode, ushort cursor)
     {
-        if (opcode != EndingLogoDefinitions.GreyOutInstruction) return null;
+        if (opcode != EndingLogoInstruction.GreyOut)
+            throw new InvalidOperationException($"Undefined EndingLogoInstruction {opcode}.");
         CrossfadeStarted = true;
         return cursor;
     }

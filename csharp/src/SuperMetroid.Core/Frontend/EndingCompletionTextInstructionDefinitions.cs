@@ -25,10 +25,10 @@ internal static class EndingCompletionTextInstructionDefinitions
             throw new InvalidDataException($"Ending completion instruction $8B:{pointer:X4} leaves its compiled lists.");
         if (pointer < CompletedStart)
             return LineWord((pointer - Start) / 2, Start, "THE OPERATION WAS", OperationMap,
-                CinematicCodePointers.Ending_Instruction_SpawnCompletedText, 15);
+                (ushort)EndingSpriteInstruction.SpawnCompletedText, 15);
         if (pointer < ClearTimeStart)
             return LineWord((pointer - CompletedStart) / 2, CompletedStart, "COMPLETED SUCCESSFULLY", CompletedMap,
-                CinematicCodePointers.Ending_Instruction_SpawnClearTime, 8);
+                (ushort)EndingSpriteInstruction.SpawnClearTime, 8);
         if (pointer < DigitsStart) return ClearTimeWord((pointer - ClearTimeStart) / 2);
         int word = (pointer - DigitsStart) / 2;
         int glyph = word / 4;
@@ -36,7 +36,7 @@ internal static class EndingCompletionTextInstructionDefinitions
         {
             0 => 8,
             1 => glyph == 10 ? ColonMap : DigitMap(glyph),
-            2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            2 => (ushort)CinematicSpriteInstruction.Goto,
             _ => (ushort)(DigitsStart + glyph * 8),
         };
     }
@@ -61,7 +61,7 @@ internal static class EndingCompletionTextInstructionDefinitions
             0 => callback,
             1 => holdDelay,
             2 => PrefixMap(firstMap, letters - 1),
-            3 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => (ushort)CinematicSpriteInstruction.Goto,
             _ => (ushort)(start + letters * 4 + 2),
         };
     }
@@ -79,19 +79,19 @@ internal static class EndingCompletionTextInstructionDefinitions
             if (word % 3 == 2) return PrefixMap(ClearMap, letters - 1);
             return position switch
             {
-                0 => CinematicCodePointers.Ending_Instruction_SpawnHoursTens,
-                1 => CinematicCodePointers.Ending_Instruction_SpawnHoursUnits,
-                2 => CinematicCodePointers.Ending_Instruction_SpawnColon,
-                3 => CinematicCodePointers.Ending_Instruction_SpawnMinutesTens,
-                _ => CinematicCodePointers.Ending_Instruction_SpawnMinutesUnits,
+                0 => (ushort)EndingSpriteInstruction.SpawnHoursTens,
+                1 => (ushort)EndingSpriteInstruction.SpawnHoursUnits,
+                2 => (ushort)EndingSpriteInstruction.SpawnColon,
+                3 => (ushort)EndingSpriteInstruction.SpawnMinutesTens,
+                _ => (ushort)EndingSpriteInstruction.SpawnMinutesUnits,
             };
         }
         return (word - 15) switch
         {
-            0 => CinematicCodePointers.Ending_Instruction_TransitionToCredits,
+            0 => (ushort)EndingSpriteInstruction.TransitionToCredits,
             1 => 15,
             2 => PrefixMap(ClearMap, letters - 1),
-            3 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => (ushort)CinematicSpriteInstruction.Goto,
             _ => (ushort)(ClearTimeStart + (letters * 2 + 16) * 2),
         };
     }

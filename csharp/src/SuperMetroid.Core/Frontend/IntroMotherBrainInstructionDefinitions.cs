@@ -22,7 +22,7 @@ internal static class IntroMotherBrainInstructionDefinitions
             return word switch
             {
                 10 => CinematicCodePointers.Instruction_StartIntroPage2,
-                11 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction,
+                11 => (ushort)CinematicSpriteInstruction.SetPreInstruction,
                 _ => CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading,
             };
         bool pageTwo = word >= 13;
@@ -33,7 +33,7 @@ internal static class IntroMotherBrainInstructionDefinitions
             return (field & 1) == 0 ? (ushort)16
                 : IntroMotherBrainSpriteDefinitions.FramePointer(phase <= 2 ? phase : 4 - phase);
         }
-        return field == 8 ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto
+        return field == 8 ? (ushort)CinematicSpriteInstruction.Goto
             : pageTwo ? PageTwoLoopPointer : StartPointer;
     }
 

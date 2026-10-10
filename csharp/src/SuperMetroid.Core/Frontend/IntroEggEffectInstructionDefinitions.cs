@@ -26,20 +26,20 @@ internal static class IntroEggEffectInstructionDefinitions
             {
                 0 => 1,
                 1 => IntroEggEffectSpriteDefinitions.FramePointer(frame),
-                2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+                2 => (ushort)CinematicSpriteInstruction.Goto,
                 _ => (ushort)(StartPointer + frame * 8),
             };
         }
         int impactWord = word - 28;
-        if (impactWord == 8) return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+        if (impactWord == 8) return (ushort)CinematicSpriteInstruction.Delete;
         return (impactWord & 1) == 0 ? (ushort)10 : IntroEggEffectSpriteDefinitions.FramePointer(7 + impactWord / 2);
     }
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete & 0xff);
+            return (byte)((ushort)CinematicSpriteInstruction.Delete & 0xff);
         if (pointer == DeletePointer + 1)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
+            return (byte)((ushort)CinematicSpriteInstruction.Delete >> 8);
         if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;
@@ -49,7 +49,7 @@ internal static class IntroEggEffectInstructionDefinitions
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)
-            return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+            return (ushort)CinematicSpriteInstruction.Delete;
         if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro egg effect read $8B:{pointer:X4} leaves its compiled lists.");

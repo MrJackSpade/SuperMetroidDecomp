@@ -459,27 +459,28 @@ public sealed class TitleSequenceState
             sequenceEntry = AddWithinBank(
                 entryAddress,
                 TitleSequenceRomData.TextSequences.InstructionWordByteCount);
-            switch (durationOrCommand)
+            switch (CinematicInstructionWords.Decode<TitleSequenceInstruction>(
+                        durationOrCommand, (ushort)entryAddress))
             {
-                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene0:
+                case TitleSequenceInstruction.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
                     return;
 
-                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene1:
+                case TitleSequenceInstruction.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
                     return;
 
-                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene2:
+                case TitleSequenceInstruction.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
                     return;
 
-                case CinematicCodePointers.Instruction_TriggerTitleSequenceScene3:
+                case TitleSequenceInstruction.TriggerScene3:
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
@@ -487,14 +488,12 @@ public sealed class TitleSequenceState
                     ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
                     return;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
+                case TitleSequenceInstruction.Delete:
                     activeSpritemap = TitleSequenceRomData.Sprites.Blank;
                     return;
 
                 default:
-                    // The three title-scene lists use the complete command set above.
-                    throw new InvalidDataException(
-                        $"Title sequence instruction $8B:{durationOrCommand:X4} is invalid for the active retail list.");
+                    throw new InvalidOperationException($"Undefined TitleSequenceInstruction {durationOrCommand}.");
             }
         }
     }

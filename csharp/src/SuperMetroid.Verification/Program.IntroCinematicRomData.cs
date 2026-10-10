@@ -64,9 +64,24 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCinematicCodePointerCatalog()
     {
+        // Instruction entry points are owned by closed per-interpreter enums; an entry point
+        // shared by two owners (a common delete or cry) is one bank-$8B address.
         ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
             .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
             .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Concat(new[]
+            {
+                typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
+                typeof(ZebesTitleInstruction), typeof(IntroEggInstruction),
+                typeof(ConfusedBabyInstruction), typeof(IntroScientistBabyInstruction),
+                typeof(IntroRinkaSpawnerInstruction), typeof(IntroRinkaInstruction),
+                typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
+                typeof(EndingSpriteInstruction), typeof(EndingLogoInstruction),
+                typeof(EndingRewardGestureInstruction), typeof(EndingRewardJumpInstruction),
+                typeof(TitleSequenceInstruction),
+            }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            .Where(pointer => pointer != 0)
+            .Distinct()
             .ToArray();
         ushort[] bank8BLists = GetUshortConstants(typeof(CinematicCodePointers.Lists))
             .Where(field => field.Name != nameof(CinematicCodePointersListsConstants.MetroidEggParticleStride))
@@ -83,8 +98,10 @@ internal static partial class Program
             "cinematic list catalog covers translated bank-$8B streams");
         AssertTrue(bank8CLists.Length >= 9,
             "cinematic background catalog covers translated bank-$8C streams");
-        AssertEqual(bank8BCodePointers.Length, bank8BCodePointers.Distinct().Count(),
-            "cinematic callback pointers are unique");
+        AssertEqual(GetUshortConstants(typeof(CinematicCodePointers)).Count(),
+            GetUshortConstants(typeof(CinematicCodePointers))
+                .Select(field => (ushort)field.GetRawConstantValue()!).Distinct().Count(),
+            "cinematic callback constants are unique");
         AssertEqual(bank8BLists.Length, bank8BLists.Distinct().Count(),
             "cinematic bank-$8B list pointers are unique");
         AssertEqual(bank8CLists.Length, bank8CLists.Distinct().Count(),

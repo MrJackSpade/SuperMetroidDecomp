@@ -44,16 +44,16 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         {
             0 => 5,
             1 or 5 => IntroDiscoveryActorSpriteDefinitions.EggFramePointer(0),
-            2 or 52 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            2 or 52 => (ushort)CinematicSpriteInstruction.Goto,
             3 => EggStart,
             4 => 32,
-            6 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer,
+            6 => (ushort)CinematicSpriteInstruction.SetTimer,
             7 => 4,
-            16 => CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto,
+            16 => (ushort)CinematicSpriteInstruction.DecrementTimerAndGoto,
             17 => EggStart + 16,
-            32 => CinematicCodePointers.Instruction_SpawnMetroidEggParticles,
-            47 => CinematicCodePointers.Instruction_StartIntroPage3,
-            48 => CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction,
+            32 => (ushort)IntroEggInstruction.SpawnParticles,
+            47 => (ushort)IntroEggInstruction.StartIntroPage3,
+            48 => (ushort)CinematicSpriteInstruction.SetPreInstruction,
             49 => CinematicCodePointers.PreInstruction_MetroidEgg_DeleteAfterCrossFade,
             50 => 80,
             51 => IntroDiscoveryActorSpriteDefinitions.EggFramePointer(15),
@@ -72,7 +72,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         }
         return word switch
         {
-            8 or 12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            8 or 12 => (ushort)CinematicSpriteInstruction.Goto,
             9 => BabyStart,
             10 => 10,
             11 => IntroDiscoveryActorSpriteDefinitions.BabyLarge,
@@ -98,7 +98,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         else if (pointer is DeletePointer or (DeletePointer + 1))
         {
             offset = pointer - DeletePointer;
-            word = CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+            word = (ushort)CinematicSpriteInstruction.Delete;
         }
         else throw new ArgumentOutOfRangeException(nameof(pointer));
         return (byte)(word >> (8 * (offset & 1)));

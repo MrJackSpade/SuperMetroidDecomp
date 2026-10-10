@@ -31,7 +31,7 @@ internal static class IntroEyeAnimationDefinitions
 
     private static ushort ProgramWord(int index)
     {
-        if (index is 24 or 35) return CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto;
+        if (index is 24 or 35) return (ushort)CinematicBackgroundInstruction.Goto;
         if (index == 25) return StartPointer;
         if (index == 36) return DeadpanLoop;
         int duration, frame, field;

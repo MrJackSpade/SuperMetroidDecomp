@@ -160,9 +160,9 @@ internal static partial class Program
                 // comparison advances their cursor identically without duplicating that scene.
                 var nativeCallbacks = new List<ushort>();
                 var generatedCallbacks = new List<ushort>();
-                native.Step((opcode, cursor) => { nativeCallbacks.Add(opcode); return cursor; }, pointer =>
+                native.Step((EndingSpriteInstruction opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
                     (ushort)(bus.ReadByte(0x8b0000 | pointer) | bus.ReadByte(0x8b0000 | (pointer + 1)) << 8));
-                installed.Step((opcode, cursor) => { generatedCallbacks.Add(opcode); return cursor; },
+                installed.Step((EndingSpriteInstruction opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
                     EndingExplosionInstructionDefinitions.ReadWord);
                 AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
                     $"explosion actor ${start:X4} callback order/timing at frame {frame}");

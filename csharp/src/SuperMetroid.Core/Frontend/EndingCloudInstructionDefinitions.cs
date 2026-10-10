@@ -27,7 +27,7 @@ internal static class EndingCloudInstructionDefinitions
         {
             0 => 1,
             2 => EndingCloudSpriteDefinitions.Frames[list].Pointer,
-            4 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            4 => (ushort)CinematicSpriteInstruction.Goto,
             6 => unchecked((ushort)(Start + list * ListBytes)),
             _ => throw new InvalidOperationException("Validated cloud word offset became invalid."),
         });

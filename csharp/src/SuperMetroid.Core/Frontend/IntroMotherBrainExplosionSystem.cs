@@ -138,14 +138,14 @@ internal sealed class IntroMotherBrainExplosionSystem
                     return;
                 }
 
-                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_Goto)
+                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.Goto)
                 {
                     pointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
                         Add(pointer, 2));
                     continue;
                 }
 
-                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_Delete)
+                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.Delete)
                 {
                     IsActive = false;
                     SpriteMapPointer = 0;

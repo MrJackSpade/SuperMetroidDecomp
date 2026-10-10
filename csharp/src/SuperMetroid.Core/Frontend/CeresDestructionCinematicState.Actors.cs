@@ -213,23 +213,23 @@ internal sealed partial class CeresDestructionCinematicState
                 }
             }
 
-            actor.Step(HandleZebesInstruction,
+            actor.Step<ZebesTitleInstruction>(HandleZebesInstruction,
                 CeresDestructionSpriteInstructionDefinitions.ReadWord);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
         }
     }
 
-    private ushort? HandleZebesInstruction(ushort opcode, ushort cursor)
+    private ushort HandleZebesInstruction(ZebesTitleInstruction opcode, ushort cursor)
     {
         switch (opcode)
         {
-            case CinematicCodePointers.Instruction_FadeInPlanetZebesText:
-            case CinematicCodePointers.Instruction_SpawnPlanetZebesJapanTextIfNeeded:
-            case CinematicCodePointers.Instruction_FadeOutPlanetZebesText:
+            case ZebesTitleInstruction.FadeInText:
+            case ZebesTitleInstruction.SpawnJapaneseTextIfNeeded:
+            case ZebesTitleInstruction.FadeOutText:
                 return cursor;
 
-            case CinematicCodePointers.Instruction_StartFlyingToZebes:
+            case ZebesTitleInstruction.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
                 backgroundX = CeresDestructionRomData.Motion.Mode7ExitX;
@@ -240,7 +240,7 @@ internal sealed partial class CeresDestructionCinematicState
                 return cursor;
 
             default:
-                return null;
+                throw new InvalidOperationException($"Undefined ZebesTitleInstruction {opcode}.");
         }
     }
 

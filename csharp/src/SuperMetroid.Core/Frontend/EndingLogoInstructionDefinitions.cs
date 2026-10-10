@@ -29,7 +29,7 @@ internal static class EndingLogoInstructionDefinitions
             {
                 0 => 10,
                 1 => EndingLogoSpriteDefinitions.FramePointer(actor),
-                2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+                2 => (ushort)CinematicSpriteInstruction.Goto,
                 _ => (ushort)(Start + actor * 8),
             };
         }
@@ -44,13 +44,13 @@ internal static class EndingLogoInstructionDefinitions
             return (word & 1) == 0 ? (ushort)(right && stage == 2 ? 64 : 5) : WrapFrame(right, stage);
         }
         if (!right)
-            return word == 8 ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto : (ushort)(start + 12);
+            return word == 8 ? (ushort)CinematicSpriteInstruction.Goto : (ushort)(start + 12);
         return (word - 8) switch
         {
-            0 => EndingLogoDefinitions.GreyOutInstruction,
+            0 => (ushort)EndingLogoInstruction.GreyOut,
             1 => 5,
             2 => EndingLogoSpriteDefinitions.FramePointer(4),
-            3 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            3 => (ushort)CinematicSpriteInstruction.Goto,
             _ => (ushort)(start + 18),
         };
     }

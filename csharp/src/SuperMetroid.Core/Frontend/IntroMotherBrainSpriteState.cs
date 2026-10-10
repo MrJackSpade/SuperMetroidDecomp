@@ -133,7 +133,7 @@ internal sealed class IntroMotherBrainSpriteState
                 return;
             }
 
-            if (instructionOrDuration != CinematicCodePointers.CinematicSpriteObject_Instruction_Goto)
+            if (instructionOrDuration != (ushort)CinematicSpriteInstruction.Goto)
             {
                 if (instructionOrDuration == CinematicCodePointers.Instruction_StartIntroPage2)
                 {
@@ -142,7 +142,7 @@ internal sealed class IntroMotherBrainSpriteState
                     continue;
                 }
 
-                if (instructionOrDuration == CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction)
+                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.SetPreInstruction)
                 {
                     ushort preInstruction = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
                     if (preInstruction != CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading)

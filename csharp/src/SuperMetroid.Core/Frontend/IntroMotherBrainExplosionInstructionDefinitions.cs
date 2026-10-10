@@ -30,7 +30,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         {
             12 => 16, // blank hold duration
             13 => 0, // no spritemap
-            14 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            14 => (ushort)CinematicSpriteInstruction.Goto,
             _ => big ? StartPointer : SmallPointer,
         };
     }
@@ -38,9 +38,9 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete & 0xff);
+            return (byte)((ushort)CinematicSpriteInstruction.Delete & 0xff);
         if (pointer == DeletePointer + 1)
-            return (byte)(CinematicCodePointers.CinematicSpriteObject_Instruction_Delete >> 8);
+            return (byte)((ushort)CinematicSpriteInstruction.Delete >> 8);
         if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;
@@ -50,7 +50,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)
-            return CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
+            return (ushort)CinematicSpriteInstruction.Delete;
         if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro Mother Brain explosion instruction read $8B:{pointer:X4} leaves its compiled program.");

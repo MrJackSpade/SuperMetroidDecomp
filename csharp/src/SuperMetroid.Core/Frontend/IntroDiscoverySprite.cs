@@ -93,14 +93,22 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>
-    /// Advances one generic cinematic-sprite handler call. The callback handles only
-    /// scene-specific opcodes and returns their next list cursor, or null when unhandled.
-    /// An owner may supply its compiled instruction-word reader; other scenes retain
-    /// the ROM-backed path until their own bounded lists have been migrated.
+    /// Advances one generic cinematic-sprite handler call for a list that uses only the
+    /// shared instructions; any other instruction word fails with its address.
     /// </summary>
-    public void Step(
-        Func<ushort, ushort, ushort?>? specialInstruction = null,
-        Func<ushort, ushort>? instructionWord = null)
+    public void Step(Func<ushort, ushort>? instructionWord) =>
+        Step<CinematicSpriteInstruction>(ownerInstruction: null, instructionWord);
+
+    /// <summary>
+    /// Advances one generic cinematic-sprite handler call. Words outside the shared set are
+    /// decoded into the owner's closed <typeparamref name="TInstruction"/> set and passed to
+    /// <paramref name="ownerInstruction"/>, which returns the next list cursor. A word in
+    /// neither set means the wrong owner and list were composed, and fails with its address.
+    /// </summary>
+    public void Step<TInstruction>(
+        Func<TInstruction, ushort, ushort>? ownerInstruction,
+        Func<ushort, ushort>? instructionWord)
+        where TInstruction : struct, Enum
     {
         if (!IsActive)
             return;
@@ -124,50 +132,52 @@ internal sealed class IntroDiscoverySprite
                 return;
             }
 
-            switch (word)
+            if (!CinematicInstructionWords.TryDecode(word, out CinematicSpriteInstruction shared))
             {
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
+                // Private opcodes are owned by the containing cinematic object.
+                if (ownerInstruction is null)
+                    throw new InvalidDataException(
+                        $"Cinematic sprite opcode $8B:{word:X4} at $8B:{cursor:X4} has no owner.");
+                cursor = ownerInstruction(
+                    CinematicInstructionWords.Decode<TInstruction>(word, cursor), Add(cursor, 2));
+                continue;
+            }
+
+            switch (shared)
+            {
+                case CinematicSpriteInstruction.Delete:
                     Delete();
                     return;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Sleep:
+                case CinematicSpriteInstruction.Sleep:
                     // Sleep returns the opcode's own address so it is encountered again
                     // after an external owner primes the instruction timer/list pointer.
                     InstructionPointer = cursor;
                     return;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction:
+                case CinematicSpriteInstruction.SetPreInstruction:
                     PreInstructionPointer = Read(Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_Goto:
+                case CinematicSpriteInstruction.Goto:
                     cursor = Read(Add(cursor, 2));
                     break;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto:
+                case CinematicSpriteInstruction.DecrementTimerAndGoto:
                     GeneralTimer = unchecked((ushort)(GeneralTimer - 1));
                     cursor = GeneralTimer != 0
                         ? Read(Add(cursor, 2))
                         : Add(cursor, 4);
                     break;
 
-                case CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer:
+                case CinematicSpriteInstruction.SetTimer:
                     GeneralTimer = Read(Add(cursor, 2));
                     cursor = Add(cursor, 4);
                     break;
 
                 default:
-                    ushort? next = specialInstruction?.Invoke(word, Add(cursor, 2));
-                    if (next is null)
-                    {
-                        // Private opcodes are owned by the containing cinematic object.
-                        // A null callback result means the wrong owner/list were composed.
-                        throw new InvalidOperationException(
-                            $"Baby-discovery sprite opcode $8B:{word:X4} at $8B:{cursor:X4} was not handled by its owner.");
-                    }
-                    cursor = next.Value;
-                    break;
+                    throw new InvalidOperationException($"Undefined CinematicSpriteInstruction {shared}.");
             }
         }
     }

@@ -15,7 +15,7 @@ internal static class CinematicClosedContractDefinitions
         new("SuperMetroid.Core.Assets.TitleGraphicsPresentation", "title-complete-compiled-sprite-identities", ["DrawSprite"],
             [new("csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs", "E4DE40D204EE74F7CB5B7329E9AF018CF71E3BFA655A0A87523EBC73A23389AC"),
              new("csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs", "ADA3CAC27BD8925065CF6A7D3D91FDA59BA13E1118941AAEC31587FFC9AAB992"),
-             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs", "4BA74470FB99AF960B5B0F67F9CE5BB8D2A549753A0956F08C22E3B3B33FBE4D"),
+             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs", "95EE1A1477E6EBFEE31B122D539A8C0145941820422BA1B4DCB7DDFEB3C845A5"),
              new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "751B9789B5580BDFBB7C06880D8DFBD3B1D53B0EC296A19AA7B8E80C9BA60703")]),
         new("SuperMetroid.Core.Assets.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs", "3FFB0FBA33C880029C4B12E6AE1E9E22171A46F897DF289EEDE81ECE40FF4272")]),

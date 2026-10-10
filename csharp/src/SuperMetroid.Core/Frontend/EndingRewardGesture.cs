@@ -33,7 +33,7 @@ internal sealed class EndingRewardGesture
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Step(HandleInstruction, instructionWord);
+            actor.Step<EndingRewardGestureInstruction>(HandleInstruction, instructionWord);
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
@@ -47,19 +47,19 @@ internal sealed class EndingRewardGesture
         return oam;
     }
 
-    private ushort? HandleInstruction(ushort instruction, ushort cursor)
+    private ushort HandleInstruction(EndingRewardGestureInstruction instruction, ushort cursor)
     {
         switch (instruction)
         {
-            case EndingRewardActorDefinitions.SpawnSuitlessJump:
+            case EndingRewardGestureInstruction.SpawnSuitlessJump:
                 SuitlessJumpRequested = true;
                 JumpRequested = true;
                 return cursor;
-            case EndingRewardActorDefinitions.SpawnSuitedJump:
+            case EndingRewardGestureInstruction.SpawnSuitedJump:
                 JumpRequested = true;
                 return cursor;
             default:
-                return null; // The shared interpreter reports the exact unsupported opcode.
+                throw new InvalidOperationException($"Undefined EndingRewardGestureInstruction {instruction}.");
         }
     }
 

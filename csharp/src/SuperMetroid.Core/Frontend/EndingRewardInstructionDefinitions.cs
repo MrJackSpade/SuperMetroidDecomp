@@ -71,7 +71,7 @@ internal static class EndingRewardInstructionDefinitions
                 var display = HairDisplay((HairStage)(word / 2));
                 return DisplayWord(word, display.Duration, legs ? Frame.SuitlessSamusLowerBody : display.Frame);
             }
-            return !legs && word == displayWords ? EndingRewardActorDefinitions.SpawnSuitlessJump : Delete;
+            return !legs && word == displayWords ? (ushort)EndingRewardGestureInstruction.SpawnSuitlessJump : Delete;
         }
         if (pointer < (ushort)List.Falling) return SuitlessJumpWord(Word(pointer, List.SuitlessJump));
         if (pointer < (ushort)List.Landing) return Hold(pointer, List.Falling, 10, Frame.SamusFalling);
@@ -88,7 +88,7 @@ internal static class EndingRewardInstructionDefinitions
         if (pointer < (ushort)List.GestureHelmet)
         {
             int word = Word(pointer, List.GestureArm);
-            if (word >= 28) return word == 28 ? EndingRewardActorDefinitions.SpawnSuitedJump : Delete;
+            if (word >= 28) return word == 28 ? (ushort)EndingRewardGestureInstruction.SpawnSuitedJump : Delete;
             var display = ArmDisplay((ArmStage)(word / 2));
             return DisplayWord(word, display.Duration, display.Frame);
         }
@@ -156,7 +156,7 @@ internal static class EndingRewardInstructionDefinitions
     {
         if (word < 2) return DisplayWord(word, 48, Frame.SuitlessSamusStanding);
         if (word < 4) return DisplayWord(word, 10, Frame.SuitlessSamusPreparingToJump);
-        if (word == 4) return EndingRewardJumpDefinitions.Launch;
+        if (word == 4) return (ushort)EndingRewardJumpInstruction.Launch;
         if (word == 5) return SetPreInstruction;
         if (word == 6) return EndingRewardJumpDefinitions.BodyFlight;
         return HoldWord(word - 7, (ushort)((ushort)List.SuitlessJump + 14), 48, Frame.SuitlessSamusJumping);
@@ -164,10 +164,10 @@ internal static class EndingRewardInstructionDefinitions
 
     private static ushort SuitedJumpWord(int word)
     {
-        if (word == 0) return EndingRewardJumpDefinitions.PrepareHead;
+        if (word == 0) return (ushort)EndingRewardJumpInstruction.PrepareHead;
         if (word < 3) return DisplayWord(word - 1, 10, Frame.LargeSamusFromEndingPreparingToJump);
-        if (word == 3) return EndingRewardJumpDefinitions.LaunchHead;
-        if (word == 4) return EndingRewardJumpDefinitions.Launch;
+        if (word == 3) return (ushort)EndingRewardJumpInstruction.LaunchHead;
+        if (word == 4) return (ushort)EndingRewardJumpInstruction.Launch;
         if (word == 5) return SetPreInstruction;
         if (word == 6) return EndingRewardJumpDefinitions.BodyFlight;
         return HoldWord(word - 7, (ushort)((ushort)List.SuitedJump + 14), 5, Frame.LargeSamusFromEndingJumping);
@@ -178,7 +178,7 @@ internal static class EndingRewardInstructionDefinitions
         if (word < 2) return DisplayWord(word, 10, Frame.SamusLanding);
         if (word < 4) return DisplayWord(word, 16, Frame.SamusLanded);
         if (word < 6) return DisplayWord(word, 48, Frame.SamusShooting);
-        if (word == 6) return EndingRewardJumpDefinitions.Shoot;
+        if (word == 6) return (ushort)EndingRewardJumpInstruction.Shoot;
         return word < 9 ? DisplayWord(word - 7, 128, Frame.SamusShooting) : Delete;
     }
 
@@ -187,7 +187,7 @@ internal static class EndingRewardInstructionDefinitions
         ? duration : frame.HasValue ? EndingRewardSpriteDefinitions.FramePointer(frame.Value) : (ushort)0;
     private static ushort Hold(ushort pointer, List start, ushort duration, Frame frame) => HoldWord(Word(pointer, start), (ushort)start, duration, frame);
     private static ushort HoldWord(int word, ushort start, ushort duration, Frame frame) => word < 2
-        ? DisplayWord(word, duration, frame) : word == 2 ? CinematicCodePointers.CinematicSpriteObject_Instruction_Goto : start;
-    private const ushort Delete = CinematicCodePointers.CinematicSpriteObject_Instruction_Delete;
-    private const ushort SetPreInstruction = CinematicCodePointers.CinematicSpriteObject_Instruction_SetPreInstruction;
+        ? DisplayWord(word, duration, frame) : word == 2 ? (ushort)CinematicSpriteInstruction.Goto : start;
+    private const ushort Delete = (ushort)CinematicSpriteInstruction.Delete;
+    private const ushort SetPreInstruction = (ushort)CinematicSpriteInstruction.SetPreInstruction;
 }

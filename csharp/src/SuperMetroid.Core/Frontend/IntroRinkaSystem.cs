@@ -58,7 +58,7 @@ internal sealed class IntroRinkaSystem
 
             if (ReferenceEquals(actor, spawner))
             {
-                spawner.Step(HandleSpawnerInstruction,
+                spawner.Step<IntroRinkaSpawnerInstruction>(HandleSpawnerInstruction,
                     IntroRinkaInstructionDefinitions.ReadWord);
             }
             else
@@ -66,7 +66,7 @@ internal sealed class IntroRinkaSystem
                 RunPreInstruction(actor, samus, motherBrainExploding);
                 if (actor.IsActive)
                 {
-                    actor.Step((opcode, next) => HandleRinkaInstruction(actor, opcode, next),
+                    actor.Step((IntroRinkaInstruction opcode, ushort next) => HandleRinkaInstruction(actor, opcode, next),
                         IntroRinkaInstructionDefinitions.ReadWord);
                 }
             }
@@ -88,39 +88,39 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    private ushort? HandleSpawnerInstruction(ushort opcode, ushort next)
+    private ushort HandleSpawnerInstruction(IntroRinkaSpawnerInstruction opcode, ushort next)
     {
         switch (opcode)
         {
-            case CinematicCodePointers.Instruction_Spawn_IntroRinkas_0_1:
+            case IntroRinkaSpawnerInstruction.SpawnRinkas0And1:
                 Spawn(0);
                 Spawn(1);
                 return next;
 
-            case CinematicCodePointers.Instruction_Spawn_IntroRinkas_2_3:
+            case IntroRinkaSpawnerInstruction.SpawnRinkas2And3:
                 Spawn(2);
                 Spawn(3);
                 return next;
 
             default:
-                return null;
+                throw new InvalidOperationException($"Undefined IntroRinkaSpawnerInstruction {opcode}.");
         }
     }
 
-    private static ushort? HandleRinkaInstruction(
+    private static ushort HandleRinkaInstruction(
         IntroDiscoverySprite rinka,
-        ushort opcode,
+        IntroRinkaInstruction opcode,
         ushort next)
     {
-        if (opcode != CinematicCodePointers.Instruction_StartMoving_IntroRinka)
-            return null;
+        if (opcode != IntroRinkaInstruction.StartMoving)
+            throw new InvalidOperationException($"Undefined IntroRinkaInstruction {opcode}.");
 
         // Init parameter zero is the sole “hits Samus” route. Parameters one through three
         // select the miss routine and remain in GeneralTimer for its velocity table lookup.
         rinka.PreInstructionPointerForDiscovery(
-            rinka.GeneralTimer == 0
-                ? CinematicCodePointers.PreInstruction_IntroRinka_Moving_HitsSamus
-                : CinematicCodePointers.PreInstruction_IntroRinka_Moving_MissesSamus);
+            (ushort)(rinka.GeneralTimer == 0
+                ? IntroRinkaPreInstruction.MovingHitsSamus
+                : IntroRinkaPreInstruction.MovingMissesSamus));
         return next;
     }
 
@@ -157,13 +157,14 @@ internal sealed class IntroRinkaSystem
         SamusState samus,
         bool motherBrainExploding)
     {
-        switch (rinka.PreInstructionPointer)
+        switch (CinematicInstructionWords.Decode<IntroRinkaPreInstruction>(
+                    rinka.PreInstructionPointer, rinka.InstructionPointer))
         {
-            case 0:
-            case IntroRinkaDefinitions.SharedNoOp:
+            case IntroRinkaPreInstruction.None:
+            case IntroRinkaPreInstruction.NoOp:
                 return;
 
-            case CinematicCodePointers.PreInstruction_IntroRinka_Moving_HitsSamus:
+            case IntroRinkaPreInstruction.MovingHitsSamus:
                 MoveHalfPixelX(rinka, IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
@@ -183,7 +184,7 @@ internal sealed class IntroRinkaSystem
                 rinka.Delete();
                 return;
 
-            case CinematicCodePointers.PreInstruction_IntroRinka_Moving_MissesSamus:
+            case IntroRinkaPreInstruction.MovingMissesSamus:
                 MoveHalfPixelX(rinka,
                     IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
@@ -193,8 +194,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             default:
-                throw new InvalidDataException(
-                    $"Intro Rinka names invalid pre-instruction $8B:{rinka.PreInstructionPointer:X4}.");
+                throw new InvalidOperationException($"Undefined IntroRinkaPreInstruction {rinka.PreInstructionPointer}.");
         }
     }
 

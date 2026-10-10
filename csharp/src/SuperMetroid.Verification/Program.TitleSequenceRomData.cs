@@ -147,19 +147,19 @@ internal static partial class Program
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceRomData.TextSequences.Year,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene0);
+            (ushort)TitleSequenceInstruction.TriggerScene0);
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceRomData.TextSequences.Nintendo,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene1);
+            (ushort)TitleSequenceInstruction.TriggerScene1);
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceRomData.TextSequences.Presents,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene2);
+            (ushort)TitleSequenceInstruction.TriggerScene2);
         WriteConstructedTitleTextList(
             rom,
             TitleSequenceRomData.TextSequences.MetroidThree,
-            CinematicCodePointers.Instruction_TriggerTitleSequenceScene3);
+            (ushort)TitleSequenceInstruction.TriggerScene3);
         WriteRomWord(
             rom,
             TitleSequenceRomData.Sprites.LogoPointerAddress,

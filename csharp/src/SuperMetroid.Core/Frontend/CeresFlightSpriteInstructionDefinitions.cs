@@ -31,7 +31,7 @@ internal static class CeresFlightSpriteInstructionDefinitions
         {
             0 => 10,
             1 => frame,
-            2 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            2 => (ushort)CinematicSpriteInstruction.Goto,
             3 => start,
             _ => throw new InvalidDataException("Ceres flight loop cursor is invalid."),
         };
@@ -45,7 +45,7 @@ internal static class CeresFlightSpriteInstructionDefinitions
             0 or 2 => 1,
             1 => CeresFlightSpriteDefinitions.VortexEven,
             3 => CeresFlightSpriteDefinitions.VortexOdd,
-            4 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            4 => (ushort)CinematicSpriteInstruction.Goto,
             5 => VortexStart,
             _ => throw new InvalidDataException("Ceres vortex cursor is invalid."),
         };

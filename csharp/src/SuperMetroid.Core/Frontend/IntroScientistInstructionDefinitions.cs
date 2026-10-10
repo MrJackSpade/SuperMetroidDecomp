@@ -24,12 +24,12 @@ internal static class IntroScientistInstructionDefinitions
     private static ushort ActorWord(bool examination, int word)
     {
         ushort start = examination ? ExaminationStart : DeliveryStart;
-        if (word == 0) return CinematicCodePointers.CinematicSpriteObject_Instruction_SetTimer;
+        if (word == 0) return (ushort)CinematicSpriteInstruction.SetTimer;
         if (word == 1) return 10;
-        if (word == 10) return CinematicCodePointers.CinematicSpriteObject_Instruction_DecrementTimerAndGoto;
+        if (word == 10) return (ushort)CinematicSpriteInstruction.DecrementTimerAndGoto;
         if (word == 11) return (ushort)(start + 4);
-        if (word == 12) return examination ? CinematicCodePointers.Instruction_StartIntroPage5 : CinematicCodePointers.Instruction_StartIntroPage4;
-        if (word == 21) return CinematicCodePointers.CinematicSpriteObject_Instruction_Goto;
+        if (word == 12) return examination ? (ushort)IntroScientistBabyInstruction.StartIntroPage5 : (ushort)IntroScientistBabyInstruction.StartIntroPage4;
+        if (word == 21) return (ushort)CinematicSpriteInstruction.Goto;
         if (word == 22) return (ushort)(start + 26);
         int displayWord = word - (word < 10 ? 2 : 13);
         if ((displayWord & 1) == 0) return 10;
@@ -43,7 +43,7 @@ internal static class IntroScientistInstructionDefinitions
             return (word & 1) == 0 ? (ushort)10 : IntroScientistSpriteDefinitions.FramePointer(2 - Math.Abs(2 - word / 2));
         return word switch
         {
-            8 or 12 => CinematicCodePointers.CinematicSpriteObject_Instruction_Goto,
+            8 or 12 => (ushort)CinematicSpriteInstruction.Goto,
             10 => 60, // blank hold before returning to the ordinary arrow loop
             11 => 0,
             _ => ArrowStart,

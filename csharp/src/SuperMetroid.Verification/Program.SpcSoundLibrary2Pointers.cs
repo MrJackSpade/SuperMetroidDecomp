@@ -40,8 +40,11 @@ internal static partial class Program
         AssertEqual((byte)0, zero.ReadPort(AudioRomData.Apu.FirstSoundPort + library),
             "zero sound command is a valid acknowledged no-sound sentinel");
 
+        // #1269: the driver reads a request on one service and dispatches it on the next, so
+        // the undefined command is rejected on the second frame, before its stream dispatch.
         var invalidPlayer = new ManagedSpcPlayer();
         invalidPlayer.WritePort(AudioRomData.Apu.FirstSoundPort + library, (byte)(count + 1));
+        invalidPlayer.GenerateFrame(pcm);
         AssertThrows<InvalidDataException>(() => invalidPlayer.GenerateFrame(pcm),
             "runtime rejects the first undefined sound command before stream dispatch");
     }

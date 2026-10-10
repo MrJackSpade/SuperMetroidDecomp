@@ -264,8 +264,9 @@ internal static partial class Program
             frame = game.Step((ushort)SnesButton.Start);
             Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus,
                 () => frame = game.Step(0), 150, "SpaceTime file menu");
-            for (int frameIndex = 0; frameIndex < 16; frameIndex++)
-                frame = game.Step(0);
+            // Native entry dispatches and fade-in end on the 35th update.
+            Until(() => frame.Phase == nameof(FileSelectPhase.Main),
+                () => frame = game.Step(0), 40, "SpaceTime file menu interactive");
             frame = game.Step((ushort)SnesButton.A);
             Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu,
                 () => frame = game.Step(0), 200, "SpaceTime options menu");

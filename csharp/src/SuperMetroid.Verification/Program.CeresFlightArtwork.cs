@@ -308,6 +308,12 @@ internal static partial class Program
             artwork: stockParent);
         var editedDestruction = new CeresDestructionCinematicState(guardedBus,
             artwork: editedParent);
+        // $8B:C11B loads the shared Ceres palette only after its initial NMI waits.
+        for (int update = 0; update <= CeresDestructionRomData.InitialNmiWaits; update++)
+        {
+            restoredDestruction.Step();
+            editedDestruction.Step();
+        }
         AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
                 editedDestruction.CaptureRenderSnapshot().Memory.Cgram),
             "shared Ceres palette edit reaches destruction CGRAM");

@@ -64,8 +64,11 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!
                 .SetValue(enemies, new SamusState { Health = 99, MaxHealth = 99 });
 
+            // A real header resolves the pickup's drop chances from ROM; a cleared header
+            // ($0000) would make native read them from enemy WRAM, which this guard lacks.
             var enemy = new RoomEnemySlot(0)
             {
+                EnemyDefinitionPointer = RoomEnemySystem.HZoomerDefinition,
                 XPosition = 0x0080,
                 YPosition = 0x0070,
             };

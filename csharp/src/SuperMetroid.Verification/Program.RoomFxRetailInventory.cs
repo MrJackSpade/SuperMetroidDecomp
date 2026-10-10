@@ -664,7 +664,10 @@ internal static partial class Program
                 referenceSoundCount++;
             }
             runtime.StepFrame(0);
-            AssertEqual(expectedRequests, runtime.RoomLayer3Fx.SoundRequests.Count,
+            // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
+            // earthquake cadence only.
+            AssertEqual(expectedRequests, runtime.RoomLayer3Fx.SoundRequests.Count(request =>
+                    request.SoundEffect == SoundEffectLibrary2Sounds.Earthquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
 
@@ -725,7 +728,9 @@ internal static partial class Program
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
-        int emittedSounds = 1 + runtime.RoomLayer3Fx.SoundRequests.Count;
+        int EarthquakeSounds() => runtime.RoomLayer3Fx.SoundRequests.Count(request =>
+            request.SoundEffect == SoundEffectLibrary2Sounds.Earthquake);
+        int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
         int targetFrame = -1;
         int lastShakeFrame = 2;
@@ -738,7 +743,7 @@ internal static partial class Program
                 appliedFrames++;
                 lastShakeFrame = frame;
             }
-            emittedSounds += runtime.RoomLayer3Fx.SoundRequests.Count;
+            emittedSounds += EarthquakeSounds();
             if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseYPosition != initialY)
                 firstMovementFrame = frame;
             if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)

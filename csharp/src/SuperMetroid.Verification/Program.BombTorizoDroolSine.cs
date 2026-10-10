@@ -18,14 +18,14 @@ internal static partial class Program
                 spawn,
                 random,
                 parameter1: 0x4000,
-                expectedAngle: unchecked((byte)random),
+                expectedIndex: random & 0x01fe,
                 "full-circle left-facing");
             VerifyBombTorizoDroolSpawn(
                 rom,
                 spawn,
                 random,
                 parameter1: 0xc000,
-                expectedAngle: unchecked((byte)random),
+                expectedIndex: random & 0x01fe,
                 "full-circle right-facing");
         }
 
@@ -36,14 +36,14 @@ internal static partial class Program
                 spawn,
                 randomNibble,
                 parameter1: 0,
-                expectedAngle: unchecked((byte)(224 + randomNibble - 8)),
+                expectedIndex: (224 + randomNibble - 8) << 1,
                 "left-facing cone");
             VerifyBombTorizoDroolSpawn(
                 rom,
                 spawn,
                 randomNibble,
                 parameter1: 0x8000,
-                expectedAngle: unchecked((byte)(32 + randomNibble - 8)),
+                expectedIndex: (32 + randomNibble - 8) << 1,
                 "right-facing cone");
         }
 
@@ -56,7 +56,7 @@ internal static partial class Program
         MethodInfo spawn,
         int random,
         ushort parameter1,
-        byte expectedAngle,
+        int expectedIndex,
         string scenario)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -78,14 +78,14 @@ internal static partial class Program
         RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
         AssertTrue(projectile.IsActive,
             $"Bomb Torizo {scenario} random {random:X2} allocation");
+        // $86:A621/$A628 index the sign-extended sine and negative-cosine tables with the
+        // same word offset: X is the sine and Y the negative cosine of the drool angle.
         AssertEqual(
-            ReadBombTorizoDroolSineWord(
-                rom,
-                unchecked((byte)(expectedAngle + 64))),
+            ReadBombTorizoDroolWord(rom, EnemyMathReferenceData.SignedSine, expectedIndex),
             projectile.XVelocity,
             $"Bomb Torizo {scenario} random {random:X2} X velocity");
         AssertEqual(
-            ReadBombTorizoDroolSineWord(rom, expectedAngle),
+            ReadBombTorizoDroolWord(rom, EnemyMathReferenceData.SignedNegativeCosine, expectedIndex),
             projectile.YVelocity,
             $"Bomb Torizo {scenario} random {random:X2} Y velocity");
         AssertEqual(
@@ -94,11 +94,12 @@ internal static partial class Program
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 
-    private static ushort ReadBombTorizoDroolSineWord(
+    private static ushort ReadBombTorizoDroolWord(
         SuperMetroidAddressSpace rom,
-        byte angle)
+        int table,
+        int wordOffset)
     {
-        int address = EnemyMathReferenceData.SignedSine + angle * 2;
+        int address = table + wordOffset;
         return unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
     }
 
@@ -108,9 +109,9 @@ internal static partial class Program
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
-            address is >= 0xa0b443 and < 0xa0b643
+            address is >= 0xa0b3c3 and < 0xa0b643
                 ? throw new InvalidOperationException(
-                    $"Bomb Torizo drool attempted migrated sine read ${address:X6}.")
+                    $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.")
                 : source.ReadByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

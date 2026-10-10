@@ -338,11 +338,18 @@ internal static partial class Program
             enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-        var initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeCrocomireMeltingTilemap", flags)!
-            .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(enemies);
+        // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
+        string loader = sourceAddress == CrocomireMeltingArtworkAddresses.FirstTilemap
+            ? "LoadFirstCrocomireMeltingTilemap"
+            : sourceAddress == CrocomireMeltingArtworkAddresses.SecondTilemap
+                ? "LoadSecondCrocomireMeltingTilemap"
+                : throw new ArgumentOutOfRangeException(nameof(sourceAddress));
+        var initialize = typeof(RoomEnemySystem).GetMethod(loader, flags)!
+            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
 
-        initialize(state, sourceAddress, bodyInstructionList);
+        initialize(state);
+        AssertEqual(bodyInstructionList, state.Body.CurrentInstruction,
+            $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual((ushort)2, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         AssertEqual((ushort)48, death.PixelsToErasePerColumn,

@@ -20,6 +20,9 @@ internal static partial class Program
         int requests = 0;
         int nonzeroSamples = 0;
         int soundWrites = 0;
+        // SoundState_1 ($82:8A5E) rewrites the request until the APU acknowledges it, so one
+        // beep can reach port three on consecutive frames. Count requests, not port writes.
+        byte lastPort3 = 0;
         for (int frame = 0; frame < 500; frame++)
         {
             pause.AdvanceAnimations();
@@ -39,7 +42,12 @@ internal static partial class Program
                     continue;
                 }
                 player.WritePort(command.Port, command.Value);
-                if (command.Port == 3 && command.Value == SoundEffectLibrary3Sounds.MapPaletteLoop.Value) soundWrites++;
+                if (command.Port == 3)
+                {
+                    if (command.Value == SoundEffectLibrary3Sounds.MapPaletteLoop.Value && lastPort3 != command.Value)
+                        soundWrites++;
+                    lastPort3 = command.Value;
+                }
             }
             player.GenerateFrame(pcm);
             int audible = pcm.Count(sample => sample != 0);

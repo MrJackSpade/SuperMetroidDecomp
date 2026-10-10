@@ -254,7 +254,9 @@ static void VerifySamusAerialTurnsAndWallJump()
         bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
-    AssertEqual(0x7777, earlyContact.SolidVerticalCollisionResult,
+    // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
+    // result; only a triggered launch publishes the wall-jump result.
+    AssertTrue((earlyContact.SolidVerticalCollisionResult & 0xff) != SamusVerticalCollisionResults.WallJump,
         "early wall contact does not publish launch collision result");
 
     // Merely holding Jump after the eligible frame is still contact, not a launch. In
@@ -365,7 +367,10 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
     AssertEqual(3, wallDust.AnimationTimer, "wall dust begins with timer three");
     AssertEqual(eligible.XPosition - 6, wallDust.XPosition, "right-facing wall dust is six pixels behind Samus");
-    AssertEqual(eligible.Kinematics.BottomBoundary - 1, wallDust.YPosition, "wall dust is anchored at last occupied bottom pixel");
+    // $91:FA76 runs after the wall-jump pose is installed: Get_Samus_Bottom_Boundary uses
+    // that pose's radius (Y + radius - 1), not the spin radius still live in kinematics.
+    AssertEqual(eligible.YPosition + SamusState.ReadPoseYRadius(eligible.Pose) - 1, wallDust.YPosition,
+        "wall dust is anchored at last occupied bottom pixel");
     AssertEqual(0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
     AssertEqual(4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
     AssertEqual(0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");

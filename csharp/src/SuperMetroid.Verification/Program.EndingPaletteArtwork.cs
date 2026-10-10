@@ -315,8 +315,14 @@ internal static partial class Program
                 editedState.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new CartridgeAudioState();
                 var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
-                editedState.Step();
-                stockState.Step();
+                // The ending's setup dispatch loads the escape palette only after its own NMI
+                // waits; step through them so both images show the installed palette.
+                do
+                {
+                    editedState.Step();
+                    stockState.Step();
+                }
+                while (editedState.ResumesAfterNmiWait);
                 AssertTrue(!editedState.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
                         stockState.CaptureRenderSnapshot().Memory.Cgram) &&
                     editedState.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
